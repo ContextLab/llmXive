@@ -44,12 +44,14 @@
 **Purpose**: Explicitly document deviations from the Spec to satisfy scientific validity and plan constraints.
 
 1. **FR-005 Cross-Validation**: Spec requires "nested 5-fold cross-validation". Plan implements **Nested Leave-One-Subject-Out (LOSO)**.
- * *Justification*: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for robust generalization error estimation. [UNRESOLVED-CLAIM: c_f2d09458 — status=not_enough_info] LOSO is the standard for N=32 to maximize test set representation.
+ * *Justification*: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for robust generalization error estimation. [UNRESOLVED-CLAIM: c_c2779296 — status=not_enough_info] LOSO is the standard for N=32 to maximize test set representation (Plan: Complexity Tracking).
 2. **FR-005/FR-007 Model Strategy**: Spec mandates Random Forest for all variance analysis. Plan implements **Dual Model Strategy (Random Forest + Logistic Regression)**.
- * *Justification*: Nagelkerke's R² is mathematically undefined for Random Forests. [UNRESOLVED-CLAIM: c_6f3e8340 — status=not_enough_info] Logistic Regression is required to calculate this metric scientifically.
-3. **FR-001 Dataset URL**: Spec URL contained SSL error artifacts. Plan uses verified HuggingFace source (`emre-ozgür/DEAP-EMG`).
+ * *Justification*: Nagelkerke's R² is mathematically undefined for Random Forests. [UNRESOLVED-CLAIM: c_76fafa79 — status=not_enough_info] Logistic Regression is required to calculate this metric scientifically (Plan: Complexity Tracking).
+3. **FR-001 Dataset URL**: Spec URL contained SSL error artifacts (`certificate verify failed: unable to get local issuer certificate`). Plan uses verified HuggingFace source (`emre-ozgür/DEAP-EMG`) as the single source of truth.
 4. **FR-005 SVM Requirement**: Spec mandates SVM. Plan implements SVM, RF, and LogReg.
- * *Justification*: Plan retains SVM as per spec but adds RF for importance and LogReg for R² to satisfy all requirements simultaneously.
+ * *Justification*: Plan retains SVM as per spec but adds RF for importance and LogReg for R² to satisfy all requirements simultaneously. SVM is trained but excluded from the final model bundle.
+5. **FR-002 Notch Filter**: Spec mandates "50 Hz notch filter". Plan implements "50/60 Hz auto-detection".
+ * *Justification*: To ensure robustness against regional power grid variations (50Hz vs 60Hz) while maintaining signal integrity. This deviation is logged in `data/logs/deviation_log.json` and `code/report.py` to satisfy Constitution Principle VI (Signal Processing Integrity) which requires deviations to be justified.
 
 ---
 
@@ -74,9 +76,8 @@
 
 - [X] T004 Implement `code/config.py` with paths, hyperparameters, random seeds, and DEAP dataset metadata
 - [X] T005a [P] Create `code/download.py` to fetch the official DEAP dataset from the verified HuggingFace source (`emre-ozgür/DEAP-EMG`), extract specific EMG channels (corrugator, zygomaticus, orbicularis), and save to `data/raw/` (FR-001 part 1)
-- [X] T005c [P] Create `code/state_manager.py` stub file and initialize the `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml` structure (Constitution Principle V). This task creates the file structure and utility function signatures. (Constitution Principle V)
 - [X] T005d [P] Implement `code/state_manager.py` logic to load, update, and save the `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml` file, specifically the `artifact_hashes` key. (Constitution Principle V)
-- [ ] T005b [P] Implement checksum generation for downloaded DEAP dataset files and record the checksums in the project's `state` file at `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml` under the key `artifact_hashes` to satisfy FR-001 integrity validation (FR-001 part 2). **Depends on T005d** (state_manager implementation). (Constitution Principle III)
+- [ ] T005b Generate checksums for downloaded DEAP dataset files using **SHA-256** algorithm and record the checksums in the project's `state` file at `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml` under the key `artifact_hashes` to satisfy FR-001 integrity validation (FR-001 part 2). **Depends on T005d** (state_manager implementation). **Note**: This task is sequential (NOT [P]) due to shared state file updates. (Constitution Principle III)
 - [X] T006 [P] Create `code/preprocessing.py` stubs for filtering, windowing, and feature extraction logic (FR-002, FR-003, FR-004)
 - [X] T007 [P] Create `code/train.py` stub for nested LOSO pipeline and model bundling (FR-005)
 - [X] T008 [P] Create `code/importance.py` stub for permutation importance and SHAP analysis (FR-006)
@@ -105,14 +106,18 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement signal filtering in `code/preprocessing.py` (FR-002, FR-003): Apply a **10–500 Hz band-pass Butterworth filter** and a **50/60 Hz notch filter** (detecting the specific frequency from the dataset metadata or defaulting to 50 Hz if unspecified) to raw EMG signals, followed by baseline correction using the pre-stimulus interval.
+- [X] T015 [US1] Implement signal filtering in `code/preprocessing.py` (FR-002, FR-003): Apply a **10–500 Hz band-pass Butterworth filter** and a **50/60 Hz notch filter** (detecting the specific frequency from the dataset metadata or defaulting to 50 Hz if unspecified) to raw EMG signals, followed by baseline correction using the pre-stimulus interval. **Deviation Note**: See Plan Deviation Log #5 for justification of auto-detection vs strict 50Hz spec.
 - [X] T016 [US1] Implement non-overlapping short-duration windowing and feature extraction (RMS, ZCR, WAMP, MAV) for 3 muscles in `code/preprocessing.py` (FR-004)
-- [X] T017a [US1] Implement global data check for 'Skewed Valence Scores' (Edge Case: Skewed Valence) to detect subjects with all scores > 5 or < 5 and **exclude them from ALL folds (training and testing)** in `code/preprocessing.py`. Log the exclusion reason and subject ID. **Do not retain them for testing**; remove from dataset entirely to prevent bias.
-- [ ] T018 [US1] Implement missing channel handling in `code/preprocessing.py` (Edge Case: Missing Channels): If a specific EMG channel is missing for a subject (detected via NaN values or empty file), **exclude that specific channel's features** from the feature matrix for that subject (do not impute). If a subject has NO valid channels, exclude the subject entirely. **Create `data/processed/` directory if missing** and write to `data/processed/exclusions.log` a CSV log of all excluded subjects/channels with columns: `subject_id, channel, reason`. Log this to the final report in `code/report.py`.
-- [X] T019 [US1] **Implement and execute** Nested Leave-One-Subject-Out (LOSO) cross-validation loop with **Parallelize outer LOSO folds (n_jobs=4)** to match the Plan's Compute Optimization Strategy for 6-hour runtime compliance, with **sequential subject processing and immediate memory flushing** to ensure peak RAM < 7 GB (FR-010). **Includes global exclusion logic**: Subjects flagged by T017a (skewed valence) are excluded from the dataset before the loop; subjects with missing channels (T018) are handled per-subject. **Includes model training**: Train **Support Vector Machine (linear kernel)**, **Random Forest (n_estimators=100)**, AND **Logistic Regression** within the loop with strict subject-level isolation. [Deviation: FR-005 '5-fold' -> LOSO per Plan Complexity Tracking].
-- [ ] T021 [US1] Implement window-level prediction aggregation via **majority voting** to produce subject-level labels and save results to `data/processed/aggregated_labels.csv` in `code/train.py`
-- [ ] T022 [US1] Save `model_bundle.pkl` containing **BOTH the trained Random Forest AND Logistic Regression models** (SVM is excluded from bundle as it is not needed for downstream importance/R² tasks) to `data/models/` and implement memory flushing (delete intermediate features per subject) to stay <7GB RAM (FR-010). **Ensure the bundle is loadable by subsequent scripts (`importance.py`, `validate.py`) without re-training.** [Deviation: Plan Dual Model Strategy for FR-007].
-- [ ] T023 [US1] Calculate and log **fold-level** cross-validated accuracy against majority class baseline and perform a **permutation test (1000 shuffles)** and **paired t-test (paired on fold-level accuracies)** against the label-shuffled baseline (p < 0.05) in `code/validate.py` (SC-001) (Constitution Principle VII). **Depends on T022** (Model Bundle). **Scope**: This task performs validation per fold; global aggregation is handled in T034.
+- [ ] T017a [US1] Implement global data check for 'Skewed Valence Scores' (Edge Case: Skewed Valence) to detect subjects with all scores > 5 or < 5 in `code/preprocessing.py`. **Output Artifact**: Write `data/processed/filtered_subjects.csv` containing the list of valid subject IDs. Log the exclusion reason and subject ID to `data/processed/exclusions.log`. **Do not retain them for testing**; remove from dataset entirely to prevent bias.
+- [ ] T017b [US1] Implement exclusion logic for T017a to **exclude flagged subjects from ALL folds (training and testing)** in `code/preprocessing.py`. **Dependency**: Must ensure `data/processed/filtered_subjects.csv` is generated before T019 starts.
+- [ ] T017c [US1] Implement logging and reporting for T017a/b: Write exclusions to `data/processed/exclusions.log` and ensure `code/report.py` reads this log for the final report.
+- [X] T018 [US1] Implement missing channel handling in `code/preprocessing.py` (Edge Case: Missing Channels): If a specific EMG channel is missing for a subject (detected via NaN values or empty file), **exclude that specific channel's features** from the feature matrix for that subject (do not impute). If a subject has NO valid channels, exclude the subject entirely. **Create `data/processed/` directory if missing** and write to `data/processed/exclusions.log` a CSV log of all excluded subjects/channels with columns: `subject_id,channel,reason` (delimiter: `,`). Log this to the final report in `code/report.py`.
+- [ ] T019 [US1] **Implement and execute** Nested Leave-One-Subject-Out (LOSO) cross-validation loop with **Parallelize outer LOSO folds (n_jobs=4)** to match the Plan's Compute Optimization Strategy for 6-hour runtime compliance, with **strict subject-level isolation**. **Input**: Read `data/processed/filtered_subjects.csv` (from T017a) to ensure excluded subjects are not in the loop. **Includes model training**: Train **Support Vector Machine (linear kernel)**, **Random Forest (n_estimators=100)**, AND **Logistic Regression** within the loop. [Deviation: FR-005 '5-fold' -> LOSO per Plan Complexity Tracking]. **Traceability**: Explicitly log the Plan Deviation Log ID (e.g., "Deviation #1") and justification string to `data/logs/deviation_log.json` to satisfy constraint preservation. **Prerequisite**: T017a/b must complete and produce `filtered_subjects.csv`.
+- [ ] T019b [US1] **Implement and verify** memory flushing logic in `code/train.py`: Ensure intermediate feature matrices are **deleted immediately after each subject** is processed within the parallelized loop to ensure peak RAM < 7 GB (FR-010). **Verification**: Use `psutil` to monitor the peak RSS of the **main process** after the parallel loop completes (NOT inside workers). Write the total runtime duration and estimated peak RAM usage to `data/logs/runtime_log.json`. **Failure Mode**: If `peak_ram_mb > 7000`, the script must `raise RuntimeError` and exit with code 1. **Note**: This task is sequential (NOT [P]) as it monitors the main process. [Deviation: FR-010 memory constraint].
+- [X] T021 [US1] Implement window-level prediction aggregation via **majority voting** to produce subject-level labels and save results to `data/processed/aggregated_labels.csv` in `code/train.py`. **Output Format**: CSV with columns `subject_id` (int), `predicted_label` (int). **Verification**: Verify file exists and contains N rows where N = number of subjects.
+- [X] T022 [US1] Save `model_bundle.pkl` containing **BOTH the trained Random Forest AND Logistic Regression models** (SVM is excluded from bundle as it is not needed for downstream importance/R² tasks) to `data/models/` and implement memory flushing (delete intermediate features per subject) to stay <7GB RAM (FR-010). **Ensure the bundle is loadable by subsequent scripts (`importance.py`, `validate.py`) without re-training.** [Deviation: Plan Dual Model Strategy for FR-007].
+- [X] T022b [US1] **Explicitly discard** the trained SVM model weights after fold evaluation in `code/train.py` to ensure they are **not** included in `model_bundle.pkl` or saved to disk, preventing memory bloat and adhering to the Plan's Dual Model Strategy.
+- [ ] T023 [US1] **Global Statistical Validation**: **Aggregate** fold-level results from T019 to compute the **global subject-level accuracy distribution**. **Perform** a **Permutation Test (1000 shuffles)** by re-running the LOSO loop (or a fast subject-level approximation) 1000 times with shuffled subject labels to generate a null distribution of accuracies. **Perform** a **Paired T-Test** comparing the vector of observed subject-level accuracies against the null distribution to satisfy FR-008 and SC-001. **Output Artifact**: Save `validation_results.json` to `data/logs/` containing keys: `global_accuracy`, `p_value`, `t_statistic`, `effect_size` (Cohen's d), `confidence_interval`, `observed_subject_accuracies` (array), and `null_distribution` (array). **Note**: This task is sequential (NOT [P]) as it performs global aggregation and statistical testing. **Depends on T022** (Model Bundle). **Scope**: This task performs the FINAL global validation required by FR-008. **Replaces T034/T035** to resolve dependency gaps.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -134,7 +139,8 @@
 - [ ] T026 [US2] Implement permutation importance calculation grouped by muscle origin, explicitly **loading the Random Forest model from `model_bundle.pkl`**, in `code/importance.py` (FR-006) [Depends: T022]
 - [ ] T027 [US2] Implement SHAP value calculation for **Random Forest model** (loaded from `model_bundle.pkl`) and generate summary plots in `code/importance.py` (FR-006) [Depends: T022]
 - [ ] T028 [US2] Implement hierarchical model fitting sequence (Corrugator → +Zygomaticus → +Orbicularis) in `code/importance.py` (FR-007)
-- [ ] T029 [US2] Train Logistic Regression models on hierarchical feature subsets (from T019/T022) in `code/importance.py` (FR-007) [Depends: T019, T022] [Deviation: FR-007 'RF only' -> Dual Model Strategy per Plan]. **Deliverable**: Calculate and log Nagelkerke's R² change for each step (Corrugator vs Baseline, +Zygomaticus vs Corrugator, etc.) and **calculate confidence intervals via bootstrap (1000 iterations)** for each R² change.
+- [ ] T029 [US2] Train Logistic Regression models on hierarchical feature subsets (from T019/T022) in `code/importance.py` (FR-007) [Depends: T019] [Deviation: FR-007 'RF only' -> Dual Model Strategy per Plan]. **Deliverable**: Calculate and log Nagelkerke's R² change for each step (Corrugator vs Baseline, +Zygomaticus vs Corrugator, etc.) and **calculate confidence intervals via bootstrap (1000 iterations, percentile method)** for each R² change. **Constraint**: Ensure Logistic Regression models are trained on the **exact same** hierarchical feature subsets as the Random Forest models used for importance analysis to ensure comparability.
+- [ ] T029b [US2] **Explicitly calculate and log** the delta (R²_full - R²_baseline) for each hierarchical step in `code/importance.py` and `code/report.py`. **Output Format**: Table with columns `step`, `r2_baseline`, `r2_full`, `delta_r2`, `ci_lower`, `ci_upper`. [Deviation: FR-007 'RF only' -> Dual Model Strategy per Plan].
 - [ ] T031 [US2] Generate report output listing top features, muscle group contributions, and R² changes with CIs in `code/report.py` (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -154,12 +160,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T034 [P] [US3] Implement **global** Permutation Test (1000 shuffles) comparing observed accuracy vs. label-shuffled baseline (aggregating fold-level results from T023) in `code/validate.py` (FR-008)
-- [ ] T035 [US3] Implement **global** Paired T-Test against label-shuffled baseline (aggregating fold-level results from T023) in `code/validate.py` (FR-008)
-- [ ] T036 [US3] Calculate and report Cohen's d effect size in `code/report.py` (SC-005)
-- [ ] T037 [US3] Implement sensitivity analysis sweeping the valence binarization threshold over the **specific values {4.9, 5.0, 5.1}** required by FR-009 and SC-003 in `code/validate.py` (FR-009)
+- [X] T034 [US3] **REMOVED**: Global Permutation Test logic has been moved to T023 to resolve dependency gaps. This task is now obsolete.
+- [X] T035 [US3] **REMOVED**: Global Paired T-Test logic has been moved to T023 to resolve dependency gaps. This task is now obsolete.
+- [ ] T036 [US3] Calculate and report Cohen's d effect size in `code/report.py` (SC-005) **Note**: Read `p_value` and `t_statistic` from `data/logs/validation_results.json` (produced by T023).
+- [ ] T037 [US3] Implement sensitivity analysis sweeping the valence binarization threshold over the **specific values {4.9, 5.0, 5.1}** required by FR-009 and SC-003 in `code/validate.py` (FR-009). **Output Artifact**: `sensitivity_analysis.csv` with columns `threshold`, `accuracy`, `variation_from_baseline`. **Verification**: Verify file exists and contains a minimal set of rows.
 - [ ] T038 [US3] Generate sensitivity report showing accuracy variation (<3% threshold) in `code/report.py` (SC-003)
-- [ ] T039 [US3] Generate final `paper.md`/report explicitly stating findings are associational (no causal claims), listing all metrics (p-values, d, R², sensitivity), and **explicitly logging all exclusions (missing channels, skewed subjects)** by reading `data/processed/exclusions.log` (SC-004, Edge Cases)
+- [ ] T039 [US3] Generate final `paper.md`/report explicitly stating findings are associational (no causal claims), listing all metrics (p-values, d, R², sensitivity), and **explicitly logging all exclusions (missing channels, skewed subjects)** by reading `data/processed/exclusions.log`. **Performance Metrics**: Read `runtime_log.json` (from T019b) and include `runtime_duration` and `peak_ram_usage` in the report to satisfy SC-004. **Data Source**: Read `validation_results.json` (from T023) for global stats.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -195,7 +201,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on trained Random Forest model from US1 (T022)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on cross-validation results from US1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on cross-validation results from US1 (T023)
 
 ### Within Each User Story
 
@@ -270,9 +276,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only GitHub Actions (limited CPU resources, 7GB RAM, 6h limit). No GPU, no 8-bit quantization, no large models.
+- **Critical Constraint**: All tasks must run on CPU-only GitHub Actions (limited CPU resources, constrained RAM, 6h limit). No GPU, no 8-bit quantization, no large models.
 - **Data Integrity**: Never fabricate data. Use real DEAP dataset via `download.py` from HuggingFace.
 - **Memory Management**: Process subjects sequentially in training loop; delete intermediate features immediately.
 - **Deviation Markers**: Tasks with [Deviation: FR-XX] explicitly override spec requirements per Plan justification.
 - **State File**: `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml` is the single source of truth for artifact hashes.
 - **Exclusions Log**: `data/processed/exclusions.log` is the persistent location for exclusion records.
+- **Removed Tasks**: T034, T035 removed to resolve logical redundancy and data structure mismatches in statistical validation. Logic consolidated into T023.
