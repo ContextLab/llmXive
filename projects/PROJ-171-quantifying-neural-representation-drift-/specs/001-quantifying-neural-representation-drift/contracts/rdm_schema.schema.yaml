@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RDMOutputSchema"
+description: "Schema for the Representational Dissimilarity Matrix output."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Subject identifier."
+  metric_type:
+    type: "string"
+    description: "Distance metric used (e.g., 'pearson', 'cosine')."
+  rdm_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Flattened upper triangle of the RDM."
+  rdm_shape:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Dimensions of the square RDM (e.g., [5, 5])."
+  days:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of day indices corresponding to rows/cols."
+required:
+  - subject_id
+  - metric_type
+  - rdm_values
+  - rdm_shape
+  - days
+additionalProperties: false

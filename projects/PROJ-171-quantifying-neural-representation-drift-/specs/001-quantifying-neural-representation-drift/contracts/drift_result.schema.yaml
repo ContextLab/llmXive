@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DriftResult"
+description: "Schema for the extracted drift rate and model fit statistics."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  drift_rate_b:
+    type: "number"
+    description: "The slope of the linear drift model (primary metric)."
+  intercept_a:
+    type: "number"
+    description: "The intercept of the linear drift model."
+  r_squared:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "R-squared value of the linear fit."
+  model_type:
+    type: "string"
+    enum:
+      - "linear"
+      - "exponential"
+      - "constant"
+    description: "Type of model used for fitting."
+  convergence_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed_fallback"
+    description: "Status of the model fitting process."
+  stability_threshold:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Stability threshold used for unit filtering."
+  distance_metric:
+    type: "string"
+    enum:
+      - "pearson"
+      - "cosine"
+      - "mahalanobis"
+    description: "Distance metric used for RDM calculation."
+  standard_error:
+    type: "number"
+    description: "Standard error of the drift rate estimate."
+required:
+  - subject_id
+  - drift_rate_b
+  - model_type
+  - convergence_status
+  - stability_threshold
+  - distance_metric
+  - standard_error

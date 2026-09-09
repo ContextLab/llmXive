@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NeuralPopulationMatrix"
+description: "Schema for the processed neural population activity matrix per day."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  day_index:
+    type: "integer"
+    description: "Training day index (0-based)."
+  unit_ids:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of unit IDs included in this matrix (filtered for stability)."
+  data_shape:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+    description: "Shape of the data array [Units, Conditions/Bins]."
+  excluded_units:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        unit_id:
+          type: "string"
+        reason:
+          type: "string"
+          enum:
+            - "low_presence"
+            - "performance_modulated"
+      required:
+        - unit_id
+        - reason
+    description: "List of units excluded and the reason."
+  stability_threshold:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The stability threshold used (e.g., 0.80)."
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of the data array."
+required:
+  - subject_id
+  - day_index
+  - unit_ids
+  - data_shape
+  - excluded_units
+  - stability_threshold
+  - checksum

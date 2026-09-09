@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DriftAnalysisOutputSchema"
+description: "Schema for final drift rates and correlation results."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Subject identifier."
+  drift_rate:
+    type: "number"
+    description: "Decay constant b from exponential fit (drift rate)."
+  drift_std_error:
+    type: "number"
+    description: "Standard error of the drift rate."
+  r_squared:
+    type: "number"
+    description: "R-squared of the exponential fit."
+  model_type:
+    type: "string"
+    enum: ["exponential", "non_drifting"]
+    description: "Type of model fitted."
+  n_units:
+    type: "integer"
+    description: "Number of stable units included."
+  n_days:
+    type: "integer"
+    description: "Number of days analyzed."
+  learning_speed:
+    type: "number"
+    description: "Time to reach success threshold (days)."
+  correlation_results:
+    type: "object"
+    properties:
+      pearson_r:
+        type: "number"
+        description: "Correlation coefficient between drift and learning."
+      p_value:
+        type: "number"
+        description: "P-value from permutation test."
+      corrected_p_value:
+        type: "number"
+        description: "P-value after Bonferroni correction."
+      lmm_fixed_effect:
+        type: "number"
+        description: "Fixed effect coefficient from LMM."
+      lmm_p_value:
+        type: "number"
+        description: "P-value for LMM fixed effect."
+    required:
+      - pearson_r
+      - p_value
+      - lmm_fixed_effect
+  robustness:
+    type: "object"
+    properties:
+      variance_across_metrics:
+        type: "number"
+        description: "Variance of drift rates across Pearson, Cosine, Mahalanobis."
+      sensitivity_range:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            drift_rate:
+              type: "number"
+      robustness_variance_threshold:
+        type: "number"
+        description: "Maximum allowed variation in drift rate across thresholds (target: 0.10)."
+    required:
+      - variance_across_metrics
+      - robustness_variance_threshold
+required:
+  - subject_id
+  - drift_rate
+  - drift_std_error
+  - learning_speed
+  - correlation_results
+  - robustness
+additionalProperties: false
+

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InputDataSchema"
+description: "Schema for raw electrophysiology and behavioral data ingestion."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  session_id:
+    type: "string"
+    description: "Unique identifier for the session/day."
+  day_index:
+    type: "integer"
+    description: "Sequential day number (0, 1, 2...)."
+  spike_counts:
+    type: "array"
+    items:
+      type: "number"
+    description: "Array of spike counts per unit per condition."
+  behavioral_success:
+    type: "number"
+    description: "Success rate (0.0 to 1.0) for the session."
+  trial_data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        trial_id:
+          type: "string"
+        success:
+          type: "boolean"
+        response_time:
+          type: "number"
+    description: "Optional: Trial-level details for fine-grained analysis."
+required:
+  - subject_id
+  - session_id
+  - day_index
+  - spike_counts
+  - behavioral_success
+additionalProperties: true

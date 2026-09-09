@@ -1,19 +1,19 @@
 status: none
-intent: "Allen Institute Neuropixels and CRCNS multi\u2011day electrophysiology behavioral\
-  \ logs python package dataset"
+intent: download openneuro electrophysiology behavioral recordings spikeinterface
+  neurodata without borders python package dataset
 required_fields:
+- subject_id
+- session_date
 - unit_id
-- session_id
-- day
 - spike_times
 - spike_counts
 - trial_id
-- event_times
-- stimulus
-- response
-- behavioral_metrics
-- recording_quality
-- unit_stability_flag
-cache_key: 392f8d1cf66580063c5e2b9d051709d7202aadc2286578c4350085de06e4e32a
-searched_at: '2026-09-05T15:19:32.760463+00:00'
+- event_onset
+- event_offset
+- stimulus_type
+- behavioral_response
+- outcome
+- sampling_rate
+cache_key: 2dbd71a55e91789c26c74932aca07abb3bb33af8f18e5f4d55e05f38ddd3d507
+searched_at: '2026-09-09T10:00:40.186902+00:00'
 retry_count: 1

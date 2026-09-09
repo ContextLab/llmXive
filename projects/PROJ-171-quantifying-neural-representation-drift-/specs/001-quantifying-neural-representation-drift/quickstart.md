@@ -1,52 +1,84 @@
-# Quickstart: Quantifying Neural Representation Drift
+# Quickstart: Quantifying Neural Representation Drift During Skill Learning
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (or local environment with 2 CPU cores, 7 GB RAM).
+- CPU cores, GB RAM (GitHub Actions free-tier compatible)
+- Internet access (for downloading OpenNeuro dataset)
 
 ## Installation
 
-1.  Clone the repository and navigate to the project directory.
-2.  Install dependencies:
-    ```bash
-    cd projects/PROJ-171-quantifying-neural-representation-drift-/code
-    pip install -r requirements.txt
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-171-quantifying-neural-representation-drift-/code
+ ```
+
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: `requirements.txt` pins all versions for reproducibility (Constitution I).*
+
+## Data Setup
+
+The pipeline automatically downloads the OpenNeuro dataset from the verified HuggingFace source.
+
+```bash
+# This command triggers the download and validation
+python -m src.data.loader --verify-only
+```
+
+- **Verified Source**: `
+- **Checksum**: Recorded in `data/raw/checksums.txt` (Constitution III).
 
 ## Running the Pipeline
 
-The pipeline is designed to run on **synthetic data** by default, as no verified real-world dataset with the required variables exists.
+Execute the full analysis pipeline:
 
-### 1. Generate Synthetic Data
 ```bash
-python -m code.data_ingestion --mode=synthetic --seed=42 --subjects=20 --days=10
+python -m src.main --config config/default.yaml
 ```
-*This creates `data/derived/synthetic_data.parquet` with known ground-truth drift parameters.*
 
-### 2. Run Drift Analysis
+**What happens**:
+1. **Ingest**: Downloads and streams OpenNeuro data.
+2. **Preprocess**: Filters units (≥80% stability), excludes performance-modulated neurons, imputes missing behavior.
+3. **Drift**: Computes RDMs, fits linear model (`drift(t) = a + b·t`), extracts `b`.
+4. **Correlate**: Runs permutation test and LMM to correlate `b` with learning speed.
+5. **Validate**: Performs sensitivity analysis (threshold sweep, metric comparison).
+6. **Output**: Generates plots and CSV results in `data/results/` and `docs/paper/`.
+
+## Verification (Synthetic Ground Truth)
+
+To verify the drift quantification accuracy (SC-001):
+
 ```bash
-python -m code.main --input=data/derived/synthetic_data.parquet --output=data/artifacts/results.json
+python -m src.validation.synthetic --generate --validate
 ```
-*This executes the full pipeline: unit filtering, RDM computation, drift rate fitting, and correlation analysis.*
 
-### 3. Run Robustness Checks
+- Generates synthetic data with known drift rate `b`.
+- Runs the pipeline.
+- Checks if recovered `b` is within 5% error of ground truth.
+
+## Sensitivity Analysis
+
+To run the threshold sweep (FR-008):
+
 ```bash
-python -m code.robustness --input=data/derived/synthetic_data.parquet --metrics="pearson,cosine,mahalanobis"
+python -m src.validation.sensitivity --thresholds 0.70 0.75 0.80 0.85 0.90
 ```
-*This sweeps distance metrics and unit stability thresholds.*
 
-## Testing
+- Sweeps stability thresholds.
+- Outputs `docs/paper/fig_sensitivity_thresholds.png`.
 
-Run the unit tests to verify the pipeline against synthetic ground truth:
-```bash
-pytest tests/unit/ -v
-```
-*Tests verify that the recovered drift rate `b` matches the synthetic ground truth within 5% error.*
+## Troubleshooting
 
-## Output Artifacts
-
-- `data/artifacts/results.json`: Final drift rates and correlation statistics.
-- `data/artifacts/plots/drift_vs_learning.png`: Visualization of the correlation.
-- `data/artifacts/plots/robustness_sweep.png`: Sensitivity analysis plots.
+- **Missing Variables**: If the pipeline halts with `RuntimeError: Missing variable 'spike_counts'`, ensure the OpenNeuro dataset is correctly downloaded and contains the required columns.
+- **Memory Error**: If `MemoryError` occurs, ensure `streaming=True` is used in `loader.py` and that intermediate matrices are not loaded entirely into memory.
+- **Convergence Warning**: If `drift_rate_b` is flagged as "non-drifting", check the raw data for flat activity or insufficient days.
