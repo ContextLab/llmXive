@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-15T09:17:05Z",
+  "fetched_at": "2026-09-09T12:27:50Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Gemma 4 Technical Report\"",
       "target_n": 5
     },
-    "duration_seconds": 53.521,
-    "ended_at": "2026-08-15T09:17:05Z",
+    "duration_seconds": 61.793,
+    "ended_at": "2026-09-09T12:27:50Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Gemma 4 large language model linguistic analysis"
+          "Gemma 4 linguistic capabilities analysis"
         ],
         [
           2,
-          "Gemma 4 natural language processing capabilities"
+          "large language model linguistic evaluation"
         ],
         [
           3,
-          "Large language model linguistic evaluation benchmarks"
+          "Gemma 4 natural language processing performance"
         ],
         [
           4,
-          "Generative AI linguistic performance metrics"
+          "generative AI linguistic feature extraction"
         ],
         [
           5,
-          "Transformer-based language model syntax and semantics"
+          "LLM syntactic and semantic understanding"
         ],
         [
           6,
-          "LLM morphological and syntactic understanding"
+          "Gemma 4 corpus linguistics study"
         ],
         [
           7,
-          "Neural language model linguistic generalization"
+          "foundation model language acquisition patterns"
         ],
         [
           8,
-          "Foundation model linguistic reasoning evaluation"
+          "large language model morphological analysis"
         ],
         [
           9,
-          "Gemma architecture language comprehension"
+          "Gemma 4 discourse analysis and pragmatics"
         ],
         [
           10,
-          "Large-scale language model linguistic benchmarks"
+          "neural language model linguistic typology"
         ],
         [
           11,
-          "AI language model semantic fluency analysis"
+          "LLM cross-lingual linguistic transfer"
         ],
         [
           12,
-          "Pre-trained language model linguistic features"
+          "generative model linguistic bias assessment"
         ],
         [
           13,
-          "LLM discourse and pragmatics evaluation"
+          "Gemma 4 grammatical error detection"
         ],
         [
           14,
-          "Generative model linguistic diversity metrics"
+          "large language model discourse coherence"
         ],
         [
           15,
-          "Transformer attention mechanisms in language processing"
+          "LLM semantic role labeling performance"
         ],
         [
           16,
-          "LLM linguistic robustness and error analysis"
+          "Gemma 4 stylistic variation analysis"
         ],
         [
           17,
-          "Natural language generation linguistic quality assessment"
+          "transformer-based linguistic modeling"
         ],
         [
           18,
-          "Large language model cross-lingual linguistic transfer"
+          "LLM linguistic generalization benchmarks"
         ],
         [
           19,
-          "Neural network linguistic representation learning"
+          "Gemma 4 conversational linguistics"
         ],
         [
           20,
-          "AI text generation linguistic coherence evaluation"
+          "large language model linguistic robustness"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Gemma 4 large language model linguistic analysis": 4,
-        "Gemma 4 natural language processing capabilities": 5,
+        "Gemma 4 linguistic capabilities analysis": 4,
         "llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics": 0
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 1
     },
     "extracted_queries": [
-      "model memorization data contamination linguistic evaluation",
-      "Gemma model linguistic capabilities syntax semantics",
-      "instruction tuning generalization linguistic benchmarks",
-      "perplexity held-out corpus linguistic feature analysis",
-      "emergent abilities scaling laws language understanding"
+      "model collapse training data contamination",
+      "Gemma 4 multilingual corpus statistics",
+      "linguistic typology low-resource language benchmarks",
+      "perplexity syntactic complexity evaluation",
+      "emergent linguistic abilities scaling laws"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,56 +120,31 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2403.08295"
+        "2503.19786"
       ]
     },
     "per_query_hit_count": {
-      "Gemma model linguistic capabilities syntax semantics": 3,
-      "emergent abilities scaling laws language understanding": 3,
-      "instruction tuning generalization linguistic benchmarks": 3,
+      "Gemma 4 multilingual corpus statistics": 3,
+      "emergent linguistic abilities scaling laws": 3,
+      "linguistic typology low-resource language benchmarks": 3,
       "llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics": 3,
-      "model memorization data contamination linguistic evaluation": 3,
-      "perplexity held-out corpus linguistic feature analysis": 3
+      "model collapse training data contamination": 3,
+      "perplexity syntactic complexity evaluation": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 6,
+      "rejected_count": 1,
       "rejections": [
         {
-          "primary_pointer": "2404.01331",
-          "rationale": "The paper focuses on multimodal architecture engineering (LLaVA framework, image backbones, connector pretraining) rather than the \"linguistics\" or specific linguistic properties of the Gemma model that the user's question targets. While it uses Gemma models, it does not measure linguistic mechanisms, analyze linguistic phenomena, or provide a foundational reference for the linguistic extension of Gemma, failing to satisfy criteria (a) through (f) for inclusion in a literature review on this spe",
-          "title": "LLaVA-Gemma: Accelerating Multimodal Foundation Models with a Compact Language Model"
-        },
-        {
-          "primary_pointer": "2110.10780",
-          "rationale": "The paper focuses on a clinical NLP development framework for electronic health records (EHR) and does not address the user's specific question regarding the linguistics of the \"Gemma 4\" model or the \"llmXive\" follow-up. It fails all inclusion criteria (a-f) as it studies a different domain (clinical data vs. general LLM linguistics), different mechanisms (framework usability vs. model linguistic properties), and lacks any connection to the specific model or research line mentioned by the user.",
-          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)"
-        },
-        {
-          "primary_pointer": "2306.06371",
-          "rationale": "The paper focuses on Java code generation from natural language, which is a distinct application domain from the user's question regarding the linguistic analysis of the \"Gemma 4\" model. While both involve LLMs, the paper does not measure the same biological/algorithmic mechanism, share the same empirical population (Gemma 4), or provide a foundational baseline for the specific \"llmXive follow-up\" linguistics inquiry, thus failing criteria (a) through (f).",
-          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text"
-        },
-        {
-          "primary_pointer": "2006.16212",
-          "rationale": "The paper focuses on unsupervised morphological processing for a low-resource language (Tangkhul) and does not measure LLM mechanisms, linguistic properties of Gemma models, or the specific technical report extensions requested. It fails all inclusion criteria (a-f) as it addresses a distinct NLP task on a different domain without establishing a baseline, methodology, or mechanism relevant to the user's question about LLM linguistics.",
-          "title": "Towards the Study of Morphological Processing of the Tangkhul Language"
-        },
-        {
-          "primary_pointer": "2103.14757",
-          "rationale": "The paper focuses on a specific application of NLP for generating multiple-choice questions from lesson materials, which is a distinct construct from the user's question about extending the linguistic analysis of the \"Gemma 4 Technical Report\" or the \"llmXive\" follow-up. It does not measure the same biological/algorithmic mechanisms, share the same empirical population (Gemma 4 models), or provide a foundational methodology for the specific linguistic evaluation of large language models describe",
-          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques"
-        },
-        {
-          "primary_pointer": "2408.13040",
-          "rationale": "The paper focuses on prompting techniques for speech language models and speech processing tasks, which is a distinct domain from the user's specific interest in the linguistic analysis and technical report of the \"Gemma 4\" text-based LLM. It does not measure the same biological/algorithmic mechanism, share the same empirical population (text vs. speech), or serve as a foundational reference for the specific \"Gemma 4\" linguistics follow-up requested.",
-          "title": "SpeechPrompt: Prompting Speech Language Models for Speech Processing Tasks"
+          "primary_pointer": "1905.01896",
+          "rationale": "The paper is a theoretical review of distributional semantics in computational linguistics and does not measure the specific mechanisms, variables, or empirical properties of the \"Gemma 4\" model or the \"llmXive\" follow-up context requested by the user. It fails to satisfy any inclusion criteria (a-f) because it lacks the specific model focus, empirical data on Gemma 4, or the specific \"llmXive\" framework, and instead addresses a broad, general subfield of linguistics.",
+          "title": "Distributional Semantics and Linguistic Theory"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-15T09:16:11Z",
+    "started_at": "2026-09-09T12:26:48Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"gemma 4 technical report\" linguistics",
       "raw": "llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics"
@@ -190,7 +164,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -207,7 +181,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -223,7 +197,7 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -255,7 +229,29 @@
           "primary_pointer": "1204.3055"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -273,318 +269,205 @@
           "primary_pointer": "1907.02664"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models pretrained on extensive web corpora demonstrate remarkable performance across a wide range of downstream tasks. However, a growing concern is data contamination, where evaluation datasets may be contained in the pretraining corpus, inflating model performance. Decontamination, the process of detecting and removing such data, is a potential solution; yet these contaminants may originate from altered versions of the test set, evading detection during decontamination. How different types of contamination impact the performance of language models on downstream tasks is not fully understood. We present a taxonomy that categorizes the various types of contamination encountered by LLMs during the pretraining phase and identify which types pose the highest risk. We analyze the impact of contamination on two key NLP tasks -- summarization and question answering -- revealing how different types of contamination influence task performance during evaluation.",
+          "claimed_abstract": "Inelastic neutron scattering measurements demonstrate that the magnetic interactions in antiferromagnetic LaFeAsO are two-dimensional. Spin wave velocities within the Fe layer and the magnitude of the spin gap are similar to the \\textit{A}Fe$_2$As$_2$ based materials. However, the ratio of interlayer and intralayer exchange is found to be less than $\\sim 10^{-4}$ in LaFeAsO, very similar to the cuprates, and $\\sim$ 100 times smaller than that found in \\textit{A}Fe$_2$As$_2$ compounds. The results suggest that the effective dimensionality of the magnetic system is highly variable in the parent compounds of the iron arsenides and weak 3-D interactions may limit the maximum attainable superconducting $T_{c}$.",
           "claimed_authors": [
-            "Medha Palavalli",
-            "Amanda Bertsch",
-            "Matthew R. Gormley"
+            "M. Ramazanoglu",
+            " 1",
+            "2 J. Lamsal",
+            " 1",
+            "2 G. S. Tucker",
+            " 1",
+            "2 J. -Q. Yan",
+            "3 S. Calder",
+            "3 T. Guidi",
+            "4 T. Perring",
+            "4 R. W. McCallum",
+            " 1",
+            "2 T. A. Lograsso",
+            " 1",
+            "2 A. Kreyssig",
+            " 1",
+            "2 A. I. Goldman",
+            " 1",
+            " 2",
+            "R. J. McQueeney1",
+            "2 1",
+            " 2",
+            " 3",
+            " 4"
           ],
-          "claimed_title": "A Taxonomy for Data Contamination in Large Language Models",
+          "claimed_title": "Two-dimensional magnetic interactions in LaFeAsO",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.08716"
+          "claimed_year": 2013,
+          "primary_pointer": "1303.4033"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='A Taxonomy for Data Contamination in Large Language Models')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Two-dimensional magnetic interactions in LaFeAsO')",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Distributional semantics provides multi-dimensional, graded, empirically induced word representations that successfully capture many aspects of meaning in natural languages, as shown in a large body of work in computational linguistics; yet, its impact in theoretical linguistics has so far been limited. This review provides a critical discussion of the literature on distributional semantics, with an emphasis on methods and results that are of relevance for theoretical linguistics, in three areas: semantic change, polysemy and composition, and the grammar-semantics interface (specifically, the interface of semantics with syntax and with derivational morphology). The review aims at fostering greater cross-fertilization of theoretical and computational approaches to language, as a means to advance our collective knowledge of how it works.",
+          "claimed_abstract": "Pretrained multilingual language models have become a common tool in transferring NLP capabilities to low-resource languages, often with adaptations. In this work, we study the performance, extensibility, and interaction of two such adaptations: vocabulary augmentation and script transliteration. Our evaluations on part-of-speech tagging, universal dependency parsing, and named entity recognition in nine diverse low-resource languages uphold the viability of these approaches while raising new questions around how to optimally adapt multilingual models to low-resource settings.",
           "claimed_authors": [
-            "Gemma Boleda"
+            "Ethan C. Chau",
+            "Noah A. Smith"
           ],
-          "claimed_title": "Distributional Semantics and Linguistic Theory",
+          "claimed_title": "Specializing Multilingual Language Models: An Empirical Study",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1905.01896"
+          "claimed_year": 2021,
+          "primary_pointer": "2106.09063"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Distributional Semantics and Linguistic Theory')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Specializing Multilingual Language Models: An Empirical Study')",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This work introduces Gemma, a family of lightweight, state-of-the art open models built from the research and technology used to create Gemini models. Gemma models demonstrate strong performance across academic benchmarks for language understanding, reasoning, and safety. We release two sizes of models (2 billion and 7 billion parameters), and provide both pretrained and fine-tuned checkpoints. Gemma outperforms similarly sized open models on 11 out of 18 text-based tasks, and we present comprehensive evaluations of safety and responsibility aspects of the models, alongside a detailed description of model development. We believe the responsible release of LLMs is critical for improving the safety of frontier models, and for enabling the next wave of LLM innovations.",
+          "claimed_abstract": "This paper describes the NEMO submission to SIGTYP 2020 shared task which deals with prediction of linguistic typological features for multiple languages using the data derived from World Atlas of Language Structures (WALS). We employ frequentist inference to represent correlations between typological features and use this representation to train simple multi-class estimators that predict individual features. We describe two submitted ridge regression-based configurations which ranked second and third overall in the constrained task. Our best configuration achieved the micro-averaged accuracy score of 0.66 on 149 test languages.",
           "claimed_authors": [
-            " Gemma Team",
-            "Thomas Mesnard",
-            "Cassidy Hardin",
-            "Robert Dadashi",
-            "Surya Bhupatiraju",
-            "Shreya Pathak",
-            "Laurent Sifre",
-            "Morgane Rivière",
-            "Mihir Sanjay Kale",
-            "Juliette Love",
-            "Pouya Tafti",
-            "Léonard Hussenot",
-            "Pier Giuseppe Sessa",
-            "Aakanksha Chowdhery",
-            "Adam Roberts",
-            "Aditya Barua",
-            "Alex Botev",
-            "Alex Castro-Ros",
-            "Ambrose Slone",
-            "Amélie Héliou",
-            "Andrea Tacchetti",
-            "Anna Bulanova",
-            "Antonia Paterson",
-            "Beth Tsai",
-            "Bobak Shahriari",
-            "Charline Le Lan",
-            "Christopher A. Choquette-Choo",
-            "Clément Crepy",
-            "Daniel Cer",
-            "Daphne Ippolito",
-            "David Reid",
-            "Elena Buchatskaya",
-            "Eric Ni",
-            "Eric Noland",
-            "Geng Yan",
-            "George Tucker",
-            "George-Christian Muraru",
-            "Grigory Rozhdestvenskiy",
-            "Henryk Michalewski",
-            "Ian Tenney",
-            "Ivan Grishchenko",
-            "Jacob Austin",
-            "James Keeling",
-            "Jane Labanowski",
-            "Jean-Baptiste Lespiau",
-            "Jeff Stanway",
-            "Jenny Brennan",
-            "Jeremy Chen",
-            "Johan Ferret",
-            "Justin Chiu",
-            "Justin Mao-Jones",
-            "Katherine Lee",
-            "Kathy Yu",
-            "Katie Millican",
-            "Lars Lowe Sjoesund",
-            "Lisa Lee",
-            "Lucas Dixon",
-            "Machel Reid",
-            "Maciej Mikuła",
-            "Mateo Wirth",
-            "Michael Sharman",
-            "Nikolai Chinaev",
-            "Nithum Thain",
-            "Olivier Bachem",
-            "Oscar Chang",
-            "Oscar Wahltinez",
-            "Paige Bailey",
-            "Paul Michel",
-            "Petko Yotov",
-            "Rahma Chaabouni",
-            "Ramona Comanescu",
-            "Reena Jana",
-            "Rohan Anil",
-            "Ross McIlroy",
-            "Ruibo Liu",
-            "Ryan Mullins",
-            "Samuel L Smith",
-            "Sebastian Borgeaud",
-            "Sertan Girgin",
-            "Sholto Douglas",
-            "Shree Pandya",
-            "Siamak Shakeri",
-            "Soham De",
-            "Ted Klimenko",
-            "Tom Hennigan",
-            "Vlad Feinberg",
-            "Wojciech Stokowiec",
-            "Yu-hui Chen",
-            "Zafarali Ahmed",
-            "Zhitao Gong",
-            "Tris Warkentin",
-            "Ludovic Peran",
-            "Minh Giang",
-            "Clément Farabet",
-            "Oriol Vinyals",
-            "Jeff Dean",
-            "Koray Kavukcuoglu",
-            "Demis Hassabis",
-            "Zoubin Ghahramani",
-            "Douglas Eck",
-            "Joelle Barral",
-            "Fernando Pereira",
-            "Eli Collins",
-            "Armand Joulin",
-            "Noah Fiedel",
-            "Evan Senter",
-            "Alek Andreev",
-            "Kathleen Kenealy"
+            "Alexander Gutkin",
+            "Richard Sproat"
           ],
-          "claimed_title": "Gemma: Open Models Based on Gemini Research and Technology",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.08295"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Gemma: Open Models Based on Gemini Research and Technology')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We train a suite of multimodal foundation models (MMFM) using the popular LLaVA framework with the recently released Gemma family of large language models (LLMs). Of particular interest is the 2B parameter Gemma model, which provides opportunities to construct capable small-scale MMFMs. In line with findings from other papers in this space, we test the effect of ablating three design features: pretraining the connector, utilizing a more powerful image backbone, and increasing the size of the language backbone. The resulting models, which we call LLaVA-Gemma, exhibit moderate performance on an array of evaluations, but fail to improve past the current comparably sized SOTA models. Closer analysis of performance shows mixed effects; skipping pretraining tends to reduce performance, larger vision models sometimes improve performance, and increasing language model size has inconsistent effects. We publicly release training recipes, code and weights for our models for the LLaVA-Gemma models.",
-          "claimed_authors": [
-            "Musashi Hinck",
-            "Matthew L. Olson",
-            "David Cobbley",
-            "Shao-Yen Tseng",
-            "Vasudev Lal"
-          ],
-          "claimed_title": "LLaVA-Gemma: Accelerating Multimodal Foundation Models with a Compact Language Model",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2404.01331"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='LLaVA-Gemma: Accelerating Multimodal Foundation Models with a Compact Language Model')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
-          "claimed_authors": [
-            "Neng Wang",
-            "Hongyang Yang",
-            "Christina Dan Wang"
-          ],
-          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.04793"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
-          "claimed_authors": [
-            "Zhiyang Xu",
-            "Chao Feng",
-            "Rulin Shao",
-            "Trevor Ashby",
-            "Ying Shen",
-            "Di Jin",
-            "Yu Cheng",
-            "Qifan Wang",
-            "Lifu Huang"
-          ],
-          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.11690"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
-          "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Minghao Wu",
-            "Yuxia Wang",
-            "Xudong Han",
-            "Chiyu Zhang",
-            "Timothy Baldwin"
-          ],
-          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.10793"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
-          "claimed_authors": [
-            "Leon Derczynski",
-            "Robert Gaizauskas"
-          ],
-          "claimed_title": "A Corpus-based Study of Temporal Signals",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1203.5066"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='A Corpus-based Study of Temporal Signals')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper presents a novel treebank-driven approach to comparing syntactic structures in speech and writing using dependency-parsed corpora. Adopting a fully inductive, bottom-up method, we define syntactic structures as delexicalized dependency (sub)trees and extract them from spoken and written Universal Dependencies (UD) treebanks in two syntactically distinct languages, English and Slovenian. For each corpus, we analyze the size, diversity, and distribution of syntactic inventories, their overlap across modalities, and the structures most characteristic of speech. Results show that, across both languages, spoken corpora contain fewer and less diverse syntactic structures than their written counterparts, with consistent cross-linguistic preferences for certain structural types across modalities. Strikingly, the overlap between spoken and written syntactic inventories is very limited: most structures attested in speech do not occur in writing, pointing to modality-specific preferences in syntactic organization that reflect the distinct demands of real-time interaction and elaborated writing. This contrast is further supported by a keyness analysis of the most frequent speech-specific structures, which highlights patterns associated with interactivity, context-grounding, and economy of expression. We argue that this scalable, language-independent framework offers a useful general method for systematically studying syntactic variation across corpora, laying the groundwork for more comprehensive data-driven theories of grammar in use.",
-          "claimed_authors": [
-            "Kaja Dobrovoljc"
-          ],
-          "claimed_title": "Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.22774"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper reports on the state-of-the-art in application of multidimensional scaling (MDS) techniques to create semantic maps in linguistic research. MDS refers to a statistical technique that represents objects (lexical items, linguistic contexts, languages, etc.) as points in a space so that close similarity between the objects corresponds to close distances between the corresponding points in the representation. We focus on the use of MDS in combination with parallel corpus data as used in research on cross-linguistic variation.\n  We first introduce the mathematical foundations of MDS and then give an exhaustive overview of past research that employs MDS techniques in combination with parallel corpus data. We propose a set of terminology to succinctly describe the key parameters of a particular MDS application. We then show that this computational methodology is theory-neutral, i.e. it can be employed to answer research questions in a variety of linguistic theoretical frameworks. Finally, we show how this leads to two lines of future developments for MDS research in linguistics.",
-          "claimed_authors": [
-            "Martijn van der Klis",
-            "Jos Tellings"
-          ],
-          "claimed_title": "Generating semantic maps through multidimensional scaling: linguistic applications and theory",
+          "claimed_title": "NEMO: Frequentist Inference Approach to Constrained Linguistic Typology Feature Prediction in SIGTYP 2020 Shared Task",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2012.04946"
+          "primary_pointer": "2010.05985"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Generating semantic maps through multidimensional scaling: linguistic applications and theory')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='NEMO: Frequentist Inference Approach to Constrained Linguistic Typology Feature Prediction in SIGTYP 2020 Shared Task')",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Language understanding is a key scientific issue in the fields of cognitive and computer science. However, the two disciplines differ substantially in the specific research questions. Cognitive science focuses on analyzing the specific mechanism of the brain and investigating the brain's response to language; few studies have examined the brain's language system as a whole. By contrast, computer scientists focus on the efficiency of practical applications when choosing research questions but may ignore the most essential laws of language. Given these differences, can a combination of the disciplines offer new insights for building intelligent language models and studying language cognitive mechanisms? In the following text, we first review the research questions, history, and methods of language understanding in cognitive and computer science, focusing on the current progress and challenges. We then compare and contrast the research of language understanding in cognitive and computer sciences. Finally, we review existing work that combines insights from language cognition and language computation and offer prospects for future development trends.",
+          "claimed_abstract": "The first Workshop on Language Models for Low-Resource Languages (LoResLM 2025) was held in conjunction with the 31st International Conference on Computational Linguistics (COLING 2025) in Abu Dhabi, United Arab Emirates. This workshop mainly aimed to provide a forum for researchers to share and discuss their ongoing work on language models (LMs) focusing on low-resource languages, following the recent advancements in neural language models and their linguistic biases towards high-resource languages. LoResLM 2025 attracted notable interest from the natural language processing (NLP) community, resulting in 35 accepted papers from 52 submissions. These contributions cover a broad range of low-resource languages from eight language families and 13 diverse research areas, paving the way for future possibilities and promoting linguistic inclusivity in NLP.",
           "claimed_authors": [
-            "Shaonan Wang",
-            "Nai Ding",
-            "Nan Lin",
-            "Jiajun Zhang",
-            "Chengqing Zong"
+            "Hansi Hettiarachchi",
+            "Tharindu Ranasinghe",
+            "Paul Rayson",
+            "Ruslan Mitkov",
+            "Mohamed Gaber",
+            "Damith Premasiri",
+            "Fiona Anting Tan",
+            "Lasitha Uyangodage"
           ],
-          "claimed_title": "Language Cognition and Language Computation -- Human and Machine Language Understanding",
+          "claimed_title": "Overview of the First Workshop on Language Models for Low-Resource Languages (LoResLM 2025)",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2301.04788"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.16365"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Language Cognition and Language Computation -- Human and Machine Language Understanding')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Overview of the First Workshop on Language Models for Low-Resource Languages (LoResLM 2025)')",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic spoken language identification (LID) is a very important research field in the era of multilingual voice-command-based human-computer interaction (HCI). A front-end LID module helps to improve the performance of many speech-based applications in the multilingual scenario. India is a populous country with diverse cultures and languages. The majority of the Indian population needs to use their respective native languages for verbal interaction with machines. Therefore, the development of efficient Indian spoken language recognition systems is useful for adapting smart technologies in every section of Indian society. The field of Indian LID has started gaining momentum in the last two decades, mainly due to the development of several standard multilingual speech corpora for the Indian languages. Even though significant research progress has already been made in this field, to the best of our knowledge, there are not many attempts to analytically review them collectively. In this work, we have conducted one of the very first attempts to present a comprehensive review of the Indian spoken language recognition research field. In-depth analysis has been presented to emphasize the unique challenges of low-resource and mutual influences for developing LID systems in the Indian contexts. Several essential aspects of the Indian LID research, such as the detailed description of the available speech corpora, the major research contributions, including the earlier attempts based on statistical modeling to the recent approaches based on different neural network architectures, and the future research trends are discussed. This review work will help assess the state of the present Indian LID research by any active researcher or any research enthusiasts from related fields.",
+          "claimed_authors": [
+            "Spandan Dey",
+            "Md Sahidullah",
+            "Goutam Saha"
+          ],
+          "claimed_title": "An Overview of Indian Spoken Language Recognition from Machine Learning Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03812"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='An Overview of Indian Spoken Language Recognition from Machine Learning Perspective')",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Network or graph structures are ubiquitous in the study of complex systems. Often, we are interested in complexity trends of these system as it evolves under some dynamic. An example might be looking at the complexity of a food web as species enter an ecosystem via migration or speciation, and leave via extinction.\n  In a previous paper, a complexity measure of networks was proposed based on the {\\em complexity is information content} paradigm. To apply this paradigm to any object, one must fix two things: a representation language, in which strings of symbols from some alphabet describe, or stand for the objects being considered; and a means of determining when two such descriptions refer to the same object. With these two things set, the information content of an object can be computed in principle from the number of equivalent descriptions describing a particular object.\n  The previously proposed representation language had the deficiency that the fully connected and empty networks were the most complex for a given number of nodes. A variation of this measure, called zcomplexity, applied a compression algorithm to the resulting bitstring representation, to solve this problem. Unfortunately, zcomplexity proved too computationally expensive to be practical.\n  In this paper, I propose a new representation language that encodes the number of links along with the number of nodes and a representation of the linklist. This, like zcomplexity, exhibits minimal complexity for fully connected and empty networks, but is as tractable as the original measure.\n  ...",
+          "claimed_authors": [
+            "Russell K. Standish"
+          ],
+          "claimed_title": "Complexity of Networks (reprise)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.3482"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Complexity of Networks (reprise)')",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Numerous definitions for complexity have been proposed over the last half century, with little consensus achieved on how to use the term. A definition of complexity is supplied here that is closely related to the Kolmogorov Complexity and Shannon Entropy measures widely used as complexity measures, yet addresses a number of concerns raised against these measures. However, the price of doing this is to introduce context dependence into the definition of complexity. It is argued that such context dependence is an inherent property of complexity, and related concepts such as entropy and emergence. Scientists are uncomfortable with such context dependence, which smacks of subjectivity, and this is perhaps the reason why little agreement has been found on the meaning of these terms.",
+          "claimed_authors": [
+            "Russell K. Standish"
+          ],
+          "claimed_title": "On Complexity and Emergence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "nlin/0101006"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='On Complexity and Emergence')",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans exhibit garden path effects: When reading sentences that are temporarily structurally ambiguous, they slow down when the structure is disambiguated in favor of the less preferred alternative. Surprisal theory (Hale, 2001; Levy, 2008), a prominent explanation of this finding, proposes that these slowdowns are due to the unpredictability of each of the words that occur in these sentences. Challenging this hypothesis, van Schijndel & Linzen (2021) find that estimates of the cost of word predictability derived from language models severely underestimate the magnitude of human garden path effects. In this work, we consider whether this underestimation is due to the fact that humans weight syntactic factors in their predictions more highly than language models do. We propose a method for estimating syntactic predictability from a language model, allowing us to weigh the cost of lexical and syntactic predictability independently. We find that treating syntactic predictability independently from lexical predictability indeed results in larger estimates of garden path. At the same time, even when syntactic predictability is independently weighted, surprisal still greatly underestimate the magnitude of human garden path effects. Our results support the hypothesis that predictability is not the only factor responsible for the processing cost associated with garden path sentences.",
+          "claimed_authors": [
+            "Suhas Arehalli",
+            "Brian Dillon",
+            "Tal Linzen"
+          ],
+          "claimed_title": "Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12187"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities')",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_authors": [
+            "Ari Brill"
+          ],
+          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
+        "failed_at": "2026-09-09T12:27:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
+          "claimed_authors": [
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
+          ],
+          "claimed_title": "Scaling Law with Learning Rate Annealing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11029"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Scaling Law with Learning Rate Annealing')",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -605,25 +488,7 @@
           "primary_pointer": "2402.04177"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
-        "failed_at": "2026-08-15T09:16:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
-          "claimed_authors": [
-            "Howe Tissue",
-            "Venus Wang",
-            "Lu Wang"
-          ],
-          "claimed_title": "Scaling Law with Learning Rate Annealing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2408.11029"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gemma 4 Technical Report\" linguistics', candidate_title='Scaling Law with Learning Rate Annealing')",
-        "failed_at": "2026-08-15T09:16:39Z",
+        "failed_at": "2026-09-09T12:27:40Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -967,39 +832,252 @@
           "final_url": "https://arxiv.org/abs/2607.02770",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "query_relevance_score": 0.4286,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T09:16:46Z"
+          "verified_at": "2026-09-09T12:27:40Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Hanlin Wu",
-            "Xufeng Duan",
-            "Zhenguang Cai"
+            " Gemma Team",
+            "Aishwarya Kamath",
+            "Johan Ferret",
+            "Shreya Pathak",
+            "Nino Vieillard",
+            "Ramona Merhej",
+            "Sarah Perrin",
+            "Tatiana Matejovicova",
+            "Alexandre Ramé",
+            "Morgane Rivière",
+            "Louis Rouillard",
+            "Thomas Mesnard",
+            "Geoffrey Cideron",
+            "Jean-bastien Grill",
+            "Sabela Ramos",
+            "Edouard Yvinec",
+            "Michelle Casbon",
+            "Etienne Pot",
+            "Ivo Penchev",
+            "Gaël Liu",
+            "Francesco Visin",
+            "Kathleen Kenealy",
+            "Lucas Beyer",
+            "Xiaohai Zhai",
+            "Anton Tsitsulin",
+            "Robert Busa-Fekete",
+            "Alex Feng",
+            "Noveen Sachdeva",
+            "Benjamin Coleman",
+            "Yi Gao",
+            "Basil Mustafa",
+            "Iain Barr",
+            "Emilio Parisotto",
+            "David Tian",
+            "Matan Eyal",
+            "Colin Cherry",
+            "Jan-Thorsten Peter",
+            "Danila Sinopalnikov",
+            "Surya Bhupatiraju",
+            "Rishabh Agarwal",
+            "Mehran Kazemi",
+            "Dan Malkin",
+            "Ravin Kumar",
+            "David Vilar",
+            "Idan Brusilovsky",
+            "Jiaming Luo",
+            "Andreas Steiner",
+            "Abe Friesen",
+            "Abhanshu Sharma",
+            "Abheesht Sharma",
+            "Adi Mayrav Gilady",
+            "Adrian Goedeckemeyer",
+            "Alaa Saade",
+            "Alex Feng",
+            "Alexander Kolesnikov",
+            "Alexei Bendebury",
+            "Alvin Abdagic",
+            "Amit Vadi",
+            "András György",
+            "André Susano Pinto",
+            "Anil Das",
+            "Ankur Bapna",
+            "Antoine Miech",
+            "Antoine Yang",
+            "Antonia Paterson",
+            "Ashish Shenoy",
+            "Ayan Chakrabarti",
+            "Bilal Piot",
+            "Bo Wu",
+            "Bobak Shahriari",
+            "Bryce Petrini",
+            "Charlie Chen",
+            "Charline Le Lan",
+            "Christopher A. Choquette-Choo",
+            "CJ Carey",
+            "Cormac Brick",
+            "Daniel Deutsch",
+            "Danielle Eisenbud",
+            "Dee Cattle",
+            "Derek Cheng",
+            "Dimitris Paparas",
+            "Divyashree Shivakumar Sreepathihalli",
+            "Doug Reid",
+            "Dustin Tran",
+            "Dustin Zelle",
+            "Eric Noland",
+            "Erwin Huizenga",
+            "Eugene Kharitonov",
+            "Frederick Liu",
+            "Gagik Amirkhanyan",
+            "Glenn Cameron",
+            "Hadi Hashemi",
+            "Hanna Klimczak-Plucińska",
+            "Harman Singh",
+            "Harsh Mehta",
+            "Harshal Tushar Lehri",
+            "Hussein Hazimeh",
+            "Ian Ballantyne",
+            "Idan Szpektor",
+            "Ivan Nardini",
+            "Jean Pouget-Abadie",
+            "Jetha Chan",
+            "Joe Stanton",
+            "John Wieting",
+            "Jonathan Lai",
+            "Jordi Orbay",
+            "Joseph Fernandez",
+            "Josh Newlan",
+            "Ju-yeong Ji",
+            "Jyotinder Singh",
+            "Kat Black",
+            "Kathy Yu",
+            "Kevin Hui",
+            "Kiran Vodrahalli",
+            "Klaus Greff",
+            "Linhai Qiu",
+            "Marcella Valentine",
+            "Marina Coelho",
+            "Marvin Ritter",
+            "Matt Hoffman",
+            "Matthew Watson",
+            "Mayank Chaturvedi",
+            "Michael Moynihan",
+            "Min Ma",
+            "Nabila Babar",
+            "Natasha Noy",
+            "Nathan Byrd",
+            "Nick Roy",
+            "Nikola Momchev",
+            "Nilay Chauhan",
+            "Noveen Sachdeva",
+            "Oskar Bunyan",
+            "Pankil Botarda",
+            "Paul Caron",
+            "Paul Kishan Rubenstein",
+            "Phil Culliton",
+            "Philipp Schmid",
+            "Pier Giuseppe Sessa",
+            "Pingmei Xu",
+            "Piotr Stanczyk",
+            "Pouya Tafti",
+            "Rakesh Shivanna",
+            "Renjie Wu",
+            "Renke Pan",
+            "Reza Rokni",
+            "Rob Willoughby",
+            "Rohith Vallu",
+            "Ryan Mullins",
+            "Sammy Jerome",
+            "Sara Smoot",
+            "Sertan Girgin",
+            "Shariq Iqbal",
+            "Shashir Reddy",
+            "Shruti Sheth",
+            "Siim Põder",
+            "Sijal Bhatnagar",
+            "Sindhu Raghuram Panyam",
+            "Sivan Eiger",
+            "Susan Zhang",
+            "Tianqi Liu",
+            "Trevor Yacovone",
+            "Tyler Liechty",
+            "Uday Kalra",
+            "Utku Evci",
+            "Vedant Misra",
+            "Vincent Roseberry",
+            "Vlad Feinberg",
+            "Vlad Kolesnikov",
+            "Woohyun Han",
+            "Woosuk Kwon",
+            "Xi Chen",
+            "Yinlam Chow",
+            "Yuvein Zhu",
+            "Zichuan Wei",
+            "Zoltan Egyed",
+            "Victor Cotruta",
+            "Minh Giang",
+            "Phoebe Kirk",
+            "Anand Rao",
+            "Kat Black",
+            "Nabila Babar",
+            "Jessica Lo",
+            "Erica Moreira",
+            "Luiz Gustavo Martins",
+            "Omar Sanseviero",
+            "Lucas Gonzalez",
+            "Zach Gleicher",
+            "Tris Warkentin",
+            "Vahab Mirrokni",
+            "Evan Senter",
+            "Eli Collins",
+            "Joelle Barral",
+            "Zoubin Ghahramani",
+            "Raia Hadsell",
+            "Yossi Matias",
+            "D. Sculley",
+            "Slav Petrov",
+            "Noah Fiedel",
+            "Noam Shazeer",
+            "Oriol Vinyals",
+            "Jeff Dean",
+            "Demis Hassabis",
+            "Koray Kavukcuoglu",
+            "Clement Farabet",
+            "Elena Buchatskaya",
+            "Jean-Baptiste Alayrac",
+            "Rohan Anil",
+            " Dmitry",
+            " Lepikhin",
+            "Sebastian Borgeaud",
+            "Olivier Bachem",
+            "Armand Joulin",
+            "Alek Andreev",
+            "Cassidy Hardin",
+            "Robert Dadashi",
+            "Léonard Hussenot"
           ],
-          "title": "Distinct social-linguistic processing between humans and large audio-language models: Evidence from model-brain alignment",
+          "title": "Gemma 3 Technical Report",
           "venue": "arXiv",
           "year": 2025
         },
-        "primary_pointer": "2503.19586",
-        "summary": "Voice-based AI development faces unique challenges in processing both linguistic and paralinguistic information. This study compares how large audio-language models (LALMs) and humans integrate speaker characteristics during speech comprehension, asking whether LALMs process speaker-contextualized language in ways that parallel human cognitive mechanisms. We compared two LALMs' (Qwen2-Audio and Ultravox 0.5) processing patterns with human EEG responses. Using surprisal and entropy metrics from the models, we analyzed their sensitivity to speaker-content incongruency across social stereotype violations (e.g., a man claiming to regularly get manicures) and biological knowledge violations (e.g., a man claiming to be pregnant). Results revealed that Qwen2-Audio exhibited increased surprisal for speaker-incongruent content and its surprisal values significantly predicted human N400 responses, while Ultravox 0.5 showed limited sensitivity to speaker characteristics. Importantly, neither model replicated the human-like processing distinction between social violations (eliciting N400 effects) and biological violations (eliciting P600 effects). These findings reveal both the potential and limitations of current LALMs in processing speaker-contextualized language, and suggest differences in social-linguistic processing mechanisms between humans and LALMs.",
+        "primary_pointer": "2503.19786",
+        "summary": "We introduce Gemma 3, a multimodal addition to the Gemma family of lightweight open models, ranging in scale from 1 to 27 billion parameters. This version introduces vision understanding abilities, a wider coverage of languages and longer context - at least 128K tokens. We also change the architecture of the model to reduce the KV-cache memory that tends to explode with long context. This is achieved by increasing the ratio of local to global attention layers, and keeping the span on local attention short. The Gemma 3 models are trained with distillation and achieve superior performance to Gemma 2 for both pre-trained and instruction finetuned versions. In particular, our novel post-training recipe significantly improves the math, chat, instruction-following and multilingual abilities, making Gemma3-4B-IT competitive with Gemma2-27B-IT and Gemma3-27B-IT comparable to Gemini-1.5-Pro across benchmarks. We release all our models to the community.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2503.19586",
+          "final_url": "https://arxiv.org/abs/2503.19786",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.8,
+          "pdf_sample_score": 0.2336,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T09:16:47Z"
+          "verified_at": "2026-09-09T12:27:46Z"
         }
       },
       {
@@ -1125,13 +1203,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2403.08295",
           "http_status": 200,
-          "pdf_sample_score": 0.1584,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T09:16:48Z"
+          "verified_at": "2026-09-09T12:27:46Z"
         }
       }
     ]

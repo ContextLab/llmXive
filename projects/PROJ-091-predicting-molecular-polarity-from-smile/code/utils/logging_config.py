@@ -6,110 +6,105 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
 
-# Standardized logging format as per T039c requirement
-STANDARD_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-
-_logger_instance: Optional[logging.Logger] = None
+# Standardized format string as per T039c requirement
+STANDARD_LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 class JsonFormatter(logging.Formatter):
     """Custom formatter for JSON structured logging."""
     def format(self, record):
         log_record = {
-            "asctime": self.formatTime(record, self.datefmt),
-            "name": record.name,
-            "levelname": record.levelname,
-            "message": record.getMessage(),
-            "pathname": record.pathname,
-            "lineno": record.lineno,
+            'timestamp': self.formatTime(record, self.datefmt),
+            'name': record.name,
+            'levelname': record.levelname,
+            'message': record.getMessage(),
+            'module': record.module,
+            'function': record.funcName,
+            'line': record.lineno
         }
         if record.exc_info:
-            log_record["exc_info"] = self.formatException(record.exc_info)
+            log_record['exc_info'] = self.formatException(record.exc_info)
         return json.dumps(log_record)
 
 def get_project_root() -> Path:
-    """Returns the project root directory (parent of 'code' directory)."""
-    current = Path(__file__).resolve()
-    # Assuming code/utils/logging_config.py structure
-    return current.parent.parent
+    """Returns the project root directory (parent of 'code')."""
+    current_file = Path(__file__).resolve()
+    # Assuming code/utils/logging_config.py -> root is 2 levels up
+    return current_file.parent.parent
 
-def setup_logging(
-    log_file: Optional[str] = None,
-    level: int = logging.INFO,
-    use_json: bool = False
-) -> None:
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> None:
     """
     Configures the root logger with the standardized format.
     
     Args:
-        log_file: Optional path to a log file. If None, only console logging is configured.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        use_json: If True, uses JSON formatting; otherwise uses the standard string format.
+        log_level: The logging level (e.g., logging.INFO, logging.DEBUG).
+        log_file: Optional relative path to a log file (e.g., 'logs/app.log').
     """
-    global _logger_instance
+    # Get the standardized format string
+    fmt = STANDARD_LOG_FORMAT
     
-    # Configure root logger to avoid duplicate handlers if called multiple times
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers to ensure clean configuration
-    if root_logger.handlers:
-        root_logger.handlers.clear()
-
-    # Create formatter based on requirements
-    if use_json:
-        formatter = JsonFormatter()
-    else:
-        # T039c: Standardize logging format
-        formatter = logging.Formatter(STANDARD_FORMAT)
-
-    # Console Handler
+    # Create console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(logging.Formatter(fmt))
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    
+    # Remove existing handlers to avoid duplicates
+    root_logger.handlers = []
     root_logger.addHandler(console_handler)
-
-    # File Handler if requested
+    
+    # Add file handler if specified
     if log_file:
-        log_path = Path(log_file)
+        project_root = get_project_root()
+        log_path = project_root / log_file
+        
+        # Ensure directory exists
         log_path.parent.mkdir(parents=True, exist_ok=True)
         
+        # Use RotatingFileHandler as per T008 requirement
         file_handler = RotatingFileHandler(
-            log_path,
-            maxBytes=10*1024*1024, # 10MB
+            log_path, 
+            maxBytes=10*1024*1024,  # 10MB
             backupCount=5
         )
-        file_handler.setFormatter(formatter)
+        file_handler.setLevel(log_level)
+        # Apply standardized format to file handler too
+        file_handler.setFormatter(logging.Formatter(fmt))
         root_logger.addHandler(file_handler)
-
-    # Log startup confirmation
-    root_logger.info(f"Logging configured with format: {STANDARD_FORMAT}")
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Retrieves or creates a named logger.
+    Retrieves a logger with the specified name.
     
     Args:
-        name: The name of the logger (usually __name__).
+        name: The name of the logger (typically __name__).
         
     Returns:
-        A configured logging.Logger instance.
+        A configured logger instance.
     """
     return logging.getLogger(name)
 
 def set_log_level(level: int) -> None:
-    """Sets the logging level for the root logger."""
-    logging.getLogger().setLevel(level)
+    """Sets the global log level for all handlers."""
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    for handler in logger.handlers:
+        handler.setLevel(level)
 
-def log_with_context(msg: str, context: Optional[dict] = None) -> None:
+def log_with_context(logger: logging.Logger, level: int, message: str, context: Optional[dict] = None) -> None:
     """
-    Logs a message with optional context dictionary appended to the message.
+    Logs a message with optional context.
     
     Args:
-        msg: The log message.
+        logger: The logger instance.
+        level: The log level.
+        message: The message to log.
         context: Optional dictionary of context to include.
     """
-    logger = logging.getLogger(__name__)
     if context:
-        ctx_str = ", ".join(f"{k}={v}" for k, v in context.items())
-        logger.info(f"{msg} | Context: {ctx_str}")
+        full_message = f"{message} | Context: {json.dumps(context)}"
+        logger.log(level, full_message)
     else:
-        logger.info(msg)
+        logger.log(level, message)

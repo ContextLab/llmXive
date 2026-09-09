@@ -22,13 +22,6 @@ T034a:
     \ similarity of the top feature clusters. The implementer supplied no artifact\
     \ (e.g., script, notebook, CSV, or figure) containing the required similarity\
     \ calculations, so the task\u2019s core requirement is unmet."
-T039c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact related to \u201Cstandardizing logging format across all modules\u201D\
-    \ is present; the only material provided concerns a molecular polarity prediction\
-    \ pipeline, with no code, configuration, or documentation showing a unified logging\
-    \ format. Consequently the required logging standardization has not been delivered."
 T039d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,9 +30,20 @@ T039d:
     \ shown relate to molecular descriptor generation and model training, which do\
     \ not address the \u201Cverify unused import removal and logging standardization\u201D\
     \ requirement. Consequently, the required evidence is missing."
-T041:
+T042b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` directory or additional unit test files were presented; the
-    claim provides no concrete artifacts showing new unit tests were added. The required
-    test files are missing, so the task is not satisfied.
+  r: "No CI workflow files, scripts, or configuration changes adding a `safety check`\
+    \ command for dependency vulnerability scanning are present. The only provided\
+    \ material concerns a molecular\u2011polarity feature pipeline, which does not\
+    \ address the required CI safety\u2011check implementation. The task lacks the\
+    \ necessary artifact (e.g., updated `.github/workflows/*.yml` or a new CI script)\
+    \ to satisfy the claim."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI workflow logs, memory\u2011profile reports, or runtime measurements are\
+    \ present; there is no artifact showing that the pipeline was executed on a GitHub\
+    \ Actions free\u2011tier runner and that it stayed within the \u22646\u202Fh /\
+    \ \u22646\u202FGB limits. The required evidence of the CI execution and constraint\
+    \ verification is missing."

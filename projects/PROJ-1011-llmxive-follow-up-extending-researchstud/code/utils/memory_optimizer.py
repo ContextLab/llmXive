@@ -1,272 +1,286 @@
 """
 Memory optimization utilities for the llmXive pipeline.
 
-Provides functions to enforce memory limits, perform garbage collection,
-and manage large data structures efficiently.
+This module provides tools for monitoring, enforcing, and optimizing
+memory usage during data processing and model inference tasks.
 """
 import gc
 import sys
 import logging
 import tracemalloc
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar, Iterator, List
 from pathlib import Path
-import resource
-import psutil
 import os
+import resource
+import numpy as np
+import torch
 
-from utils.logging_config import get_logger
+logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_MEMORY_LIMIT_GB = 6.0  # Leave 1GB headroom from 7GB constraint
-DEFAULT_GC_THRESHOLD = 1000
-
-logger = get_logger(__name__)
+DEFAULT_MEMORY_LIMIT_MB = 6000  # Leave headroom below 7GB limit
+SAFE_DELETE_THRESHOLD = 100  # MB to trigger aggressive cleanup
 
 T = TypeVar('T')
 
+
 def get_current_memory_mb() -> float:
     """
-    Get the current memory usage of the process in megabytes.
-    
-    Uses psutil for cross-platform compatibility and accuracy.
+    Get current memory usage in MB.
     
     Returns:
-        float: Current memory usage in MB.
+        Current memory usage in megabytes.
     """
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
+    if sys.platform == 'darwin':
+        # macOS uses resource module
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return usage.ru_maxrss / 1024  # Convert KB to MB
+    else:
+        # Linux/Windows
+        return tracemalloc.get_traced_memory()[1] / (1024 * 1024)
+
 
 def get_peak_memory_mb() -> float:
     """
-    Get the peak memory usage of the process since tracemalloc started.
+    Get peak memory usage since tracemalloc started.
     
     Returns:
-        float: Peak memory usage in MB, or 0 if tracemalloc not started.
+        Peak memory usage in megabytes.
     """
-    try:
-        current, peak = tracemalloc.get_traced_memory()
-        return peak / (1024 * 1024)
-    except (ValueError, RuntimeError):
-        # tracemalloc not started
+    if not tracemalloc.is_tracing():
         return 0.0
+    return tracemalloc.get_traced_memory()[1] / (1024 * 1024)
+
 
 def start_memory_profiling() -> None:
-    """Start tracemalloc for memory profiling."""
+    """Start memory profiling with tracemalloc."""
     if not tracemalloc.is_tracing():
         tracemalloc.start()
-        logger.info("Memory profiling started via tracemalloc")
+        logger.debug("Memory profiling started")
 
-def stop_memory_profiling() -> Optional[float]:
-    """
-    Stop tracemalloc and return the peak memory usage.
-    
-    Returns:
-        Optional[float]: Peak memory usage in MB, or None if not tracing.
-    """
+
+def stop_memory_profiling() -> None:
+    """Stop memory profiling and log results."""
     if tracemalloc.is_tracing():
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
-        logger.info(f"Memory profiling stopped. Peak: {peak / (1024 * 1024):.2f} MB")
-        return peak / (1024 * 1024)
-    return None
+        logger.info(f"Memory profiling stopped: current={current/1024/1024:.2f}MB, peak={peak/1024/1024:.2f}MB")
 
-def enforce_memory_limit(limit_gb: float = DEFAULT_MEMORY_LIMIT_GB) -> None:
+
+def enforce_memory_limit(limit_mb: Optional[float] = None) -> None:
     """
-    Check if current memory usage exceeds the limit.
+    Enforce a hard memory limit. Raises MemoryError if exceeded.
     
     Args:
-        limit_gb: Memory limit in gigabytes.
+        limit_mb: Memory limit in MB. Defaults to DEFAULT_MEMORY_LIMIT_MB.
         
     Raises:
         MemoryError: If current memory usage exceeds the limit.
     """
-    current_mb = get_current_memory_mb()
-    limit_mb = limit_gb * 1024
-    
-    if current_mb > limit_mb:
-        logger.error(f"Memory limit exceeded: {current_mb:.2f} MB > {limit_mb:.2f} MB")
-        raise MemoryError(
-            f"Memory limit exceeded: {current_mb:.2f} MB > {limit_mb:.2f} MB. "
-            "Consider reducing batch size or enabling streaming."
-        )
-    logger.debug(f"Memory check passed: {current_mb:.2f} MB <= {limit_mb:.2f} MB")
+    if limit_mb is None:
+        limit_mb = DEFAULT_MEMORY_LIMIT_MB
+        
+    current = get_current_memory_mb()
+    if current > limit_mb:
+        logger.error(f"Memory limit exceeded: {current:.2f}MB > {limit_mb:.2f}MB")
+        raise MemoryError(f"Memory limit exceeded: {current:.2f}MB > {limit_mb:.2f}MB")
+    logger.debug(f"Memory check passed: {current:.2f}MB <= {limit_mb:.2f}MB")
+
 
 def force_garbage_collection() -> int:
     """
-    Force garbage collection and return the number of objects collected.
+    Force garbage collection and return collected object count.
     
     Returns:
-        int: Number of objects collected.
+        Number of objects collected.
     """
     collected = gc.collect()
-    logger.debug(f"Garbage collection forced: {collected} objects collected")
+    logger.debug(f"Garbage collection: {collected} objects collected")
     return collected
 
+
 def clear_cuda_cache() -> None:
-    """
-    Clear CUDA cache if PyTorch is available.
-    
-    Silently ignores if CUDA is not available.
-    """
-    try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            logger.debug("CUDA cache cleared")
-    except ImportError:
-        logger.debug("PyTorch not available, skipping CUDA cache clear")
-    except Exception as e:
-        logger.warning(f"Failed to clear CUDA cache: {e}")
+    """Clear CUDA cache if GPU is available."""
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        logger.debug("CUDA cache cleared")
+
 
 def optimize_for_memory(obj: Any) -> Any:
     """
-    Optimize a data structure for memory efficiency.
-    
-    Currently handles:
-    - Lists: Convert to tuples if immutable
-    - Dicts: Ensure no unnecessary deep copies
-    - Large numpy arrays: Check for views vs copies
+    Optimize an object for memory efficiency.
     
     Args:
-        obj: The object to optimize.
+        obj: Object to optimize (numpy arrays, torch tensors, lists, dicts).
         
     Returns:
-        The optimized object (may be the same object).
+        Memory-optimized version of the object.
     """
-    if isinstance(obj, list):
-        # If the list is large and won't be modified, convert to tuple
-        if len(obj) > 1000:
-            logger.debug(f"Converting large list of size {len(obj)} to tuple for memory efficiency")
-            return tuple(obj)
+    if isinstance(obj, np.ndarray):
+        # Convert to more compact dtype if possible
+        if obj.dtype == np.float64:
+            obj = obj.astype(np.float32)
+        elif obj.dtype == np.int64:
+            obj = obj.astype(np.int32)
+        # Ensure contiguous memory layout
+        obj = np.ascontiguousarray(obj)
+        return obj
+        
+    elif isinstance(obj, torch.Tensor):
+        if obj.dtype == torch.float64:
+            obj = obj.to(torch.float32)
+        elif obj.dtype == torch.int64:
+            obj = obj.to(torch.int32)
+        if obj.is_cuda:
+            obj = obj.cpu()
+        return obj
+        
+    elif isinstance(obj, list):
+        # Recursively optimize list items
+        return [optimize_for_memory(item) for item in obj]
+        
     elif isinstance(obj, dict):
-        # Ensure we're not holding references to unnecessary large objects
-        # This is a no-op for the dict itself, but we log for awareness
-        pass
+        # Recursively optimize dict values
+        return {k: optimize_for_memory(v) for k, v in obj.items()}
+        
     return obj
 
-def memory_safe_iterator(iterable, batch_size: int = 100):
+
+def memory_safe_iterator(iterable: Iterator[T], 
+                         chunk_size: int = 100,
+                         limit_mb: Optional[float] = None) -> Iterator[T]:
     """
-    Create a memory-safe iterator that yields batches of items.
-    
-    This prevents loading the entire dataset into memory at once.
+    Iterator that enforces memory limits and triggers cleanup periodically.
     
     Args:
-        iterable: The source iterable.
-        batch_size: Number of items per batch.
+        iterable: Source iterator.
+        chunk_size: Number of items to process before memory check.
+        limit_mb: Memory limit in MB.
         
     Yields:
-        List of items in batches.
+        Items from the iterator with periodic memory management.
     """
-    batch = []
+    count = 0
     for item in iterable:
-        batch.append(item)
-        if len(batch) >= batch_size:
-            yield batch
-            batch = []
-            force_garbage_collection()
-    if batch:
-        yield batch
-
-def monitor_memory_usage(callback: Optional[Callable[[float], None]] = None, interval_seconds: float = 1.0):
-    """
-    Context manager to monitor memory usage during execution.
-    
-    Args:
-        callback: Optional callback function that receives memory usage (MB) periodically.
-        interval_seconds: Check interval in seconds.
+        yield item
+        count += 1
         
-    Example:
-        with monitor_memory_usage():
-            # code that uses memory
-            pass
+        if count % chunk_size == 0:
+            # Periodic cleanup
+            force_garbage_collection()
+            if limit_mb:
+                enforce_memory_limit(limit_mb)
+            clear_cuda_cache()
+
+
+def monitor_memory_usage(func: Callable[..., T]) -> Callable[..., T]:
     """
-    import threading
-    import time
-
-    stop_event = threading.Event()
-    monitor_thread = None
-
-    def monitor_loop():
-        while not stop_event.is_set():
-            current_mb = get_current_memory_mb()
-            if callback:
-                callback(current_mb)
-            time.sleep(interval_seconds)
-
-    try:
-        monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
-        monitor_thread.start()
-        yield
-    finally:
-        if monitor_thread:
-            stop_event.set()
-            monitor_thread.join(timeout=2.0)
-
-def profile_function(func: Callable[..., T], *args, **kwargs) -> Tuple[T, float]:
-    """
-    Profile a function's memory usage.
+    Decorator to monitor memory usage of a function.
     
     Args:
-        func: The function to profile.
-        *args: Positional arguments for the function.
-        **kwargs: Keyword arguments for the function.
+        func: Function to wrap.
         
     Returns:
-        Tuple of (function result, peak memory usage in MB during execution).
+        Wrapped function with memory monitoring.
     """
-    start_memory = get_current_memory_mb()
-    start_memory_profiling()
-    
-    try:
+    def wrapper(*args, **kwargs) -> T:
+        start_mem = get_current_memory_mb()
+        start_profile = tracemalloc.get_traced_memory()[1] if tracemalloc.is_tracing() else 0
+        
         result = func(*args, **kwargs)
-        peak_memory = stop_memory_profiling()
-        end_memory = get_current_memory_mb()
+        
+        end_mem = get_current_memory_mb()
+        end_profile = tracemalloc.get_traced_memory()[1] if tracemalloc.is_tracing() else 0
+        
+        delta = end_mem - start_mem
+        profile_delta = (end_profile - start_profile) / (1024 * 1024)
         
         logger.info(
-            f"Function {func.__name__} memory profile: "
-            f"Start: {start_memory:.2f} MB, "
-            f"End: {end_memory:.2f} MB, "
-            f"Peak: {peak_memory:.2f} MB"
+            f"Function {func.__name__} memory usage: "
+            f"delta={delta:.2f}MB, profile_delta={profile_delta:.2f}MB"
         )
-        return result, peak_memory
-    except Exception as e:
-        stop_memory_profiling()
-        raise e
+        
+        return result
+        
+    return wrapper
 
-def safe_delete(obj_ref: Any) -> None:
+
+def profile_function(func: Callable[..., T]) -> Callable[..., T]:
     """
-    Safely delete an object and force garbage collection.
+    Decorator to profile memory usage with detailed snapshot.
     
     Args:
-        obj_ref: Reference to the object to delete.
-    """
-    if obj_ref is not None:
-        del obj_ref
-        force_garbage_collection()
-        logger.debug("Object deleted and garbage collected")
-
-def check_memory_constraints(required_mb: int) -> bool:
-    """
-    Check if there is enough available memory for the required amount.
-    
-    Args:
-        required_mb: Required memory in megabytes.
+        func: Function to profile.
         
     Returns:
-        bool: True if sufficient memory is available, False otherwise.
+        Wrapped function with detailed memory profiling.
     """
-    current_mb = get_current_memory_mb()
-    total_mb = resource.getrlimit(resource.RLIMIT_AS)[0]
-    if total_mb == resource.RLIM_INFINITY:
-        # No limit set, assume we have enough
-        return True
+    def wrapper(*args, **kwargs) -> T:
+        if not tracemalloc.is_tracing():
+            tracemalloc.start()
+        
+        snapshot_before = tracemalloc.take_snapshot()
+        start_mem = get_current_memory_mb()
+        
+        result = func(*args, **kwargs)
+        
+        snapshot_after = tracemalloc.take_snapshot()
+        end_mem = get_current_memory_mb()
+        
+        # Calculate top memory consumers
+        stats = snapshot_after.compare_to(snapshot_before, 'lineno')
+        top_stats = stats[:10]
+        
+        logger.info(f"Function {func.__name__} memory delta: {end_mem - start_mem:.2f}MB")
+        for stat in top_stats:
+            logger.debug(f"  {stat}")
+        
+        return result
+        
+    return wrapper
+
+
+def safe_delete(obj: Any) -> None:
+    """
+    Safely delete an object and force cleanup.
     
-    available_mb = total_mb - current_mb
-    has_enough = available_mb >= required_mb
+    Args:
+        obj: Object to delete.
+    """
+    if obj is not None:
+        del obj
+        force_garbage_collection()
+        clear_cuda_cache()
+
+
+def check_memory_constraints(required_mb: float, 
+                             safety_factor: float = 1.2) -> bool:
+    """
+    Check if there is enough memory available for the required amount.
     
-    if not has_enough:
-        logger.error(
-            f"Insufficient memory: Required {required_mb} MB, "
-            f"Available {available_mb:.2f} MB"
+    Args:
+        required_mb: Required memory in MB.
+        safety_factor: Safety margin multiplier.
+        
+    Returns:
+        True if sufficient memory is available, False otherwise.
+    """
+    current = get_current_memory_mb()
+    required_with_safety = required_mb * safety_factor
+    
+    # Estimate available memory (assuming 7GB limit)
+    available = 7000 - current
+    
+    if available < required_with_safety:
+        logger.warning(
+            f"Insufficient memory: need {required_with_safety:.2f}MB, "
+            f"have {available:.2f}MB available (current: {current:.2f}MB)"
         )
-    return has_enough
+        return False
+        
+    logger.debug(
+        f"Memory check passed: need {required_with_safety:.2f}MB, "
+        f"have {available:.2f}MB available"
+    )
+    return True

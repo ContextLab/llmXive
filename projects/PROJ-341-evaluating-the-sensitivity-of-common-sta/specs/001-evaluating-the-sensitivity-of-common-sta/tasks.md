@@ -66,7 +66,7 @@
 
 ## Phase 3: User Story 1 - Core Simulation Engine for Type I/II Error Estimation (Priority: P1) 🎯 MVP
 
-**Goal**: Run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with [deferred] iterations.
+**Goal**: run a simulation that generates synthetic data with known ground truth across sample sizes (n=5 to n=500) [UNRESOLVED-CLAIM: c_c597a570 — status=not_enough_info] to empirically calculate Type I and Type II error rates for t-test, ANOVA, and chi-squared tests with [deferred] iterations.
 
 **Independent Test**: The system can be tested by running the simulation for a single condition (e.g., t-test, n=20, effect size 0.5) and verifying that the output file contains the raw p-values and the calculated empirical error rates (proportion of rejections) which match the expected binomial distribution variance for the configured iteration count (e.g., [deferred]).
 
@@ -153,7 +153,7 @@
 
 - [X] T035 [US1] Implement sensitivity analysis for alpha thresholds across standard significance levels to observe critical sample size shifts (SC-004); depends on T012b refactored for dynamic alpha
 - [X] T036a [P] Refactor `code/main.py` data loading to use generators to reduce memory footprint (ATOMIZE: requested)
-- [X] T036b [P] Implement batch processing for p-value calculation in `code/simulation/test_runner.py` to ensure peak memory usage < 7GB (ATOMIZE: requested). Verify peak memory usage < 7GB via CI benchmark.
+- [X] T036b [P] Implement batch processing for p-value calculation in `code/simulation/test_runner.py` to ensure peak memory usage < 7GB (ATOMIZE: requested). Verify peak memory usage < 7GB via CI benchmark [UNRESOLVED-CLAIM: c_ac38036f — status=not_enough_info].
 - [X] T037 [P] Add comprehensive logging to all simulation steps for debugging reproducibility issues
 - [X] T038 [P] Update `quickstart.md` with instructions to run the full simulation and generate the validation report
 - [X] T039 [P] Run `pytest` suite to ensure all unit and integration tests pass
@@ -168,8 +168,8 @@
 
 - [X] T040 [US1] Implement strict "fail loud" error handling in `code/simulation/data_generator.py` and `code/analysis/validator.py`: **Remove any `try/except` blocks that fall back to synthetic/mock data when real data fetches fail. Replace them with logic that raises a `RuntimeError` or `ValueError` with a descriptive message if a real fetch fails.** (Constitution Principle II, Data Hygiene Rule).
 - [X] T041 [US3] Explicitly document the sample size and sampling method for the OpenML Adult dataset in `code/analysis/validator.py` comments and `data/simulation_metadata.json`, as the full dataset is too large for the free runner. State the exact row count or streaming chunk size used (Constitution Principle III, Large Dataset Rule).
-- [ ] T042 [US2] Add a validation task to `tests/unit/test_threshold_finder.py` that verifies the "3 consecutive increments" rule for power threshold detection (FR-004) with edge cases where the threshold is exactly at n=5 or n=500. **Write unit test `test_power_threshold_consecutive_rule` that asserts the logic correctly identifies the threshold only after 3 consecutive increments below 0.80.**
-- [ ] T043 [US1] Refactor `code/simulation/test_runner.py` to ensure the random seed is re-initialized *inside* the iteration loop if batch processing is used, preventing state leakage between batches and ensuring reproducibility for every single iteration (Constitution Principle I).
+- [X] T042 [US2] Add a validation task to `tests/unit/test_threshold_finder.py` that verifies the "3 consecutive increments" rule for power threshold detection (FR-004) with edge cases where the threshold is exactly at n=5 or n=500. **Write unit test `test_power_threshold_consecutive_rule` that asserts the logic correctly identifies the threshold only after 3 consecutive increments below 0.80.**
+- [X] T043 [US1] Refactor `code/simulation/test_runner.py` to ensure the random seed is re-initialized *inside* the iteration loop if batch processing is used, preventing state leakage between batches and ensuring reproducibility for every single iteration (Constitution Principle I).
 - [ ] T044 [US3] **Remove the instruction to use `ucimlrepo` with `streaming=True`. Instead, add a task to verify that the `openml` fetch for dataset ID 1590 (Adult) uses chunked loading or explicit sampling to handle memory constraints, and that the code does not attempt to load the entire dataset into RAM at once.** (Large Dataset Rule).
 - [ ] T045 [US1] Update `code/main.py` to include a pre-flight check that verifies the total number of iterations (n=5..500 * 3 tests * 3 effects * 2 hypotheses * [deferred]) does not exceed the 6-hour CI limit based on a benchmark of a single iteration, failing fast if the estimate is too high (Performance Constraint).
 

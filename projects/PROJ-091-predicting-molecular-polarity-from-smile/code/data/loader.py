@@ -4,121 +4,92 @@ import math
 from typing import Iterator, Tuple, List, Optional
 from pathlib import Path
 from rdkit import Chem
+import logging
 
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Comprehensive SMILES validation regex
-# Matches valid SMILES characters including atoms, bonds, branches, rings, charges, isotopes, and stereochemistry
-# Excludes whitespace and control characters
-SMILES_REGEX = re.compile(
-    r'^[A-Za-z0-9@#$%&*()\-+=\[\]{}\\\/\|~^!;<>:]+$'
-)
+# SMILES validation regex (simplified)
+SMILES_REGEX = re.compile(r'^[CNOcnsSFPBrIcl1234567890=\[\]().-]+$')
 
 def validate_smiles(smiles: str) -> bool:
-    """
-    Validate a SMILES string using regex and RDKit parsing.
-    
-    Args:
-        smiles: The SMILES string to validate.
-        
-    Returns:
-        bool: True if the SMILES string is valid, False otherwise.
-    """
+    """Validate a SMILES string using regex and RDKit."""
     if not smiles or not isinstance(smiles, str):
         return False
-    
-    # First check with regex
     if not SMILES_REGEX.match(smiles):
         return False
-    
-    # Then check with RDKit
     mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        return False
-    
-    return True
+    return mol is not None
 
-def iterate_smiles(filepath: Path) -> Iterator[Tuple[str, Optional[float]]]:
+def iterate_smiles(filepath: Path) -> Iterator[Tuple[str, float]]:
     """
-    Iterate over a file containing SMILES strings and optional target values.
-    
-    Expected format: One SMILES string per line, optionally followed by a tab and a target value.
-    Lines starting with '#' are treated as comments and skipped.
-    Empty lines are skipped.
-    Invalid SMILES strings are logged and skipped.
-    
-    Args:
-        filepath: Path to the file containing SMILES strings.
-        
-    Yields:
-        Tuple of (smiles_string, target_value) where target_value is float or None.
+    Iterate over a CSV file containing SMILES and target values.
+    Yields (smiles, target) tuples.
     """
     if not filepath.exists():
-        logger.error(f"File not found: {filepath}")
-        return
-    
-    with open(filepath, "r") as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            
-            # Skip empty lines and comments
-            if not line or line.startswith("#"):
-                continue
-            
-            # Parse SMILES and optional target
-            parts = line.split("\t")
-            smiles = parts[0].strip()
-            target = None
-            
-            if len(parts) > 1:
-                try:
-                    target = float(parts[1].strip())
-                except ValueError:
-                    logger.warning(f"Invalid target value at line {line_num}: {parts[1]}")
+        raise FileNotFoundError(f"File not found: {filepath}")
+
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            header = f.readline().strip().split(',')
+            smiles_idx = header.index('smiles') if 'smiles' in header else 0
+            target_idx = header.index('target') if 'target' in header else 1
+
+            for line_num, line in enumerate(f, start=2):
+                parts = line.strip().split(',')
+                if len(parts) <= max(smiles_idx, target_idx):
+                    logger.warning(f"Skipping malformed line {line_num}: {line}")
                     continue
-            
-            # Validate SMILES
-            if not validate_smiles(smiles):
-                logger.warning(f"Invalid SMILES at line {line_num}: {smiles}")
-                continue
-            
-            yield (smiles, target)
+                smiles = parts[smiles_idx]
+                try:
+                    target = float(parts[target_idx])
+                except ValueError:
+                    logger.warning(f"Invalid target value on line {line_num}: {parts[target_idx]}")
+                    continue
 
-def load_batch(filepath: Path, batch_size: int) -> List[Tuple[str, Optional[float]]]:
+                if validate_smiles(smiles):
+                    yield smiles, target
+                else:
+                    logger.warning(f"Invalid SMILES on line {line_num}: {smiles}")
+    except Exception as e:
+        logger.error(f"Error reading {filepath}: {e}")
+        raise
+
+def load_batch(filepath: Path, batch_size: int) -> Iterator[Tuple[List[str], List[float]]]:
     """
-    Load a batch of SMILES strings and target values from a file.
-    
-    Args:
-        filepath: Path to the file containing SMILES strings.
-        batch_size: Number of records to load.
-        
-    Returns:
-        List of tuples containing (smiles_string, target_value).
+    Load data in batches.
+    Yields (list_of_smiles, list_of_targets) tuples.
     """
-    batch = []
+    smiles_batch = []
+    target_batch = []
+
     for smiles, target in iterate_smiles(filepath):
-        batch.append((smiles, target))
-        if len(batch) >= batch_size:
-            break
-    
-    return batch
+        smiles_batch.append(smiles)
+        target_batch.append(target)
 
-def main() -> None:
-    """Main entry point for testing the loader."""
-    logger.info("Testing loader with sample file")
+        if len(smiles_batch) >= batch_size:
+            yield smiles_batch, target_batch
+            smiles_batch = []
+            target_batch = []
+
+    if smiles_batch:
+        yield smiles_batch, target_batch
+
+def main():
+    """Main entry point for testing loader."""
     # Example usage
-    test_file = Path("data/raw/sample_smiles.txt")
+    test_file = Path(__file__).resolve().parent.parent.parent / "data" / "raw" / "qm9_smiles.csv.gz"
     if test_file.exists():
+        logger.info(f"Testing loader on {test_file}")
         count = 0
         for smiles, target in iterate_smiles(test_file):
             count += 1
-            if count >= 5:
+            if count >= 10:
                 break
-        logger.info(f"Loaded {count} valid SMILES strings")
+        logger.info(f"Successfully loaded {count} samples.")
     else:
-        logger.warning("Sample file not found, skipping test")
+        logger.warning(f"Test file not found: {test_file}")
 
 if __name__ == "__main__":
     main()

@@ -1,137 +1,242 @@
-# llmXive: Automated Science Pipeline
+# llmXive: Automated Scientific Research Pipeline
 
-**Project ID**: PROJ-1011-llmxive-follow-up-extending-researchstud
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Overview
+**llmXive** is an automated pipeline for extending existing research ideas into new, pattern-guided proposals. It ingests academic abstracts, maps them to ideation patterns, generates paired research proposals (pattern-guided vs. baseline), and facilitates expert evaluation to determine if pattern-guided proposals differ significantly from baseline.
 
-llmXive is an automated research pipeline designed to extend "ResearchStudio-Idea" by systematically acquiring scientific abstracts, mapping them to ideation patterns, generating research proposals, and performing statistical evaluation.
+## 🎯 Project Goal
 
-The pipeline enforces a strict two-group design (Pattern-Guided vs. Baseline) and adheres to the "fail loudly" principle for data acquisition to ensure reproducibility and data integrity.
+Extend the "ResearchStudio-Idea" framework by:
+1. Ingesting and preprocessing abstracts from ML and non-ML domains
+2. Mapping problem statements to ML-derived ideation patterns
+3. Generating paired research proposals (pattern-guided vs. baseline)
+4. Facilitating expert evaluation with statistical validation
 
-## Features
+**Key Constraint**: All conclusions are "associational, not causal."
 
-- **Automated Corpus Acquisition**: Ingests abstracts from arXiv (ML), Nature Climate Change, and Health Affairs using configurable endpoints.
-- **Pattern Mapping**: Uses `sentence-transformers` (quantized `all-MiniLM-L6-v2`) to map problem statements to research patterns.
-- **Proposal Generation**: Generates paired research proposals (pattern-guided vs. baseline) with memory-efficient batch processing.
-- **Expert Evaluation**: Supports blinded expert rating ingestion with strict Inter-Rater Reliability (IRR) gates.
-- **Statistical Analysis**: Performs power analysis, sensitivity analysis (IQR-based outlier removal), and multiple-comparison correction.
-- **Benchmarking**: Enforces a total runtime constraint of ≤ 6 hours via profiling and caching.
+## 🚀 Quick Start
 
-## Project Structure
-
-```text
-.
-├── code/
-│ ├── 01_data_acquisition.py # Data fetching, streaming, and preprocessing
-│ ├── 02_pattern_mapping.py # Embedding generation and pattern retrieval
-│ ├── 02_pattern_validation.py # Two-group design enforcement
-│ ├── 03_proposal_generation.py # LLM-based proposal generation (batched)
-│ ├── 04_evaluation_recruitment.py # Expert roster validation and rating ingestion
-│ ├── 05_statistical_analysis.py # Statistical tests, IRR, sensitivity analysis
-│ ├── models/ # Data models (Abstract, PatternCard, Proposal, Rating)
-│ └── utils/ # Configuration, logging, caching, benchmarking
-├── data/
-│ ├── raw/ # Raw fetched JSONL data
-│ ├── processed/ # Normalized and filtered data
-│ └── results/ # Generated proposals, ratings, analysis reports
-├── docs/
-│ ├── README.md # This file
-│ └── API.md # Detailed API documentation
-├── tests/
-│ └── unit/ # Unit tests for pipeline components
-├── state/
-│ └── manifest.yaml # Artifact versioning and checksums
-├── requirements.txt
-└── pyproject.toml
-```
-
-## Prerequisites
+### Prerequisites
 
 - Python 3.11+
-- `pip` for dependency management
-- Access to the internet for initial data fetching (if not cached)
+- 7 GB+ available RAM (for CPU-based embedding)
+- Internet access for data fetching
+- ORCID credentials (for expert recruitment)
 
-## Installation
+### Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-1011-llmxive-follow-up-extending-researchstud
- ```
-
-2. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-3. **Configure environment**:
- - Ensure `data-sources.yaml` is present in the project root or configured path.
- - Set environment variables for API keys if required by specific data sources (e.g., Prolific).
-
-## Usage
-
-### 1. Setup Infrastructure
-Initialize directory structures and state management:
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd PROJ-1011-llmxive-follow-up-extending-researchstud
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Setup project structure
 python code/setup_project_structure.py
 python code/setup_data_dirs.py
 ```
 
-### 2. Data Acquisition (User Story 1)
-Fetch and preprocess abstracts:
+### Running the Pipeline
+
 ```bash
+# 1. Data Acquisition
 python code/01_data_acquisition.py
-```
-*Output*: `data/processed/corpus.jsonl`
 
-### 3. Pattern Mapping (User Story 2)
-Generate embeddings and map patterns:
-```bash
+# 2. Pattern Mapping
 python code/02_pattern_mapping.py
-```
 
-### 4. Proposal Generation (User Story 2)
-Generate pattern-guided and baseline proposals:
-```bash
+# 3. Proposal Generation
 python code/03_proposal_generation.py
+
+# 4. Evaluation (Manual recruitment step required)
+python code/04_evaluation_recruitment.py
+
+# 5. Statistical Analysis
+python code/05_statistical_analysis.py
+
+# 6. Validation
+python code/utils/benchmark_validator.py
 ```
-*Output*: `data/results/generated_proposals.jsonl`
 
-### 5. Evaluation & Analysis (User Story 3)
-Load expert ratings and perform statistical analysis:
-```bash
-python code/04_evaluation_recruitment.py # Ingest ratings
-python code/05_statistical_analysis.py # Run analysis
-```
-*Output*: `data/results/analysis_report.md`, `data/results/validity_metrics.json`
+### Testing
 
-## Configuration
-
-Key configuration files:
-- `data-sources.yaml`: Defines API endpoints, DOIs, and fetch parameters.
-- `code/utils/config.py`: Contains seed pinning, model fallback logic, and environment settings.
-- `state/manifest.yaml`: Tracks artifact versions and checksums.
-
-## Testing
-
-Run the unit test suite:
 ```bash
 pytest tests/unit/ -v
 ```
 
-Key test modules:
-- `test_data_sources_config.py`: Validates configuration loading.
-- `test_memory_usage_constraint.py`: Ensures batch processing stays within 7GB RAM.
-- `test_sensitivity_analysis.py`: Verifies outlier removal logic.
-- `test_inter_rater_reliability_gate.py`: Enforces Krippendorff's alpha threshold.
+## 📊 Data Flow
 
-## Constraints & Principles
+```
+arXiv/DOI Sources
+ ↓
+[Acquisition] data/raw/corpus_raw.jsonl
+ ↓
+[Preprocessing] data/processed/corpus.jsonl
+ ↓
+[Pattern Mapping] data/processed/holdout_patterns.json
+ ↓
+[Proposal Generation] data/results/generated_proposals.jsonl
+ ↓
+[Expert Evaluation] data/results/ratings_filled.csv
+ ↓
+[Statistical Analysis] data/results/analysis_report.md
+```
 
-- **Fail Loudly**: The pipeline halts immediately on data fetch errors (403/404) or paywall detection. No synthetic data fallbacks are permitted.
-- **Two-Group Design**: Strict enforcement of Pattern-Guided vs. Baseline; random-pattern arms are rejected.
-- **Memory Efficiency**: Batch processing and streaming are mandatory for large datasets.
-- **Runtime Limit**: Total pipeline execution must not exceed 6 hours.
+## 🔑 Key Features
 
-## License
+### 1. Fail-Loudly Data Fetching
+- Strict validation on 403/404/paywall errors
+- No synthetic data fallbacks
+- Clear error messages with venue context
 
-[Insert License Information Here]
+### 2. Memory-Efficient Processing
+- Streaming data loading (Hugging Face `datasets`)
+- Quantized embeddings (CPU-tractable)
+- Batch processing with generator-based loaders
+- 6-hour runtime constraint enforcement
+
+### 3. Two-Group Design Integrity
+- Explicit validation against 'random-pattern' references
+- Static analysis to reject third-arm logic
+- All outputs strictly labeled as 'pattern-guided' or 'baseline'
+
+### 4. Reproducibility
+- Seed pinning for numpy, torch, python
+- Checksum manifest for all artifacts
+- Versioned state tracking
+
+## 🧪 User Stories
+
+### US1: Corpus Acquisition and Pre-processing (P1)
+- Ingest abstracts from arXiv (cs.LG, q-bio.QM) and curated DOI lists
+- Validate fetch status and preprocess text
+- Output: Balanced sample of ML, Non-ML Accepted, Non-ML Rejected records
+
+### US2: Pattern Mapping and Proposal Generation (P2)
+- Map problem statements to ML-derived ideation patterns
+- Generate paired proposals (pattern-guided vs. baseline)
+- Enforce two-group design constraints
+
+### US3: Expert Evaluation and Statistical Analysis (P3)
+- Recruit domain experts (≥5 years experience)
+- Aggregate ratings and perform statistical tests
+- Output: Final report with p-values, effect sizes, and validity metrics
+
+## 📁 Project Structure
+
+```
+PROJ-1011-llmxive-follow-up-extending-researchstud/
+├── code/ # Core implementation
+│ ├── 01_data_acquisition.py
+│ ├── 02_pattern_mapping.py
+│ ├── 03_proposal_generation.py
+│ ├── 04_evaluation_recruitment.py
+│ ├── 05_statistical_analysis.py
+│ ├── models/ # Data models
+│ └── utils/ # Shared utilities
+├── data/ # Data storage
+│ ├── raw/
+│ ├── processed/
+│ └── results/
+├── tests/ # Unit tests
+├── docs/ # Documentation
+├── state/ # Artifact versioning
+├── logs/ # Execution logs
+├── data-sources.yaml # External data sources
+├── plan.md # Project plan
+├── spec.md # Feature specifications
+└── README.md # This file
+```
+
+## ⚙️ Configuration
+
+### data-sources.yaml
+Define API endpoints and DOI lists:
+```yaml
+arxiv:
+ categories:
+ - cs.LG
+ - q-bio.QM
+ max_results: 500
+ acceptance_filter: true
+
+nature_climate_change:
+ doi_list: [...]
+ acceptance_status: true
+
+health_affairs:
+ doi_list: [...]
+ acceptance_status: true
+```
+
+### config.py
+Configure seeds, models, and fallbacks:
+```python
+SEED = 42
+FALLBACK_EMBEDDING_MODEL = "all-MiniLM-L6-v2-quantized"
+MAX_MEMORY_MB = 7000
+```
+
+## 🛡️ Safety & Constraints
+
+- **No Synthetic Data**: Pipeline fails loudly on real source errors
+- **PII Sanitization**: All outputs checked for personally identifiable information
+- **Memory Limits**: 7 GB RAM constraint enforced with streaming and batching
+- **Runtime Limit**: 6-hour maximum pipeline execution time
+- **Two-Group Design**: No 'random-pattern' or third-arm logic allowed
+
+## 📈 Statistical Methodology
+
+- **Sample Size**: n=50 pairs, 3 raters (power analysis: d≈0.5, α=0.05, power≥0.8)
+- **IRR Gate**: Krippendorff's α ≥ 0.6 (fail if lower)
+- **Test Selection**: Paired t-test (normal) or Wilcoxon signed-rank (non-normal)
+- **Sensitivity Analysis**: Remove entire pairs if one member is an outlier (IQR method)
+- **Multiple Comparison Correction**: Bonferroni or Benjamini-Hochberg
+- **Validity Statement**: All conclusions are "associational, not causal"
+
+## 🧪 Testing
+
+Unit tests cover:
+- Data parsing and validation
+- Memory usage constraints
+- Preprocessing validation
+- Pattern mapping logic
+- Proposal generation pairing
+- Statistical normality checks
+- Multiple comparison correction
+- IRR gate enforcement
+- Sensitivity analysis logic
+
+Run tests:
+```bash
+pytest tests/unit/ -v --cov=code
+```
+
+## 📚 Documentation
+
+- [Architecture Guide](docs/ARCHITECTURE.md)
+- [Workflow Guide](docs/WORKFLOW.md)
+- [API Reference](docs/API.md) (coming soon)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Implement changes with tests
+4. Ensure all tests pass
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details
+
+## 🙏 Acknowledgments
+
+Based on the "ResearchStudio-Idea" framework. Extended by the llmXive team.
+
+## 📞 Contact
+
+For questions or support, please open an issue in the repository.

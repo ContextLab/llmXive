@@ -96,3 +96,19 @@ T046:
     is no `quickstart.md` file, validation output, or integration test suite results
     present. Consequently, the required validation and test execution artifacts are
     missing.
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a specification for a research\u2011ideation feature\
+    \ (corpus acquisition, pattern mapping, etc.) and no code, logs, or output files\
+    \ related to \u201CT047 Security hardening: Ensure no PII in logs or output files.\u201D\
+    \ Consequently, there is no artifact demonstrating that logs or output files have\
+    \ been checked for or stripped of personally identifiable information, nor any\
+    \ evidence that the security hardening requirement was addressed. The required\
+    \ security\u2011hardening work is missing."
+T048:
+  c: false
+  h: 310e6701513cb8f96b103d21552522af1697ea91a4b9b7107930b1cc8d7cf493
+  r: The required `state/manifest.yaml` file is missing entirely, so no checksum information
+    is present to satisfy the update task. The implementer must create the file and
+    populate it with the final artifact checksums.

@@ -170,7 +170,7 @@
 - [X] T045b [US3] Implement caching mechanisms for intermediate results (e.g., cached embeddings, cached LLM prompts) in `code/utils/caching.py` to reduce redundant computation and ensure the total runtime stays within a reasonable constraint.
 - [X] T045c [US3] Implement `code/utils/benchmark_validator.py` to parse `data/results/benchmark_log.json`, assert that the total runtime is < 6 hours, and fail the build with a clear error message if the threshold is exceeded. **Output**: A validation script that returns exit code 1 on failure.
 - [ ] T046 [P] Run `quickstart.md` validation and integration test suite
-- [~] T047 Security hardening: Ensure no PII in logs or output files
+- [ ] T047 Security hardening: Ensure no PII in logs or output files
 - [ ] T048 Update `state/manifest.yaml` with final artifact checksums
 
 ---

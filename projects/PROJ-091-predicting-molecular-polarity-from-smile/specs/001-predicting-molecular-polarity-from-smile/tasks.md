@@ -165,7 +165,7 @@
 - [ ] T041 [P] Additional unit tests in `tests/unit/` (if requested)
 - [X] T042a [P] Add input validation regex for SMILES strings in `code/data/download_qm9.py` and `code/data/loader.py`.
 - [ ] T042b [P] Add `safety check` command to CI workflow for dependency vulnerability scanning.
-- [ ] T043 [P] Run `docs/quickstart.md` validation and end-to-end test on small batch.
+- [X] T043 [P] Run `docs/quickstart.md` validation and end-to-end test on small batch.
 - [ ] T044 [P] **[SC-004]** Final verification of computational constraints (≤6h runtime, ≤6GB RAM) by running the full pipeline **via GitHub Actions free-tier runner CI workflow**. **Method**: Use `memory_profiler` and `time` command to measure peak memory and total runtime. **Requirement**: Must execute in the target CI environment, not locally.
 
 ---

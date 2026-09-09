@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 2a0ce7ea80fd56fc5f66c48fbbeede93a234c78073dc1dec8b154238fb19a707
+  artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![Python 3.11+'
+  fetched_title: 'python: 3.11+'
+  kind: url
+  value: https://img.shields.io/badge/python-3.11+-blue.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/python-3.11+-blue.svg
+  verified_at: '2026-09-09T12:50:12.185225Z'
+- artifact_hash: 2a0ce7ea80fd56fc5f66c48fbbeede93a234c78073dc1dec8b154238fb19a707
+  artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: '![License: MIT'
+  fetched_title: 'License: MIT'
+  kind: url
+  value: https://img.shields.io/badge/License-MIT-yellow.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/License-MIT-yellow.svg
+  verified_at: '2026-09-09T12:50:12.185225Z'
+- artifact_hash: 2a0ce7ea80fd56fc5f66c48fbbeede93a234c78073dc1dec8b154238fb19a707
+  artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Download Python | Python.org
+  kind: url
+  value: https://www.python.org/downloads/
+  verification_status: pending
+  verified_against_url: https://www.python.org/downloads/
+  verified_at: '2026-09-09T12:50:12.185225Z'

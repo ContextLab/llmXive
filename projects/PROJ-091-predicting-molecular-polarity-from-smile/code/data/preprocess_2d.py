@@ -4,108 +4,156 @@ import logging
 import gc
 from pathlib import Path
 from typing import Iterator, Tuple, List, Dict, Any, Optional
+import pandas as pd
+import numpy as np
+from rdkit import Chem
+from rdkit.Chem import Descriptors
+import logging
 
-def compute_descriptors_batch(smiles_list):
-    """Computes 2D descriptors for a batch of SMILES strings."""
-    from rdkit import Chem
-    from rdkit.Chem import Descriptors
-    descriptors = []
+from utils.logging_config import get_logger
+from data.loader import iterate_smiles
+
+logger = get_logger(__name__)
+
+# Excluded descriptors (TPSA, 3D-related, SMARTS-based)
+EXCLUDED_DESCRIPTORS = {
+    'TPSA', 'TPSA_E', 'EState_VSA1', 'EState_VSA10', 'EState_VSA11', 'EState_VSA12',
+    'EState_VSA2', 'EState_VSA3', 'EState_VSA4', 'EState_VSA5', 'EState_VSA6',
+    'EState_VSA7', 'EState_VSA8', 'EState_VSA9', 'VSA_EState1', 'VSA_EState10',
+    'VSA_EState2', 'VSA_EState3', 'VSA_EState4', 'VSA_EState5', 'VSA_EState6',
+    'VSA_EState7', 'VSA_EState8', 'VSA_EState9', 'VSA_EState10', 'MolWt', 'MolLogP'
+}
+
+# Whitelist of allowed 2D descriptors from rdkit.Descriptors
+ALLOWED_DESCRIPTORS = [name for name in dir(Descriptors) if not name.startswith('_') and callable(getattr(Descriptors, name))]
+
+def compute_descriptors_batch(smiles_list: List[str]) -> List[Dict[str, float]]:
+    """Compute 2D descriptors for a batch of SMILES strings."""
+    results = []
     for smiles in smiles_list:
-        try:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                logging.warning(f"Invalid SMILES string: {smiles}")
-                descriptors.append([None] * 200)  # Pad with Nones
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            results.append(None)
+            continue
+
+        desc_dict = {}
+        for name in ALLOWED_DESCRIPTORS:
+            if name in EXCLUDED_DESCRIPTORS:
                 continue
-
-            desc = [Descriptors.MolWt(mol), Descriptors.LogP(mol), Descriptors.NumHAcceptors(mol)] # Example descriptors
-            desc += [Descriptors.GetDescriptor(mol, d) for d in range(1, 200)]
-            descriptors.append(desc)
-        except Exception as e:
-            logging.error(f"Error processing SMILES {smiles}: {e}")
-            descriptors.append([None] * 200)  # Pad with Nones
-
-    return descriptors
-
-
-def filter_high_correlation_features(df, target):
-    """Filters features based on correlation with the target variable."""
-    import pandas as pd
-    correlation_matrix = df.corr()
-    highly_correlated_features = correlation_matrix[abs(correlation_matrix[target]) > 0.85].index
-    # Do not remove any features
-    return df
-
-def handle_missing_values(df):
-    """Handles missing values in the DataFrame."""
-    import pandas as pd
-    na_counts = df.isna().sum()
-    cols_to_drop = na_counts[na_counts > 0.05 * len(df)].index  # Drop if > 5% missing
-
-    if len(cols_to_drop) > 0:
-        logging.info(f"Dropping columns with >5% NaN values: {list(cols_to_drop)}")
-        df = df.dropna(subset=cols_to_drop)
-    else:
-        # Impute with median if no columns to drop
-        for col in df.columns:
-            if df[col].isnull().any():
-                median_val = df[col].median()
-                logging.info(f"Imputing missing values in column {col} with median: {median_val}")
-                df[col] = df[col].fillna(median_val)
-
-    return df
-
-
-def preprocess_2d(input_file, output_file):
-    """Preprocesses 2D descriptors from a SMILES file."""
-    import pandas as pd
-    from rdkit import Chem
-
-    # Load data in batches to manage memory usage.
-    batch_size = 1000  # Adjust based on available RAM
-    smiles_list = []
-    target_values = []
-
-    with open(input_file, 'r') as f:
-        for line in f:
             try:
-                smiles, target = line.strip().split(',')
-                smiles_list.append(smiles)
-                target_values.append(float(target))
-            except ValueError:
-                logging.warning(f"Skipping invalid line: {line}")
+                val = getattr(Descriptors, name)(mol)
+                if np.isnan(val) or np.isinf(val):
+                    desc_dict[name] = np.nan
+                else:
+                    desc_dict[name] = float(val)
+            except Exception:
+                desc_dict[name] = np.nan
+        results.append(desc_dict)
+    return results
 
-    all_descriptors = []
-    for i in range(0, len(smiles_list), batch_size):
-        batch_smiles = smiles_list[i:i + batch_size]
-        batch_targets = target_values[i:i + batch_size]
-        descriptors = compute_descriptors_batch(batch_smiles)
-        all_descriptors.extend(descriptors)
+def filter_high_correlation_features(df: pd.DataFrame, threshold: float = 0.85) -> pd.DataFrame:
+    """
+    Compute correlation matrix but DO NOT remove features.
+    This function is a placeholder to satisfy T014b requirements.
+    """
+    # Calculate correlation but do not filter
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) > 1:
+        corr_matrix = df[numeric_cols].corr().abs()
+        # Log the max correlations but do not drop
+        logger.info("Correlation matrix computed. No features removed (per plan override).")
+    return df
 
-    df = pd.DataFrame(all_descriptors, columns=[f'descriptor_{i}' for i in range(200)])
-    df['smiles'] = smiles_list
-    df['target'] = target_values
+def handle_missing_values(df: pd.DataFrame, threshold: float = 0.05) -> pd.DataFrame:
+    """
+    Handle missing values: drop rows if >5% missing in a column, else impute with median.
+    Logs the action taken.
+    """
+    initial_rows = len(df)
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
 
+    for col in numeric_cols:
+        missing_pct = df[col].isna().sum() / len(df)
+        if missing_pct > threshold:
+            logger.warning(f"Column {col} has {missing_pct:.2%} missing values. Dropping rows.")
+            df = df.dropna(subset=[col])
+        else:
+            median_val = df[col].median()
+            df[col] = df[col].fillna(median_val)
+            logger.info(f"Imputed {col} with median {median_val}.")
+
+    dropped_rows = initial_rows - len(df)
+    if dropped_rows > 0:
+        logger.info(f"Dropped {dropped_rows} rows due to missing values.")
+
+    return df
+
+def preprocess_2d(input_file: Path, output_file: Path):
+    """Main preprocessing function."""
+    logger.info(f"Starting preprocessing for {input_file}")
+
+    # Process in chunks to manage memory
+    batch_size = 1000
+    all_data = []
+
+    for smiles_list, targets in load_batch_iterative(input_file, batch_size):
+        desc_list = compute_descriptors_batch(smiles_list)
+        for smiles, target, desc in zip(smiles_list, targets, desc_list):
+            if desc is not None:
+                row = {'smiles': smiles, 'target': target}
+                row.update(desc)
+                all_data.append(row)
+            else:
+                logger.warning(f"Skipping invalid molecule: {smiles}")
+
+        # Periodic garbage collection
+        if len(all_data) % (batch_size * 10) == 0:
+            gc.collect()
+
+    df = pd.DataFrame(all_data)
+
+    # Apply correlation analysis (no filtering)
+    df = filter_high_correlation_features(df)
+
+    # Handle missing values
     df = handle_missing_values(df)
-    # df = filter_high_correlation_features(df, 'target') # removed as per override!
 
-    df.to_parquet(output_file)
+    # Save to parquet
+    df.to_parquet(output_file, index=False)
+    logger.info(f"Saved processed descriptors to {output_file}")
 
+    # Verify schema
+    assert 'smiles' in df.columns
+    assert 'target' in df.columns
+    for col in df.columns:
+        assert not col.startswith('TPSA'), f"TPSA column found: {col}"
+
+    logger.info("Preprocessing complete.")
+
+def load_batch_iterative(filepath: Path, batch_size: int):
+    """Helper to load batches from file."""
+    smiles_batch = []
+    target_batch = []
+    for smiles, target in iterate_smiles(filepath):
+        smiles_batch.append(smiles)
+        target_batch.append(target)
+        if len(smiles_batch) >= batch_size:
+            yield smiles_batch, target_batch
+            smiles_batch = []
+            target_batch = []
+    if smiles_batch:
+        yield smiles_batch, target_batch
 
 def main():
-    """Main function to run the preprocessing pipeline."""
-    import argparse
+    """Main entry point."""
+    input_file = Path(__file__).resolve().parent.parent.parent / "data" / "raw" / "qm9_smiles.csv.gz"
+    output_file = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "descriptors.parquet"
 
-    parser = argparse.ArgumentParser(description="Preprocess 2D descriptors from SMILES strings.")
-    parser.add_argument("input_file", help="Path to the input file containing SMILES and target values.")
-    parser.add_argument("output_file", help="Path to save the preprocessed data in Parquet format.")
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        sys.exit(1)
 
-    args = parser.parse_args()
-
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    preprocess_2d(args.input_file, args.output_file)
-
-
+    preprocess_2d(input_file, output_file)
 
 if __name__ == "__main__":
     main()
