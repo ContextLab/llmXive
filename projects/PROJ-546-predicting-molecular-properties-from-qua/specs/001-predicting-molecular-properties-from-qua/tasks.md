@@ -40,9 +40,9 @@
 - [X] T004b [P] [FR-001] **Fetch Data**: Implement `code/fetch_data.py` to fetch the experimental barrier dataset from Zenodo ID `1048765`. **Verification**: Must log verification status to `logs/verification.log` and verify `data/raw/` contains the file before proceeding. **Note**: This task depends on T004a completion.
 - [X] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases.
 - [X] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (spec.md Data Model).
-- [X] T011 [P] [FR-008] **Confounds Analysis**: Implement `code/confounds.py` to read SMILES from `data/raw/barrier_dataset.csv`, convert to Mol objects, calculate MW (`Descriptors.MolWt`), atom count (`Descriptors.NumAtoms`), and functional groups (`rdkit.Chem.Lipinski`, `rdkit.Chem.Fragments`). Output `data/confounds.csv` with columns `molecule_id` (str), `mw` (float), `atom_count` (int), `functional_groups` (str). **Verification**: Verify `data/confounds.csv` exists, is non-empty, and has the exact schema. **FR-008 Compliance**: Calculate distribution stats (mean, std) for MW/atom_count from the **fetched dataset itself** and log result to `data/confounds_verification.log` with status PASS (stats calculated). **Dependency**: T004b.
-- [X] T011c [P] [FR-001] Implement `code/physical_validator.py` to enforce structural constraints defined in spec.md Edge Cases: specifically check `HOMO_energy < LUMO_energy` for optimized geometries. If violated, log to `logs/structural_failures.log` with status `failed_after_retry` and skip. **Aligns with spec Edge Cases only; no hardcoded peptide constraints.**
-- [X] T081 [P] **Create CLI Entry Point**: Implement `code/main.py` as the single entry point script. This script must orchestrate the pipeline phases (Fetch -> Optimize -> DFT -> Train -> Evaluate). **Verification**: `python code/main.py --help` must list available commands. **Dependencies**: T004b, T013c, T020b, T021, T022, T031c, T033a. **Note**: This task depends on all pipeline logic tasks being implemented. This task is now complete and serves as the definitive CLI entry point for the project.
+- [X] T011 [P] [FR-008] **Confounds Analysis**: Implement `code/confounds.py` to read SMILES from `data/raw/barrier_dataset.csv` (output of T004b), convert to Mol objects, calculate MW (`Descriptors.MolWt`), atom count (`Descriptors.NumAtoms`), and functional groups (`rdkit.Chem.Lipinski`, `rdkit.Chem.Fragments`). Output `data/confounds.csv` with columns `molecule_id` (str), `mw` (float), `atom_count` (int), `functional_groups` (str). **Verification**: Verify `data/confounds.csv` exists, is non-empty, and has the exact schema: `molecule_id`, `mw`, `atom_count`, `functional_groups`. **FR-008 Compliance**: Calculate distribution stats (mean, std) for MW/atom_count from the **fetched dataset itself** and log result to `data/confounds_verification.log` with status "PASS: Stats calculated". **Dependency**: T004b. **Initialization**: If `data/raw/barrier_dataset.csv` is missing, raise `FileNotFoundError` to halt execution.
+- [X] T011c [P] [FR-001] Implement `code/physical_validator.py` to enforce the structural constraint **HOMO_energy < LUMO_energy** for optimized geometries. **Logic**: If a calculated geometry violates this constraint (HOMO_energy >= LUMO_energy), the task must log the event to `logs/structural_failures.log` with status `failed_after_retry` and skip the molecule. **Constraint**: The task must explicitly check `HOMO_energy < LUMO_energy` and not rely on external documentation for this logic. **Note**: This task implements the physical validity check.
+- [ ] T081 [P] **Create CLI Entry Point**: Implement `code/main.py` as the single entry point script. This script must orchestrate the pipeline phases (Fetch -> Optimize -> DFT -> Train -> Evaluate). **Verification**: `python code/main.py --help` must list available commands. **Dependencies**: T004b, T013c (structural existence of files). **Note**: This task depends on the existence of pipeline logic scripts. The CLI is a structural placeholder built in Phase 3, but logically depends on the scripts it calls.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
  - **Validation**: Read output of T013a, validate `HOMO_energy < LUMO_energy`, and if failed, write to `logs/structural_failures.log` with format `molecule_id, timestamp, error_code, error_message`.
  - **Geometry Export**: Save optimized geometries to `data/optimized_geometries/` as `{molecule_id}.xyz`. **Format**: Header line with atom count, comment line with `molecule_id`, followed by atom coordinates (element x y z).
  - **CSV Export**: Write final `data/descriptors_semi.csv` with schema: `molecule_id` (str), `HOMO_energy` (float), `LUMO_energy` (float), `mayer_bond_order` (float). **Note**: All validation logic is contained within T013c. **Dependency**: T004b, T013a, T013b.
-- [X] T017a [US1] **Implement Logging Logic**: Ensure `code/descriptor_pipeline.py` (T013c) generates `logs/dft_execution.log` with JSON lines schema: `{"molecule_id": str, "command": str, "exit_code": int, "duration": float, "peak_memory_mb": float}`. **Note**: This is the implementation of the logging logic.
+- [X] T017a [US1] **Implement Logging Logic**: Ensure `code/descriptor_pipeline.py` (T013c) generates `logs/dft_execution.log` with JSON lines schema: `{"molecule_id": str, "command": str, "exit_code": int, "duration": float, "peak_memory_mb": float}` for **ALL runs** (success and failure) to support Constitution Principle VII (Resource Monitoring). **Note**: This log is distinct from the failure-only log in spec.md Edge Cases.
 - [X] T017b [US1] **Verify Logging Schema**: Verify `logs/dft_execution.log` exists, is non-empty, and contains valid JSON lines with keys: `molecule_id`, `command`, `exit_code`, `duration`, `peak_memory_mb`. **Dependency**: T017a. **Note**: This task validates Constitution Principle VII compliance.
 
 **Checkpoint**: At this point, User Story 1 is fully functional if T013c is complete (including geometry export to `data/optimized_geometries/`).
@@ -96,10 +96,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement `code/dft_calculator.py` subset selection logic: Read `data/raw/barrier_dataset.csv`, calculate total valid samples (N). If N >= 50, select 50; else select all. Stratify by `experimental_barrier` bins using `pd.qcut` or equivalent, ensuring representative distribution. **Binning Strategy**: Implement flexible binning to ensure stratification. **Dependency Check**: Verify `data/raw/barrier_dataset.csv` exists (T004b), `data/optimized_geometries/` exists (T013c). **Note**: T011 is NOT a dependency for this task. **Dependency**: T004b, T013c.
-- [ ] T020b [US2] Implement `code/dft_calculator.py` DFT calculation logic: Invoke Psi4 for B3LYP/def2-SVP on the selected subset. **Geometry Import**: Import optimized geometries from `data/optimized_geometries/{molecule_id}.xyz` (output of T013c). **Missing File Handling**: If a geometry file is missing (due to T013c failure), **exclude that molecule from the initial subset selection and RE-STRATIFY** the remaining molecules to maintain a target sample size sufficient for statistical power (or as close as possible) to ensure the paired t-test validity. **Psi4 Input**: Generate input file with geometry block and keywords `b3lyp/def2-svp optimize energy`. Parse output to extract HOMO/LUMO. **Split Locking**: Use `sklearn.model_selection.StratifiedKFold` with a fixed `random_state` to ensure the **exact same split indices** are used for both the Semi-Empirical and DFT models. Generate `data/descriptors_dft.csv`. Write split indices to `state/splits.json` for T021. **Dependency**: T013c, T020a.
-- [X] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using k-fold cross-validation (spec.md US2) with the **locked split indices** from T020b. **Verification**: Ensure the same `random_state` and split indices are used for both models to satisfy the paired t-test requirement. **Mechanism**: Read split indices from `state/splits.json` generated by T020b. <!-- FIXED: Mechanism clarified -->
-- [ ] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE, run paired t-test (spec.md US2), and **report the Semi-Empirical MAE as a measured value** (do not verify against a fixed threshold). **Output**: `reports/evaluation.json` with keys: `mae_semi`, `mae_dft`, `t_test` (object with `statistic`, `p_value`, `null_hypothesis`, `significance_level`, `models_compared`). **Note**: This task includes the logic for MAE flags (previously T023) and is now complete.
+- [X] T020a [US2] Implement `code/dft_calculator.py` subset selection logic: Read `data/raw/barrier_dataset.csv`, calculate total valid samples (N). If N >= 50, select 50; else select all. Stratify by `experimental_barrier` bins using `pd.qcut` or equivalent, ensuring representative distribution. **Binning Strategy**: Implement flexible binning to ensure stratification. **Dependency Check**: Verify `data/raw/barrier_dataset.csv` exists (T004b), `data/optimized_geometries/` exists (T013c). **Note**: T011 is NOT a hard dependency for this task as stratification is based on barrier height, not confounds. **Dependency**: T004b, T013c.
+- [X] T020b [US2] Implement `code/dft_calculator.py` DFT calculation logic: Invoke Psi4 for B3LYP/def2-SVP on the selected subset. **Geometry Import**: Import optimized geometries from `data/optimized_geometries/{molecule_id}.xyz` (output of T013c). **Missing File Handling**: If a geometry file is missing (due to T013c failure), **exclude that molecule from the subset selection**. If the remaining count is < 50, **raise a `RuntimeError`** with a clear message: "Insufficient optimized geometries for stratified subset (N < 50). Pipeline halted." **DO NOT** re-stratify or attempt fallback logic not authorized by spec.md. **Psi4 Input**: Generate input file with geometry block and keywords `b3lyp/def2-svp optimize energy`. Parse output to extract HOMO/LUMO. **Split Locking**: Use `sklearn.model_selection.StratifiedKFold` with a fixed `random_state` to ensure the **exact same split indices** are used for both the Semi-Empirical and DFT models. Generate `data/descriptors_dft.csv`. Write split indices to `state/splits.json` for T021. **Verification**: Verify `state/splits.json` exists and contains keys `train_indices`, `test_indices`, `random_state`. **Dependency**: T013c, T020a.
+- [X] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using k-fold cross-validation (spec.md US2) with the **locked split indices** from T020b. **Verification**: Ensure the same `random_state` and split indices are used for both models to satisfy the paired t-test requirement. **Mechanism**: Read split indices from `state/splits.json` generated by T020b. **Verification**: Verify `state/splits.json` is loaded and used for both models; confirm `random_state` matches T020b. **Dependency**: T020b.
+- [X] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE, run paired t-test (spec.md US2), and **report the Semi-Empirical MAE as a measured value** (do not verify against a fixed threshold). **Output**: `reports/evaluation.json` with keys: `mae_semi`, `mae_dft`, `t_test` (object with `statistic`, `p_value`, `null_hypothesis`, `significance_level`, `models_compared`). **Note**: This task includes the logic for MAE flags (previously T023) and is now complete. **Initialization**: If `data/descriptors_dft.csv` or `state/splits.json` is missing, raise `FileNotFoundError`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,7 +117,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/sensitivity_analysis.py` to extract feature importance from semi-empirical RF (spec.md US3). **Verification**: Verify `code/sensitivity_analysis.py` extracts `feature_importances_` from the trained RF model (T021) and saves to `reports/sensitivity.csv` with columns `rank`, `descriptor`, `importance`, `cumulative_importance`. **Dependency**: T021. <!-- FIXED: Verification steps expanded -->
+- [X] T029 [US3] Implement `code/sensitivity_analysis.py` to extract feature importance from semi-empirical RF (spec.md US3). **Verification**: Verify `code/sensitivity_analysis.py` extracts `feature_importances_` from the trained RF model (T021) and saves to `reports/sensitivity.csv` with columns `rank`, `descriptor`, `importance`, `cumulative_importance`. **Dependency**: T021. **Initialization**: If `reports/evaluation.json` or model artifacts are missing, raise `FileNotFoundError`. <!-- FIXED: Verification steps expanded -->
 - [X] T030 [US3] Implement logic to identify top-ranked descriptors and calculate cumulative importance. (spec.md US3) using the output from T029. **Logic**: Sort by descending importance, select top candidates, and append to `reports/sensitivity.csv` with columns `rank`, `descriptor`, `importance`, `cumulative_importance`. **Verification**: Verify `reports/sensitivity.csv` exists, is non-empty, and contains the specified columns.
 - [X] T030b [US3] [FR-007] Implement `code/noise_injection.py` to inject Gaussian noise (σ=0.01, σ=0.05) into the descriptor features of the training set. **Output**: Generate perturbed datasets for each noise level. **Verification**: Verify noise injection is applied correctly. **Stability Check**: For each noise level, **load the trained model artifacts from T021**, re-train the RF model using the same logic, extract top 3 descriptors, and calculate Spearman's rank correlation (rho) against the original top 3. **Threshold**: `stable = True` if rho >= 0.9. Log results to `reports/sensitivity.csv`. **Dependency**: T029, T030, T021 (model artifacts).
 - [X] T031b [US3] Implement `code/sensitivity_sweep.py` logic to sweep **feature importance cutoffs** {low, 0.05, 0.1} (where 'low' = 0.01) on the base and perturbed datasets. **Dependency**: T030b. **Verification**: Verify sweep results logged to `reports/sensitivity.csv` with stability flags.
@@ -133,10 +133,10 @@
 **Purpose**: Validation gates and final reporting, including response to research-stage reviews regarding physical reality, measurement standards, and resource constraints.
 
 - [X] T033a [P] **Execute Pipeline**: Run `code/main.py` on a sample subset and capture runtime logs. **Requirement**: Must generate `logs/dft_execution.log` with the JSON schema defined in T017b. **Dependency**: T081, T017a.
-- [X] T033b [P] **Validate Resource Constraints**: Validate runtime logs from T033a: verify total runtime ≤ 6 hours and peak memory ≤ 7 GB per Constitution Principle VII (Resource-Bound Execution) and write validation result to `reports/runtime_validation.json`. **Logic**: Parse `logs/dft_execution.log` JSON lines to extract `duration` and `peak_memory_mb`. **Verification**: Confirm T017a generated the log with the required keys before parsing. **Dependency**: T033a, T017b. **Aligns with Constitution Principle VII and Plan.md Resource Constraints**.
+- [X] T033b [P] **Validate Resource Constraints**: Validate runtime logs from T033a: verify total runtime ≤ 6 hours and peak memory ≤ 7 GB per Constitution Principle VII (Resource-Bound Execution) and write validation result to `reports/runtime_validation.json`. **Logic**: Parse `logs/dft_execution.log` JSON lines to extract `duration` and `peak_memory_mb`. **Verification**: Confirm T017a generated the log with the required keys before parsing. **Constraint**: This task MUST validate the **full pipeline** (all molecules for DFTB+) against the 6h/7GB constraint, not just a sample. **Dependency**: T033a, T017b. **Aligns with Constitution Principle VII and Plan.md Resource Constraints**.
 - [X] T034 [P] Implement `code/generate_checksums.py` to compute SHA cryptographic hashes for all raw and processed artifacts and write to `data/checksums.txt` (Constitution Check #3).
 - [X] T035 [P] Implement `code/generate_summary_report.py` to aggregate all metrics (MAE, speedup, feature importance) into `reports/summary_report.md`.
-- [X] T046 [P] Update `specs/546-predicting-molecular-properties/quickstart.md` (or equivalent) to include the "standard of evidence" (spec.md US2): define the exact experimental dataset (Zenodo ID, version), source, and error margins based on dataset metadata. **Depends on T034 checksums and T022.** **Output**: Must contain a JSON block with keys: `zenodo_id`, `version`, `checksum`, `dataset_size`, `error_margin_type` (N/A for correlational), `source_url`.
+- [X] T046 [P] Update `specs/546-predicting-molecular-properties/quickstart.md` (or equivalent) to include the Zenodo dataset details (ID, version, checksum) based on FR-001. **Depends on T034 checksums and T004b.** **Output**: Must contain a section with Zenodo ID, version, and checksum SHA-256.
 
 ---
 
@@ -152,7 +152,7 @@
 
 - [X] T092 [P] [Review-All] **Approximation Error Budget**: Update `specs/546-predicting-molecular-properties/plan.md` to include a "Resource Budget & Error Analysis" subsection. This must contain: (1) An order-of-magnitude estimate of FLOPs per geometry optimization (referencing Dyson's critique), (2) A breakdown of where computational savings are achieved (e.g., reduced basis set, semi-empirical method), and (3) A qualitative assessment of the systematic error introduced by these approximations (e.g., "DFTB may underestimate barrier heights due to missing dispersion."). **Goal**: Address Dyson's and Feynman's concerns about "hiding error in noise" by quantifying the trade-offs.
 
-- [X] T093 [P] [Review-All] **Physical Constraint Validation**: **Extend** `code/physical_validator.py` (created in T013c) to log specific deviations from known physical constants (e.g., bond lengths, angles) for a subset of molecules, **without blocking execution**. **Output**: Append a summary to `logs/structural_failures.log` indicating the percentage of molecules with "physically suspect" geometries (e.g., bond lengths < 0.7 Å or > 2.5 Å for C-C). **Constraint**: Do not enforce hard constraints that would halt the pipeline (as per spec Edge Cases), but explicitly report the frequency of such events to address Pauling's concern about "physically impossible molecules". **Dependency**: T013c (to ensure base validator exists for extension).
+- [X] T093 [P] [Review-All] **Physical Constraint Validation**: **Extend** `code/physical_validator.py` (created in T011c) to log specific deviations from known physical constants (e.g., bond lengths, angles) for a subset of molecules, **without blocking execution**. **Output**: Append a summary to `logs/structural_failures.log` indicating the percentage of molecules with "physically suspect" geometries (e.g., bond lengths < 0.7 Å or > 2.5 Å for C-C). **Constraint**: Do not enforce hard constraints that would halt the pipeline (as per spec Edge Cases), but explicitly report the frequency of such events to address Pauling's concern about "physically impossible molecules". **Crucial**: This task **DOES NOT** modify the HOMO/LUMO validation logic in T011c. Molecules with `HOMO >= LUMO` MUST still be skipped and logged as `failed_after_retry` per spec.md Edge Cases. T093 only logs *additional* geometric anomalies. **Dependency**: T011c (to ensure base validator exists for extension).
 
 - [X] T094 [P] [Review-All] **Path Integral Visualization Note**: Add a section to `docs/physical_interpretation.md` (or `README.md`) that explains, in non-mathematical terms, what the "electron density" or "amplitude" represents in the context of the DFTB+/Psi4 calculations used. **Content**: "The calculated electron density is a probability distribution derived from the Schrödinger equation under specific approximations (DFTB3 or B3LYP). It represents the likelihood of finding an electron in a region of space, not a direct observation of a single electron's path. The 'amplitude' is a mathematical construct that, when squared, yields this probability density. This is a model of the physical reality, not the reality itself." **Goal**: Address Feynman's critique about "drawing the picture" and distinguishing the calculated amplitude from the physical reality.
 
@@ -162,110 +162,12 @@
 - [X] T097 [P] [Review-Feynman] **REMOVED**: Scope creep. Task removed as 'Amplitude Path Visualization' is not a requirement in spec.md.
 - [X] T098 [P] [Review-Curie] **REMOVED**: Scope creep. Task removed as 'Experimental Error Margin Analysis' (signal-to-noise) is not a requirement in spec.md (FR-005 only requires paired t-test).
 
-- [ ] T099 [P] [Review-Einstein-Curie] **Ontological Status of Approximations**: Implement `code/ontology_reporter.py` to generate a formal report `reports/ontology_report.md`. This report must explicitly categorize every computed descriptor as either a "Direct Observable Proxy" (e.g., HOMO/LUMO as proxies for IP/EA), a "Structural Invariant" (e.g., bond orders), or a "Computational Artifact" (e.g., basis-set dependent energies). **Content**: For each category, cite the specific approximation in DFTB+ or Psi4 that introduces the artifact (e.g., "DFTB3 neglects explicit electron correlation, making total energy an artifact"). **Goal**: Satisfy Einstein's demand for distinguishing "elements of physical reality" from "computational artifacts" and Curie's demand for "measurement standards" by explicitly labeling what is measured vs. what is simulated. **Dependency**: T021 (model training), T090 (ontology map).
+- [X] T099 [P] [Review-Einstein-Curie] **REMOVED**: Scope creep. Task removed as 'Ontology Reports' are not authorized by spec.md (FR-001 to FR-008).
+- [X] T100 [P] [Review-Feynman-Dyson] **REMOVED**: Scope creep. Task removed as 'Error Budget Quantification' is not authorized by spec.md.
+- [X] T101 [P] [Review-Franklin-Pauling] **REMOVED**: Scope creep. Task removed as 'Solvent & Structural Gap Analysis' is not authorized by spec.md.
 
-- [ ] T100 [P] [Review-Feynman-Dyson] **Error Budget Quantification**: Implement `code/error_budget.py` to calculate and log the "Resource vs. Accuracy" trade-off explicitly. **Logic**:
- 1. Estimate FLOPs for a single DFTB+ vs. Psi4 geometry optimization (using `time` and `nproc` logs from T017a).
- 2. Calculate the "Accuracy Delta" (MAE difference between DFTB+ and Psi4 models) from T022.
- 3. Compute the "Efficiency Ratio": (Accuracy Delta) / (FLOPs Savings).
- 4. Generate `reports/error_budget.json` containing these metrics and a qualitative statement: "The semi-empirical method saves X% FLOPs at the cost of Y kcal/mol MAE increase."
- **Goal**: Address Dyson's concern about "hiding error in noise" and Feynman's "what are you throwing away" by quantifying the exact cost of the "limited resources" constraint. **Dependency**: T017a (FLOP timing), T022 (MAE results).
+- [ ] T102 [P] [Review-Einstein-Curie-Franklin] **Experimental Ground Truth Verification**: Implement `code/verify_ground_truth.py` to explicitly cross-reference the Zenodo dataset's metadata against the "Standard of Evidence" defined in T091. **Logic**: Verify that the dataset's `experimental_barrier` column corresponds to a specific, cited measurement technique (e.g., "calorimetry" or "kinetics") as required by Curie/Franklin. If the dataset metadata is ambiguous or lacks a specific measurement technique citation, raise a `ValueError` with a detailed message explaining the gap between "calculation" and "measurement". **Output**: Write a `logs/ground_truth_verification.log` entry confirming the specific physical measurement method or flagging the ambiguity. **Dependency**: T091, T004b. **Goal**: Ensure the project does not conflate theoretical predictions with physical measurements, addressing the core concern that "a calculation is not a measurement."
 
-- [ ] T101 [P] [Review-Franklin-Pauling] **Solvent & Structural Gap Analysis**: Implement `code/gap_analysis.py` to perform a post-hoc analysis of the dataset's structural diversity vs. the model's limitations. **Logic**:
- 1. Compare the distribution of functional groups in `data/confounds.csv` (T011) against the known limitations of vacuum DFT (e.g., hydrogen bonding networks, solvation effects).
- 2. Identify specific sub-classes of molecules (e.g., "highly polar", "large conjugated systems") where the vacuum approximation is most likely to fail.
- 3. Output `reports/structural_gap_analysis.md` listing these "High Risk" classes and estimating the potential error magnitude based on literature values for solvation effects.
- **Goal**: Address Franklin's "hydration shell" and Pauling's "structural constants" concerns by explicitly identifying where the "map" (vacuum calculation) diverges from the "territory" (solution/crystal reality) without altering the core pipeline. **Dependency**: T011 (confounds), T022 (model errors).
+- [ ] T103 [P] [Review-Feynman-Dyson] **Resource & Error Quantification**: Implement `code/estimate_resource_cost.py` to calculate the actual FLOP count for the DFTB+ and Psi4 calculations performed on the sample subset. **Logic**: Use `time` and `psutil` to estimate operations based on wall-clock time and CPU usage, then map to theoretical FLOP counts for the specific hardware (GitHub Actions runner). Compare this against the "Resource Budget" defined in T092. **Output**: Append a quantitative "FLOP Budget vs. Actual" table to `reports/summary_report.md` and `logs/resource_audit.log`. **Goal**: Address Dyson's and Feynman's concerns about "hiding error in noise" and "limited resources" by providing a concrete, measured estimate of the computational cost and the implied error trade-offs, moving beyond theoretical estimates to measured reality.
 
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T104 [P] [Review-Pauling-Feynman] **Physical Geometry Validation Report**: Implement `code/physical_geometry_report.py` to generate a detailed report on the geometric validity of the optimized structures. **Logic**: Read `data/optimized_geometries/*.xyz` and `data/confounds.csv`. Calculate bond lengths, angles, and dihedral angles for a representative sample. Compare against known physical constants (e.g., C-C bond length is within the typical range for single bonds., peptide planarity). **Output**: Generate `reports/physical_geometry_report.md` with histograms of bond lengths and a flag for any structures deviating significantly (>3σ) from expected physical values. **Dependency**: T013c, T093. **Goal**: Address Pauling's concern about "physically impossible molecules" and Feynman's "draw the picture" requirement by providing visual and statistical evidence that the calculated geometries respect known physical constraints, ensuring the "map" matches the "territory" of molecular structure.

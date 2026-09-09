@@ -1709,3 +1709,667 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T00:34:28Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Experimental barrier dataset fetched from Zenodo ID 1048765
+  claim_id: c_5cefd2eb
+  context: 'T004b [P] [FR-001] Fetch Data: Implement code/fetch_data.py to fetch the
+    experimental barrier dataset from Zenodo ID 1048765.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the experimental barrier dataset from Zenodo ID 1048765.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:25:03Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: 'DFT subset selection logic: N >= 50 select 50 else all'
+  claim_id: c_1aab4123
+  context: 'T020a [US2] Implement code/dft_calculator.py subset selection logic: Read
+    data/raw/barrier_dataset.csv, calculate total valid samples (N). If N >= 50, select
+    50; else select all.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 50, select 50 samples for the DFT subset; else select all.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:26:03Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection sigma 0.01 and 0.05
+  claim_id: c_b62e2402
+  context: "T030b [US3] [FR-007] Implement code/noise_injection.py to inject Gaussian\
+    \ noise (\u03C3=0.01, \u03C3=0.05) into the descriptor features of the training\
+    \ set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject Gaussian noise with sigma=0.01 and sigma=0.05 into descriptor features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:26:42Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stability threshold Spearman rho >= 0.9
+  claim_id: c_8e3b7157
+  context: 'T030b [US3] [FR-007] ... Threshold: stable = True if rho >= 0.9. Log results
+    to reports/sensitivity.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_Spearman_rho_%3E=_0.9
+  kind: entity_fact
+  raw_text: Stability is defined as True if Spearman's rank correlation (rho) >= 0.9.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:27:53Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Feature importance cutoffs low 0.01 0.05 0.1
+  claim_id: c_ce0e0612
+  context: T031b [US3] Implement code/sensitivity_sweep.py logic to sweep feature
+    importance cutoffs {low, 0.05, 0.1} (where 'low' = 0.01) on the base and perturbed
+    datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep feature importance cutoffs {low, 0.05, 0.1} where 'low' equals 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:28:23Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Resource constraints total runtime <= 6 hours peak memory <= 7 GB
+  claim_id: c_e9d17d12
+  context: "T033b [P] Validate Resource Constraints: Validate runtime logs from T033a:\
+    \ verify total runtime \u2264 6 hours and peak memory \u2264 7 GB per Constitution\
+    \ Principle VII (Resource-Bound Execution) and write validation result to reports/runtime_validation.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate total runtime <= 6 hours and peak memory <= 7 GB per Constitution
+    Principle VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:28:52Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Physically suspect C-C bond length range < 0.7 or > 2.5 Angstroms
+  claim_id: c_559ac6e1
+  context: "T093 [P] [Review-All] Physical Constraint Validation: ... percentage of\
+    \ molecules with \"physically suspect\" geometries (e.g., bond lengths < 0.7 \xC5\
+    \ or > 2.5 \xC5 for C-C)."
+  evidence:
+    asserted: '0.7'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Report physically suspect geometries as bond lengths < 0.7 \xC5 or >\
+    \ 2.5 \xC5 for C-C bonds."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T04:28:53Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Experimental data uncertainty +/- 2 kcal/mol
+  claim_id: c_ad964300
+  context: "T091 [P] [Review-All] Ground Truth Specification: ... (3) The reported\
+    \ uncertainty/error margins of the experimental data (e.g., \xB12 kcal/mol)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experimental data has reported uncertainty/error margins of +/- 2
+    kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:29:34Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Zenodo Accession ID for experimental barrier dataset is 1048765
+  claim_id: c_8514c866
+  context: Task T004a requires resolving the Zenodo ID from the idea file to fetch
+    the experimental barrier dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract the specific Zenodo Accession ID 1048765 from idea/predicting-molecular-properties-from-qua.md
+    and hardcode it into code/config.py as ZENODO_ID = "1048765".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:31:01Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Confounds analysis calculates mean and std for molecular weight and atom
+    count from the dataset
+  claim_id: c_54a1103a
+  context: Task T011 specifies calculating distribution statistics for molecular weight
+    and atom count from the barrier dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Confounds_analysis_calculates_mean_and_std_for_molecular_wei
+  kind: entity_fact
+  raw_text: Calculate distribution stats (mean, std) for MW/atom_count from the fetched
+    dataset itself and log result to data/confounds_verification.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:31:42Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Subset selection selects 50 samples if available, otherwise all samples
+  claim_id: c_b79a3424
+  context: Task T020a defines the logic for subset selection in the DFT calculation
+    phase.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 50, select 50; else select all.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:33:06Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Noise injection uses Gaussian noise with standard deviations 0.01 and
+    0.05
+  claim_id: c_964960d9
+  context: Task T030b describes the implementation of noise injection for stability
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Inject Gaussian noise (\u03C3=0.01, \u03C3=0.05) into the descriptor\
+    \ features of the training set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:33:51Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Descriptor stability threshold is Spearman's rank correlation of 0.9
+  claim_id: c_0ea2e218
+  context: Task T030b and T031c define the threshold for determining if descriptor
+    rankings are stable under noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stable = True if rho >= 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:34:45Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Feature importance sweep uses cutoffs 0.01, 0.05, and 0.1
+  claim_id: c_ba58ae75
+  context: Task T031b specifies the thresholds used for the feature importance sweep
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep feature importance cutoffs {low, 0.05, 0.1} (where 'low' = 0.01)
+    on the base and perturbed datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:35:48Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Pipeline validation requires total runtime under 6 hours and peak memory
+    under 7 GB
+  claim_id: c_db83d0bc
+  context: Task T033b sets resource constraints for the pipeline execution validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate runtime logs: verify total runtime \u2264 6 hours and peak memory\
+    \ \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:35:48Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: "Physically suspect geometries defined as C-C bond lengths less than\
+    \ 0.7 \xC5 or greater than 2.5 \xC5"
+  claim_id: c_3b7622e1
+  context: Task T093 defines specific geometric anomalies to log for physical constraint
+    validation.
+  evidence:
+    asserted: '0.7'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: "Report the percentage of molecules with physically suspect geometries\
+    \ (e.g., bond lengths < 0.7 \xC5 or > 2.5 \xC5 for C-C)."
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T04:35:48Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: Zenodo Accession ID 1048765 for experimental barrier dataset
+  claim_id: c_1763fab4
+  context: 'T004a [P] [FR-001] Resolve Zenodo ID: Extract the specific Zenodo Accession
+    ID 1048765 from idea/predicting-molecular-properties-from-qua.md and hardcode
+    it into code/config.py as ZENODO_ID = "1048765".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract the specific Zenodo Accession ID 1048765 from idea/predicting-molecular-properties-from-qua.md
+    and hardcode it into code/config.py as ZENODO_ID = "1048765".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:36:55Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if stratified subset count is less than 50
+  claim_id: c_ae3f9822
+  context: 'T020b [US2] Implement code/dft_calculator.py DFT calculation logic: ...
+    If the remaining count is < 50, raise a RuntimeError with a clear message: "Insufficient
+    optimized geometries for stratified subset (N < 50). Pipeline halted."'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_stratified_subset_count_is_less_than
+  kind: magnitude
+  raw_text: 'If the remaining count is < 50, raise a RuntimeError with a clear message:
+    "Insufficient optimized geometries for stratified subset (N < 50). Pipeline halted."'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:37:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection levels sigma 0.01 and 0.05
+  claim_id: c_958f58da
+  context: "T030b [US3] [FR-007] Implement code/noise_injection.py to inject Gaussian\
+    \ noise (\u03C3=0.01, \u03C3=0.05) into the descriptor features of the training\
+    \ set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Inject Gaussian noise (\u03C3=0.01, \u03C3=0.05) into the descriptor\
+    \ features of the training set"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:37:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stability threshold Spearman rho greater than or equal to 0.9
+  claim_id: c_4ac71689
+  context: 'T030b [US3] [FR-007] ... calculate Spearman''s rank correlation (rho)
+    against the original top 3. Threshold: stable = True if rho >= 0.9.'
+  evidence:
+    entailment_evidence: Stability threshold Spearman rho greater than or equal to
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_Spearman_rho_greater_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: 'Threshold: stable = True if rho >= 0.9'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T04:38:42Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Feature importance cutoff thresholds 0.01, 0.05, 0.1
+  claim_id: c_94a9ba22
+  context: T031b [US3] Implement code/sensitivity_sweep.py logic to sweep feature
+    importance cutoffs {low, 0.05, 0.1} (where 'low' = 0.01) on the base and perturbed
+    datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep feature importance cutoffs {low, 0.05, 0.1} (where 'low' = 0.01)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:39:17Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: 'Resource constraints: runtime less than or equal to 6 hours and peak
+    memory less than or equal to 7 GB'
+  claim_id: c_1602b781
+  context: "T033b [P] Validate Resource Constraints: Validate runtime logs from T033a:\
+    \ verify total runtime \u2264 6 hours and peak memory \u2264 7 GB per Constitution\
+    \ Principle VII (Resource-Bound Execution)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resource_constraints:_runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Validate runtime logs from T033a: verify total runtime \u2264 6 hours\
+    \ and peak memory \u2264 7 GB per Constitution Principle VII"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:39:58Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Physically suspect geometry thresholds bond lengths less than 0.7 Angstrom
+    or greater than 2.5 Angstrom for C-C
+  claim_id: c_bf85fe6b
+  context: "T093 [P] [Review-All] Physical Constraint Validation: ... Append a summary\
+    \ to logs/structural_failures.log indicating the percentage of molecules with\
+    \ \"physically suspect\" geometries (e.g., bond lengths < 0.7 \xC5 or > 2.5 \xC5\
+    \ for C-C)."
+  evidence:
+    asserted: '0.7'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: "Append a summary to logs/structural_failures.log indicating the percentage\
+    \ of molecules with \"physically suspect\" geometries (e.g., bond lengths < 0.7\
+    \ \xC5 or > 2.5 \xC5 for C-C)"
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T04:39:58Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Zenodo Accession ID 1048765 for experimental barrier dataset
+  claim_id: c_7f5d5b4c
+  context: Task T004a requires extracting the specific Zenodo Accession ID 1048765
+    from the idea file and hardcoding it into code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract the specific Zenodo Accession ID 1048765 from idea/predicting-molecular-properties-from-qua.md
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:42:01Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: DFTB+ used for HOMO/LUMO/Mayer descriptor extraction
+  claim_id: c_aff090d8
+  context: Task T013a implements code/dftb_calculator.py to invoke DFTB+ for geometry
+    optimization and descriptor extraction including unit normalization to eV.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFTB+_used_for_HOMO/LUMO/Mayer_descriptor_extraction
+  kind: entity_fact
+  raw_text: Use DFTB+ for geometry optimization and descriptor extraction (HOMO, LUMO,
+    Mayer bond orders)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:42:43Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Psi4 B3LYP/def2-SVP used for high-level DFT calculations
+  claim_id: c_f8567f3e
+  context: Task T020b implements code/dft_calculator.py to invoke Psi4 for B3LYP/def2-SVP
+    on the selected subset, importing optimized geometries from data/optimized_geometries/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Psi4_B3LYP/def2-SVP_used_for_high-level_DFT_calculations
+  kind: entity_fact
+  raw_text: Invoke Psi4 for B3LYP/def2-SVP calculations on the selected subset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:43:27Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Distribution stats (mean, std) for MW/atom_count calculated from dataset
+  claim_id: c_906d3bfa
+  context: Task T011 requires calculating distribution stats (mean, std) for MW/atom_count
+    from the fetched dataset itself and logging the result to data/confounds_verification.log.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distribution_stats_(mean,_std)_for_MW/atom_count_calculated
+  kind: entity_fact
+  raw_text: Calculate distribution stats (mean, std) for MW/atom_count from the fetched
+    dataset itself
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:44:05Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Subset selection selects 50 samples if N >= 50
+  claim_id: c_29458b01
+  context: Task T020a implements subset selection logic to read data/raw/barrier_dataset.csv,
+    calculate total valid samples (N), and select 50 if N >= 50, else select all.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select 50 samples if N >= 50, else select all
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:45:19Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Semi-Empirical MAE reported as measured value
+  claim_id: c_58013023
+  context: Task T022 requires computing per-fold MAE, running a paired t-test, and
+    reporting the Semi-Empirical MAE as a measured value without verifying against
+    a fixed threshold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semi-Empirical_MAE_reported_as_measured_value
+  kind: entity_fact
+  raw_text: Report the Semi-Empirical MAE as a measured value
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:46:09Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection with sigma 0.01 and 0.05
+  claim_id: c_171cc67d
+  context: Task T030b implements code/noise_injection.py to inject Gaussian noise
+    with sigma values of 0.01 and 0.05 into the descriptor features of the training
+    set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Inject Gaussian noise (\u03C3=0.01, \u03C3=0.05) into the descriptor\
+    \ features"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:46:47Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Feature importance cutoffs 0.01, 0.05, 0.1
+  claim_id: c_64970643
+  context: Task T031b implements logic to sweep feature importance cutoffs including
+    low (0.01), 0.05, and 0.1 on the base and perturbed datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep feature importance cutoffs {low, 0.05, 0.1} where 'low' = 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:46:47Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stability threshold rho >= 0.9
+  claim_id: c_cc425dac
+  context: Task T030b and T031c define the stability threshold as rho >= 0.9 for Spearman's
+    rank correlation of top-ranked descriptors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Threshold: stable = True if rho >= 0.9'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:46:48Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: 'Runtime constraint: 6 hours, memory constraint: 7 GB'
+  claim_id: c_9d1b087c
+  context: Task T033b validates runtime logs to verify total runtime is less than
+    or equal to 6 hours and peak memory is less than or equal to 7 GB per Constitution
+    Principle VII.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate runtime logs: total runtime \u2264 6 hours and peak memory \u2264\
+    \ 7 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:46:48Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: "Bond length deviation thresholds 0.7 \xC5 and 2.5 \xC5 for C-C"
+  claim_id: c_d4ef7f0d
+  context: "Task T093 extends code/physical_validator.py to log specific deviations\
+    \ from known physical constants, indicating the percentage of molecules with bond\
+    \ lengths less than 0.7 \xC5 or greater than 2.5 \xC5 for C-C."
+  evidence:
+    asserted: '0.7'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Log specific deviations for bond lengths < 0.7 \xC5 or > 2.5 \xC5 for\
+    \ C-C"
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T04:46:49Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: DFTB may underestimate barrier heights due to missing dispersion
+  claim_id: c_5f85cf6f
+  context: Task T092 includes a qualitative assessment of systematic error, noting
+    that DFTB may underestimate barrier heights due to missing dispersion.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFTB_may_underestimate_barrier_heights_due_to_missing_disper
+  kind: entity_fact
+  raw_text: DFTB may underestimate barrier heights due to missing dispersion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:47:24Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: "Experimental data uncertainty example \xB12 kcal/mol"
+  claim_id: c_3a0f37f3
+  context: "Task T091 requires defining the Standard of Evidence, including the reported\
+    \ uncertainty/error margins of the experimental data, with \xB12 kcal/mol cited\
+    \ as an example."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reported uncertainty/error margins of the experimental data (e.g., \xB1\
+    2 kcal/mol)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:48:08Z'

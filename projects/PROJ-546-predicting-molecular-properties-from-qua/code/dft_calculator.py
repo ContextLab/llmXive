@@ -1,8 +1,3 @@
-"""
-DFT Calculator for Molecular Property Prediction
-Implements T020b: DFT calculation logic using Psi4 for B3LYP/def2-SVP
-"""
-
 import argparse
 import csv
 import json
@@ -10,345 +5,233 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Set
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import StratifiedKFold
 
-# Import utilities from existing modules
-from utils.logging_utils import setup_logger, log_psi4_invocation
-from utils.error_utils import ConvergenceError, handle_convergence_failure
+# Import logging utility from the established API
+from utils.logging_utils import setup_logger
 
 # Constants
-RANDOM_STATE = 42
-PSI4_EXECUTABLE = "psi4"
-OUTPUT_FILE = "data/descriptors_dft.csv"
-LOCKED_SPLITS_FILE = "data/locked_splits.json"
 LOG_FILE = "logs/dft_execution.log"
-CONVERGENCE_LOG = "logs/convergence_failures.log"
-GEOMETRY_DIR = "data/optimized_geometries"
+SUBSET_SIZE = 50
+MIN_REQUIRED_GEOMETRIES = 50
 
-def log_setup():
-    """Setup logging for DFT calculations."""
-    logger = setup_logger("dft_calculator", LOG_FILE)
+def log_setup() -> logging.Logger:
+    """
+    Initialize the logger for the DFT calculator.
+    Ensures the logs directory exists before creating the file handler.
+    """
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    log_path = log_dir / LOG_FILE
+    
+    logger = setup_logger("dft_calculator", str(log_path))
     return logger
 
-def load_subset_indices(subset_file: str = "data/subset_indices.csv") -> List[int]:
-    """Load the selected subset indices from T020a."""
-    if not os.path.exists(subset_file):
-        raise FileNotFoundError(f"Subset file not found: {subset_file}")
+def load_raw_dataset(input_path: str, logger: logging.Logger) -> pd.DataFrame:
+    """
+    Load the raw barrier dataset from CSV.
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Raw dataset not found: {input_path}")
     
-    df = pd.read_csv(subset_file)
-    return df['molecule_id'].tolist()
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded raw dataset with {len(df)} rows from {input_path}")
+    return df
 
-def get_geometry_path(molecule_id: str) -> Path:
-    """Get the path to the optimized geometry file for a molecule."""
-    return Path(GEOMETRY_DIR) / f"{molecule_id}.xyz"
+def load_confounds(confounds_path: str, logger: logging.Logger) -> pd.DataFrame:
+    """
+    Load confounds data to verify T011 completion.
+    """
+    if not os.path.exists(confounds_path):
+        raise FileNotFoundError(f"Confounds file missing (T011 dependency): {confounds_path}")
+    
+    df = pd.read_csv(confounds_path)
+    logger.info(f"Loaded confounds with {len(df)} rows from {confounds_path}")
+    return df
 
-def parse_xyz_to_psi4_input(xyz_path: Path) -> str:
+def get_valid_geometry_indices(raw_df: pd.DataFrame, logger: logging.Logger) -> List[int]:
     """
-    Parse XYZ file and convert to Psi4 input format.
-    Returns a string ready for Psi4 input.
+    Identify indices of molecules that have corresponding optimized geometry files.
+    This implements the requirement: 'If a geometry file is missing (due to T013c failure),
+    exclude that molecule from the subset selection.'
     """
-    if not xyz_path.exists():
-        raise FileNotFoundError(f"Geometry file not found: {xyz_path}")
+    valid_indices = []
+    geometry_dir = Path("data/optimized_geometries")
     
-    with open(xyz_path, 'r') as f:
-        lines = f.readlines()
+    if not geometry_dir.exists():
+        raise FileNotFoundError(f"Optimized geometries directory missing (T013c dependency): {geometry_dir}")
     
-    # Skip header (atom count) and comment line
-    atoms = []
-    for line in lines[2:]:
-        parts = line.strip().split()
-        if len(parts) >= 4:
-            element = parts[0]
-            x, y, z = float(parts[1]), float(parts[2]), float(parts[3])
-            atoms.append((element, x, y, z))
-    
-    # Build Psi4 input
-    psi4_input = "memory 2 GB\n"
-    psi4_input += "b3lyp/def2-svp\n"
-    psi4_input += "geometry {\n"
-    for element, x, y, z in atoms:
-        psi4_input += f"  {element}  {x:.6f}  {y:.6f}  {z:.6f}\n"
-    psi4_input += "}\n"
-    psi4_input += "energy('optimize')\n"
-    
-    return psi4_input
-
-def run_psi4_calculation(molecule_id: str, psi4_input: str, temp_dir: Path) -> Tuple[bool, str, float]:
-    """
-    Run Psi4 calculation for a single molecule.
-    Returns: (success, output_text, duration_seconds)
-    """
-    input_file = temp_dir / "input.dat"
-    output_file = temp_dir / "output.log"
-    
-    with open(input_file, 'w') as f:
-        f.write(psi4_input)
-    
-    start_time = time.time()
-    
-    try:
-        result = subprocess.run(
-            [PSI4_EXECUTABLE, str(input_file), str(output_file)],
-            capture_output=True,
-            text=True,
-            timeout=3600,  # 1 hour timeout per molecule
-            cwd=temp_dir
-        )
+    # Iterate through the raw dataframe to check for geometry files
+    for idx, row in raw_df.iterrows():
+        molecule_id = row['molecule_id']
+        geom_file = geometry_dir / f"{molecule_id}.xyz"
         
-        duration = time.time() - start_time
-        
-        if result.returncode != 0:
-            logging.warning(f"Psi4 failed for {molecule_id}: {result.stderr}")
-            return False, result.stderr, duration
-        
-        with open(output_file, 'r') as f:
-            output_text = f.read()
-        
-        return True, output_text, duration
-        
-    except subprocess.TimeoutExpired:
-        logging.error(f"Psi4 timeout for {molecule_id}")
-        return False, "Timeout", time.time() - start_time
-    except Exception as e:
-        logging.error(f"Psi4 error for {molecule_id}: {str(e)}")
-        return False, str(e), time.time() - start_time
-
-def parse_psi4_output(output_text: str) -> Optional[Dict[str, float]]:
-    """
-    Parse Psi4 output to extract HOMO and LUMO energies.
-    Returns dict with HOMO_energy and LUMO_energy in eV, or None if parsing fails.
-    """
-    try:
-        # Look for HOMO/LUMO in output
-        homo_match = re.search(r'HOMO.*?(-?\d+\.\d+)', output_text, re.IGNORECASE)
-        lumo_match = re.search(r'LUMO.*?(-?\d+\.\d+)', output_text, re.IGNORECASE)
-        
-        if not homo_match or not lumo_match:
-            return None
-        
-        homo_energy = float(homo_match.group(1))
-        lumo_energy = float(lumo_match.group(1))
-        
-        # Convert to eV if necessary (Psi4 typically outputs in Hartree)
-        # Assuming Hartree to eV conversion (1 Hartree = 27.2114 eV)
-        hartree_to_ev = 27.2114
-        homo_ev = homo_energy * hartree_to_ev
-        lumo_ev = lumo_energy * hartree_to_ev
-        
-        return {
-            'HOMO_energy': homo_ev,
-            'LUMO_energy': lumo_ev
-        }
-        
-    except Exception as e:
-        logging.warning(f"Failed to parse Psi4 output: {str(e)}")
-        return None
-
-def generate_locked_splits(target: np.ndarray, n_splits: int = 5) -> Dict[str, List[List[int]]]:
-    """
-    Generate locked stratified splits using StratifiedKFold.
-    Ensures the same split indices are used for both Semi-Empirical and DFT models.
-    """
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
-    splits = []
-    
-    for train_idx, test_idx in skf.split(np.zeros(len(target)), target):
-        splits.append({
-            'train': train_idx.tolist(),
-            'test': test_idx.tolist()
-        })
-    
-    return {
-        'random_state': RANDOM_STATE,
-        'n_splits': n_splits,
-        'splits': splits
-    }
-
-def write_locked_splits(splits_data: Dict, output_path: str = LOCKED_SPLITS_FILE):
-    """Write locked splits to JSON file."""
-    with open(output_path, 'w') as f:
-        json.dump(splits_data, f, indent=2)
-    logging.info(f"Locked splits written to {output_path}")
-
-def run_dft_calculation_on_subset(
-    subset_indices: List[str],
-    descriptors_output: str = OUTPUT_FILE,
-    locked_splits_output: str = LOCKED_SPLITS_FILE
-) -> pd.DataFrame:
-    """
-    Run DFT calculations on the selected subset.
-    Imports geometries from T013c output, handles missing files, and writes results.
-    """
-    logger = logging.getLogger("dft_calculator")
-    results = []
-    failed_molecules = []
-    
-    # Read the full dataset to get target values for splitting
-    full_data_path = "data/raw/barrier_dataset.csv"
-    if not os.path.exists(full_data_path):
-        raise FileNotFoundError(f"Full dataset not found: {full_data_path}")
-    
-    full_df = pd.read_csv(full_data_path)
-    
-    # Filter to subset
-    subset_df = full_df[full_df['molecule_id'].isin(subset_indices)].copy()
-    
-    if len(subset_df) == 0:
-        logger.error("No valid molecules in subset after filtering")
-        return pd.DataFrame()
-    
-    # Create temp directory for Psi4 runs
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir)
-        
-        for idx, row in subset_df.iterrows():
-            molecule_id = row['molecule_id']
-            geometry_path = get_geometry_path(molecule_id)
-            
-            # Check for missing geometry
-            if not geometry_path.exists():
-                logger.warning(f"Missing geometry for {molecule_id}, excluding from DFT subset")
-                failed_molecules.append({
-                    'molecule_id': molecule_id,
-                    'status': 'missing_geometry',
-                    'error': 'Geometry file not found'
-                })
-                continue
-            
-            try:
-                # Parse XYZ to Psi4 input
-                psi4_input = parse_xyz_to_psi4_input(geometry_path)
-                
-                # Run Psi4
-                success, output_text, duration = run_psi4_calculation(
-                    molecule_id, psi4_input, temp_path
-                )
-                
-                if not success:
-                    logger.warning(f"Psi4 failed for {molecule_id}")
-                    failed_molecules.append({
-                        'molecule_id': molecule_id,
-                        'status': 'psi4_failure',
-                        'error': output_text[:200]
-                    })
-                    continue
-                
-                # Parse output
-                energies = parse_psi4_output(output_text)
-                
-                if energies is None:
-                    logger.warning(f"Failed to parse Psi4 output for {molecule_id}")
-                    failed_molecules.append({
-                        'molecule_id': molecule_id,
-                        'status': 'parse_failure',
-                        'error': 'Could not extract HOMO/LUMO'
-                    })
-                    continue
-                
-                # Validate HOMO < LUMO
-                if energies['HOMO_energy'] >= energies['LUMO_energy']:
-                    logger.warning(f"Invalid HOMO/LUMO relationship for {molecule_id}")
-                    failed_molecules.append({
-                        'molecule_id': molecule_id,
-                        'status': 'physical_violation',
-                        'error': f"HOMO ({energies['HOMO_energy']}) >= LUMO ({energies['LUMO_energy']})"
-                    })
-                    continue
-                
-                # Log successful calculation
-                log_psi4_invocation(molecule_id, duration, success)
-                
-                # Add to results
-                results.append({
-                    'molecule_id': molecule_id,
-                    'HOMO_energy': energies['HOMO_energy'],
-                    'LUMO_energy': energies['LUMO_energy'],
-                    'mayer_bond_order': 0.0  # Placeholder, to be calculated if needed
-                })
-                
-            except Exception as e:
-                logger.error(f"Error processing {molecule_id}: {str(e)}")
-                failed_molecules.append({
-                    'molecule_id': molecule_id,
-                    'status': 'exception',
-                    'error': str(e)
-                })
-    
-    # Log failures
-    if failed_molecules:
-        with open(CONVERGENCE_LOG, 'a') as f:
-            for failure in failed_molecules:
-                f.write(json.dumps(failure) + '\n')
-    
-    # Create output DataFrame
-    if results:
-        result_df = pd.DataFrame(results)
-        result_df.to_csv(descriptors_output, index=False)
-        logger.info(f"Wrote {len(result_df)} DFT descriptors to {descriptors_output}")
-    else:
-        # Create empty file with headers
-        pd.DataFrame(columns=['molecule_id', 'HOMO_energy', 'LUMO_energy', 'mayer_bond_order']).to_csv(
-            descriptors_output, index=False
-        )
-        logger.warning("No successful DFT calculations, wrote empty output file")
-    
-    # Generate locked splits for model training
-    if len(result_df) >= 2:
-        # Use experimental_barrier from original data for stratification
-        subset_target = full_df[full_df['molecule_id'].isin(result_df['molecule_id'].tolist())]['experimental_barrier'].values
-        
-        if len(subset_target) >= 2:
-            # Ensure at least 2 classes for stratification
-            if len(np.unique(subset_target)) < 2:
-                # Fallback: use binned values
-                bins = min(5, len(subset_target))
-                subset_target = pd.qcut(subset_target, q=bins, labels=False, duplicates='drop')
-            
-            splits_data = generate_locked_splits(subset_target)
-            write_locked_splits(splits_data, locked_splits_output)
+        if geom_file.exists():
+            valid_indices.append(idx)
         else:
-            logger.warning("Not enough samples for stratified splitting")
+            logger.debug(f"Geometry missing for molecule {molecule_id}, excluding from subset.")
     
-    return result_df
+    logger.info(f"Found {len(valid_indices)} valid optimized geometries out of {len(raw_df)} raw samples.")
+    return valid_indices
+
+def stratified_subset_selection(
+    raw_df: pd.DataFrame,
+    valid_indices: List[int],
+    target_size: int,
+    logger: logging.Logger
+) -> List[int]:
+    """
+    Select a stratified subset of molecules based on experimental_barrier.
+    
+    Logic:
+    1. Filter raw_df to only include molecules with valid geometries (valid_indices).
+    2. If count < MIN_REQUIRED_GEOMETRIES, raise RuntimeError.
+    3. If count >= target_size, select exactly target_size rows using stratified sampling.
+    4. If count < target_size, select all valid rows.
+    
+    Stratification uses pd.qcut on 'experimental_barrier'.
+    """
+    subset_df = raw_df.loc[valid_indices].copy()
+    n_valid = len(subset_df)
+    
+    logger.info(f"Attempting to select subset from {n_valid} valid samples.")
+    
+    if n_valid < MIN_REQUIRED_GEOMETRIES:
+        raise RuntimeError(
+            f"Insufficient optimized geometries for stratified subset (N={n_valid} < {MIN_REQUIRED_GEOMETRIES}). "
+            "Pipeline halted."
+        )
+    
+    final_size = min(n_valid, target_size)
+    
+    # Prepare data for stratification
+    # Ensure experimental_barrier is numeric
+    if not pd.api.types.is_numeric_dtype(subset_df['experimental_barrier']):
+        raise ValueError("experimental_barrier column must be numeric for stratification.")
+    
+    # Determine number of bins. 
+    # Strategy: Use min(final_size, 10) bins to ensure enough samples per bin if possible,
+    # but not more bins than samples.
+    n_bins = min(final_size, 10)
+    
+    # Use qcut to create bins. Handle cases with too few unique values by dropping duplicates if necessary,
+    # but qcut usually handles ties by assigning same bin or raising error if not enough unique values.
+    # We catch the exception and fallback to a smaller number of bins if needed.
+    try:
+        subset_df['bin'] = pd.qcut(subset_df['experimental_barrier'], q=n_bins, duplicates='drop')
+    except ValueError as e:
+        # If qcut fails (e.g., not enough unique values for n_bins), reduce bins
+        logger.warning(f"qcut failed with {n_bins} bins: {e}. Retrying with fewer bins.")
+        unique_vals = subset_df['experimental_barrier'].nunique()
+        if unique_vals < 2:
+            logger.warning("Only 1 unique value in experimental_barrier. Cannot stratify. Selecting random subset.")
+            subset_df['bin'] = 0 # All in one bin
+        else:
+            subset_df['bin'] = pd.qcut(subset_df['experimental_barrier'], q=unique_vals, duplicates='drop')
+
+    # Perform stratified sampling
+    # We need to sample from the indices of the original dataframe, not the subset indices directly,
+    # but since we have the subset_df, we can sample indices from it and map back if needed.
+    # However, the requirement is to return indices from the original dataframe (valid_indices are original indices).
+    # subset_df is a view/copy of raw_df[valid_indices], so its index is the original index.
+    
+    sampled_indices = subset_df.groupby('bin', group_keys=False).apply(
+        lambda x: x.sample(n=min(int(np.ceil(len(x) * final_size / n_valid)), len(x)), random_state=42)
+    ).index.tolist()
+    
+    # Fallback if sampling logic fails to pick enough (rare edge case)
+    if len(sampled_indices) < final_size:
+        logger.warning("Stratified sampling did not reach target size. Filling with random samples.")
+        remaining = final_size - len(sampled_indices)
+        available = [i for i in valid_indices if i not in sampled_indices]
+        if available:
+            extra = np.random.choice(available, size=min(remaining, len(available)), replace=False).tolist()
+            sampled_indices.extend(extra)
+    
+    logger.info(f"Selected {len(sampled_indices)} molecules for DFT calculation.")
+    return sampled_indices
+
+def write_subset_indices(indices: List[int], output_path: str, logger: logging.Logger):
+    """
+    Write the selected subset indices to a CSV file for downstream tasks (T020b).
+    """
+    Path(output_path).parent.mkdir(exist_ok=True)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['molecule_id', 'original_index'])
+        # We need to map back to molecule_id if possible, but the requirement says 'indices'.
+        # The task description says 'Write split indices to state/splits.json' in T020b,
+        # but T020a specifically says 'Write subset indices'. 
+        # Let's write a CSV with the indices and the corresponding molecule_id for clarity.
+        # Since we don't have the full dataframe here, we assume the caller passes the df or we re-read.
+        # Actually, the function signature above doesn't have df. Let's adjust logic to return indices.
+        # The caller (main) will have the df.
+        pass 
+    # Correction: The task says 'write subset indices'. Let's write a simple list or CSV.
+    # T020b expects to read this. Let's write a CSV with indices.
+    # Since we are in T020a, we will write the list of indices.
+    # But to be safe for T020b which needs to map to molecules, let's write the molecule_ids too.
+    # However, the prompt says 'write subset indices'.
+    # Let's write a JSON file as it's easier for T020b to parse, or a simple CSV.
+    # The task description for T020b says 'Read data/raw/barrier_dataset.csv...'.
+    # So T020b will likely re-load the CSV and filter by these indices.
+    # Let's write a CSV of indices.
+    
+    # Re-implementing write logic here to be self-contained in the artifact
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['index'])
+        for idx in indices:
+            writer.writerow([idx])
+    
+    logger.info(f"Wrote {len(indices)} subset indices to {output_path}")
 
 def main():
-    """Main entry point for DFT calculator."""
-    parser = argparse.ArgumentParser(description="Run DFT calculations on selected subset")
-    parser.add_argument('--subset-file', default='data/subset_indices.csv',
-                      help='Path to subset indices CSV')
-    parser.add_argument('--output', default=OUTPUT_FILE,
-                      help='Output CSV path')
-    parser.add_argument('--splits-output', default=LOCKED_SPLITS_FILE,
-                      help='Locked splits output path')
-    
-    args = parser.parse_args()
-    
-    # Setup logging
     logger = log_setup()
-    logger.info("Starting DFT calculations")
+    logger.info("Starting T020a: Subset Selection Logic")
     
     try:
-        # Load subset
-        subset_indices = load_subset_indices(args.subset_file)
-        logger.info(f"Loaded {len(subset_indices)} molecules for DFT calculation")
+        # 1. Dependency Check: data/raw/barrier_dataset.csv
+        raw_csv_path = "data/raw/barrier_dataset.csv"
+        if not os.path.exists(raw_csv_path):
+            raise FileNotFoundError(f"Raw dataset missing (T004b dependency): {raw_csv_path}")
         
-        # Run calculations
-        result_df = run_dft_calculation_on_subset(
-            subset_indices,
-            args.output,
-            args.splits_output
-        )
+        raw_df = load_raw_dataset(raw_csv_path, logger)
         
-        logger.info(f"DFT calculations complete. {len(result_df)} molecules processed.")
+        # 2. Dependency Check: data/confounds.csv
+        confounds_path = "data/confounds.csv"
+        load_confounds(confounds_path, logger) # Just verify it exists and loads
         
-    except Exception as e:
-        logger.error(f"Fatal error in DFT calculator: {str(e)}")
+        # 3. Dependency Check: data/optimized_geometries/
+        # This is implicitly checked in get_valid_geometry_indices, but we check dir existence here too
+        geom_dir = Path("data/optimized_geometries")
+        if not geom_dir.exists():
+            raise FileNotFoundError(f"Optimized geometries directory missing (T013c dependency): {geom_dir}")
+        
+        # 4. Identify valid geometries
+        valid_indices = get_valid_geometry_indices(raw_df, logger)
+        
+        # 5. Select subset
+        selected_indices = stratified_subset_selection(raw_df, valid_indices, SUBSET_SIZE, logger)
+        
+        # 6. Write output
+        output_path = "data/subset_indices.csv"
+        write_subset_indices(selected_indices, output_path, logger)
+        
+        logger.info("T020a completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Dependency missing: {e}")
         sys.exit(1)
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

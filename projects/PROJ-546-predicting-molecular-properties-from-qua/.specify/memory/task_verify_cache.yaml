@@ -13,6 +13,15 @@ T004a:
     \ a non\u2011empty string ID, but no artifact (e.g., a text file, JSON, or log\
     \ entry) containing that ID was provided. The implementer must supply the extracted\
     \ Zenodo ID (and optionally the URL) as a concrete output."
+T011:
+  c: false
+  h: 305b1e6f6c40b9c2eaa3749c2c98c853a10f29f81db5c0b2d87005ddcb6645e4
+  r: "The repository lacks the required input `data/raw/barrier_dataset.csv`, and\
+    \ consequently `data/confounds.csv` and `data/confounds_verification.log` are\
+    \ absent. Moreover, the provided `code/confounds.py` is truncated and does not\
+    \ demonstrably include the full logic for computing MW, atom count, writing the\
+    \ CSV, or logging distribution statistics. The task\u2019s verification criteria\
+    \ are therefore unmet."
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -20,14 +29,13 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
-T020b:
+T020a:
   c: false
-  h: e89be11981bbb9d9fb791df6cb9751bbf6cdae793d7436f26c0ab33e636bc866
-  r: "The repository contains `code/dft_calculator.py`, but the required output file\
-    \ `data/descriptors_dft.csv` is absent, and the provided code snippet is truncated\
-    \ before showing full implementation of geometry handling, missing\u2011file logging,\
-    \ Psi4 execution, HOMO/LUMO parsing, and split\u2011locking. Without the generated\
-    \ descriptor CSV, the task\u2019s primary deliverable is not met."
+  h: 14b57e2d068ca49e7ef5afb5401c5171b57df0838ef7672aa45d33cacc26a555
+  r: "The repository lacks the required data files (`data/raw/barrier_dataset.csv`\
+    \ and `data/confounds.csv`), so the code cannot be exercised, and the implementation\
+    \ of the stratified subset selection is incomplete/truncated in `code/dft_calculator.py`.\
+    \ The task\u2019s core logic and dependency verification cannot be confirmed."
 T029:
   c: false
   h: 0131451bc0c9e4e5044ba089292fbc698f5ea066f6ebaf690494d061543c576a

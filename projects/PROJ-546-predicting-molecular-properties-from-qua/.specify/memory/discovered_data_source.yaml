@@ -1,10 +1,13 @@
 status: none
-intent: download experimental barrier dataset from Zenodo with checksum verification
+intent: Zenodo experimental barrier dataset download verification SHA256 checksum
   python package dataset
 required_fields:
 - reaction_id
-- barrier_energy
-- smiles
-cache_key: 0867428809c8ce06b9f63fa0495cdaa42e1ce3f3ce827ead5a0045e5efaa6525
-searched_at: '2026-08-30T22:14:07.455482+00:00'
+- reactant_smiles
+- product_smiles
+- experimental_barrier
+- temperature
+- reference
+cache_key: 088687d089781f78c87e425cd9e41c701d5fbfcc6e3f8edf19ae29bbeb1d1360
+searched_at: '2026-09-09T04:22:00.401523+00:00'
 retry_count: 1
