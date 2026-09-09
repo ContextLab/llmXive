@@ -188,3 +188,23 @@ def get_checksum_report(file_paths: List[Path], algorithm: str = ALGORITHM) -> s
             lines.append(f"{file_path.name:<30} NOT FOUND")
     
     return "\n".join(lines)
+
+
+def calculate_sha256(file_path: str | Path) -> str:
+    """
+    Calculate the SHA256 hash of a file.
+    
+    This function wraps compute_file_hash to provide a simple interface
+    specifically for SHA256 checksums as requested by T007b.
+    
+    Args:
+        file_path: Path to the file to hash
+        
+    Returns:
+        Hexadecimal string of the SHA256 hash
+        
+    Raises:
+        FileNotFoundError: If the file does not exist
+    """
+    path_obj = Path(file_path)
+    return compute_file_hash(path_obj, "sha256")

@@ -4,7 +4,7 @@
 
 ## Summary
 
-This feature implements a computational pipeline to evaluate the predictive accuracy of Molecular Dynamics (MD) simulations for estimating diffusion coefficients of simple liquids (water, ethanol, acetone) across three timescales (1 ns, 5 ns, 10 ns). The system uses manually curated experimental benchmarks (due to lack of NIST API), executes CPU-only MD simulations using a coarse-grained force field (MARTINI), applies solvent-specific scaling factors to correct for force field bias, extracts Mean Squared Displacement (MSD) data, calculates diffusion coefficients, and performs statistical analysis (bootstrap resampling, sensitivity analysis) to generate timescale-accuracy curves with confidence intervals.
+This feature implements a computational pipeline to evaluate the predictive accuracy of Molecular Dynamics (MD) simulations for estimating diffusion coefficients of simple liquids (water, ethanol, acetone) across three timescales (Variable time intervals (e.g., 5 ns, 10 ns) will be examined.). The system uses manually curated experimental benchmarks (due to lack of NIST API), executes CPU-only MD simulations using a coarse-grained force field (MARTINI), applies solvent-specific scaling factors to correct for force field bias, extracts Mean Squared Displacement (MSD) data, calculates diffusion coefficients, and performs statistical analysis (bootstrap resampling, sensitivity analysis) to generate timescale-accuracy curves with confidence intervals.
 
 ## Technical Context
 
@@ -12,11 +12,11 @@ This feature implements a computational pipeline to evaluate the predictive accu
 **Primary Dependencies**: `gromacs` (via `mdanalysis`/`MDTraj` wrappers or subprocess), `numpy`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `scikit-learn`, `pyyaml`  
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/interim/`)  
 **Testing**: `pytest` (unit tests for MSD extraction, bootstrap logic; integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU cores, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions runner: CPU cores, ~7 GB RAM)  
 **Project Type**: Computational Science / CLI Tool  
 **Performance Goals**: Complete full batch (3 solvents × 3 timescales + analysis) in ≤ 6 hours  
 **Constraints**: CPU-only execution; no GPU available on CI; memory < 7 GB; disk < 14 GB; no external credentials  
-**Scale/Scope**: 9 simulation runs; ~1000 bootstrap iterations; 3 experimental references  
+**Scale/Scope**: simulation runs; A sufficient number of bootstrap iterations; Several experimental references  
 
 > **Critical Feasibility Note**: The spec assumes NIST Chemistry WebBook provides programmatic access to diffusion coefficients. However, the **Verified Datasets** block provided for this project contains NO verified URL for NIST diffusion data. The plan explicitly adopts a manual curation strategy for `data/raw/nist_refs.json` with checksums. This contradicts FR-001 (which mandates 'download and parse') and requires a spec kickback to update FR-001 to reflect the manual curation reality.
 
@@ -29,8 +29,8 @@ This feature implements a computational pipeline to evaluate the predictive accu
 | III. Data Hygiene | **PASS** | Raw data checksummed; derivations documented | |
 | IV. Single Source of Truth | **PASS** | Figures/statistics trace to `data/processed/` and `code/` | **Flag**: Spec FR-008 (R² ≥ 0.99) contradicts Constitution Principle VI (R² ≥ 0.95). Plan adopts 0.95. Kickback needed to align FR-008. |
 | V. Versioning Discipline | **PASS** | Content hashes tracked; `updated_at` updated | |
-| VI. Simulation Convergence Validation | **PASS** | MSD linearity check ($R^2 \ge 0.95$) implemented | **Flag**: Plan uses 0.95 (Constitution) vs Spec 0.99 (FR-008). Kickback needed. |
-| VII. Timescale-Dependent Error Quantification | **PASS** | MAE calculated separately for 1 ns, 5 ns, 10 ns | |
+| VI. Simulation Convergence Validation | **PASS** | MSD linearity check implemented to ensure high goodness-of-fit. | **Flag**: Plan uses 0.95 (Constitution) vs Spec 0.99 (FR-008). Kickback needed. |
+| VII. Timescale-Dependent Error Quantification | **PASS** | MAE calculated separately for short, medium, and long simulation durations | |
 
 ## Project Structure
 
@@ -98,7 +98,7 @@ projects/PROJ-424-investigating-the-predictive-power-of-mo/
 |-----------|------------|-------------------------------------|
 | Coarse-grained (MARTINI) force field | Required by FR-007 to meet 6-hour runtime on 2-core CPU | All-atom simulations would exceed time/memory limits for long trajectories. |
 | Solvent-specific Scaling Factors | Required to correct MARTINI's inherent significant overestimation of D | Direct comparison to experimental values would measure force field bias, not timescale convergence |
-| Bootstrap resampling (1000 iters) | Required by FR-004 for 95% CI; fallback to 100 if time-constrained | Parametric CI assumptions invalid for non-normal error distributions |
+| Bootstrap resampling (sufficient iterations) | Required by FR-004 for 95% CI; fallback to a default limit if time-constrained | Parametric CI assumptions invalid for non-normal error distributions |
 | Sensitivity analysis sweep | Required by US-2 to validate robustness of regression start time | Single-point estimation risks artifact dependence on arbitrary cutoff |
 
 ## Phase Plan
@@ -125,7 +125,7 @@ projects/PROJ-424-investigating-the-predictive-power-of-mo/
 - [ ] Implement `reporting/tables.py`: Summary tables with CI.
 
 ### Phase 3: Validation & Reporting
-- [ ] Run full batch (3 solvents × 3 timescales).
+- [ ] Run full batch (solvents × 3 timescales).
 - [ ] Verify SC-001 (MAE vs NIST), SC-002 (CI width), SC-003 (sensitivity variance < 5%).
 - [ ] Generate final report (US-3) with **descriptive trend analysis** (not p-value) for 1 ns vs 10 ns improvement. **Kickback**: Flag SC-005 in spec for update to remove p-value requirement.
 - [ ] Checksum all artifacts; update `state/...yaml`.

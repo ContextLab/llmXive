@@ -1,49 +1,65 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: sensitivity_report.schema.yaml
-title: Sensitivity Report
-description: Schema for sensitivity analysis results regarding regression start times.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SensitivityReport
+description: Schema for sensitivity analysis report on regression start times.
 type: object
+required:
+  - solvent
+  - timescale
+  - total_trajectory_length
+  - start_time_fractions
+  - results
+  - variance_percentage
+  - variance_passed
+  - timestamp
 properties:
-  run_id:
+  solvent:
     type: string
-    description: Identifier for the run being analyzed.
-  total_trajectory_length_ns:
+    description: Name of the solvent
+    enum:
+      - water
+      - ethanol
+      - acetone
+  timescale:
+    type: string
+    description: Simulation duration
+  total_trajectory_length:
     type: number
-    description: Total length of the trajectory in ns.
-  variance_threshold:
-    type: number
-    description: Maximum allowed variance percentage (e.g., 5.0).
-  is_stable:
-    type: boolean
-    description: True if variance in D values is below threshold.
-  sensitivity_points:
+    description: Total trajectory length in nanoseconds
+  start_time_fractions:
     type: array
-    description: List of results for each sweep point.
+    items:
+      type: number
+    description: List of start time fractions swept (e.g., [0.1, 0.2, 0.3])
+    minItems: 1
+  results:
+    type: array
     items:
       type: object
+      required:
+        - start_fraction
+        - diffusion_coefficient
+        - r_squared
       properties:
-        start_time_fraction:
+        start_fraction:
           type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: Fraction of trajectory used as start time.
+          description: Fraction of trajectory used as start time
         diffusion_coefficient:
           type: number
-          description: Calculated D for this start time.
-        msd_r_squared:
+          description: Calculated diffusion coefficient at this start time
+        r_squared:
           type: number
-          minimum: 0.0
-          maximum: 1.0
-      required:
-      - start_time_fraction
-      - diffusion_coefficient
-      - msd_r_squared
-  generated_at:
+          description: R² value for the linear fit at this start time
+  variance_percentage:
+    type: number
+    description: Variance of diffusion coefficients across start times, expressed as a percentage of the mean
+  variance_passed:
+    type: boolean
+    description: True if variance_percentage < 5% (threshold defined in spec.md SC-003)
+  timestamp:
     type: string
     format: date-time
-required:
-- run_id
-- total_trajectory_length_ns
-- is_stable
-- sensitivity_points
-- generated_at
+    description: ISO 8601 timestamp of when the analysis was performed
+  metadata:
+    type: object
+    description: Additional metadata
+    additionalProperties: true

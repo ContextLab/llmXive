@@ -1,273 +1,389 @@
 """
-Mean Squared Displacement (MSD) analysis module.
+Mean Squared Displacement (MSD) Analysis Module.
 
-Extracts MSD from simulation trajectories, performs linear regression,
-validates linearity (R² >= 0.95 per Constitution Principle VI),
-and calculates diffusion coefficients with solvent-specific scaling.
+This module implements the extraction of MSD from simulation trajectories,
+performs linear regression to estimate diffusion coefficients, and validates
+linearity against the strict R² threshold defined in the project constitution.
+
+References:
+- Constitution Principle VI: R² ≥ 0.95 required for valid diffusion estimation.
+- spec.md FR-008: Diffusion coefficient validity threshold.
 """
+
 import logging
 from pathlib import Path
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Tuple, Optional, List, Any
 from dataclasses import dataclass
+import json
 
 import numpy as np
 from scipy import stats
 
-from config import Solvent, SimulationConfig, AnalysisConfig
-from data_models.diffusion_results import DiffusionResults
+# Import project configuration and logging utilities
+from config import Solvent, AnalysisConfig
 from utils.logging import get_logger
+from utils.data_fetcher import validate_nist_refs
 
-# Threshold from Constitution Principle VI and T008a
-R2_THRESHOLD = 0.95
+# Ensure logger is configured
+logger = get_logger(__name__)
+
 
 @dataclass
 class MSDResult:
-    """Container for MSD analysis results."""
+    """
+    Container for the results of an MSD analysis.
+
+    Attributes:
+        solvent: The solvent type analyzed.
+        timescale: The simulation timescale (e.g., '1ns', '10ns').
+        r_squared: The R² value from the linear regression of MSD vs time.
+        slope: The slope of the linear fit (related to diffusion).
+        intercept: The y-intercept of the linear fit.
+        diffusion_coefficient: The calculated diffusion coefficient (m²/s).
+        is_valid: Boolean indicating if R² >= 0.95.
+        error_message: Optional error message if analysis failed.
+    """
     solvent: str
-    timescale_ns: float
+    timescale: str
     r_squared: float
-    slope: float  # MSD vs time slope
+    slope: float
     intercept: float
-    diffusion_coefficient: float  # in nm²/ns (or scaled unit)
-    is_linear: bool
+    diffusion_coefficient: float
+    is_valid: bool
     error_message: Optional[str] = None
 
-def load_trajectory_timeseries(
-    trajectory_path: Path,
-    solvent: str,
-    timescale_ns: float
-) -> Tuple[np.ndarray, np.ndarray]:
+
+def load_trajectory_timeseries(trajectory_path: Path) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load trajectory data and compute MSD vs time.
+    Load time and MSD data from a trajectory analysis file.
 
-    In a real pipeline, this would parse GROMACS .trr/.xtc or LAMMPS dump files
-    using MDAnalysis or similar. For this implementation, we simulate the
-    extraction by reading pre-computed MSD data if available, or generating
-    realistic synthetic trajectory data for demonstration (which would be
-    replaced by real simulation output in production).
+    Expected file format: CSV with columns 'time' and 'msd'.
+    The time is in picoseconds (ps) and MSD is in nm².
 
-    NOTE: This function assumes the existence of a pre-computed MSD file
-    or generates realistic data based on known diffusion coefficients.
-    """
-    # In production, this would read from:
-    # data/interim/{solvent}_{timescale}ns_msd.csv
-    # containing columns: time_ps, msd_nm2
-
-    # For now, we generate realistic synthetic data based on NIST references
-    # to demonstrate the analysis pipeline. This data mimics what a real
-    # trajectory analysis would produce.
-    
-    # NIST reference values at 298K (nm²/ns)
-    nist_refs = {
-        'water': 2.3,
-        'ethanol': 1.1,
-        'acetone': 0.95
-    }
-    
-    D_true = nist_refs.get(solvent, 1.0)
-    
-    # Generate time points (0 to timescale_ns in ps)
-    time_ps = np.linspace(0, timescale_ns * 1000, 100)
-    
-    # MSD = 6 * D * t (for 3D diffusion)
-    # Add realistic noise
-    np.random.seed(42)  # Reproducibility
-    noise = np.random.normal(0, 0.02 * D_true, len(time_ps))
-    msd_nm2 = 6 * D_true * (time_ps / 1000.0) + noise
-    
-    # Ensure non-negative
-    msd_nm2 = np.maximum(msd_nm2, 0)
-    
-    return time_ps, msd_nm2
-
-def perform_linear_regression(
-    time_ps: np.ndarray,
-    msd_nm2: np.ndarray
-) -> Tuple[float, float, float, float]:
-    """
-    Perform linear regression on MSD vs time data.
+    Args:
+        trajectory_path: Path to the MSD data file.
 
     Returns:
-        slope, intercept, r_squared, p_value
+        Tuple of (time_array, msd_array) as numpy arrays.
+
+    Raises:
+        FileNotFoundError: If the trajectory file does not exist.
+        ValueError: If the file format is invalid or data is missing.
     """
-    # Convert time to ns for regression
-    time_ns = time_ps / 1000.0
-    
-    # Linear regression: MSD = slope * t + intercept
-    slope, intercept, r_value, p_value, std_err = stats.linregress(
-        time_ns, msd_nm2
-    )
-    
+    if not trajectory_path.exists():
+        raise FileNotFoundError(f"Trajectory file not found: {trajectory_path}")
+
+    try:
+        data = np.loadtxt(trajectory_path, delimiter=',', skiprows=1)
+        if data.shape[1] < 2:
+            raise ValueError("Data file must have at least two columns (time, msd)")
+
+        time = data[:, 0]
+        msd = data[:, 1]
+
+        # Filter out any non-finite values
+        valid_mask = np.isfinite(time) & np.isfinite(msd)
+        if not np.all(valid_mask):
+            logger.warning(f"Removed {np.sum(~valid_mask)} non-finite data points from {trajectory_path}")
+            time = time[valid_mask]
+            msd = msd[valid_mask]
+
+        if len(time) < 2:
+            raise ValueError("Insufficient data points for regression (need >= 2)")
+
+        return time, msd
+
+    except Exception as e:
+        logger.error(f"Failed to load trajectory data from {trajectory_path}: {e}")
+        raise
+
+
+def perform_linear_regression(time: np.ndarray, msd: np.ndarray) -> Tuple[float, float, float, float]:
+    """
+    Perform linear regression on MSD vs Time data.
+
+    In 3D isotropic diffusion, MSD = 6 * D * t.
+    The slope of the linear fit corresponds to 6 * D.
+
+    Args:
+        time: Array of time values (ps).
+        msd: Array of MSD values (nm²).
+
+    Returns:
+        Tuple of (slope, intercept, r_squared, p_value).
+    """
+    if len(time) < 2:
+        raise ValueError("Need at least 2 data points for linear regression.")
+
+    # Perform linear regression
+    slope, intercept, r_value, p_value, std_err = stats.linregress(time, msd)
+
     r_squared = r_value ** 2
-    
+
+    logger.debug(f"Regression results: slope={slope:.6f}, intercept={intercept:.6f}, R²={r_squared:.6f}")
+
     return slope, intercept, r_squared, p_value
 
-def validate_linearity(r_squared: float) -> bool:
-    """
-    Validate that MSD vs time is linear with R² >= threshold.
-    
-    Threshold is 0.95 per Constitution Principle VI and T008a.
-    """
-    return r_squared >= R2_THRESHOLD
 
-def calculate_diffusion_coefficient(
-    slope: float,
-    solvent: str
-) -> float:
+def validate_linearity(r_squared: float, threshold: float = 0.95) -> bool:
     """
-    Calculate diffusion coefficient from MSD slope.
-    
-    For 3D diffusion: MSD = 6 * D * t  =>  D = slope / 6
-    
-    Applies solvent-specific scaling factors from config.
+    Validate that the MSD vs Time relationship is linear enough.
+
+    This function enforces Constitution Principle VI and spec.md FR-008,
+    which require an R² of at least 0.95 for the diffusion coefficient
+    to be considered valid.
+
+    Args:
+        r_squared: The R² value from the regression.
+        threshold: The minimum acceptable R² (default 0.95).
+
+    Returns:
+        True if R² >= threshold, False otherwise.
     """
-    # Base calculation
-    D = slope / 6.0
-    
-    # Apply scaling factors (from config, default 1.0 if not specified)
-    # These account for force field limitations (e.g., MARTINI)
-    scaling_factors = {
-        'water': 1.0,    # MARTINI water is well-parameterized
-        'ethanol': 1.0,  # Standard scaling
-        'acetone': 1.0   # Standard scaling
-    }
-    
-    scale = scaling_factors.get(solvent, 1.0)
-    
-    return D * scale
+    is_valid = r_squared >= threshold
+    if not is_valid:
+        logger.warning(f"Linearity validation failed: R²={r_squared:.4f} < {threshold}")
+    else:
+        logger.info(f"Linearity validation passed: R²={r_squared:.4f} >= {threshold}")
+    return is_valid
+
+
+def calculate_diffusion_coefficient(slope: float, time_unit: str = 'ps', length_unit: str = 'nm') -> float:
+    """
+    Calculate the diffusion coefficient from the regression slope.
+
+    Formula: D = slope / (2 * dim)
+    For 3D: D = slope / 6
+
+    Unit conversions:
+    - Slope is in nm²/ps
+    - Target D is in m²/s
+    - 1 nm²/ps = (1e-9 m)² / (1e-12 s) = 1e-18 / 1e-12 = 1e-6 m²/s
+
+    Args:
+        slope: The slope from linear regression (nm²/ps).
+        time_unit: Time unit of input data (default 'ps').
+        length_unit: Length unit of input data (default 'nm').
+
+    Returns:
+        Diffusion coefficient in m²/s.
+    """
+    # Assuming 3D diffusion
+    dim = 3.0
+    raw_d = slope / (2.0 * dim)
+
+    # Convert nm²/ps to m²/s
+    # 1 nm = 1e-9 m => 1 nm² = 1e-18 m²
+    # 1 ps = 1e-12 s
+    # 1 nm²/ps = 1e-18 / 1e-12 = 1e-6 m²/s
+    conversion_factor = 1e-6
+
+    d_in_ms = raw_d * conversion_factor
+
+    logger.debug(f"Calculated D: slope={slope}, raw_D={raw_d}, D_m2s={d_in_ms}")
+
+    return d_in_ms
+
 
 def analyze_msd(
     trajectory_path: Path,
     solvent: str,
-    timescale_ns: float,
+    timescale: str,
     config: Optional[AnalysisConfig] = None
-) -> DiffusionResults:
+) -> MSDResult:
     """
-    Full MSD analysis pipeline.
-    
-    1. Load trajectory and compute MSD
-    2. Perform linear regression
-    3. Validate linearity (R² >= 0.95)
-    4. Calculate diffusion coefficient with scaling
-    
+    Perform full MSD analysis for a single trajectory.
+
+    Steps:
+    1. Load time and MSD data.
+    2. Perform linear regression.
+    3. Validate linearity (R² >= 0.95).
+    4. Calculate diffusion coefficient.
+
     Args:
-        trajectory_path: Path to trajectory file (or pre-computed MSD)
-        solvent: Solvent name (water, ethanol, acetone)
-        timescale_ns: Simulation duration in nanoseconds
-        config: Analysis configuration (optional)
-    
+        trajectory_path: Path to the MSD data file.
+        solvent: Name of the solvent.
+        timescale: Simulation timescale.
+        config: Optional AnalysisConfig for overrides.
+
     Returns:
-        DiffusionResults dataclass with all analysis outputs
-    
-    Raises:
-        ValueError: If linearity validation fails (R² < 0.95)
+        MSDResult object containing all analysis metrics.
     """
-    logger = get_logger(__name__)
-    
-    logger.info(f"Analyzing MSD for {solvent} at {timescale_ns}ns")
-    
-    # Step 1: Load trajectory and compute MSD
-    time_ps, msd_nm2 = load_trajectory_timeseries(
-        trajectory_path, solvent, timescale_ns
-    )
-    
-    # Step 2: Perform linear regression
-    slope, intercept, r_squared, p_value = perform_linear_regression(
-        time_ps, msd_nm2
-    )
-    
-    logger.info(f"Regression results: slope={slope:.4f}, "
-               f"intercept={intercept:.4f}, R²={r_squared:.4f}")
-    
-    # Step 3: Validate linearity
-    is_linear = validate_linearity(r_squared)
-    
-    if not is_linear:
-        error_msg = (
-            f"MSD linearity validation failed for {solvent} at {timescale_ns}ns: "
-            f"R²={r_squared:.4f} < {R2_THRESHOLD} (Constitution Principle VI)"
+    if config is None:
+        # Default config if not provided
+        config = AnalysisConfig(r_squared_threshold=0.95)
+
+    try:
+        logger.info(f"Analyzing MSD for {solvent} at {timescale} from {trajectory_path}")
+
+        # 1. Load Data
+        time, msd = load_trajectory_timeseries(trajectory_path)
+
+        # 2. Linear Regression
+        slope, intercept, r_squared, p_value = perform_linear_regression(time, msd)
+
+        # 3. Validate Linearity
+        is_valid = validate_linearity(r_squared, config.r_squared_threshold)
+
+        # 4. Calculate Diffusion Coefficient
+        diffusion_coefficient = calculate_diffusion_coefficient(slope)
+
+        result = MSDResult(
+            solvent=solvent,
+            timescale=timescale,
+            r_squared=r_squared,
+            slope=slope,
+            intercept=intercept,
+            diffusion_coefficient=diffusion_coefficient,
+            is_valid=is_valid
         )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    # Step 4: Calculate diffusion coefficient
-    diffusion_coefficient = calculate_diffusion_coefficient(slope, solvent)
-    
-    logger.info(f"Calculated D = {diffusion_coefficient:.4f} nm²/ns for {solvent}")
-    
-    # Create result object
-    result = DiffusionResults(
-        solvent=solvent,
-        timescale_ns=timescale_ns,
-        r_squared=r_squared,
-        slope=slope,
-        intercept=intercept,
-        diffusion_coefficient=diffusion_coefficient,
-        is_linear=is_linear,
-        p_value=p_value,
-        analysis_timestamp="2024-01-01T00:00:00Z"  # Would be datetime.now() in production
-    )
-    
-    return result
+
+        if not is_valid:
+            logger.warning(f"Result for {solvent}/{timescale} is INVALID due to low R².")
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Analysis failed for {solvent}/{timescale}: {e}", exc_info=True)
+        return MSDResult(
+            solvent=solvent,
+            timescale=timescale,
+            r_squared=0.0,
+            slope=0.0,
+            intercept=0.0,
+            diffusion_coefficient=0.0,
+            is_valid=False,
+            error_message=str(e)
+        )
+
 
 def batch_analyze_msd(
-    trajectories: List[Dict[str, any]],
+    results_dir: Path,
     config: Optional[AnalysisConfig] = None
-) -> List[DiffusionResults]:
+) -> List[MSDResult]:
     """
-    Analyze multiple trajectories in batch.
-    
+    Analyze all MSD files in a directory.
+
+    Expects files named {solvent}_{timescale}.csv (e.g., water_1ns.csv).
+
     Args:
-        trajectories: List of dicts with keys:
-            - trajectory_path: Path to trajectory
-            - solvent: Solvent name
-            - timescale_ns: Duration in ns
-        config: Analysis configuration
-    
+        results_dir: Directory containing MSD CSV files.
+        config: Optional AnalysisConfig.
+
     Returns:
-        List of DiffusionResults
+        List of MSDResult objects.
     """
+    if not results_dir.exists():
+        raise FileNotFoundError(f"Results directory not found: {results_dir}")
+
     results = []
-    
-    for traj in trajectories:
-        try:
-            result = analyze_msd(
-                trajectory_path=Path(traj['trajectory_path']),
-                solvent=traj['solvent'],
-                timescale_ns=traj['timescale_ns'],
-                config=config
-            )
+    msd_files = list(results_dir.glob("*.csv"))
+
+    if not msd_files:
+        logger.warning(f"No CSV files found in {results_dir}")
+        return results
+
+    for file_path in msd_files:
+        # Parse filename: solvent_timescale.csv
+        stem = file_path.stem
+        parts = stem.split('_')
+        if len(parts) >= 2:
+            solvent = parts[0]
+            timescale = '_'.join(parts[1:]) # Handle cases like 10_ns if split differently
+            # Basic heuristic for timescale if split by underscore
+            # Assuming standard format: water_1ns.csv -> water, 1ns
+            if len(parts) == 2:
+                solvent, timescale = parts
+            else:
+                # Fallback for complex names, assume first part is solvent
+                solvent = parts[0]
+                timescale = "_".join(parts[1:])
+
+            result = analyze_msd(file_path, solvent, timescale, config)
             results.append(result)
-        except ValueError as e:
-            logging.getLogger(__name__).warning(f"Skipping failed analysis: {e}")
-            # Could also store failed results for reporting
-    
+        else:
+            logger.warning(f"Skipping file with unexpected name format: {file_path.name}")
+
     return results
 
-def main():
+
+def save_analysis_results(results: List[MSDResult], output_path: Path) -> None:
     """
-    Main entry point for MSD analysis.
-    
-    Demonstrates the analysis pipeline with sample data.
-    In production, this would be called from main.py with real trajectory paths.
+    Save analysis results to a JSON file.
+
+    Args:
+        results: List of MSDResult objects.
+        output_path: Path to the output JSON file.
     """
-    logger = get_logger(__name__)
-    logger.info("Starting MSD analysis module")
-    
-    # Sample analysis for water at 1ns
+    data = [
+        {
+            "solvent": r.solvent,
+            "timescale": r.timescale,
+            "r_squared": r.r_squared,
+            "slope": r.slope,
+            "intercept": r.intercept,
+            "diffusion_coefficient": r.diffusion_coefficient,
+            "is_valid": r.is_valid,
+            "error_message": r.error_message
+        }
+        for r in results
+    ]
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+    logger.info(f"Saved {len(results)} results to {output_path}")
+
+
+def main() -> None:
+    """
+    Main entry point for MSD analysis script.
+
+    Reads configuration, finds trajectory files, performs analysis,
+    and saves results.
+    """
+    # Setup logging
+    log = get_logger("msd_analysis")
+    log.info("Starting MSD Analysis Pipeline")
+
+    # Define paths (relative to project root)
+    # In a real scenario, these might come from CLI args or a config file
+    base_dir = Path(__file__).resolve().parent.parent
+    data_dir = base_dir / "data" / "processed" / "msd"
+    output_dir = base_dir / "data" / "processed" / "analysis"
+
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load config if available, else use defaults
+    # Assuming config is handled by the global config module
     try:
-        result = analyze_msd(
-            trajectory_path=Path("data/interim/water_1ns.trr"),
-            solvent="water",
-            timescale_ns=1.0
-        )
-        
-        logger.info(f"Analysis complete: D={result.diffusion_coefficient:.4f}, "
-                   f"R²={result.r_squared:.4f}")
-        
-    except ValueError as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
+        from config import AnalysisConfig
+        analysis_config = AnalysisConfig()
+    except ImportError:
+        analysis_config = None
+
+    # Validate NIST refs exist (as per T006c requirement)
+    try:
+        validate_nist_refs()
+        log.info("NIST references validated successfully.")
+    except Exception as e:
+        log.error(f"NIST reference validation failed: {e}")
+        # We continue analysis but note that comparison won't be possible
+        # unless the error is critical. For T016, we just log.
+
+    # Run batch analysis
+    if data_dir.exists():
+        results = batch_analyze_msd(data_dir, analysis_config)
+        save_analysis_results(results, output_dir / "msd_results.json")
+    else:
+        log.warning(f"Data directory {data_dir} does not exist. No analysis performed.")
+        # Create an empty result file to indicate completion status
+        save_analysis_results([], output_dir / "msd_results.json")
+
+    log.info("MSD Analysis Pipeline Completed")
+
 
 if __name__ == "__main__":
     main()

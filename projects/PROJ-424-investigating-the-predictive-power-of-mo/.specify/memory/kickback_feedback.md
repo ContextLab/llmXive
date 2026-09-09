@@ -4,11 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory listing or file tree was provided showing the required `code/`, `data/raw/`, `data/processed/`, `data/interim/`, `tests/unit/`, and `tests/integration/` folders under `projects/PROJ-424-investigating-the-predictive-power-of-mo/`. Without concrete evidence of these directories, the task requirement is not satisfied.
+- `T001a` (rejected 1x): No evidence of a `code/` directory (or its required subdirectories) was provided; the claim lacks an `ls -R code/` listing or any file‑system snapshot confirming the directory structure exists. The required artifact is therefore missing.
+- `T001b` (rejected 1x): No evidence of a `data/` directory (or its `raw/`, `processed/`, `interim/` subfolders) is presented; the claim cannot be confirmed without actual filesystem listings or files. The required artifact is missing.
+- `T001c` (rejected 1x): No evidence of a `tests/` directory (or its `unit/` and `integration/` subdirectories) is provided, nor any `ls -R tests/` output showing their presence. The required artifact is missing.
 - `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-424-investigating-the-predictive-power-of-mo/requirements.txt
-- `T003` (rejected 1x): No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or related setup scripts are present in `projects/PROJ-424-investigating-the-predictive-power-of-mo/`. Without such artifacts, the claim of having configured the tools cannot be verified.
-- `T008a` (rejected 1x): No updated `spec.md` file (or excerpt showing FR‑008 with the R² threshold changed to 0.95) is provided. The claim lacks the required artifact demonstrating the specification change, so the task is not satisfied.
-- `T008b` (rejected 1x): No updated `spec.md` file was provided; the claim that SC-005 was edited to replace “bootstrap difference-of-means test (p ≤ 0.05)” with “descriptive trend analysis” cannot be verified. The required artifact (the modified spec document) is missing.
+- `T003` (rejected 1x): The repository contains a `pyproject.toml` with proper `[tool.black]` and `[tool.ruff]` sections, but the required `.ruff.toml` file is absent, so the linting configuration is incomplete.
 - `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
 
 ## Required change

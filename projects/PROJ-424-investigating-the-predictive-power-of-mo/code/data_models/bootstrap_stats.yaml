@@ -1,0 +1,155 @@
+# Schema for bootstrap statistics results
+# Generated for task T009b
+# Defines the structure of bootstrap_stats.csv and related artifacts
+schema_name: bootstrap_stats
+version: "1.0.0"
+description: |
+  Statistical summary of bootstrap resampling analysis for diffusion coefficient
+  estimation accuracy. Contains mean MAE, confidence intervals, and metadata
+  about the bootstrap procedure.
+
+fields:
+  - name: solvent
+    type: string
+    required: true
+    description: Name of the solvent (water, ethanol, acetone)
+    enum:
+      - water
+      - ethanol
+      - acetone
+  
+  - name: timescale_ns
+    type: number
+    required: true
+    description: Simulation duration in nanoseconds (1, 5, or 10)
+    minimum: 0.1
+    maximum: 100
+  
+  - name: bootstrap_iterations
+    type: integer
+    required: true
+    description: Number of bootstrap iterations performed
+    minimum: 100
+    default: 1000
+  
+  - name: mean_mae
+    type: number
+    required: true
+    description: Mean Mean Absolute Error across bootstrap samples
+    minimum: 0.0
+    units: m²/s
+  
+  - name: std_mae
+    type: number
+    required: true
+    description: Standard deviation of MAE across bootstrap samples
+    minimum: 0.0
+    units: m²/s
+  
+  - name: ci_lower_95
+    type: number
+    required: true
+    description: Lower bound of 95% confidence interval (percentile method)
+    minimum: 0.0
+    units: m²/s
+  
+  - name: ci_upper_95
+    type: number
+    required: true
+    description: Upper bound of 95% confidence interval (percentile method)
+    minimum: 0.0
+    units: m²/s
+  
+  - name: ci_width
+    type: number
+    required: true
+    description: Width of the 95% confidence interval
+    minimum: 0.0
+    units: m²/s
+  
+  - name: nist_reference_d
+    type: number
+    required: true
+    description: NIST reference diffusion coefficient for this solvent
+    minimum: 0.0
+    units: m²/s
+  
+  - name: experimental_d
+    type: number
+    required: false
+    description: Experimentally measured diffusion coefficient (if available)
+    minimum: 0.0
+    units: m²/s
+  
+  - name: relative_error_pct
+    type: number
+    required: false
+    description: Relative error compared to NIST reference as percentage
+    minimum: -100.0
+  
+  - name: timestamp
+    type: string
+    required: true
+    description: ISO 8601 timestamp of when the analysis was completed
+    format: date-time
+  
+  - name: config_hash
+    type: string
+    required: false
+    description: SHA256 hash of the configuration used for reproducibility
+  
+  - name: fallback_triggered
+    type: boolean
+    required: true
+    description: Whether the bootstrap fell back to minimum iterations due to time constraints
+    default: false
+  
+  - name: wall_time_seconds
+    type: number
+    required: false
+    description: Total wall-clock time for bootstrap analysis
+    minimum: 0.0
+
+metadata:
+  source: T009b - Bootstrap Stats Schema Definition
+  created_by: llmXive implementer
+  related_tasks:
+    - T026
+    - T027
+  references:
+    - spec.md SC-005: Statistical method (N=3 limitation)
+    - Constitution Principle VI: R² threshold requirements
+    - FR-004: Bootstrap fallback logic
+
+file_format:
+  primary: csv
+  columns:
+    - solvent
+    - timescale_ns
+    - bootstrap_iterations
+    - mean_mae
+    - std_mae
+    - ci_lower_95
+    - ci_upper_95
+    - ci_width
+    - nist_reference_d
+    - experimental_d
+    - relative_error_pct
+    - timestamp
+    - config_hash
+    - fallback_triggered
+    - wall_time_seconds
+  
+  output_path: data/processed/bootstrap_stats.csv
+
+validation_rules:
+  - rule: mean_mae must be positive
+    condition: mean_mae > 0
+  - rule: confidence interval must contain mean
+    condition: ci_lower_95 <= mean_mae <= ci_upper_95
+  - rule: CI width must be positive
+    condition: ci_width > 0
+  - rule: iterations must be at least 100
+    condition: bootstrap_iterations >= 100
+  - rule: relative error calculation valid only if nist_reference_d > 0
+    condition: nist_reference_d > 0 implies relative_error_pct is calculable

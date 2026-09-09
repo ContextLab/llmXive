@@ -35,26 +35,30 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_data)
 
 
-def setup_logging(
+def setup_logger(
     log_level: str = "INFO",
     log_file: Optional[Path] = None,
-    json_format: bool = False,
+    json_format: bool = True,
 ) -> logging.Logger:
     """
     Configure the root logger with console and optional file handlers.
     
+    This function sets up structured logging as required by T007a.
+    If `log_file` is provided, logs are written to `logs/` directory.
+    
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional path to write logs to a file
-        json_format: If True, use JSON formatting; otherwise use standard formatting
-            
+        log_file: Optional path to write logs to a file. If relative,
+                  it is resolved relative to the project root (assumed to be parent of 'code').
+        json_format: If True, use JSON formatting; otherwise use standard formatting.
+                    
     Returns:
         Configured root logger instance
     """
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     
-    # Clear existing handlers
+    # Clear existing handlers to ensure clean configuration
     logger.handlers.clear()
     
     # Console handler
@@ -75,11 +79,15 @@ def setup_logging(
     
     # File handler if specified
     if log_file:
+        # Ensure the log directory exists
         log_file.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(JSONFormatter() if json_format else 
-                                logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+        
+        formatter = JSONFormatter() if json_format else logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     
     return logger

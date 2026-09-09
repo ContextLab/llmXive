@@ -1,0 +1,43 @@
+# Ruff configuration for llmXive project
+# This file extends the base settings in pyproject.toml with specific rules
+
+extend = "pyproject.toml"
+
+[lint]
+# Specific rules to enforce: E4 (imports), E7 (syntax/style), E9 (runtime), F (pyflakes)
+select = [
+    "E4", # Import formatting errors (e.g., E402 module level import not at top)
+    "E7", # Syntax and style errors (e.g., E711 comparison to None, E712 truth value testing)
+    "E9", # Runtime errors (e.g., E999 syntax error)
+    "F",  # Pyflakes
+]
+
+# Additional strict rules for scientific code
+extend-select = [
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "I",    # isort (import sorting)
+]
+
+ignore = [
+    # Allow long lines in docstrings and comments (handled by black for code)
+    "E501",
+    # Allow unused imports in __init__.py for API exposure
+    "F401",
+    # Allow variable names like 'i', 'j' in loops
+    "E741",
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = true
+force-sort-within-sections = true
+order-by-type = false
+relative-imports-order = "closest-to-furthest"
+
+[lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true
+
+[lint.pyupgrade]
+keep-runtime-typing = false

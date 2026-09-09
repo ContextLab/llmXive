@@ -1,0 +1,1708 @@
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Water diffusion coefficient is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_0c2e1a2b
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:25:46Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Ethanol diffusion coefficient is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_e844774a
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:26:27Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Acetone diffusion coefficient is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_f180f499
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:27:01Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of water is 2.30e-9 m^2/s according to NIST
+  claim_id: c_712ac515
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:27:35Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of ethanol is 1.24e-9 m^2/s according to NIST
+  claim_id: c_fbd8855a
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:27:35Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of acetone is 4.50e-9 m^2/s according to NIST
+  claim_id: c_cf74617c
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:27:35Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Water diffusion coefficient is 2.30e-9 m^2/s according to NIST
+  claim_id: c_2230136b
+  context: 'T006b [P] Create data/raw/nist_refs.json with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:28:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Ethanol diffusion coefficient is 1.24e-9 m^2/s according to NIST
+  claim_id: c_6bacf94a
+  context: 'T006b [P] Create data/raw/nist_refs.json with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:28:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Acetone diffusion coefficient is 4.50e-9 m^2/s according to NIST
+  claim_id: c_41751936
+  context: 'T006b [P] Create data/raw/nist_refs.json with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:28:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of water is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_a7cf28f6
+  context: "Create `data/raw/nist_refs.json` with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:18Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of ethanol is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_a06d6a97
+  context: "Create `data/raw/nist_refs.json` with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:18Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of acetone is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_651c5e16
+  context: "Create `data/raw/nist_refs.json` with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:19Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficient of water is 2.30e-9 m2/s
+  claim_id: c_866e220c
+  context: "T006b [P] Create `data/raw/nist_refs.json` with hardcoded experimental\
+    \ diffusion coefficients for water, ethanol, and acetone at 298K/300K. Action:\
+    \ Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:58Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficient of ethanol is 1.24e-9 m2/s
+  claim_id: c_a2792703
+  context: "T006b [P] Create `data/raw/nist_refs.json` with hardcoded experimental\
+    \ diffusion coefficients for water, ethanol, and acetone at 298K/300K. Action:\
+    \ Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:58Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficient of acetone is 4.50e-9 m2/s
+  claim_id: c_cde9ce58
+  context: "T006b [P] Create `data/raw/nist_refs.json` with hardcoded experimental\
+    \ diffusion coefficients for water, ethanol, and acetone at 298K/300K. Action:\
+    \ Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:58Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Water diffusion coefficient is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_68d684be
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. ... Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Ethanol diffusion coefficient is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_28c56cd9
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. ... Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Acetone diffusion coefficient is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_f3b12d84
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. ... Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: NIST diffusion coefficient for water is 2.30e-9 m^2/s
+  claim_id: c_9f226688
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients...\
+    \ Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:45Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: NIST diffusion coefficient for ethanol is 1.24e-9 m^2/s
+  claim_id: c_3f91f1bf
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients...\
+    \ Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:45Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: NIST diffusion coefficient for acetone is 4.50e-9 m^2/s
+  claim_id: c_b0c33074
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients...\
+    \ Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:45Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of water at 298K/300K is 2.30e-9 m\xB2/s according\
+    \ to NIST"
+  claim_id: c_e26cf2d9
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Water: D = 2.30e-9 m\xB2/s (Source:\
+    \ NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:31:19Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of ethanol at 298K/300K is 1.24e-9 m\xB2/s according\
+    \ to NIST"
+  claim_id: c_80f390e7
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Ethanol: D = 1.24e-9 m\xB2/s (Source:\
+    \ NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:31:19Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of acetone at 298K/300K is 4.50e-9 m\xB2/s according\
+    \ to NIST"
+  claim_id: c_ca83150f
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Acetone: D = 4.50e-9 m\xB2/s (Source:\
+    \ NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:31:19Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "diffusion coefficient of water is 2.30e-9 m\xB2/s at 298K/300K"
+  claim_id: c_8316c36c
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values... Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "diffusion coefficient of ethanol is 1.24e-9 m\xB2/s at 298K/300K"
+  claim_id: c_54cabf10
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values... Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "diffusion coefficient of acetone is 4.50e-9 m\xB2/s at 298K/300K"
+  claim_id: c_133c0343
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values... Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Diffusion coefficient of water is 2.30e-9 m^2/s according to NIST
+  claim_id: c_f1f64eda
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Diffusion coefficient of ethanol is 1.24e-9 m^2/s according to NIST
+  claim_id: c_f103d3d2
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Diffusion coefficient of acetone is 4.50e-9 m^2/s according to NIST
+  claim_id: c_b5d13a65
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of water is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_3ddc08b3
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:33:09Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of ethanol is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_37e8f830
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:33:09Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of acetone is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_8dc14608
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:33:09Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Experimental diffusion coefficient of water is 2.30e-9 m\xB2/s per NIST"
+  claim_id: c_5edca6fb
+  context: 'Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Experimental diffusion coefficient of ethanol is 1.24e-9 m\xB2/s per\
+    \ NIST"
+  claim_id: c_84de6ad9
+  context: 'Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Experimental diffusion coefficient of acetone is 4.50e-9 m\xB2/s per\
+    \ NIST"
+  claim_id: c_4f00bd4b
+  context: 'Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Experimental diffusion coefficients for water, ethanol, and acetone are
+    measured at 298K or 300K
+  claim_id: c_e9dfc96f
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experimental_diffusion_coefficients_for_water,_ethanol,_and
+  kind: entity_fact
+  raw_text: Experimental diffusion coefficients are defined at 298K/300K
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:36:27Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of water is 2.30e-9 m^2/s at 298K/300K according
+    to NIST
+  claim_id: c_117787ae
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. ... Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:02Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of ethanol is 1.24e-9 m^2/s at 298K/300K according
+    to NIST
+  claim_id: c_ae2d0c07
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. ... Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:02Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of acetone is 4.50e-9 m^2/s at 298K/300K according
+    to NIST
+  claim_id: c_72664a5f
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. ... Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:02Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of water is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_c7774a71
+  context: "T006b: Create data/raw/nist_refs.json with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Water: D = 2.30e-9\
+    \ m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:17Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of ethanol is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_63895685
+  context: "T006b: Create data/raw/nist_refs.json with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Ethanol: D = 1.24e-9\
+    \ m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:17Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of acetone is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_8bae354e
+  context: "T006b: Create data/raw/nist_refs.json with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Acetone: D = 4.50e-9\
+    \ m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:17Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: water diffusion coefficient 2.30e-9 m2/s at 298K/300K from NIST
+  claim_id: c_f4af8c95
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Manually populate the
+    JSON with the following values (or verified literature equivalents)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:48Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: ethanol diffusion coefficient 1.24e-9 m2/s at 298K/300K from NIST
+  claim_id: c_25c12e0b
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Manually populate the
+    JSON with the following values (or verified literature equivalents)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:48Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: acetone diffusion coefficient 4.50e-9 m2/s at 298K/300K from NIST
+  claim_id: c_e16bb476
+  context: Create `data/raw/nist_refs.json` with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Manually populate the
+    JSON with the following values (or verified literature equivalents)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:37:48Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "experimental diffusion coefficient of water at 298K/300K is 2.30e-9\
+    \ m\xB2/s"
+  claim_id: c_2c1b6356
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:06Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "experimental diffusion coefficient of ethanol at 298K/300K is 1.24e-9\
+    \ m\xB2/s"
+  claim_id: c_0844c01a
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:06Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "experimental diffusion coefficient of acetone at 298K/300K is 4.50e-9\
+    \ m\xB2/s"
+  claim_id: c_330f3722
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:06Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Water diffusion coefficient is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_e1e5081f
+  context: "Create `data/raw/nist_refs.json` with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:32Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Ethanol diffusion coefficient is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_04c82f05
+  context: "Create `data/raw/nist_refs.json` with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:32Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Acetone diffusion coefficient is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_4696328c
+  context: "Create `data/raw/nist_refs.json` with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:33Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Water diffusion coefficient is 2.30e-9 m\xB2/s at 298K/300K per NIST"
+  claim_id: c_435742fd
+  context: 'T006b Create data/raw/nist_refs.json with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:39:47Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Ethanol diffusion coefficient is 1.24e-9 m\xB2/s at 298K/300K per NIST"
+  claim_id: c_2f0177c4
+  context: 'T006b Create data/raw/nist_refs.json with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:39:47Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Acetone diffusion coefficient is 4.50e-9 m\xB2/s at 298K/300K per NIST"
+  claim_id: c_eaba375c
+  context: 'T006b Create data/raw/nist_refs.json with hardcoded experimental diffusion
+    coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually populate
+    the JSON with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:39:47Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Water diffusion coefficient is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_654bf3ea
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: Water: D = 2.30e-9 m\xB2/s (Source:\
+    \ NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:40:52Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Ethanol diffusion coefficient is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_1638c430
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: Ethanol: D = 1.24e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:40:52Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Acetone diffusion coefficient is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_fe9b1b10
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: Acetone: D = 4.50e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:40:52Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Diffusion coefficients for water ethanol acetone at 298K 300K
+  claim_id: c_cd1d1f9a
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_coefficients_for_water_ethanol_acetone_at_298K_300
+  kind: entity_fact
+  raw_text: Diffusion coefficients are for water, ethanol, and acetone at 298K/300K
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:42:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Experimental diffusion coefficient of water at 298K/300K is 2.30e-9 m2/s
+    according to NIST
+  claim_id: c_ca3fd1b9
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:43:39Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Experimental diffusion coefficient of ethanol at 298K/300K is 1.24e-9
+    m2/s according to NIST
+  claim_id: c_60293fbd
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:43:40Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Experimental diffusion coefficient of acetone at 298K/300K is 4.50e-9
+    m2/s according to NIST
+  claim_id: c_5b8bfedf
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:43:40Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of water is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_a75aca0f
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:11Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of ethanol is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_9d0b8037
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of acetone is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_1a38ec8a
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of water is 2.30e-9 m2/s according to NIST
+  claim_id: c_f98deb49
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:43Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of ethanol is 1.24e-9 m2/s according to NIST
+  claim_id: c_cfae9517
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:43Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of acetone is 4.50e-9 m2/s according to NIST
+  claim_id: c_33f4a2ec
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:44Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of water is 2.30e-9 m^2/s at 298K/300K
+  claim_id: c_da874f8e
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:10Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of ethanol is 1.24e-9 m^2/s at 298K/300K
+  claim_id: c_16f0dd30
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:11Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of acetone is 4.50e-9 m^2/s at 298K/300K
+  claim_id: c_383f4d54
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:11Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of water is 2.30e-9 m^2/s
+  claim_id: c_08cdbb39
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s\
+    \ (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:38Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of ethanol is 1.24e-9 m^2/s
+  claim_id: c_4db5be21
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:38Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of acetone is 4.50e-9 m^2/s
+  claim_id: c_0286ffda
+  context: "Manually populate the JSON with the following values (or verified literature\
+    \ equivalents) and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2\
+    /s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:38Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficient of water at 298K is 2.30e-9 m^2/s
+  claim_id: c_c8b4bd61
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water experimental diffusion coefficient at 298K/300K is 2.30e-9 m\xB2\
+    /s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:50:16Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficient of ethanol at 298K is 1.24e-9 m^2/s
+  claim_id: c_d670cfd0
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol experimental diffusion coefficient at 298K/300K is 1.24e-9 m\xB2\
+    /s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:50:51Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficient of acetone at 298K is 4.50e-9 m^2/s
+  claim_id: c_26846b30
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone experimental diffusion coefficient at 298K/300K is 4.50e-9 m\xB2\
+    /s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:51:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Water diffusion coefficient 2.30e-9 m\xB2/s at 298K/300K from NIST"
+  claim_id: c_c23c6b55
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:51:50Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Ethanol diffusion coefficient 1.24e-9 m\xB2/s at 298K/300K from NIST"
+  claim_id: c_5ed04f1c
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:51:50Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Acetone diffusion coefficient 4.50e-9 m\xB2/s at 298K/300K from NIST"
+  claim_id: c_d545c35f
+  context: "Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients\
+    \ for water, ethanol, and acetone at 298K/300K. Action: Manually populate the\
+    \ JSON with the following values (or verified literature equivalents) and calculate\
+    \ the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:51:50Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Water diffusion coefficient 2.30e-9 m^2/s at 298K/300K from NIST
+  claim_id: c_a4e53ede
+  context: "T006b Create data/raw/nist_refs.json with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: - Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:52:48Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Ethanol diffusion coefficient 1.24e-9 m^2/s at 298K/300K from NIST
+  claim_id: c_0f6aa9f2
+  context: "T006b Create data/raw/nist_refs.json with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: - Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:52:48Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Acetone diffusion coefficient 4.50e-9 m^2/s at 298K/300K from NIST
+  claim_id: c_d94295d8
+  context: "T006b Create data/raw/nist_refs.json with hardcoded experimental diffusion\
+    \ coefficients for water, ethanol, and acetone at 298K/300K. Action: Manually\
+    \ populate the JSON with the following values (or verified literature equivalents)\
+    \ and calculate the SHA256 checksum: - Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:52:48Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of water at 298K/300K is 2.30e-9 m\xB2/s"
+  claim_id: c_19317eeb
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:53:46Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of ethanol at 298K/300K is 1.24e-9 m\xB2/s"
+  claim_id: c_9b88000a
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:53:47Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of acetone at 298K/300K is 4.50e-9 m\xB2/s"
+  claim_id: c_74ef9d9a
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:53:47Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of water is 2.30e-9 m\xB2/s per NIST"
+  claim_id: c_a3ea6fa0
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:54:53Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of ethanol is 1.24e-9 m\xB2/s per NIST"
+  claim_id: c_c6c8b20a
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:54:53Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: "Diffusion coefficient of acetone is 4.50e-9 m\xB2/s per NIST"
+  claim_id: c_8d18197a
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:54:53Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of water is 2.30e-9 m^2/s according to NIST
+  claim_id: c_6571a612
+  context: 'Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K. Action: Manually populate the JSON
+    with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:55:50Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of ethanol is 1.24e-9 m^2/s according to NIST
+  claim_id: c_915a919c
+  context: 'Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K. Action: Manually populate the JSON
+    with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:55:51Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: diffusion coefficient of acetone is 4.50e-9 m^2/s according to NIST
+  claim_id: c_226e0bc1
+  context: 'Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K. Action: Manually populate the JSON
+    with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:55:51Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: Water diffusion coefficient 2.30e-9 m^2/s from NIST
+  claim_id: c_e9a83836
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:56:39Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: Ethanol diffusion coefficient 1.24e-9 m^2/s from NIST
+  claim_id: c_1ae93f29
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:56:40Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: Acetone diffusion coefficient 4.50e-9 m^2/s from NIST
+  claim_id: c_865b8d78
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:56:40Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of water is 2.30e-9 m\xB2/s according to NIST"
+  claim_id: c_f5f54b7e
+  context: 'Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K. Action: Manually populate the JSON
+    with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water: D = 2.30e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:57:37Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of ethanol is 1.24e-9 m\xB2/s according to NIST"
+  claim_id: c_baa9ca3e
+  context: 'Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K. Action: Manually populate the JSON
+    with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ethanol: D = 1.24e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:57:38Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: "Diffusion coefficient of acetone is 4.50e-9 m\xB2/s according to NIST"
+  claim_id: c_8191b2b0
+  context: 'Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K. Action: Manually populate the JSON
+    with the following values (or verified literature equivalents)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Acetone: D = 4.50e-9 m\xB2/s (Source: NIST)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:57:38Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Diffusion coefficients for water, ethanol, and acetone measured at 298K/300K
+  claim_id: c_b200b404
+  context: Create data/raw/nist_refs.json with hardcoded experimental diffusion coefficients
+    for water, ethanol, and acetone at 298K/300K.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_coefficients_for_water,_ethanol,_and_acetone_measu
+  kind: entity_fact
+  raw_text: Experimental diffusion coefficients for water, ethanol, and acetone are
+    defined at 298K/300K
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:58:16Z'

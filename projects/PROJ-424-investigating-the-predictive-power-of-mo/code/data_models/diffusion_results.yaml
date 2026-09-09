@@ -1,0 +1,114 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DiffusionResults
+description: |
+  Schema for storing diffusion coefficient results derived from Molecular Dynamics simulations.
+  Contains the calculated diffusion coefficient, statistical metrics (R²), and metadata
+  required to validate the result against experimental benchmarks (NIST).
+  This schema aligns with the data model defined in `code/data_models/diffusion_results.py`.
+
+type: object
+required:
+  - solvent
+  - timescale_ns
+  - diffusion_coefficient
+  - unit
+  - r_squared
+  - msd_slope
+  - timestamp
+  - simulation_id
+
+properties:
+  solvent:
+    type: string
+    description: Name of the solvent simulated (e.g., 'water', 'ethanol', 'acetone').
+    enum:
+      - water
+      - ethanol
+      - acetone
+
+  timescale_ns:
+    type: number
+    description: Duration of the simulation in nanoseconds.
+    minimum: 0
+
+  diffusion_coefficient:
+    type: number
+    description: Calculated diffusion coefficient.
+    unit: m^2/s
+
+  unit:
+    type: string
+    description: Unit of the diffusion coefficient.
+    const: m^2/s
+
+  r_squared:
+    type: number
+    description: R-squared value from the linear regression of MSD vs time.
+    minimum: 0
+    maximum: 1
+    x-constraint: |
+      Must be >= 0.95 as per Constitution Principle VI and spec.md FR-008.
+      Values below this threshold indicate non-linear MSD behavior.
+
+  msd_slope:
+    type: number
+    description: Slope of the linear fit (MSD vs time) used to derive the diffusion coefficient.
+    unit: m^2/s
+
+  scaling_factor_applied:
+    type: number
+    description: Solvent-specific scaling factor applied to the raw slope (if any).
+    default: 1.0
+
+  simulation_id:
+    type: string
+    description: Unique identifier for the simulation run (e.g., UUID or hash).
+
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the analysis was performed.
+
+  trajectory_file:
+    type: string
+    description: Path to the source trajectory file used for analysis.
+
+  regression_window:
+    type: object
+    description: Time window used for linear regression.
+    properties:
+      start_time_ns:
+        type: number
+        description: Start time of the regression window in ns.
+      end_time_ns:
+        type: number
+        description: End time of the regression window in ns.
+
+  validation_status:
+    type: string
+    description: Status of the linearity validation.
+    enum:
+      - PASSED
+      - FAILED
+      - SKIPPED
+
+  notes:
+    type: string
+    description: Optional notes regarding the analysis (e.g., warnings, anomalies).
+
+examples:
+  - solvent: water
+    timescale_ns: 10.0
+    diffusion_coefficient: 2.35e-09
+    unit: m^2/s
+    r_squared: 0.982
+    msd_slope: 1.41e-08
+    scaling_factor_applied: 1.0
+    simulation_id: "sim_water_10ns_001"
+    timestamp: "2023-10-27T10:00:00Z"
+    trajectory_file: "data/processed/water_10ns.xtc"
+    regression_window:
+      start_time_ns: 1.0
+      end_time_ns: 10.0
+    validation_status: PASSED
+    notes: "Linear MSD observed over full trajectory."
