@@ -1,3 +1,19 @@
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, configuration, or log output showing that\
+    \ logging for wake/dream phase transitions, entropy metrics, or warm\u2011up status\
+    \ has been added. Without any artifact (e.g., modified training script, logging\
+    \ module, or sample log files), the task requirement is not satisfied. The next\
+    \ implementer must add the required logging statements and supply the resulting\
+    \ code and example logs."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output artifact implementing the statistical analysis (accuracy
+    difference computation and paired t-test using `scipy.stats.ttest_rel`) is present.
+    The claim lacks any concrete implementation, data, or results, so the requirement
+    is not satisfied.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -7,19 +23,6 @@ T037:
     \ a generated report, logging output, or function) that computes or displays the\
     \ variance of final accuracies over different temperature settings, so the task\
     \ requirement is unmet."
-T051:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or updated `quickstart.md` file was provided; the claim
-    lacks any tangible documentation artifacts, so the required documentation updates
-    are missing.
-T052:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, or documentation showing any cleanup or refactoring was provided;\
-    \ the only content present is the feature specification, which does not demonstrate\
-    \ the claimed T052 work. Consequently, the required artifact for \u201Ccode cleanup\
-    \ and refactoring\u201D is missing."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

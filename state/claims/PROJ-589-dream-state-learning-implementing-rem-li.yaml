@@ -1,0 +1,97 @@
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: REM-like consolidation cycles improve language model training
+  claim_id: c_bf581ff3
+  context: This work explores whether REM-like consolidation cycles can improve language
+    model training. The implementation uses a Denoising Autoencoder (DAE) on masked
+    real data for the dream phase, rather than generative replay.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/REM-like_consolidation_cycles_improve_language_model_trainin
+  kind: entity_fact
+  raw_text: This work explores whether REM-like consolidation cycles can improve language
+    model training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:45:57Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: Dream-State Learning uses Denoising Autoencoder on masked data instead
+    of generative replay
+  claim_id: c_2db47516
+  context: The implementation uses a Denoising Autoencoder (DAE) on masked real data
+    for the dream phase, rather than generative replay. This architectural choice
+    was made to ensure computational feasibility while preserving the core hypothesis.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: denoising autoencoder
+      source_id: Q114957649
+      url: https://www.wikidata.org/wiki/Q114957649
+      value: denoising autoencoder
+    filled: true
+  kind: entity_fact
+  raw_text: The implementation uses a Denoising Autoencoder (DAE) on masked real data
+    for the dream phase, rather than generative replay.
+  resolved_value: denoising autoencoder
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T08:46:04Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: Walker and Stickgold published on biological sleep consolidation in 2006
+  claim_id: c_05293ba6
+  context: 'Key references: - Biological sleep consolidation: Walker & Stickgold (2006)
+    - Denoising autoencoders: Vincent et al. (2008) - BERT masking strategy: Devlin
+    et al. (2019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Biological sleep consolidation is attributed to Walker & Stickgold (2006).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:46:35Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: Vincent et al. published on denoising autoencoders in 2008
+  claim_id: c_afefd925
+  context: 'Key references: - Biological sleep consolidation: Walker & Stickgold (2006)
+    - Denoising autoencoders: Vincent et al. (2008) - BERT masking strategy: Devlin
+    et al. (2019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Denoising autoencoders are attributed to Vincent et al. (2008).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:47:05Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: Devlin et al. published on BERT masking strategy in 2019
+  claim_id: c_07c90930
+  context: 'Key references: - Biological sleep consolidation: Walker & Stickgold (2006)
+    - Denoising autoencoders: Vincent et al. (2008) - BERT masking strategy: Devlin
+    et al. (2019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BERT masking strategy is attributed to Devlin et al. (2019).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:47:38Z'

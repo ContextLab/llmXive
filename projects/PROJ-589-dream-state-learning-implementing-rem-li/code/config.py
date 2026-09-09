@@ -1,3 +1,8 @@
+"""
+Configuration module for Dream-State Learning project.
+
+Contains hyperparameters, paths, seed management, and device settings.
+"""
 import os
 import random
 from pathlib import Path
@@ -5,132 +10,134 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import torch
 
+
 class Config:
     """
-    Centralized configuration for the Dream-State Learning pipeline.
-    Handles hyperparameters, paths, seed management, and device enforcement.
+    Central configuration class for the Dream-State Learning pipeline.
+    
+    Handles all hyperparameters, file paths, and runtime settings.
     """
     
-    def __init__(
-        self,
-        seed: int = 42,
-        max_memory_gb: float = 6.0,
-        max_batch_size: int = 32,
-        max_grad_norm: float = 1.0,
-        dtype: torch.dtype = torch.float32,
-        device: Optional[str] = None,
-        # Paths
-        base_path: Optional[Path] = None,
-        data_path: Optional[Path] = None,
-        log_path: Optional[Path] = None,
-        checkpoint_path: Optional[Path] = None,
-        result_path: Optional[Path] = None,
-        # Training parameters
-        num_epochs: int = 3,
-        learning_rate: float = 5e-5,
-        warmup_steps: int = 10,
-        dream_ratio: float = 0.25,
-        entropy_threshold: float = 0.5,
-        max_entropy_retries: int = 3,
-        # Data parameters
-        max_length: int = 512,
-        mask_rate: float = 0.15,
-        # Resource limits
-        max_wall_clock_hours: float = 5.0,
-        # Sensitivity analysis
-        temperature_sweep_values: List[float] = None
-    ):
-        self.seed = seed
-        self.max_memory_gb = max_memory_gb
-        self.max_batch_size = max_batch_size
-        self.max_grad_norm = max_grad_norm
-        self.dtype = dtype
+    # --- Hyperparameters ---
+    # Masking rate for DAE (Dream phase) - T013a
+    MASK_RATE: float = 0.15
+    
+    # Training parameters
+    BATCH_SIZE: int = 8
+    LEARNING_RATE: float = 5e-5
+    NUM_EPOCHS: int = 3
+    MAX_GRAD_NORM: float = 1.0
+    
+    # Dream phase scheduling
+    WARMUP_STEPS: int = 10  # Minimum steps before dream phase can start
+    WAKE_TO_DREAM_RATIO: int = 5  # Wake steps per dream step
+    
+    # Entropy check parameters
+    MIN_ENTROPY_THRESHOLD: float = 0.5  # bits per token
+    MAX_ENTROPY_RETRIES: int = 3
+    
+    # Temperature for sensitivity analysis
+    TEMPERATURES: List[float] = [0.5, 0.7, 0.9]
+    
+    # Statistical analysis
+    SIGNIFICANCE_LEVEL: float = 0.05
+    NUM_SEEDS: int = 5
+    
+    # Resource limits
+    MAX_WALL_CLOCK_HOURS: float = 5.5
+    MAX_MEMORY_GB: float = 12.0
+    
+    # --- Paths ---
+    PROJECT_ROOT: Path = Path(__file__).parent.parent
+    DATA_DIR: Path = PROJECT_ROOT / "data"
+    RAW_DATA_DIR: Path = DATA_DIR / "raw"
+    CHECKPOINTS_DIR: Path = DATA_DIR / "checkpoints"
+    RESULTS_DIR: Path = DATA_DIR / "results"
+    LOGS_DIR: Path = DATA_DIR / "logs"
+    TESTS_DIR: Path = PROJECT_ROOT / "tests"
+    
+    # --- Device Configuration ---
+    # Enforce CPU-only for CI compatibility
+    DEVICE: str = "cpu"
+    if torch.cuda.is_available():
+        # Only use GPU if explicitly enabled via environment variable
+        if os.environ.get("DREAM_STATE_ALLOW_GPU", "false").lower() == "true":
+            DEVICE = "cuda"
+    
+    # --- Seed Management ---
+    DEFAULT_SEED: int = 42
+    
+    def __init__(self, seed: Optional[int] = None):
+        """
+        Initialize configuration with optional seed override.
         
-        # Device enforcement: CPU-only for CI compatibility
-        if device is None:
-            self.device = "cpu"
-        else:
-            self.device = device
-        
-        # Paths
-        self.base_path = base_path or Path(__file__).parent.parent
-        self.data_path = data_path or self.base_path / "data"
-        self.log_path = log_path or self.data_path / "logs"
-        self.checkpoint_path = checkpoint_path or self.data_path / "checkpoints"
-        self.result_path = result_path or self.data_path / "results"
-        
-        # Training parameters
-        self.num_epochs = num_epochs
-        self.learning_rate = learning_rate
-        self.warmup_steps = warmup_steps
-        self.dream_ratio = dream_ratio
-        self.entropy_threshold = entropy_threshold
-        self.max_entropy_retries = max_entropy_retries
-        
-        # Data parameters
-        self.max_length = max_length
-        self.mask_rate = mask_rate
-        
-        # Resource limits
-        self.max_wall_clock_hours = max_wall_clock_hours
-        
-        # Temperature sweep values
-        self.temperature_sweep_values = temperature_sweep_values or [0.5, 0.7, 0.9]
+        Args:
+            seed: Random seed for reproducibility. If None, uses DEFAULT_SEED.
+        """
+        self.seed = seed if seed is not None else self.DEFAULT_SEED
+        self._set_seeds(self.seed)
         
         # Ensure directories exist
         self._ensure_directories()
-        
-        # Set seeds
-        self._set_seeds()
+    
+    def _set_seeds(self, seed: int) -> None:
+        """Set all random seeds for reproducibility."""
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
     
     def _ensure_directories(self) -> None:
-        """Create necessary directories if they don't exist."""
+        """Create required directory structure if it doesn't exist."""
         dirs = [
-            self.data_path,
-            self.log_path,
-            self.checkpoint_path,
-            self.result_path,
-            self.data_path / "raw",
-            self.data_path / "results"
+            self.DATA_DIR,
+            self.RAW_DATA_DIR,
+            self.CHECKPOINTS_DIR,
+            self.RESULTS_DIR,
+            self.LOGS_DIR,
+            self.TESTS_DIR
         ]
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
-    
-    def _set_seeds(self) -> None:
-        """Set random seeds for reproducibility."""
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        torch.manual_seed(self.seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(self.seed)
+        
+        for dir_path in dirs:
+            dir_path.mkdir(parents=True, exist_ok=True)
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert config to dictionary."""
+        """Export configuration to a dictionary."""
         return {
-            'seed': self.seed,
-            'max_memory_gb': self.max_memory_gb,
-            'max_batch_size': self.max_batch_size,
-            'max_grad_norm': self.max_grad_norm,
-            'dtype': str(self.dtype),
-            'device': self.device,
-            'base_path': str(self.base_path),
-            'data_path': str(self.data_path),
-            'log_path': str(self.log_path),
-            'checkpoint_path': str(self.checkpoint_path),
-            'result_path': str(self.result_path),
-            'num_epochs': self.num_epochs,
-            'learning_rate': self.learning_rate,
-            'warmup_steps': self.warmup_steps,
-            'dream_ratio': self.dream_ratio,
-            'entropy_threshold': self.entropy_threshold,
-            'max_entropy_retries': self.max_entropy_retries,
-            'max_length': self.max_length,
-            'mask_rate': self.mask_rate,
-            'max_wall_clock_hours': self.max_wall_clock_hours,
-            'temperature_sweep_values': self.temperature_sweep_values
+            "mask_rate": self.MASK_RATE,
+            "batch_size": self.BATCH_SIZE,
+            "learning_rate": self.LEARNING_RATE,
+            "num_epochs": self.NUM_EPOCHS,
+            "max_grad_norm": self.MAX_GRAD_NORM,
+            "warmup_steps": self.WARMUP_STEPS,
+            "wake_to_dream_ratio": self.WAKE_TO_DREAM_RATIO,
+            "min_entropy_threshold": self.MIN_ENTROPY_THRESHOLD,
+            "max_entropy_retries": self.MAX_ENTROPY_RETRIES,
+            "temperatures": self.TEMPERATURES,
+            "significance_level": self.SIGNIFICANCE_LEVEL,
+            "num_seeds": self.NUM_SEEDS,
+            "max_wall_clock_hours": self.MAX_WALL_CLOCK_HOURS,
+            "max_memory_gb": self.MAX_MEMORY_GB,
+            "device": self.DEVICE,
+            "seed": self.seed
         }
     
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> 'Config':
-        """Create Config from dictionary."""
-        return cls(**config_dict)
+        """
+        Create a Config instance from a dictionary.
+        
+        Args:
+            config_dict: Dictionary containing configuration values.
+            
+        Returns:
+            Config instance with values from the dictionary.
+        """
+        config = cls()
+        
+        for key, value in config_dict.items():
+            if hasattr(config, key):
+                setattr(config, key, value)
+        
+        return config

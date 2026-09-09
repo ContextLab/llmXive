@@ -1,204 +1,155 @@
 """
-Data augmentation module for Dream-State Learning.
+Data augmentation utilities for Dream-State Learning.
 
-Implements Denoising AutoEncoder (DAE) masking logic consistent with BERT.
-Provides functions to randomly mask tokens in input sequences for the dream phase.
+Implements BERT-style masking strategies for the Denoising Autoencoder (DAE)
+used in the dream phase of the training cycle.
 """
 import random
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 
-# Constants for DAE masking
-# Moderate mask rate as specified in task description
-DEFAULT_MASK_RATE = 0.15
-# BERT-style masking probabilities
-PROB_REPLACE_WITH_MASK = 0.80
-PROB_REPLACE_WITH_RANDOM = 0.10
-PROB_KEEP_ORIGINAL = 0.10
+# Import from local config to ensure consistency
+# Note: We define the constant here for immediate use in augmentation logic,
+# but it is also referenced in config.py for hyperparameter management.
+MASK_RATE = 0.15
 
-# Special tokens (assuming standard BERT tokenization)
-MASK_TOKEN_ID = 103  # [MASK]
-PAD_TOKEN_ID = 0     # [PAD]
-CLS_TOKEN_ID = 101   # [CLS]
-SEP_TOKEN_ID = 102   # [SEP]
+# Constants for masking strategy (BERT-style)
+MASK_TOKEN_ID = 103  # Standard [MASK] token ID for DistilBERT/TinyLlama
+RANDOM_REPLACE_RATE = 0.1  # 10% of masked tokens are replaced with random tokens
+KEEP_ORIGINAL_RATE = 0.1   # 10% of masked tokens remain unchanged
+
 
 def apply_dae_mask(
     input_ids: List[int],
-    mask_rate: float = DEFAULT_MASK_RATE,
+    mask_rate: float = MASK_RATE,
+    mask_token_id: int = MASK_TOKEN_ID,
+    random_replace_rate: float = RANDOM_REPLACE_RATE,
+    keep_original_rate: float = KEEP_ORIGINAL_RATE,
+    vocab_size: Optional[int] = None,
     seed: Optional[int] = None
-) -> Tuple[List[int], List[int], List[int]]:
+) -> Tuple[List[int], List[bool]]:
     """
-    Apply DAE masking to a sequence of token IDs.
+    Apply BERT-style masking to a sequence of token IDs.
     
-    Implements BERT-style masking:
-    - 80% of selected tokens are replaced with [MASK]
-    - 10% are replaced with a random token from the vocabulary
-    - 10% are kept unchanged (to prevent model from relying solely on [MASK])
+    This implements the Denoising Autoencoder input generation for the dream phase.
+    A fraction of tokens are masked according to:
+    - 80% replaced with [MASK] token
+    - 10% replaced with a random token from the vocabulary
+    - 10% kept as original (to prevent the model from learning to always copy)
     
     Args:
-        input_ids: List of token IDs representing the input sequence
-        mask_rate: Probability of masking each token (default: 0.15)
-        seed: Random seed for reproducibility (optional)
-    
+        input_ids: List of token IDs to mask.
+        mask_rate: Probability of masking each token (default 0.15).
+        mask_token_id: The ID of the [MASK] token.
+        random_replace_rate: Fraction of masked tokens to replace randomly (default 0.1).
+        keep_original_rate: Fraction of masked tokens to leave unchanged (default 0.1).
+        vocab_size: Size of vocabulary (required for random replacement).
+        seed: Random seed for reproducibility.
+        
     Returns:
-        Tuple of (masked_ids, labels, mask_positions):
-        - masked_ids: Input sequence with selected tokens masked
-        - labels: Original token IDs for masked positions, -100 for non-masked
-        - mask_positions: Boolean list indicating which positions were masked
-    
-    Raises:
-        ValueError: If input_ids is empty or mask_rate is invalid
+        Tuple of (masked_input_ids, mask_positions) where mask_positions is a 
+        boolean list indicating which positions were masked.
     """
-    if not input_ids:
-        raise ValueError("input_ids cannot be empty")
-    
-    if not 0.0 < mask_rate < 1.0:
-        raise ValueError(f"mask_rate must be between 0 and 1, got {mask_rate}")
-    
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
-    
-    num_tokens = len(input_ids)
-    num_to_mask = max(1, int(num_tokens * mask_rate))
-    
-    # Select random positions to mask, avoiding special tokens if possible
-    # We'll mask any token except CLS and SEP for better learning
-    special_ids = {CLS_TOKEN_ID, SEP_TOKEN_ID, PAD_TOKEN_ID}
-    maskable_positions = [i for i in range(num_tokens) if input_ids[i] not in special_ids]
-    
-    # If all tokens are special, mask everything (edge case)
-    if not maskable_positions:
-        maskable_positions = list(range(num_tokens))
-    
-    # Randomly select positions to mask
-    positions_to_mask = random.sample(maskable_positions, min(num_to_mask, len(maskable_positions)))
-    
-    # Initialize outputs
-    masked_ids = input_ids.copy()
-    labels = [-100] * num_tokens  # -100 is standard for ignored positions in loss calculation
-    mask_positions = [False] * num_tokens
-    
-    # Get vocabulary size for random token replacement
-    # We'll use a reasonable upper bound; in practice this would come from the tokenizer
-    vocab_size = max(input_ids) + 1000  # Heuristic upper bound
-    
-    for pos in positions_to_mask:
-        mask_positions[pos] = True
-        labels[pos] = input_ids[pos]  # Store original token for loss calculation
         
-        # Apply masking strategy
-        rand_val = random.random()
-        if rand_val < PROB_REPLACE_WITH_MASK:
-            # Replace with [MASK] token
-            masked_ids[pos] = MASK_TOKEN_ID
-        elif rand_val < PROB_REPLACE_WITH_MASK + PROB_REPLACE_WITH_RANDOM:
-            # Replace with random token
-            masked_ids[pos] = random.randint(0, vocab_size - 1)
-        else:
-            # Keep original token (10% chance)
-            pass  # masked_ids[pos] remains unchanged
+    if not input_ids:
+        return [], []
+        
+    length = len(input_ids)
+    mask_positions = [False] * length
+    masked_ids = input_ids.copy()
     
-    return masked_ids, labels, mask_positions
+    # Determine which positions to mask
+    num_masks = max(1, int(length * mask_rate))
+    mask_indices = random.sample(range(length), num_masks)
+    
+    for idx in mask_indices:
+        mask_positions[idx] = True
+        roll = random.random()
+        
+        if roll < (1.0 - random_replace_rate - keep_original_rate):
+            # Replace with [MASK] token (80% of masks)
+            masked_ids[idx] = mask_token_id
+        elif roll < (1.0 - keep_original_rate):
+            # Replace with random token (10% of masks)
+            if vocab_size is None:
+                # Fallback: use a reasonable default if vocab_size not provided
+                # This should ideally be passed from config or model
+                vocab_size = 30522  # DistilBERT vocab size
+            masked_ids[idx] = random.randint(0, vocab_size - 1)
+        else:
+            # Keep original (10% of masks)
+            pass  # masked_ids[idx] remains unchanged
+                
+    return masked_ids, mask_positions
+
 
 def create_dae_batch(
     batch_input_ids: List[List[int]],
-    mask_rate: float = DEFAULT_MASK_RATE,
+    mask_rate: float = MASK_RATE,
     seed: Optional[int] = None
-) -> Tuple[List[List[int]], List[List[int]], List[List[bool]]]:
+) -> Tuple[List[List[int]], List[List[bool]], List[List[int]]]:
     """
-    Apply DAE masking to a batch of input sequences.
+    Create a DAE training batch from a list of input sequences.
     
     Args:
-        batch_input_ids: List of token ID sequences
-        mask_rate: Probability of masking each token (default: 0.15)
-        seed: Random seed for reproducibility (optional)
-    
+        batch_input_ids: List of token ID sequences.
+        mask_rate: Masking probability.
+        seed: Random seed for reproducibility.
+        
     Returns:
-        Tuple of (masked_batch, labels_batch, mask_positions_batch):
-        - masked_batch: List of masked sequences
-        - labels_batch: List of label sequences for loss calculation
-        - mask_positions_batch: List of boolean mask position indicators
+        Tuple of (masked_inputs, mask_positions, original_ids)
+        - masked_inputs: Inputs with [MASK] tokens applied
+        - mask_positions: Boolean masks indicating which tokens were masked
+        - original_ids: The original unmasked inputs (targets for reconstruction)
     """
-    if not batch_input_ids:
-        return [], [], []
-    
     if seed is not None:
-        # Use different seeds for each sample in the batch
-        base_seed = seed
-    else:
-        base_seed = None
-    
+        random.seed(seed)
+        np.random.seed(seed)
+        
     masked_batch = []
-    labels_batch = []
     mask_positions_batch = []
+    original_batch = []
     
-    for i, input_ids in enumerate(batch_input_ids):
-        current_seed = base_seed + i if base_seed is not None else None
-        masked, labels, mask_positions = apply_dae_mask(
+    for input_ids in batch_input_ids:
+        masked_ids, mask_positions = apply_dae_mask(
             input_ids, 
-            mask_rate=mask_rate, 
-            seed=current_seed
+            mask_rate=mask_rate,
+            seed=seed if seed is not None else random.randint(0, 2**31)
         )
-        masked_batch.append(masked)
-        labels_batch.append(labels)
+        masked_batch.append(masked_ids)
         mask_positions_batch.append(mask_positions)
-    
-    return masked_batch, labels_batch, mask_positions_batch
+        original_batch.append(input_ids)
+        
+    return masked_batch, mask_positions_batch, original_batch
+
 
 def calculate_mask_statistics(
     input_ids: List[int],
-    mask_rate: float = DEFAULT_MASK_RATE,
-    seed: Optional[int] = None
-) -> dict:
+    mask_rate: float = MASK_RATE
+) -> Dict[str, Any]:
     """
-    Calculate statistics about the masking operation for logging/debugging.
+    Calculate statistics about expected masking for a given sequence.
     
     Args:
-        input_ids: List of token IDs
-        mask_rate: Probability of masking each token
-        seed: Random seed for reproducibility
-    
+        input_ids: Input token sequence.
+        mask_rate: Expected masking rate.
+        
     Returns:
-        Dictionary containing masking statistics
+        Dictionary containing:
+        - total_tokens: Length of input
+        - expected_masks: Expected number of masked tokens
+        - mask_rate: Actual mask rate used
     """
-    masked_ids, labels, mask_positions = apply_dae_mask(
-        input_ids, 
-        mask_rate=mask_rate, 
-        seed=seed
-    )
-    
-    num_masked = sum(mask_positions)
-    num_tokens = len(input_ids)
-    actual_rate = num_masked / num_tokens if num_tokens > 0 else 0.0
-    
-    # Count masking strategies used
-    mask_count = 0
-    random_count = 0
-    unchanged_count = 0
-    
-    for i, pos in enumerate(mask_positions):
-        if pos:
-            if masked_ids[i] == MASK_TOKEN_ID:
-                mask_count += 1
-            elif masked_ids[i] == input_ids[i]:
-                unchanged_count += 1
-            else:
-                random_count += 1
+    total_tokens = len(input_ids)
+    expected_masks = int(total_tokens * mask_rate)
     
     return {
-        "total_tokens": num_tokens,
-        "num_masked": num_masked,
-        "actual_mask_rate": actual_rate,
-        "target_mask_rate": mask_rate,
-        "mask_strategy_counts": {
-            "replaced_with_mask": mask_count,
-            "replaced_with_random": random_count,
-            "kept_unchanged": unchanged_count
-        },
-        "strategy_percentages": {
-            "mask": (mask_count / num_masked * 100) if num_masked > 0 else 0.0,
-            "random": (random_count / num_masked * 100) if num_masked > 0 else 0.0,
-            "unchanged": (unchanged_count / num_masked * 100) if num_masked > 0 else 0.0
-        }
+        "total_tokens": total_tokens,
+        "expected_masks": expected_masks,
+        "mask_rate": mask_rate,
+        "min_masks": max(1, expected_masks - 1),
+        "max_masks": expected_masks + 1
     }

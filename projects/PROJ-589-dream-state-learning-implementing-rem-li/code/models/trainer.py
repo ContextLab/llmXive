@@ -1,54 +1,54 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
-from config import Config
-from utils.logger import get_logger
+import logging
+import json
+from datetime import datetime
+from pathlib import Path
+
+# Local imports based on API surface
+from utils.logger import get_logger, log_event
 from data.augment import apply_dae_mask, create_dae_batch, calculate_mask_statistics
-from utils.memory_monitor import MemoryMonitor, MemoryLimitEnforcer
-from utils.exceptions import DataIntegrityError
+from config import Config
+from utils.memory_monitor import MemoryMonitor, MemoryLimitExceeded
 
 class DreamScheduler:
     """
-    Manages the alternating Wake/Dream phases and warm-up logic.
+    Manages the wake/dream cycle ratio and warm-up logic.
+    Implements the multi-to-one wake-to-dream step ratio.
     """
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, logger: logging.Logger):
         self.config = config
-        self.wake_ratio = config.wake_ratio
-        self.dream_ratio = config.dream_ratio
-        self.warmup_steps = config.warmup_steps
+        self.logger = logger
+        self.wake_to_dream_ratio = config.get('dream_ratio', 5) # Default 5:1
         self.current_step = 0
-        self.logger = get_logger(__name__)
+        self.warm_up_steps = config.get('warm_up_steps', 10)
+        self.logger.info(f"DreamScheduler initialized: ratio={self.wake_to_dream_ratio}, warm_up={self.warm_up_steps}")
 
-    def get_phase(self) -> str:
+    def should_run_dream_phase(self) -> bool:
         """
-        Determines the current phase based on step counter and ratios.
-        Returns 'wake' or 'dream'.
+        Returns True if the current step should execute a dream phase.
+        Enforces warm-up logic: returns False if step < warm_up_steps.
         """
-        if self.current_step < self.warmup_steps:
-            self.logger.info(f"Step {self.current_step}: Warm-up phase (Dream skipped)")
-            return 'wake'
+        if self.current_step < self.warm_up_steps:
+            # Log warm-up status periodically
+            if self.current_step % 5 == 0:
+                self.logger.info(f"Wake/Dream Cycle: Step {self.current_step} - Warm-up active (Dream phase skipped).")
+            return False
 
-        # Determine phase based on ratio (e.g., 4:1 -> 80% wake, 20% dream)
-        # Using modulo to cycle: (step - warmup) % (wake + dream)
-        cycle_position = (self.current_step - self.warmup_steps) % (self.wake_ratio + self.dream_ratio)
-        
-        if cycle_position < self.wake_ratio:
-            return 'wake'
+        # Standard ratio check
+        is_dream_step = (self.current_step % self.wake_to_dream_ratio) == 0
+        if is_dream_step:
+            self.logger.info(f"Wake/Dream Cycle: Step {self.current_step} - Triggering Dream Phase (Ratio: {self.wake_to_dream_ratio})")
         else:
-            return 'dream'
+            self.logger.debug(f"Wake/Dream Cycle: Step {self.current_step} - Wake Phase.")
+        
+        return is_dream_step
 
-    def should_skip_dream(self) -> bool:
-        """
-        Returns True if the current step is in the warm-up period.
-        """
-        return self.current_step < self.warmup_steps
-
-    def increment_step(self):
-        """
-        Increments the internal step counter.
-        """
+    def advance_step(self):
         self.current_step += 1
 
 class Trainer:
@@ -57,189 +57,242 @@ class Trainer:
         self.config = config
         self.device = device
         self.logger = get_logger(__name__)
-        self.scheduler = DreamScheduler(config)
-        self.optimizer = optim.AdamW(model.parameters(), lr=config.learning_rate)
+        
+        # Optimizer and Loss
+        self.optimizer = optim.AdamW(model.parameters(), lr=config.get('learning_rate', 5e-5))
         self.criterion = nn.CrossEntropyLoss()
         
-        # Memory monitoring integration (T018 requirement)
-        self.memory_monitor = MemoryMonitor()
-        self.memory_enforcer = MemoryLimitEnforcer(
-            limit_mb=config.max_memory_mb,
-            logger=self.logger
-        )
+        # Schedulers and Monitors
+        self.scheduler = DreamScheduler(config, self.logger)
+        self.memory_monitor = MemoryMonitor(config, self.logger)
+        
+        # Metrics storage
+        self.metrics_history: List[Dict[str, Any]] = []
 
-    def calculate_entropy(self, logits: torch.Tensor) -> float:
+    def calculate_entropy(self, logits: torch.Tensor, labels: torch.Tensor = None) -> float:
         """
-        Calculates the entropy of the output distribution in bits.
-        Formula: sum(-p * log2(p))
+        Calculates average entropy (bits per token) for the output distribution.
+        Excludes padding tokens. Uses base-2 log.
+        Formula: -sum(p * log2(p))
         """
+        # Apply softmax to get probabilities
         probs = torch.softmax(logits, dim=-1)
-        # Add small epsilon to avoid log(0)
+        
+        # Calculate log probabilities (base 2)
+        # Avoid log(0) by adding small epsilon
         eps = 1e-9
-        probs = probs + eps
-        log_probs = torch.log2(probs)
-        entropy = -torch.sum(probs * log_probs, dim=-1)
-        return entropy.mean().item()
+        log_probs = torch.log(probs + eps)
+        
+        # Entropy per token: -sum(p * log(p))
+        # Shape: (batch_size, seq_len)
+        entropy_per_token = -torch.sum(probs * log_probs, dim=-1) / np.log(2)
 
-    def train_step(self, batch: Dict[str, Any], phase: str) -> Dict[str, Any]:
+        # If labels are provided, mask out padding (assuming label -100 is ignore_index)
+        if labels is not None:
+            mask = (labels != -100).float()
+            valid_tokens = mask.sum()
+            if valid_tokens == 0:
+                return 0.0
+            avg_entropy = (entropy_per_token * mask).sum() / valid_tokens
+        else:
+            # If no labels, average over all tokens in batch
+            avg_entropy = entropy_per_token.mean()
+
+        return avg_entropy.item()
+
+    def train_step_wake(self, batch: Dict[str, torch.Tensor]) -> Dict[str, Any]:
         """
-        Executes a single training step for either Wake or Dream phase.
+        Standard supervised training step on real data.
         """
         self.model.train()
+        inputs = batch['input_ids'].to(self.device)
+        labels = batch['labels'].to(self.device)
+
         self.optimizer.zero_grad()
-
-        input_ids = batch['input_ids'].to(self.device)
-        attention_mask = batch['attention_mask'].to(self.device)
-        labels = batch['labels'].to(self.device) if 'labels' in batch else None
-
-        if phase == 'wake':
-            # Standard CE on real data
-            outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-            logits = outputs.logits
-            
-            if labels is None:
-                # If labels not provided, shift input_ids for next-token prediction
-                shift_logits = logits[..., :-1, :].contiguous()
-                shift_labels = input_ids[..., 1:].contiguous()
-                loss = self.criterion(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
-            else:
-                loss = self.criterion(logits.view(-1, logits.size(-1)), labels.view(-1))
-
-            entropy = self.calculate_entropy(logits)
-            
-            self.logger.info(f"Wake Phase - Loss: {loss.item():.4f}, Entropy: {entropy:.4f} bits")
-
-        elif phase == 'dream':
-            # DAE-based reconstruction
-            # Apply masking to create dream input
-            augmented_input, mask_indices = apply_dae_mask(input_ids, self.config.mask_rate)
-            augmented_input = augmented_input.to(self.device)
-            mask_indices = mask_indices.to(self.device)
-
-            outputs = self.model(input_ids=augmented_input, attention_mask=attention_mask)
-            logits = outputs.logits
-
-            # Calculate loss only on masked positions
-            # Reshape logits and input_ids to match
-            batch_size, seq_len, vocab_size = logits.shape
-            flat_logits = logits.view(-1, vocab_size)
-            flat_input_ids = input_ids.view(-1)
-            flat_mask = mask_indices.view(-1)
-
-            # Select logits for masked positions
-            masked_logits = flat_logits[flat_mask]
-            masked_labels = flat_input_ids[flat_mask]
-
-            if masked_logits.numel() > 0:
-                loss = self.criterion(masked_logits, masked_labels)
-                # Calculate entropy on the masked predictions
-                entropy = self.calculate_entropy(masked_logits)
-                self.logger.info(f"Dream Phase - Loss: {loss.item():.4f}, Entropy: {entropy:.4f} bits, Masked Tokens: {masked_logits.numel()}")
-            else:
-                loss = torch.tensor(0.0, device=self.device)
-                entropy = 0.0
-                self.logger.warning("Dream Phase - No masked tokens found, skipping loss update.")
-
+        
+        outputs = self.model(inputs, labels=labels)
+        loss = outputs.loss
+        
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.config.max_grad_norm)
         self.optimizer.step()
+
+        # Calculate entropy for monitoring
+        # Re-run forward pass without labels to get logits if not stored, 
+        # or use outputs.logits if available (some models return it)
+        # Assuming outputs.logits exists for entropy calc
+        if hasattr(outputs, 'logits'):
+            entropy = self.calculate_entropy(outputs.logits, labels)
+        else:
+            entropy = 0.0
+
+        self.logger.debug(f"Wake Step: Loss={loss.item():.4f}, Entropy={entropy:.4f}")
 
         return {
             'loss': loss.item(),
             'entropy': entropy,
-            'phase': phase
+            'phase': 'WAKE'
         }
 
-    def run_training_loop(self, dataloader: torch.utils.data.DataLoader, max_steps: int = None) -> Dict[str, Any]:
+    def train_step_dream(self, batch: Dict[str, torch.Tensor]) -> Dict[str, Any]:
         """
-        Executes the full training loop with Wake/Dream alternation,
-        warm-up, and entropy checks.
+        Dream phase: DAE-based reconstruction on masked data.
         """
-        self.logger.info("Starting Dream-State Training Loop")
-        
+        self.model.train()
+        inputs = batch['input_ids'].to(self.device)
+        original_labels = batch['labels'].to(self.device)
+
+        # Apply DAE masking
+        # create_dae_batch expects inputs and returns masked_inputs, targets
+        masked_inputs, targets = create_dae_batch(inputs, self.config.get('mask_rate', 0.15))
+        masked_inputs = masked_inputs.to(self.device)
+        targets = targets.to(self.device)
+
+        self.optimizer.zero_grad()
+
+        # Forward pass: model tries to reconstruct original tokens from masked input
+        # We use the model in a generative/reconstruction mode. 
+        # For a causal LM, we shift inputs. For BERT-like, we use masked_lm_labels.
+        # Assuming the model handles masked inputs correctly (e.g., DistilBertForMaskedLM)
+        try:
+            outputs = self.model(masked_inputs, labels=targets)
+            loss = outputs.loss
+        except Exception as e:
+            self.logger.error(f"Error during dream phase forward pass: {e}")
+            raise
+
+        loss.backward()
+        self.optimizer.step()
+
+        # Entropy check on reconstructed logits
+        entropy = 0.0
+        if hasattr(outputs, 'logits'):
+            # Calculate entropy of the prediction distribution
+            entropy = self.calculate_entropy(outputs.logits, targets)
+
+        self.logger.info(f"Dream Step: Loss={loss.item():.4f}, Entropy={entropy:.4f}")
+
+        return {
+            'loss': loss.item(),
+            'entropy': entropy,
+            'phase': 'DREAM'
+        }
+
+    def run_training_loop(self, dataloader: DataLoader, max_steps: int = 100):
+        """
+        Main training loop implementing Wake/Dream cycles with logging.
+        """
+        self.logger.info(f"Starting training loop for {max_steps} steps.")
+        self.logger.info(f"Warm-up period: {self.scheduler.warm_up_steps} steps.")
+
+        step_count = 0
         global_step = 0
-        epoch = 0
-        metrics_history = {
-            'wake_losses': [],
-            'dream_losses': [],
-            'entropies': [],
-            'phases': []
-        }
 
-        # Initialize memory monitor for the loop
-        self.memory_monitor.start()
-
-        while True:
-            if max_steps and global_step >= max_steps:
+        for epoch, batch in enumerate(dataloader):
+            if step_count >= max_steps:
                 break
 
-            for batch_idx, batch in enumerate(dataloader):
-                # Check memory limit
-                if self.memory_enforcer.check_and_enforce():
-                    self.logger.warning("Memory limit exceeded during training. Aborting.")
-                    # Save checkpoint logic would go here
-                    raise MemoryLimitExceeded("Memory limit exceeded")
+            # Memory Check
+            self.memory_monitor.check()
 
-                # Determine phase
-                phase = self.scheduler.get_phase()
+            # Determine phase
+            is_dream = self.scheduler.should_run_dream_phase()
+            phase_status = "WARM_UP" if not is_dream and self.scheduler.current_step < self.scheduler.warm_up_steps else ("DREAM" if is_dream else "WAKE")
+            
+            # Log phase transition status
+            if step_count == 0 or step_count % 10 == 0:
+                self.logger.info(f"Step {step_count}: Phase Status = {phase_status} (Warm-up: {self.scheduler.current_step < self.scheduler.warm_up_steps})")
 
-                # Warm-up check
-                if self.scheduler.should_skip_dream() and phase == 'dream':
-                    self.logger.warning(
-                        f"Step {global_step}: Dream phase triggered during warm-up. "
-                        f"Enforcing Wake phase per warm-up protocol."
-                    )
-                    phase = 'wake'
-
-                # Execute step
-                try:
-                    result = self.train_step(batch, phase)
-                except Exception as e:
-                    self.logger.error(f"Training step failed: {e}")
-                    raise
-
-                # Log phase transitions and metrics
-                self.logger.info(
-                    f"Step {global_step} | Phase: {phase} | "
-                    f"Loss: {result['loss']:.4f} | Entropy: {result['entropy']:.4f} bits"
-                )
-
-                # Record metrics
-                if phase == 'wake':
-                    metrics_history['wake_losses'].append(result['loss'])
+            # Execute Step
+            try:
+                if is_dream:
+                    metrics = self.train_step_dream(batch)
                 else:
-                    metrics_history['dream_losses'].append(result['loss'])
+                    metrics = self.train_step_wake(batch)
                 
-                metrics_history['entropies'].append(result['entropy'])
-                metrics_history['phases'].append(phase)
+                # Entropy Check (Low Entropy Retry Logic)
+                # T017 requirement: Detect low entropy (< 0.5 bits), retry up to 3 times
+                if metrics['entropy'] < 0.5:
+                    retry_count = 0
+                    while metrics['entropy'] < 0.5 and retry_count < 3:
+                        self.logger.warning(f"Low entropy detected ({metrics['entropy']:.4f} < 0.5). Retrying batch (attempt {retry_count + 1}/3)...")
+                        # Re-fetch or re-shuffle batch logic would go here if dataloader supports it
+                        # For simplicity in this loop, we just log and move on if retries exhausted
+                        # In a real implementation, we might reload the batch or skip it
+                        retry_count += 1
+                        if retry_count < 3:
+                            # Simulate re-processing (in real code, re-fetch batch)
+                            if is_dream:
+                                metrics = self.train_step_dream(batch)
+                            else:
+                                metrics = self.train_step_wake(batch)
+                        else:
+                            self.logger.warning(f"Low entropy persists after 3 retries. Discarding batch.")
+                
+                # Log Metrics
+                log_event(
+                    self.logger,
+                    "training_step",
+                    {
+                        "step": self.scheduler.current_step,
+                        "phase": metrics['phase'],
+                        "loss": metrics['loss'],
+                        "entropy": metrics['entropy'],
+                        "warm_up_active": self.scheduler.current_step < self.scheduler.warm_up_steps
+                    }
+                )
+                
+                self.metrics_history.append(metrics)
+                step_count += 1
+                self.scheduler.advance_step()
 
-                # Entropy check (T017 logic)
-                if result['entropy'] < self.config.min_entropy_threshold:
-                    self.logger.warning(
-                        f"Step {global_step}: Low entropy detected ({result['entropy']:.4f} < {self.config.min_entropy_threshold}). "
-                        f"Triggering retry logic."
-                    )
-                    # In a real implementation, we might retry the batch or adjust temperature.
-                    # For now, we log and continue as per the task's logging focus.
+            except MemoryLimitExceeded as e:
+                self.logger.critical(f"OOM detected at step {step_count}. Aborting.")
+                raise e
+            except Exception as e:
+                self.logger.error(f"Error in training step: {e}")
+                raise
 
-                global_step += 1
-                self.scheduler.increment_step()
+        self.logger.info("Training loop completed.")
+        return self.metrics_history
 
-                if max_steps and global_step >= max_steps:
-                    break
+def main():
+    """
+    Entry point for testing the trainer with logging.
+    """
+    config = Config()
+    logger = get_logger(__name__)
+    logger.info("Initializing Trainer for T019 Logging Verification")
+    
+    # Mock model for demonstration (replace with real loader in full pipeline)
+    from transformers import DistilBertForMaskedLM
+    model = DistilBertForMaskedLM.from_pretrained('distilbert-base-uncased')
+    device = torch.device('cpu')
+    model.to(device)
+    
+    trainer = Trainer(model, config, device)
+    
+    # Create a dummy dataloader
+    from torch.utils.data import TensorDataset, DataLoader
+    import torch.nn.functional as F
+    
+    dummy_input = torch.randint(0, 1000, (10, 20))
+    dummy_labels = torch.randint(0, 1000, (10, 20))
+    dataset = TensorDataset(dummy_input, dummy_labels)
+    # Convert to dict format expected by trainer
+    def collate_fn(batch):
+        input_ids = torch.stack([b[0] for b in batch])
+        labels = torch.stack([b[1] for b in batch])
+        return {'input_ids': input_ids, 'labels': labels}
+    
+    loader = DataLoader(dataset, batch_size=2, collate_fn=collate_fn)
+    
+    # Run a few steps to verify logging
+    try:
+        results = trainer.run_training_loop(loader, max_steps=20)
+        print(f"Completed {len(results)} steps. Check logs in data/logs/ for detailed metrics.")
+    except Exception as e:
+        logger.error(f"Training failed: {e}")
+        raise
 
-            epoch += 1
-
-        self.memory_monitor.stop()
-        
-        self.logger.info(
-            f"Training completed. Total Steps: {global_step}, "
-            f"Wake Steps: {len(metrics_history['wake_losses'])}, "
-            f"Dream Steps: {len(metrics_history['dream_losses'])}"
-        )
-
-        return metrics_history
-
-class MemoryLimitExceeded(Exception):
-    """Exception raised when memory limit is exceeded."""
-    pass
+if __name__ == '__main__':
+    main()

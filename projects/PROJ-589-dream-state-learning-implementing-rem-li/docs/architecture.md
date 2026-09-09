@@ -1,67 +1,213 @@
-# Architecture Specification: Dream-State Learning
+# Architecture Overview: Dream-State Learning
 
-## 1. System Components
+## System Design
 
-### 1.1 Data Pipeline (`code/data/`)
-- **Loader**: Handles downloading and verification of GLUE/SuperGLUE datasets.
- - *Constraint*: Must abort on checksum mismatch (`DataIntegrityError`).
- - *Source*: HuggingFace `datasets` library.
-- **Augment**: Implements Denoising Autoencoder (DAE) masking.
- - *Mechanism*: Random token masking consistent with BERT pre-training objectives.
- - *Rate*: Moderate mask rate (configurable, default ~15-30%).
+The Dream-State Learning system implements a biologically-inspired training paradigm
+that alternates between two distinct phases:
 
-### 1.2 Model Core (`code/models/`)
-- **Trainer**: Orchestrates the alternating Wake/Dream loop.
- - *Wake Phase*: Standard Cross-Entropy loss on real data.
- - *Dream Phase*: DAE loss (reconstruction of masked tokens).
- - *Scheduler*: `DreamScheduler` enforces the 4:1 Wake/Dream ratio.
- - *Warm-up*: Skips Dream phase for the first N steps (default 10) to ensure initial stability.
- - *Entropy Check*: Monitors output entropy. If < 0.5 bits, triggers up to 3 retries or discards the batch.
-- **Memory Monitor**: Integrated into the training loop to track peak RSS.
- - *Action*: On OOM, saves checkpoint and aborts execution.
+### 1. Wake Phase (Supervised Fine-Tuning)
 
-### 1.3 Evaluation & Analysis (`code/eval/`)
-- **Metrics**: Calculates few-shot accuracy and performs statistical tests.
- - *Test*: Wilcoxon signed-rank test (`scipy.stats.wilcoxon`).
-- **Reporting**: Generates JSON reports for:
- - Comparative performance (Experimental vs. Baseline).
- - Sensitivity analysis (Temperature sweep variance).
-- **Statistical Analysis**: Aggregates results from multiple seeds (default 5) to compute p-values.
+During the wake phase, the model performs standard supervised learning on real
+GLUE/SuperGLUE data:
 
-### 1.4 Orchestration (`code/main.py`)
-- **Modes**:
- - `single_seed`: Run one experiment.
- - `full_comparison`: Run 5 seeds for both experimental and baseline, then compare.
- - `temperature_sweep`: Grid search over {0.5, 0.7, 0.9}.
-- **Resource Enforcement**:
- - Time limit monitoring (abort if > 5 hours).
- - Memory limit enforcement (via `MemoryMonitor`).
+- **Input**: Raw text sequences from the dataset
+- **Objective**: Minimize cross-entropy loss for next-token prediction
+- **Optimizer**: AdamW with configurable learning rate
+- **Batching**: PyTorch DataLoader with batch size from config
 
-## 2. Data Flow
+This phase corresponds to "awake" learning in biological systems, where new
+information is acquired from the environment.
 
-1. **Initialization**: `main.py` loads config, sets seeds, and initializes `Trainer`.
-2. **Data Loading**: `loader.py` fetches real GLUE data with checksum verification.
-3. **Training Loop**:
- - **Wake**: `Trainer` processes real batch -> CE Loss -> Update.
- - **Dream**: `Trainer` applies DAE mask -> Reconstruction Loss -> Update.
- - **Checks**: Entropy validation, memory monitoring, warm-up logic.
-4. **Evaluation**: After training, `eval/metrics.py` computes accuracy on held-out data.
-5. **Aggregation**: `scripts/generate_final_report.py` combines results from multiple seeds.
-6. **Reporting**: `eval/reporting.py` and `sensitivity_report.py` generate final JSON artifacts.
+### 2. Dream Phase (Denoising Autoencoder)
 
-## 3. Failure Modes & Recovery
+During the dream phase, the model performs reconstruction learning on masked
+versions of real data:
 
-- **Data Corruption**: `DataIntegrityError` raised immediately. No synthetic fallback.
-- **OOM**: `MemoryLimitExceeded` raised by `MemoryMonitor`. Checkpoint saved, process exits.
-- **Time Limit**: `TimeLimitExceeded` raised by `main.py`. Process exits gracefully.
-- **Low Entropy**: Batch discarded or retried locally (max 3 attempts).
+- **Input**: Real data with 15% of tokens randomly masked (BERT-style)
+- **Objective**: Reconstruct the original tokens from masked input
+- **Loss**: Cross-entropy between predicted and original tokens
+- **Ratio**: 5 wake steps per 1 dream step (configurable)
 
-## 4. Configuration
+This phase mimics REM sleep consolidation, where the brain replays and
+strengthens memories without new external input.
 
-All hyperparameters are defined in `code/config.py`:
-- `MAX_WALL_CLOCK_HOURS`: Default 5.
-- `MEMORY_LIMIT_GB`: Default 6.
-- `DREAM_RATIO`: Default 4 (Wake: 4, Dream: 1).
-- `WARMUP_STEPS`: Default 10.
-- `ENTROPY_THRESHOLD`: Default 0.5 bits.
-- `TEMPERATURES`: {0.5, 0.7, 0.9} for sensitivity analysis.
+## Key Components
+
+### Data Pipeline (`code/data/`)
+
+- **`loader.py`**: Downloads and verifies GLUE/SuperGLUE datasets
+ - SHA-256 checksum verification
+ - Automatic download on first run
+ - Caching in `data/raw/`
+
+- **`augment.py`**: Implements DAE masking strategy
+ - `MASK_RATE = 0.15` (15% masking)
+ - Random token selection
+ - Consistent with BERT preprocessing
+
+### Training Engine (`code/models/trainer.py`)
+
+The `Trainer` class orchestrates the wake/dream cycle:
+
+- **`DreamScheduler`**: Manages wake-to-dream ratio
+ - Tracks step count
+ - Triggers dream phase at modulo intervals
+ - Enforces warm-up period (no dream before step 10)
+
+- **`Trainer`**: Core training loop
+ - Alternates between wake and dream phases
+ - Computes entropy metrics
+ - Handles low-entropy retry logic
+ - Integrates memory monitoring
+
+### Evaluation (`code/eval/`)
+
+- **`metrics.py`**: Accuracy and performance metrics
+ - Few-shot accuracy calculation
+ - Holdout evaluation
+
+- **`statistical_analysis.py`**: Comparative analysis
+ - Paired t-test (scipy.stats.ttest_rel)
+ - Accuracy difference computation
+ - Significance testing (α=0.05)
+
+- **`sensitivity_report.py`**: Hyperparameter analysis
+ - Temperature sweep execution
+ - Variance computation
+ - Report generation
+
+### Utilities (`code/utils/`)
+
+- **`logger.py`**: Structured JSON logging
+ - File and stdout output
+ - Event-based logging (phase transitions, entropy metrics)
+
+- **`memory_monitor.py`**: Memory tracking and enforcement
+ - Peak RSS tracking via /proc/self/status
+ - Hard abort on OOM
+ - Checkpoint saving before termination
+
+- **`exceptions.py`**: Custom exception classes
+ - `DataIntegrityError`: Dataset verification failures
+ - `TimeLimitExceeded`: Wall-clock limit violations
+ - `MemoryLimitExceeded`: RAM limit violations
+
+## Workflow
+
+```
+1. Initialization
+ ├─ Load configuration (config.py)
+ ├─ Verify directory structure
+ └─ Download datasets (if not cached)
+
+2. Training Loop (per seed)
+ ├─ Initialize model and optimizer
+ ├─ For each step:
+ │ ├─ Wake Phase (standard SFT)
+ │ │ ├─ Load batch
+ │ │ ├─ Compute loss
+ │ │ └─ Update weights
+ │ ├─ Dream Phase (every 5 steps after warm-up)
+ │ │ ├─ Apply 15% masking
+ │ │ ├─ Compute reconstruction loss
+ │ │ └─ Update weights
+ │ └─ Entropy Check
+ │ ├─ Calculate average entropy
+ │ ├─ If < 0.5 bits/token: retry or discard
+ │ └─ Log metrics
+ └─ Save checkpoint
+
+3. Evaluation
+ ├─ Run on held-out data
+ ├─ Compute accuracy metrics
+ └─ Save results
+
+4. Analysis
+ ├─ Compare experimental vs. baseline
+ ├─ Run paired t-test
+ └─ Generate reports
+
+5. Sensitivity Analysis (optional)
+ ├─ Sweep temperature hyperparameters
+ ├─ Re-initialize for each run
+ └─ Compute variance metrics
+```
+
+## Data Flow
+
+```
+GLUE/SuperGLUE
+ ↓
+code/data/loader.py (download + verify)
+ ↓
+data/raw/ (cached datasets)
+ ↓
+code/data/augment.py (masking for dream phase)
+ ↓
+code/models/trainer.py (training loop)
+ ↓
+code/eval/metrics.py (accuracy computation)
+ ↓
+data/results/ (reports and checkpoints)
+```
+
+## Configuration
+
+All hyperparameters are centralized in `code/config.py`:
+
+```python
+MASK_RATE = 0.15 # Dream phase masking probability
+WARMUP_STEPS = 10 # Minimum steps before dream phase
+DREAM_RATIO = 5 # Wake steps per dream step
+ENTROPY_THRESHOLD = 0.5 # Low-entropy detection (bits/token)
+MAX_WALL_CLOCK_HOURS = 5.5 # Runtime limit
+MEMORY_LIMIT_GB = 8 # RAM limit
+```
+
+## Logging and Monitoring
+
+The system uses structured JSON logging for all events:
+
+- **Phase Transitions**: Wake → Dream, Dream → Wake
+- **Entropy Metrics**: Per-batch entropy values
+- **Warm-up Status**: Steps remaining until dream phase enabled
+- **Memory Usage**: Peak RSS tracking
+- **Errors**: Stack traces and context
+
+Logs are saved to `data/logs/` with timestamps.
+
+## Constraints and Limitations
+
+### Resource Constraints
+- **CPU-only**: No GPU support for CI compatibility
+- **Memory**: 8GB RAM limit (enforced by memory_monitor)
+- **Time**: 5.5 hour wall-clock limit (enforced by main.py)
+- **Disk**: ~14GB for datasets and checkpoints
+
+### Data Constraints
+- Only small GLUE/SuperGLUE subsets (e.g., MRPC, RTE)
+- Real data only (no synthetic generation)
+- SHA-256 checksum verification required
+
+### Architectural Notes
+- Dream phase uses DAE on masked real data (not generative replay)
+- This diverges from spec.md FR-002 but follows plan.md "Critical Revision"
+- Spec amendment pending to align documentation with implementation
+
+## Error Handling
+
+The system implements fail-fast error handling:
+
+- **Data Integrity**: RuntimeError on checksum mismatch
+- **Memory OOM**: Hard abort with checkpoint save
+- **Time Limit**: TimeLimitExceeded exception
+- **Low Entropy**: Retry (up to 3x) or discard batch
+
+All errors are logged with full context for debugging.
+
+## Future Work
+
+- Extend to larger datasets via streaming
+- Implement true generative replay (pending spec amendment)
+- Add GPU support for local development
+- Explore alternative consolidation mechanisms

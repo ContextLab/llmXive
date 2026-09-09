@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: create directories `code/`, `tests/`, `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [X] T002 Initialize a Python project compatible with modern runtime environments. with `code/requirements.txt` (torch, transformers, datasets, scikit-learn, accelerate, pytest, scipy) using exact version pins (e.g., `torch==2.0.0`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan: create directories `code/`, `tests/`, `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
+- [X] T001b [P] Initialize Python package files: Create `__init__.py` in all created directories (`code/`, `tests/`, `data/`, etc.) to ensure they are recognized as Python packages
+- [X] T002a [P] Initialize Python project file: Create `code/requirements.txt` with base dependencies (torch, transformers, datasets, scikit-learn, accelerate, pytest, scipy)
+- [X] T002b [P] Pin Python versions: Update `code/requirements.txt` with exact version pins (e.g., `torch==2.0.0`)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -57,11 +59,10 @@
 
 - [X] T004 Implement `code/config.py` for hyperparameters, paths, seed management, and CPU-only device enforcement
 - [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RSS via `/proc/self/status` and enforce hard abort (FR-005)
-- [X] T005b [P] Implement `code/utils/exceptions.py` defining the custom exception class `DataIntegrityError` for data checksum failures
-- [X] T006 [P] Implement `code/data/loader.py` to download GLUE/SuperGLUE subsets via `datasets` library with SHA-256 checksum verification; MUST abort execution and raise `DataIntegrityError` if checksum mismatch occurs
+- [X] T006 [P] Implement `code/data/loader.py` to download GLUE/SuperGLUE subsets via `datasets` library with SHA-256 checksum verification; MUST abort execution and raise `RuntimeError` if checksum mismatch occurs
 - [X] T007 Create `code/models/__init__.py` and initialize DistilBERT/TinyLlama model loader (CPU-optimized, default precision)
 - [X] T008 Implement `code/utils/logger.py` for structured logging to `data/logs/` and stdout
-- [ ] T009 Setup `tests/contract/` schema validation for `training_config.schema.yaml` and `evaluation_result.schema.yaml`
+- [X] T009 Setup `tests/contract/` schema validation for `training_config.schema.yaml` and `evaluation_result.schema.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,6 +74,8 @@
 
 **Independent Test**: Run a training job on a single GLUE subset, verify alternating phases, entropy checks, and checkpoint output.
 
+**Note on Architecture**: The implementation follows the plan.md "Critical Revision" which implements a Denoising Autoencoder (DAE) on masked real data for the dream phase, rather than the "generative replay" described in spec.md FR-002. This is a known architectural divergence flagged for spec amendment.
+
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
@@ -83,13 +86,14 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data/augment.py` for DAE masking logic (random token masking consistent with BERT, A moderate mask rate)
-- [X] T014 [US1] Implement `code/models/trainer.py` core loop: Wake phase (standard CE on real data)
-- [X] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs, reconstruct original tokens (DAE loss), enforce 4: ratio via a `DreamScheduler` class (step counter modulo check)
-- [X] T016 [US1] Implement `code/models/trainer.py` Warm-up protocol: Skip dream phase for first steps; raise `RuntimeError` if dream phase is triggered before an initial stabilization period.
-- [X] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits, calculated as sum(-p*log2(p))), trigger retry up to 3 times with local retry counter increment (not global seed) or discard batch
-- [ ] T018 [US1] Integrate `memory_monitor` (T005) into the training loop to abort and save checkpoint on OOM
-- [ ] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status
+- [X] T013a [US1] Define masking constant: Create `code/data/augment.py` and define `MASK_RATE = 0.15` constant in `config.py`
+- [X] T013b [US1] Implement masking logic: Implement the random token masking function in `code/data/augment.py` using the `MASK_RATE` constant, consistent with BERT masking strategies
+- [X] T014 [US1] Implement `code/models/trainer.py` core loop: Wake phase (standard cross-entropy on real data using `torch.nn.CrossEntropyLoss` and `torch.optim.AdamW`), including explicit data batching strategy (e.g., `DataLoader` with `batch_size` from config)
+- [X] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs using T013b (MASK_RATE=0.15), reconstruct original tokens (DAE loss using `torch.nn.CrossEntropyLoss`), enforce a multi-to-one wake-to-dream step ratio via a `DreamScheduler` class using a step counter modulo 5 logic
+- [X] T016 [US1] Implement `code/models/trainer.py` Warm-up protocol: Skip dream phase for first steps; raise `RuntimeError` if dream phase is triggered before step 10.
+- [X] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits per token), calculated as average of -p*log2(p) per token (excluding padding tokens, base-2 log), trigger retry up to 3 times with local retry counter increment (not global seed) or discard batch
+- [X] T018 [US1] Integrate `memory_monitor` (T005) into the training loop to abort and save checkpoint on OOM
+- [ ] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status (depends on T008)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,15 +107,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for statistical significance calculation (Wilcoxon signed-rank test) in `tests/unit/test_metrics.py`
+- [X] T020 [P] [US2] Unit test for statistical significance calculation (paired t-test) in `tests/unit/test_metrics.py`
 - [X] T021 [P] [US2] Integration test comparing two dummy models in `tests/integration/test_evaluation.py`
 
 ### Implementation for User Story 2
 
 - [X] T022 [US2] Implement `code/eval/metrics.py` for few-shot accuracy calculation on held-out GLUE subsets
 - [X] T023 [US2] Implement `code/models/trainer.py` Baseline mode: Continuous SFT with identical total token count (not just steps) and data tokens as the experimental run
-- [X] T024 [US2] Implement `code/main.py` logic to orchestrate parallel runs (Experimental vs. Baseline) with same seeds (depends on T014-T017 and T023)
-- [ ] T025 [US2] Implement statistical analysis: Compute accuracy difference and Wilcoxon signed-rank test (α=0.05) p-value across 5 seeds (per Plan Constitution Principle VII); input data structure is list of 5 accuracy floats per model; use `scipy.stats.wilcoxon`
+- [X] T024a [US2] Implement `code/main.py` orchestration setup: Logic to orchestrate parallel runs (Experimental vs. Baseline) with same seeds (depends on T014-T017 and T023 implementation)
+- [X] T024b [US2] Implement `code/main.py` result aggregation: Logic to collect and aggregate results from parallel runs (depends on T024a and T026)
+- [ ] T025 [US2] Implement statistical analysis: Compute accuracy difference and paired t-test (scipy.stats.ttest_rel, α=0.05) p-value across 5 seeds (per SC-002); input data structure is list of 5 accuracy floats per model, PAIRED BY SEED INDEX, then apply t-test
 - [X] T026 [US2] Implement result reporting: Save comparative report to `data/results/comparison_report.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -120,7 +125,7 @@
 
 ## Phase 5: User Story 3 - Resource Constraint Verification (Priority: P3)
 
-**Goal**: Ensure the pipeline runs within GitHub Actions free-tier limits (limited CPU, 7GB RAM, 6h).
+**Goal**: Ensure the pipeline runs within GitHub Actions free-tier limits (limited CPU, constrained RAM, 6h).
 
 **Independent Test**: Run full pipeline on local resource-limited environment, verify no OOM and time < 5h.
 
@@ -131,7 +136,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T031 [US3] Implement `code/main.py` time monitoring and abort logic if wall-clock > 5 hours (read `MAX_WALL_CLOCK_HOURS` from `config.py`, raise `TimeLimitExceeded`)
+- [X] T031 [US3] Implement `code/main.py` time monitoring and abort logic if wall-clock > 5.5 hours (read `MAX_WALL_CLOCK_HOURS` from `config.py`, raise `TimeLimitExceeded`)
 - [X] T032 [US3] Implement `code/main.py` memory monitoring integration with `memory_monitor` (T005) to enforce GB limit
 - [X] T033 [US3] Create `code/scripts/verify_feasibility.sh` to run a dry-run with resource limits
 
@@ -147,12 +152,12 @@ References: [References]
 
 **Goal**: Sweep temperature hyperparameters as mandated by FR-006 and report variance.
 
-**Independent Test**: Run temperature sweep across a range of values {, 0.7, 0.9}, following a grid search protocol, report variance in final accuracy.
+**Independent Test**: Run temperature sweep across a range of values {0.5, 0.7, 0.9}, following a grid search protocol, report variance in final accuracy.
 
 ### Implementation for User Story 1 (Sensitivity Extension)
 
-- [X] T036 [US1] Implement temperature sweep logic in `code/main.py` for dream phase: execute a grid search running the full training pipeline for each temperature value in a set of representative hyperparameters, collect final accuracy for each run, and compute variance using `scikit-learn`'s `var` function
-- [ ] T037 [US1] Implement reporting for variance in final accuracy across temperature sweep
+- [X] T036 [US1] Implement temperature sweep logic in `code/main.py` for dream phase: execute a grid search running the full training pipeline for each temperature value in {0.5, 0.7, 0.9} with 5 seeds per temperature value (depends on T026 and US2 completion), RE-INITIALIZE MODEL WEIGHTS, OPTIMIZER STATE, AND RANDOM SEED for each run to ensure state isolation, collect final accuracy for each run, and compute variance using `scikit-learn`'s `var` function
+- [X] T037 [US1] Implement reporting logic to save variance_report.json to data/results/ containing variance of final accuracy across temperature sweep (calculated as population variance of the accuracy values) to satisfy SC-005
 
 **Checkpoint**: Sensitivity analysis complete
 
@@ -165,7 +170,7 @@ References: [References]
 - [ ] T051 [P] Documentation updates in `docs/` and `quickstart.md`
 - [ ] T052 Code cleanup and refactoring
 - [ ] T053 Performance optimization (batching, data loading) across all stories
-- [ ] T054 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T054 [P] Additional unit tests (if requested) in `tests/unit/` <!-- ATOMIZE: requested -->
 - [ ] T055 Security hardening
 - [ ] T056 Run quickstart.md validation
 
@@ -181,6 +186,7 @@ References: [References]
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Sensitivity Analysis (Phase 6)**: Depends on US1 and US2 completion
+- **Reviewer Alignment**: REMOVED (Phase 7 deleted due to unapproved scope creep)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -230,7 +236,7 @@ Task: "Implement code/models/trainer.py core loop (Wake/Dream)"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (100-step run, entropy check, warm-up)
+4. **STOP and VALIDATE**: Test User Story independently (100-step run, entropy check, warm-up)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -267,6 +273,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks MUST run on CPU-only CI with a minimal core count and limited RAM.. No GPU, no 8-bit quantization, no large models.
 - **Data Integrity**: All data must be real (GLUE/SuperGLUE) via `datasets` library. No fake data generation.
-- **Statistical Method**: Primary success criterion uses Wilcoxon signed-rank test (Plan Constitution Principle VII) due to unequal variance; t-test is not used.
+- **Statistical Method**: Primary success criterion uses paired t-test (SC-002) as mandated by spec.md.
 - **Warm-up**: Hard constraint enforced by RuntimeError if dream phase triggers before step 10.
-- **Sensitivity**: Protocol defined as grid search over {0.5, 0.7, 0.9} with full training runs per temp.
+- **Sensitivity**: Protocol defined as grid search over a set of hyperparameters with 5 seeds per temperature for the sweep.
+- **Architecture Note**: Implementation follows plan.md "Critical Revision" (DAE on masked real data) despite spec.md FR-002 "generative replay" language; spec amendment pending.

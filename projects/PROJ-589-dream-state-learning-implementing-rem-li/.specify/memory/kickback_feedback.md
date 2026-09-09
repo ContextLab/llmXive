@@ -4,12 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or file list showing the required folders (`code/`, `tests/`, `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`, `tests/integration/`, `tests/contract/`) was provided. The evidence needed to confirm the project structure exists is missing.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or a `ruff` section, or a pre‑commit config invoking Black and Ruff) were provided, nor any evidence that these tools have been set up in the repository. The required artifacts are missing.
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T018` (rejected 1x): No code, script, or documentation showing that the `memory_monitor` from T005 was integrated into the training loop, nor any evidence (e.g., logs, tests) that OOM conditions trigger an abort and checkpoint save. The required artifact is missing.
-- `T019` (rejected 1x): No code, configuration, or log output showing added logging for wake/dream phase transitions, entropy metrics, or warm‑up status was provided; the claim lacks any concrete artifact to verify the required logging was implemented.
-- `T025` (rejected 1x): No code, script, notebook, or output file was provided that computes the accuracy difference and performs the Wilcoxon signed‑rank test using `scipy.stats.wilcoxon` across the five seed accuracies. The required artifact (e.g., a function or report containing the computed difference and p‑value) is missing, so the task is not satisfied.
+- `T051` (rejected 1x): No `docs/` directory or updated `quickstart.md` file was provided; the claim lacks any tangible documentation artifacts, so the required documentation updates are missing.
+- `T052` (rejected 1x): No code, diff, or documentation showing any cleanup or refactoring was provided; the only content present is the feature specification, which does not demonstrate the claimed T052 work. Consequently, the required artifact for “code cleanup and refactoring” is missing.
 
 ## Required change
 

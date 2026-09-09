@@ -1,54 +1,73 @@
 # Dream-State Learning: REM-like Consolidation in Language Models
 
-## Project Overview
+## Overview
 
-This project implements a novel training paradigm for language models inspired by the biological mechanisms of REM (Rapid Eye Movement) sleep. The core hypothesis is that alternating between "Wake" (standard supervised fine-tuning) and "Dream" (Denoising Autoencoder-based reconstruction) phases enhances model consolidation and generalization.
-
-## Key Concepts
-
-### What is "Consolidated" in a Digital System?
-Unlike biological systems where consolidation involves structural remodeling (protein synthesis, synaptic strengthening), in a digital neural network, a "consolidated" state is defined operationally as:
-1. **Stability**: The model's performance on held-out validation data remains stable or improves after the Dream phase, despite the introduction of noise.
-2. **Robustness**: The model's loss landscape becomes smoother, reducing sensitivity to input perturbations (measured via entropy checks).
-3. **Generalization**: The model achieves lower perplexity on out-of-distribution samples compared to a baseline trained with continuous supervised fine-tuning (SFT) for the same token count.
-
-### The Wake/Dream Cycle
-- **Wake Phase**: Standard Cross-Entropy loss on real data (GLUE/SuperGLUE).
-- **Dream Phase**: The model is presented with masked inputs (DAE) and tasked with reconstructing the original tokens. This forces the model to rely on learned internal representations rather than immediate context, mimicking memory replay.
-- **Ratio**: A 4:1 ratio of Wake to Dream steps is enforced by the `DreamScheduler`.
+This project implements a novel training paradigm for language models that mimics the biological processes of REM (Rapid Eye Movement) sleep and memory consolidation. The core hypothesis is that alternating "wake" (supervised fine-tuning) and "dream" (denoising autoencoder on masked real data) phases can improve model robustness and generalization compared to continuous supervised training.
 
 ## Architecture
 
-The project is structured as follows:
+### Wake Phase
+- Standard supervised fine-tuning on real GLUE/SuperGLUE data
+- Cross-entropy loss with AdamW optimizer
+- Batching via PyTorch DataLoader
+
+### Dream Phase
+- Denoising Autoencoder (DAE) on masked real data
+- Random token masking at 15% rate (BERT-style)
+- Reconstruction loss via cross-entropy
+- Multi-to-one wake-to-dream step ratio (5:1 by default)
+
+### Key Features
+- **Warm-up Protocol**: Dream phase disabled for first 10 training steps
+- **Entropy Checks**: Low-entropy outputs (<0.5 bits/token) trigger retry or batch discard
+- **Memory Monitoring**: Hard abort on OOM with checkpoint save
+- **Statistical Comparison**: Paired t-test against continuous-training baseline
+- **Sensitivity Analysis**: Temperature sweep with variance reporting
+
+## Project Structure
 
 ```
 code/
-├── config.py # Hyperparameters, paths, seed management
-├── main.py # Entry point, orchestration of experiments
+├── config.py # Hyperparameters and configuration
+├── main.py # Orchestration and experiment runner
 ├── data/
-│ ├── loader.py # Real data loading (GLUE/SuperGLUE) with checksum verification
-│ └── augment.py # DAE masking logic
+│ ├── augment.py # DAE masking logic
+│ └── loader.py # GLUE/SuperGLUE data loading
 ├── models/
-│ ├── trainer.py # Core Wake/Dream training loop, DreamScheduler
-│ └── __init__.py # Model initialization (DistilBERT/TinyLlama)
+│ ├── trainer.py # Wake/dream training loop
+│ └── __init__.py # Model initialization
 ├── eval/
-│ ├── metrics.py # Accuracy, Wilcoxon statistical tests
-│ ├── statistical_analysis.py # Comparative analysis logic
-│ └── sensitivity_report.py # Temperature sweep analysis
+│ ├── metrics.py # Accuracy and evaluation metrics
+│ ├── statistical_analysis.py # Paired t-test and statistical comparison
+│ ├── sensitivity_report.py # Temperature sweep analysis
+│ └── reporting.py # Result reporting and visualization
 ├── utils/
 │ ├── logger.py # Structured logging
-│ ├── memory_monitor.py # RAM tracking and OOM enforcement
-│ └── exceptions.py # Custom exceptions (DataIntegrityError, TimeLimitExceeded)
+│ ├── memory_monitor.py # Memory tracking and OOM enforcement
+│ └── exceptions.py # Custom exceptions
 └── scripts/
- └── generate_final_report.py # Aggregates results from multiple seeds
+ ├── cleanup_and_refactor.py # Code cleanup utilities
+ ├── generate_final_report.py # Final report generation
+ └── validate_quickstart.py # Quickstart validation
+
+data/
+├── raw/ # Raw dataset downloads
+├── checkpoints/ # Model checkpoints
+├── results/ # Evaluation results and reports
+└── logs/ # Training logs
+
+tests/
+├── unit/ # Unit tests
+├── integration/ # Integration tests
+└── contract/ # Schema validation tests
 ```
 
-## Usage
+## Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- CPU-only environment (optimized for CI/GitHub Actions)
-- Dependencies listed in `code/requirements.txt`
+- Python 3.8+
+- pip package manager
+- 8GB+ RAM (for CPU-only training)
 
 ### Installation
 ```bash
@@ -56,40 +75,56 @@ cd code
 pip install -r requirements.txt
 ```
 
-### Running an Experiment
-To run a single experiment with the default configuration:
+### Running a Single Experiment
 ```bash
-python main.py --seed 42 --max-steps 100
+python main.py --glue_subset=mrpc --seeds=5 --warmup_steps=10
 ```
 
-To run the full comparative analysis (5 seeds, experimental vs. baseline):
+### Running Temperature Sensitivity Analysis
 ```bash
-python main.py --mode full_comparison
+python main.py --temperature_sweep --temperatures=0.5,0.7,0.9 --seeds_per_temp=5
 ```
 
-To run the temperature sensitivity sweep:
+### Validation
 ```bash
-python main.py --mode temperature_sweep
+python scripts/validate_quickstart.py
 ```
 
-### Output Artifacts
-Results are saved to the `data/` directory:
-- `data/results/comparison_report.json`: Statistical comparison between experimental and baseline models.
-- `data/results/sensitivity_report.json`: Variance analysis across temperature settings.
-- `data/logs/`: Structured JSON logs of training progress, phase transitions, and entropy metrics.
-- `data/checkpoints/`: Model states saved upon completion or OOM events.
+## Configuration
 
-## Statistical Methodology
+Key hyperparameters in `config.py`:
+- `MASK_RATE`: 0.15 (15% token masking for dream phase)
+- `WARMUP_STEPS`: 10 (minimum steps before dream phase)
+- `DREAM_RATIO`: 5 (wake steps per dream step)
+- `ENTROPY_THRESHOLD`: 0.5 (bits per token)
+- `MAX_WALL_CLOCK_HOURS`: 5.5 (runtime limit)
+- `MEMORY_LIMIT_GB`: 8 (RAM limit)
 
-The primary success criterion is the **Wilcoxon signed-rank test** (α=0.05) comparing the accuracy of the Dream-State model against a continuous SFT baseline across 5 independent seeds. This non-parametric test is chosen due to the likely unequal variance between the two distributions.
+## Results
 
-## Constraints & Safety
+After training, results are saved to:
+- `data/results/comparison_report.json`: Experimental vs. baseline comparison
+- `data/results/variance_report.json`: Temperature sweep variance analysis
+- `data/logs/`: Structured JSON logs of training events
 
-- **Memory Limits**: The `MemoryMonitor` enforces a hard RAM limit (default 6GB). If exceeded, the process aborts and saves the current checkpoint.
-- **Time Limits**: A wall-clock limit (default 5 hours) prevents runaway processes in CI environments.
-- **Data Integrity**: All datasets are downloaded via the HuggingFace `datasets` library with SHA-256 checksum verification. Any mismatch triggers a `DataIntegrityError`.
+## Limitations
+
+- CPU-only execution (no GPU support)
+- Limited to small GLUE/SuperGLUE subsets for CI compatibility
+- Memory-constrained environment (8GB RAM limit)
 
 ## References
 
-- Plan Constitution Principle VII: Statistical robustness via non-parametric testing.
-- Biological Inspiration: REM sleep mechanisms in memory consolidation (Kandel et al., Dyson et al.).
+This implementation follows the design specifications in:
+- `specs/001-dream-state-learning-implementing-rem-li/spec.md`
+- `specs/001-dream-state-learning-implementing-rem-li/plan.md`
+
+## Contributing
+
+1. Ensure all unit and integration tests pass
+2. Run `scripts/validate_quickstart.py` before committing
+3. Follow the existing code style (black formatting, ruff linting)
+
+## License
+
+Research code for academic purposes.
