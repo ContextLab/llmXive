@@ -28686,7 +28686,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-09-09T14:33:24.385013+00:00",
+  "generated_at": "2026-09-09T14:49:16.977829+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -46179,6 +46179,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 972.676388,
+          "ended_at": "2026-09-09T14:25:43.916062Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "failed",
+          "started_at": "2026-09-09T14:09:31.239674Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 1394.6352,
           "ended_at": "2026-09-06T09:05:58.372046Z",
           "model": "qwen.qwen3.5-122b",
@@ -46248,14 +46256,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-03T02:55:17.104078Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 73.270135,
-          "ended_at": "2026-09-03T02:55:17.100657Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-03T02:54:03.830522Z"
         }
       ],
       "paper_status": null,
@@ -56418,7 +56418,7 @@
       },
       "authors": [
         {
-          "contributions": 5878,
+          "contributions": 5888,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -56471,83 +56471,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.634314,
-          "ended_at": "2026-09-09T13:08:51.099369Z",
+          "duration_s": 0.815773,
+          "ended_at": "2026-09-09T14:11:15.469200Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:50.465055Z"
+          "started_at": "2026-09-09T14:11:14.653427Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.655182,
-          "ended_at": "2026-09-09T13:08:50.411148Z",
+          "duration_s": 1.065676,
+          "ended_at": "2026-09-09T14:11:14.588089Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:49.755966Z"
+          "started_at": "2026-09-09T14:11:13.522413Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.713189,
-          "ended_at": "2026-09-09T13:08:49.702876Z",
+          "duration_s": 0.943451,
+          "ended_at": "2026-09-09T14:11:13.371249Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:48.989687Z"
+          "started_at": "2026-09-09T14:11:12.427798Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.844085,
-          "ended_at": "2026-09-09T13:08:48.936786Z",
+          "duration_s": 0.900945,
+          "ended_at": "2026-09-09T14:11:12.376870Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:48.092701Z"
+          "started_at": "2026-09-09T14:11:11.475925Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.664215,
-          "ended_at": "2026-09-09T13:08:48.039705Z",
+          "duration_s": 1.089627,
+          "ended_at": "2026-09-09T14:11:11.394166Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:47.375490Z"
+          "started_at": "2026-09-09T14:11:10.304539Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.655649,
-          "ended_at": "2026-09-09T13:08:47.305967Z",
+          "duration_s": 0.970551,
+          "ended_at": "2026-09-09T14:11:09.973751Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:46.650318Z"
+          "started_at": "2026-09-09T14:11:09.003200Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.594222,
-          "ended_at": "2026-09-09T13:08:46.597015Z",
+          "duration_s": 1.176929,
+          "ended_at": "2026-09-09T14:11:08.951322Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:46.002793Z"
+          "started_at": "2026-09-09T14:11:07.774393Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.682964,
-          "ended_at": "2026-09-09T13:08:45.937449Z",
+          "duration_s": 1.272563,
+          "ended_at": "2026-09-09T14:11:07.723760Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:45.254485Z"
+          "started_at": "2026-09-09T14:11:06.451197Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.262104,
-          "ended_at": "2026-09-09T13:08:45.176085Z",
+          "duration_s": 1.152405,
+          "ended_at": "2026-09-09T14:11:06.401004Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:43.913981Z"
+          "started_at": "2026-09-09T14:11:05.248599Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.43821,
-          "ended_at": "2026-09-09T13:08:43.837687Z",
+          "duration_s": 6.687155,
+          "ended_at": "2026-09-09T14:11:05.047832Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:39.399477Z"
+          "started_at": "2026-09-09T14:10:58.360677Z"
         }
       ],
       "paper_status": null,
@@ -122891,7 +122891,7 @@
       },
       "authors": [
         {
-          "contributions": 12942,
+          "contributions": 12952,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -122957,83 +122957,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 1.06614,
-          "ended_at": "2026-09-09T13:11:02.937360Z",
+          "duration_s": 0.678625,
+          "ended_at": "2026-09-09T14:09:57.895822Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:11:01.871220Z"
+          "started_at": "2026-09-09T14:09:57.217197Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.019576,
-          "ended_at": "2026-09-09T13:11:01.801113Z",
+          "duration_s": 0.95223,
+          "ended_at": "2026-09-09T14:09:57.146270Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:11:00.781537Z"
+          "started_at": "2026-09-09T14:09:56.194040Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.030419,
-          "ended_at": "2026-09-09T13:11:00.711479Z",
+          "duration_s": 0.944307,
+          "ended_at": "2026-09-09T14:09:56.122640Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:59.681060Z"
+          "started_at": "2026-09-09T14:09:55.178333Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.047579,
-          "ended_at": "2026-09-09T13:10:59.610589Z",
+          "duration_s": 0.931011,
+          "ended_at": "2026-09-09T14:09:55.106123Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:58.563010Z"
+          "started_at": "2026-09-09T14:09:54.175112Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.938611,
-          "ended_at": "2026-09-09T13:10:58.492107Z",
+          "duration_s": 0.906296,
+          "ended_at": "2026-09-09T14:09:54.066901Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:57.553496Z"
+          "started_at": "2026-09-09T14:09:53.160605Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.047229,
-          "ended_at": "2026-09-09T13:10:57.481952Z",
+          "duration_s": 0.722547,
+          "ended_at": "2026-09-09T14:09:53.089948Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:56.434723Z"
+          "started_at": "2026-09-09T14:09:52.367401Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.172237,
-          "ended_at": "2026-09-09T13:10:56.359718Z",
+          "duration_s": 0.897551,
+          "ended_at": "2026-09-09T14:09:52.297162Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:54.187481Z"
+          "started_at": "2026-09-09T14:09:51.399611Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.991436,
-          "ended_at": "2026-09-09T13:10:54.116712Z",
+          "duration_s": 0.69532,
+          "ended_at": "2026-09-09T14:09:51.327172Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:53.125276Z"
+          "started_at": "2026-09-09T14:09:50.631852Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.053765,
-          "ended_at": "2026-09-09T13:10:53.051953Z",
+          "duration_s": 0.75041,
+          "ended_at": "2026-09-09T14:09:50.558593Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:51.998188Z"
+          "started_at": "2026-09-09T14:09:49.808183Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.048975,
-          "ended_at": "2026-09-09T13:10:51.920596Z",
+          "duration_s": 3.451426,
+          "ended_at": "2026-09-09T14:09:49.728550Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:10:47.871621Z"
+          "started_at": "2026-09-09T14:09:46.277124Z"
         }
       ],
       "paper_status": null,
@@ -128261,7 +128261,7 @@
       },
       "authors": [
         {
-          "contributions": 11773,
+          "contributions": 11783,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -128321,83 +128321,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 1.144656,
-          "ended_at": "2026-09-09T13:55:25.742380Z",
+          "duration_s": 0.962293,
+          "ended_at": "2026-09-09T14:48:59.496238Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:24.597724Z"
+          "started_at": "2026-09-09T14:48:58.533945Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.93756,
-          "ended_at": "2026-09-09T13:55:24.550366Z",
+          "duration_s": 0.928201,
+          "ended_at": "2026-09-09T14:48:58.472392Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:23.612806Z"
+          "started_at": "2026-09-09T14:48:57.544191Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.174386,
-          "ended_at": "2026-09-09T13:55:23.486870Z",
+          "duration_s": 0.661098,
+          "ended_at": "2026-09-09T14:48:57.483674Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:22.312484Z"
+          "started_at": "2026-09-09T14:48:56.822576Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.116686,
-          "ended_at": "2026-09-09T13:55:22.265259Z",
+          "duration_s": 0.924585,
+          "ended_at": "2026-09-09T14:48:56.761808Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:21.148573Z"
+          "started_at": "2026-09-09T14:48:55.837223Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.095139,
-          "ended_at": "2026-09-09T13:55:21.101563Z",
+          "duration_s": 0.954704,
+          "ended_at": "2026-09-09T14:48:55.777271Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:20.006424Z"
+          "started_at": "2026-09-09T14:48:54.822567Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.927317,
-          "ended_at": "2026-09-09T13:55:19.799791Z",
+          "duration_s": 0.813034,
+          "ended_at": "2026-09-09T14:48:54.762322Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:18.872474Z"
+          "started_at": "2026-09-09T14:48:53.949288Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.81569,
-          "ended_at": "2026-09-09T13:55:18.631974Z",
+          "duration_s": 0.922626,
+          "ended_at": "2026-09-09T14:48:53.888438Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:17.816284Z"
+          "started_at": "2026-09-09T14:48:52.965812Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.827899,
-          "ended_at": "2026-09-09T13:55:17.678037Z",
+          "duration_s": 0.953029,
+          "ended_at": "2026-09-09T14:48:52.902860Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:16.850138Z"
+          "started_at": "2026-09-09T14:48:51.949831Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.761588,
-          "ended_at": "2026-09-09T13:55:16.756752Z",
+          "duration_s": 0.752814,
+          "ended_at": "2026-09-09T14:48:51.889468Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:15.995164Z"
+          "started_at": "2026-09-09T14:48:51.136654Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.814732,
-          "ended_at": "2026-09-09T13:55:15.908089Z",
+          "duration_s": 5.151671,
+          "ended_at": "2026-09-09T14:48:51.070182Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:55:12.093357Z"
+          "started_at": "2026-09-09T14:48:45.918511Z"
         }
       ],
       "paper_status": null,
@@ -161197,7 +161197,7 @@
       },
       "authors": [
         {
-          "contributions": 8761,
+          "contributions": 8771,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -161265,83 +161265,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.925341,
-          "ended_at": "2026-09-09T13:09:08.446165Z",
+          "duration_s": 0.810832,
+          "ended_at": "2026-09-09T14:09:29.283119Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:09:07.520824Z"
+          "started_at": "2026-09-09T14:09:28.472287Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.073143,
-          "ended_at": "2026-09-09T13:09:07.470005Z",
+          "duration_s": 0.96284,
+          "ended_at": "2026-09-09T14:09:28.406909Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:09:06.396862Z"
+          "started_at": "2026-09-09T14:09:27.444069Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.824767,
-          "ended_at": "2026-09-09T13:09:06.345738Z",
+          "duration_s": 0.701968,
+          "ended_at": "2026-09-09T14:09:27.379056Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:09:04.520971Z"
+          "started_at": "2026-09-09T14:09:26.677088Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.033469,
-          "ended_at": "2026-09-09T13:09:04.470556Z",
+          "duration_s": 0.708796,
+          "ended_at": "2026-09-09T14:09:26.611316Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:09:03.437087Z"
+          "started_at": "2026-09-09T14:09:25.902520Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.138906,
-          "ended_at": "2026-09-09T13:09:03.386957Z",
+          "duration_s": 0.704873,
+          "ended_at": "2026-09-09T14:09:25.836661Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:09:02.248051Z"
+          "started_at": "2026-09-09T14:09:25.131788Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.467769,
-          "ended_at": "2026-09-09T13:09:02.197725Z",
+          "duration_s": 0.687756,
+          "ended_at": "2026-09-09T14:09:25.065106Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:09:00.729956Z"
+          "started_at": "2026-09-09T14:09:24.377350Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.435379,
-          "ended_at": "2026-09-09T13:09:00.595692Z",
+          "duration_s": 0.790069,
+          "ended_at": "2026-09-09T14:09:24.309830Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:59.160313Z"
+          "started_at": "2026-09-09T14:09:23.519761Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.282871,
-          "ended_at": "2026-09-09T13:08:59.109246Z",
+          "duration_s": 0.90569,
+          "ended_at": "2026-09-09T14:09:23.453499Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:57.826375Z"
+          "started_at": "2026-09-09T14:09:22.547809Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.010268,
-          "ended_at": "2026-09-09T13:08:57.772863Z",
+          "duration_s": 0.690374,
+          "ended_at": "2026-09-09T14:09:22.481053Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:56.762595Z"
+          "started_at": "2026-09-09T14:09:21.790679Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.598499,
-          "ended_at": "2026-09-09T13:08:56.703193Z",
+          "duration_s": 4.132404,
+          "ended_at": "2026-09-09T14:09:21.717157Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-09T13:08:53.104694Z"
+          "started_at": "2026-09-09T14:09:17.584753Z"
         }
       ],
       "paper_status": null,
@@ -165418,6 +165418,498 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "implementer",
+      "duration_s": 0.962293,
+      "ended_at": "2026-09-09T14:48:59.496238Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:58.533945Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.928201,
+      "ended_at": "2026-09-09T14:48:58.472392Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:57.544191Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.661098,
+      "ended_at": "2026-09-09T14:48:57.483674Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:56.822576Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.924585,
+      "ended_at": "2026-09-09T14:48:56.761808Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:55.837223Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.954704,
+      "ended_at": "2026-09-09T14:48:55.777271Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:54.822567Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.813034,
+      "ended_at": "2026-09-09T14:48:54.762322Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:53.949288Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.922626,
+      "ended_at": "2026-09-09T14:48:53.888438Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:52.965812Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.953029,
+      "ended_at": "2026-09-09T14:48:52.902860Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:51.949831Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.752814,
+      "ended_at": "2026-09-09T14:48:51.889468Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:51.136654Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.151671,
+      "ended_at": "2026-09-09T14:48:51.070182Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:48:45.918511Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 972.676388,
+      "ended_at": "2026-09-09T14:25:43.916062Z",
+      "failure_reason": "StagePanelEscalation: tasks panel engine failure: RuntimeError: LLMReviewer[coverage]: review frontmatter has neither `verdict:` nor `concerns:`/`action_items:` \u2014 a contentless/truncated review MUST N",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-09-09T14:09:31.239674Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.815773,
+      "ended_at": "2026-09-09T14:11:15.469200Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:14.653427Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.065676,
+      "ended_at": "2026-09-09T14:11:14.588089Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:13.522413Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.943451,
+      "ended_at": "2026-09-09T14:11:13.371249Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:12.427798Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.900945,
+      "ended_at": "2026-09-09T14:11:12.376870Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:11.475925Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.089627,
+      "ended_at": "2026-09-09T14:11:11.394166Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:10.304539Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.970551,
+      "ended_at": "2026-09-09T14:11:09.973751Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:09.003200Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.176929,
+      "ended_at": "2026-09-09T14:11:08.951322Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:07.774393Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.272563,
+      "ended_at": "2026-09-09T14:11:07.723760Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:06.451197Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.152405,
+      "ended_at": "2026-09-09T14:11:06.401004Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:11:05.248599Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 6.687155,
+      "ended_at": "2026-09-09T14:11:05.047832Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:10:58.360677Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.678625,
+      "ended_at": "2026-09-09T14:09:57.895822Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:57.217197Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.95223,
+      "ended_at": "2026-09-09T14:09:57.146270Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:56.194040Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.944307,
+      "ended_at": "2026-09-09T14:09:56.122640Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:55.178333Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.931011,
+      "ended_at": "2026-09-09T14:09:55.106123Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:54.175112Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.906296,
+      "ended_at": "2026-09-09T14:09:54.066901Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:53.160605Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.722547,
+      "ended_at": "2026-09-09T14:09:53.089948Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:52.367401Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.897551,
+      "ended_at": "2026-09-09T14:09:52.297162Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:51.399611Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.69532,
+      "ended_at": "2026-09-09T14:09:51.327172Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:50.631852Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.75041,
+      "ended_at": "2026-09-09T14:09:50.558593Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:49.808183Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.451426,
+      "ended_at": "2026-09-09T14:09:49.728550Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:46.277124Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.810832,
+      "ended_at": "2026-09-09T14:09:29.283119Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:28.472287Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.96284,
+      "ended_at": "2026-09-09T14:09:28.406909Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:27.444069Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.701968,
+      "ended_at": "2026-09-09T14:09:27.379056Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:26.677088Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.708796,
+      "ended_at": "2026-09-09T14:09:26.611316Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:25.902520Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.704873,
+      "ended_at": "2026-09-09T14:09:25.836661Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:25.131788Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.687756,
+      "ended_at": "2026-09-09T14:09:25.065106Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:24.377350Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.790069,
+      "ended_at": "2026-09-09T14:09:24.309830Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:23.519761Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.90569,
+      "ended_at": "2026-09-09T14:09:23.453499Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:22.547809Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.690374,
+      "ended_at": "2026-09-09T14:09:22.481053Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:21.790679Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.132404,
+      "ended_at": "2026-09-09T14:09:21.717157Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-09T14:09:17.584753Z"
+    },
     {
       "agent": "implementer",
       "duration_s": 1.144656,
@@ -170925,498 +171417,6 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-09-09T07:29:30.896383Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.286334,
-      "ended_at": "2026-09-09T07:29:30.893679Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:29:24.607345Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.020274,
-      "ended_at": "2026-09-09T07:29:24.604707Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:28:55.584433Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.545848,
-      "ended_at": "2026-09-09T07:28:55.581792Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:28:34.035944Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.942396,
-      "ended_at": "2026-09-09T07:28:34.033288Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:28:10.090892Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 1112.551925,
-      "ended_at": "2026-09-09T07:28:21.107842Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-005-machine-learned-potentials-for-transitio",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:09:48.555917Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.707043,
-      "ended_at": "2026-09-09T07:28:10.088239Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:28:00.381196Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 72.553789,
-      "ended_at": "2026-09-09T07:28:00.378533Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:26:47.824744Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 51.654839,
-      "ended_at": "2026-09-09T07:26:47.822074Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:25:56.167235Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.067573,
-      "ended_at": "2026-09-09T07:25:56.164560Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:25:36.096987Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 30.420528,
-      "ended_at": "2026-09-09T07:25:36.094363Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:25:05.673835Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.277116,
-      "ended_at": "2026-09-09T07:25:05.671164Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:24:41.394048Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.228891,
-      "ended_at": "2026-09-09T07:24:41.391344Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-379-predicting-molecular-excitation-waveleng",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:24:27.162453Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 106.48359,
-      "ended_at": "2026-09-09T07:24:25.980283Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:22:39.496693Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 57.685571,
-      "ended_at": "2026-09-09T07:22:39.494034Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:21:41.808463Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 78.175713,
-      "ended_at": "2026-09-09T07:21:41.805808Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:20:23.630095Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 75.593816,
-      "ended_at": "2026-09-09T07:20:23.627435Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:19:08.033619Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.42594,
-      "ended_at": "2026-09-09T07:19:08.030965Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:18:33.605025Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 72.974596,
-      "ended_at": "2026-09-09T07:18:33.602344Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:17:20.627748Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 57.944907,
-      "ended_at": "2026-09-09T07:17:20.625067Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:16:22.680160Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 76.587939,
-      "ended_at": "2026-09-09T07:16:22.677508Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:15:06.089569Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 83.879969,
-      "ended_at": "2026-09-09T07:15:06.086922Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:13:42.206953Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.392497,
-      "ended_at": "2026-09-09T07:13:42.204323Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:13:14.811826Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 32.964653,
-      "ended_at": "2026-09-09T07:13:14.809104Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:12:41.844451Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 651.322598,
-      "ended_at": "2026-09-09T07:12:40.569179Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-483-evaluating-the-robustness-of-common-stat",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:01:49.246581Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.769066,
-      "ended_at": "2026-09-09T07:10:25.222277Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:24.453211Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.933433,
-      "ended_at": "2026-09-09T07:10:25.041964Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:24.108531Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.212842,
-      "ended_at": "2026-09-09T07:10:24.464046Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:23.251204Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.804041,
-      "ended_at": "2026-09-09T07:10:24.376933Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:23.572892Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.67267,
-      "ended_at": "2026-09-09T07:10:24.051075Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:23.378405Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.738924,
-      "ended_at": "2026-09-09T07:10:23.496541Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:22.757617Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.205129,
-      "ended_at": "2026-09-09T07:10:23.320954Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:22.115825Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.998982,
-      "ended_at": "2026-09-09T07:10:23.178984Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:22.180002Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.787404,
-      "ended_at": "2026-09-09T07:10:22.681350Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:21.893946Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.823521,
-      "ended_at": "2026-09-09T07:10:22.107993Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:21.284472Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.997883,
-      "ended_at": "2026-09-09T07:10:22.059138Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:21.061255Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.723311,
-      "ended_at": "2026-09-09T07:10:21.816482Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:21.093171Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.90244,
-      "ended_at": "2026-09-09T07:10:21.211662Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:20.309222Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.034889,
-      "ended_at": "2026-09-09T07:10:21.013942Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:17.979053Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.1258,
-      "ended_at": "2026-09-09T07:10:21.004844Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:19.879044Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.602651,
-      "ended_at": "2026-09-09T07:10:20.234775Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:15.632124Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.696358,
-      "ended_at": "2026-09-09T07:10:19.814360Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-09T07:10:14.118002Z"
     }
   ],
   "reviewed_preprints": [
