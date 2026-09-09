@@ -1,16 +1,14 @@
 status: none
-intent: download AlayaWorld interactive video dataset with object state annotations
-  python package dataset
+intent: AlayaWorld interactive video and symbolic action dataset download python package
+  dataset
 required_fields:
-- video_path
+- video_file_path
 - action_sequence
-- timestamp
+- action_timestamps
+- symbolic_state_per_timestamp
 - object_id
-- object_position
-- object_orientation
-- object_health
-- symbolic_state_log
-- frame_rate
-cache_key: 8f3dd50d5668bbf265ceb38a98ab689e0cc21a0c1b61c71ab318b1cdd04efedd
-searched_at: '2026-08-24T21:48:36.506880+00:00'
+- object_attributes (e.g., hp, position, status)
+- frame_timestamp
+cache_key: c361c5b44464910adb55f3d5beddb78eb9933ffff365f28894ce938d27cc2abb
+searched_at: '2026-09-09T11:41:55.659288+00:00'
 retry_count: 1

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Drift Metric"
-description: "Final calculated score for a sequence comparing symbolic and visual states. Decomposed into 'Intrinsic Drift' (caused by mock's injected errors) and 'Observational Noise' (CV error)."
+description: "Final calculated score for a sequence comparing symbolic and visual states (Semantic Drift)."
 type: "object"
 properties:
   sequence_id:
@@ -15,16 +15,6 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Normalized score representing the divergence between logical and visual states"
-  intrinsic_drift:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Drift caused by the mock's injected generative errors (the target of correction)"
-  observational_noise:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Drift caused by CV measurement error"
   permanence_violations:
     type: "integer"
     minimum: 0
@@ -41,10 +31,22 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Validation accuracy of the CV pipeline on the annotated subset (expected to be < 85% due to injected errors)"
+    description: "Validation accuracy of the CV pipeline on the annotated subset"
   is_valid:
     type: "boolean"
-    description: "True if CV accuracy >= 85%, otherwise the score is invalid (for validation purposes only)"
+    description: "True if CV accuracy >= 85%, otherwise the score is invalid"
+  stationarity_check_method:
+    type: "string"
+    description: "Method used for stationarity check (e.g., 'Variance Check')"
+  stationarity_p_value:
+    type: "number"
+    description: "P-value from the stationarity check (Shapiro-Wilk)"
+  shapiro_p_value:
+    type: "number"
+    description: "P-value from the Shapiro-Wilk test on paired differences"
+  shapiro_stationary:
+    type: "boolean"
+    description: "True if Shapiro-Wilk test indicates normality (p > 0.05)"
   resource_usage:
     type: "object"
     properties:
@@ -55,4 +57,4 @@ properties:
         type: "number"
         description: "Total execution time in seconds"
     required: ["peak_ram_mb", "wall_clock_seconds"]
-required: ["sequence_id", "mode", "semantic_drift_score", "intrinsic_drift", "observational_noise", "is_valid"]
+required: ["sequence_id", "mode", "semantic_drift_score", "permanence_violations", "phantom_objects", "is_valid", "stationarity_check_method", "stationarity_p_value", "shapiro_p_value", "shapiro_stationary"]

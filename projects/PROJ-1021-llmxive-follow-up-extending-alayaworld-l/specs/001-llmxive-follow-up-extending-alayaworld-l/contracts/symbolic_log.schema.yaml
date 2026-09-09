@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Symbolic State Log Schema"
+description: "Time-series record of logical object states from the deterministic engine."
+type: object
+properties:
+  timestamp:
+    type: number
+    description: "Frame timestamp in seconds."
+  object_id:
+    type: string
+    description: "Unique identifier for the tracked object."
+  hp:
+    type: integer
+    description: "Current health points."
+  is_alive:
+    type: boolean
+    description: "Whether the object is logically alive."
+  position:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "2D position (x, y) in the game world."
+  inventory:
+    type: object
+    description: "Key-value pairs of items held by the object."
+    additionalProperties:
+      type: integer
+required:
+  - timestamp
+  - object_id
+  - hp
+  - is_alive
+  - position

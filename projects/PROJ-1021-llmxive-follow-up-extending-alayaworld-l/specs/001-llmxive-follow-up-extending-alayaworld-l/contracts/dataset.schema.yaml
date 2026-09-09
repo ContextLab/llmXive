@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Action Sequence Schema"
+description: "Defines the input action sequences for the video generation experiment."
+type: object
+properties:
+  sequence_id:
+    type: string
+    description: "Unique identifier for the sequence (e.g., 'seq_001')."
+  actions:
+    type: array
+    description: "List of discrete user actions (e.g., 'summon', 'hit', 'die')."
+    items:
+      type: string
+  seed:
+    type: integer
+    description: "Random seed for reproducibility (default 42)."
+required:
+  - sequence_id
+  - actions
+  - seed

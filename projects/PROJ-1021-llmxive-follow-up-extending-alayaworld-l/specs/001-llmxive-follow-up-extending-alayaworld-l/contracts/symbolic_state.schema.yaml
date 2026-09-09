@@ -1,48 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Symbolic State Log"
-description: "Time-series record of logical object states derived from the rule-based engine."
-type: "object"
-required:
-  - "log_id"
-  - "sequence_id"
-  - "frame_index"
-  - "objects"
+type: object
 properties:
-  log_id:
-    type: "string"
-    description: "Unique identifier for the log."
   sequence_id:
-    type: "string"
-    description: "Reference to the action sequence."
-  frame_index:
-    type: "integer"
-    minimum: 0
-    description: "Frame number (0-indexed)."
-  objects:
-    type: "array"
+    type: string
+    description: "Unique identifier for the action sequence (e.g., 'seq_001_seed_42')"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of log generation"
+  state_trajectory:
+    type: array
     items:
-      type: "object"
-      required:
-        - "id"
-        - "hp"
-        - "exists"
-        - "position"
+      type: object
       properties:
-        id:
-          type: "string"
-          description: "Unique object ID."
-        hp:
-          type: "integer"
-          minimum: 0
-          description: "Current HP (0 = dead)."
-        exists:
-          type: "boolean"
-          description: "Whether the object exists in the logical world."
-        position:
-          type: "array"
+        frame_id:
+          type: integer
+          description: "Frame index (0 to N)"
+        objects:
+          type: array
           items:
-            type: "number"
-          minItems: 2
-          maxItems: 2
-          description: "Logical (x, y) position."
-additionalProperties: false
+            type: object
+            properties:
+              object_id:
+                type: string
+                description: "Unique ID for the object (e.g., 'sword_1')"
+              hp:
+                type: integer
+                description: "Current health points"
+              inventory:
+                type: array
+                items:
+                  type: string
+                description: "List of items held by the object"
+              position:
+                type: object
+                properties:
+                  x:
+                    type: number
+                  y:
+                    type: number
+                required: [x, y]
+              status:
+                type: string
+                enum: ["alive", "dead", "hidden", "unknown"]
+                description: "Logical status of the object"
+      required: [frame_id, objects]
+  action_log:
+    type: array
+    items:
+      type: string
+    description: "List of user actions applied (e.g., ['summon', 'hit'])"
+required: [sequence_id, timestamp, state_trajectory, action_log]

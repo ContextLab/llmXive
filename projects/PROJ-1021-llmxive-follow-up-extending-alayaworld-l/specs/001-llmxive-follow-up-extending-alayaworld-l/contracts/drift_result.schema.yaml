@@ -11,6 +11,8 @@ required:
   - "cv_accuracy"
   - "is_valid"
   - "resource_usage"
+  - "stationarity_check_method"
+  - "stationarity_p_value"
 properties:
   sequence_id:
     type: "string"
@@ -42,18 +44,24 @@ properties:
   is_valid:
     type: "boolean"
     description: "True if cv_accuracy ≥ 0.85."
+  stationarity_check_method:
+    type: "string"
+    description: "Method used for stationarity check (e.g., 'Variance Check')."
+  stationarity_p_value:
+    type: "number"
+    description: "P-value from the stationarity check (Shapiro-Wilk)."
   resource_usage:
     type: "object"
     required:
-      - "peak_ram_gb"
-      - "wall_clock_min"
+      - "peak_ram_mb"
+      - "wall_clock_seconds"
     properties:
-      peak_ram_gb:
+      peak_ram_mb:
         type: "number"
         minimum: 0.0
-        description: "Peak RAM in GB."
-      wall_clock_min:
+        description: "Peak RAM in MB."
+      wall_clock_seconds:
         type: "number"
         minimum: 0.0
-        description: "Wall-clock time in minutes."
+        description: "Wall-clock time in seconds."
 additionalProperties: false

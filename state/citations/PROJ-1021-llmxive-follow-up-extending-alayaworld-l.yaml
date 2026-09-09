@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 09f78e47ac50deed50f5ab4d3bff21633d767a1efc2982ba939b4f27b57b2d6c
+  artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-09-09T11:56:58.331668Z'
+- artifact_hash: a5582897dd756ea4e486e2fdf6d66ff56f29d07ef5929146d16d7308b9c1fa14
+  artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-09-09T11:56:59.324796Z'

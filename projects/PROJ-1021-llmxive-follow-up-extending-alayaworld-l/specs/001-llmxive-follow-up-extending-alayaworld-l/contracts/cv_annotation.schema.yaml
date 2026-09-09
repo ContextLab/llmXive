@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Ground Truth Annotation"
-description: "Manually annotated frames for CV validation."
+description: "Manually annotated frames for CV validation (FR-007)."
 type: "object"
 required:
   - "annotation_id"
@@ -9,7 +9,7 @@ required:
 properties:
   annotation_id:
     type: "string"
-    description: "Unique identifier."
+    description: "Unique identifier for the annotation."
   frame_path:
     type: "string"
     description: "Path to the image file."

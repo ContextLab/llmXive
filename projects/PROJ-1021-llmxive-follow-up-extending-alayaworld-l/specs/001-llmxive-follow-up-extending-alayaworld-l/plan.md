@@ -1,57 +1,39 @@
 # Implementation Plan: llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation"
 
-**Branch**: `001-llmxive-alayaworld-extend` | **Date**: 2026-08-21 | **Spec**: `specs/001-llmxive-follow-up-extending-alayaworld-l/spec.md`
+**Branch**: `001-llmxive-alayaworld-extend` | **Date**: 2026-08-20 | **Spec**: `specs/001-llmxive-follow-up-extending-alayaworld-l/spec.md`
 **Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-alayaworld-l/spec.md`
 
 ## Summary
 
-This project implements a hybrid inference pipeline to mitigate long-horizon semantic drift in video world models. The approach integrates a lightweight, deterministic, rule-based symbolic engine (tracking object HP, inventory, and existence) with a **CPU-tractable surrogate video generation model** (specifically, a quantized StyleGAN2-ADA variant at 256x256 resolution, as the original AlayaWorld is not CPU-feasible). 
-
-The system generates interactive sequences of fixed duration using a **Within-Sequence Counterfactual Design**: for every action sequence, two parallel video streams are generated from the **identical initial latent noise** and random seed. 
-- **Stream A (Baseline)**: No correction tokens injected.
-- **Stream B (Hybrid)**: Correction tokens are **deterministically injected** (p=1.0) upon discrepancy detection.
-
-The system compares the "Semantic Drift Score" of Stream B against Stream A to isolate the causal effect of the correction token. The implementation strictly adheres to CPU-only constraints (2 cores, 7 GB RAM) and validates the computer vision (CV) detection pipeline against the **Symbolic Ground Truth** to ensure the drift metric is statistically valid (≥85% detection accuracy).
+This project implements a hybrid video generation pipeline that combines a frozen "AlayaWorld" autoregressive model with a lightweight, deterministic symbolic logic layer. The primary goal is to quantify and reduce "Semantic Drift" in long-horizon interactive video sequences. The technical approach involves generating baseline video sequences, running a parallel symbolic simulation of object states (HP, inventory), and calculating a drift score via classical computer vision (sparse optical flow, color histograms). A "correction token" mechanism will then inject state constraints into the generation loop to force visual consistency with the symbolic ground truth. The entire pipeline is designed to run on a CPU-only, multi-core, limited RAM environment.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU mode, default precision), `opencv-python` (headless), `scikit-learn`, `pandas`, `numpy`, `pytest`, `psutil`, `kornia` (for lightweight optical flow), `pyyaml`  
-**Storage**: Local file system (`data/` for raw/processed video, `data/ground_truth/` for symbolic logs); JSON logs for state trajectories.  
-**Testing**: `pytest` (unit tests for symbolic logic, integration tests for drift calculation, resource constraint benchmarks).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU cores, ~7 GB RAM, ~14 GB disk).  
-**Project Type**: Computational Research / Inference Pipeline  
-**Performance Goals**: 
-- Wall-clock time per 60s sequence (at 15fps, 900 frames) ≤ 30 minutes.
-- Peak memory usage ≤ 7 GB.
-- CV detection accuracy ≥ 85% (validated against Symbolic GT).
-**Constraints**: 
-- NO GPU usage for inference (CPU-first).
-- NO retraining of the surrogate model (frozen weights).
-- Strict deterministic execution for the symbolic engine.
-- Streaming data processing to avoid RAM overflow.
-- **Feasibility Warning**: Generating a substantial number of frames on 2 cores is a tight budget. If generation rate drops below 0.5 fps, the pipeline will automatically skip frames (process every 3rd frame) to meet the 30-minute constraint, noting the reduced temporal resolution.
-**Scale/Scope**: 
-- N=10 random seeds for statistical significance (Feasibility Study).
-- Short-duration sequences (approx. 900 frames at 15fps).
-- Ground Truth subset: ≥50 frames (derived from Symbolic Engine state).
-- **Note on Model**: The original AlayaWorld model is not CPU-tractable. This project uses a **StyleGAN2-ADA (256x256, 8-bit quantized)** surrogate to test the *methodology* of the hybrid correction. The research question is reframed to address this surrogate model. If the AlayaWorld model must be used, the project is flagged as 'Feasibility Failure'.
+**Primary Dependencies**: `torch` (CPU-only build, quantized), `opencv-python`, `scikit-learn`, `numpy`, `pandas`, `datasets` (streaming mode), `scipy` (for statistical tests), `jsonschema`  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`, `data/annotations/`)  
+**Testing**: `pytest` (unit tests for symbolic engine, integration tests for drift calculation)  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Project Type**: Research/Computational Experiment  
+**Performance Goals**: ≤30 minutes wall-clock time per 60s sequence; ≤7GB peak RAM.  
+**Constraints**: No GPU acceleration; strict adherence to 8-bit/quantized model inference; deterministic symbolic engine (with a fixed seed).  
+**Scale/Scope**: 10 random seeds × 2 conditions (baseline/hybrid) × 10 action sequences = 200 total sequence evaluations.
 
-> **Note on Data Source**: The AlayaWorld model weights and data are expected as local artifacts with a specific SHA-256 checksum recorded in `data/checksums.txt`. If the checksum does not match, the run fails. No verified URL exists for AlayaWorld. The **StyleGAN2-ADA** surrogate weights must be sourced from a verified internal manifest (see Constitution Check).
+> **Note on Dataset**: The "AlayaWorld" dataset has **no verified source** found in the project's verified block. The plan assumes the existence of a local or programmatic access point for the "AlayaWorld" model weights and sample sequences as a prerequisite. If no open download exists, the implementation will fail at the data ingestion step, and the plan will flag this as a blocking feasibility issue. The symbolic engine and CV pipeline will be tested against a synthetic "mock" video stream for *unit testing* only, but the primary research results depend on the availability of the AlayaWorld dataset. If the dataset is unavailable, the study will be limited to a "Methodological Validation" report.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Rationale |
+| Principle | Status | Notes |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds will be pinned in `code/config.py`. Local artifacts are checksummed (SHA-256) and verified before use. All scripts runnable via `pytest` or entry points. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` are restricted to the provided "Verified datasets" block (none for AlayaWorld, so no URL cited). The **Surrogate Model** (StyleGAN2-ADA) source is verified via a `data/verified_manifest.json` which records the provenance (e.g., "Internal Team X, Date Y") and hash. Ground Truth Validation (FR-007) ensures CV accuracy is measured against the **Symbolic Engine**, not human observation of the video. |
-| **III. Data Hygiene** | **PASS** | All data in `data/` will be checksummed. Raw video and annotations will be immutable; derived logs (state trajectories) will be new files. No PII expected in synthetic game data. |
-| **IV. Single Source of Truth** | **PASS** | Drift scores and statistical results in the final report will be derived directly from `data/results/` JSON/CSV files generated by the code. |
-| **V. Versioning Discipline** | **PASS** | Content hashes will be computed for all artifacts. The `state/` YAML file will be updated on artifact changes. |
-| **VI. Deterministic Symbolic Grounding** | **PASS** | The symbolic engine is implemented in pure Python with no stochastic elements. State transitions are strictly rule-based. The output log is hashed (SHA-256) at each timestep and at the end to prove immutability. **Verification Step**: The final hash is compared against a pre-computed canonical hash to ensure no drift occurred in the engine itself. |
-| **VII. Edge-Device Inference** | **PASS** | The pipeline is designed for multi-core/7GB constraints. Memory usage will be monitored via `psutil`. No GPU-dependent libraries (e.g., `flash-attn`, `cuDNN`) will be installed. The surrogate model (StyleGAN2-ADA 8-bit) is selected for CPU feasibility. |
+| **I. Reproducibility** | **CONDITIONAL** | All random seeds pinned (, plus 10 seed variations). Dependencies pinned. **Caveat**: Reproducibility is contingent on the availability of the AlayaWorld dataset, which is currently unverified. If the dataset is unavailable, the primary experiment cannot be reproduced. |
+| **II. Verified Accuracy** | **CONDITIONAL** | Citations limited to the "Verified datasets" block (currently empty for AlayaWorld). **Caveat**: The dataset citation is unverified; this principle is passed only if the dataset is provided locally or a verified source is found. |
+| **III. Data Hygiene** | **PASS** | Checksums recorded for all downloaded/processed data. Raw data immutable. Annotations stored in `data/annotations/`. |
+| **IV. Single Source of Truth** | **PASS** | All metrics derived from `data/results/` JSON logs. |
+| **V. Versioning Discipline** | **PASS** | Artifact hashes tracked in `state/` YAML. |
+| **VI. Deterministic Symbolic Grounding** | **PASS** | Symbolic engine implemented in pure Python with fixed seed (42). No stochastic elements. |
+| **VII. Edge-Device Inference Constraints** | **PASS** | Pipeline designed for CPU-only, quantized inference. Memory and time constraints explicitly monitored. |
 
 ## Project Structure
 
@@ -63,148 +45,110 @@ specs/001-llmxive-alayaworld-extend/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (source of truth for schemas)
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
+├── contracts/           # Phase 0/1 Output (Finalized set)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── config.py            # Global config, seeds, paths
-├── symbolic_engine.py   # Deterministic rule-based logic (HP, inventory)
-├── cv_pipeline.py       # Template matching, optical flow, drift calculation
-├── hybrid_controller.py # Correction token injection logic (with safety filter)
-├── surrogate_wrapper.py # Interface to frozen surrogate model (CPU)
-├── metrics.py           # Drift score calculation, statistical tests
-├── validation.py        # Ground Truth Validation (FR-007)
-├── resource_monitor.py  # Memory/CPU logging
-├── calibration.py       # CV Calibration (Systematic Bias Correction)
-└── main.py              # Entry point for baseline and hybrid runs
-
-tests/
-├── unit/
-│   ├── test_symbolic_engine.py
-│   └── test_cv_pipeline.py
-├── integration/
-│   └── test_drift_calculation.py
-└── benchmark/
-    └── test_resource_constraints.py
-
-data/
-├── raw/                 # Local video sequences (if provided)
-├── ground_truth/        # Symbolic Engine State Logs (JSON)
-├── processed/           # State trajectories, drift logs, symbolic hashes
-├── calibration/         # CV Calibration results (Systematic Bias Maps)
-└── results/             # Final scores, statistical reports, resource logs
-
-contracts/
-├── symbolic_state.schema.yaml
-├── drift_result.schema.yaml
-├── cv_annotation.schema.yaml
-├── hybrid_controller.schema.yaml
-└── action_sequence.schema.yaml
+projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/
+├── code/
+│   ├── __init__.py
+│   ├── symbolic_engine.py      # Deterministic logic layer (FR-002)
+│   ├── cv_pipeline.py          # Sparse optical flow, color histograms (FR-003)
+│   ├── generator.py            # AlayaWorld wrapper + correction tokens (FR-001, FR-004)
+│   ├── metrics.py              # Drift score calculation (FR-003)
+│   ├── stats.py                # Shapiro-Wilk, Wilcoxon tests (FR-006)
+│   └── main.py                 # Orchestration script
+├── data/
+│   ├── raw/                    # Downloaded AlayaWorld sequences (if available)
+│   ├── annotations/            # Ground truth annotations (T003b)
+│   ├── processed/              # Frame extractions, symbolic logs, error series
+│   └── results/                # resource_logs.json, drift_scores.json
+├── tests/
+│   ├── unit/
+│   │   ├── test_symbolic.py
+│   │   └── test_cv_pipeline.py
+│   └── integration/
+│       └── test_full_pipeline.py
+├── requirements.txt
+└── pyproject.toml
 ```
 
-**Structure Decision**: Single project structure (`code/`, `tests/`, `data/`) selected to minimize overhead and align with the computational research nature of the project. This allows direct sharing of state objects between the symbolic engine and CV pipeline without complex inter-process communication.
+**Structure Decision**: Single project structure (`code/`) is selected. This is a research experiment, not a production service. A monolithic `code/` directory with clear module separation is sufficient for the scope (200 sequences) and simplifies dependency management on the CI runner.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Hybrid Controller** | Required to inject correction tokens dynamically based on symbolic state. | A pure baseline (no correction) fails to address the core research question of *mitigating* drift. |
-| **Ground Truth Validation** | Required by FR-007 to ensure CV accuracy ≥ 85%. | Skipping validation risks invalid drift scores due to CV errors, rendering the experiment inconclusive. |
-| **Resource Monitor** | Required by US-3 to verify CPU-only feasibility. | Without explicit monitoring, the system might silently exceed RAM limits or run too long, failing the deployment constraint. |
-| **Within-Sequence Counterfactual** | Required for causal inference (SC-004). | A simple A/B test of different seeds conflates generative variance with the intervention effect. |
+| **Hybrid Correction Loop** | Required to test the core hypothesis (P2) that symbolic injection reduces drift. | A purely baseline comparison (US-1 only) would fail to address the "follow-up" research question regarding the *influence* of the symbolic layer. |
+| **Sparse Optical Flow vs. Template Matching** | Required to handle semantic drift. | Template matching fails when object appearance changes (drift). Sparse optical flow tracks motion vectors even under visual changes, providing a robust signal. |
+| **Statistical Rigor (Shapiro-Wilk + Variance Check)** | Required by FR-006 to ensure valid inference. | ADF test is invalid for bounded, discrete frame-level errors. Shapiro-Wilk on paired differences is the correct non-parametric check for Wilcoxon assumptions. |
 
-## Methodology & Execution Order
+## Tasks & Execution Order
 
-### 0. Pre-Experiment: CV Calibration & Feasibility Check
-- **Feasibility Check**: Verify that the **StyleGAN2-ADA surrogate** supports dynamic prompt re-conditioning (required for correction tokens). If not, abort experiment (Scientific Soundness Concern).
-- **CV Calibration**: Run the CV pipeline on a **Calibration Set** (50 frames) where the Symbolic Ground Truth is known.
-  - Measure systematic biases (e.g., false negatives for specific object types).
-  - Compute **Bias Correction Factors** to adjust the "Safety Filter" thresholds.
-  - **Gate**: If calibration accuracy < 85%, the experiment is "Inconclusive" (SC-006).
+### Phase 0: Data Preparation & Validation
+- **T001**: Verify AlayaWorld dataset availability. If unavailable, generate mock data for *unit testing only*.
+- **T002**: Create Ground Truth Annotation Set for `data/annotations/ground_truth.json`.
+- **T003a**: Validate CV pipeline on annotated set (FR-007). If accuracy < 85%, flag as invalid.
+- **T003b**: **Feasibility Gate**: If dataset unavailable OR CV accuracy < 85%, abort main experiment and output "Methodological Validation" report.
 
-### 1. Baseline Semantic Drift Quantification (US-1)
-- **Symbolic Engine**: A deterministic Python class that tracks object states (HP, existence, position) based on a sequence of discrete user actions (e.g., "hit", "summon").
-  - **Immutability Verification**: The symbolic state log is hashed at the end of the run. This hash is compared against a pre-computed "canonical hash" (derived from the action sequence and seed) to prove no drift occurred in the engine itself.
-- **Visual Analysis**: 
-  - *Static Objects*: Template matching (OpenCV `matchTemplate`) to detect object presence.
-  - *Motion*: Optical flow (OpenCV `calcOpticalFlowPyrLK`) to track movement.
-- **Drift Score**: Calculated as the normalized difference between the symbolic state vector and the visual state vector over time.
-  - **Deconvolution Formula**: $D_{intrinsic} = (D_{total} - \text{Expected Noise}) / (1 - \text{Noise Bias})$, where Expected Noise is calculated from the CV confusion matrix (TP, FP, FN rates) measured against the **Symbolic Ground Truth** (not human observation). This correctly scales the noise component.
-- **Validation**: Ground Truth Validation (FR-007) ensures the visual analysis accuracy is ≥85% before calculating the final score. The Ground Truth is derived from the **Symbolic Engine's state log**, ensuring independence from the video generation.
+### Phase 1: Baseline Generation
+- **T017a**: Run Baseline (Vanilla) Generation for multiple seeds.
+- **T017b**: Extract Visual States (CV) for Baseline.
+- **T017c**: Calculate Baseline Drift Scores.
 
-### 2. Hybrid Correction Mechanism (US-2) - **Within-Sequence Counterfactual**
-- **Experimental Design**: For every action sequence (Seed $S$), generate **two** video streams:
-  - **Stream A (Baseline)**: Identical latent noise as Stream B, but **NO** correction tokens injected.
-  - **Stream B (Hybrid)**: Identical latent noise as Stream A, but **deterministic** correction token injection (p=1.0) upon discrepancy detection.
-- **Correction Logic**:
-  - If CV detects a discrepancy (Visual State != Symbolic State) AND **Bias-Corrected Confidence** > Threshold, inject the correction token into Stream B.
-  - **Safety Filter**: Uses bias-corrected confidence from Phase 0 to avoid amplifying systematic CV errors.
-- **Statistical Test**: A **Paired T-Test** compares the drift scores of Stream A vs. Stream B for each seed.
-  - Null Hypothesis ($H_0$): Mean difference (Drift_B - Drift_A) = 0.
-  - Alternative Hypothesis ($H_1$): Mean difference < 0 (Hybrid reduces drift).
-  - Significance Level: $\alpha = 0.05$.
-  - **FR-006 Compliance**: Explicitly perform this test and report the p-value.
-  - **SC-004 Compliance**: Success is defined as p < 0.05.
+### Phase 2: Hybrid Generation
+- **T022a**: Run Hybrid (Corrected) Generation for a set of seeds.
+- **T022b**: **Generate Correction Tokens**: Map symbolic discrepancies to prompt strings (FR-004).
+- **T022c**: Extract Visual States (CV) for Hybrid.
+- **T022d**: Calculate Hybrid Drift Scores.
 
-### 3. Resource Constraint Verification (US-3)
-- **Monitoring**: `psutil` will log peak RAM and wall-clock time for each sequence (both Stream A and B).
-- **Thresholds**: 
-  - Time ≤ 30 minutes (total for both streams).
-  - RAM ≤ 7 GB.
-- **Failure Mode**: If constraints are exceeded, the run is aborted and flagged as "Non-Compliant."
-- **FR-005 Compliance**: Resource logs are generated per-sequence in JSON format at `data/results/resource_logs/{seed}_stream_{A,B}.json`.
+### Phase 3: Statistical Analysis
+- **T023a**: Generate Frame-Level Error Series.
+- **T023b**: Perform Shapiro-Wilk test on paired differences (Baseline - Hybrid).
+- **T023c**: Perform Wilcoxon Signed-Rank Test.
+- **T023d**: Generate Final Report.
 
-### 4. Ground Truth Validation (FR-007)
-- **Process**: The **Symbolic Engine** generates the "Ground Truth" state log for ≥50 frames. The CV pipeline is then run on the corresponding video frames.
-- **Validation Logic**: Calculate CV accuracy (TP, FP, FN) against the **Symbolic Engine's state** (not human observation of the video).
-- **Invalidation**: If accuracy < 85%, the drift score for that sequence is flagged as invalid, and the *entire experiment* is deemed "inconclusive" (SC-006). No statistical comparison is performed.
-- **SC-006 Compliance**: Explicitly define the "inconclusive" outcome and its handling.
+### Phase 4: Resource Verification
+- **T030**: Log and verify resource usage (RAM, Time) against constraints.
 
-### 5. Success Criteria Mapping
-- **SC-001**: Mean Semantic Drift Score for hybrid must be at least 30% lower than baseline.
-- **SC-002**: Wall-clock time ≤ 30 minutes.
-- **SC-003**: Peak memory ≤ 7 GB.
-- **SC-004**: p-value < 0.05 (Paired T-Test on Stream A vs B).
-- **SC-005**: Reduction in permanence violations ≥ 25%. This metric is explicitly calculated and reported.
-- **SC-006**: Ground Truth Validation accuracy ≥ 85%.
+**Dependencies & Execution Order**:
+- T001 must precede T002.
+- T003a must pass (accuracy ≥ 85%) before T017a and T022a.
+- T003b (Feasibility Gate) must pass before T017a.
+- T017a, T017b, T017c must complete before T022a (to ensure consistent seeds).
+- T023b depends on T017c and T022d.
+- T030 runs in parallel with T017/T022.
 
-### Dependencies & Execution Order
-1. **T008**: Generate Ground Truth Subset (Symbolic Engine state logs for 50 frames). **[S]**
-2. **T014**: Implement Ground Truth Validation Logic (Calculate accuracy from Symbolic GT). **[S]**
-3. **T015**: Run Ground Truth Validation (Check if accuracy ≥ 85%). **[S]**
-   - *Gate*: If T015 fails, stop and report "Inconclusive".
-4. **T009 (New)**: Run CV Calibration (Measure systematic biases). **[S]**
-5. **T010 (New)**: Verify Surrogate Architecture (Check prompt re-conditioning support). **[S]**
-   - *Gate*: If T010 fails, stop and report "Infeasible".
-6. **T016**: Calculate Drift Score (Baseline and Hybrid). **[S]**
-7. **T017**: Run Baseline Stream A (Deterministic, p=0). **[S]**
-8. **T022**: Run Hybrid Stream B (Deterministic, p=1, same seed as A). **[S]**
-9. **T023**: Statistical Analysis (Paired T-Test on T017 and T022 results). **[S]**
-   - *Dependencies*: T017, T022.
+## Dataset Variable Fit & Feasibility
 
-## Power Analysis & Sensitivity
+- **Required Variables**: Object states (HP, inventory, position), user actions.
+- **Dataset Check**: The "AlayaWorld" dataset is **not verified**.
+  - **Risk**: If the dataset does not contain the specific object states or actions required, the symbolic engine cannot be grounded.
+  - **Mitigation**: The symbolic engine will be designed to be generic. If the dataset lacks *any* object state information, the project will be flagged as "Data Unavailable" and the research question reframed to "Methodological Validation".
+- **Conclusion**: The plan proceeds assuming the dataset contains the necessary action/state pairs. If not, the implementation will fail at the data loading step, and the report will explicitly state "Dataset Variable Mismatch: Required variables not found in AlayaWorld."
 
-- **Sample Size**: N=10 seeds (Feasibility Study).
-- **Effect Size**: Assuming a **Large Effect Size** (d=0.8) as per SC-001 ([deferred] reduction).
-- **Sensitivity Analysis**: With N=10, the study has [deferred] power to detect an effect size of d ≈ 0.85. If the actual drift reduction is smaller (e.g., 10-15%), the study is **underpowered**. The plan explicitly acknowledges this limitation and will report the result as "inconclusive" if the effect size is not detected, rather than claiming a negative result.
-- **Null Result Hypothesis**: The plan explicitly acknowledges that the frozen surrogate model may ignore the correction tokens. A null result is a valid finding (the method does not work for frozen models).
+## Statistical Methodology (Revised)
 
-## Compute Feasibility (CPU-First)
+### Statistical Test Selection
+- **Primary Test**: Wilcoxon Signed-Rank Test (paired, non-parametric).
+- **Pre-check 1 (Normality)**: Shapiro-Wilk test on the *paired differences* (Baseline - Hybrid). If p > 0.05, data is non-normal, justifying Wilcoxon.
+- **Pre-check 2 (Variance Stability)**: Calculate rolling variance of frame-level error series. If variance > threshold (e.g., 0.5), flag as "High Variance" but proceed (Wilcoxon is robust to variance).
+- **Removed**: Augmented Dickey-Fuller (ADF) test. It is statistically invalid for bounded, discrete frame-level error series and is not required for the Wilcoxon test.
 
-- **Model**: A CPU-tractable surrogate model (StyleGAN2-ADA 256x256, 8-bit quantized) is used for generation. The original AlayaWorld is not CPU-tractable.
-- **CV Primitives**: OpenCV operations are highly optimized for CPU and will run efficiently within the 7 GB RAM limit.
-- **GPU Escape Hatch**: Not applicable. The research question explicitly targets CPU-tractable solutions.
+### Correction Token Mechanism (FR-004)
+- **Input**: Symbolic State Discrepancy (e.g., Object X: HP=0, Visual: Alive).
+- **Logic**: Map discrepancy to a prompt string (e.g., "Object X is DEAD and should be removed").
+- **Output**: Correction Token injected into the generation prompt at the next frame.
+- **Schema**: Defined in `contracts/correction_token.schema.yaml`.
 
-## Decision/Rationale
+### Validation Independence
+- The "Semantic Drift Score" is calculated by comparing the **validated** visual state (from T003a) against the symbolic state. This ensures the metric measures model drift, not CV pipeline failure.
 
-- **Method Choice**: Classical computer vision (template matching, optical flow) is chosen over deep learning-based object detection to ensure CPU feasibility.
-- **Dataset Strategy**: AlayaWorld data is expected as local artifacts with SHA-256 checksums. If unavailable, the project is paused (not substituted). The **StyleGAN2-ADA** surrogate is the verified model for this study.
-- **Statistical Approach**: **Within-Sequence Counterfactual Design** (Stream A vs Stream B) with Paired T-Test is chosen to isolate the causal effect of the correction token. This resolves the causal inference contradiction by controlling for generative variance.
-- **Ground Truth Independence**: Ground Truth is derived from the **Symbolic Engine's state**, not human observation of the video, to ensure the CV pipeline measures the video's content independently of the video's drift.
-- **Theoretical Distinction**: "Semantic Drift" is defined as the deviation of the visual output from the *logical* ground truth (Symbolic Engine). "Model Hallucination" is a subset of this where the model generates states not supported by the input actions. This distinction prevents conflation of 'training recall failure' with 'logic failure'.
-- **CV Calibration**: Systematic CV biases are measured and corrected before the main experiment to prevent the correction mechanism from amplifying noise.
+## Edge Cases & Handling
+
+- **Rendering Failure**: If symbolic state cannot be rendered (e.g., teleportation), log `RENDER_FAILURE` and inject a "reset" token.
+- **Phantom Objects**: If CV detects an object not in symbolic log, increment drift score (phantom count).
+- **Occlusion/Low Confidence**: If optical flow fails (confidence < 0.85), flag frame as "low-confidence" and use previous state (persistence) to avoid false positives.

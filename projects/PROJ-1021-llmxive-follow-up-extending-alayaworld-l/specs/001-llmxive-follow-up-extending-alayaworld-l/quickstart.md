@@ -2,90 +2,75 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- CPU cores, 7 GB RAM available (GitHub Actions free-tier or local equivalent).
-- AlayaWorld model weights (provided as local artifact or internal path).
-- A subset of video sequences for testing.
+- **Python**: 3.11+
+- **System**: Linux (or WSL2) with 2+ CPU cores, 7GB+ RAM.
+- **Dataset**: The `AlayaWorld` dataset. **Note**: As of this writing, no verified public URL exists. You must provide the dataset locally or via a custom loader. If unavailable, the pipeline will run in "Mock Mode" for *unit testing* only, and the primary research question cannot be answered.
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create and activate virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` includes `torch` (CPU), `opencv-python-headless`, `scikit-learn`, `pandas`, `numpy`, `pytest`.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins `torch` to a CPU-only build (`torch --index-url https://download.pytorch.org/whl/cpu`).*
 
-## Configuration
-
-1. **Set up paths**:
-   Edit `code/config.py` to point to the local AlayaWorld model and video data:
-   ```python
-   MODEL_PATH = "/path/to/alayaworld/model.pth"
-   DATA_PATH = "/path/to/alayaworld/data"
-   GROUND_TRUTH_PATH = "data/ground_truth"
-   ```
-
-2. **Set random seeds**:
-   Ensure `config.py` defines a fixed seed for reproducibility:
-   ```python
-   RANDOM_SEED = 42
-   ```
+4.  **Prepare Data**:
+    - If you have the AlayaWorld dataset, place it in `data/raw/alaya_world/`.
+    - If not, the system will automatically generate mock data for *unit testing* (CV pipeline validation, symbolic engine logic).
+    - **Ground Truth**: Create `data/annotations/ground_truth_50.json` manually or via the provided script if the dataset is available.
 
 ## Running the Pipeline
 
-### 1. Generate Ground Truth Subset (Manual Step)
-   - Run the symbolic engine to generate state logs for ≥50 frames.
-   - Save annotations in `data/ground_truth/annotations.json` following the schema in `contracts/cv_annotation.schema.yaml`.
+### 1. Ground Truth Validation (FR-007)
+Before running the full experiment, validate the CV pipeline on a small subset.
+```bash
+python code/main.py --mode validate --subset-size 50
+```
+- **Expected Output**: `data/results/cv_validation.json` with `validation_status: valid` (if accuracy ≥ 85%).
+- **Action**: If `invalid`, adjust optical flow parameters in `code/cv_pipeline.py`.
 
-### 2. Run Ground Truth Validation (FR-007)
-   ```bash
-   python -m code.validation --mode validate
-   ```
-   *Output: A report indicating if CV accuracy ≥ 85%. If not, the experiment is invalid.*
+### 2. Feasibility Gate
+If the dataset is unavailable or CV validation fails, the pipeline will abort and output a "Methodological Validation" report.
 
-### 3. Run Baseline (US-1)
-   ```bash
-   python -m code.main --mode baseline --seeds multiple
-   ```
-   *Output: `data/results/baseline_scores.json`*
+### 3. Baseline Run (US-1)
+Generate baseline videos and calculate drift scores.
+```bash
+python code/main.py --mode baseline --seeds 10 --sequences-per-seed 10
+```
+- **Output**: `data/results/baseline_scores.json`.
 
-### 4. Run Hybrid (US-2)
-   ```bash
-   python -m code.main --mode hybrid --seeds multiple
-   ```
-   *Output: `data/results/hybrid_scores.json`*
+### 4. Hybrid Run (US-2)
+Run the hybrid correction loop.
+```bash
+python code/main.py --mode hybrid --seeds 10 --sequences-per-seed 10
+```
+- **Output**: `data/results/hybrid_scores.json`.
 
-### 5. Statistical Analysis (US-2)
-   ```bash
-   python -m code.metrics --compare baseline hybrid
-   ```
-   *Output: Statistical report including p-value and drift score reduction (Wilcoxon signed-rank test).*
+### 5. Statistical Analysis (US-1, US-2)
+Compare baseline and hybrid results.
+```bash
+python code/main.py --mode analyze --compare baseline hybrid
+```
+- **Output**: `data/results/statistical_report.json` containing p-values and Shapiro-Wilk test results.
 
-### 6. Resource Check (US-3)
-   Resource usage is logged automatically during runs. Check `data/results/resource_logs.json` to ensure:
-   - Peak RAM ≤ 7 GB
-   - Wall-clock time ≤ 30 minutes per sequence
-
-## Verification
-
-- **Check Drift Reduction**: Verify that the mean drift score for the hybrid mode is at least 30% lower than the baseline (SC-001).
-- **Check Significance**: Ensure the p-value from the **Wilcoxon signed-rank test** is < 0.05 (SC-004).
-- **Check Constraints**: Ensure all resource logs are within limits (SC-002, SC-003).
+### 6. Resource Monitoring
+Resource metrics are logged automatically during every run.
+- **View Logs**: `cat data/results/resource_logs.json`
 
 ## Troubleshooting
 
-- **Memory Error**: If the process exceeds 7 GB RAM, reduce the batch size in `config.py` or enable streaming mode.
-- **CV Accuracy Low**: If validation accuracy < 85%, re-annotate the ground truth or adjust template matching parameters in `code/cv_pipeline.py`.
-- **Model Not Found**: Ensure `MODEL_PATH` in `config.py` points to a valid, CPU-compatible model file.
+- **Memory Error (OOM)**: The pipeline is designed for standard RAM configurations. If you hit OOM, ensure no other heavy processes are running and that `streaming=True` is used in the dataset loader.
+- **Slow Execution**: The time limit is tight. Ensure you are using a CPU with at least 2 cores. If using a cloud runner, check for CPU throttling.
+- **CV Accuracy Low**: If the validation accuracy is < 85%, check the `data/raw/` images for quality. Adjust the optical flow parameters in `code/cv_pipeline.py`.

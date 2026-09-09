@@ -62,13 +62,13 @@
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST generate 60-second interactive video sequences using the frozen AlayaWorld model based on discrete user action inputs. (See US-1)
-- **FR-002**: The system MUST implement a deterministic, rule-based symbolic engine in pure Python/C that tracks object states (HP, inventory, position) based on the same user action inputs. (See US-1)
-- **FR-003**: The system MUST calculate a "Semantic Drift Score" by comparing the symbolic engine's state trajectory against object states detected in the generated video frames using classical computer vision primitives (template matching for static objects, optical flow for motion) with a verified detection accuracy floor of ≥ 85%. (See US-1)
+- **FR-001**: The system MUST generate interactive video sequences using the frozen AlayaWorld model based on discrete user action inputs. (See US-1)
+- **FR-002**: The system MUST implement a deterministic, rule-based symbolic engine in pure Python/C that tracks object states (HP, inventory, position) based on the same user action inputs, using a fixed random seed (e.g., 42) to guarantee determinism. (See US-1)
+- **FR-003**: The system MUST calculate a "Semantic Drift Score" by comparing the symbolic engine's state trajectory against object states detected in the generated video frames using classical computer vision primitives (template matching for static objects, optical flow for motion, and color histograms for robustness). The system MUST first validate the CV pipeline on a manually annotated subset of ≥ 50 frames; if accuracy < 85%, the system MUST proceed to flag the result as invalid (per FR-007) but still output the calculated score for debugging. (See US-1)
 - **FR-004**: The system MUST inject "correction tokens" (implemented as dynamic prompt re-conditioning updates) into the video generation process when the symbolic engine detects a state inconsistency with the visual output. (See US-2)
-- **FR-005**: The system MUST log resource usage metrics (peak RAM, total wall-clock time) for every generated sequence to verify CPU-only feasibility. (See US-3)
-- **FR-006**: The system MUST perform a statistical paired t-test comparing the Semantic Drift Scores of the baseline (vanilla) runs against the hybrid (corrected) runs across at least 10 random seeds, assuming stationary CV error validated by FR-007, and report the CV validation accuracy alongside the test results. (See US-1, US-2)
-- **FR-007**: The system MUST perform a Ground Truth Validation step on a manually annotated subset of frames (≥ 50 frames) to verify that the CV pipeline's detection accuracy meets the ≥ 85% threshold; if accuracy falls below this, the Semantic Drift Score for that sequence MUST be flagged as invalid. (See US-1, US-2)
+- **FR-005**: The system MUST log resource usage metrics (peak RAM in MB, total wall-clock time in seconds) for every generated sequence to a JSON file at `data/results/resource_logs.json` with the schema: `{"sequence_id": string, "peak_ram_mb": number, "wall_clock_seconds": number, "timestamp": string}`. (See US-3)
+- **FR-006**: The system MUST perform a statistical paired Wilcoxon signed-rank test comparing the Semantic Drift Scores of the baseline (vanilla) runs against the hybrid (corrected) runs across at least 10 random seeds. Before running the test, the system MUST perform an Augmented Dickey-Fuller test to check for stationarity in the CV error; if the test indicates non-stationarity (p > 0.05), the system MUST abort the statistical test, log the reason, and output a status of "statistical_test_aborted". (See US-1, US-2)
+- **FR-007**: The system MUST perform a Ground Truth Validation step on a manually annotated subset of ≥ 50 frames to verify that the CV pipeline's detection accuracy meets the ≥ 85% threshold. The annotation MUST be performed by a human annotator blind to the symbolic logic rules, using only the video frames to determine object state (alive/dead). If accuracy falls below [deferred], the system MUST set `validation_status: invalid` in the output JSON and exit with code 1. (See US-1, US-2)
 
 ### Key Entities
 
@@ -81,20 +81,21 @@
 
 ### Measurable Outcomes
 
-- **SC-001**: The mean Semantic Drift Score for the hybrid approach must be at least 30% lower than the mean score of the vanilla AlayaWorld baseline across the test set. (See US-1, US-2)
+- **SC-001**: The mean Semantic Drift Score for the hybrid approach must be statistically significantly lower than the mean score of the vanilla AlayaWorld baseline across the test set, with p < 0.05 at a 95% confidence level. (See US-1, US-2)
 - **SC-002**: The total wall-clock time for generating and analyzing a single 60-second sequence on a 2-core CPU must be ≤ 30 minutes. (See US-3)
 - **SC-003**: The peak memory usage during the hybrid inference pipeline must remain ≤ 7 GB. (See US-3)
-- **SC-004**: The statistical comparison (paired t-test) must yield a p-value < 0.05 at a 95% confidence level, indicating a significant reduction in drift, provided the CV validation accuracy is ≥ 85%. (See US-1, US-2)
-- **SC-005**: The "correction token" mechanism must successfully reduce the rate of "permanence violations" (objects alive in video but dead in logic) by ≥ 25% compared to the baseline. (See US-2)
-- **SC-006**: The Ground Truth Validation (FR-007) must confirm a detection accuracy of ≥ 85% on the annotated subset; otherwise, the experiment is deemed inconclusive. (See FR-007)
+- **SC-004**: The statistical comparison (Wilcoxon signed-rank test) must yield a p-value < 0.05 at a 95% confidence level, indicating a significant reduction in drift, provided the CV validation accuracy is ≥ 85%. (See US-1, US-2)
+- **SC-005**: The "correction token" mechanism must result in a statistically significant reduction in the mean count of "permanence violations" (objects alive in video but dead in logic) per sequence compared to the baseline, with p < 0.05 at a 95% confidence level. (See US-2)
+- **SC-006**: The Ground Truth Validation (FR-007) must confirm a detection accuracy of ≥ 85% on the annotated subset; otherwise, the system MUST output `validation_status: inconclusive` and exit with code 2. (See FR-007)
 
 ## Assumptions
 
 - The AlayaWorld dataset contains sequences with specific, countable object interactions (e.g., "summon," "hit," "die") that can be reliably mapped to symbolic logic rules.
-- The AlayaWorld model weights are available in a format compatible with CPU inference (e.g., standard PyTorch `.pth` or ONNX) without requiring CUDA-specific kernels or 8-bit quantization libraries that mandate GPU.
-- Classical computer vision primitives (template matching, optical flow) are sufficient to detect object states in the generated video frames with ≥ 85% accuracy; if accuracy drops below this, the drift score may be noisy and is flagged as invalid per FR-007.
+- The AlayaWorld model weights are available in a format compatible with CPU inference (e.g., standard PyTorch `.pth` or ONNX) AND are quantized to low-bit precision to meet the RAM constraint without requiring CUDA-specific kernels.
+- Classical computer vision primitives (template matching, optical flow, color histograms) are sufficient to detect object states in the generated video frames with ≥ 85% accuracy; if accuracy drops below this, the drift score may be noisy and is flagged as invalid per FR-007.
 - The "correction tokens" or context injections can be implemented by modifying the input prompt or latent context of the AlayaWorld model via dynamic re-conditioning without retraining the model weights.
 - The symbolic engine's logic rules (e.g., "hit reduces HP by 10") are consistent with the game mechanics implied by the AlayaWorld training data; any discrepancies found during Ground Truth Validation (FR-007) must be documented and may require rule adjustment.
 - The dataset size is small enough to be processed in batches that fit within the available RAM limit; if the full dataset is larger, a random sample is assumed to be representative.
 - The GitHub Actions free-tier runner provides stable 2-core performance without significant noise from neighboring containers that would invalidate the 30-minute time constraint.
 - The AlayaWorld model architecture supports prompt conditioning (textual injection) as a mechanism for state correction, allowing the model to react to dynamic symbolic state updates.
+- "Drift" is defined as the deviation of the visual output from the *intended* symbolic state (the research hypothesis); model hallucinations are considered part of the drift metric and not a failure of the metric definition.
