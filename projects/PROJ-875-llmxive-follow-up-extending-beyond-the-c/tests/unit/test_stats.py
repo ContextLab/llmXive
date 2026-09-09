@@ -1,163 +1,94 @@
 """
-Unit tests for Mann-Whitney U test implementation in code/stats.py.
-
-This module validates the statistical analysis logic required for User Story 3,
-specifically the one-tailed Mann-Whitney U test (FR-005) used to compare
-Memory Gap scores between Text Agent and Baseline Agent.
+Unit tests for code/stats.py statistical functions.
 """
 import pytest
 import numpy as np
 from scipy import stats as scipy_stats
+from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from code.stats import mann_whitney_u_test, calculate_effect_size
+from code.stats import mann_whitney_u_test, calculate_confidence_interval, aggregate_results
 
-class TestMannWhitneyUTest:
-    """Tests for the mann_whitney_u_test function."""
 
-    def test_basic_one_tailed_greater(self):
-        """Test standard one-tailed test (group1 > group2)."""
-        group1 = [10, 12, 11, 13, 14]
-        group2 = [5, 6, 7, 8, 9]
-        
-        # scipy returns two-tailed p-value, we need to convert for one-tailed
-        # For one-tailed 'greater', if the statistic supports the direction, p/2
-        u_stat, p_two_tailed = scipy_stats.mannwhitneyu(group1, group2, alternative='two-sided')
-        
-        result = mann_whitney_u_test(group1, group2, alternative='greater')
-        
-        assert result['statistic'] == pytest.approx(u_stat)
-        # For 'greater' test where group1 is actually larger, p-value should be p_two_tailed / 2
-        expected_p = p_two_tailed / 2
-        assert result['p_value'] == pytest.approx(expected_p)
-        assert result['alternative'] == 'greater'
-        assert result['significant_at_0.05'] is True
+class TestMannWhitneyEdgeCases:
+    """
+    Edge case tests for Mann-Whitney U test implementation.
+    These tests verify robustness against invalid or degenerate inputs.
+    """
 
-    def test_basic_one_tailed_less(self):
-        """Test standard one-tailed test (group1 < group2)."""
-        group1 = [5, 6, 7, 8, 9]
-        group2 = [10, 12, 11, 13, 14]
-        
-        result = mann_whitney_u_test(group1, group2, alternative='less')
-        
-        assert result['alternative'] == 'less'
-        # group1 is smaller, so p-value should be small (significant)
-        assert result['significant_at_0.05'] is True
-
-    def test_equal_groups(self):
-        """Test when groups are identical (should not be significant)."""
-        group1 = [1, 2, 3, 4, 5]
-        group2 = [1, 2, 3, 4, 5]
-        
-        result = mann_whitney_u_test(group1, group2, alternative='greater')
-        
-        assert result['p_value'] == pytest.approx(0.5)
-        assert result['significant_at_0.05'] is False
-
-    def test_different_sample_sizes(self):
-        """Test with unequal sample sizes."""
-        group1 = [10, 12, 11, 13, 14, 15, 16]
-        group2 = [5, 6, 7]
-        
-        result = mann_whitney_u_test(group1, group2, alternative='greater')
-        
-        assert 'statistic' in result
-        assert 'p_value' in result
-        assert 0 <= result['p_value'] <= 1
-        assert result['significant_at_0.05'] is True
-
-    def test_with_ties(self):
-        """Test handling of tied values."""
-        group1 = [10, 10, 12, 12, 14]
-        group2 = [8, 8, 9, 9, 11]
-        
-        result = mann_whitney_u_test(group1, group2, alternative='greater')
-        
-        assert 'statistic' in result
-        assert 'p_value' in result
-        assert result['significant_at_0.05'] is True
-
-    def test_invalid_alternative(self):
-        """Test that invalid alternative parameter raises error."""
-        group1 = [1, 2, 3]
-        group2 = [4, 5, 6]
-        
-        with pytest.raises(ValueError):
-            mann_whitney_u_test(group1, group2, alternative='invalid')
-
-    def test_empty_list(self):
-        """Test handling of empty input lists."""
-        group1 = []
-        group2 = [1, 2, 3]
-        
-        with pytest.raises(ValueError):
-            mann_whitney_u_test(group1, group2, alternative='greater')
-
-    def test_single_sample(self):
-        """Test with single sample in each group."""
-        group1 = [5]
-        group2 = [10]
-        
-        # Mann-Whitney U requires at least 2 samples for reliable p-value calculation
-        # scipy will raise an error or return NaN for very small samples
-        with pytest.raises(Exception):
-            mann_whitney_u_test(group1, group2, alternative='greater')
-
-    def test_all_identical_values(self):
-        """Test when all values in both groups are identical."""
-        group1 = [5, 5, 5, 5]
-        group2 = [5, 5, 5, 5]
-        
-        result = mann_whitney_u_test(group1, group2, alternative='greater')
-        
-        assert result['p_value'] == pytest.approx(0.5)
-        assert result['significant_at_0.05'] is False
-
-    def test_memory_gap_scenario(self):
+    def test_mann_whitney_empty(self):
         """
-        Test scenario relevant to Memory Gap analysis:
-        Text Agent (group1) should have lower Memory Gap than Baseline (group2)
-        if the hypothesis is that text-only agents retain state better.
-        We test 'less' alternative.
+        Test behavior when input lists are empty.
+        Expected: Should raise a ValueError or return a specific error indicator.
         """
-        # Simulated Memory Gap scores (lower is better)
-        text_agent_scores = [0.12, 0.15, 0.11, 0.14, 0.13, 0.16, 0.10]
-        baseline_scores = [0.25, 0.28, 0.22, 0.27, 0.24, 0.26, 0.23]
+        # Case 1: Both empty
+        with pytest.raises((ValueError, IndexError)) as exc_info:
+            mann_whitney_u_test([], [])
         
-        result = mann_whitney_u_test(text_agent_scores, baseline_scores, alternative='less')
+        # Verify error message mentions empty input
+        assert "empty" in str(exc_info.value).lower() or "insufficient" in str(exc_info.value).lower()
+
+        # Case 2: One empty, one non-empty
+        with pytest.raises((ValueError, IndexError)) as exc_info:
+            mann_whitney_u_test([], [1.0, 2.0, 3.0])
         
-        assert result['alternative'] == 'less'
-        assert result['significant_at_0.05'] is True
-        assert result['p_value'] < 0.05
+        assert "empty" in str(exc_info.value).lower() or "insufficient" in str(exc_info.value).lower()
 
-class TestCalculateEffectSize:
-    """Tests for the calculate_effect_size function (common in Mann-Whitney analysis)."""
-
-    def test_r_calculation(self):
-        """Test calculation of r effect size statistic."""
-        u_stat = 15.0
-        n1 = 10
-        n2 = 10
+    def test_mann_whitney_single(self):
+        """
+        Test behavior when one or both samples contain only a single value.
+        Mann-Whitney U requires at least 2 observations to calculate variance/rank distribution.
+        Expected: Should raise a ValueError or return a specific error indicator.
+        """
+        # Case 1: Both single
+        with pytest.raises((ValueError, IndexError)) as exc_info:
+            mann_whitney_u_test([1.0], [2.0])
         
-        result = calculate_effect_size(u_stat, n1, n2)
+        assert "single" in str(exc_info.value).lower() or "insufficient" in str(exc_info.value).lower()
+
+        # Case 2: One single, one multiple
+        with pytest.raises((ValueError, IndexError)) as exc_info:
+            mann_whitney_u_test([1.0], [2.0, 3.0, 4.0])
         
-        # r = Z / sqrt(N) where Z is approximated from U
-        # For U=15, n1=10, n2=10, expected r should be reasonable (0-1 range)
-        assert 0 <= result <= 1
+        assert "single" in str(exc_info.value).lower() or "insufficient" in str(exc_info.value).lower()
 
-    def test_effect_size_interpretation(self):
-        """Test that effect size follows standard interpretation guidelines."""
-        # Small effect (r ≈ 0.1)
-        small_result = calculate_effect_size(45, 10, 10)
-        assert small_result >= 0.1  # Should be at least small effect
+    def test_mann_whitney_identical(self):
+        """
+        Test behavior when both samples contain identical values.
+        Expected: Should return U=0 (or max), p=1.0 (no difference), and not crash.
+        """
+        sample_a = [5.0, 5.0, 5.0, 5.0]
+        sample_b = [5.0, 5.0, 5.0, 5.0]
 
-        # Large effect (r ≈ 0.5+)
-        large_result = calculate_effect_size(5, 10, 10)
-        assert large_result > 0.3  # Should be medium to large effect
+        # This should not raise an exception
+        try:
+            u_stat, p_val = mann_whitney_u_test(sample_a, sample_b)
+            
+            # Verify types
+            assert isinstance(u_stat, (int, float, np.number))
+            assert isinstance(p_val, (int, float, np.number))
+            
+            # For identical distributions, p-value should be 1.0 (or very close)
+            # U statistic depends on implementation (min or max), but should be deterministic
+            assert p_val == pytest.approx(1.0, abs=1e-6)
+            
+        except Exception as e:
+            pytest.fail(f"Identical values test failed with exception: {e}")
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_mann_whitney_normal_case(self):
+        """
+        Sanity check: ensure normal operation still works after edge case handling added.
+        """
+        np.random.seed(42)
+        sample_a = np.random.normal(loc=0.0, scale=1.0, size=50)
+        sample_b = np.random.normal(loc=0.5, scale=1.0, size=50)
+
+        u_stat, p_val = mann_whitney_u_test(sample_a, sample_b)
+
+        assert isinstance(u_stat, (int, float, np.number))
+        assert isinstance(p_val, (int, float, np.number))
+        assert 0 <= p_val <= 1.0

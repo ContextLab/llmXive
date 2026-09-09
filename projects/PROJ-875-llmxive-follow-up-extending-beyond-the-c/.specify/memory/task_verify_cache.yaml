@@ -45,14 +45,6 @@ T028:
     `results/resource_profile.json` contains only placeholder zero values rather than
     real peak RAM/CPU metrics from an agent run. Both the implementation and the logged
     data are missing.
-T033:
-  c: false
-  h: 87ce757bb49d39cea228b5bbbcf712b21294e9dd8c6a371f944acf64e12a85bd
-  r: "The provided `baseline_adapter.py` contains parsing of `action` and `mental_map`\
-    \ but the implementation is cut off (the `validate_against_masked_ground_truth`\
-    \ function is incomplete) and there is no `state_snapshot.schema.yaml` file to\
-    \ verify that the output matches the required schema. The task\u2019s validation\
-    \ step and schema conformity are therefore not satisfied."
 T033b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,14 +54,6 @@ T033b:
     \ cannot confirm that the required ratification was performed. The implementer\
     \ must supply the revised `spec.md` (or a diff) that includes the new metric definition\
     \ and the updated functional requirements."
-T038:
-  c: false
-  h: 39d795bbaefda564de947a505a6fdf5b593b234de8d628c829d8190e037de9f4
-  r: "The provided `code/main.py` only sets up logging and contains placeholder comments;\
-    \ it never runs the Text Agent or Baseline, performs any aggregation, or invokes\
-    \ `utils/checksum.py`. Moreover, the required output files `results/statistical_summary.json`\
-    \ and `state/checksums.yaml` are absent. The task\u2019s core functionality and\
-    \ expected artifacts are therefore missing."
 T039b:
   c: false
   h: 02338ff36f290a3d078f94f4fcbebcb0d510283580d35eed883dda1144811d7c
@@ -78,6 +62,21 @@ T039b:
     \ and its output, the task\u2019s core requirement is unmet. The implementer must\
     \ provide the missing `baseline_runner.py` and run it to produce the expected\
     \ JSON logs."
+T039c:
+  c: false
+  h: 74de1c4c382dbc2c99ae9053e92c730a27a0004ae14432bc4044f143823a8ab3
+  r: "The required output file `results/statistical_summary.json` does not exist,\
+    \ and `code/main.py` contains only placeholder logic without any experiment execution.\
+    \ Consequently the batch run for seeds\u202F1\u201120 was never performed, so\
+    \ the task\u2019s core requirement is unmet."
+T039d:
+  c: false
+  h: 74de1c4c382dbc2c99ae9053e92c730a27a0004ae14432bc4044f143823a8ab3
+  r: "The required `results/statistical_summary.json` file does not exist, and `code/main.py`\
+    \ contains only a placeholder implementation with no logic to run a full experiment\
+    \ batch, handle the `--mode full` or `--seeds` arguments, perform power analysis,\
+    \ or write the statistical summary. Consequently the task\u2019s conditional execution\
+    \ and result update are not fulfilled."
 T041:
   c: false
   h: f92a3d71a8038a2600bb0a4ff17ba4a3599f80b855a502e94dd8c312f26804f2
@@ -85,3 +84,21 @@ T041:
     verification conditions (existence, `total_time_hours < 6.0`, `passed: true`)
     cannot be satisfied. The implementer must run the benchmark runner and produce
     the JSON log at the specified path.'
+T042b:
+  c: false
+  h: f502dfb5900e56f83c59ae0c24e17001ca8dda8e0b4f659d2fc721e0572e3823
+  r: "The repository contains a `tests/integration/test_full_loop.py` file, but it\
+    \ is truncated and does not show a `test_full_loop_integration` function that\
+    \ uses the required `data/processed/seeds_1.ascii` input. Moreover, the expected\
+    \ output file `results/statistical_summary.json` is not present, and the referenced\
+    \ input file `data/processed/seeds_1.ascii` is missing. The task\u2019s core requirement\u2014\
+    an integration test that reads that specific ASCII file and generates the statistical\
+    \ summary JSON\u2014has not been fulfilled."
+T044:
+  c: false
+  h: 33e44eca6cabf7f75a18f58ce3b6e758fae2c6aa2998e05ca78d1967afd183da
+  r: "The required `results/quickstart_validation.log` file is absent, and there is\
+    \ no evidence that a fresh virtual environment was created, dependencies installed,\
+    \ or that the commands from `docs/quickstart.md` were run and all exited with\
+    \ code\u202F0. The provided `code/main.py` contains only placeholder logic, not\
+    \ the actual pipeline execution. The task therefore remains unfinished."

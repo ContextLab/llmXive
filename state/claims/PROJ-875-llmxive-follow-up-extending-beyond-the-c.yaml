@@ -310,3 +310,800 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T06:54:48Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Verify all packages in requirements.txt install without error
+  claim_id: c_7af0e638
+  context: 'Create and pin `projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/requirements.txt`
+    with exact pinned versions... Verification: Run `pip install -r requirements.txt`...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_all_packages_in_requirements.txt_install_without_erro
+  kind: entity_fact
+  raw_text: Run `pip install -r requirements.txt` and verify all packages install
+    without error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:15:06Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Ruff check exit code must be 0 or 1
+  claim_id: c_a3f75a1b
+  context: 'Run initial lint/format check on empty codebase... Verification: Exit
+    code must be 0 or 1 (warnings/errors allowed).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit code must be 0 or 1 (warnings/errors allowed).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:15:45Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Text agent peak RAM must be <= 7168 MB and CPU <= 200 percent
+  claim_id: c_b38ef057
+  context: 'Implement `code/resource_monitor.py` to log peak RAM and CPU usage...
+    Verification: Assert `peak_ram_mb <= 7168` and `cpu_percent <= 200`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert `peak_ram_mb <= 7168` and `cpu_percent <= 200`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:16:23Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Agent context window truncation must keep last 50 events
+  claim_id: c_0a417f8b
+  context: 'Verify context window truncation logic in `code/agent_loop.py` (keep last
+    N=50 events)... Test: Run a synthetic long-log input and verify the oldest events
+    are dropped.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify context window truncation logic in `code/agent_loop.py` (keep last
+    N=50 events).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:17:05Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Benchmark run total time must be less than 6.0 hours
+  claim_id: c_2f8155f5
+  context: 'Execute `code/benchmark_runner.py`... Verification: `results/benchmark_log.json`
+    must exist with `total_time_hours < 6.0` and `passed: true`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_run_total_time_must_be_less_than_6.0_hours
+  kind: magnitude
+  raw_text: 'Verify `results/benchmark_log.json` must exist with `total_time_hours
+    < 6.0` and `passed: true`.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:17:39Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Semantic similarity penalty threshold is 0.5
+  claim_id: c_be38b1f1
+  context: 'Implement `code/scorer.py` to calculate ''Memory Gap''... Threshold: If
+    `semantic_similarity < 0.5`, treat as 0.0 for penalty calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Threshold: If `semantic_similarity < 0.5`, treat as 0.0 for penalty calculation.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:17:39Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Pilot experiment batch size is 20 instances
+  claim_id: c_96a42a84
+  context: Execute full experiment batch (Text Agent + Baseline) for N=20 (Pilot)
+    and generate `results/statistical_summary.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute full experiment batch (Text Agent + Baseline) for N=20 (Pilot)...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:18:25Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Full experiment batch size is 64 instances if pilot power is less than
+    0.8
+  claim_id: c_ace2dbdf
+  context: 'Conditional: If Power Analysis requires scaling (power < 0.8), execute
+    full experiment batch for N=64 and update `results/statistical_summary.json`.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If Power Analysis requires scaling (power < 0.8), execute full experiment
+    batch for N=64...
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T03:18:25Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: 'Memory Gap metric formula: structured JSON score + 1.0 penalty per missing
+    critical item'
+  claim_id: c_ef1acdff
+  context: FR-006 definition update in T033b and T033d implementation details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project implements a 'Memory Gap' metric calculated as the sum of
+    a Structured JSON comparison score and a penalty of 1.0 for every critical item
+    present in the hidden ground truth but missing from the agent's mental map.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:21:25Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Pilot phase sample size is 20
+  claim_id: c_c171b1cc
+  context: T039c execution command and description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot phase experiment batch is executed for N=20 game instances.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:21:55Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Full phase sample size is 64 conditional on power < 0.8
+  claim_id: c_d38a0310
+  context: T039d conditional execution logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full experiment batch is executed for N=64 game instances if the power
+    analysis indicates power < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:22:54Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Text agent model parameter count is less than or equal to 3 billion
+  claim_id: c_a7ac9f37
+  context: T023 requirement for CPU-optimized engine.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Text_agent_model_parameter_count_is_less_than_or_equal_to_3
+  kind: magnitude
+  raw_text: The text-only agent uses a quantized LLM with a parameter count of 3 billion
+    or fewer.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:24:22Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Baseline agent memory footprint limit is 7168 MB
+  claim_id: c_976d9191
+  context: T028 and T039a-1 verification constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_agent_memory_footprint_limit_is_7168_MB
+  kind: magnitude
+  raw_text: The baseline agent memory footprint is verified to be less than or equal
+    to 7168 MB (7 GB) of RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:25:40Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Text agent context window size is 50 events
+  claim_id: c_fc9f328e
+  context: T025 verification of context window truncation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The text agent context window truncation logic retains the last 50 events.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:26:27Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Semantic similarity penalty threshold is 0.5
+  claim_id: c_3cd3600a
+  context: T033d implementation details for the scorer.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The semantic similarity threshold for the memory gap penalty calculation
+    is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:27:12Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses one-tailed Mann-Whitney U test
+  claim_id: c_21cb1691
+  context: T037 and T038a implementation details.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_uses_one-tailed_Mann-Whitney_U_test
+  kind: entity_fact
+  raw_text: The statistical analysis uses a one-tailed Mann-Whitney U test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:28:18Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Transformers library version is 4.40.0
+  claim_id: c_41767857
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the transformers library version 4.40.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:28:54Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Bitsandbytes library version is 0.43.1
+  claim_id: c_18099a5c
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the bitsandbytes library version 0.43.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:29:22Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Scikit-learn library version is 1.5.0
+  claim_id: c_ab03cb28
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the scikit-learn library version 1.5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:04Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Sentence-transformers library version is 3.0.1
+  claim_id: c_df054c4a
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the sentence-transformers library version 3.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:30:32Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Numpy library version is 1.26.4
+  claim_id: c_f49ccedf
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the numpy library version 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:31:03Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Pandas library version is 2.2.2
+  claim_id: c_e65239cb
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the pandas library version 2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:31:40Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Pytest library version is 8.2.0
+  claim_id: c_9c93abec
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the pytest library version 8.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:32:22Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Pyyaml library version is 6.0.1
+  claim_id: c_be5cf9ad
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the pyyaml library version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:25Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Datasets library version is 2.19.1
+  claim_id: c_13f8b656
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the datasets library version 2.19.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:38Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Sentencepiece library version is 0.2.0
+  claim_id: c_df9e8bd9
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The project requires the sentencepiece library version 0.2.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T03:34:38Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Memory-profiler library version is 0.61.0
+  claim_id: c_f1e74b24
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the memory-profiler library version 0.61.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:48Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Llama-cpp-python library version is 0.2.91
+  claim_id: c_83b70911
+  context: T001b requirements.txt pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires the llama-cpp-python library version 0.2.91.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:34:51Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Baseline agent model is Qwen-VL-Chat-Int4
+  claim_id: c_08538396
+  context: T039a implementation details.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_agent_model_is_Qwen-VL-Chat-Int4
+  kind: entity_fact
+  raw_text: The baseline agent uses the Qwen-VL-Chat-Int4 model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:35:06Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Sematic similarity uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_81787ab1
+  context: T033d implementation details.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sematic_similarity_uses_sentence-transformers/all-MiniLM-L6-
+  kind: entity_fact
+  raw_text: The scorer uses the sentence-transformers/all-MiniLM-L6-v2 library for
+    semantic similarity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:35:14Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Benchmark execution time limit is 6.0 hours
+  claim_id: c_2eddecae
+  context: T041 verification criteria.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_execution_time_limit_is_6.0_hours
+  kind: magnitude
+  raw_text: The benchmark execution for the Text Agent must complete in less than
+    6.0 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:23Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 0
+  canonical: execute full experiment batch for 64 instances if power less than 0.8
+  claim_id: c_1e410aa0
+  context: 'Phase 5: Execution, Finalization & Polish. T039d [US3] Conditional: If
+    Power Analysis requires scaling (power < 0.8), execute full experiment batch for
+    N=64 and update results/statistical_summary.json.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Execute full experiment batch for N=64 if Power Analysis requires scaling
+    (power < 0.8).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T03:40:09Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: orchestrate execution of 20 game instances for Text Agent
+  claim_id: c_b89bab66
+  context: 'Phase 3: Performance Verification (Blocking). T041a [US2] Implement code/benchmark_runner.py
+    to orchestrate the execution of N=20 game instances for the Text Agent.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/benchmark_runner.py to orchestrate the execution of N=20
+    game instances for the Text Agent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:43:31Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: benchmark log total time less than 6.0 hours
+  claim_id: c_2f60f5c9
+  context: 'Phase 3: Performance Verification (Blocking). T041 [US2] Execute code/benchmark_runner.py...
+    Verification: results/benchmark_log.json must exist with total_time_hours < 6.0
+    and passed: true.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_log_total_time_less_than_6.0_hours
+  kind: magnitude
+  raw_text: 'Verification: results/benchmark_log.json must exist with total_time_hours
+    < 6.0 and passed: true.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:44:05Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: execute full experiment batch for 20 pilot instances
+  claim_id: c_5babb2f5
+  context: 'Phase 5: Execution, Finalization & Polish. T039c [US3] Execute full experiment
+    batch (Text Agent + Baseline) for N=20 (Pilot) and generate results/statistical_summary.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute full experiment batch (Text Agent + Baseline) for N=20 (Pilot)
+    and generate results/statistical_summary.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:45:12Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: treat semantic similarity less than 0.5 as 0.0 for penalty calculation
+  claim_id: c_5af6a883
+  context: 'Phase 4: Implementation for User Story 3. T033d [US3] Implement code/scorer.py...
+    Formula: score = (1 - semantic_similarity) + (1.0 * missing_items). Threshold:
+    If semantic_similarity < 0.5, treat as 0.0 for penalty calculation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Treat_semantic_similarity_less_than_0.5_as_0.0_for_penalty_c
+  kind: magnitude
+  raw_text: 'Threshold: If semantic_similarity < 0.5, treat as 0.0 for penalty calculation.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:46:06Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: penalty of 1.0 per missing critical item
+  claim_id: c_73148497
+  context: 'Phase 4: Implementation for User Story 3. T033d [US3] Replace FR-006 with:
+    System MUST calculate the ''Memory Gap'' as the sum of: (1) a Structured JSON
+    comparison score... and (2) a penalty of 1.0 for every critical item present in
+    the hidden ground truth but missing from the agent''s mental map.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Penalty: A significant penalty of 1.0 for every critical item present
+    in the hidden ground truth but missing from the agent''s mental map.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:47:08Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 library
+  claim_id: c_5444814c
+  context: 'Phase 4: Implementation for User Story 3. T033d [US3] Implement code/scorer.py
+    to calculate ''Memory Gap''... Library: sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: 'Library: sentence-transformers/all-MiniLM-L6-v2.'
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T03:47:40Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: keep last 50 events for context window truncation
+  claim_id: c_cbeb8b8d
+  context: 'Phase 3: Implementation for User Story 2. T025 [US2] Verification: Verify
+    context window truncation logic in code/agent_loop.py (keep last N=50 events).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify context window truncation logic in code/agent_loop.py (keep last
+    N=50 events).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:47:40Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: assert peak ram less than or equal to 7168 MB and cpu percent less than
+    or equal to 200
+  claim_id: c_ccfd0470
+  context: 'Phase 3: Implementation for User Story 2. T028 [US2] Implement code/resource_monitor.py...
+    Verification: Assert peak_ram_mb <= 7168 and cpu_percent <= 200.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_peak_ram_less_than_or_equal_to_7168_MB_and_cpu_percen
+  kind: magnitude
+  raw_text: Assert peak_ram_mb <= 7168 and cpu_percent <= 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:47:42Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: verify text agent memory footprint less than or equal to 7 GB
+  claim_id: c_c32bea3c
+  context: 'Phase 3: Implementation for User Story 2. T028b [US2] Verification: Verify
+    Text Agent memory footprint <= 7GB RAM using memory_profiler before finalizing
+    the runner.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_text_agent_memory_footprint_less_than_or_equal_to_7_G
+  kind: magnitude
+  raw_text: Verify Text Agent memory footprint <= 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:48:29Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: verify baseline model memory footprint less than or equal to 7 GB
+  claim_id: c_b6f202e8
+  context: 'Phase 3: Implementation for User Story 2 (Baseline Agent). T039a-1 [P]
+    Verify baseline model memory footprint <= 7GB RAM using memory_profiler before
+    finalizing the runner.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_baseline_model_memory_footprint_less_than_or_equal_to
+  kind: magnitude
+  raw_text: Verify baseline model memory footprint <= 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:06Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: pin requirements transformers 4.40.0 bitsandbytes 0.43.1 scikit-learn
+    1.5.0 sentence-transformers 3.0.1 numpy 1.26.4 pandas 2.2.2 pytest 8.2.0 pyyaml
+    6.0.1 datasets 2.19.1 sentencepiece 0.2.0 memory-profiler 0.61.0 llama-cpp-python
+    0.2.91
+  claim_id: c_bbc31f82
+  context: 'Phase 1: Setup. T001b [P] Create and pin projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/requirements.txt
+    with exact pinned versions: transformers==4.40.0, bitsandbytes==0.43.1, scikit-learn==1.5.0,
+    sentence-transformers==3.0.1, numpy==1.26.4, pandas==2.2.2, pytest==8.2.0, pyyaml==6.0.1,
+    datasets==2.19.1, sentencepiece==0.2.0, memory-profiler==0.61.0, llama-cpp-python==0.2.91.'
+  evidence:
+    asserted: '4.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create requirements.txt with exact pinned versions: transformers==4.40.0,
+    bitsandbytes==0.43.1, scikit-learn==1.5.0, sentence-transformers==3.0.1, numpy==1.26.4,
+    pandas==2.2.2, pytest==8.2.0, pyyaml==6.0.1, datasets==2.19.1, sentencepiece==0.2.0,
+    memory-profiler==0.61.0, llama-cpp-python==0.2.91.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T03:49:07Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: configure rotating file handler max bytes 10 MB backup count 5
+  claim_id: c_1b2640dd
+  context: 'Phase 1: Setup. T008 [P] Implement code/logger.py with JSON-formatted
+    rotating file handler (max_bytes=10MB, backupCount=5) and configure code/main.py
+    to use it for all stdout/stderr redirection.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/logger.py with JSON-formatted rotating file handler (max_bytes=10MB,
+    backupCount=5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:49:59Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: load quantized text-only LLM less than or equal to 3 billion params
+  claim_id: c_826cb5e1
+  context: "Phase 3: Implementation for User Story 2. T023 [P] [US2] Implement code/agent_loop.py\
+    \ to load quantized text-only LLM (\u22643B params) using CPU-optimized engine\
+    \ (FR-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Load_quantized_text-only_LLM_less_than_or_equal_to_3_billion
+  kind: magnitude
+  raw_text: "Implement code/agent_loop.py to load quantized text-only LLM (\u2264\
+    3B params)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:51:05Z'

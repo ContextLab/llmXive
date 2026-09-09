@@ -1,144 +1,178 @@
 """
 utils/hasher.py
 
-Generates version hashes for artifacts to ensure reproducibility and traceability
-(Constitution Principle V).
-
-This utility computes SHA-256 hashes for all files in a specified input directory
-(recursively) and writes the results to a YAML output file.
-
-Usage:
-    python utils/hasher.py --input <input_dir> --output <output_file>
+Implements Constitution Principle V: Artifact Versioning.
+Generates deterministic version hashes for all artifacts in a directory
+to ensure reproducibility and traceability of the scientific pipeline.
 """
-
 import os
-import sys
 import hashlib
-import yaml
 import argparse
+import logging
+import yaml
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-# Ensure we can import from the project root if needed, though this script is self-contained
-# If running from project root: python utils/hasher.py ...
-# If running from inside utils: python hasher.py ...
-# We rely on standard library only.
+from logger import get_logger
 
-def compute_file_hash(file_path: Path) -> str:
+logger = get_logger(__name__)
+
+def calculate_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Computes the SHA-256 hash of a file.
+    Calculate the hash of a file using the specified algorithm.
+    Reads the file in chunks to handle large files efficiently.
 
     Args:
         file_path: Path to the file.
+        algorithm: Hash algorithm (default: sha256).
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal hash string.
     """
-    sha256_hash = hashlib.sha256()
+    hasher = hashlib.new(algorithm)
     try:
         with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
+            for chunk in iter(lambda: f.read(8192), b""):
+                hasher.update(chunk)
+        return hasher.hexdigest()
     except Exception as e:
-        raise RuntimeError(f"Failed to hash file {file_path}: {e}")
+        logger.error(f"Failed to hash file {file_path}: {e}")
+        raise
 
-def hash_directory(input_dir: Path) -> Dict[str, Any]:
+def hash_directory_contents(
+    input_dir: Path,
+    exclude_patterns: Optional[List[str]] = None
+) -> Dict[str, str]:
     """
-    Recursively hashes all files in a directory.
+    Recursively hash all files in a directory.
 
     Args:
-        input_dir: Path to the directory to hash.
+        input_dir: Root directory to hash.
+        exclude_patterns: List of glob patterns to exclude (e.g., "*.log", "__pycache__").
 
     Returns:
-        Dictionary containing hash metadata.
+        Dictionary mapping relative file paths to their hashes.
     """
+    exclude_patterns = exclude_patterns or []
+    hashes = {}
+    input_dir = input_dir.resolve()
+
     if not input_dir.exists():
         raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
-    if not input_dir.is_dir():
-        raise NotADirectoryError(f"Input path is not a directory: {input_dir}")
 
-    files_data = []
-    total_files = 0
+    for file_path in input_dir.rglob("*"):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(input_dir)
+            rel_str = str(rel_path)
 
-    for root, _, files in os.walk(input_dir):
-        for filename in files:
-            file_path = Path(root) / filename
-            # Skip hidden files or common temporary files if necessary,
-            # but for now, hash everything to ensure integrity.
-            if filename.startswith('.'):
+            # Check exclusion patterns
+            skip = False
+            for pattern in exclude_patterns:
+                if rel_str.endswith(pattern) or rel_str.startswith(pattern):
+                    skip = True
+                    break
+                if "*" in pattern:
+                    import fnmatch
+                    if fnmatch.fnmatch(rel_str, pattern):
+                        skip = True
+                        break
+
+            if skip:
+                logger.debug(f"Skipping excluded file: {rel_str}")
                 continue
 
             try:
-                file_hash = compute_file_hash(file_path)
-                relative_path = file_path.relative_to(input_dir)
-                
-                # Get file stats
-                stat = file_path.stat()
-                
-                files_data.append({
-                    "path": str(relative_path),
-                    "sha256": file_hash,
-                    "size_bytes": stat.st_size,
-                    "modified_at": datetime.fromtimestamp(stat.st_mtime).isoformat()
-                })
-                total_files += 1
+                file_hash = calculate_file_hash(file_path)
+                hashes[rel_str] = file_hash
+                logger.debug(f"Hashed: {rel_str} -> {file_hash[:16]}...")
             except Exception as e:
-                # Log error but continue processing other files
-                print(f"Warning: Skipping {file_path} due to error: {e}", file=sys.stderr)
+                logger.warning(f"Could not hash {rel_str}: {e}")
 
-    return {
-        "generated_at": datetime.now().isoformat(),
-        "input_directory": str(input_dir),
-        "total_files": total_files,
-        "files": files_data
-    }
+    return hashes
 
-def save_hash_report(data: Dict[str, Any], output_path: Path) -> None:
+def generate_artifact_manifest(
+    hashes: Dict[str, str],
+    input_dir: Path
+) -> Dict[str, Any]:
     """
-    Saves the hash report to a YAML file.
+    Generate a structured manifest for the artifact versions.
 
     Args:
-        data: The hash data dictionary.
-        output_path: Path to the output file.
+        hashes: Dictionary of relative paths to hashes.
+        input_dir: The root directory that was hashed.
+
+    Returns:
+        Manifest dictionary.
+    """
+    manifest = {
+        "version": "1.0.0",
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "source_directory": str(input_dir),
+        "total_files": len(hashes),
+        "artifacts": hashes
+    }
+    return manifest
+
+def save_manifest(manifest: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save the manifest to a YAML file.
+
+    Args:
+        manifest: The manifest dictionary.
+        output_path: Path to the output YAML file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-    print(f"Hash report saved to: {output_path}")
+        yaml.dump(manifest, f, default_flow_style=False, sort_keys=False)
+    logger.info(f"Artifact manifest saved to: {output_path}")
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate version hashes for artifacts (Constitution Principle V)."
+        description="Generate artifact version hashes (Constitution Principle V)."
     )
     parser.add_argument(
         "--input",
-        type=str,
         required=True,
-        help="Input directory to hash (e.g., data/processed/)"
+        type=Path,
+        help="Input directory to hash (e.g., data/processed/)."
     )
     parser.add_argument(
         "--output",
-        type=str,
         required=True,
-        help="Output YAML file path (e.g., state/artifact_hashes.yaml)"
+        type=Path,
+        help="Output YAML file path (e.g., state/artifact_hashes.yaml)."
+    )
+    parser.add_argument(
+        "--exclude",
+        nargs="*",
+        default=["*.log", "*.tmp", "__pycache__", "*.pyc"],
+        help="Glob patterns to exclude from hashing."
     )
 
     args = parser.parse_args()
 
-    input_dir = Path(args.input)
-    output_path = Path(args.output)
+    if not args.input.is_dir():
+        logger.error(f"Input path is not a directory: {args.input}")
+        return 1
 
     try:
-        print(f"Scanning directory: {input_dir}")
-        hash_data = hash_directory(input_dir)
-        print(f"Found {hash_data['total_files']} files.")
-        save_hash_report(hash_data, output_path)
-        print("Hash generation completed successfully.")
+        logger.info(f"Scanning directory: {args.input}")
+        hashes = hash_directory_contents(args.input, exclude_patterns=args.exclude)
+
+        if not hashes:
+            logger.warning("No files found to hash in the input directory.")
+
+        manifest = generate_artifact_manifest(hashes, args.input)
+        save_manifest(manifest, args.output)
+
+        logger.info(f"Successfully hashed {len(hashes)} files.")
+        return 0
+
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Hashing process failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())
