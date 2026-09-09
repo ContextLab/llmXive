@@ -1,0 +1,46 @@
+T012b:
+  c: false
+  h: d77c5f168ddcb5a1bc766b51f37066aa8c92205da59c5785748d4ccb3e7a3123
+  r: "The required output file `data/processed/scrubbed_timeseries.parquet` does not\
+    \ exist, and the provided `preprocess.py` is truncated before the core `scrub_and_regression`\
+    \ implementation, so we cannot verify that the regression and scrubbing steps\
+    \ are actually performed. The task\u2019s primary deliverable is therefore missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log file was supplied that demonstrates logging of
+    subject exclusions for missing behavioral scores or excessive motion. Without
+    an artifact showing the added logging functionality, the requirement cannot be
+    confirmed as met.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file showing that `psutil` peak RSS monitoring was added\
+    \ to the ingestion pipeline is provided; the only evidence is the task description\
+    \ itself, which does not demonstrate the required implementation or verification\
+    \ of the \u22647\u202FGB memory constraint. The implementer must supply the modified\
+    \ ingestion script (or relevant diff) that uses `psutil` to record peak RSS and\
+    \ evidence (e.g., logs or test output) confirming the memory usage stays within\
+    \ the limit."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test code, test file, or any output demonstrating sliding\u2011\
+    window generation or window\u2011length validation was provided. The claim lacks\
+    \ any artifact to verify that a test for US2 exists, so the requirement is not\
+    \ satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a high\u2011level description of the project and\
+    \ user stories, but no actual unit\u2011test code, test file, or execution evidence\
+    \ for checking that flexibility scores lie in [0,\u202F1] and contain no NaNs.\
+    \ Without a concrete test artifact, the requirement is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, tests, logs, or documentation showing that\
+    \ subjects are skipped when the sliding\u2011window size leaves insufficient time\
+    \ points, nor that errors are caught and reported instead of causing a crash.\
+    \ Without any artifact demonstrating this edge\u2011case handling, the requirement\
+    \ is not satisfied."

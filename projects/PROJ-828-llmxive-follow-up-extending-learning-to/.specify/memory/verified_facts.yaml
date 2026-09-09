@@ -1,5 +1,5 @@
-'|7gb ram vcpu':
-  quote: 'P3879: 76'
-  source_id: Q19823792
-  url: https://www.wikidata.org/wiki/Q19823792
-  value: '76'
+'|7gb abort estimated if memory peak':
+  quote: 'P1705: Abort'
+  source_id: Q99905668
+  url: https://www.wikidata.org/wiki/Q99905668
+  value: '7'

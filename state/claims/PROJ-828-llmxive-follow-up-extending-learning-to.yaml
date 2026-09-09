@@ -5134,3 +5134,207 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T07:06:32Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: fetch GSM8K subset of at least 1000 problems from HuggingFace datasets
+  claim_id: c_a88004bb
+  context: "Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification. Constraint: Must raise\
+    \ an exception immediately if fetch fails..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_GSM8K_subset_of_at_least_1000_problems_from_HuggingFac
+  kind: magnitude
+  raw_text: "Create src/data/loader.py to fetch GSM8K subset (\u22651,000 problems)\
+    \ from HuggingFace datasets with checksum verification."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:35:28Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: default k to 10 if cumulative variance less than 80% for k less than
+    or equal to 50
+  claim_id: c_ba91619a
+  context: 'Add SVD fallback logic... Logic: If cumulative variance < 80% for any
+    $k \le 50$, default to $k=10$ and log a WARNING...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Default_k_to_10_if_cumulative_variance_less_than_80%25_for_k_l
+  kind: magnitude
+  raw_text: "If cumulative variance < 80% for any k \u2264 50, default to k=10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:37:44Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: memory footprint remains less than 7GB with 3 seeds
+  claim_id: c_417119e6
+  context: 'Constraint: Ensure memory footprint remains < 7GB even with N=3 seeds.'
+  evidence:
+    candidates:
+    - - Memory footprint remains less than
+      - 7.0
+    - - GB with
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_remains_less_than_7GB_with_3_seeds
+  kind: magnitude
+  raw_text: Ensure memory footprint remains < 7GB even with N=3 seeds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T09:38:39Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: assert memory usage less than 7GB
+  claim_id: c_14a0bbbd
+  context: Log memory usage during SVD and Assert memory usage < 7GB ; raise exception
+    if limit exceeded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: Assert memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:39:24Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: assert cosine similarity greater than or equal to 0.99
+  claim_id: c_2dd2c48f
+  context: Log cosine similarity between applied update and subspace basis and Assert
+    cosine similarity >= 0.99 ; raise exception if violated.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_cosine_similarity_greater_than_or_equal_to_0.99
+  kind: magnitude
+  raw_text: Assert cosine similarity >= 0.99
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:40:17Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: flag run as Low Alignment if alignment less than 0.95
+  claim_id: c_4c07460a
+  context: 'Action: Log to results/low_rank_rl/early_alignment_log.json and Flag run
+    as ''Low Alignment'' if alignment < 0.95 (do NOT abort).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_run_as_Low_Alignment_if_alignment_less_than_0.95
+  kind: magnitude
+  raw_text: Flag run as 'Low Alignment' if alignment < 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:41:13Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: verify all recorded memory peaks are less than 7GB
+  claim_id: c_8b1f7ce6
+  context: After Phase 6 execution completes, verify that results/memory_profile.json
+    exists and all recorded peaks are < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_all_recorded_memory_peaks_are_less_than_7GB
+  kind: magnitude
+  raw_text: Verify that all recorded peaks are < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:41:50Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test requires minimum of 3 samples
+  claim_id: c_924053fd
+  context: Execute Wilcoxon signed-rank test logic in src/analysis/metrics.py (N=3
+    minimum) with dynamic power calculation...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=3 minimum for Wilcoxon signed-rank test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:43:35Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: trigger re-run if effect size less than 0.5 and sample size less than
+    10 and 15% time remaining
+  claim_id: c_e3f2f897
+  context: 'Execute conditional branching: if effect size < 0.5 AND N < 10 AND 15%
+    remaining, trigger re-run logic.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_re-run_if_effect_size_less_than_0.5_and_sample_size
+  kind: magnitude
+  raw_text: Trigger re-run logic if effect size < 0.5 AND N < 10 AND 15% remaining
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:45:03Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: abort if total estimated time exceeds 6 hours
+  claim_id: c_8b4e6b27
+  context: 'Constraint: Must trigger T053 abort if total estimated time > 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if total estimated time > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:45:04Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: abort if estimated peak memory exceeds 7GB
+  claim_id: c_a59e0f29
+  context: 'Constraint: Must trigger T053 abort if estimated peak > 7GB.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1705: Abort'
+      source_id: Q99905668
+      url: https://www.wikidata.org/wiki/Q99905668
+      value: '7'
+    filled: true
+  kind: entity_fact
+  raw_text: Abort if estimated peak memory > 7GB.
+  resolved_value: '7'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T09:45:19Z'

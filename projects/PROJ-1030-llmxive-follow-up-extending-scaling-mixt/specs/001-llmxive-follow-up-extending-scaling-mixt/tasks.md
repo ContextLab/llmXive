@@ -87,13 +87,13 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for physics simulation wrapper in `tests/unit/test_physics_sim.py`
-- [ ] T019 [P] [US2] Integration test for labeling pipeline in `tests/integration/test_generate_labels.py`
+- [X] T019 [P] [US2] Integration test for labeling pipeline in `tests/integration/test_generate_labels.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/generate_labels.py` to run monocular depth/pose estimator (e.g., monodepth2) on video clips
+- [X] T020 [US2] Implement `code/generate_labels.py` to run monocular depth/pose estimator (e.g., monodepth2) on video clips
 - [ ] T021 [US2] Implement 3D state reconstruction logic to extract positions/velocities from depth maps
-- [ ] T022 [US2] Integrate `code/utils/physics_sim.py` to simulate reconstructed states in PyBullet
+- [X] T022 [US2] Integrate `code/utils/physics_sim.py` to simulate reconstructed states in PyBullet
 - [ ] T023 [US2] Implement logic to assign "valid"/"invalid" labels based on physics constraints (e.g., gravity, collision)
 - [ ] T024 [US2] Implement a **labeling step** for samples with reconstruction confidence < 0.9 or simulation failures: **Assign a "null" label** to these samples and **include them** in the final `data/processed/labels.csv`. Generate a log `data/processed/excluded_samples.log` only for reference to track why samples were marked null, but the main dataset MUST retain these null entries. Do NOT exclude them from the CSV (FR-008).
 - [ ] T025 [US2] Save valid labels to `data/processed/labels.csv` and metadata (confidence scores) to `data/processed/metadata.json`

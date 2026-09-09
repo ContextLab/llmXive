@@ -2,119 +2,161 @@ import logging
 import time
 from typing import Callable, Type, TypeVar, Optional, List
 from functools import wraps
-from utils.logging_config import get_logger, fail_loudly
+import random
+import os
+from utils.logging_config import get_logger, fail_loudly, DataFetchLogger
 
 T = TypeVar('T')
 
 class DataFetchError(Exception):
-    """Raised when data fetching fails after all retry attempts."""
-    pass
+    """Custom exception for data fetching failures."""
+    def __init__(self, message: str, original_exception: Optional[Exception] = None):
+        super().__init__(message)
+        self.original_exception = original_exception
 
 class ConfigError(Exception):
-    """Raised when configuration is missing or invalid."""
+    """Custom exception for configuration errors."""
     pass
 
 class PhysicsSimError(Exception):
-    """Raised when physics simulation fails."""
+    """Custom exception for physics simulation errors."""
     pass
 
 def retry_with_backoff(
-    func: Callable[..., T],
-    max_retries: int = 3,
-    initial_delay: float = 1.0,
+    max_retries: int = 5,
+    base_delay: float = 1.0,
     max_delay: float = 60.0,
-    backoff_factor: float = 2.0,
-    retryable_exceptions: Optional[List[Type[Exception]]] = None,
-    logger: Optional[logging.Logger] = None
-) -> Callable[..., T]:
+    jitter: bool = True
+):
     """
     Decorator to retry a function with exponential backoff.
     
-    This implements the "FAIL LOUDLY" pattern:
-    - Retries transient errors with exponential backoff
-    - Fails loudly (raises exception) if all retries are exhausted
-    - Never falls back to synthetic data
-    
     Args:
-        func: Function to decorate
         max_retries: Maximum number of retry attempts
-        initial_delay: Initial delay in seconds
-        max_delay: Maximum delay between retries
-        backoff_factor: Multiplier for delay after each retry
-        retryable_exceptions: List of exception types to retry on (default: all)
-        logger: Logger instance (uses default if None)
+        base_delay: Initial delay in seconds
+        max_delay: Maximum delay cap in seconds
+        jitter: Whether to add random jitter to delays
         
     Returns:
-        Decorated function
+        Decorated function with retry logic
     """
-    if retryable_exceptions is None:
-        retryable_exceptions = [Exception]
-    
-    logger = logger or get_logger(func.__name__)
-    
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> T:
-        delay = initial_delay
-        last_exception = None
-        
-        for attempt in range(max_retries + 1):
-            try:
-                return func(*args, **kwargs)
-            except tuple(retryable_exceptions) as e:
-                last_exception = e
-                if attempt == max_retries:
-                    # All retries exhausted - FAIL LOUDLY
-                    error_msg = (
-                        f"Data fetch failed after {max_retries} retry attempts. "
-                        f"Last error: {str(e)}. "
-                        f"FAILO LOUDLY: No synthetic fallback available."
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -> T:
+            logger = get_logger(func.__module__)
+            last_exception = None
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except (DataFetchError, ConnectionError, TimeoutError, OSError) as e:
+                    last_exception = e
+                    
+                    if attempt == max_retries:
+                        logger.error(f"Max retries ({max_retries}) exceeded for {func.__name__}")
+                        fail_loudly(f"Data fetch failed after {max_retries} retries: {str(e)}", exception=e)
+                    
+                    # Calculate delay with exponential backoff
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    
+                    # Add jitter if enabled
+                    if jitter:
+                        delay = delay * (0.5 + random.random())
+                    
+                    logger.warning(
+                        f"Attempt {attempt + 1}/{max_retries} failed for {func.__name__}. "
+                        f"Retrying in {delay:.2f}s..."
                     )
-                    fail_loudly(logger, error_msg, e)
-                
-                # Log retry attempt
-                logger.warning(
-                    f"Attempt {attempt + 1}/{max_retries + 1} failed: {str(e)}. "
-                    f"Retrying in {delay:.2f} seconds..."
+                    time.sleep(delay)
+            
+            # Should never reach here due to fail_loudly, but safety net
+            fail_loudly(f"Unexpected failure in {func.__name__}", exception=last_exception)
+        return wrapper
+    return decorator
+
+def validate_config(config: dict) -> bool:
+    """Validate configuration dictionary."""
+    required_keys = ['data_source', 'output_path']
+    for key in required_keys:
+        if key not in config:
+            raise ConfigError(f"Missing required config key: {key}")
+    return True
+
+def handle_simulation_failure(error: Exception, context: str = ""):
+    """Handle physics simulation failures by logging and raising."""
+    logger = get_logger(__name__)
+    logger.error(f"Simulation failed in {context}: {str(error)}")
+    raise PhysicsSimError(f"Simulation failed in {context}: {str(error)}") from error
+
+class DataFetchHandler:
+    """Handler class for managing data fetch operations with retry logic."""
+    
+    def __init__(self, logger_name: str = "data_fetch"):
+        self.logger = DataFetchLogger.get_logger(logger_name)
+        
+    @retry_with_backoff(max_retries=5, base_delay=2.0, max_delay=30.0)
+    def fetch_data(self, url: str, dest_path: str) -> bool:
+        """
+        Fetch data from URL with exponential backoff retry logic.
+        
+        Args:
+            url: Source URL
+            dest_path: Destination file path
+            
+        Returns:
+            True if successful
+            
+        Raises:
+            DataFetchError: If all retries fail
+        """
+        try:
+            # Import here to avoid circular dependencies
+            import urllib.request
+            import ssl
+            
+            # Create SSL context that doesn't verify certificates (for testing)
+            # In production, this should be properly configured
+            ssl_context = ssl.create_default_context()
+            # ssl_context.check_hostname = False
+            # ssl_context.verify_mode = ssl.CERT_NONE
+            
+            self.logger.info(f"Fetching data from {url} to {dest_path}")
+            
+            # Create destination directory if it doesn't exist
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            
+            # Perform fetch
+            urllib.request.urlretrieve(url, dest_path, context=ssl_context)
+            
+            if not os.path.exists(dest_path):
+                raise DataFetchError(f"Download completed but file not found: {dest_path}")
+            
+            self.logger.info(f"Successfully fetched data to {dest_path}")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Fetch failed: {str(e)}")
+            raise DataFetchError(f"Failed to fetch data from {url}", original_exception=e) from e
+            
+    def fetch_with_validation(self, url: str, dest_path: str, expected_size: Optional[int] = None) -> bool:
+        """
+        Fetch data with optional size validation.
+        
+        Args:
+            url: Source URL
+            dest_path: Destination file path
+            expected_size: Optional expected file size in bytes
+            
+        Returns:
+            True if successful and validated
+        """
+        success = self.fetch_data(url, dest_path)
+        
+        if success and expected_size is not None:
+            actual_size = os.path.getsize(dest_path)
+            if actual_size != expected_size:
+                raise DataFetchError(
+                    f"File size mismatch: expected {expected_size}, got {actual_size}"
                 )
-                time.sleep(delay)
-                delay = min(delay * backoff_factor, max_delay)
         
-        # Should never reach here, but just in case
-        fail_loudly(logger, "Unexpected exit from retry loop", last_exception)
-    
-    return wrapper
-
-def validate_config(config: dict, required_keys: List[str]) -> None:
-    """
-    Validate that a configuration dictionary contains all required keys.
-    
-    Args:
-        config: Configuration dictionary to validate
-        required_keys: List of required key names
-        
-    Raises:
-        ConfigError: If any required key is missing or has invalid value
-    """
-    logger = get_logger("config_validator")
-    missing_keys = [key for key in required_keys if key not in config or config[key] is None]
-    
-    if missing_keys:
-        error_msg = f"Configuration missing required keys: {', '.join(missing_keys)}"
-        fail_loudly(logger, error_msg, ConfigError(error_msg))
-
-def handle_simulation_failure(
-    logger: logging.Logger, 
-    message: str, 
-    exception: Optional[Exception] = None
-) -> None:
-    """
-    Handle physics simulation failures by logging and exiting.
-    
-    This ensures simulation errors are not silently ignored.
-    
-    Args:
-        logger: Logger instance
-        message: Error message
-        exception: Optional exception instance
-    """
-    fail_loudly(logger, f"Physics simulation failed: {message}", exception, error_code=2)
+        return success

@@ -1,94 +1,78 @@
 import math
 from typing import List, Optional, Tuple
 import numpy as np
+import os
+import sys
+import gc
 
-def estimate_frame_memory(frame_height: int, frame_width: int, channels: int = 3, dtype: str = 'float32') -> int:
+# Add project root to path to ensure imports work if run as script
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from utils.logging_config import get_logger, fail_loudly
+
+logger = get_logger(__name__)
+
+# Configuration constants
+# Target max RAM in GB (FR-006)
+TARGET_MAX_RAM_GB = 7.0
+TARGET_MAX_RAM_BYTES = TARGET_MAX_RAM_GB * 1024**3
+# Overhead factor for Python objects, model weights, etc. (conservative estimate)
+OVERHEAD_FACTOR = 1.5
+# Estimated bytes per pixel (RGB float32)
+BYTES_PER_PIXEL = 3 * 4  # 3 channels * 4 bytes
+# Estimated max frame size (1920x1080 typical for video datasets)
+DEFAULT_FRAME_WIDTH = 1920
+DEFAULT_FRAME_HEIGHT = 1080
+
+def estimate_frame_memory(width: int = DEFAULT_FRAME_WIDTH, height: int = DEFAULT_FRAME_HEIGHT) -> float:
     """
-    Estimate memory usage for a single video frame in bytes.
-    
-    Args:
-        frame_height: Height of the frame in pixels
-        frame_width: Width of the frame in pixels
-        channels: Number of color channels (default 3 for RGB)
-        dtype: Data type string (default 'float32')
-    
-    Returns:
-        Estimated memory usage in bytes
+    Estimates the memory footprint of a single frame in bytes.
+    Assumes float32 RGB data.
     """
-    dtype_bytes = 4 if dtype == 'float32' else 2 if dtype == 'float16' else 8
-    return frame_height * frame_width * channels * dtype_bytes
+    return width * height * BYTES_PER_PIXEL
 
 def calculate_max_frames(
-    total_memory_limit_gb: float,
-    frame_height: int,
-    frame_width: int,
-    channels: int = 3,
-    dtype: str = 'float32',
-    overhead_factor: float = 1.2
+    width: int = DEFAULT_FRAME_WIDTH,
+    height: int = DEFAULT_FRAME_HEIGHT,
+    target_ram_gb: float = TARGET_MAX_RAM_GB
 ) -> int:
     """
-    Calculate the maximum number of frames that can fit in memory.
-    
-    Args:
-        total_memory_limit_gb: Total available memory in GB (e.g., 7.0 for 7GB)
-        frame_height: Height of the frame in pixels
-        frame_width: Width of the frame in pixels
-        channels: Number of color channels
-        dtype: Data type string
-        overhead_factor: Factor to account for Python overhead, model weights, etc.
-    
-    Returns:
-        Maximum number of frames that can be held in memory simultaneously
+    Calculates the maximum number of frames that can be held in memory
+    while respecting the target RAM limit, accounting for overhead.
     """
-    total_memory_bytes = total_memory_limit_gb * (1024 ** 3)
-    frame_mem = estimate_frame_memory(frame_height, frame_width, channels, dtype)
-    
-    # Account for overhead
-    available_mem = total_memory_bytes / overhead_factor
-    
+    frame_mem = estimate_frame_memory(width, height)
+    available_mem = (target_ram_gb * 1024**3) / OVERHEAD_FACTOR
     max_frames = int(available_mem / frame_mem)
-    return max(1, max_frames)  # Ensure at least 1 frame
+    # Ensure at least 1 frame can be processed
+    return max(1, max_frames)
 
 def generate_subsample_indices(
     total_frames: int,
     max_frames: int,
-    strategy: str = 'uniform',
-    seed: Optional[int] = None
+    strategy: str = "uniform"
 ) -> List[int]:
     """
-    Generate indices for subsampling frames from a video.
-    
+    Generates indices for subsampling frames from a video clip.
+
     Args:
-        total_frames: Total number of frames in the video
-        max_frames: Maximum number of frames to keep
-        strategy: Subsampling strategy ('uniform', 'random', 'keyframe')
-        seed: Random seed for reproducibility (only used for 'random')
-    
+        total_frames: Total number of frames in the video.
+        max_frames: Maximum number of frames to keep.
+        strategy: Subsampling strategy. 'uniform' selects evenly spaced frames.
+
     Returns:
-        List of frame indices to keep
+        List of frame indices to keep.
     """
     if total_frames <= max_frames:
         return list(range(total_frames))
-    
-    if strategy == 'uniform':
-        indices = np.linspace(0, total_frames - 1, max_frames, dtype=int).tolist()
-        return indices
-    
-    elif strategy == 'random':
-        if seed is not None:
-            np.random.seed(seed)
-        indices = np.random.choice(total_frames, size=max_frames, replace=False)
-        return sorted(indices.tolist())
-    
-    elif strategy == 'keyframe':
-        # Simplified keyframe strategy: assume every nth frame is a keyframe
-        # In a real implementation, this would use actual keyframe detection
-        step = math.ceil(total_frames / max_frames)
-        indices = list(range(0, total_frames, step))[:max_frames]
-        return indices
-    
+
+    if strategy == "uniform":
+        # Select max_frames evenly spaced indices
+        indices = np.linspace(0, total_frames - 1, max_frames, dtype=int)
+        return indices.tolist()
     else:
-        raise ValueError(f"Unknown strategy: {strategy}")
+        fail_loudly(f"Unknown subsampling strategy: {strategy}")
 
 def generate_temporal_chunks(
     total_frames: int,
@@ -96,102 +80,62 @@ def generate_temporal_chunks(
     overlap: int = 0
 ) -> List[Tuple[int, int]]:
     """
-    Generate temporal chunks (start, end) for processing video segments.
-    
+    Generates a list of (start, end) tuples representing temporal chunks.
+
     Args:
-        total_frames: Total number of frames in the video
-        chunk_size: Number of frames per chunk
-        overlap: Number of overlapping frames between consecutive chunks
-    
+        total_frames: Total number of frames.
+        chunk_size: Number of frames per chunk.
+        overlap: Number of overlapping frames between chunks.
+
     Returns:
-        List of (start, end) tuples representing frame ranges
+        List of (start_index, end_index) tuples.
     """
     if chunk_size <= 0:
-        raise ValueError("chunk_size must be positive")
+        fail_loudly("Chunk size must be positive.")
     if overlap < 0:
-        raise ValueError("overlap cannot be negative")
+        fail_loudly("Overlap cannot be negative.")
     if overlap >= chunk_size:
-        raise ValueError("overlap must be less than chunk_size")
-    
+        fail_loudly("Overlap must be less than chunk size.")
+
     chunks = []
+    step = chunk_size - overlap
     start = 0
     while start < total_frames:
         end = min(start + chunk_size, total_frames)
         chunks.append((start, end))
-        # Move start forward by (chunk_size - overlap)
-        start = end - overlap
-        if start >= total_frames:
+        start += step
+        # If we've reached the end, break to avoid empty or duplicate chunks
+        if end == total_frames:
             break
-    
     return chunks
 
 def get_processing_plan(
     total_frames: int,
-    max_memory_gb: float,
-    frame_height: int,
-    frame_width: int,
-    channels: int = 3,
-    dtype: str = 'float32',
-    subsample_strategy: str = 'uniform',
-    chunk_overlap: int = 0,
-    seed: Optional[int] = None
+    width: int = DEFAULT_FRAME_WIDTH,
+    height: int = DEFAULT_FRAME_HEIGHT,
+    target_ram_gb: float = TARGET_MAX_RAM_GB,
+    strategy: str = "uniform"
 ) -> dict:
     """
-    Generate a complete processing plan to stay within memory limits.
-    
-    This function calculates:
-    1. Maximum frames that can fit in memory
-    2. Subsampled frame indices if needed
-    3. Temporal chunks for sequential processing
-    
-    Args:
-        total_frames: Total frames in the video
-        max_memory_gb: Available memory in GB
-        frame_height: Frame height
-        frame_width: Frame width
-        channels: Color channels
-        dtype: Data type
-        subsample_strategy: Strategy for subsampling
-        chunk_overlap: Overlap between chunks
-        seed: Random seed for subsampling
-    
+    Creates a processing plan to ensure memory constraints are met.
+    This plan includes subsampling indices if necessary.
+
     Returns:
         Dictionary containing:
-            - max_frames: Maximum frames allowed
-            - subsample_indices: List of indices to use (if subsampling needed)
-            - chunks: List of (start, end) tuples for processing
-            - needs_subsampling: Boolean flag
+            - 'max_frames': calculated max frames allowed
+            - 'subsample_indices': list of indices to process (if subsampling needed)
+            - 'is_subsampled': boolean indicating if subsampling was applied
     """
-    max_frames = calculate_max_frames(
-        max_memory_gb, frame_height, frame_width, channels, dtype
-    )
-    
-    needs_subsampling = total_frames > max_frames
-    
-    if needs_subsampling:
-        subsample_indices = generate_subsample_indices(
-            total_frames, max_frames, subsample_strategy, seed
-        )
-    else:
-        subsample_indices = list(range(total_frames))
-    
-    # Generate chunks based on the subsampled set (or full set)
-    # If subsampled, we process only those frames in chunks
-    # For simplicity, we define chunks over the original timeline but only process selected frames
-    effective_frames = len(subsample_indices)
-    if effective_frames <= max_frames:
-        # If subsampling brought us under limit, we can process in one go or small chunks
-        chunk_size = min(max_frames, effective_frames)
-        chunks = generate_temporal_chunks(effective_frames, chunk_size, chunk_overlap)
-    else:
-        # Fallback: process in chunks of max_frames
-        chunks = generate_temporal_chunks(effective_frames, max_frames, chunk_overlap)
-    
+    max_frames = calculate_max_frames(width, height, target_ram_gb)
+    is_subsampled = total_frames > max_frames
+    subsample_indices = generate_subsample_indices(total_frames, max_frames, strategy) if is_subsampled else list(range(total_frames))
+
+    logger.info(f"Processing Plan: Total frames={total_frames}, Max allowed={max_frames}, Subsampled={is_subsampled}")
+    if is_subsampled:
+        logger.info(f"Subsampling strategy: {strategy}. Keeping {len(subsample_indices)} frames.")
+
     return {
-        'max_frames': max_frames,
-        'subsample_indices': subsample_indices,
-        'chunks': chunks,
-        'needs_subsampling': needs_subsampling,
-        'total_frames_original': total_frames,
-        'total_frames_processed': effective_frames
+        "max_frames": max_frames,
+        "subsample_indices": subsample_indices,
+        "is_subsampled": is_subsampled
     }

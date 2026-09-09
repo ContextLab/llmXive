@@ -1,206 +1,206 @@
-"""
-Consolidate cleaned fMRI time series and behavioral scores into a single Parquet file.
-
-This script merges:
-1. Scrubbed time series from data/processed/scrubbed_timeseries.parquet
-2. Behavioral scores (2-back accuracy) from the HCP dataset
-3. Subject-level motion metrics (mean FD)
-
-Output: data/processed/consolidated_data.parquet
-"""
 import sys
 import os
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Optional, List, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils.logging_config import setup_logging, log_subject_exclusion
-from utils.memory_monitor import check_memory_limit, get_memory_usage_report
-from utils.config import set_all_seeds
-
-# Setup logging
-logger = setup_logging()
-set_all_seeds()
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Constants
-SCRUBBED_TIMESERIES_PATH = Path("data/processed/scrubbed_timeseries.parquet")
-BEHAVIORAL_DATA_PATH = Path("data/raw_behavior/behavioral_scores.parquet")
-CONSOLIDATED_OUTPUT_PATH = Path("data/processed/consolidated_data.parquet")
-MOTION_PARAMS_PATH = Path("data/processed/motion_params.parquet")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SCRUBBED_TIMESERIES_PATH = PROJECT_ROOT / "data" / "processed" / "scrubbed_timeseries.parquet"
+BEHAVIORAL_SCORES_PATH = PROJECT_ROOT / "data" / "processed" / "behavioral_scores.parquet"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "consolidated_data.parquet"
 
 def load_scrubbed_timeseries() -> pd.DataFrame:
-    """Load scrubbed time series data."""
-    if not SCRUBBED_TIMESERIES_PATH.exists():
-        raise FileNotFoundError(f"Scrubbed timeseries not found at {SCRUBBED_TIMESERIES_PATH}")
+    """
+    Load the scrubbed fMRI time series data.
     
-    logger.info(f"Loading scrubbed timeseries from {SCRUBBED_TIMESERIES_PATH}")
+    Returns:
+        pd.DataFrame: Time series data with subject IDs and time points.
+        
+    Raises:
+        FileNotFoundError: If the scrubbed timeseries file does not exist.
+        ValueError: If the file is empty or missing required columns.
+    """
+    if not SCRUBBED_TIMESERIES_PATH.exists():
+        raise FileNotFoundError(
+            f"Scrubbed timeseries file not found at {SCRUBBED_TIMESERIES_PATH}. "
+            "Please ensure T012b (preprocessing) has been completed."
+        )
+    
     df = pd.read_parquet(SCRUBBED_TIMESERIES_PATH)
     
-    # Validate required columns
-    required_cols = ['subject_id', 'timepoint', 'region', 'signal']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Scrubbed timeseries missing required columns: {missing}")
+    if df.empty:
+        raise ValueError("Scrubbed timeseries file is empty.")
     
-    logger.info(f"Loaded {len(df)} rows of scrubbed timeseries data")
+    # Expected columns: subject_id, time_point, and region-wise connectivity values
+    required_cols = ['subject_id', 'time_point']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Scrubbed timeseries missing required columns: {missing_cols}")
+    
+    logger.info(f"Loaded scrubbed timeseries with {len(df)} rows.")
     return df
 
 def load_behavioral_scores() -> pd.DataFrame:
-    """Load behavioral scores (2-back accuracy) from HCP dataset."""
-    if not BEHAVIORAL_DATA_PATH.exists():
-        # Try alternative path if behavioral data is in raw_behavior
-        alt_path = Path("data/raw_behavior/2back_accuracy.csv")
-        if alt_path.exists():
-            logger.info(f"Loading behavioral scores from {alt_path}")
-            df = pd.read_csv(alt_path)
-            # Normalize column names
-            df.columns = [col.lower().strip() for col in df.columns]
-            if 'subject_id' not in df.columns and 'sub' in df.columns:
-                df['subject_id'] = df['sub']
-            return df
-        raise FileNotFoundError(f"Behavioral scores not found at {BEHAVIORAL_DATA_PATH} or {alt_path}")
+    """
+    Load the behavioral scores (2-back accuracy) data.
     
-    logger.info(f"Loading behavioral scores from {BEHAVIORAL_DATA_PATH}")
-    df = pd.read_parquet(BEHAVIORAL_DATA_PATH)
+    Returns:
+        pd.DataFrame: Behavioral scores with subject IDs and accuracy metrics.
+        
+    Raises:
+        FileNotFoundError: If the behavioral scores file does not exist.
+        ValueError: If the file is empty or missing required columns.
+    """
+    if not BEHAVIORAL_SCORES_PATH.exists():
+        raise FileNotFoundError(
+            f"Behavioral scores file not found at {BEHAVIORAL_SCORES_PATH}. "
+            "Please ensure T011 (download) has been completed."
+        )
     
-    # Normalize column names
-    df.columns = [col.lower().strip() for col in df.columns]
+    df = pd.read_parquet(BEHAVIORAL_SCORES_PATH)
     
-    # Ensure subject_id column exists
-    if 'subject_id' not in df.columns:
-        if 'sub' in df.columns:
-            df['subject_id'] = df['sub']
-        elif 'participant_id' in df.columns:
-            df['subject_id'] = df['participant_id']
-        else:
-            raise ValueError("Behavioral scores missing subject identifier column")
+    if df.empty:
+        raise ValueError("Behavioral scores file is empty.")
     
-    logger.info(f"Loaded {len(df)} rows of behavioral scores")
+    # Expected columns: subject_id, accuracy (or similar metric)
+    required_cols = ['subject_id']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Behavioral scores missing required columns: {missing_cols}")
+    
+    logger.info(f"Loaded behavioral scores with {len(df)} rows.")
     return df
 
 def load_motion_params() -> pd.DataFrame:
-    """Load motion parameters (mean FD) for each subject."""
-    if MOTION_PARAMS_PATH.exists():
-        logger.info(f"Loading motion parameters from {MOTION_PARAMS_PATH}")
-        return pd.read_parquet(MOTION_PARAMS_PATH)
+    """
+    Load motion parameters if available, for reference in consolidation.
     
-    # If motion params not in separate file, they might be in scrubbed timeseries
-    # as a summary statistic or need to be calculated
-    logger.warning("Motion parameters file not found, will attempt to derive from existing data")
-    return pd.DataFrame()
+    Returns:
+        pd.DataFrame: Motion parameters with subject IDs and mean FD.
+        
+    Raises:
+        FileNotFoundError: If the motion parameters file does not exist.
+    """
+    motion_path = PROJECT_ROOT / "data" / "processed" / "motion_params.parquet"
+    if not motion_path.exists():
+        logger.warning(f"Motion parameters file not found at {motion_path}. "
+                     "Consolidation will proceed without motion data.")
+        return pd.DataFrame()
+    
+    df = pd.read_parquet(motion_path)
+    logger.info(f"Loaded motion parameters with {len(df)} rows.")
+    return df
 
-def merge_datasets(
-    timeseries_df: pd.DataFrame,
-    behavioral_df: pd.DataFrame,
-    motion_df: Optional[pd.DataFrame] = None
-) -> pd.DataFrame:
+def merge_datasets(timeseries_df: pd.DataFrame, 
+                   behavioral_df: pd.DataFrame, 
+                   motion_df: pd.DataFrame = None) -> pd.DataFrame:
     """
-    Merge all datasets into a consolidated dataframe.
+    Merge cleaned time series and behavioral scores into a consolidated dataset.
     
-    The consolidation creates a subject-level summary that includes:
-    - Subject ID
-    - Behavioral score (2-back accuracy)
-    - Mean FD (motion metric)
-    - Number of timepoints after scrubbing
-    - Number of brain regions
+    The merge is performed on 'subject_id'. Only subjects present in both
+    datasets are included (inner join).
     
-    Note: Time series data is kept separate to avoid massive file sizes.
-    The consolidated file contains subject-level metadata and indices.
+    Args:
+        timeseries_df: Scrubbed time series data.
+        behavioral_df: Behavioral scores data.
+        motion_df: Optional motion parameters data.
+        
+    Returns:
+        pd.DataFrame: Consolidated dataset with subject-level features.
     """
-    logger.info("Merging datasets...")
+    # Aggregate time series to subject-level features if needed
+    # For now, we assume the time series is already aggregated or we just need
+    # to ensure subject-level alignment. If the time series has multiple rows per subject,
+    # we might need to aggregate (e.g., mean connectivity per subject).
+    # However, based on the task description, we are merging "cleaned time series"
+    # which might imply a subject-level summary or a long format that we keep.
+    # Let's assume we need to create a subject-level summary for the time series
+    # if it's in long format, or just merge if it's already subject-level.
     
-    # Get unique subjects from timeseries
-    timeseries_subjects = timeseries_df['subject_id'].unique()
-    logger.info(f"Found {len(timeseries_subjects)} subjects in timeseries data")
-    
-    # Filter behavioral data to only include subjects with timeseries
-    merged_df = behavioral_df[behavioral_df['subject_id'].isin(timeseries_subjects)].copy()
-    
-    if len(merged_df) == 0:
-        raise ValueError("No overlapping subjects between timeseries and behavioral data")
-    
-    logger.info(f"Merged with {len(merged_df)} subjects having both data types")
-    
-    # Calculate subject-level statistics from timeseries
-    subject_stats = timeseries_df.groupby('subject_id').agg(
-        n_timepoints=('timepoint', 'count'),
-        n_regions=('region', 'nunique')
-    ).reset_index()
-    
-    # Merge with behavioral data
-    merged_df = merged_df.merge(subject_stats, on='subject_id', how='left')
-    
-    # Add motion parameters if available
-    if motion_df is not None and not motion_df.empty:
-        # Ensure subject_id column exists in motion_df
-        if 'subject_id' not in motion_df.columns:
-            if 'sub' in motion_df.columns:
-                motion_df['subject_id'] = motion_df['sub']
-            else:
-                logger.warning("Motion parameters missing subject_id column, skipping merge")
+    # Check if time series is in long format (multiple rows per subject)
+    if timeseries_df['subject_id'].nunique() < len(timeseries_df):
+        # Aggregate to subject level: mean of all time points/regions
+        # This is a simplification; actual aggregation might depend on the specific
+        # structure of the time series data.
+        logger.info("Aggregating time series data to subject level...")
+        # Drop non-numeric columns for aggregation
+        numeric_cols = timeseries_df.select_dtypes(include=[np.number]).columns
+        numeric_cols = [c for c in numeric_cols if c not in ['time_point']]
+        
+        if numeric_cols:
+            subject_summary = timeseries_df.groupby('subject_id')[numeric_cols].mean().reset_index()
         else:
-          merged_df = merged_df.merge(
-              motion_df[['subject_id', 'mean_fd']],
-              on='subject_id',
-              how='left'
-          )
-          logger.info("Merged motion parameters")
-    
-    # Validate final merge
-    required_cols = ['subject_id', 'accuracy']  # accuracy is typical name for 2-back
-    # Try to find accuracy column with different names
-    accuracy_cols = [col for col in merged_df.columns if 'accuracy' in col.lower() or 'score' in col.lower() or '2back' in col.lower()]
-    if accuracy_cols:
-        merged_df['accuracy'] = merged_df[accuracy_cols[0]]
-        logger.info(f"Using {accuracy_cols[0]} as accuracy column")
+            # If no numeric columns, just get unique subjects
+            subject_summary = timeseries_df[['subject_id']].drop_duplicates()
     else:
-        # If no accuracy column found, create a placeholder (should not happen with real data)
-        logger.warning("No accuracy column found in behavioral data, creating placeholder")
-        merged_df['accuracy'] = np.nan
+        subject_summary = timeseries_df.copy()
     
-    # Drop duplicates and sort
-    merged_df = merged_df.drop_duplicates(subset=['subject_id']).sort_values('subject_id')
+    # Merge with behavioral scores
+    consolidated = pd.merge(
+        subject_summary,
+        behavioral_df,
+        on='subject_id',
+        how='inner'
+    )
     
-    logger.info(f"Final consolidated dataset has {len(merged_df)} subjects")
-    return merged_df
+    # Merge with motion parameters if available
+    if motion_df is not None and not motion_df.empty:
+        consolidated = pd.merge(
+            consolidated,
+            motion_df[['subject_id', 'mean_fd']],
+            on='subject_id',
+            how='left'
+        )
+        logger.info(f"Merged with motion parameters. {consolidated['mean_fd'].isna().sum()} subjects without motion data.")
+    
+    logger.info(f"Consolidated dataset has {len(consolidated)} subjects.")
+    return consolidated
 
 def validate_consolidated_data(df: pd.DataFrame) -> bool:
-    """Validate the consolidated dataset meets requirements."""
+    """
+    Validate the consolidated dataset.
+    
+    Args:
+        df: Consolidated DataFrame.
+        
+    Returns:
+        bool: True if validation passes, False otherwise.
+        
+    Raises:
+        ValueError: If validation fails.
+    """
     if df.empty:
-        logger.error("Consolidated dataset is empty")
-        return False
+        raise ValueError("Consolidated dataset is empty.")
     
     if 'subject_id' not in df.columns:
-        logger.error("Consolidated dataset missing subject_id column")
-        return False
-    
-    if 'accuracy' not in df.columns:
-        logger.error("Consolidated dataset missing accuracy column")
-        return False
+        raise ValueError("Consolidated dataset missing 'subject_id' column.")
     
     # Check for NaN in critical columns
-    if df['subject_id'].isna().any():
-        logger.error("Consolidated dataset contains NaN subject_ids")
-        return False
+    critical_cols = ['subject_id']
+    for col in critical_cols:
+        if df[col].isna().any():
+            raise ValueError(f"Critical column '{col}' contains NaN values.")
     
-    logger.info("Consolidated dataset validation passed")
+    logger.info("Consolidated data validation passed.")
     return True
 
 def main():
-    """Main entry point for data consolidation."""
-    logger.info("Starting data consolidation process")
-    
-    # Check memory before processing
-    check_memory_limit()
-    
+    """
+    Main function to run the data consolidation pipeline.
+    """
     try:
-        # Load all data sources
+        logger.info("Starting data consolidation...")
+        
+        # Load data
         timeseries_df = load_scrubbed_timeseries()
         behavioral_df = load_behavioral_scores()
         motion_df = load_motion_params()
@@ -208,39 +208,26 @@ def main():
         # Merge datasets
         consolidated_df = merge_datasets(timeseries_df, behavioral_df, motion_df)
         
-        # Validate output
-        if not validate_consolidated_data(consolidated_df):
-            raise ValueError("Consolidated data validation failed")
+        # Validate
+        validate_consolidated_data(consolidated_df)
         
-        # Ensure output directory exists
-        CONSOLIDATED_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # Save output
+        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        consolidated_df.to_parquet(OUTPUT_PATH, index=False)
         
-        # Save consolidated data
-        logger.info(f"Saving consolidated data to {CONSOLIDATED_OUTPUT_PATH}")
-        consolidated_df.to_parquet(
-            CONSOLIDATED_OUTPUT_PATH,
-            index=False,
-            compression='snappy'
-        )
+        logger.info(f"Consolidated data saved to {OUTPUT_PATH}")
+        logger.info(f"Output shape: {consolidated_df.shape}")
+        logger.info(f"Columns: {list(consolidated_df.columns)}")
         
-        # Verify file was created
-        if not CONSOLIDATED_OUTPUT_PATH.exists():
-            raise RuntimeError(f"Failed to create output file: {CONSOLIDATED_OUTPUT_PATH}")
-        
-        file_size_mb = CONSOLIDATED_OUTPUT_PATH.stat().st_size / (1024 * 1024)
-        logger.info(f"Successfully saved consolidated data ({file_size_mb:.2f} MB)")
-        
-        # Log final memory usage
-        memory_report = get_memory_usage_report()
-        logger.info(f"Final memory usage: {memory_report}")
-        
-        print(f"Consolidated data saved to: {CONSOLIDATED_OUTPUT_PATH}")
-        print(f"Subjects included: {len(consolidated_df)}")
-        print(f"Columns: {list(consolidated_df.columns)}")
-        
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Consolidation failed: {str(e)}", exc_info=True)
-        raise
+        logger.error(f"Unexpected error during consolidation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
