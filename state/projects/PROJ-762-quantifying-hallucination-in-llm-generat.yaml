@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T18:31:20.264458Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-762-quantifying-hallucination-in-llm-generat
-last_run_id: 8ffc6eb6-f0b6-4866-bd31-d54f4ed26aed
+last_run_id: 6f463f04-ff73-45f4-817c-d11caf6017b7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-762-quantifying-hallucination-in-llm-generat/specs/001-quantifying-hallucination-in-llm-generat
 title: Quantifying Hallucination in LLM-Generated API Documentation
-updated_at: '2026-08-25T07:16:30.064201Z'
+updated_at: '2026-09-09T13:49:26.377998Z'

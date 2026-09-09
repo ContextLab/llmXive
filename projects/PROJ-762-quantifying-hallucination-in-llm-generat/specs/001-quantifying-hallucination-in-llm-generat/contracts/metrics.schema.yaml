@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Schema"
+description: "Schema for the hallucination metrics calculated for each function."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the function record."
+  entity_f1_codegen:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Entity-overlap F1 score for codegen-350M."
+  entity_f1_starcoder:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Entity-overlap F1 score for starcoderbase-1b."
+  composite_index_codegen:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Composite hallucination index for codegen-350M (equal to entity_f1_codegen)."
+  composite_index_starcoder:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Composite hallucination index for starcoderbase-1b (equal to entity_f1_starcoder)."
+  is_high_hallucination_codegen:
+    type: "boolean"
+    description: "True if composite_index_codegen >= 0.05."
+  is_high_hallucination_starcoder:
+    type: "boolean"
+    description: "True if composite_index_starcoder >= 0.05."
+required:
+  - id
+  - entity_f1_codegen
+  - entity_f1_starcoder
+  - composite_index_codegen
+  - composite_index_starcoder
+  - is_high_hallucination_codegen
+  - is_high_hallucination_starcoder
+additionalProperties: false

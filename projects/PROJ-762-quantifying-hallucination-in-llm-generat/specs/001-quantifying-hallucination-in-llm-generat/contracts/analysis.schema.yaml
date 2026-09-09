@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the final statistical output report. Focuses on Code-Factuality metrics."
+type: "object"
+properties:
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman's rho for the relationship between Code-Factuality (entity_f1) and predictor."
+  p_value_raw:
+    type: "number"
+    description: "Unadjusted p-value."
+  p_value_adjusted:
+    type: "number"
+    description: "Bonferroni corrected p-value."
+  regression_coefficients:
+    type: "object"
+    description: "Map of predictor names to regression coefficients (based on Code-Factuality)."
+    additionalProperties:
+      type: "number"
+  vif_scores:
+    type: "object"
+    description: "Map of predictor names to Variance Inflation Factors."
+    additionalProperties:
+      type: "number"
+  threshold_sensitivity:
+    type: "array"
+    description: "List of threshold sweep results."
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        high_hallucination_rate:
+          type: "number"
+      required:
+        - threshold
+        - high_hallucination_rate
+  manual_validation_correlation:
+    type: ["number", "null"]
+    description: "Correlation between automated entity_f1 and human score_code_consistency. Null if not run."
+  model_comparison:
+    type: "object"
+    description: "Comparison of coefficients between codegen and starcoder."
+    additionalProperties:
+      type: "object"
+      properties:
+        codegen_coeff:
+          type: "number"
+        starcoder_coeff:
+          type: "number"
+      required:
+        - codegen_coeff
+        - starcoder_coeff
+required:
+  - correlation_coefficient
+  - p_value_raw
+  - p_value_adjusted
+  - regression_coefficients
+  - vif_scores
+  - threshold_sensitivity
+  - model_comparison
