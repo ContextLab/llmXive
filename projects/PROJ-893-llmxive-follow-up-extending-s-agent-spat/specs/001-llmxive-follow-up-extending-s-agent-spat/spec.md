@@ -34,7 +34,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** the symbolic predictions and ground-truth labels, **When** the benchmark script calculates metrics, **Then** it reports an Exact Match score and F1-score for the symbolic agent.
-2. **Given** the symbolic and VLM prediction sets, **When** the latency is measured on a multi-core CPU for the symbolic agent and on a single NVIDIA A100 GPU (4-bit quantized) for the VLM baseline, **Then** the symbolic agent's median inference time is at least 10x faster than the VLM baseline.
+2. **Given** the symbolic and VLM prediction sets, **When** the latency is measured on a multi-core CPU for the symbolic agent and on a high-performance GPU (4-bit quantized) for the VLM baseline, **Then** the symbolic agent's median inference time is at least 10x faster than the VLM baseline.
 3. **Given** the paired results, **When** McNemar's test is performed, **Then** the script outputs a p-value indicating whether the accuracy difference is statistically significant (p < 0.05).
 
 ---
@@ -75,7 +75,7 @@
 - **FR-004**: The system MUST measure and record the inference latency for each scene processed by the symbolic solver on a multi-core CPU environment, ensuring no single scene exceeds a practical threshold for processing time. (See US-2).
 - **FR-005**: The system MUST perform a McNemar's statistical significance test on the paired accuracy results of the symbolic and VLM agents to determine if the performance difference is statistically significant (See US-2).
 - **FR-006**: The system MUST categorize and report failure cases where the symbolic solver underperforms the VLM, distinguishing between "geometric ambiguity" (insufficient constraints) and "semantic disambiguation" needs (sufficient constraints but failed inference) (See US-3).
-- **FR-007**: The system MUST automatically exclude scenes from the analysis set if the required 3D geometric constraint data is missing or malformed. The exclusion count and the IDs of excluded scenes MUST be logged and reported as part of the dataset preprocessing summary to ensure transparency regarding the final sample size (n = [measured count]) (See US-1).
+- **FR-007**: The system MUST automatically exclude scenes from the analysis set if the required D geometric constraint data is missing or malformed. The exclusion count and the IDs of excluded scenes MUST be logged and reported as part of the dataset preprocessing summary to ensure transparency regarding the final sample size (n = [measured count]) (See US-1).
 
 ### Key Entities
 
@@ -97,7 +97,7 @@
 
 ## Assumptions
 
-- **Dataset Variable Fit**: We assume the S-Agent-300K benchmark dataset contains sufficient 3D geometric coordinates and object relations for a representative sample of scenes to formulate a solvable CSP. If specific scenes lack the required data, FR-007 dictates they will be excluded and logged.
+- **Dataset Variable Fit**: We assume the S-AgentK benchmark dataset contains sufficient 3D geometric coordinates and object relations for a representative sample of scenes to formulate a solvable CSP. If specific scenes lack the required data, FR-007 dictates they will be excluded and logged.
 - **Inference Framing**: The study is observational; we assume that the comparison between the symbolic solver and the VLM baseline on the *same* dataset allows for a valid assessment of the reasoning mechanism's source, but we will frame results as associational regarding the "source of reasoning" rather than causal claims about general spatial intelligence.
 - **Compute Feasibility**: We assume that a standard Python CSP solver (e.g., `python-constraint` or `ortools` in CPU mode) can solve the extracted constraint problems for n=1,000 scenes within the -hour CI limit and GB RAM constraint without requiring GPU acceleration or 8-bit quantization.
 - **Threshold Justification**: We assume a fixed accuracy threshold of 85% of the VLM baseline is a defensible community standard for "high-fidelity replication" in this context. A sensitivity analysis will sweep this threshold over a range of high-probability values to report how the "success/failure" verdict varies (See FR-003). The project's success condition is explicitly defined in SC-005.

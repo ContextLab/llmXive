@@ -4,7 +4,16 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Optional
-from huggingface_hub import hf_hub_download, HfApi, RepositoryNotFoundError
+
+# Import huggingface_hub components safely
+try:
+    from huggingface_hub import hf_hub_download, HfApi, RepositoryNotFoundError, RevisionNotFoundError
+except ImportError:
+    # Fallback for older versions or missing specific exceptions
+    from huggingface_hub import hf_hub_download, HfApi
+    RepositoryNotFoundError = Exception
+    RevisionNotFoundError = Exception
+
 from config import config
 
 def ensure_directory(path: Path):
@@ -19,60 +28,60 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: Path, expected_hash: str) -> bool:
-    """Verify file checksum."""
-    return compute_sha256(file_path) == expected_hash
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Verify file checksum against expected value."""
+    actual_checksum = compute_sha256(file_path)
+    return actual_checksum == expected_checksum
 
-def download_dataset(sample_size: int = 1000, repo_id: str = "llmXive/s-agent-300k", filename: str = "s-agent-300k.jsonl"):
+def download_dataset(dataset_id: str, filename: str, output_dir: Path, expected_checksum: str):
     """
     Download dataset from HuggingFace Hub.
-    FAIL LOUD: Raises error if dataset not found or download fails.
+    FAIL LOUD: Raises FileNotFoundError if dataset not found.
     """
-    output_dir = config.DATA_RAW
-    ensure_directory(output_dir)
-    
-    output_file = output_dir / filename
-    
-    if output_file.exists():
-        print(f"Dataset already exists at {output_file}. Skipping download.")
-        return output_file
-
-    print(f"Downloading {filename} from {repo_id}...")
     try:
-        downloaded_path = hf_hub_download(
-            repo_id=repo_id,
+        api = HfApi()
+        # Check if repo exists
+        api.repo_info(repo_id=dataset_id)
+        
+        # Download file
+        local_path = hf_hub_download(
+            repo_id=dataset_id,
             filename=filename,
-            repo_type="dataset"
+            local_dir=output_dir
         )
-        # Move to project directory
-        import shutil
-        shutil.move(downloaded_path, output_file)
-        print(f"Downloaded to {output_file}")
         
-        # Generate manifest
-        file_hash = compute_sha256(output_file)
-        manifest = {filename: file_hash}
-        manifest_path = output_dir / "manifest.json"
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        print(f"Manifest saved to {manifest_path}")
+        # Verify checksum
+        if not verify_checksum(Path(local_path), expected_checksum):
+            raise ValueError(f"Checksum mismatch for {filename}")
         
-        return output_file
+        print(f"Successfully downloaded and verified {filename}")
+        
     except RepositoryNotFoundError:
-        raise RuntimeError(f"Repository {repo_id} not found. Please check the repo_id.")
+        raise FileNotFoundError(f"Dataset {dataset_id} not found at HuggingFace Hub")
+    except RevisionNotFoundError:
+        raise FileNotFoundError(f"Revision not found for dataset {dataset_id}")
     except Exception as e:
-        raise RuntimeError(f"Failed to download dataset: {e}")
+        raise FileNotFoundError(f"Failed to download dataset: {str(e)}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Download dataset")
-    parser.add_argument("--sample-size", type=int, default=1000, help="Sample size (not used for download, just for pipeline)")
+    """Main entry point for dataset download."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Download S-AgentK dataset")
+    parser.add_argument("--sample-size", type=int, default=config.SAMPLE_SIZE, help="Sample size")
     args = parser.parse_args()
 
+    # Configuration for S-AgentK
+    DATASET_ID = "llmXive/S-AgentK"
+    FILENAME = "s_agent_k_subset.jsonl"
+    CHECKSUM = "placeholder_checksum" # To be updated with real checksum
+
+    output_dir = config.DATA_RAW
+    ensure_directory(output_dir)
+
     try:
-        download_dataset(sample_size=args.sample_size)
-        print("Download successful.")
-    except Exception as e:
-        print(f"Download failed: {e}")
+        download_dataset(DATASET_ID, FILENAME, output_dir, CHECKSUM)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

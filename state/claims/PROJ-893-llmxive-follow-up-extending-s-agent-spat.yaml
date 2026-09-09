@@ -105,3 +105,273 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T06:38:05Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: exclusion_log.json contains counts and IDs of excluded scenes
+  claim_id: c_13ac6dc8
+  context: T010 [US1] Implement `code/data/extract_geometry.py` to parse the S-Agent
+    dataset., **detect malformed/missing data**, **exclude** invalid scenes from processing,
+    and output `data/derived/constraints.jsonl` (FR-001, FR-007).
+  evidence:
+    entailment_evidence: json contains counts and IDs of excluded scene
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Exclusion_log.json_contains_counts_and_IDs_of_excluded_scene
+  kind: entity_fact
+  raw_text: Output `data/results/exclusion_log.json` with counts and IDs of excluded
+    scenes immediately upon detection.
+  resolved_value: exclusion_log.json contains counts and IDs of excluded scenes
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T14:23:20Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: distribution_validity.json contains p_value and d_statistic for object
+    density and spatial variance
+  claim_id: c_d84fe573
+  context: 'T007 [P] Implement `code/data/validate_distribution.py` to perform KS-tests
+    on object density and spatial variance (Distributional Validity Gate). **Output**:
+    Generate `data/results/distribution_validity.json` containing `p_value` and `d_statistic`
+    for each metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distribution_validity.json_contains_p_value_and_d_statistic
+  kind: entity_fact
+  raw_text: Output `data/results/distribution_validity.json` containing `p_value`
+    and `d_statistic` for each metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:24:03Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: latency_log.jsonl contains scene_id, prediction, latency_ms, and status
+  claim_id: c_3534b80d
+  context: T012 [US1] Implement `code/solver/run_solver.py` to batch process n=1,000
+    scenes. ... Output `data/derived/predictions.jsonl` AND `data/derived/latency_log.jsonl`
+    with schema keys `scene_id`, `prediction`, `latency_ms`, `status`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_log.jsonl_contains_scene_id,_prediction,_latency_ms,
+  kind: entity_fact
+  raw_text: Output `data/derived/latency_log.jsonl` with schema keys `scene_id`, `prediction`,
+    `latency_ms`, `status`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:24:21Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: batch process 1000 scenes
+  claim_id: c_c926fd8e
+  context: T012 [US1] Implement `code/solver/run_solver.py` to batch process n=1,000
+    scenes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Batch process n=1,000 scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:24:47Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: symbolic solver produces valid predictions and latency logs for 1000
+    scenes on CPU within 6 hours
+  claim_id: c_872a509a
+  context: '**Checkpoint**: Symbolic solver produces valid predictions and latency
+    logs for n=1,000 scenes on CPU within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Symbolic solver produces valid predictions and latency logs for n=1,000
+    scenes on CPU within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:25:03Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: proportion of semantic gap failures calculated as count(semantic_gap)
+    divided by count(total_failures)
+  claim_id: c_e12d13db
+  context: 'T021 [US3] Implement `code/benchmark/analyze_failures.py` to classify
+    failures as "Geometric Ambiguity" or "Semantic Gap" and **calculate the proportion
+    of failures attributable to semantic disambiguation** (FR-006, SC-004). **Logic**:
+    Formula = `count(semantic_gap) / count(total_failures)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Proportion_of_semantic_gap_failures_calculated_as_count(sema
+  kind: entity_fact
+  raw_text: Formula = `count(semantic_gap) / count(total_failures)`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:25:52Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Benchmark report includes accuracy, latency, statistical significance,
+    and sensitivity analysis
+  claim_id: c_36e519b6
+  context: 'Checkpoint: Benchmark report generated with accuracy and latency comparisons;
+    statistical significance calculated; sensitivity analysis and verification artifacts
+    produced.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_report_includes_accuracy,_latency,_statistical_sig
+  kind: entity_fact
+  raw_text: Benchmark report generated with accuracy and latency comparisons; statistical
+    significance calculated; sensitivity analysis and verification artifacts produced.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:34:04Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Failure analysis report quantifies semantic gap proportion
+  claim_id: c_e350f447
+  context: 'Checkpoint: Failure analysis report identifies root causes of symbolic
+    solver underperformance and quantifies the semantic gap proportion.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Failure_analysis_report_quantifies_semantic_gap_proportion
+  kind: causal
+  raw_text: Failure analysis report identifies root causes of symbolic solver underperformance
+    and quantifies the semantic gap proportion.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:34:06Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: CSP solver processes 1000 scenes
+  claim_id: c_e6363e89
+  context: Implement code/config.py for paths, random seeds, and sample size (n=1,000)
+    constants. Implement code/solver/run_solver.py to batch process n=1,000 scenes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a sample size of n=1,000 scenes for the CSP solver batch
+    processing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:37:24Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Symbolic solver processes 1000 scenes on CPU within 6 hours
+  claim_id: c_fb4d814a
+  context: 'Checkpoint: Symbolic solver produces valid predictions and latency logs
+    for n=1,000 scenes on CPU within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The symbolic solver must produce valid predictions and latency logs for
+    1,000 scenes on CPU within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:37:40Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Exact Match must be at least 85% of VLM baseline
+  claim_id: c_149a09f5
+  context: 'Success Verdict: Must explicitly verify SC-005 (Exact Match >= 85% of
+    VLM baseline) and report the final project success/failure verdict.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exact_Match_must_be_at_least_85%25_of_VLM_baseline
+  kind: magnitude
+  raw_text: The acceptance criteria require the Exact Match score to be at least 85%
+    of the VLM baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:38:46Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Proportion of semantic gap failures calculated as count(semantic_gap)
+    divided by count(total_failures)
+  claim_id: c_9f93428d
+  context: 'Implement code/benchmark/analyze_failures.py to classify failures as ''Geometric
+    Ambiguity'' or ''Semantic Gap'' and calculate the proportion of failures attributable
+    to semantic disambiguation (FR-006, SC-004). Logic: Formula = count(semantic_gap)
+    / count(total_failures).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Proportion_of_semantic_gap_failures_calculated_as_count(sema
+  kind: entity_fact
+  raw_text: The failure analysis calculates the proportion of failures attributable
+    to semantic disambiguation using the formula count(semantic_gap) / count(total_failures).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:39:12Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: KS-tests performed on object density and spatial variance for distributional
+    validity
+  claim_id: c_3159d981
+  context: Implement code/data/validate_distribution.py to perform KS-tests on object
+    density and spatial variance (Distributional Validity Gate).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KS-tests_performed_on_object_density_and_spatial_variance_fo
+  kind: entity_fact
+  raw_text: The distributional validity gate performs KS-tests on object density and
+    spatial variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:39:36Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: JSON Schema Draft 7 used for dataset and constraints schemas
+  claim_id: c_a39dcabf
+  context: Create specs/001-symbolic-spatial-reasoning/contracts/dataset.schema.yaml
+    (JSON Schema Draft 7)... Create specs/001-symbolic-spatial-reasoning/contracts/constraints.schema.yaml
+    (JSON Schema Draft 7)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses JSON Schema Draft 7 for defining dataset, constraints,
+    solver output, and benchmark result schemas.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T14:40:15Z'

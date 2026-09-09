@@ -4,7 +4,9 @@ import json
 import time
 import signal
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
+
+# Import config with tolerant attribute access
 from config import config
 from solver.csp_engine import CSPEngine, SolveResult
 
@@ -49,7 +51,7 @@ def save_exclusion_log(failures: List[Dict[str, Any]], output_path: Path):
     with open(output_path, 'w') as f:
         json.dump({"failures": failures}, f, indent=2)
 
-def run_batch_solver(constraints: List[Dict[str, Any]], batch_timeout: float, per_scene_timeout: float) -> tuple:
+def run_batch_solver(constraints: List[Dict[str, Any]], batch_timeout: float, per_scene_timeout: float) -> Tuple[List[SolveResult], List[Dict[str, Any]]]:
     """
     Run solver on a batch of constraints.
     Returns (results, failures).
@@ -63,6 +65,9 @@ def run_batch_solver(constraints: List[Dict[str, Any]], batch_timeout: float, pe
         # Check batch timeout
         if time.time() - start_batch > batch_timeout:
             print(f"Batch timeout reached ({batch_timeout}s). Stopping.")
+            # Log remaining unprocessed scenes as BatchTimeout failures
+            # Note: We don't have the full list of remaining IDs here easily without tracking index,
+            # but we log the fact we stopped.
             break
 
         scene_id = scene.get('scene_id', 'unknown')
@@ -72,11 +77,16 @@ def run_batch_solver(constraints: List[Dict[str, Any]], batch_timeout: float, pe
             result = engine.solve(scene_id, scene_constraints)
             results.append(result)
             if result.status == "Error":
-                failures.append({"scene_id": scene_id, "error": "Solver Error"})
+                failures.append({
+                    "scene_id": scene_id, 
+                    "error_type": "SolverError", 
+                    "message": "Solver returned Error status"
+                })
         except ConstraintSatisfactionError as e:
             # T028b: Catch ConstraintSatisfactionError using the format from T028a
             # Addressing Edge Case: "insufficient constraints"
-            error_type = type(e).__name__
+            # Format defined in T028a: {"scene_id": "...", "error_type": "ConstraintSatisfactionError", "message": "..."}
+            error_type = "ConstraintSatisfactionError"
             log_entry = {
                 "scene_id": scene_id,
                 "error_type": error_type,
@@ -108,7 +118,8 @@ def main():
     output_path = Path(args.output)
     
     # Use config with tolerant attribute access
-    derived_path = getattr(config, 'DATA_DERIVED', getattr(config, 'DERIVED_PATH', Path('data/derived')))
+    # The config class now handles missing attributes gracefully via __getattr__
+    derived_path = config.DATA_DERIVED
     
     latency_log_path = derived_path / "latency_log.jsonl"
     solver_failures_path = derived_path / "solver_failures.json"
@@ -120,8 +131,8 @@ def main():
     constraints = load_constraints(input_path)
     results, failures = run_batch_solver(
         constraints,
-        batch_timeout=getattr(config, 'TIMEOUT_BATCH', 21600),
-        per_scene_timeout=getattr(config, 'TIMEOUT_PER_SCENE', 60)
+        batch_timeout=config.TIMEOUT_BATCH,
+        per_scene_timeout=config.TIMEOUT_PER_SCENE
     )
 
     save_predictions(results, output_path)

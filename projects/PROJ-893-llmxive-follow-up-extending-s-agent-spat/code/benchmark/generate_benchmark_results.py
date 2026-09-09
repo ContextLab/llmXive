@@ -1,211 +1,147 @@
-"""
-T019 Implementation: Generate benchmark_results.csv
-Links scene IDs, predictions, ground truth, and metrics.
-"""
 import os
 import sys
 import csv
 import json
 import math
 from pathlib import Path
+from typing import Dict, List, Any, Optional
+from config import config
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import CONFIG
-from benchmark.metrics import calculate_exact_match, calculate_f1_score
-
-def load_jsonl(path: Path) -> list:
-    """Load a JSONL file into a list of dicts."""
+def load_jsonl(path: Path) -> List[Dict[str, Any]]:
+    """Load JSONL file."""
     data = []
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         for line in f:
-            line = line.strip()
-            if line:
+            if line.strip():
                 data.append(json.loads(line))
     return data
 
-def load_csv_as_dict(path: Path, key_col: str = 'scene_id') -> dict:
-    """Load a CSV file into a dictionary keyed by a specific column."""
+def load_csv_as_dict(path: Path, key: str = 'scene_id') -> Dict[str, Dict[str, Any]]:
+    """Load CSV file as dictionary keyed by specified column."""
     data = {}
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            key = row.get(key_col)
-            if key:
-                data[key] = row
+            data[row[key]] = row
     return data
 
-def load_predictions(path: Path) -> dict:
-    """Load predictions.jsonl into a dict keyed by scene_id."""
-    rows = load_jsonl(path)
-    return {row['scene_id']: row for row in rows}
+def load_predictions(path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load predictions JSONL."""
+    data = load_jsonl(path)
+    return {item['scene_id']: item for item in data}
 
-def load_ground_truth(path: Path) -> dict:
-    """Load ground truth CSV (merged.csv or similar) into a dict keyed by scene_id."""
-    # Assuming the ground truth CSV has a 'scene_id' column and a 'label' or 'answer' column
-    # Adjust key based on actual ground truth schema if necessary. 
-    # Based on T006b, we load the baseline, but for GT we assume a standard format.
-    # If merged.csv contains both, we might need to parse carefully.
-    # For now, assume it has 'scene_id' and 'ground_truth' (or 'label').
-    return load_csv_as_dict(path, key_col='scene_id')
+def load_ground_truth(path: Path) -> Dict[str, Any]:
+    """Load ground truth CSV."""
+    return load_csv_as_dict(path)
 
-def load_latency_log(path: Path) -> dict:
-    """Load latency_log.jsonl into a dict keyed by scene_id."""
-    rows = load_jsonl(path)
-    return {row['scene_id']: row for row in rows}
+def load_latency_log(path: Path) -> Dict[str, float]:
+    """Load latency log JSONL."""
+    data = load_jsonl(path)
+    return {item['scene_id']: item['latency_ms'] for item in data}
 
-def load_vlm_baseline(path: Path) -> dict:
+def load_vlm_baseline(path: Path) -> Dict[str, Any]:
     """Load VLM baseline predictions."""
-    # Assuming it's a CSV or JSONL with scene_id and prediction
-    if path.suffix == '.csv':
-        return load_csv_as_dict(path, key_col='scene_id')
-    else:
-        rows = load_jsonl(path)
-        return {row['scene_id']: row for row in rows}
+    return load_csv_as_dict(path)
 
 def calculate_exact_match(pred: Any, gt: Any) -> bool:
     """Calculate exact match between prediction and ground truth."""
-    if pred is None or gt is None:
-        return False
-    # Normalize for comparison
-    p_str = str(pred).strip().lower()
-    g_str = str(gt).strip().lower()
-    return p_str == g_str
+    return str(pred) == str(gt)
 
 def calculate_f1_score(pred: Any, gt: Any) -> float:
-    """
-    Calculate F1 score.
-    For exact match tasks, F1 is often 1.0 if match, 0.0 otherwise.
-    If pred/gt are sets or lists, compute set-based F1.
-    """
-    if pred is None or gt is None:
-        return 0.0
-    
-    p_str = str(pred).strip().lower()
-    g_str = str(gt).strip().lower()
-    
-    if p_str == g_str:
+    """Calculate F1 score (simplified for this context)."""
+    if pred == gt:
         return 1.0
-    
-    # If they are lists/sets represented as strings, try to parse
-    # Simple heuristic: if they look like lists
-    try:
-        p_list = json.loads(p_str) if isinstance(p_str, str) else p_str
-        g_list = json.loads(g_str) if isinstance(g_str, str) else g_str
-        
-        if isinstance(p_list, list) and isinstance(g_list, list):
-            p_set = set(p_list)
-            g_set = set(g_list)
-            intersection = p_set.intersection(g_set)
-            union = p_set.union(g_set)
-            
-            if not union:
-                return 0.0
-            precision = len(intersection) / len(p_set) if p_set else 0.0
-            recall = len(intersection) / len(g_set) if g_set else 0.0
-            
-            if precision + recall == 0:
-                return 0.0
-            return 2 * (precision * recall) / (precision + recall)
-    except (json.JSONDecodeError, TypeError):
-        pass
-    
     return 0.0
 
-def compute_row_metrics(scene_id: str, pred_row: dict, gt_row: dict, vlm_row: dict, latency_row: dict) -> dict:
-    """Compute metrics for a single row."""
-    symbolic_pred = pred_row.get('prediction') if pred_row else None
-    ground_truth = gt_row.get('label') or gt_row.get('ground_truth') or gt_row.get('answer') if gt_row else None
-    vlm_pred = vlm_row.get('prediction') or vlm_row.get('vlm_prediction') if vlm_row else None
-    latency_ms = latency_row.get('latency_ms') if latency_row else None
+def compute_mcnemar_test(results: List[Dict[str, Any]]) -> float:
+    """
+    Compute McNemar's test p-value.
+    Simplified implementation for binary classification comparison.
+    """
+    # Count concordant and discordant pairs
+    n_01 = 0  # Symbolic wrong, VLM right
+    n_10 = 0  # Symbolic right, VLM wrong
+    
+    for r in results:
+        sym_correct = r.get('symbolic_correct', False)
+        vlm_correct = r.get('vlm_correct', False)
+        
+        if not sym_correct and vlm_correct:
+            n_01 += 1
+        elif sym_correct and not vlm_correct:
+            n_10 += 1
+    
+    if n_01 + n_10 == 0:
+        return 1.0  # No discordant pairs
+    
+    # McNemar's test statistic (chi-squared with continuity correction)
+    stat = (abs(n_01 - n_10) - 1) ** 2 / (n_01 + n_10)
+    
+    # Approximate p-value using chi-squared distribution with 1 df
+    # Using a simple approximation for p-value
+    p_value = math.exp(-stat / 2) if stat > 0 else 1.0
+    return min(p_value, 1.0)
 
+def compute_row_metrics(pred: Dict[str, Any], gt: Dict[str, Any], vlm: Dict[str, Any]) -> Dict[str, Any]:
+    """Compute metrics for a single row."""
+    scene_id = pred.get('scene_id')
+    symbolic_pred = pred.get('prediction')
+    vlm_pred = vlm.get(scene_id, {}).get('prediction')
+    ground_truth = gt.get(scene_id, {}).get('label')
+    
     exact_match = calculate_exact_match(symbolic_pred, ground_truth)
     f1 = calculate_f1_score(symbolic_pred, ground_truth)
-
-    status = "Success"
-    if pred_row and pred_row.get('status') == 'No Solution':
-        status = "No Solution"
-    elif pred_row and pred_row.get('status') == 'Ambiguous':
-        status = "Ambiguous"
     
     return {
         'scene_id': scene_id,
         'symbolic_pred': symbolic_pred,
         'vlm_pred': vlm_pred,
         'ground_truth': ground_truth,
-        'exact_match': int(exact_match),
-        'f1': round(f1, 4),
-        'latency_ms': latency_ms,
-        'status': status
+        'exact_match': exact_match,
+        'f1': f1,
+        'symbolic_correct': exact_match,
+        'vlm_correct': calculate_exact_match(vlm_pred, ground_truth) if vlm_pred else False
     }
 
 def main():
-    """
-    Main entry point for T019.
-    Generates data/results/benchmark_results.csv
-    """
-    # Define paths based on CONFIG
-    predictions_path = CONFIG.DATA_DERIVED / "predictions.jsonl"
-    latency_path = CONFIG.DATA_DERIVED / "latency_log.jsonl"
-    # Ground truth is often in the raw data or a specific derived file. 
-    # Based on T006b, we might have a specific ground truth file. 
-    # Assuming merged.csv in raw contains the ground truth labels.
-    # If T006b produced a specific ground truth file, use that.
-    # For now, checking common locations.
-    gt_path = CONFIG.DATA_RAW / "merged.csv" 
-    if not gt_path.exists():
-        # Fallback if merged.csv isn't the GT source, maybe a specific GT file
-        # But per spec, we link to existing data.
-        raise FileNotFoundError(f"Ground truth file not found at {gt_path}")
-
-    vlm_baseline_path = CONFIG.DATA_RAW / "vlm_baseline.csv" # Assumed location based on T006b output
-    if not vlm_baseline_path.exists():
-        # If not found in raw, check if it was generated elsewhere or named differently
-        # T006b says "fetch or load pre-computed VLM baseline"
-        # Let's assume it's available as per the task description
-        raise FileNotFoundError(f"VLM baseline file not found at {vlm_baseline_path}")
-
-    output_path = CONFIG.DATA_RESULTS / "benchmark_results.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    print(f"Loading predictions from {predictions_path}...")
+    """Generate benchmark results CSV."""
+    # Define paths
+    predictions_path = config.DATA_DERIVED / "predictions.jsonl"
+    ground_truth_path = config.DATA_RAW / "ground_truth.csv"
+    vlm_baseline_path = config.DATA_RAW / "vlm_baseline.csv"
+    latency_path = config.DATA_DERIVED / "latency_log.jsonl"
+    output_path = config.DATA_RESULTS / "benchmark_results.csv"
+    
+    # Load data
     predictions = load_predictions(predictions_path)
-    
-    print(f"Loading latency logs from {latency_path}...")
+    ground_truth = load_ground_truth(ground_truth_path)
+    vlm_baseline = load_vlm_baseline(vlm_baseline_path)
     latencies = load_latency_log(latency_path)
-
-    print(f"Loading ground truth from {gt_path}...")
-    ground_truths = load_ground_truth(gt_path)
-
-    print(f"Loading VLM baseline from {vlm_baseline_path}...")
-    vlm_baselines = load_vlm_baseline(vlm_baseline_path)
-
-    # Get all scene IDs from predictions (as the primary source)
-    scene_ids = list(predictions.keys())
     
+    # Compute metrics
     results = []
-    for sid in scene_ids:
-        pred = predictions.get(sid, {})
-        gt = ground_truths.get(sid, {})
-        vlm = vlm_baselines.get(sid, {})
-        lat = latencies.get(sid, {})
-        
-        row = compute_row_metrics(sid, pred, gt, vlm, lat)
+    for scene_id, pred in predictions.items():
+        row = compute_row_metrics(pred, ground_truth, vlm_baseline)
+        row['latency_ms'] = latencies.get(scene_id, 0)
         results.append(row)
-
-    # Write to CSV
-    fieldnames = ['scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth', 'exact_match', 'f1', 'latency_ms', 'status']
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    
+    # Compute overall p-value
+    p_value = compute_mcnemar_test(results)
+    
+    # Write results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            'scene_id', 'symbolic_pred', 'vlm_pred', 'ground_truth',
+            'exact_match', 'f1', 'latency_ms', 'status', 'p_value'
+        ])
         writer.writeheader()
-        writer.writerows(results)
-
-    print(f"Successfully wrote benchmark results to {output_path}")
-    print(f"Total rows: {len(results)}")
+        for row in results:
+            row['status'] = 'Success' if row['exact_match'] else 'Mismatch'
+            row['p_value'] = p_value
+            writer.writerow(row)
+    
+    print(f"Benchmark results written to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -13,15 +13,21 @@ T010:
     logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
     output file `data/derived/constraints.jsonl` is absent. Both the artifact and
     its expected result are missing or incomplete.
-T021:
+T017:
   c: false
-  h: f6dd288909fa5d6952bd742826148124ad49345241a28fbfc57154c6a321d888
-  r: "The repository contains a partially shown `code/benchmark/analyze_failures.py`,\
-    \ but the file is truncated and does not clearly include logic to compute the\
-    \ proportion of semantic\u2011gap failures or to write the required `data/derived/failure_classification.json`.\
-    \ Moreover, the expected JSON output file is absent from the project. The task\u2019\
-    s core deliverable\u2014producing the classification JSON with the calculated\
-    \ proportion\u2014is therefore missing."
+  h: f6e58fed66d8e98ff74fff6888c059dcb3ea7df525880344cc322401fb6de482
+  r: "The repository lacks the required `data/results/benchmark_results.csv` file,\
+    \ so no p\u2011value column can be populated. Moreover, the `metrics.py` file\
+    \ only shows a partially\u2011implemented `compute_mcnemar_test` stub (truncated)\
+    \ and contains no code that writes the computed p\u2011value to the CSV or a summary\
+    \ report. Both the output artifact and the full implementation are missing."
+T019b:
+  c: false
+  h: 397eada18e7cb9e035da09630adbc31af0310b75a942459d455f88722902aeb2
+  r: The required output file `data/results/benchmark_results.csv` does not exist,
+    and the referenced schema file `specs/001-symbolic-spatial-reasoning/contracts/benchmark_result.schema.yaml`
+    (or `schema.yaml`) is also missing, so the validator cannot be run and the required
+    columns/metrics cannot be verified.
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

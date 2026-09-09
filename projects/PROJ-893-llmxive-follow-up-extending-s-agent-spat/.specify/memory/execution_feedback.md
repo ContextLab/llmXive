@@ -2,52 +2,39 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python code/data/download.py --sample-size 1000 (rc=1); python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl (rc=1); python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl (rc=1); 1 declared deliverable(s) absent: data/results/benchmark_results.csv
+**Summary**: 5 command(s) failed: python code/data/download.py --sample-size 1000 (rc=1); python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl (rc=1); python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl (rc=1); 2 declared deliverable(s) absent: data/derived/failure_classification.json; data/results/benchmark_results.csv
 
 ## Failing / missing run-book commands
 
 - python code/data/download.py --sample-size 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/download.py", line 20, in <module>
-    from huggingface_hub import snapshot_download, hf_hub_download, HfApi, RepositoryNotFoundError, RevisionNotFoundError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/download.py", line 7, in <module>
+    from huggingface_hub import hf_hub_download, HfApi, RepositoryNotFoundError
 ImportError: cannot import name 'RepositoryNotFoundError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/.venv/lib/python3.11/site-packages/huggingface_hub/__init__.py)
 - python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/extract_geometry.py", line 21, in <module>
-    from data.verify_checksum import verify_directory_integrity
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/verify_checksum.py", line 29, in <module>
-    MANIFEST_PATH = CONFIG.DATA_DIR / "manifest.json"
-                    ^^^^^^^^^^^^^^^
-AttributeError: 'Config' object has no attribute 'DATA_DIR'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/data/extract_geometry.py", line 7, in <module>
+    from config import config
+ImportError: cannot import name 'config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/config.py)
 - python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/solver/run_solver.py", line 13, in <module>
-    from solver.csp_engine import CSPEngine, SolveResult
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/solver/csp_engine.py", line 58, in <module>
-    class CSPEngine:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/solver/csp_engine.py", line 75, in CSPEngine
-    def _create_problem(self) -> constraint.Problem:
-                                 ^^^^^^^^^^
-NameError: name 'constraint' is not defined
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/solver/run_solver.py", line 8, in <module>
+    from config import config
+ImportError: cannot import name 'config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/config.py)
 - python code/benchmark/metrics.py --predictions data/derived/predictions.jsonl --baseline data/raw/merged.csv --output data/derived/benchmark_results.csv -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/metrics.py", line 303, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/metrics.py", line 253, in main
-    predictions_path = config.DERIVED_PATH / "predictions.jsonl"
-                       ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'Config' object has no attribute 'DERIVED_PATH'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/metrics.py", line 9, in <module>
+    from config import config
+ImportError: cannot import name 'config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/config.py)
 - python code/benchmark/analyze_failures.py --results data/derived/benchmark_results.csv --output data/derived/failure_report.json -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/analyze_failures.py", line 238, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/analyze_failures.py", line 187, in main
-    predictions_path = config.DATA_DERIVED / "predictions.jsonl"
-                       ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'Config' object has no attribute 'DATA_DERIVED'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/benchmark/analyze_failures.py", line 8, in <module>
+    from config import config
+ImportError: cannot import name 'config' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/code/config.py)
 
 ## Declared deliverables still missing
 
+- data/derived/failure_classification.json
 - data/results/benchmark_results.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
@@ -84,9 +71,12 @@ Whichever you choose, every call site of `Config` across the codebase must stop 
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/derived/failure_classification.json` is declared but was NOT written. Scripts referencing it:
+    - `code/benchmark/analyze_failures.py` — IS a run-book command
+  Make ONE of these WRITE `data/derived/failure_classification.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/benchmark_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/verify_acceptance_scenarios.py` — NOT invoked by the run-book
     - `code/benchmark/generate_failure_report.py` — NOT invoked by the run-book
-    - `code/benchmark/metrics.py` — IS a run-book command
     - `code/benchmark/generate_benchmark_results.py` — NOT invoked by the run-book
+    - `code/benchmark/analyze_failures.py` — IS a run-book command
   Make ONE of these WRITE `data/results/benchmark_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
