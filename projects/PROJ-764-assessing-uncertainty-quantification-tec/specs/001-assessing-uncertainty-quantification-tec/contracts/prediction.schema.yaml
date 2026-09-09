@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "UQPrediction"
+description: "Schema for UQ prediction outputs. UNDEFINED: No data model defined due to missing numeric dataset."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Reference to the material sample."
+  method:
+    type: "string"
+    enum: ["deep_ensemble", "mc_dropout", "sparse_gp"]
+    description: "UQ method used."
+  prediction:
+    type: "number"
+    description: "Point prediction."
+  lower_50:
+    type: "number"
+    description: "[deferred] lower bound."
+  upper_50:
+    type: "number"
+    description: "[deferred] upper bound."
+  lower_90:
+    type: "number"
+    description: "[deferred] lower bound."
+  upper_90:
+    type: "number"
+    description: "[deferred] upper bound."
+  variance:
+    type: "number"
+    description: "Total predictive variance."
+  aleatoric_var:
+    type: "number"
+    description: "Aleatoric uncertainty component."
+  epistemic_var:
+    type: "number"
+    description: "Epistemic uncertainty component."
+  seed:
+    type: "integer"
+    description: "Random seed used for this prediction."
+required:
+  - sample_id
+  - method
+  - prediction
+  - lower_50
+  - upper_50
+  - lower_90
+  - upper_90
+  - variance
+  - seed
+additionalProperties: false

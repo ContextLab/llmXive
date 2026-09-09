@@ -1,69 +1,29 @@
 # Quickstart: Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties
 
-## Prerequisites
-- Python 3.11+
-- 2 CPU cores, 7 GB RAM, 14 GB disk (GitHub Actions Free Tier)
-- Network access to HuggingFace (to load `oqmd/formation-energy`)
+**CRITICAL WARNING: PROJECT HALTED**
 
-## Dataset Note
-**CRITICAL**: This project uses the **OQMD Formation Energy** dataset.
-- **Source**: `oqmd/formation-energy` on HuggingFace.
-- **Access**: The pipeline loads this dataset programmatically via `datasets.load_dataset("oqmd/formation-energy")`.
-- **No manual files required**: Do not provide local CSV files. The pipeline will fail if the HuggingFace source is unreachable.
+This project **cannot be executed** as currently specified. The required numeric materials dataset is **missing** from the "Verified datasets" block. The available dataset (`MixSub`) is text-only and unsuitable for numeric property prediction.
+
+## Prerequisites
+
+- **Python**: 3.11+
+- **Dependencies**: `requirements.txt` (pinned versions).
+- **Data**: A verified numeric materials dataset (e.g., OQMD) must be available. **Note**: The current "Verified datasets" block does not contain a numeric source. You must provide a verified URL or manually download the data.
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project root.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+**NOT APPLICABLE**. No installation is possible because the project is halted.
+
+## Data Preparation
+
+**NOT APPLICABLE**. No data preparation is possible because the project is halted.
 
 ## Running the Pipeline
 
-The entire pipeline (Training -> Evaluation -> Screening) can be run with a single command:
-
-```bash
-cd code
-python main.py
-```
-
-### Configuration
-Edit `config.yaml` to adjust:
-- `seeds`: Random seed (default: 42).
-- `splits`: Train/Val/Test ratios.
-- `timeout`: Max runtime in hours (default: 5).
-- `gp_inducing_points`: Number of inducing points for Sparse GP (default: 500).
-- `risk_aversion`: Parameter $k$ for Expected Loss ranking in screening.
-
-### Output
-Results are saved in the `results/` directory:
-- `calibration_report.csv`: ECE, Interval Score, Sharpness per method.
-- `screening_results.csv`: Precision/Recall comparison (Expected Loss vs Point Prediction).
-- `validation_report.json`: Log of excluded data rows.
-- `uq_predictions.csv`: Full predictions with uncertainty intervals.
+**NOT APPLICABLE**. No pipeline can be run because the project is halted.
 
 ## Troubleshooting
 
-### "SOURCE_UNREACHABLE: OQMD dataset not found"
-- **Cause**: Network issue or HuggingFace source unreachable.
-- **Fix**: Check network connectivity. No local file fallback is supported.
+- **Missing Data**: The project is halted due to missing data. No troubleshooting steps are defined.
 
-### "RuntimeError: GPU required"
-- **Cause**: A library attempted to use CUDA.
-- **Fix**: Ensure `torch` is installed with CPU support only (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-
-### "GP Convergence Failed"
-- **Cause**: Sparse GP optimization did not converge.
-- **Fix**: The pipeline will log a warning and proceed with Deep Ensemble/MC-Dropout results only (GP excluded from ranking).
-
-## Verification
-Run the contract tests to ensure outputs match the schema:
-```bash
-pytest tests/contract/test_schemas.py
-```
+**Current Status**: **HALTED**. No verified numeric dataset exists. The pipeline cannot run.

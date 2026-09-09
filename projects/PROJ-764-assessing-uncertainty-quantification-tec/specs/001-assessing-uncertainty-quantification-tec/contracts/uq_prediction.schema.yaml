@@ -1,7 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: UQPrediction
 type: object
-description: Output of a UQ method for a single sample.
+description: Output of a UQ method for a single sample. UNDEFINED: No data model defined due to missing numeric dataset.
 required:
   - material_id
   - method

@@ -1,0 +1,14 @@
+status: none
+intent: Materials Project bulk dataset download python package dataset
+required_fields:
+- material_id
+- composition
+- structure
+- formation_energy_per_atom
+- bulk_modulus
+- band_gap
+- compositional_features
+- structural_descriptors
+cache_key: a93974de4dc48b082b44e5dafd29efb9ecb691764d3f968e3dbdae6ae3f8eea5
+searched_at: '2026-09-09T19:29:14.011004+00:00'
+retry_count: 1

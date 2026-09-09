@@ -1,7 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: MaterialSample
 type: object
-description: Represents a single inorganic compound from the Materials Project dataset.
+description: Represents a single inorganic compound from the Materials Project dataset. UNDEFINED: No data model defined due to missing numeric dataset.
 required:
   - material_id
   - composition

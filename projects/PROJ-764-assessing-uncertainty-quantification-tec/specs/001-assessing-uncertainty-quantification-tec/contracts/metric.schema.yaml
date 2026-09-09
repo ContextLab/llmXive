@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CalibrationMetric"
+description: "Schema for calibration metrics output. UNDEFINED: No data model defined due to missing numeric dataset."
+type: "object"
+properties:
+  method:
+    type: "string"
+    description: "UQ method name."
+  seed:
+    type: "integer"
+    description: "Random seed."
+  confidence_level:
+    type: "number"
+    description: "Confidence level (0.5 or 0.9)."
+  ece:
+    type: "number"
+    description: "Expected Calibration Error."
+  interval_score:
+    type: "number"
+    description: "Proper Interval Score."
+  sharpness:
+    type: "number"
+    description: "Mean interval width."
+  coverage_actual:
+    type: "number"
+    description: "Empirical coverage percentage."
+required:
+  - method
+  - seed
+  - confidence_level
+  - ece
+  - interval_score
+  - sharpness
+  - coverage_actual
+additionalProperties: false

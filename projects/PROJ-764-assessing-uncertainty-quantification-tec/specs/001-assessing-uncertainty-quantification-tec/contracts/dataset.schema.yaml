@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialSampleDataset"
+description: "Schema for the processed material dataset (train/val/test splits). UNDEFINED: No data model defined due to missing numeric dataset."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the material sample."
+  composition:
+    type: "string"
+    description: "String representation of composition (e.g., 'Fe2O3')."
+  features:
+    type: "array"
+    description: "Numeric feature vector (compositional + structural)."
+    items:
+      type: "number"
+  target_energy:
+    type: "number"
+    description: "Formation energy (eV/atom)."
+  target_modulus:
+    type: "number"
+    description: "Bulk modulus (GPa)."
+  target_gap:
+    type: "number"
+    description: "Band gap (eV)."
+required:
+  - sample_id
+  - features
+  - target_energy
+additionalProperties: false
