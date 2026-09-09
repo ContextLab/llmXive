@@ -53,7 +53,88 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Create schema contracts in `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/` (dataset.schema.yaml, output.schema.yaml, results.schema.yaml)
+- [ ] T002 [P] Create schema contracts in `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/` (dataset.schema.yaml, output.schema.yaml, results.schema.yaml). **Explicit Definitions**:
+  - **dataset.schema.yaml**: Create this file with the following exact content:
+    ```yaml
+    type: object
+    required:
+      - participant_id
+      - pre_self_esteem
+      - post_self_esteem
+      - comparison_tendency
+      - avatar_condition
+    properties:
+      participant_id:
+        type: string
+        description: Unique identifier
+      pre_self_esteem:
+        type: number
+        description: RSES score, pre-intervention
+      post_self_esteem:
+        type: number
+        description: RSES score, post-intervention
+      comparison_tendency:
+        type: number
+        description: INCOM scale score
+      avatar_condition:
+        type: integer
+        enum: [0, 1]
+        description: 0=Neutral, 1=Idealized
+    ```
+  - **output.schema.yaml**: Create this file with the following exact content:
+    ```yaml
+    type: object
+    required:
+      - imputed_data_checksum
+      - missingness_report
+    properties:
+      imputed_data_checksum:
+        type: string
+      missingness_report:
+        type: object
+        properties:
+          total_rows:
+            type: integer
+          rows_excluded:
+            type: integer
+          missingness_pct:
+            type: number
+    ```
+  - **results.schema.yaml**: Create this file with the following exact content:
+    ```yaml
+    type: object
+    required:
+      - coefficients
+      - assumptions
+      - data_source_type
+    properties:
+      coefficients:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            estimate:
+              type: number
+            std_err:
+              type: number
+            p_value:
+              type: number
+      assumptions:
+        type: object
+        properties:
+          shapiro_p:
+            type: number
+          breusch_pagan_p:
+            type: number
+          vif_max:
+            type: number
+      data_source_type:
+        type: string
+        enum: ["real", "synthetic"]
+    ```
+  - All schemas must include validation rules for N ≥ 100 participants (FR-001).
 - [X] T003 [P] Implement schema validation utilities in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/utils/validators.py`
 - [X] T004 [P] Setup logging infrastructure in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/utils/logger.py`
 - [X] T005 [P] Create configuration manager for seeds and paths in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/config.py`
@@ -76,17 +157,17 @@
 ### Implementation for User Story 1
 
 - [X] T008 [P] [US1] Implement dataset discovery script in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` to query HuggingFace, OpenML, and OSF for RSES/INCOM/PrePost variables.
-- [X] T009 [US1] Implement robust IRB/Consent verification logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` (DEPENDS ON T008 output): 
-  1. If real data is found: Check metadata for 'consent_form_url'. 
-  2. If a URL is found, perform an HTTP GET request; if status == 200 and content indicates valid consent/IRB, mark as verified. If status != 200 or no URL exists, treat as missing IRB/Consent. 
-  3. If valid IRB/Consent documentation is NOT found AND real data exists, **block the pipeline** and log the specific missing consent URL. 
-  4. If no real data is found by T008, T009 MUST NOT block; it must allow T011 to trigger synthetic generation. 
-  5. If real data is found AND valid IRB/Consent is present but fails validation (e.g., expired), raise a `BlockingException`. 
-  Log specific findings to `logs/irb_check.log`. This ensures the ethical constraint is enforced without falsely blocking valid datasets or preventing the synthetic fallback when no real data exists. (Constitution Principle VI, FR-011, FR-014).
-- [X] T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` with N ≥ 100, interaction β = 0.2, and "Pipeline Validation Only" labeling (FR-011).
+- [X] T009 [US1] Implement robust IRB/Consent verification logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` (DEPENDS ON T008 output):
+  1. If real data is found: Check metadata for 'consent_form_url'.
+  2. If a URL is found, perform an HTTP GET request; if status == 200 and the content (or filename) contains keywords like 'IRB', 'Consent', or file extensions '.pdf', '.docx', mark as verified.
+  3. If valid IRB/Consent documentation is NOT found AND real data exists, **trigger synthetic generation (T011)** and log the specific missing consent URL. Do NOT block the pipeline; treat missing IRB as a reason to fallback to synthetic data per FR-011.
+  4. If no real data is found by T008, T009 MUST NOT block; it must allow T011 to trigger synthetic generation.
+  5. Log specific findings to `logs/irb_check.log`. This ensures the ethical constraint is enforced without falsely blocking valid datasets or preventing the synthetic fallback when no real data exists. (Constitution Principle VI, FR-011, FR-014).
+- [X] T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` with N ≥ 100, interaction β = 0.2, and "Pipeline Validation Only" labeling (FR-011). **Ground Truth Parameters**: intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1, interaction_beta=0.2, noise_sigma=1.0. All values must be hardcoded or loaded from a config file to ensure reproducibility.
 - [X] T011 [US1] Implement fallback logic: DEPENDS ON T009, T010. If real data not found OR if IRB/Consent verification fails (via T009) OR if required variables are missing, trigger synthetic generation (call T010), set `data_source_type=synthetic` in `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml`, and generate `data/raw/synthetic_seed.json` (FR-009).
 - [X] T012 [P] [US1] Create `data/raw` loader that saves downloaded CSVs or synthetic outputs and writes checksums to `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml` under `artifact_hashes` (Constitution Principle III, V).
-- [X] T013 [US1] Add validation to ensure `data/processed` contains ALL required variables (avatar_condition, pre_self_esteem, post_self_esteem, comparison_tendency) after imputation before proceeding (FR-009). Write validation status and missing fields to `data/processed/validation_report.json`. **DEPENDS ON T016** (Imputation must run first to ensure data is clean and complete for validation). **DEPENDS ON T012** (Loader must run first to populate data).
+- [X] T013a [US1] **Pre-Imputation Variable Check**: Verify `data/raw` contains ALL required variables (avatar_condition, pre_self_esteem, post_self_esteem, comparison_tendency) BEFORE imputation. If any are missing, trigger T011 (Synthetic). DEPENDS ON T012. Write validation status to `data/processed/pre_imputation_validation.json`. (FR-009).
+- [X] T013b [US1] **Post-Imputation Validation**: Verify `data/processed/imputed_data.csv` contains clean data after T016. DEPENDS ON T016. Write validation status to `data/processed/post_imputation_validation.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data path selected and validated).
 
@@ -105,9 +186,9 @@
 
 ### Implementation for User Story 2
 
-- [X] T016 [US2] Implement missing data handling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` using `miceforest` (primary) for < 20% missingness; fallback to `sklearn.impute.IterativeImputer` if `miceforest` unavailable; exclude rows with > 20% (FR-002, FR-013). **DEPENDS ON T012** (Loader must run first to populate data). Output to `data/processed/imputed_data.csv`.
-- [X] T017 [US2] Implement variable normalization (avatar_condition to 0/1 if binary) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` AND compute change scores (post_self_esteem - pre_self_esteem) **strictly for descriptive/logging purposes ONLY**. **CRITICAL**: DO NOT use change scores as the model outcome. The primary model must use ANCOVA (outcome: post_self_esteem, covariate: pre_self_esteem) to avoid mathematical coupling as mandated by the Plan.md. This deviation from FR-003's "change score" wording is explicitly required to satisfy the "avoid mathematical coupling" constraint in the Plan. **DEPENDS ON T016** (Imputation must run first to ensure clean data for normalization). **DEPENDS ON T013** (Validation must pass first).
-- [X] T018 [US2] Implement ANCOVA regression model in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/regression.py` (outcome: post_self_esteem, covariate: pre_self_esteem, predictors: avatar_condition, comparison_tendency, interaction). Explicitly document in code comments that this deviates from FR-003's "change score" wording to satisfy the "avoid mathematical coupling" constraint in the Plan. **DEPENDS ON T017**.
+- [X] T016 [US2] Implement missing data handling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` using `miceforest` (primary) for < 20% missingness; fallback to `sklearn.impute.IterativeImputer` if `miceforest` unavailable; exclude rows with > 20% (FR-002, FR-013). **DEPENDS ON T012, T013a**. Output to `data/processed/imputed_data.csv`.
+- [X] T017 [US2] Implement variable normalization (avatar_condition to 0/1 if binary) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` AND compute change scores (post_self_esteem - pre_self_esteem) **strictly for descriptive/logging purposes ONLY**. **CRITICAL**: DO NOT use change scores as the model outcome. The primary model must use ANCOVA (outcome: post_self_esteem, covariate: pre_self_esteem) to avoid mathematical coupling as mandated by the Plan. **DEPENDS ON T013a, T016**. Write change scores to `data/processed/descriptive_change_scores_log.csv` and log a warning in `logs/preprocess.log` that these are for descriptive use only.
+- [X] T018 [US2] Implement ANCOVA regression model in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/regression.py` (outcome: post_self_esteem, covariate: pre_self_esteem, predictors: avatar_condition, comparison_tendency, interaction). Explicitly document in code comments that this implements the ANCOVA approach (avoiding mathematical coupling) as mandated by the Plan. **DEPENDS ON T013a, T016**.
 - [X] T019 [US2] Implement assumption validation in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/regression.py`: Shapiro-Wilk (normality), Breusch-Pagan (homoscedasticity), VIF (collinearity) (FR-004).
 - [X] T020 [US2] Implement dynamic interpretation logic: "Empirical Association" for real data vs "Simulated Causal Effect" for synthetic data. DEPENDS ON T019. Append interpretation string to `data/processed/final_report.json` (FR-010).
 - [X] T021 [US2] Export regression coefficients to `data/processed/regression_coefficients.csv` and diagnostics (p-values, VIF, CI) to `data/processed/model_diagnostics.json` (FR-008).
@@ -130,10 +211,10 @@
 
 ### Implementation for User Story 3
 
-- [X] T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py` with **at least 1,000 iterations** OR **until CI width variance < 0.01** is achieved (FR-005). This ensures a concrete stopping criterion for executability.
+- [X] T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py` with **at least 1,000 (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) iterations** OR **until CI width variance < 0.01** is achieved (FR-005). This ensures a concrete stopping criterion for executability.
 - [X] T026 [US3] Calculate CI width variance from bootstrap results; **do NOT raise an exception**. Instead, if CI width variance >= 0.01, set a `stability_failed` flag to `true` and write the variance value to `data/processed/final_report.json`. If variance < 0.01, set `stability_failed` to `false`. This ensures the pipeline completes and reports the stability status as a finding (SC-004). **DEPENDS ON T025**.
 - [X] T027 [US3] Implement parameter recovery analysis in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for synthetic data: compare estimated coefficients to ground truth (FR-011, SC-005).
-- [X] T028 [US3] Implement threshold sensitivity sweep in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for p-value thresholds (conventional significance levels) and imputation limits **{, 0.10, 0.15, 0.20}** (FR-007). **Explicitly includes the (complete case) baseline** as required by the spec.
+- [X] T028 [US3] Implement threshold sensitivity sweep in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for p-value thresholds (conventional significance levels) and imputation limits **{complete_case (0.0), 0.05, 0.15, 0.20}** (FR-007). **Explicitly includes the complete case baseline** as required by the spec. **Note**: The implementation must use the exact value 0.05 for the 'low' threshold and log this choice in `logs/sensitivity.log` to ensure transparency. **DEPENDS ON T013a** (for complete case data).
 - [X] T029 [US3] Apply family-wise error correction (Bonferroni/Holm) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` (FR-006): Apply correction **only** to the set of tests generated by sensitivity sweeps (thresholds + imputation limits) and the primary interaction effect hypothesis test. **Do NOT apply correction to model assumption tests (Shapiro, Breusch-Pagan, VIF)** as these are diagnostic checks, not research hypotheses.
 - [X] T030 [US3] Generate final report JSON containing: data path used, model results, bootstrap stability, parameter recovery (if synthetic), and sensitivity findings (FR-012). Write to `data/processed/final_report.json` with keys: `data_source_type`, `model_coefficients`, `bootstrap_ci_variance`, `parameter_recovery_bias` (if synthetic), `sensitivity_results`, `stability_failed` (boolean).
 
@@ -154,6 +235,27 @@
 
 ---
 
+## Phase 7: Data Integrity & Execution Safety (Revision Concerns)
+
+**Goal**: Address critical execution risks regarding data loading, synthetic fallbacks, and compute feasibility identified in prior reviews.
+
+- [X] T036 [US1] **CRITICAL**: Refactor `code/data/download.py` to ensure **NO** `try/except` blocks or `if download_failed:` logic fall back to `generate_synthetic_*()` or `mock_*()` data when a real fetch fails. A failed real fetch (e.g., network error, 404 on a specific URL) MUST raise an explicit exception (e.g., `DataFetchError`). **HOWEVER**, if the systematic search (T008) confirms **NO** real datasets exist across HuggingFace, OpenML, and OSF (i.e., "not found" rather than "fetch failed"), the system MUST proceed to T011 (Synthetic). T036 must distinguish between "fetch error" (raise) and "no data found" (fallback). (Constitution Principle: Real data + real results only). **DELIVERABLE**: The code must define and raise `DataFetchError` on network failures.
+- [X] T037 [US1] **CRITICAL**: Implement explicit "Stream vs. Sample" logic in `code/data/download.py`. If a real dataset is identified but exceeds available memory capacity, implement `datasets.load_dataset(..., streaming=True)` and iterate in chunks to accumulate statistics online. Only if streaming is impossible should a well-defined sample (e.g., `itertools.islice` first N rows) be used, and the code MUST explicitly log the sample size and its limitations. **NEVER** swap in a bundled toy dataset.
+- [X] T038 [US1] **CRITICAL**: Add a "Verified Real Data Source" check. If the execution feedback contains a "VERIFIED REAL DATA SOURCE" block, `code/data/download.py` MUST adopt that exact package/recipe as the single source, removing any hand-rolled `load_dataset("<guessed-id>")` or guessed URLs.
+- [X] T039 [US1] **CRITICAL**: Ensure the synthetic data generator (T010) is **ONLY** triggered if: (a) The systematic search (T008) finds no real datasets, OR (b) Real datasets exist but lack IRB/Consent (T009), OR (c) Real datasets lack required variables. The code MUST log the specific reason for synthetic generation in `logs/data_path_decision.log`. **Implementation Detail**: Write the log entry as a JSON object with keys: `reason`, `timestamp`, `source` (e.g., `{"reason": "missing_irb", "timestamp": "2024-01-15T10:00:00Z", "source": "dataset_xyz"}`). **DELIVERABLE**: Ensure `logging.info` or `logging.warning` is explicitly called in the code at the point of fallback.
+- [X] T040 [US2] **CRITICAL**: Verify that the ANCOVA model implementation (T018) does not inadvertently use change scores as the outcome variable, which would violate the "avoid mathematical coupling" constraint. Add a unit test in `tests/unit/test_preprocess.py` to assert that `post_self_esteem` is the outcome and `pre_self_esteem` is the covariate in the model formula.
+- [X] T041 [US3] **CRITICAL**: Ensure the bootstrap resampling (T025) uses a deterministic random seed for reproducibility, and that the stopping criterion (CI width variance < 0.01) is logged with the exact number of iterations performed. If the limit (e.g., a predefined maximum number of iterations) is reached without meeting the criterion, the pipeline must log a warning but **NOT** fail, recording the final variance in `data/processed/final_report.json`.
+- [X] T042 [US3] **CRITICAL**: Ensure the sensitivity analysis (T028) explicitly tests the **complete case** baseline (no imputation) as a distinct condition in the threshold sweep, and reports the bias/variance relative to this baseline. **Implementation Detail**: Write a CSV file `data/processed/sensitivity_baseline_comparison.csv` containing columns `[threshold, bias, variance, baseline_id]` where `baseline_id` is the ID of the complete case run.
+- [X] T043 [US1] **CRITICAL**: Implement a strict "Fail Loudly" policy in `code/data/download.py`. Remove any logic that silently substitutes synthetic data on network errors. If `load_dataset` or a raw URL fetch raises an exception, the script must crash immediately with a clear error message indicating the specific URL or dataset ID that failed, preventing the pipeline from proceeding with fake data. **DELIVERABLE**: Code must raise `DataFetchError` with a descriptive message on any fetch exception.
+- [X] T044 [US1] **CRITICAL**: Add a pre-flight check in `code/data/download.py` to validate that any real dataset URL or HuggingFace ID used is reachable before attempting to load it. If a URL returns a 403/404, log the failure and trigger the "no data found" path (leading to synthetic generation) rather than attempting a retry that might hang or succeed with a different (invalid) resource. **DELIVERABLE**: Code must raise `ValueError` if IRB/Consent is missing for a found dataset, preventing silent fallback.
+- [X] T045 [US2] **CRITICAL**: Ensure the MICE imputation (T016) handles the `comparison_tendency` variable correctly. If this variable has > 20% missingness, the entire row must be excluded per FR-002, not imputed. Add a specific check in `code/data/preprocess.py` to count missingness per variable before imputation and log the exclusion count.
+- [X] T046 [US3] **CRITICAL**: Verify that the bootstrap resampling (T025) is computationally feasible within the 6-hour CPU limit. If 1,000 iterations with the full dataset exceed the time limit, implement a dynamic reduction strategy that logs the reduction and the resulting CI width variance, ensuring the pipeline completes without fabricating results.
+- [ ] T047 [US1] **CRITICAL**: Create unit test `tests/unit/test_data_fetch_errors.py` that explicitly asserts the "Fail Loudly" behavior. The test must mock a network failure (404/500) and verify that the `DataFetchError` exception is raised immediately, ensuring no silent fallback to synthetic data occurs. (Addresses T036, T043 verification). **DELIVERABLE**: A pytest file that mocks `requests.get` or `load_dataset` to raise an exception and asserts `with pytest.raises(DataFetchError): ...`.
+- [ ] T048 [US1] **CRITICAL**: Create unit test `tests/unit/test_irb_validation.py` that asserts the "Fail Loudly" behavior for missing IRB. The test must provide a mock dataset with `consent_form_url` pointing to a non-existent file or missing metadata and verify that a `ValueError` is raised (or synthetic fallback is triggered explicitly) without silent data generation. (Addresses T009, T044 verification). **DELIVERABLE**: A pytest file that asserts `ValueError` is raised when IRB is missing.
+- [ ] T049 [US1] **CRITICAL**: Create unit test `tests/unit/test_variable_validation.py` that asserts the "Fail Loudly" behavior for missing variables. The test must provide a mock dataset missing a required column (e.g., `comparison_tendency`) and verify that a `FileNotFoundError` or `ValueError` is raised immediately, preventing the pipeline from proceeding with incomplete data. (Addresses T013a, T039 verification). **DELIVERABLE**: A pytest file that asserts `ValueError` is raised when required variables are missing.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -164,6 +266,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Data Integrity (Phase 7)**: Depends on Foundational and US1 implementation; must be completed before final execution to ensure data safety.
 
 ### User Story Dependencies
 
@@ -244,3 +347,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **CRITICAL**: Tasks T036-T049 are mandatory for data integrity and must be implemented before the pipeline is considered production-ready. They address specific risks of fabrication, synthetic fallback, and data handling.

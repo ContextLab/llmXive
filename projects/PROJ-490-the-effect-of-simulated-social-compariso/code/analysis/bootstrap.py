@@ -4,279 +4,236 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
+# Import config for seed retrieval
 from data.config import get_config
-from utils.logger import get_logger
+from utils.logger import get_logger, log_execution_start, log_execution_end
 
+# Configure logger
 logger = get_logger(__name__)
 
+# Constants
+MAX_BOOTSTRAP_ITERATIONS = 5000
+CI_WIDTH_VARIANCE_THRESHOLD = 0.01
+CONFIDENCE_LEVEL = 0.95
+
 def run_single_bootstrap_iteration(
-    data: pd.DataFrame,
-    outcome_col: str,
-    covariate_col: str,
-    predictor_col: str,
-    interaction_col: str,
-    rng: np.random.Generator
-) -> Tuple[float, float]:
+    df: pd.DataFrame, 
+    formula: str, 
+    seed: int
+) -> Dict[str, float]:
     """
     Run a single bootstrap iteration:
     1. Resample rows with replacement.
-    2. Fit a linear model (OLS) to estimate coefficients.
-    3. Return the interaction coefficient and its standard error.
-    
-    Returns:
-        Tuple (interaction_coef, interaction_se)
+    2. Fit the regression model.
+    3. Return coefficients.
     """
-    import statsmodels.api as sm
+    np.random.seed(seed)
+    # Resample with replacement
+    resampled_df = df.sample(n=len(df), replace=True, random_state=seed)
     
-    # Resample
-    sample_indices = rng.choice(len(data), size=len(data), replace=True)
-    boot_data = data.iloc[sample_indices].reset_index(drop=True)
-    
-    # Prepare features
-    # We need: covariate, predictor, interaction
-    X = boot_data[[covariate_col, predictor_col, interaction_col]].values
-    y = boot_data[outcome_col].values
-    
-    # Add constant
-    X = sm.add_constant(X)
-    
-    # Fit OLS
-    model = sm.OLS(y, X)
-    results = model.fit()
-    
-    # Extract interaction coefficient (index 3) and its SE
-    # Assuming order: const, covariate, predictor, interaction
-    interaction_coef = results.params[3]
-    interaction_se = results.bse[3]
-    
-    return interaction_coef, interaction_se
+    # Fit model
+    try:
+        model = ols(formula, data=resampled_df).fit()
+        # Return coefficients as a dict
+        coeffs = {name: float(estimate) for name, estimate in model.params.items()}
+        return coeffs
+    except Exception as e:
+        logger.warning(f"Bootstrap iteration failed: {e}")
+        return None
 
 def calculate_confidence_intervals(
-    coefficients: List[float],
-    ci_level: float = 0.95
+    bootstrap_results: List[Dict[str, float]], 
+    param_name: str,
+    confidence_level: float = 0.95
 ) -> Tuple[float, float]:
     """
-    Calculate confidence intervals from a list of bootstrap coefficients.
-    
-    Args:
-        coefficients: List of bootstrap coefficients.
-        ci_level: Confidence level (e.g., 0.95).
-        
-    Returns:
-        Tuple (lower_ci, upper_ci)
+    Calculate percentile-based confidence intervals for a specific parameter.
     """
-    alpha = 1 - ci_level
-    lower = np.percentile(coefficients, (alpha / 2) * 100)
-    upper = np.percentile(coefficients, (1 - alpha / 2) * 100)
-    return lower, upper
+    if not bootstrap_results:
+        return (np.nan, np.nan)
+    
+    values = [r[param_name] for r in bootstrap_results if r and param_name in r]
+    if not values:
+        return (np.nan, np.nan)
+    
+    alpha = 1 - confidence_level
+    lower = np.percentile(values, 100 * (alpha / 2))
+    upper = np.percentile(values, 100 * (1 - alpha / 2))
+    return (lower, upper)
 
 def calculate_ci_width_variance(
-    coefficients: List[float],
-    ci_level: float = 0.95,
-    n_iterations: int = 1000,
-    seed: Optional[int] = None,
-    data: Optional[pd.DataFrame] = None,
-    outcome_col: str = "post_self_esteem",
-    covariate_col: str = "pre_self_esteem",
-    predictor_col: str = "avatar_condition",
-    interaction_col: str = "interaction_term"
-) -> Dict[str, Any]:
+    bootstrap_results: List[Dict[str, float]], 
+    param_name: str,
+    confidence_level: float = 0.95
+) -> float:
     """
-    Calculate the variance of CI widths from bootstrap results.
-    
-    This function performs bootstrap resampling to generate multiple sets of 
-    confidence intervals, then calculates the variance of the CI widths.
-    
-    Args:
-        coefficients: Pre-computed coefficients (if available). If None, 
-                    bootstrap will be run.
-        ci_level: Confidence level (e.g., 0.95).
-        n_iterations: Number of bootstrap iterations.
-        seed: Random seed for reproducibility.
-        data: DataFrame containing the data. Required if coefficients is None.
-        outcome_col: Name of the outcome variable.
-        covariate_col: Name of the covariate variable.
-        predictor_col: Name of the predictor variable.
-        interaction_col: Name of the interaction variable.
-        
-    Returns:
-        Dict containing:
-            - ci_width_variance: Variance of CI widths
-            - mean_ci_width: Mean CI width
-            - ci_lower: Lower bound of CI
-            - ci_upper: Upper bound of CI
-            - n_iterations: Number of iterations performed
-            - flagged: True if variance >= 0.01 (SC-004)
+    Calculate the variance of the confidence interval width for a parameter.
+    This is done by splitting the results into chunks (e.g., 10 chunks) and
+    calculating CI width for each chunk, then taking the variance of those widths.
     """
-    if seed is None:
-        seed = get_config().seed
+    if len(bootstrap_results) < 20:
+        return float('inf')
+    
+    # Split into 10 chunks for variance estimation
+    n_chunks = 10
+    chunk_size = len(bootstrap_results) // n_chunks
+    widths = []
+    
+    for i in range(n_chunks):
+        start_idx = i * chunk_size
+        end_idx = start_idx + chunk_size if i < n_chunks - 1 else len(bootstrap_results)
+        chunk = bootstrap_results[start_idx:end_idx]
         
-    rng = np.random.default_rng(seed)
+        lower, upper = calculate_confidence_intervals(chunk, param_name, confidence_level)
+        if np.isnan(lower) or np.isnan(upper):
+            continue
+        widths.append(upper - lower)
     
-    if coefficients is None:
-        if data is None:
-            raise ValueError("Either coefficients or data must be provided")
-        
-        logger.info(f"Running {n_iterations} bootstrap iterations...")
-        interaction_coefs = []
-        
-        for i in range(n_iterations):
-            coef, se = run_single_bootstrap_iteration(
-                data, outcome_col, covariate_col, predictor_col, interaction_col, rng
-            )
-            interaction_coefs.append(coef)
-            if (i + 1) % 100 == 0:
-                logger.info(f"Completed {i + 1}/{n_iterations} iterations")
-        
-        coefficients = interaction_coefs
+    if len(widths) < 2:
+        return float('inf')
     
-    # Calculate CI widths for multiple resamples to get variance
-    # We'll do a second-level bootstrap on the CI widths
-    ci_widths = []
-    n_subsamples = min(100, n_iterations)  # Use a subset for variance estimation
-    
-    for _ in range(n_subsamples):
-        # Resample coefficients
-        sample_coefs = rng.choice(coefficients, size=len(coefficients), replace=True)
-        lower, upper = calculate_confidence_intervals(sample_coefs, ci_level)
-        width = upper - lower
-        ci_widths.append(width)
-    
-    ci_width_variance = np.var(ci_widths)
-    mean_ci_width = np.mean(ci_widths)
-    
-    # Final CI calculation
-    final_lower, final_upper = calculate_confidence_intervals(coefficients, ci_level)
-    
-    flagged = ci_width_variance >= 0.01
-    
-    result = {
-        "ci_width_variance": float(ci_width_variance),
-        "mean_ci_width": float(mean_ci_width),
-        "ci_lower": float(final_lower),
-        "ci_upper": float(final_upper),
-        "n_iterations": n_iterations,
-        "flagged": flagged,
-        "threshold": 0.01
-    }
-    
-    if flagged:
-        logger.warning(f"CI width variance ({ci_width_variance:.4f}) >= 0.01. Stability concern (SC-004).")
-    else:
-        logger.info(f"CI width variance ({ci_width_variance:.4f}) < 0.01. Stability confirmed.")
-        
-    return result
+    return float(np.var(widths))
 
 def run_bootstrap_stability(
-    data: pd.DataFrame,
-    outcome_col: str = "post_self_esteem",
-    covariate_col: str = "pre_self_esteem",
-    predictor_col: str = "avatar_condition",
-    interaction_col: str = "interaction_term",
-    n_iterations: int = 1000,
-    seed: Optional[int] = None
+    df: pd.DataFrame,
+    formula: str,
+    target_param: str = 'avatar_condition',
+    max_iterations: int = MAX_BOOTSTRAP_ITERATIONS,
+    variance_threshold: float = CI_WIDTH_VARIANCE_THRESHOLD
 ) -> Dict[str, Any]:
     """
-    Run full bootstrap stability analysis including CI width variance.
-    
-    Args:
-        data: Input DataFrame.
-        outcome_col: Outcome variable name.
-        covariate_col: Covariate variable name.
-        predictor_col: Predictor variable name.
-        interaction_col: Interaction variable name.
-        n_iterations: Number of bootstrap iterations.
-        seed: Random seed.
-        
-    Returns:
-        Dict with stability analysis results.
+    Run bootstrap analysis until stability criterion is met or max iterations reached.
+    Logs the exact number of iterations and the final variance.
     """
     config = get_config()
-    if seed is None:
-        seed = config.seed
+    base_seed = config.get('bootstrap_seed', 42)
+    
+    logger.info(f"Starting bootstrap stability analysis for parameter: {target_param}")
+    logger.info(f"Stability threshold: {variance_threshold}, Max iterations: {max_iterations}")
+    
+    bootstrap_results = []
+    current_variance = float('inf')
+    iterations_performed = 0
+    stability_achieved = False
+    
+    for i in range(1, max_iterations + 1):
+        # Deterministic seed for each iteration
+        iter_seed = base_seed + i
+        result = run_single_bootstrap_iteration(df, formula, iter_seed)
         
-    logger.info(f"Starting bootstrap stability analysis with {n_iterations} iterations")
+        if result:
+            bootstrap_results.append(result)
+        
+        iterations_performed = i
+        
+        # Check stability every 50 iterations (or at end)
+        if i % 50 == 0 or i == max_iterations:
+            if len(bootstrap_results) >= 20:
+                current_variance = calculate_ci_width_variance(
+                    bootstrap_results, target_param
+                )
+                logger.debug(f"Iteration {i}: CI width variance = {current_variance:.6f}")
+                
+                if current_variance < variance_threshold:
+                    stability_achieved = True
+                    logger.info(f"Stability achieved at iteration {i} with variance {current_variance:.6f}")
+                    break
     
-    # Calculate CI width variance
-    stability_results = calculate_ci_width_variance(
-        coefficients=None,
-        ci_level=0.95,
-        n_iterations=n_iterations,
-        seed=seed,
-        data=data,
-        outcome_col=outcome_col,
-        covariate_col=covariate_col,
-        predictor_col=predictor_col,
-        interaction_col=interaction_col
-    )
+    # Log final status
+    if not stability_achieved:
+        logger.warning(
+            f"Bootstrap stability criterion NOT met after {iterations_performed} iterations. "
+            f"Final variance: {current_variance:.6f}. "
+            f"Pipeline will proceed but record this in final report."
+        )
+    else:
+        logger.info(f"Bootstrap completed successfully in {iterations_performed} iterations.")
     
-    return stability_results
+    return {
+        'iterations_performed': iterations_performed,
+        'final_variance': current_variance,
+        'stability_achieved': stability_achieved,
+        'results': bootstrap_results
+    }
 
 def run_bootstrap_analysis(
-    data_path: str,
-    n_iterations: int = 1000,
-    seed: Optional[int] = None
+    df: pd.DataFrame,
+    formula: str,
+    target_param: str = 'avatar_condition',
+    output_dir: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
     Main entry point for bootstrap analysis.
-    
-    Args:
-        data_path: Path to the processed data CSV.
-        n_iterations: Number of bootstrap iterations.
-        seed: Random seed.
-        
-    Returns:
-        Dict with analysis results.
+    Returns a dictionary containing stability metrics and results.
     """
-    logger.info(f"Loading data from {data_path}")
-    data = pd.read_csv(data_path)
+    log_execution_start(logger, "run_bootstrap_analysis")
     
-    # Ensure required columns exist
-    required_cols = ["post_self_esteem", "pre_self_esteem", "avatar_condition", "interaction_term"]
-    missing = [col for col in required_cols if col not in data.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+    if output_dir is None:
+        output_dir = Path("data/processed")
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    results = run_bootstrap_stability(
-        data=data,
-        n_iterations=n_iterations,
-        seed=seed
+    # Run stability analysis
+    stability_data = run_bootstrap_stability(df, formula, target_param)
+    
+    # Calculate final CIs using all collected results
+    final_lower, final_upper = calculate_confidence_intervals(
+        stability_data['results'], target_param
     )
     
-    return results
+    result_dict = {
+        'target_parameter': target_param,
+        'iterations_performed': stability_data['iterations_performed'],
+        'final_ci_variance': stability_data['final_variance'],
+        'stability_failed': not stability_data['stability_achieved'],
+        'confidence_interval': {
+            'lower': final_lower,
+            'upper': final_upper,
+            'level': CONFIDENCE_LEVEL
+        },
+        'raw_results_count': len(stability_data['results'])
+    }
+    
+    # Save intermediate bootstrap results for debugging (optional)
+    results_path = output_dir / "bootstrap_raw_results.csv"
+    if stability_data['results']:
+        pd.DataFrame(stability_data['results']).to_csv(results_path, index=False)
+        logger.info(f"Saved raw bootstrap results to {results_path}")
+    
+    log_execution_end(logger, "run_bootstrap_analysis", result_dict)
+    return result_dict
 
 def main():
     """
-    Command-line entry point for bootstrap analysis.
+    Standalone execution for testing/bootstrap verification.
+    Expects data to be available at data/processed/imputed_data.csv
     """
-    import argparse
+    logger.info("Running bootstrap analysis standalone...")
     
-    parser = argparse.ArgumentParser(description="Bootstrap stability analysis")
-    parser.add_argument("--data", type=str, required=True, help="Path to processed data CSV")
-    parser.add_argument("--iterations", type=int, default=1000, help="Number of bootstrap iterations")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed")
-    parser.add_argument("--output", type=str, default="data/processed/bootstrap_results.json", 
-                      help="Output path for results")
+    # Load data
+    data_path = Path("data/processed/imputed_data.csv")
+    if not data_path.exists():
+        logger.error(f"Data file not found: {data_path}")
+        return
     
-    args = parser.parse_args()
+    df = pd.read_csv(data_path)
     
-    results = run_bootstrap_analysis(
-        data_path=args.data,
-        n_iterations=args.iterations,
-        seed=args.seed
-    )
+    # Define formula based on project spec (ANCOVA)
+    # Outcome: post_self_esteem, Covariate: pre_self_esteem, Predictors: avatar_condition, comparison_tendency
+    formula = "post_self_esteem ~ pre_self_esteem + avatar_condition + comparison_tendency + avatar_condition:comparison_tendency"
     
-    # Save results
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Run analysis
+    results = run_bootstrap_analysis(df, formula)
     
-    import json
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {output_path}")
-    print(json.dumps(results, indent=2))
+    # Print summary
+    print(f"\n--- Bootstrap Analysis Summary ---")
+    print(f"Iterations: {results['iterations_performed']}")
+    print(f"Stability Failed: {results['stability_failed']}")
+    print(f"Final Variance: {results['final_ci_variance']}")
+    print(f"95% CI: [{results['confidence_interval']['lower']:.4f}, {results['confidence_interval']['upper']:.4f}]")
     
     return results
 

@@ -245,3 +245,509 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T03:04:33Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Synthetic data ground truth parameters: intercept 0, main effect avatar
+    0.1, main effect comparison 0.1, interaction beta 0.2, noise sigma 1.0'
+  claim_id: c_5bc4527b
+  context: 'Ground Truth Parameters: intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1,
+    interaction_beta=0.2, noise_sigma=1.0. All values must be hardcoded or loaded
+    from a config file to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Ground Truth Parameters: intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1,
+    interaction_beta=0.2, noise_sigma=1.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:21:31Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Analysis pipeline produces reproducible output artifacts within 6 hours
+    on CPU-only hardware
+  claim_id: c_70d5d95e
+  context: "Independent Test: Can be fully tested by running the complete analysis\
+    \ pipeline on a sample dataset (real or synthetic) and producing reproducible\
+    \ output artifacts (a CSV file containing regression coefficients and a JSON file\
+    \ containing diagnostic metrics) within \u22646 hours on CPU-only hardware."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Can be fully tested by running the complete analysis pipeline on a sample\
+    \ dataset (real or synthetic) and producing reproducible output artifacts within\
+    \ \u22646 hours on CPU-only hardware."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:21:31Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Bootstrap stability flag set to true if CI width variance is greater
+    than or equal to 0.01
+  claim_id: c_07019088
+  context: Calculate CI width variance from bootstrap results; do NOT raise an exception.
+    Instead, if CI width variance >= 0.01, set a stability_failed flag to true and
+    write the variance value to data/processed/final_report.json.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_stability_flag_set_to_true_if_CI_width_variance_is
+  kind: magnitude
+  raw_text: If CI width variance >= 0.01, set a stability_failed flag to true.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:23:00Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Unit test verifies bootstrap stability calculation with CI width variance
+    less than 0.01
+  claim_id: c_ec56a8c8
+  context: Unit test for bootstrap stability calculation (CI width variance < 0.01)
+    in projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_bootstrap.py
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verifies_bootstrap_stability_calculation_with_CI_w
+  kind: magnitude
+  raw_text: Unit test for bootstrap stability calculation (CI width variance < 0.01).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:23:26Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep includes imputation limits 0.0, low, 0.15,
+    and 0.20
+  claim_id: c_8b88607b
+  context: Implement threshold sensitivity sweep in projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py
+    for p-value thresholds (conventional significance levels) and imputation limits
+    {complete_case (0.0), low, 0.15, 0.20} (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement threshold sensitivity sweep for imputation limits {complete_case
+    (0.0), low, 0.15, 0.20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:24:01Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Missing data handling uses miceforest for less than 20% missingness,
+    excludes rows with more than 20% missingness
+  claim_id: c_9a521e29
+  context: Implement missing data handling in projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py
+    using miceforest (primary) for < 20% missingness; fallback to sklearn.impute.IterativeImputer
+    if miceforest unavailable; exclude rows with > 20% (FR-002, FR-013).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Missing_data_handling_uses_miceforest_for_less_than_20%25_miss
+  kind: magnitude
+  raw_text: Implement missing data handling using miceforest for < 20% missingness;
+    fallback to sklearn.impute.IterativeImputer if miceforest unavailable; exclude
+    rows with > 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T12:24:40Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged when VIF is greater than or equal to 5
+  claim_id: c_456ad069
+  context: "Handle collinearity (VIF \u2265 5) by flagging and framing results descriptively\
+    \ without claiming independent effects. Update data/processed/model_diagnostics.json\
+    \ with collinearity_warning key (Assumptions)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_flagged_when_VIF_is_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "Handle collinearity (VIF \u2265 5) by flagging and framing results descriptively\
+    \ without claiming independent effects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:25:02Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: Unit test calculates parameter recovery bias as absolute difference between
+    beta hat and beta true
+  claim_id: c_fd05fd24
+  context: Unit test for parameter recovery bias calculation (|beta_hat - beta_true|)
+    in projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_sensitivity.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_calculates_parameter_recovery_bias_as_absolute_dif
+  kind: entity_fact
+  raw_text: Unit test for parameter recovery bias calculation (|beta_hat - beta_true|).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:25:40Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'synthetic data ground truth parameters: intercept 0, main effect avatar
+    0.1, main effect comparison 0.1, interaction beta 0.2, noise sigma 1.0'
+  claim_id: c_ebca38a1
+  context: '**Ground Truth Parameters**: intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1,
+    interaction_beta=0.2, noise_sigma=1.0. All values must be hardcoded or loaded
+    from a config file to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Ground Truth Parameters: intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1,
+    interaction_beta=0.2, noise_sigma=1.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:35:21Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: analysis pipeline produces reproducible output artifacts within 6 hours
+    on CPU-only hardware
+  claim_id: c_fdc7ff11
+  context: "**Independent Test**: Can be fully tested by running the complete analysis\
+    \ pipeline on a sample dataset (real or synthetic) and producing reproducible\
+    \ output artifacts (a CSV file containing regression coefficients and a JSON file\
+    \ containing diagnostic metrics) within \u22646 hours on CPU-only hardware."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Can be fully tested by running the complete analysis pipeline on a sample\
+    \ dataset (real or synthetic) and producing reproducible output artifacts ...\
+    \ within \u22646 hours on CPU-only hardware."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:35:21Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: CI width variance threshold 0.01 for stability check
+  claim_id: c_124234e3
+  context: Calculate CI width variance from bootstrap results; **do NOT raise an exception**.
+    Instead, if CI width variance >= 0.01, set a `stability_failed` flag to `true`
+    and write the variance value to `data/processed/final_report.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate CI width variance from bootstrap results; do NOT raise an exception.
+    Instead, if CI width variance >= 0.01, set a `stability_failed` flag to `true`...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:35:40Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: unit test bootstrap stability CI width variance < 0.01
+  claim_id: c_a3c56eed
+  context: '- [X] T023 [P] [US3] Unit test for bootstrap stability calculation (CI
+    width variance < 0.01) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_bootstrap.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for bootstrap stability calculation (CI width variance < 0.01)
+    in `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_bootstrap.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:35:40Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'synthetic data ground truth parameters: intercept 0, main effect avatar
+    0.1, main effect comparison 0.1, interaction beta 0.2, noise sigma 1.0'
+  claim_id: c_e13dc12b
+  context: "T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py`\
+    \ with N \u2265 100, interaction \u03B2 = 0.2, and \"Pipeline Validation Only\"\
+    \ labeling (FR-011). **Ground Truth Parameters**: intercept=0, main_effect_avatar=0.1,\
+    \ main_effect_comparison=0.1, interaction_beta=0.2, noise_sigma=1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The synthetic data generator uses ground truth parameters: intercept=0,
+    main_effect_avatar=0.1, main_effect_comparison=0.1, interaction_beta=0.2, noise_sigma=1.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:38:55Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: synthetic data sample size at least 100 participants
+  claim_id: c_807d66bd
+  context: "T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py`\
+    \ with N \u2265 100, interaction \u03B2 = 0.2, and \"Pipeline Validation Only\"\
+    \ labeling (FR-011)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_sample_size_at_least_100_participants
+  kind: magnitude
+  raw_text: The synthetic data generator is configured to generate at least 100 participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:39:57Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: validation requires at least 100 participants
+  claim_id: c_e81f2dd4
+  context: "All schemas must include validation rules for N \u2265 100 participants\
+    \ (FR-001)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_at_least_100_participants
+  kind: magnitude
+  raw_text: The analysis pipeline requires a minimum of 100 participants for validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:40:54Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: mice imputation used for less than 20 percent missingness
+  claim_id: c_48247cf8
+  context: T016 [US2] Implement missing data handling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py`
+    using `miceforest` (primary) for < 20% missingness; fallback to `sklearn.impute.IterativeImputer`
+    if `miceforest` unavailable; exclude rows with > 20% (FR-002, FR-013).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mice_imputation_used_for_less_than_20_percent_missingness
+  kind: magnitude
+  raw_text: MICE imputation is used for datasets with less than 20% missingness.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:41:19Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: rows with more than 20 percent missingness excluded
+  claim_id: c_8f7dada7
+  context: T016 [US2] Implement missing data handling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py`
+    using `miceforest` (primary) for < 20% missingness; fallback to `sklearn.impute.IterativeImputer`
+    if `miceforest` unavailable; exclude rows with > 20% (FR-002, FR-013).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rows_with_more_than_20_percent_missingness_excluded
+  kind: magnitude
+  raw_text: Rows with more than 20% missingness are excluded from the analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:42:16Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling at least 1000 iterations
+  claim_id: c_66898242
+  context: T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py`
+    with **at least 1,000 iterations** OR **until CI width variance < 0.01** is achieved
+    (FR-005).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: 1,000
+    filled: true
+  kind: magnitude
+  raw_text: Bootstrap resampling is performed for at least 1,000 iterations.
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T12:42:28Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling stops when CI width variance less than 0.01
+  claim_id: c_f65cf831
+  context: T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py`
+    with **at least 1,000 iterations** OR **until CI width variance < 0.01** is achieved
+    (FR-005).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_stops_when_CI_width_variance_less_than
+  kind: magnitude
+  raw_text: Bootstrap resampling continues until the CI width variance is less than
+    0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:42:49Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: stability check fails if CI width variance greater than or equal to 0.01
+  claim_id: c_7cf76f51
+  context: T026 [US3] Calculate CI width variance from bootstrap results; **do NOT
+    raise an exception**. Instead, if CI width variance >= 0.01, set a `stability_failed`
+    flag to `true` and write the variance value to `data/processed/final_report.json`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_check_fails_if_CI_width_variance_greater_than_or_e
+  kind: magnitude
+  raw_text: The stability check fails if the CI width variance is greater than or
+    equal to 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:43:19Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: unit test bootstrap stability CI width variance less than 0.01
+  claim_id: c_2103e8b1
+  context: T023 [P] [US3] Unit test for bootstrap stability calculation (CI width
+    variance < 0.01) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/tests/unit/test_bootstrap.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_bootstrap_stability_CI_width_variance_less_than_0.
+  kind: magnitude
+  raw_text: The unit test for bootstrap stability requires CI width variance to be
+    less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:43:39Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep imputation limits 0.0, 0.15, 0.20
+  claim_id: c_7334a098
+  context: T028 [US3] Implement threshold sensitivity sweep in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py`
+    for p-value thresholds (conventional significance levels) and imputation limits
+    **{complete_case (0.0), low, 0.15, 0.20}** (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep includes imputation limits of 0.0, 0.15, and 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:43:57Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: collinearity flagged if VIF greater than or equal to 5
+  claim_id: c_ad45822d
+  context: "T022 [US2] Handle collinearity (VIF \u2265 5) by flagging and framing\
+    \ results descriptively without claiming independent effects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_flagged_if_VIF_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: Collinearity is flagged if the VIF is greater than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:44:51Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: model outcome post_self_esteem covariate pre_self_esteem
+  claim_id: c_226534ab
+  context: 'T017a [US2] **Spec Amendment Task**: Update `spec.md` (FR-003) to explicitly
+    state that the model outcome is `post_self_esteem` (ANCOVA) with `pre_self_esteem`
+    as a covariate, replacing the original `self-esteem_change` requirement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_outcome_post_self_esteem_covariate_pre_self_esteem
+  kind: entity_fact
+  raw_text: The model outcome is post_self_esteem with pre_self_esteem as a covariate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:45:18Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 2
+  canonical: synthetic data interaction beta 0.2
+  claim_id: c_ffd0ed50
+  context: "T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py`\
+    \ with N \u2265 100, interaction \u03B2 = 0.2, and \"Pipeline Validation Only\"\
+    \ labeling (FR-011)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generator uses an interaction beta of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T12:45:18Z'

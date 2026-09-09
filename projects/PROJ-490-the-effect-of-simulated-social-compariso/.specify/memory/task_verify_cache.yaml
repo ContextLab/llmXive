@@ -1,3 +1,10 @@
+T017a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt includes FR\u2011003 with the amended ANCOVA specification,\
+    \ explicitly naming `post_self_esteem` as the outcome and `pre_self_esteem` as\
+    \ a covariate, replacing the previous `self\u2011esteem_change` requirement. This\
+    \ satisfies the task\u2019s requirement to update `spec.md`."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,3 +27,17 @@ T032a:
     were addressed. The provided text only contains project specifications and user
     stories, not the actual code artifacts or the output of the linting process required
     to verify completion.
+T041:
+  c: false
+  h: d22061510d7b7bb9a1fcea365417db43c1bd9e68653e4c40c1ba641a050f0506
+  r: "The required output file `data/processed/final_report.json` does not exist,\
+    \ so the pipeline cannot have logged the stopping criterion, warning, or final\
+    \ variance as specified. Without this artifact, the task\u2019s core requirement\
+    \ is unmet."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact was provided that shows the sensitivity analysis (T028) was updated\
+    \ to include a distinct \u201Ccomplete case\u201D (no imputation) condition in\
+    \ the threshold sweep, nor any output reporting bias/variance relative to this\
+    \ baseline. The required evidence is missing."

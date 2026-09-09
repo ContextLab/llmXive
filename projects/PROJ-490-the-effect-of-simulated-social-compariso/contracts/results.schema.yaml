@@ -1,83 +1,65 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Final Report Schema
-description: >
-  Schema for the comprehensive final report JSON file.
-  Aggregates data source info, model results, bootstrap stability, and sensitivity analysis.
+title: Results Schema
+description: Schema for final regression results and model diagnostics.
 type: object
+required:
+  - coefficients
+  - assumptions
+  - data_source_type
 properties:
+  coefficients:
+    type: array
+    description: List of regression coefficients.
+    items:
+      type: object
+      required:
+        - name
+        - estimate
+        - std_err
+        - p_value
+      properties:
+        name:
+          type: string
+        estimate:
+          type: number
+          format: float
+        std_err:
+          type: number
+          format: float
+        p_value:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+  assumptions:
+    type: object
+    description: Model assumption validation results.
+    required:
+      - shapiro_p
+      - breusch_pagan_p
+      - vif_max
+    properties:
+      shapiro_p:
+        type: number
+        format: float
+        minimum: 0.0
+        maximum: 1.0
+        description: Shapiro-Wilk normality test p-value.
+      breusch_pagan_p:
+        type: number
+        format: float
+        minimum: 0.0
+        maximum: 1.0
+        description: Breusch-Pagan homoscedasticity test p-value.
+      vif_max:
+        type: number
+        format: float
+        minimum: 1.0
+        description: Maximum Variance Inflation Factor.
   data_source_type:
     type: string
-    description: Source of the data used ("real" or "synthetic").
-  data_path:
-    type: string
-    description: Relative path to the data file used.
-  model_results:
-    $ref: '#/definitions/OutputSchema'
-  bootstrap_results:
-    type: object
-    properties:
-      iterations:
-        type: integer
-        description: Number of bootstrap iterations performed.
-      ci_width_variance:
-        type: number
-        description: Variance of the confidence interval widths across iterations.
-      stability_check:
-        type: boolean
-        description: True if CI width variance < 0.01, indicating stability.
-    required:
-      - iterations
-      - ci_width_variance
-      - stability_check
-  sensitivity_results:
-    type: object
-    properties:
-      parameter_recovery_bias:
-        type: number
-        description: Absolute difference between estimated and true parameters (synthetic only).
-        nullable: true
-      threshold_sensitivity:
-        type: array
-        description: Results of threshold sensitivity sweeps.
-        items:
-          type: object
-      error_correction_applied:
-        type: boolean
-        description: Whether family-wise error correction was applied.
-  interpretation_summary:
-    type: string
-    description: Human-readable summary of the findings.
-  metadata:
-    type: object
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-      pipeline_version:
-        type: string
-      seed:
-        type: integer
-    required:
-      - timestamp
-      - pipeline_version
-required:
-  - data_source_type
-  - data_path
-  - model_results
-  - bootstrap_results
-  - sensitivity_results
-  - interpretation_summary
-  - metadata
-definitions:
-  OutputSchema:
-    type: object
-    properties:
-      coefficients:
-        type: array
-        items:
-          type: object
-      diagnostics:
-        type: object
-    required:
-      - coefficients
-      - diagnostics
+    enum:
+      - real
+      - synthetic
+    description: Indicates whether the analysis used real or synthetic data.
+additionalProperties: false

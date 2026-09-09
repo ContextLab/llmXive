@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 93227d0dfe41f08bd43b671bc50e1999025073fd53bc4ec2668aff706f65fa3c
+  artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bootstrapping - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Bootstrapping_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
+  verified_at: '2026-09-09T12:58:57.597059Z'
