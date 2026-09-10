@@ -6,45 +6,49 @@ def create_directories():
     """
     Creates the standard project directory structure as defined in plan.md.
     Directories created:
-      - code/
-      - tests/ (including unit, contract, integration subfolders)
-      - data/ (including raw, processed, interim subfolders)
-      - results/ (including figures, tables subfolders)
+    - code/
+    - tests/ (including subdirectories: unit, integration, contract)
+    - data/ (including subdirectories: raw, processed, intermediate)
+    - results/
+    - figures/
+    - specs/
     """
-    base_dir = Path(__file__).parent.parent
+    base_path = Path(".")
     
-    # Define the directory structure relative to the project root
     directories = [
         "code",
         "tests/unit",
-        "tests/contract",
         "tests/integration",
+        "tests/contract",
         "data/raw",
         "data/processed",
-        "data/interim",
-        "results/figures",
-        "results/tables",
+        "data/intermediate",
+        "results",
+        "figures",
+        "specs"
     ]
     
     created_count = 0
     for dir_name in directories:
-        target_path = base_dir / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {target_path}")
+            print(f"Directory already exists: {full_path}")
     
-    print(f"Project structure setup complete. {created_count} new directories created.")
+    print(f"Project structure initialization complete. {created_count} new directories created.")
     return created_count
 
 def main():
-    """Entry point for the script."""
+    """Main entry point for the script."""
     try:
         create_directories()
+        print("SUCCESS: Project directory structure created successfully.")
+        sys.exit(0)
     except Exception as e:
-        print(f"Error creating directories: {e}", file=sys.stderr)
+        print(f"ERROR: Failed to create project structure: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

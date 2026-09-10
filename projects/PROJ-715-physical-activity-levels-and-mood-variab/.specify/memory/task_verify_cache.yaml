@@ -1,12 +1,12 @@
 T007:
   c: false
-  h: 5627346b419c539330b6c7ac585607ad2f35cb7946641123474b64865d1c99bf
-  r: "The repository lacks the required `data/raw/bronze.parquet` file and the state\
-    \ YAML still contains `data_raw_bronze: null`, indicating the checksum was never\
-    \ written. Moreover, `code/ingest.py` defines but never uses `compute_sha256`\
-    \ and does not invoke `update_state_artifact_hash` to atomically record the hash.\
-    \ The download\u2011to\u2011parquet conversion and state update steps are therefore\
-    \ not implemented."
+  h: 41102ac7c6c3fdacb0af81121e73fb242c5bc1fbbc5f09cfe20adf9d85e50e2d
+  r: "`code/ingest.py` is present but the shown implementation never calls `compute_sha256`\
+    \ after download, does not write the checksum before any file write, and the `extract_and_convert_zip`\
+    \ function is truncated and does not produce `data/raw/bronze.parquet`. The required\
+    \ `data/raw/bronze.parquet` file is missing, and the state YAML still has `data_raw_bronze:\
+    \ null` instead of the SHA\u2011256 hash. The critical integrity steps and atomic\
+    \ state update are therefore not fulfilled."
 T011:
   c: true
   h: 50836a4fcc5f35d55d8225c894f4c917d7e7c34d8ce9b8f965cff72b580d151c

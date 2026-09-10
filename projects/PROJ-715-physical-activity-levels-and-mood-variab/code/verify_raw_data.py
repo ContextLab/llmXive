@@ -1,69 +1,75 @@
-"""
-Verification script for the raw bronze data artifact.
-This script explicitly verifies that data/raw/bronze.parquet exists and is readable.
-It is a dependency for T011 (preprocess.py).
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
-
 from config import get_path, init_logger
 
-# Initialize logger
 logger = init_logger(__name__)
 
 def verify_bronze_parquet():
     """
-    Verify that the bronze parquet file exists and is readable.
-    Raises RuntimeError if the file is missing or corrupted.
+    Explicitly verify that data/raw/bronze.parquet exists and is readable.
+    
+    This task implements T007b: Artifact Verification.
+    It ensures the file produced by T007 (ingest.py) is present and valid.
+    
+    Returns:
+        bool: True if verification passes, raises RuntimeError otherwise.
     """
-    file_path = get_path("data", "raw", "bronze.parquet")
-    path_obj = Path(file_path)
-
-    # Check existence
-    if not path_obj.exists():
+    output_path = get_path("data", "raw", "bronze.parquet")
+    
+    logger.info(f"Verifying artifact: {output_path}")
+    
+    # 1. Check existence
+    if not os.path.exists(output_path):
         raise RuntimeError(
-            f"CRITICAL: Artifact verification failed. "
-            f"File '{file_path}' does not exist. "
-            f"Please ensure T007 (ingest.py) has run successfully and downloaded the data."
+            f"Artifact verification failed: {output_path} does not exist. "
+            "Ensure T007 (ingest.py) has run successfully and downloaded the data."
         )
-
-    logger.info(f"File found: {file_path} ({path_obj.stat().st_size} bytes)")
-
-    # Check readability
+    
+    # 2. Check file size (sanity check)
+    file_size = os.path.getsize(output_path)
+    if file_size == 0:
+        raise RuntimeError(
+            f"Artifact verification failed: {output_path} exists but is empty (0 bytes)."
+        )
+    logger.info(f"File size check passed: {file_size} bytes")
+    
+    # 3. Check readability (try to load)
     try:
-        df = pd.read_parquet(file_path)
-        logger.info(f"Successfully read parquet file. Shape: {df.shape}")
-        logger.info(f"Columns: {list(df.columns)}")
+        df = pd.read_parquet(output_path)
+        logger.info(f"File is readable. Shape: {df.shape}, Columns: {list(df.columns)}")
         
-        # Basic sanity check: ensure it's not empty
-        if df.empty:
-            raise RuntimeError(
-                f"CRITICAL: Artifact verification failed. "
-                f"File '{file_path}' exists but is empty (0 rows)."
-            )
+        # Basic sanity check on columns expected by downstream tasks (T011+)
+        # The spec implies columns like participant_id, timestamp, step_count
+        required_cols = ['participant_id']
+        for col in required_cols:
+            if col not in df.columns:
+                logger.warning(f"Expected column '{col}' not found in bronze.parquet. "
+                               "This may cause downstream failures.")
         
-        logger.info("Artifact verification PASSED.")
         return True
-
+        
     except Exception as e:
         raise RuntimeError(
-            f"CRITICAL: Artifact verification failed. "
-            f"File '{file_path}' exists but could not be read as a valid parquet file. "
+            f"Artifact verification failed: Could not read {output_path}. "
             f"Error: {str(e)}"
         )
 
 def main():
-    """Entry point for verification."""
-    logger.info("Starting artifact verification for T007b...")
+    """Entry point for verification script."""
+    logger.info("Starting artifact verification (T007b)...")
     try:
-        verify_bronze_parquet()
-        logger.info("Verification complete. Ready for T011.")
-        sys.exit(0)
+        success = verify_bronze_parquet()
+        if success:
+            logger.info("Artifact verification PASSED: data/raw/bronze.parquet is valid.")
+            sys.exit(0)
     except RuntimeError as e:
-        logger.error(str(e))
+        logger.error(f"Artifact verification FAILED: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during verification: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

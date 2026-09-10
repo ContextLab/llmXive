@@ -1,39 +1,41 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-omnidirector"
 version = "0.1.0"
-description = "OmniDirector dataset analysis pipeline"
+description = "OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D"
 requires-python = ">=3.11"
 dependencies = [
-    "opencv-python>=4.8.0",
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "pytest>=7.4.0",
-    "pyyaml>=6.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "opencv-python",
+    "numpy",
+    "pandas",
+    "scipy",
+    "pytest",
+    "pyyaml",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
-/(\.git|\.hg|\.mypy_cache|\.tox|\.venv|venv|_build|buck-out|build|dist)/
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+)/
 '''
 
 [tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-v --tb=short"
-
-[tool.ruff]
-# Inherits from .ruff.toml but can override here if needed
-line-length = 100
-target-version = "py311"

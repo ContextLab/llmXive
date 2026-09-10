@@ -79,7 +79,7 @@
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
 - [X] T011 [P] [US1] Contract test for output schema in `tests/contract/test_cre_schema.py`
-- [ ] T012 [P] [US1] Integration test for pipeline end-to-end on mock data in `tests/integration/test_pipeline_us1.py` <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Integration test for pipeline end-to-end on mock data in `tests/integration/test_pipeline_us1.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 

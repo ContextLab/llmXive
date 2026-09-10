@@ -22,12 +22,12 @@ T007:
     \ data (or real data if fetched) to satisfy the task."
 T008:
   c: false
-  h: 5ef59e78124d8b661cd234c9acd0d1bd504915b2284559a99e7cae96c8ce3398
-  r: "The `ingestion.py` file does not contain logic to choose the real zip or fall\
-    \ back to `synthetic_omnidirector.zip`, it only loads a CSV from a zip (while\
-    \ the synthetic zip holds JSON files). Moreover, the real dataset zip is absent,\
-    \ and the code never extracts the required grid\u2011video pairs. These gaps mean\
-    \ the task\u2019s specification is not satisfied."
+  h: f2f10a4fbbc8f6e5ff4adf37ff3c6ac232a1100c16738f151528b0331a93a898
+  r: "The required raw dataset zip files (`data/raw/omnidirector.zip` and `data/raw/synthetic_omnidirector.zip`)\
+    \ are absent, and the provided `code/data/ingestion.py` only loads a CSV from\
+    \ a zip and parses simple fields\u2014it does not extract the grid\u2011video\
+    \ pairs as the task specifies. The implementation therefore does not meet the\
+    \ stated requirement."
 T017:
   c: false
   h: d90fcf975e1a2831d06e4495789a34ed63d9410aa57e63509a5ea33bc6652209
@@ -42,3 +42,37 @@ T025:
   r: The required integration test file `code/tests/integration/test_geometry_pipeline.py`
     does not exist in the repository, so the claimed implementation is missing entirely.
     No test code is present to verify full sequence reconstruction.
+T026:
+  c: false
+  h: f9ebe186559f5081725a398d7c21ccbc3f8772da3a21e8b11f8a9ee2e876490d
+  r: "`code/analysis/metrics.py` contains a reconstruction\u2011error function and\
+    \ a loader for a poses JSON file, but the required input file `data/processed/poses_estimated.json`\
+    \ is absent, so the code cannot actually consume the data and produce the errors\
+    \ as specified. The missing JSON file must be provided (or generated) for the\
+    \ task to be complete."
+T030:
+  c: false
+  h: f0574297cb8a4dfddf19a62e6e948f9b41b4bc472a5eb8ecf72dda719d29d5ac
+  r: "The required `data/processed/filtered_sequences.csv` does not exist, and the\
+    \ provided `code/analysis/validation.py` contains only placeholder aspect\u2011\
+    ratio utilities and does not read the CSV, detect `randomized_depth=True` rows,\
+    \ attempt depth recovery, or flag errors >\u202F50\u202F%. Both the data artifact\
+    \ and the necessary validation logic are missing."
+T031:
+  c: false
+  h: 88c1c6b12a3d7b169ec6353d2bc1436ca88b18aea5d49aebfd02b078e000c75b
+  r: The required output file `data/processed/reconstruction_results.csv` does not
+    exist, so the success rate was neither calculated nor recorded as specified. The
+    implementer must generate this CSV with the retained/total filtering metrics.
+T032:
+  c: false
+  h: 88c1c6b12a3d7b169ec6353d2bc1436ca88b18aea5d49aebfd02b078e000c75b
+  r: The required artifact `data/processed/reconstruction_results.csv` does not exist,
+    so no execution timing data is recorded. The implementer must create the CSV file
+    and ensure the pipeline writes the total execution time into it.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `report.md` file or any content was supplied; the implementer did not provide
+    the required statistical report with the specified sections and visualizations.
+    The task remains unfinished until the report is created and presented.

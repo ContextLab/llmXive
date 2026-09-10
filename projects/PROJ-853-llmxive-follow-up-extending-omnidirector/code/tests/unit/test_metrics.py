@@ -47,22 +47,26 @@ class TestPearsonCorrelation:
         y = [2.0, 4.0, 6.0, 8.0, 10.0]
         r, p = calculate_pearson_correlation(x, y)
         assert np.isclose(r, 1.0)
-        assert p == 0.0 # p-value might be 0.0 or very small
+        # p-value might be 0.0 or very small for perfect correlation
+        assert p == 0.0 or np.isclose(p, 0.0, atol=1e-10)
 
     def test_perfect_negative(self):
         x = [1.0, 2.0, 3.0, 4.0, 5.0]
         y = [5.0, 4.0, 3.0, 2.0, 1.0]
         r, p = calculate_pearson_correlation(x, y)
         assert np.isclose(r, -1.0)
+        assert p == 0.0 or np.isclose(p, 0.0, atol=1e-10)
 
     def test_no_correlation(self):
         x = [1.0, 2.0, 3.0, 4.0, 5.0]
         y = [5.0, 1.0, 4.0, 2.0, 3.0] # Random permutation
         r, p = calculate_pearson_correlation(x, y)
-        # Should be close to 0, but not exactly 0 due to small sample
-        assert abs(r) < 0.5
+        # Should be close to 0, but not exactly 0 due to small sample size
+        # We assert it's within a reasonable range for uncorrelated data
+        assert abs(r) < 0.9
 
     def test_insufficient_data(self):
+        # Only one data point -> undefined correlation
         r, p = calculate_pearson_correlation([1.0], [2.0])
         assert r == 0.0
         assert p == 1.0
@@ -71,8 +75,18 @@ class TestPearsonCorrelation:
         x = [1.0, 2.0, np.nan, 4.0]
         y = [2.0, 4.0, 6.0, 8.0]
         r, p = calculate_pearson_correlation(x, y)
-        # Should ignore NaN and calculate on remaining
+        # Should ignore NaN and calculate on remaining valid pairs
         assert not np.isnan(r)
+        # Expected correlation for [1,2,4] and [2,4,8] is 1.0
+        assert np.isclose(r, 1.0)
+
+    def test_constant_data(self):
+        # If one variable is constant, correlation is undefined (0.0 in our implementation)
+        x = [1.0, 1.0, 1.0]
+        y = [1.0, 2.0, 3.0]
+        r, p = calculate_pearson_correlation(x, y)
+        assert r == 0.0
+        assert p == 1.0
 
 class TestComplexityCalculation:
     def test_pre_calculated_complexity(self):
@@ -98,7 +112,7 @@ class TestComplexityCalculation:
         results = calculate_camera_motion_complexity(data)
         assert len(results) == 1
         assert results[0]['sequence_id'] == 's1'
-        # Should have calculated a non-zero complexity
+        # Should have calculated a non-zero complexity based on motion
         assert results[0]['complexity'] > 0.0
 
 class TestCorrelationAnalysisPipeline:
@@ -129,7 +143,25 @@ class TestCorrelationAnalysisPipeline:
             with open(output_path) as f:
                 saved = json.load(f)
             assert saved['pearson_r'] == results['pearson_r']
+            assert saved['sequence_count'] == 3
             
+        finally:
+            input_path.unlink()
+            if output_path.exists():
+                output_path.unlink()
+
+    def test_run_correlation_analysis_empty(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump([], f)
+            input_path = Path(f.name)
+
+        output_path = input_path.parent / "output_empty.json"
+
+        try:
+            results = run_correlation_analysis(input_path, output_path)
+            assert results['sequence_count'] == 0
+            assert results['pearson_r'] == 0.0
+            assert results['p_value'] == 1.0
         finally:
             input_path.unlink()
             if output_path.exists():

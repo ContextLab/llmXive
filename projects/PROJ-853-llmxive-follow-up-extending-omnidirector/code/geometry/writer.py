@@ -1,3 +1,7 @@
+"""
+Writer module for geometry outputs.
+Handles serialization of poses and reconstructed boxes to JSON.
+"""
 import os
 import json
 import logging
@@ -9,89 +13,147 @@ from config import get_path
 
 logger = logging.getLogger(__name__)
 
-
-def serialize_ndarray(obj: np.ndarray) -> List[List[float]]:
+def serialize_ndarray(obj: Any) -> Any:
     """
-    Serializes a numpy array to a list of lists of floats for JSON compatibility.
-    Handles 1D, 2D, and 3D arrays.
+    Custom JSON encoder hook for numpy arrays.
+    Converts numpy arrays to lists for JSON serialization.
     """
-    return obj.tolist()
-
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (np.int64, np.int32)):
+        return int(obj)
+    elif isinstance(obj, (np.float64, np.float32)):
+        return float(obj)
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
 def write_poses_and_boxes(
     poses_data: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
+    boxes_data: List[Dict[str, Any]],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Writes pose estimates and reconstructed box dimensions to a JSON file.
+    Combines pose estimates and reconstructed box dimensions into a single
+    JSON structure and writes it to disk.
 
     Args:
-        poses_data: List of dictionaries containing pose and box data.
-                    Expected keys: 'sequence_id', 'frame_id', 'camera_pose',
-                    'reconstructed_box', 'status', 'error_metrics' (optional).
-        output_path: Optional path to write the JSON file. Defaults to
-                     'data/processed/poses_estimated.json' based on config.
+        poses_data: List of dictionaries containing pose estimates (R, t, etc.)
+        boxes_data: List of dictionaries containing reconstructed box dimensions
+        output_path: Optional path to write the file. If None, uses config default.
 
     Returns:
-        The path to the written file.
+        Path to the written file.
     """
     if output_path is None:
-        output_path = get_path("POSES_ESTIMATED_JSON")
+        output_path = get_path("poses_estimated_json")
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Writing {len(poses_data)} pose/box records to {output_file}")
+    logger.info(f"Writing {len(poses_data)} pose estimates and {len(boxes_data)} box reconstructions to {output_path}")
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(poses_data, f, indent=2)
+    # Structure the output: a list of records, each containing both pose and box info
+    # We assume poses_data and boxes_data are ordered by the same sequence_id/frame_id
+    # or we merge them by sequence_id if available.
+    # For robustness, we'll create a unified list where each entry corresponds to a frame.
+    
+    final_records = []
+    
+    # If lengths differ, we take the minimum and log a warning, or try to merge by ID.
+    # Based on typical pipeline flow, these should be aligned lists of processed frames.
+    min_len = min(len(poses_data), len(boxes_data))
+    
+    if len(poses_data) != len(boxes_data):
+        logger.warning(f"Mismatch in number of poses ({len(poses_data)}) and boxes ({len(boxes_data)}). "
+                       f"Writing first {min_len} pairs. Ensure processing order is consistent.")
 
-    logger.info(f"Successfully wrote poses to {output_file}")
-    return str(output_file)
+    for i in range(min_len):
+        record = {}
+        # Add pose data
+        record.update(poses_data[i])
+        # Add box data
+        if i < len(boxes_data):
+            record.update(boxes_data[i])
+        final_records.append(record)
 
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(final_records, f, indent=2, default=serialize_ndarray)
+        logger.info(f"Successfully wrote {len(final_records)} records to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write JSON to {output_path}: {e}")
+        raise
+
+    return output_path
 
 def main():
     """
-    Main entry point for testing the writer module directly.
-    Generates dummy data to demonstrate functionality.
+    Entry point for testing the writer module directly.
+    Generates sample data to verify serialization works.
     """
-    logging.basicConfig(level=logging.INFO)
+    import sys
+    import tempfile
+    
+    # Setup logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    # Generate dummy data matching the expected schema from T017/T018
-    dummy_poses = [
+    # Create sample data matching expected schema from T017/T018
+    sample_poses = [
         {
             "sequence_id": "seq_001",
             "frame_id": 1,
-            "status": "success",
-            "camera_pose": {
-                "R": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
-                "t": [0.0, 0.0, 0.0]
-            },
-            "reconstructed_box": {
-                "width": 1.0,
-                "height": 1.0,
-                "depth": 1.0
-            }
+            "R_matrix": np.eye(3),
+            "t_vector": np.array([0.0, 0.0, 0.0]),
+            "success": True,
+            "error": 0.0
         },
         {
             "sequence_id": "seq_001",
             "frame_id": 2,
-            "status": "success",
-            "camera_pose": {
-                "R": [[0.99, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
-                "t": [0.01, 0.0, 0.0]
-            },
-            "reconstructed_box": {
-                "width": 1.0,
-                "height": 1.0,
-                "depth": 1.0
-            }
+            "R_matrix": np.eye(3) * 0.98, # Simulated rotation
+            "t_vector": np.array([0.1, 0.0, 0.0]),
+            "success": True,
+            "error": 0.05
         }
     ]
 
-    output_file = write_poses_and_boxes(dummy_poses)
-    logger.info(f"Dummy data written to {output_file}")
+    sample_boxes = [
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 1,
+            "width": 1.0,
+            "height": 1.0,
+            "depth": 1.0,
+            "volume": 1.0
+        },
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 2,
+            "width": 1.0,
+            "height": 1.0,
+            "depth": 1.0,
+            "volume": 1.0
+        }
+    ]
 
+    # Use a temporary file for testing
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        output_file = write_poses_and_boxes(sample_poses, sample_boxes, output_path=tmp_path)
+        
+        # Verify the file was written and can be read back
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+        
+        assert len(data) == 2, "Expected 2 records"
+        assert "R_matrix" in data[0], "Expected R_matrix in record"
+        assert "width" in data[0], "Expected width in record"
+        
+        print(f"Verification passed. Output written to: {output_file}")
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
 
 if __name__ == "__main__":
     main()
