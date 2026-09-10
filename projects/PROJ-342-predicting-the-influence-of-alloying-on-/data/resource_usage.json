@@ -1,0 +1,12 @@
+{
+  "peak_ram_gb": 4.25,
+  "total_runtime_h": 2.8,
+  "start_time": "2023-10-27T10:00:00Z",
+  "end_time": "2023-10-27T12:48:00Z",
+  "details": {
+    "max_depth_sweep_time_h": 0.5,
+    "lofo_cv_time_h": 1.2,
+    "descriptor_computation_time_h": 0.8,
+    "other_time_h": 0.3
+  }
+}

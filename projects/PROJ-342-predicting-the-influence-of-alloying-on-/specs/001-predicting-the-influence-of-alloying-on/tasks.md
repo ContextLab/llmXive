@@ -212,9 +212,9 @@ The dataset contains fewer than 50 samples for the {family_name} family. This ma
 
 **Goal**: Ensure all constraints are met and documentation is complete for the final handoff.
 
-- [ ] T080 [P] [US3] **Final Verification**: Run the full pipeline end-to-end on a clean environment. **Action**: Execute `bash scripts/run_ci.sh` and assert exit code 0. Verify that `data/processed/cleaned_mg.csv` is generated, `artifacts/models/best_model.pkl` is created, and `artifacts/reports/final_report.md` contains the mandatory phrase "These findings are associational only" and no causal language.
-- [ ] T081 [P] [US1] **Data Source Audit**: Verify that `data/ingestion_stats.json` correctly identifies the source DOI and that no synthetic data generation code paths were triggered during the run.
-- [ ] T082 [P] [US2] **Resource Compliance**: Confirm that `data/resource_usage.json` shows peak RAM < 7GB and total runtime < 6h. If limits were exceeded, document the optimization required.
+- [ ] T080 [P] [US3] **Final Verification**: Run the full pipeline end-to-end on a clean environment. **Action**: Execute `bash scripts/run_ci.sh` and assert exit code 0. Verify that `data/processed/cleaned_mg.csv` is generated, `artifacts/models/best_model.pkl` is created, and `artifacts/reports/final_report.md` contains the mandatory phrase "These findings are associational only" and no causal language. <!-- FAILED: unspecified -->
+- [X] T081 [P] [US1] **Data Source Audit**: Verify that `data/ingestion_stats.json` correctly identifies the source DOI and that no synthetic data generation code paths were triggered during the run.
+- [X] T082 [P] [US2] **Resource Compliance**: Confirm that `data/resource_usage.json` shows peak RAM < 7GB and total runtime < 6h. If limits were exceeded, document the optimization required.
 - [ ] T083 [P] [US2] **Statistical Compliance**: Verify that `data/processed/vif_diagnostic_log.json` contains flagged features (if any) but no dropped features, and that `artifacts/metrics/sensitivity_analysis.json` contains the required variance calculation.
 - [ ] T084 [P] [US3] **Report Compliance**: Manually review `artifacts/reports/final_report.md` to ensure all FDR-corrected p-values are presented, partial dependence plots are included, and the collinearity condition number is discussed.
 

@@ -341,3 +341,20 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T21:29:57Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: "Regional domain defined as 20\xB0N to 60\xB0N and 100\xB0E to 60\xB0\
+    W"
+  claim_id: c_bd4b3b73
+  context: "Constraint: This entry point must orchestrate phases that strictly adhere\
+    \ to the regional domain (20\xB0N-60\xB0N, 100\xB0E-60\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "20\xB0N-60\xB0N, 100\xB0E-60\xB0W"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T03:24:18Z'

@@ -4,49 +4,69 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 import yaml
 import cdsapi
-import logging
+import requests
+import time
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 def calculate_sha256(file_path: str) -> str:
     """
-    Calculate the SHA-256 checksum of a file.
-
+    Calculate SHA-256 checksum of a file.
+    
     Args:
-        file_path: Path to the file.
-
+        file_path: Path to the file to checksum.
+        
     Returns:
-        Hex digest of the SHA-256 checksum.
+        Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
     sha256_hash = hashlib.sha256()
     path = Path(file_path)
+    
     if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    with open(path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        
+    try:
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        logger.error(f"Error reading file {file_path}: {e}")
+        raise
 
 def verify_checksum(file_path: str, expected_checksum: str) -> bool:
     """
     Verify the SHA-256 checksum of a file against an expected value.
-
+    
     Args:
-        file_path: Path to the file.
-        expected_checksum: Expected SHA-256 hex digest.
-
+        file_path: Path to the file to verify.
+        expected_checksum: Expected SHA-256 hex string.
+        
     Returns:
-        True if checksums match, False otherwise.
+        True if checksum matches, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
     actual_checksum = calculate_sha256(file_path)
-    return actual_checksum.lower() == expected_checksum.lower()
+    if actual_checksum.lower() != expected_checksum.lower():
+        logger.error(
+            f"Checksum mismatch for {file_path}. "
+            f"Expected: {expected_checksum}, Got: {actual_checksum}"
+        )
+        return False
+    logger.info(f"Checksum verified for {file_path}")
+    return True
 
 def store_metadata(metadata: Dict[str, Any], output_path: str) -> None:
     """
-    Store metadata (including checksums) in a YAML file.
-
+    Store metadata (including checksums) to a YAML file.
+    
     Args:
         metadata: Dictionary containing metadata to store.
         output_path: Path to the output YAML file.
@@ -56,8 +76,7 @@ def store_metadata(metadata: Dict[str, Any], output_path: str) -> None:
     
     with open(path, 'w') as f:
         yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Metadata stored at {output_path}")
+    logger.info(f"Metadata stored to {output_path}")
 
 def fetch_era5_data(
     variable: str,
@@ -65,173 +84,148 @@ def fetch_era5_data(
     month: int,
     day: Optional[int] = None,
     area: Optional[List[float]] = None,
-    product_type: str = 'reanalysis',
-    resolution: float = 0.25
+    download_path: Optional[str] = None
 ) -> str:
     """
-    Fetch ERA5 data from CDS.
-
+    Fetch ERA5 data from CDS API.
+    
     Args:
-        variable: CDS variable name.
-        year: Year.
-        month: Month.
-        day: Optional day (for daily data).
-        area: [north, west, south, east] bounding box.
-        product_type: CDS product type.
-        resolution: Grid resolution.
-
+        variable: The variable name (e.g., 'integrated_water_vapor_transport', 'geopotential').
+        year: Year to fetch data for.
+        month: Month to fetch data for.
+        day: Optional specific day.
+        area: Optional [north, west, south, east] bounding box.
+        download_path: Optional path to save the file.
+        
     Returns:
-        Path to the downloaded NetCDF file.
+        Path to the downloaded file.
     """
     client = cdsapi.Client()
     
-    request_args = {
-        'variable': variable,
-        'product_type': product_type,
+    request_params = {
+        'product_type': 'reanalysis',
         'format': 'netcdf',
+        'variable': variable,
+        'year': str(year),
+        'month': f"{month:02d}",
     }
     
-    if area:
-        request_args['area'] = area
-    else:
-        # Default global if no area provided
-        request_args['area'] = [90, -180, -90, 180]
-        
     if day:
-        request_args['day'] = f"{day:02d}"
-        request_args['month'] = f"{month:02d}"
-        request_args['year'] = str(year)
-        request_args['time'] = ['00:00', '06:00', '12:00', '18:00']
-    else:
-        # Monthly data
-        request_args['month'] = f"{month:02d}"
-        request_args['year'] = str(year)
-        request_args['time'] = ['00:00']
-
-    filename = f"data/raw/{variable}_{year}_{month:02d}.nc"
-    Path("data/raw").mkdir(parents=True, exist_ok=True)
+        request_params['day'] = f"{day:02d}"
+        
+    if area:
+        request_params['area'] = area
+        
+    if not download_path:
+        download_path = f"data/raw/{variable}_{year}_{month:02d}.nc"
+        
+    Path(download_path).parent.mkdir(parents=True, exist_ok=True)
     
+    logger.info(f"Fetching {variable} for {year}-{month:02d}...")
     client.retrieve(
         'reanalysis-era5-single-levels',
-        request_args,
-        filename
+        request_params,
+        download_path
     )
     
-    logger.info(f"Downloaded {filename}")
-    return filename
+    return download_path
 
 def download_ivt_and_geopotential(
     years: List[int],
     area: List[float],
     output_dir: str = "data/raw"
-) -> List[str]:
+) -> List[Dict[str, Any]]:
     """
     Download IVT and Geopotential data for specified years and region.
-
+    
     Args:
         years: List of years to download.
         area: [north, west, south, east] bounding box.
-        output_dir: Output directory for raw files.
-
+        output_dir: Directory to save downloaded files.
+        
     Returns:
-        List of paths to downloaded files.
+        List of metadata dictionaries for downloaded files.
     """
-    downloaded_files = []
-    variables = ['integrated_water_vapor_transport', 'geopotential']
-    
     Path(output_dir).mkdir(parents=True, exist_ok=True)
+    metadata_list = []
+    
+    variables = [
+        ('integrated_water_vapor_transport', 'ivt'),
+        ('geopotential', 'z')
+    ]
     
     for year in years:
-        for month in range(1, 13):
-            for variable in variables:
-                try:
+        for var_name, var_short in variables:
+            for month in range(1, 13):
+                file_path = f"{output_dir}/{var_short}_{year}_{month:02d}.nc"
+                
+                if os.path.exists(file_path):
+                    logger.info(f"File exists, skipping download: {file_path}")
+                else:
                     file_path = fetch_era5_data(
-                        variable=variable,
+                        variable=var_name,
                         year=year,
                         month=month,
-                        area=area
+                        area=area,
+                        download_path=file_path
                     )
-                    downloaded_files.append(file_path)
-                except Exception as e:
-                    logger.error(f"Failed to download {variable} for {year}-{month}: {e}")
-                    
-    return downloaded_files
+                
+                checksum = calculate_sha256(file_path)
+                
+                file_metadata = {
+                    "file": file_path,
+                    "variable": var_name,
+                    "year": year,
+                    "month": month,
+                    "checksum": checksum,
+                    "checksum_algorithm": "sha256",
+                    "downloaded_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "region": {
+                        "north": area[0],
+                        "west": area[1],
+                        "south": area[2],
+                        "east": area[3]
+                    }
+                }
+                metadata_list.append(file_metadata)
+                
+    return metadata_list
 
 def main():
     """
-    Main entry point for downloading data and verifying checksums.
-    This function downloads ERA5 data, calculates checksums, and stores metadata.
+    Main entry point for downloading data and generating checksums.
     """
-    # Configuration for the regional domain (mid-to-high northern latitudes)
-    # 100°E-60°W, 20°N-60°N
-    # CDS area format: [North, West, South, East]
-    # North=60, South=20, West=-60 (60W), East=100 (100E)
-    # Note: CDS handles wrapping for East > West if needed, but here 100E is > -60W
-    # However, standard CDS expects [N, W, S, E] where W < E in standard coordinates.
-    # 100E is 100, -60W is -60. 
-    # If the region crosses the dateline or requires specific handling, we use the bounding box.
-    # For 100E to 60W (crossing 0), we might need to split or use the full range if CDS supports it.
-    # Given the constraint "100°E-60°W", this is a 160-degree span.
-    # Let's define the box: North=60, South=20, West=-60, East=100.
-    # Wait, 100E is East, -60W is West. 
-    # If we want 100E to 60W, that is from 100 to 300 (in 0-360) or 100 to -60.
-    # CDS usually takes [N, W, S, E].
-    # If W=-60 and E=100, that is a valid box (spanning 160 degrees).
-    # If the request implies crossing the date line (e.g. 150E to 150W), we'd need different handling.
-    # Here 100E to 60W is contiguous in standard -180 to 180 coordinates.
-    region_area = [60.0, -60.0, 20.0, 100.0]  # N, W, S, E
-    
+    # Define regional domain: 20°N-60°N, 100°E-60°W
+    # CDS format: [North, West, South, East]
+    # 100°E = 100, 60°W = -60
+    region = [60.0, 100.0, 20.0, -60.0]
     years = list(range(1979, 2024))
     
-    logger.info(f"Starting download for years {years[0]}-{years[-1]}")
-    logger.info(f"Region: {region_area}")
+    logger.info(f"Starting download for years {years[0]}-{years[-1]} in region {region}")
     
-    # Download files
-    # Note: In a real scenario, this would take a long time. 
-    # For the purpose of T007, we assume the download function exists (T006)
-    # and we focus on the checksum verification and metadata storage.
+    metadata = download_ivt_and_geopotential(years, region)
     
-    # We will simulate the process if files don't exist, but the logic must be real.
-    # However, the task requires REAL data.
-    # We will attempt to download a small subset or assume files are present from T006.
+    # Store all metadata in a single file
+    output_metadata_path = "data/metadata.yaml"
+    store_metadata({"files": metadata}, output_metadata_path)
     
-    downloaded_files = download_ivt_and_geopotential(years, region_area)
+    # Verify checksums immediately after download
+    verification_results = []
+    for meta in metadata:
+        is_valid = verify_checksum(meta["file"], meta["checksum"])
+        verification_results.append({
+            "file": meta["file"],
+            "valid": is_valid
+        })
+        
+    # Update metadata with verification status
+    for meta, res in zip(metadata, verification_results):
+        meta["verification_status"] = "valid" if res["valid"] else "invalid"
+        
+    store_metadata({"files": metadata, "verification_summary": verification_results}, output_metadata_path)
     
-    if not downloaded_files:
-        logger.warning("No files downloaded. Skipping checksum verification.")
-        return
-
-    metadata = {
-        "project": "PROJ-403-exploring-the-correlation-between-atmosp",
-        "task": "T007",
-        "description": "Checksum verification for raw NetCDF files",
-        "region": {
-            "north": region_area[0],
-            "west": region_area[1],
-            "south": region_area[2],
-            "east": region_area[3]
-        },
-        "years": years,
-        "files": []
-    }
-
-    for file_path in downloaded_files:
-        try:
-            checksum = calculate_sha256(file_path)
-            file_info = {
-                "path": file_path,
-                "checksum": checksum,
-                "algorithm": "sha256"
-            }
-            metadata["files"].append(file_info)
-            logger.info(f"Verified checksum for {file_path}: {checksum}")
-        except Exception as e:
-            logger.error(f"Failed to calculate checksum for {file_path}: {e}")
-
-    # Store metadata
-    metadata_path = "data/metadata.yaml"
-    store_metadata(metadata, metadata_path)
-    logger.info(f"Metadata stored at {metadata_path}")
+    logger.info("Download and verification complete.")
+    return metadata
 
 if __name__ == "__main__":
     main()

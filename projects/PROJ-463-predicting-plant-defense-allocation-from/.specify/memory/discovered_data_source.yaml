@@ -1,18 +1,18 @@
 status: none
-intent: download plant herbivory RNA-seq GEO SRA datasets with TRY trait database
-  annotation python package dataset
+intent: NCBI GEO SRA plant herbivory RNA-seq download python package dataset
 required_fields:
-- sample_id
-- species
-- tissue
-- herbivore_type
-- condition
-- replicate_id
-- batch_id
+- study_accession
+- sample_accession
+- run_accession
+- tissue_type
+- "herbivory_type (chewing or piercing\u2011sucking)"
+- treatment_condition
+- biological_replicate_id
+- sequencing_platform
+- read_length
+- fastq_url
 - gene_id
-- gene_symbol
-- go_terms
-- tpm_value
-cache_key: bae43c7b2c5092004569e1f3962460d4ecb62eca3e6534e9d8f172d9f3ac01a5
-searched_at: '2026-08-12T06:35:46.258927+00:00'
+- raw_counts
+cache_key: 8feb576d39d31cfd7d2f44de28f94bd11e96c8d6dc62a55b673dd8bbe8a5c9c1
+searched_at: '2026-09-10T04:35:45.853765+00:00'
 retry_count: 1

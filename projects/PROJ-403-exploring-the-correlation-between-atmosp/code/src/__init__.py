@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline: Atmospheric River and Geopotential Height Analysis
+llmXive project: Atmospheric River & Geopotential Height Analysis
 """

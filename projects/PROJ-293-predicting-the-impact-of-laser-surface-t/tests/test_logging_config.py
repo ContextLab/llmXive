@@ -1,94 +1,100 @@
 """
-Tests for the logging configuration and error handling utilities.
+Tests for the logging configuration module.
 """
 import os
 import logging
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import tempfile
+import shutil
 
-# We need to import the module. Since the task creates code/logging_config.py,
-# we assume the test runner adds 'code' to sys.path or we import relative to project root.
-# For the purpose of this artifact, we assume the import path is correct in the test environment.
-try:
-    from logging_config import (
-        logger,
-        configure_logging,
-        get_logger,
-        raise_on_missing_data,
-        verify_log_environment,
-        LOG_FILE
-    )
-except ImportError:
-    # Fallback for local execution if 'code' is not in path
-    import sys
-    sys.path.insert(0, 'code')
-    from logging_config import (
-        logger,
-        configure_logging,
-        get_logger,
-        raise_on_missing_data,
-        verify_log_environment,
-        LOG_FILE
-    )
+# Import the module functions
+from code.logging_config import (
+    setup_logging,
+    get_logger,
+    raise_on_missing_data,
+    LOG_DIR,
+    LOG_FILE
+)
 
-def test_logger_initialization():
-    """Test that the logger is initialized with INFO level."""
-    assert logger.level == logging.INFO
-    assert len(logger.handlers) >= 2  # File and Console
+class TestLoggingSetup:
+    """Tests for basic logging setup and configuration."""
 
-def test_get_logger_child():
-    """Test that get_logger returns a child logger."""
-    child = get_logger("test_child")
-    assert child.name == "llmXive_pipeline.test_child"
-    assert child.level == logging.INFO
+    def test_setup_logging_creates_file(self, tmp_path):
+        """Verify that setup_logging creates the log file and directory."""
+        # Create a temporary directory for logs
+        temp_log_dir = tmp_path / "logs"
+        temp_log_file = temp_log_dir / "test_pipeline.log"
 
-def test_configure_logging():
-    """Test that configure_logging updates the level."""
-    configure_logging(logging.DEBUG)
-    assert logger.level == logging.DEBUG
-    # Reset to INFO
-    configure_logging(logging.INFO)
-    assert logger.level == logging.INFO
+        # Setup logging to the temp location
+        logger = setup_logging(log_file=temp_log_file)
 
-def test_raise_on_missing_data():
-    """Test that raise_on_missing_data raises ValueError."""
-    with pytest.raises(ValueError) as excinfo:
-        raise_on_missing_data("http://fake-url.com/data.csv", "Connection timeout")
-    
-    assert "CRITICAL" in str(excinfo.value)
-    assert "http://fake-url.com/data.csv" in str(excinfo.value)
-    assert "Connection timeout" in str(excinfo.value)
+        # Verify directory exists
+        assert temp_log_dir.exists()
+        assert temp_log_dir.is_dir()
 
-def test_verify_log_environment(tmp_path):
-    """Test that verify_log_environment works correctly."""
-    # Temporarily override the LOG_DIR logic by mocking or just testing the function's logic
-    # Since verify_log_environment relies on global LOG_DIR, we test the happy path
-    # assuming the standard directory structure exists (created by T001).
-    # If logs/ doesn't exist, T001 should have created it.
-    # We can't easily mock the global LOG_DIR in this simple test without altering the module.
-    # Instead, we rely on the fact that T001 created the directories.
-    
-    # Just ensure it returns True if the environment is standard
-    # If logs/ is missing, it should create it and return True
-    result = verify_log_environment()
-    assert result is True
-    assert LOG_FILE.exists() or LOG_FILE.parent.exists()
+        # Verify file exists after a log action
+        logger.info("Test message")
+        assert temp_log_file.exists()
+        assert temp_log_file.stat().st_size > 0
 
-def test_log_file_creation():
-    """Test that the log file is created if it doesn't exist."""
-    # The logger initialization creates the file on first write or check.
-    # We can trigger a log write to ensure the file exists.
-    logger.info("Test log entry")
-    assert LOG_FILE.exists()
+    def test_setup_logging_sets_level(self):
+        """Verify that the logger is set to INFO level."""
+        logger = setup_logging(level=logging.WARNING)
+        assert logger.level == logging.WARNING
 
-def test_no_synthetic_fallback_logic():
-    """
-    Verify that the module does not contain any synthetic fallback logic.
-    This is a code inspection test.
-    """
-    import inspect
-    source = inspect.getsource(sys.modules[__name__].__dict__.get('raise_on_missing_data', None) or raise_on_missing_data)
-    # Check that the function raises ValueError and does not return a mock object
-    assert "raise ValueError" in source
-    assert "return" not in source.split("raise ValueError")[0] # Ensure no return before raise
+    def test_get_logger_returns_configured_logger(self):
+        """Verify get_logger returns the same instance."""
+        logger1 = setup_logging()
+        logger2 = get_logger()
+        assert logger1 is logger2
+
+    def test_log_file_in_correct_directory(self):
+        """Verify default log file is in 'logs/' directory."""
+        # This test assumes the project root is the current working directory
+        # or that the test runner handles paths correctly.
+        assert LOG_FILE.parent == Path("logs")
+        assert LOG_FILE.name == "pipeline.log"
+
+class TestRaiseOnMissingData:
+    """Tests for the fail-loudly data validation."""
+
+    def test_raise_on_missing_data_raises_value_error(self):
+        """Verify that raise_on_missing_data raises ValueError."""
+        with pytest.raises(ValueError) as excinfo:
+            raise_on_missing_data(
+                source_name="TestSource",
+                source_identifier="ID_123"
+            )
+        
+        assert "CRITICAL DATA MISSING" in str(excinfo.value)
+        assert "TestSource" in str(excinfo.value)
+        assert "ID_123" in str(excinfo.value)
+
+    def test_raise_on_missing_data_logs_error(self, caplog):
+        """Verify that the error is logged before raising."""
+        logger = setup_logging()
+        with caplog.at_level(logging.ERROR):
+            with pytest.raises(ValueError):
+                raise_on_missing_data(
+                    source_name="TestSource",
+                    source_identifier="ID_456"
+                )
+        
+        assert "CRITICAL DATA MISSING" in caplog.text
+        assert "TestSource" in caplog.text
+        assert "ID_456" in caplog.text
+
+    def test_raise_on_missing_data_custom_message(self):
+        """Verify custom message overrides default."""
+        custom_msg = "Specific custom error message"
+        with pytest.raises(ValueError) as excinfo:
+            raise_on_missing_data(
+                source_name="TestSource",
+                source_identifier="ID_789",
+                message=custom_msg
+            )
+        
+        assert custom_msg in str(excinfo.value)
+        # Default message parts should not be present if custom is used
+        assert "CRITICAL DATA MISSING" not in str(excinfo.value)

@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/atmospheric-river-geopotential
   verified_at: '2026-07-06T18:41:44.421834Z'
-- artifact_hash: 64ffffedb2642e8015c124d7417dd9066607f287a6984a8c94a500070e8264b9
+- artifact_hash: 919488c9e1738f3ca1e61b2cf90f853ff4cf30c63063550913e93c252dbbecdd
   artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://en.wikipedia.org/wiki/Empirical_distribution_function
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Empirical_distribution_function
-  verified_at: '2026-09-03T21:29:57.347139Z'
-- artifact_hash: 64ffffedb2642e8015c124d7417dd9066607f287a6984a8c94a500070e8264b9
+  verified_at: '2026-09-10T03:36:28.679463Z'
+- artifact_hash: 919488c9e1738f3ca1e61b2cf90f853ff4cf30c63063550913e93c252dbbecdd
   artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-09-03T21:29:57.347139Z'
+  verified_at: '2026-09-10T03:36:28.679463Z'

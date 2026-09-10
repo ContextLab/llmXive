@@ -1,87 +1,113 @@
 """
-Task T009: Create and verify required project directories.
-
-This script ensures the existence of data/processed/, models/, and reports/
-directories. It relies on T001 (setup_project.py) to have created the
-base structure (code/, data/, tests/, state/, data/raw/).
-
-It verifies the existence of:
-- data/raw/ (created by T001)
-- data/processed/ (created here if missing)
-- models/ (created here if missing)
-- reports/ (created here if missing)
-
-If any directory cannot be created or verified, the script exits with a 
-non-zero status code.
+Directory verification module for llmXive project.
+Ensures required project directories exist and verifies their state.
 """
 import os
 import sys
-from pathlib import Path
 import logging
+from pathlib import Path
 
-# Configure logging to match project standards (code/logging_config.py expected)
-# If logging_config.py is not yet fully functional, we fallback to basic config
+# Import logging configuration
 try:
-    from logging_config import setup_logging
-    setup_logging()
+    from logging_config import setup_logging, get_logger
 except ImportError:
+    # Fallback if logging_config is not yet available during initial setup
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
+    def get_logger(name):
+        return logging.getLogger(name)
 
-logger = logging.getLogger(__name__)
-
-def ensure_directory(path: Path) -> bool:
-    """Create directory if it doesn't exist and verify it exists."""
-    try:
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {path}")
+def ensure_directory(dir_path: str, create_if_missing: bool = True) -> bool:
+    """
+    Ensure a directory exists. Creates it if missing and create_if_missing is True.
+    
+    Args:
+        dir_path: Relative path from project root
+        create_if_missing: Whether to create the directory if it doesn't exist
         
-        if not path.is_dir():
+    Returns:
+        bool: True if directory exists (or was created), False otherwise
+    """
+    path = Path(dir_path)
+    
+    if not path.is_absolute():
+        # Assume relative to project root
+        path = Path.cwd() / path
+        
+    logger = get_logger(__name__)
+    
+    if path.exists():
+        if path.is_dir():
+            logger.info(f"Directory exists: {path}")
+            return True
+        else:
             logger.error(f"Path exists but is not a directory: {path}")
             return False
-          
-        logger.info(f"Verified directory: {path}")
-        return True
-    except OSError as e:
-        logger.error(f"Failed to create/verify directory {path}: {e}")
-        return False
+    else:
+        if create_if_missing:
+            try:
+                path.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created directory: {path}")
+                return True
+            except OSError as e:
+                logger.error(f"Failed to create directory {path}: {e}")
+                return False
+        else:
+            logger.error(f"Directory missing and creation disabled: {path}")
+            return False
 
 def main():
-    """Main entry point for T009."""
-    logger.info("Starting T009: Directory creation and verification")
+    """
+    Main function to verify all required directories for the project.
+    
+    Required directories:
+    - data/raw/
+    - data/processed/
+    - models/
+    - reports/
+    """
+    setup_logging()
+    logger = get_logger(__name__)
     
     # Define required directories relative to project root
-    # T001 should have created: code/, data/, tests/, state/, data/raw/
-    # T009 focuses on: data/processed/, models/, reports/
     required_dirs = [
-        Path("data/raw"),        # Prerequisite from T001
-        Path("data/processed"),  # T009 target
-        Path("models"),          # T009 target
-        Path("reports"),         # T009 target
+        "data/raw",
+        "data/processed",
+        "models",
+        "reports"
     ]
     
-    all_success = True
+    logger.info("Starting directory verification for project structure...")
     
-    for dir_path in required_dirs:
-        if not ensure_directory(dir_path):
+    all_success = True
+    results = {}
+    
+    for dir_name in required_dirs:
+        success = ensure_directory(dir_name, create_if_missing=True)
+        results[dir_name] = {
+            "exists": success,
+            "path": str(Path(dir_name).resolve())
+        }
+        if not success:
             all_success = False
     
+    # Verify the directories actually exist on disk after creation attempt
+    logger.info("\nVerification Results:")
+    logger.info("-" * 50)
+    
+    for dir_name, result in results.items():
+        status = "✓" if result["exists"] else "✗"
+        logger.info(f"{status} {dir_name}: {result['path']}")
+    
+    logger.info("-" * 50)
+    
     if all_success:
-        logger.info("T009 completed successfully: All directories verified.")
-        # Print a simple listing for verification output
-        print("\n--- Directory Verification Report ---")
-        for dir_path in required_dirs:
-            if dir_path.exists() and dir_path.is_dir():
-                print(f"[OK] {dir_path}")
-            else:
-                print(f"[FAIL] {dir_path}")
-        print("-------------------------------------\n")
+        logger.info("All required directories verified successfully.")
         return 0
     else:
-        logger.error("T009 failed: Some directories could not be verified.")
+        logger.error("Directory verification failed for one or more directories.")
         return 1
 
 if __name__ == "__main__":

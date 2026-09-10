@@ -1,3 +1,3 @@
 """
-Test suite for the llmXive research pipeline.
+Unit and integration tests for llmXive project.
 """

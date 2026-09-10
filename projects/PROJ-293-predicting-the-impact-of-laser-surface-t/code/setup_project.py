@@ -1,50 +1,56 @@
-"""
-Script to create the project directory structure as defined in T001.
-Creates: code/, data/, tests/, state/, models/, data/raw/, data/processed/, reports/
-"""
 import os
 from pathlib import Path
 
 def main():
-    # Define the base directory (project root)
-    base_dir = Path(__file__).resolve().parent.parent
-
-    # Define the directories to create based on the task requirements
-    # Note: 'code', 'data', 'tests', 'state', 'reports', 'models' are top level
-    # 'data/raw' and 'data/processed' are subdirectories of 'data'
+    """
+    Create the project directory structure as defined in T001.
+    Directories created:
+    - code/
+    - data/
+    - tests/
+    - state/
+    - models/
+    - data/raw/
+    - data/processed/
+    - reports/
+    """
+    base_dir = Path.cwd()
+    
     directories = [
         "code",
         "data",
         "tests",
         "state",
-        "reports",
         "models",
         "data/raw",
-        "data/processed"
+        "data/processed",
+        "reports"
     ]
-
-    created_dirs = []
-    skipped_dirs = []
-
+    
+    created_count = 0
+    existing_count = 0
+    
     for dir_path in directories:
         full_path = base_dir / dir_path
-        try:
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-        except PermissionError:
-            print(f"Permission denied creating: {full_path}")
-        except Exception as e:
-            print(f"Error creating {full_path}: {e}")
-
-    print("Project structure setup complete.")
-    print(f"Created/Verified directories: {len(created_dirs)}")
-    for d in created_dirs:
-        print(f"  - {d}")
-
-    if skipped_dirs:
-        print(f"Skipped (already exist or errors): {len(skipped_dirs)}")
-        for d in skipped_dirs:
-            print(f"  - {d}")
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
+            existing_count += 1
+    
+    print(f"\nProject structure setup complete.")
+    print(f"Directories created: {created_count}")
+    print(f"Directories already existing: {existing_count}")
+    
+    # Verify all directories exist
+    all_exist = all((base_dir / d).exists() and (base_dir / d).is_dir() for d in directories)
+    if not all_exist:
+        missing = [d for d in directories if not (base_dir / d).exists()]
+        raise FileNotFoundError(f"Failed to create directories: {missing}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

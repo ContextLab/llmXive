@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
   "ok": false,
-  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/analysis/reproducibility.py: self-declared fabricated metric \u2014 \u201c\u2026dation only         # This is NOT a real measurement, just for pipeline structure\u2026\u201d; code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nifests  - `synthetic/`: Synthetic data for validation - `script\u2026\u201d; code/src/data/qc.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026input manifest (real or synthetic data)     2. Checks each stud\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_pipeline.py --mode synthetic --seed 42; python src/cli/run_pipeline.py --mode real --accession_ids GSE12345,GSE67890; 5 declared deliverable(s) absent: data/manifests/batch_correction_report.json; data/manifests/real_data_manifest.json; data/processed/metadata_verification_report.json",
+  "reason": "29 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nifests  - `synthetic/`: Synthetic data for validation - `script\u2026\u201d; code/quickstart.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026(Validation)  This mode generates synthetic data to validate the pip\u2026\u201d; code/src/data/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Prototype\u2026\u201d; 2 command(s) failed: python -m src.cli.run_pipeline --mode real --min-studies [threshold] --min-replicates 2 (rc=1); python -m src.cli.run_pipeline --mode synthetic (rc=1); 5 declared deliverable(s) absent: data/manifests/batch_correction_report.json; data/manifests/reproducibility_report.json; data/processed/aggregated_features.csv",
   "artifacts": [],
   "failures": [
-    "python src/cli/run_pipeline.py --mode synthetic --seed 42 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/src/cli/run_pipeline.py': [Errno 2] No such file or directory",
-    "python src/cli/run_pipeline.py --mode real --accession_ids GSE12345,GSE67890 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/src/cli/run_pipeline.py': [Errno 2] No such file or directory"
+    "python -m src.cli.run_pipeline --mode real --min-studies [threshold] --min-replicates 2 -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: No module named src.cli.run_pipeline",
+    "python -m src.cli.run_pipeline --mode synthetic -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: No module named src.cli.run_pipeline"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-05T14:59:15Z"
+  "updated_at": "2026-09-10T04:34:58Z"
 }

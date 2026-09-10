@@ -80,3 +80,9 @@ T049:
     \ data\u2011loading and plotting utilities and does not implement any logic to\
     \ enforce associational language or to insert \u201CThese findings are associational\
     \ only\u201D into a report. The task\u2019s core requirement is therefore unmet."
+T083:
+  c: false
+  h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb
+  r: The required file `data/processed/vif_diagnostic_log.json` is missing, and there
+    is no evidence that `artifacts/metrics/sensitivity_analysis.json` exists or contains
+    the variance calculation. Both artifacts are needed to satisfy the task.

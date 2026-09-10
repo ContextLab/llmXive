@@ -57,7 +57,7 @@
 - [X] T005 Implement data hygiene utilities in `code/hygiene.py` (MD5 checksum generation, `state/artifact_hashes.yaml` updates)
 - [X] T006 Implement environment configuration management by creating `code/config/schema_map.json` defining the canonical column mapping logic (e.g., `{'power': ['laser_power', 'laser_pwr'], 'hardness': ['hv', 'vickers']}`) and examples of source column names to target columns (FR-001), and then implementing the loader to read this JSON file for schema standardization (FR-001); MUST be created before T010.
 - [X] T007 Create base data models/entities in `code/models.py` (LSTRecord, ModelPerformance, FeatureImportance)
-- [ ] T008 Configure error handling and logging infrastructure by creating `code/logging_config.py` to log to `logs/pipeline.log` with level INFO and raise `ValueError` on missing real data (no synthetic fallbacks)
+- [X] T008 Configure error handling and logging infrastructure by creating `code/logging_config.py` to log to `logs/pipeline.log` with level INFO and raise `ValueError` on missing real data (no synthetic fallbacks)
 - [ ] T009 Create directories `data/raw/`, `data/processed/`, `models/`, `reports/` and verify their existence
 - [ ] T039 [P] Verify `research.md` (defined in Plan Phase 0) contains only verified static URLs/IDs before ingestion (Constitution II); ensure no dynamic search logic is used for data sources; MUST run before T010.
 
