@@ -67,7 +67,7 @@
 - [ ] T005 [P] Implement deterministic synthetic tensor generator in `code/benchmarks/tensor_generator.py` using fixed seeds **[12345, 67890, 11111]** and varied distributions (Normal, Uniform) to ensure construct validity; output to `data/raw/`. **Verify by running `python code/benchmarks/tensor_generator.py --seed <SEED> --verify-hash` which generates the file, prints its SHA-256 hash, and saves the hash to `data/raw/.hashes/<SEED>.sha256`. Subsequent runs must match this hash.**
 - [ ] T006 [P] Implement high-precision reference engine in `code/benchmarks/reference.py` using Python `decimal` module with arbitrary-precision arithmetic for MatMul, Softmax, and LayerNorm; output to `data/raw/`. **Verify by running `python code/benchmarks/reference.py --test --verify-hash` which generates a reference for a 2x2 matrix, prints its SHA-256 hash, and saves it to `data/raw/.hashes/ref_2x2.sha256`.**
 - [X] T007 Setup logging infrastructure in `code/utils/logger.py` to record compiler versions, flag combinations, and runtime warnings (NaN detection)
-- [ ] T008 [X] (Duplicate of T004 - Removed)
+- [ ] T008 [X] (Duplicate of T004 - Removed) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,14 +86,14 @@
 - [X] T013 [P] [US1] Implement C++ LayerNorm kernel in `code/kernels/layernorm.cpp`
 - [X] T014 [US1] Implement `code/benchmarks/compile_runner.py` to orchestrate `g++`/`clang++` compilation with dynamic flag injection and SHA-256 hashing of binaries; **Verify by running `python code/benchmarks/compile_runner.py --test` which outputs a SHA-256 hash of a dummy binary**
 - [X] T015 [US1] [Depends: T005] Implement `code/benchmarks/executor.py` to run binaries and measure latency using `std::chrono` (via subprocess). **Enforce a sufficient iteration count: Run a fixed number of iterations per configuration to ensure convergence and stability (Constitution Principle VII). Do NOT use adaptive stopping. Implement memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log 'Memory Pressure' with the new dimension ID, and continue execution. Only exit if the downsampled run also fails. Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with the following schema: `{"config_id": "string", "kernel": "string", "compiler": "string", "flags": ["string"], "median_ms": float, "p95_ms": float, "iterations": int, "downsampled": bool, "tensor_dim": "string"}`. Verify by running `python code/benchmarks/executor.py --test` which produces a valid JSONL line.**
-- [~] T017 [US1] [Depends: T015] Implement NaN detection and exclusion logic in `code/analysis/stability_check.py`; **Post-process raw logs to detect NaNs in output tensors, log specific flag configurations causing stability failures, and output `data/intermediates/filtered_stable_runs.csv` containing only valid runs. Verify by running `python code/analysis/stability_check.py --detect-nan` which produces the filtered CSV and a log of excluded runs.**
+- [ ] T017 [US1] [Depends: T015] Implement NaN detection and exclusion logic in `code/analysis/stability_check.py`; **Post-process raw logs to detect NaNs in output tensors, log specific flag configurations causing stability failures, and output `data/intermediates/filtered_stable_runs.csv` containing only valid runs. Verify by running `python code/analysis/stability_check.py --detect-nan` which produces the filtered CSV and a log of excluded runs.**
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation to ensure they FAIL initially (Red-Green-Refactor)**
 
-- [ ] T009 [P] [US1] Add `tests/unit/test_config.py::test_validate_flags_rejects_invalid` to verify invalid flag rejection
-- [ ] T010 [P] [US1] Add `tests/integration/test_compile_run.py::test_compile_and_run_matmul` to verify GCC/Clang compiler availability and execution
+- [X] T009 [P] [US1] Add `tests/unit/test_config.py::test_validate_flags_rejects_invalid` to verify invalid flag rejection
+- [X] T010 [P] [US1] Add `tests/integration/test_compile_run.py::test_compile_and_run_matmul` to verify GCC/Clang compiler availability and execution
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,13 +109,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Add `tests/unit/test_stability.py::test_l2_norm_calculation` to verify L2 norm and MaxDiff calculation
-- [ ] T019 [P] [US2] Add `tests/integration/test_stability_flow.py::test_compare_O3_vs_O0` to verify comparison logic against reference
+- [X] T018 [P] [US2] Add `tests/unit/test_stability.py::test_l2_norm_calculation` to verify L2 norm and MaxDiff calculation
+- [X] T019 [P] [US2] Add `tests/integration/test_stability_flow.py::test_compare_O3_vs_O0` to verify comparison logic against reference
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] [Depends: T015, T006] Implement `code/analysis/stability_check.py` to load binary outputs and reference results. **Verify that T006 reference data exists before proceeding.**
-- [ ] T021 [US2] [Depends: T015] Implement L2 relative error and Maximum Absolute Difference calculation logic in `code/analysis/stability_check.py`
+- [X] T020 [US2] [Depends: T015, T006] Implement `code/analysis/stability_check.py` to load binary outputs and reference results. **Verify that T006 reference data exists before proceeding.** <!-- FAILED: unspecified -->
+- [X] T021 [US2] [Depends: T015] Implement L2 relative error and Maximum Absolute Difference calculation logic in `code/analysis/stability_check.py`
 - [ ] T022 [US2] [Depends: T015, T021] Implement threshold flagging/exclusion logic in `code/analysis/stability_check.py`; **Mark `status` as 'unstable' if L2 error > 1e-5 or max diff > 1e-5, otherwise 'stable'. Output `data/results/stability_metrics.csv` with columns: `config_id`, `kernel_type`, `l2_error`, `max_diff`, `status`. Verify by running `python code/analysis/stability_check.py --aggregate` which produces the CSV with correct status flags.**
 - [ ] T023 [US2] [Depends: T022] Aggregate results into `data/results/stability_metrics.csv` with columns: `config_id`, `kernel_type`, `l2_error`, `max_diff`, `status`. **Ensure `aggregated.csv` (generated in T031) strictly excludes rows where `status` is 'unstable'.**
 - [ ] T024 [US2] [Depends: T023] Add visualization helper to plot error distribution per optimization level. **Output to `data/results/error_distribution.png`. Verify by running `python code/analysis/viz.py --plot-errors` which generates the file.**

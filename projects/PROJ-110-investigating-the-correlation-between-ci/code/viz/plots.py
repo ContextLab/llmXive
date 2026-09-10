@@ -1,200 +1,254 @@
-"""Visualization utilities for the project.
+"""
+Visualization utilities for the GTEx circadian-metabolic project.
 
-This module provides functions to generate plots required by the analysis
-pipeline, including scatter plots for significant gene‑trait correlations
-and a heatmap of gene expression patterns across MetS/Control groups.
+This module provides functions to generate:
+- Scatter plots for significant gene‑trait correlations.
+- A heatmap of core circadian gene expression stratified by MetS status.
+- An ROC curve visualising logistic‑regression model performance.
 """
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from sklearn.metrics import auc, roc_curve
 
 logger = logging.getLogger(__name__)
 
+# ----------------------------------------------------------------------
+# Scatter plot for significant correlations
+# ----------------------------------------------------------------------
 def plot_scatter_significant(
-    correlation_fdr_path: Path = Path("data/processed/correlation_fdr.csv"),
-    expression_path: Path = Path("data/processed/core_genes_log2_matrix.csv"),
-    phenotype_path: Path = Path("data/processed/filtered_phenotype.csv"),
-    output_dir: Path = Path("docs"),
-    pvalue_threshold: float = 0.05,
+    correlation_df: pd.DataFrame,
+    expression_df: pd.DataFrame,
+    phenotype_df: pd.DataFrame,
+    significance_level: float = 0.05,
+    output_dir: Union[str, Path] = "docs",
 ) -> None:
-    """Generate scatter plots for gene‑trait pairs that show significant correlations.
-
-    The function reads the FDR‑adjusted correlation results, filters for
-    significance, merges the log‑transformed gene expression matrix with the
-    phenotype data, and creates a scatter plot for each significant pair.
+    """
+    Generate scatter plots for each gene‑trait pair that passes a
+    significance threshold.
 
     Parameters
     ----------
-    correlation_fdr_path: Path
-        CSV containing at least the columns ``gene``, ``trait``, ``r``,
-        ``p_raw`` and an adjusted‑p‑value column (named ``p_adj`` or
-        ``adjusted_p``).
-    expression_path: Path
-        CSV with log2‑transformed TPM values. The first column must be a
-        sample identifier; remaining columns are gene names.
-    phenotype_path: Path
-        CSV with clinical traits. The first column must be the same sample
-        identifier as in ``expression_path``.
-    output_dir: Path
-        Directory where PNG files will be written.
-    pvalue_threshold: float
-        Adjusted p‑value cutoff for significance (default 0.05).
+    correlation_df : pd.DataFrame
+        DataFrame containing at least the columns ``gene``, ``trait``,
+        ``r`` (correlation coefficient) and ``p_adj`` (FDR‑adjusted p‑value).
+    expression_df : pd.DataFrame
+        Gene‑expression matrix where rows are genes and columns are sample IDs.
+    phenotype_df : pd.DataFrame
+        Clinical phenotype table indexed by the same sample IDs as ``expression_df``.
+    significance_level : float, optional
+        Maximum adjusted p‑value to consider a correlation significant.
+    output_dir : str or Path, optional
+        Directory where the PNG files will be written.
     """
-    logger.info("Generating scatter plots for significant correlations")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    # Load correlation results
-    corr_df = pd.read_csv(correlation_fdr_path)
-    # Normalise column name for adjusted p‑value
-    if "p_adj" not in corr_df.columns:
-        if "adjusted_p" in corr_df.columns:
-            corr_df = corr_df.rename(columns={"adjusted_p": "p_adj"})
-        else:
-            raise KeyError(
-                "Adjusted p‑value column not found in correlation results"
-            )
+    # Filter for significant correlations
+    sig_mask = correlation_df["p_adj"] <= significance_level
+    sig_pairs = correlation_df[sig_mask]
 
-    # Keep only significant pairs
-    sig_df = corr_df[corr_df["p_adj"] < pvalue_threshold]
-    if sig_df.empty:
-        logger.warning(
-            "No significant correlations found (adjusted p < %s)", pvalue_threshold
-        )
+    if sig_pairs.empty:
+        logger.info("No significant gene‑trait pairs found (p_adj <= %s).", significance_level)
         return
 
-    # Load expression and phenotype tables
-    expr_df = pd.read_csv(expression_path)
-    pheno_df = pd.read_csv(phenotype_path)
-
-    # Standardise the sample identifier column name
-    sample_id_col = expr_df.columns[0]
-    expr_df = expr_df.rename(columns={sample_id_col: "sample_id"})
-    pheno_df = pheno_df.rename(columns={pheno_df.columns[0]: "sample_id"})
-
-    for _, row in sig_df.iterrows():
+    for _, row in sig_pairs.iterrows():
         gene = row["gene"]
         trait = row["trait"]
         r_val = row["r"]
         p_adj = row["p_adj"]
 
-        if gene not in expr_df.columns:
-            logger.warning("Gene %s not found in expression matrix", gene)
+        # Extract expression for the gene and phenotype for the trait
+        if gene not in expression_df.index:
+            logger.warning("Gene %s not found in expression matrix; skipping.", gene)
             continue
-        if trait not in pheno_df.columns:
-            logger.warning("Trait %s not found in phenotype data", trait)
+        if trait not in phenotype_df.columns:
+            logger.warning("Trait %s not found in phenotype table; skipping.", trait)
             continue
 
-        # Merge expression of the gene with the clinical trait
-        merged = pd.merge(
-            expr_df[["sample_id", gene]],
-            pheno_df[["sample_id", trait]],
-            on="sample_id",
-        ).dropna()
+        expr_series = expression_df.loc[gene]
+        trait_series = phenotype_df[trait]
 
-        if merged.empty:
+        # Align the two series on sample identifiers
+        common_idx = expr_series.dropna().index.intersection(trait_series.dropna().index)
+        if common_idx.empty:
             logger.warning(
-                "No overlapping samples for gene %s and trait %s", gene, trait
+                "No overlapping samples for gene %s and trait %s; skipping.", gene, trait
             )
             continue
 
+        x = expr_series.loc[common_idx]
+        y = trait_series.loc[common_idx]
+
         plt.figure(figsize=(6, 4))
-        plt.scatter(merged[trait], merged[gene], alpha=0.7)
-        plt.xlabel(trait)
-        plt.ylabel(f"{gene} (log2 TPM)")
-        plt.title(f"{gene} vs {trait}\\n r={r_val:.3f}, adj p={p_adj:.3e}")
+        sns.regplot(x=x, y=y, scatter_kws={"s": 20}, line_kws={"color": "red"})
+        plt.title(f"{gene} vs {trait}\nPearson r={r_val:.3f}, FDR‑adj p={p_adj:.3e}")
+        plt.xlabel("Expression (log2 TPM)")
+        plt.ylabel(trait.replace("_", " ").title())
+
+        fname = output_path / f"scatter_{gene}_{trait}.png"
         plt.tight_layout()
-
-        # Sanitize filenames
-        safe_gene = "".join(c if c.isalnum() else "_" for c in gene)
-        safe_trait = "".join(c if c.isalnum() else "_" for c in trait)
-        out_path = output_dir / f"correlation_scatter_{safe_gene}_{safe_trait}.png"
-        plt.savefig(out_path)
+        plt.savefig(fname, dpi=150)
         plt.close()
-        logger.info("Saved scatter plot %s", out_path)
+        logger.info("Saved scatter plot for %s‑%s to %s", gene, trait, fname)
 
-
+# ----------------------------------------------------------------------
+# Heatmap of core circadian gene expression by MetS status
+# ----------------------------------------------------------------------
 def generate_heatmap(
-    expression_path: Path = Path("data/processed/core_genes_log2_matrix.csv"),
-    phenotype_path: Path = Path("data/processed/filtered_phenotype.csv"),
-    output_path: Path = Path("docs/heatmap.png"),
-    group_column: str = "label",
-    cmap: str = "vlag",
-    figsize: tuple = (10, 8),
+    expression_df: pd.DataFrame,
+    label_df: pd.DataFrame,
+    output_path: Union[str, Path] = "docs/heatmap.png",
+    cmap: str = "viridis",
 ) -> None:
-    """Generate a heatmap visualising expression patterns of core circadian genes.
-
-    The heatmap displays the mean log2‑TPM expression of each core circadian gene
-    within the MetS and Control groups (or any categorical grouping provided
-    via ``group_column``). The resulting figure is saved to ``output_path``.
+    """
+    Create a clustered heatmap of core circadian gene expression,
+    annotated by MetS / Control status.
 
     Parameters
     ----------
-    expression_path: Path
-        CSV containing log2‑transformed TPM values. The first column must be a
-        sample identifier; remaining columns are gene names.
-    phenotype_path: Path
-        CSV containing at least the sample identifier column and a categorical
-        column (default ``label``) indicating MetS vs Control status.
-    output_path: Path
-        Destination file for the heatmap PNG.
-    group_column: str, optional
-        Column name in the phenotype file that defines the groups to compare.
-        Defaults to ``label`` which is created by ``classify_metabolic_status``.
-    cmap: str, optional
-        Matplotlib colormap name for the heatmap. Defaults to ``vlag`` (a diverging
-        palette suitable for centered data).
-    figsize: tuple, optional
-        Figure size in inches. Defaults to (10, 8).
+    expression_df : pd.DataFrame
+        Gene‑expression matrix (genes × samples). Rows must be genes,
+        columns must be sample identifiers.
+    label_df : pd.DataFrame
+        DataFrame with at least a column ``label`` containing the strings
+        ``MetS`` or ``Control``. Index must match the sample identifiers
+        of ``expression_df``.
+    output_path : str or Path, optional
+        File path where the PNG image will be saved.
+    cmap : str, optional
+        Matplotlib colormap name.
     """
-    logger.info("Generating heatmap of core circadian gene expression")
-    # Ensure output directory exists
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load data
-    expr_df = pd.read_csv(expression_path)
-    pheno_df = pd.read_csv(phenotype_path)
+    # Align expression matrix and labels
+    common_samples = expression_df.columns.intersection(label_df.index)
+    if common_samples.empty:
+        raise ValueError("No overlapping samples between expression matrix and label table.")
 
-    # Standardise sample identifier column names
-    sample_id_col_expr = expr_df.columns[0]
-    expr_df = expr_df.rename(columns={sample_id_col_expr: "sample_id"})
-    sample_id_col_pheno = pheno_df.columns[0]
-    pheno_df = pheno_df.rename(columns={sample_id_col_pheno: "sample_id"})
+    expr_aligned = expression_df[common_samples]
+    labels_aligned = label_df.loc[common_samples, "label"]
 
-    # Verify grouping column exists
-    if group_column not in pheno_df.columns:
-        raise KeyError(f"Grouping column '{group_column}' not found in phenotype data")
+    # Create a colour bar for the phenotype
+    phenotype_palette = {"MetS": "#d73027", "Control": "#1a9850"}
+    col_colors = labels_aligned.map(phenotype_palette)
 
-    # Merge expression with phenotype
-    merged_df = pd.merge(expr_df, pheno_df[["sample_id", group_column]], on="sample_id", how="inner")
-    if merged_df.empty:
-        raise ValueError("No overlapping samples between expression matrix and phenotype data")
-
-    # Compute mean expression per gene per group
-    gene_cols = [col for col in expr_df.columns if col != "sample_id"]
-    group_means = (
-        merged_df.groupby(group_column)[gene_cols]
-        .mean()
-        .transpose()
-    )  # genes x groups
-
-    # Plot heatmap
-    plt.figure(figsize=figsize)
-    sns.heatmap(
-        group_means,
+    # Generate clustered heatmap
+    sns.clustermap(
+        expr_aligned,
         cmap=cmap,
-        linewidths=0.5,
-        linecolor="gray",
-        cbar_kws={"label": "Mean log2 TPM"},
+        figsize=(10, 12),
+        row_cluster=True,
+        col_cluster=True,
+        col_colors=col_colors,
+        xticklabels=False,
+        yticklabels=True,
     )
-    plt.title("Mean Log2 TPM of Core Circadian Genes by Group")
-    plt.ylabel("Gene")
-    plt.xlabel("Group")
-    plt.tight_layout()
-    plt.savefig(output_path)
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
     logger.info("Heatmap saved to %s", output_path)
+
+# ----------------------------------------------------------------------
+# ROC curve for logistic‑regression model performance
+# ----------------------------------------------------------------------
+def plot_roc_curve(
+    y_true: Union[pd.Series, str, Path],
+    y_score: Union[pd.Series, str, Path],
+    output_path: Union[str, Path] = "docs/roc_curve.png",
+    pos_label: int = 1,
+) -> None:
+    """
+    Plot an ROC curve given true binary labels and predicted scores.
+
+    The function accepts either raw pandas Series objects or file paths
+    (CSV/TSV) that contain a single column of values. When a path is
+    supplied, the file is read with ``pandas.read_csv``; the column name
+    is inferred automatically.
+
+    Parameters
+    ----------
+    y_true : pandas.Series or str or pathlib.Path
+        Ground‑truth binary labels (0/1 or ``Control``/``MetS``). If a
+        string/Path is supplied, the file is loaded.
+    y_score : pandas.Series or str or pathlib.Path
+        Predicted probability (or any continuous score) for the positive
+        class. If a string/Path is supplied, the file is loaded.
+    output_path : str or Path, optional
+        Destination PNG file for the ROC plot.
+    pos_label : int, optional
+        The label considered the positive class (default ``1``). If the
+        labels are strings, they will be mapped to ``0``/``1`` based on
+        ``pos_label`` after conversion.
+    """
+    # Helper to load a Series from a path or Series
+    def _load_series(data):
+        if isinstance(data, pd.Series):
+            return data
+        path = Path(data)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
+        df = pd.read_csv(path)
+        if df.shape[1] != 1:
+            raise ValueError(f"Expected a single‑column file at {path}, got {df.shape[1]} columns.")
+        return df.iloc[:, 0]
+
+    y_true_series = _load_series(y_true)
+    y_score_series = _load_series(y_score)
+
+    # Align indexes if they exist
+    if hasattr(y_true_series, "index") and hasattr(y_score_series, "index"):
+        common_idx = y_true_series.dropna().index.intersection(y_score_series.dropna().index)
+        if common_idx.empty:
+            raise ValueError("No overlapping indices between y_true and y_score.")
+        y_true_series = y_true_series.loc[common_idx]
+        y_score_series = y_score_series.loc[common_idx]
+
+    # Convert string labels to binary if necessary
+    if y_true_series.dtype.kind in {"O", "U"}:
+        # Assume values are "MetS"/"Control" or similar
+        unique_vals = sorted(y_true_series.dropna().unique())
+        if len(unique_vals) != 2:
+            raise ValueError(f"Expected exactly two distinct label values, got {unique_vals}")
+        mapping = {unique_vals[0]: 0, unique_vals[1]: 1}
+        y_true_binary = y_true_series.map(mapping)
+    else:
+        y_true_binary = y_true_series.astype(int)
+
+    # Compute ROC curve
+    fpr, tpr, _ = roc_curve(y_true_binary, y_score_series, pos_label=pos_label)
+    roc_auc = auc(fpr, tpr)
+
+    # Plot
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    plt.figure(figsize=(6, 6))
+    plt.plot(fpr, tpr, color="darkorange", lw=2, label=f"ROC curve (AUC = {roc_auc:.3f})")
+    plt.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--")
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("Receiver Operating Characteristic")
+    plt.legend(loc="lower right")
+    plt.grid(alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    logger.info("ROC curve saved to %s (AUC = %.3f)", output_path, roc_auc)
+
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+__all__ = [
+    "plot_scatter_significant",
+    "generate_heatmap",
+    "plot_roc_curve",
+]

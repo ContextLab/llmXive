@@ -66,9 +66,9 @@ description: "Task list template for feature implementation"
 - [X] T007 Implement data hash utility in `code/utils/hashing.py` for `state/projects/PROJ-110-...yaml` updates
 - [X] T008 Setup pytest configuration in `pytest.ini` and create `tests/conftest.py` for fixtures
 - [X] T012 [P] [Foundational] Define the core circadian gene list constant in `code/data/config.py`.
- - **Content**: List of core clock genes with specific isoforms: `PER1`, `PER2`, `PER3`, `CRY1`, `CRY2`, `BMAL1` (ARNTL), `CLOCK`, `NR1D1`, `RORA` (mapped from spec's `RORα`).
+ - **Content**: List of core clock genes with specific isoforms: `PER1 (Wikidata Q15326762, https://www.wikidata.org/wiki/Q15326762)`, `PER2`, `PER3`, `CRY1`, `CRY2`, `BMAL1` (ARNTL), `CLOCK`, `NR1D1`, `RORA` (mapped from spec's `RORα`).
  - **Output**: A constant `CORE_CIRCADIAN_GENES` accessible to the loader.
- - **Depends on**: T006 (Config Manager).
+ - **Depends on**:T006 (Config Manager).
 
 - [X] T053 [P] [Foundational] Add a reproducibility utility `code/utils/random_seed.py` that sets a global NumPy, Python, and scikit‑learn seed from a config entry (`random_seed: 42`). All downstream scripts must import this module first to guarantee deterministic results.
 
@@ -312,11 +312,11 @@ description: "Task list template for feature implementation"
  - **Output**: Write `data/processed/collinearity_report.json` with VIF values and flags.
  - **Depends on**: T035.
 
-- [ ] T039 [US3] Implement `plot_roc_curve` in `code/viz/plots.py` to visualize model performance (FR‑008).
+- [X] T039 [US3] Implement `plot_roc_curve` in `code/viz/plots.py` to visualize model performance (FR‑008).
  - **Output**: Write `docs/roc_curve.png`.
  - **Depends on**: T036.
 
-- [ ] T057 [US3] Add a unit test `tests/unit/test_vif.py::test_vif_threshold` that verifies the VIF calculation flags a predictor when VIF > 5 on a synthetic collinear dataset.
+- [X] T057 [US3] Add a unit test `tests/unit/test_vif.py::test_vif_threshold` that verifies the VIF calculation flags a predictor when VIF > 5 on a synthetic collinear dataset.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -326,14 +326,14 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Finalize results, generate reports, and update state hashes.
 
-- [ ] T041 [P] Implement `write_results_to_csv` in `code/main.py` to save processed data and results to `data/processed/`.
-- [ ] T043 [P] Implement `compute_content_hashes` in `code/main.py` to hash `data/processed/` artifacts.
-- [ ] T044 [P] Implement `update_state_hash` in `code/main.py` to write hashes to `state/projects/PROJ-110-...yaml`.
-- [ ] T045 [P] Generate final diagnostic report in `docs/report.md` summarizing SC‑001 through SC‑005 outcomes.
+- [X] T041 [P] Implement `write_results_to_csv` in `code/main.py` to save processed data and results to `data/processed/`.
+- [X] T043 [P] Implement `compute_content_hashes` in `code/main.py` to hash `data/processed/` artifacts.
+- [X] T044 [P] Implement `update_state_hash` in `code/main.py` to write hashes to `state/projects/PROJ-110-...yaml`.
+- [X] T045 [P] Generate final diagnostic report in `docs/report.md` summarizing SC‑001 through SC‑005 outcomes.
  - **Requirement**: Must explicitly include the "Classification Agreement Rate" metric from T042 as the primary evidence for SC‑005.
  - **Depends on**: T042, T018, T026, T036, T047.
-- [ ] T058 [P] Extend `docs/report.md` to include a table of significant DE genes (FDR < 0.05) to satisfy SC‑002, and a table of significant correlations (FDR < 0.05) to satisfy SC‑004.
-- [ ] T059 [P] Add a summary section in `docs/report.md` reporting the average AUC and its 95 % CI (SC‑003) together with a baseline random‑classifier reference (AUC = 0.5).
+- [X] T058 [P] Extend `docs/report.md` to include a table of significant DE genes (FDR < 0.05) to satisfy SC‑002, and a table of significant correlations (FDR < 0.05) to satisfy SC‑004.
+- [X] T059 [P] Add a summary section in `docs/report.md` reporting the average AUC and its 95 % CI (SC‑003) together with a baseline random‑classifier reference (AUC = 0.5).
 - [ ] T046 [P] Run end‑to‑end integration test in `tests/integration/test_pipeline.py` to verify full pipeline execution on sample data.
 - [ ] T060 [P] Add a CI step in the GitHub Actions workflow to assert that no GPU devices are requested (`torch.cuda.is_available()` must be `False`) to guarantee CPU‑only execution.
 

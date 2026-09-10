@@ -1,3 +1,3 @@
 """
-Traffic-Weather Severity Analysis Test Package
+Test suite for the Traffic-Weather Severity Analysis project.
 """

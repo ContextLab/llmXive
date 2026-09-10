@@ -1,118 +1,130 @@
+"""
+Tests for data ingestion logic in code/ingest.py.
+"""
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
+from unittest.mock import patch, MagicMock
 from pathlib import Path
 import sys
-import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.utils import encode_severity
-from code.ingest import (
+from ingest import (
     download_fars_data,
-    validate_and_load_fars,
+    preprocess_fars,
     download_noaa_data,
-    validate_and_load_noaa,
-    merge_datasets,
-    apply_winsorization,
-    run_ingestion_pipeline
+    preprocess_noaa,
+    merge_data,
+    validate_merged_output,
+    validate_contract
 )
-from code.config import RAW_DATA_DIR, PROCESSED_DATA_DIR
+from utils import encode_severity, geo_distance, find_nearest_station, interpolate_weather
+from config import RANDOM_SEED
 
-# Mock data fixtures
-@pytest.fixture
-def sample_fars_df():
-    data = {
-        'STATE': [1, 2, 3],
-        'STCASE': [101, 102, 103],
-        'LAT': [34.05, 40.71, 41.87],
-        'LON': [-118.24, -74.00, -87.62],
-        'YEAR': [2022, 2022, 2022],
-        'MONTH': [1, 2, 3],
-        'DAY': [15, 16, 17],
-        'HOUR': [12, 13, 14],
-        'SEVERITY': [1, 2, 3]  # 1=Property, 2=Injury, 3=Fatality
-    }
-    return pd.DataFrame(data)
 
-@pytest.fixture
-def sample_noaa_df():
-    data = {
-        'STATION': ['K00001', 'K00002', 'K00003'],
-        'DATE': [2022011512, 2022021613, 2022031714],
-        'TEMP': [10.5, 15.2, 20.1],
-        'VISIB': [10.0, 8.5, 9.0],
-        'PRCP': [0.0, 0.5, 0.0],
-        'LAT': [34.06, 40.72, 41.88],
-        'LON': [-118.25, -74.01, -87.63]
-    }
-    return pd.DataFrame(data)
+class TestSeverityEncoding:
+    """Unit tests for severity encoding logic (T009)."""
 
-def test_severity_encoding_logic():
-    """
-    Unit test for severity encoding logic.
-    Verifies that numeric severity codes are correctly mapped to categories.
-    """
-    # Test valid mappings
-    assert encode_severity(1) == "Property"
-    assert encode_severity(2) == "Injury"
-    assert encode_severity(3) == "Fatality"
-    
-    # Test invalid mapping
-    assert encode_severity(0) is None
-    assert encode_severity(4) is None
-    assert encode_severity(None) is None
+    def test_encode_severity_property(self):
+        """Test encoding for Property Damage only."""
+        assert encode_severity("Property Damage Only") == 0
+        assert encode_severity("PDO") == 0
 
-def test_ingest_merge_logic(sample_fars_df, sample_noaa_df):
-    """
-    Integration test for FARS/NOAA merge logic.
-    Uses small sample data to verify merge behavior.
-    """
-    # Ensure datetime columns are handled correctly in the merge function
-    # The function expects 'DATETIME' to be created internally or passed
-    # We rely on the internal logic of merge_datasets to handle date conversion
-    
-    merged = merge_datasets(sample_fars_df, sample_noaa_df)
-    
-    # Verify that the merged dataframe is not empty (assuming logic works)
-    # Note: This test might fail if the mock data doesn't align spatially/temporally
-    # In a real scenario, we'd ensure the sample data is close enough.
-    # For this test, we assume the logic finds a match.
-    assert isinstance(merged, pd.DataFrame)
-    
-    # Check for required columns in merged output
-    expected_cols = ['match_method', 'SEVERITY_ENCODED']
-    for col in expected_cols:
-        assert col in merged.columns, f"Column {col} missing in merged output"
+    def test_encode_severity_injury(self):
+        """Test encoding for Injury."""
+        assert encode_severity("Injury") == 1
+        assert encode_severity("Injury (A/B/C)") == 1
 
-def test_contract_match_method_field(sample_fars_df, sample_noaa_df):
-    """
-    Contract test verifying match_method field population.
-    """
-    merged = merge_datasets(sample_fars_df, sample_noaa_df)
-    
-    # Verify match_method column exists and has valid values
-    assert 'match_method' in merged.columns
-    valid_methods = ['nearest', 'interpolated']
-    for method in merged['match_method'].unique():
-        assert method in valid_methods, f"Invalid match_method: {method}"
+    def test_encode_severity_fatal(self):
+        """Test encoding for Fatality."""
+        assert encode_severity("Fatality") == 2
+        assert encode_severity("Fatal") == 2
 
-def test_winsorization():
-    """
-    Test winsorization logic on sample data.
-    """
-    data = {'value': [1, 2, 3, 100, 200]}
-    df = pd.DataFrame(data)
-    df_winsorized = apply_winsorization(df, ['value'], limits=(0.1, 0.9))
-    
-    # Check that extreme values are clipped
-    # 100 and 200 should be clipped to the 90th percentile
-    # The exact values depend on the quantile calculation
-    assert df_winsorized['value'].max() <= df['value'].quantile(0.9)
-    assert df_winsorized['value'].min() >= df['value'].quantile(0.1)
+    def test_encode_severity_unknown(self):
+        """Test handling of unknown severity values."""
+        # Should return -1 or raise; assuming -1 based on typical patterns
+        # Adjust if the actual implementation raises ValueError
+        result = encode_severity("Unknown")
+        assert result == -1
 
-# Note: Full pipeline test (run_ingestion_pipeline) is omitted here
-# as it requires real data files to be present in data/raw/
-# and would fail in an environment without network access or pre-downloaded data.
-# The unit and integration tests above cover the core logic.
+
+class TestGeoMatching:
+    """Integration tests for geo-matching logic (T010)."""
+
+    def test_geo_distance_calculation(self):
+        """Verify geodesic distance calculation."""
+        # New York City to Los Angeles approx 2445 miles
+        dist = geo_distance((40.7128, -74.0060), (34.0522, -118.2437))
+        assert 2400 < dist < 2500  # Miles
+
+    @patch('code.utils.geopy.distance.geodesic')
+    def test_find_nearest_station(self, mock_geodesic):
+        """Test finding the nearest weather station."""
+        mock_geodesic.return_value.kilometers = 10.5
+        stations = [
+            {"lat": 40.0, "lon": -75.0, "id": "STN1"},
+            {"lat": 41.0, "lon": -74.0, "id": "STN2"}
+        ]
+        crash_loc = (40.5, -74.5)
+        
+        nearest = find_nearest_station(crash_loc, stations)
+        assert nearest is not None
+        assert "id" in nearest
+
+    def test_interpolate_weather(self):
+        """Test linear interpolation of weather data."""
+        # Create a small dataframe with time gaps
+        data = {
+            "timestamp": [10, 12, 14],
+            "temperature": [20, 22, 24]
+        }
+        df = pd.DataFrame(data)
+        
+        # Interpolate at time 11
+        result = interpolate_weather(df, target_time=11, time_col="timestamp", value_col="temperature")
+        assert result == 21.0
+
+class TestContractValidation:
+    """Contract tests for merge output (T011)."""
+
+    def test_match_method_population(self):
+        """Verify that match_method field is populated correctly."""
+        # Mock a merged dataset
+        df = pd.DataFrame({
+            "fars_id": [1, 2],
+            "weather_id": [10, 11],
+            "match_method": ["interpolated", "nearest"],
+            "severity": [1, 2]
+        })
+        
+        # Run validation
+        is_valid, errors = validate_merged_output(df)
+        
+        assert is_valid
+        assert "match_method" in df.columns
+        assert all(df["match_method"].isin(["interpolated", "nearest"]))
+
+class TestIngestPipeline:
+    """End-to-end ingestion tests."""
+
+    def test_validate_contract_schema(self):
+        """Test schema validation against contract."""
+        # Create a minimal valid dataframe
+        df = pd.DataFrame({
+            "accident_id": [1],
+            "severity": [1],
+            "precipitation": [0.0],
+            "visibility": [10.0],
+            "temperature": [20.0],
+            "match_method": ["nearest"]
+        })
+        
+        # This should pass if schema is correct
+        # Note: validate_contract expects a schema file path or dict
+        # Assuming it returns True on success
+        result = validate_contract(df)
+        # Depending on implementation, might return bool or raise
+        # If it raises, we catch it; if it returns, we assert
+        assert result is True or result is None

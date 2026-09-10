@@ -1,174 +1,206 @@
+"""
+Deterministic synthetic tensor generator for LLM inference benchmarking.
+
+Generates float32 tensors using fixed seeds and varied distributions (Normal, Uniform)
+to ensure construct validity. Outputs binary files and SHA-256 hashes for verification.
+"""
 import os
 import struct
 import argparse
 import hashlib
 import numpy as np
+from pathlib import Path
 from typing import Tuple, Optional, Literal, Dict, Any, List
 
-# Fixed seeds as per task requirement
-FIXED_SEEDS = [12345, 67890, 11111]
+# Constants
+DEFAULT_SEEDS = [12345, 67890, 11111]
+DEFAULT_DIMENSION = 768  # Common hidden dimension size
+DEFAULT_DISTRIBUTION = "normal"  # Options: "normal", "uniform"
+OUTPUT_DIR = Path("data/raw")
+HASHES_DIR = OUTPUT_DIR / ".hashes"
+TENSOR_FORMAT = "<" + "f"  # Little-endian float32
+TENSOR_HEADER_SIZE = 16  # 4 bytes for dim, 4 bytes for seed, 4 bytes for dist code, 4 bytes padding
 
 def generate_tensor(
-    shape: Tuple[int, int],
-    dtype: str = "float32",
-    distribution: Literal["normal", "uniform"] = "normal",
-    seed: Optional[int] = None
-) -> np.ndarray:
+    seed: int,
+    dim: int = DEFAULT_DIMENSION,
+    distribution: Literal["normal", "uniform"] = DEFAULT_DISTRIBUTION
+) -> Tuple[np.ndarray, str]:
     """
-    Generates a deterministic synthetic tensor.
+    Generate a deterministic tensor based on seed and distribution.
     
     Args:
-        shape: Tuple of (rows, cols)
-        dtype: Data type string (default "float32")
-        distribution: Either "normal" or "uniform"
-        seed: Random seed for reproducibility. If None, no seed is set.
-    
+        seed: Random seed for reproducibility.
+        dim: Dimension of the square tensor (dim x dim).
+        distribution: Type of distribution ('normal' or 'uniform').
+        
     Returns:
-        numpy array of the specified shape and distribution.
+        Tuple of (numpy array, distribution string identifier).
     """
-    if seed is not None:
-        np.random.seed(seed)
+    np.random.seed(seed)
     
     if distribution == "normal":
-        data = np.random.randn(*shape).astype(np.float32)
+        tensor = np.random.normal(loc=0.0, scale=1.0, size=(dim, dim)).astype(np.float32)
     elif distribution == "uniform":
-        data = np.random.uniform(-1.0, 1.0, size=shape).astype(np.float32)
+        tensor = np.random.uniform(low=-1.0, high=1.0, size=(dim, dim)).astype(np.float32)
     else:
-        raise ValueError(f"Unknown distribution: {distribution}")
-    
-    return data
+        raise ValueError(f"Unsupported distribution: {distribution}")
+        
+    return tensor, distribution
 
-def save_tensor_to_binary(tensor: np.ndarray, path: str):
+def save_tensor_to_binary(tensor: np.ndarray, output_path: Path, seed: int, distribution: str) -> None:
     """
-    Saves a numpy array to a binary file.
+    Save tensor to a binary file with a custom header.
     
-    Format:
-        4 bytes: rows (uint32)
-        4 bytes: cols (uint32)
-        N bytes: raw float32 data
+    Header format:
+    - 4 bytes: dimension (int32)
+    - 4 bytes: seed (int32)
+    - 4 bytes: distribution code (0 for normal, 1 for uniform)
+    - 4 bytes: padding
+    - Rest: float32 data
     """
-    output_dir = os.path.dirname(path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    dist_code = 0 if distribution == "normal" else 1
     
-    with open(path, "wb") as f:
-        # Write shape first
-        f.write(struct.pack('I', tensor.shape[0]))
-        f.write(struct.pack('I', tensor.shape[1]))
+    with open(output_path, 'wb') as f:
+        # Write header
+        f.write(struct.pack("<i", tensor.shape[0]))
+        f.write(struct.pack("<i", seed))
+        f.write(struct.pack("<i", dist_code))
+        f.write(struct.pack("<i", 0))  # padding
+        
         # Write data
         f.write(tensor.tobytes())
 
-def compute_sha256(file_path: str) -> str:
-    """Computes the SHA-256 hash of a file."""
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_hash(hash_value: str, seed: int, output_dir: str):
-    """Saves the hash to the specified location."""
-    hash_dir = os.path.join(output_dir, ".hashes")
-    os.makedirs(hash_dir, exist_ok=True)
-    hash_file = os.path.join(hash_dir, f"{seed}.sha256")
-    with open(hash_file, "w") as f:
-        f.write(hash_value)
+def save_hash(file_path: Path, hash_value: str) -> None:
+    """Save hash to a .sha256 file."""
+    with open(file_path, 'w') as f:
+        f.write(hash_value + "\n")
 
 def run_generation(
-    shapes: List[Tuple[int, int]],
-    output_dir: str = "data/raw",
-    seed: int = 42,
-    distributions: List[str] = None
-) -> Dict[str, str]:
+    seed: int,
+    dim: int = DEFAULT_DIMENSION,
+    distribution: Literal["normal", "uniform"] = DEFAULT_DISTRIBUTION,
+    verify_hash: bool = False
+) -> Dict[str, Any]:
     """
-    Generates and saves tensors for benchmarking.
+    Run the generation process for a specific seed.
     
     Args:
-        shapes: List of (rows, cols) tuples
-        output_dir: Directory to save output files
-        seed: Base random seed
-        distributions: List of distribution types to use. 
-                     If provided, cycles through them. If None, defaults to ['normal', 'uniform'].
-    
-    Returns:
-        Dictionary mapping filename to full path.
-    """
-    if distributions is None:
-        distributions = ["normal", "uniform"]
-    
-    os.makedirs(output_dir, exist_ok=True)
-    outputs = {}
-    
-    for i, shape in enumerate(shapes):
-        # Cycle through distributions to ensure varied distributions are used
-        dist = distributions[i % len(distributions)]
-        tensor = generate_tensor(shape, distribution=dist, seed=seed + i)
+        seed: Random seed.
+        dim: Tensor dimension.
+        distribution: Distribution type.
+        verify_hash: If True, check against existing hash and fail if mismatch.
         
-        filename = f"tensor_{shape[0]}x{shape[1]}_{dist}_seed{seed+i}.bin"
-        path = os.path.join(output_dir, filename)
-        save_tensor_to_binary(tensor, path)
-        outputs[filename] = path
+    Returns:
+        Dictionary with generation details.
+    """
+    # Ensure directories exist
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    HASHES_DIR.mkdir(parents=True, exist_ok=True)
     
-    return outputs
+    # Generate tensor
+    tensor, dist_str = generate_tensor(seed, dim, distribution)
+    
+    # Define output paths
+    output_filename = f"tensor_seed_{seed}_{dist_str}_{dim}x{dim}.bin"
+    output_path = OUTPUT_DIR / output_filename
+    hash_path = HASHES_DIR / f"{seed}.sha256"
+    
+    # Save tensor
+    save_tensor_to_binary(tensor, output_path, seed, dist_str)
+    
+    # Compute hash
+    file_hash = compute_sha256(output_path)
+    
+    # Verification logic
+    if verify_hash and hash_path.exists():
+        with open(hash_path, 'r') as f:
+            stored_hash = f.read().strip()
+        if stored_hash != file_hash:
+            raise RuntimeError(
+                f"Hash mismatch for seed {seed}! "
+                f"Expected: {stored_hash}, Got: {file_hash}"
+            )
+        print(f"Hash verified for seed {seed}: {file_hash}")
+    else:
+        # Save new hash
+        save_hash(hash_path, file_hash)
+        print(f"Hash saved for seed {seed}: {file_hash}")
+        
+    # Print hash to stdout as required
+    print(f"Generated tensor: {output_path}")
+    print(f"SHA-256: {file_hash}")
+    
+    return {
+        "seed": seed,
+        "dimension": dim,
+        "distribution": dist_str,
+        "output_path": str(output_path),
+        "hash": file_hash
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate synthetic tensors.")
-    parser.add_argument("--shapes", type=str, default="768,768;512,512",
-                        help="Semicolon separated list of shapes (e.g., 768,768;512,512)")
-    parser.add_argument("--output-dir", type=str, default="data/raw",
-                        help="Directory to save output files")
-    parser.add_argument("--seed", type=int, default=None,
-                        help="Specific seed to use. If provided, uses that seed for a single tensor generation.")
-    parser.add_argument("--distribution", type=str, default="normal",
-                        help="Distribution type: 'normal' or 'uniform'. Used if --seed is provided.")
-    parser.add_argument("--verify-hash", action="store_true",
-                        help="Generate the file, compute its SHA-256 hash, print it, and save it to data/raw/.hashes/<SEED>.sha256")
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(
+        description="Generate deterministic synthetic tensors for benchmarking."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        required=False,
+        help="Specific seed to generate. If not provided, runs default seeds."
+    )
+    parser.add_argument(
+        "--dim",
+        type=int,
+        default=DEFAULT_DIMENSION,
+        help=f"Tensor dimension (default: {DEFAULT_DIMENSION})"
+    )
+    parser.add_argument(
+        "--distribution",
+        type=str,
+        choices=["normal", "uniform"],
+        default=DEFAULT_DISTRIBUTION,
+        help=f"Distribution type (default: {DEFAULT_DISTRIBUTION})"
+    )
+    parser.add_argument(
+        "--verify-hash",
+        action="store_true",
+        help="Verify against existing hash file and fail if mismatch."
+    )
     
     args = parser.parse_args()
     
     if args.seed is not None:
-        # Single generation mode for verification
-        if args.distribution not in ["normal", "uniform"]:
-            raise ValueError(f"Invalid distribution: {args.distribution}. Must be 'normal' or 'uniform'.")
-        
-        # Use a default shape if not specified for single mode, or parse a single shape from --shapes if needed
-        # For this task, we assume a standard benchmark shape for verification if only seed is given
-        shape = (512, 512) 
-        
-        tensor = generate_tensor(shape, distribution=args.distribution, seed=args.seed)
-        filename = f"tensor_{shape[0]}x{shape[1]}_{args.distribution}_seed{args.seed}.bin"
-        path = os.path.join(args.output_dir, filename)
-        
-        save_tensor_to_binary(tensor, path)
-        
-        # Compute and save hash
-        hash_val = compute_sha256(path)
-        print(f"SHA-256 Hash for seed {args.seed}: {hash_val}")
-        save_hash(hash_val, args.seed, args.output_dir)
-        
-        print(f"Tensor generated: {path}")
+        # Single seed mode
+        run_generation(
+            seed=args.seed,
+            dim=args.dim,
+            distribution=args.distribution,
+            verify_hash=args.verify_hash
+        )
     else:
-        # Batch generation mode (original behavior)
-        # Parse shapes
-        shapes = []
-        for shape_str in args.shapes.split(";"):
-            dims = [int(x.strip()) for x in shape_str.split(",")]
-            if len(dims) == 2:
-                shapes.append(tuple(dims))
-            else:
-                raise ValueError(f"Invalid shape: {shape_str}")
-        
-        # Parse distributions
-        distributions = [d.strip().lower() for d in args.distributions.split(";")]
-        for d in distributions:
-            if d not in ["normal", "uniform"]:
-                raise ValueError(f"Invalid distribution: {d}. Must be 'normal' or 'uniform'.")
-        
-        results = run_generation(shapes, args.output_dir, args.seed, distributions)
-        
-        print("Tensor generation complete:")
-        for name, path in results.items():
-            print(f"  {name}: {path}")
+        # Batch mode: run all default seeds
+        print(f"Running generation for default seeds: {DEFAULT_SEEDS}")
+        for seed in DEFAULT_SEEDS:
+            try:
+                run_generation(
+                    seed=seed,
+                    dim=args.dim,
+                    distribution=args.distribution,
+                    verify_hash=args.verify_hash
+                )
+            except RuntimeError as e:
+                print(f"Error processing seed {seed}: {e}")
+                raise
 
 if __name__ == "__main__":
     main()

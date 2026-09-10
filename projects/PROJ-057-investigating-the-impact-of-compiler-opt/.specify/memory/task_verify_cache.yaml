@@ -8,29 +8,28 @@ T001:
     listing or command output).
 T004:
   c: false
-  h: 0d715f5a244c5685f2353e02ac0e5740f47bbd03caf14386fc1ebc37dc346fee
-  r: "The provided `config.py` defines flag handling and combination generation, but\
-    \ the script lacks a runnable CLI that accepts `--generate-combinations` and `--input\
-    \ flags.yaml`, and it does not create `data/raw/combinations.json`. Moreover,\
-    \ the required `flags.yaml` (or JSON) input file and the resulting `combinations.json`\
-    \ output are absent. The implementer must add the command\u2011line interface,\
-    \ ensure the script writes the combinations to the specified path, and supply\
-    \ a sample `flags.yaml` (or JSON) for testing."
+  h: c21530d8ba68e3c18d4a5a9ca27e98f85618adfe8e13c4dc955338d5933e88dc
+  r: The repository contains `code/benchmarks/config.py`, but the required input file
+    `flags.yaml` and the output file `data/raw/combinations.json` are absent, and
+    the provided snippet does not show a CLI that writes the generated combinations
+    to the specified JSON path. Without these artifacts the verification step cannot
+    be performed.
 T005:
   c: false
-  h: b7fad0efedddf8b45156d04182262d5e9e0a0461ac178a9b3014a9d3a7003a24
-  r: "The provided `tensor_generator.py` is truncated (e.g., `os.makedi` line) and\
-    \ lacks the command\u2011line interface required (`--seed` and `--verify-hash`),\
-    \ full generation loop over the three fixed seeds, and logic to compute and store\
-    \ the SHA\u2011256 hashes in `data/raw/.hashes/`. Consequently the expected output\
-    \ files and hash files are missing."
+  h: e1e9ab4332c1e095d80b5f3a650f13c3ce7a4d9aa76b25ce80af835470b4b432
+  r: "The repository contains a partially implemented `tensor_generator.py`, but the\
+    \ required `data/raw/.hashes/` directory (and the `<SEED>.sha256` files) are missing,\
+    \ and the script\u2019s CLI/verification logic is truncated, so it does not demonstrably\
+    \ generate and store the hashes as specified. The next implementer must ensure\
+    \ the script creates `data/raw/.hashes/` and writes the correct SHA\u2011256 hash\
+    \ files for each fixed seed."
 T006:
   c: false
-  h: 2a9d20fb911b3df249c3baeca688a27cd26cc10973c61044ab6c439cd904909d
-  r: "The required hash file `data/raw/.hashes/ref_2x2.sha256` is absent, meaning\
-    \ the verification step (`python code/benchmarks/reference.py --test --verify-hash`)\
-    \ has not produced the expected output. Without this file, the task\u2019s requirement\
-    \ of generating and saving the reference hash is not met."
+  h: c2fff4f6dba570a1acaef65fbb017301744cf2fd1f25f2efc9343348df60fc79
+  r: The `reference.py` file is truncated, contains a bug in `decimal_softmax` (returns
+    undefined `res`), lacks a LayerNorm implementation, and does not include the test/verification
+    logic that writes `data/raw/.hashes/ref_2x2.sha256`. Moreover, the required hash
+    file is missing from the repository.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,6 +38,14 @@ T008:
     \ system, high\u2011precision reference engine, statistical analysis, or visualizations\
     \ were actually implemented. The implementer must supply the concrete artifacts\
     \ (e.g., source code, JSONL logs, CSV metrics, and Pareto plots) for verification."
+T017:
+  c: false
+  h: 07f85fa02cdfa58baa470091250a2ce3779454921a13ebbd69f7f9a62ccc349c
+  r: "The repository contains a `stability_check.py` script with a `detect_nan_in_tensor`\
+    \ helper, but there is no evidence that it processes logs, excludes runs with\
+    \ NaNs, logs the offending flag configurations, or writes the required `data/intermediates/filtered_stable_runs.csv`.\
+    \ Moreover, the expected CSV file is absent from the project. The task\u2019s\
+    \ core output is therefore missing."
 T023:
   c: false
   h: a6a04eef6ac6f4a9d2cba0bdba58ca6906ab56bfeb23f0db53d62e54f48ff681

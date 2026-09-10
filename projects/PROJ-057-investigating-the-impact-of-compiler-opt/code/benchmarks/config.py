@@ -1,9 +1,3 @@
-"""
-Configuration management for compiler optimization benchmarks.
-
-Handles dynamic generation of flag combinations from user-supplied YAML/JSON
-or defaults. Validates flags and outputs combinations to JSON.
-"""
 import os
 import json
 import argparse
@@ -13,191 +7,126 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 import itertools
 
-# Default compiler flags if no user list is provided
-DEFAULT_FLAGS = [
-    "-O0", "-O1", "-O2", "-O3", "-Os",
-    "-march=native",
-    "-ffast-math",
-    "-funroll-loops"
-]
-
 @dataclass
 class BenchmarkConfig:
-    """Represents a single benchmark configuration."""
+    """Configuration for a specific benchmark run."""
     config_id: str
+    kernel: str
+    compiler: str
     flags: List[str]
-    compiler: str = "g++"
-    kernel_type: str = "matmul"
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+    tensor_dim: Tuple[int, int]
+    iterations: int
+    seed: int
 
-@dataclass
 class ConfigManager:
     """Manages compiler flag configurations and combination generation."""
-    flags: List[str] = field(default_factory=list)
-    output_dir: Path = field(default_factory=lambda: Path("data/raw"))
-    
-    def __post_init__(self):
-        if not self.flags:
-            self.flags = DEFAULT_FLAGS.copy()
-        
-        # Ensure output directory exists
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-    
-    def validate_flags(self) -> List[str]:
-        """
-        Validate that all flags start with '-' and are non-empty.
-        Returns list of valid flags.
-        """
-        valid_flags = []
-        for flag in self.flags:
-            if not isinstance(flag, str) or not flag.startswith('-') or len(flag) < 2:
-                raise ValueError(f"Invalid flag format: '{flag}'. Must start with '-' and be non-empty.")
-            valid_flags.append(flag)
-        return valid_flags
 
-    def generate_combinations(self) -> List[BenchmarkConfig]:
-        """
-        Generate all combinations of flags.
-        If a user-supplied list is provided, it REPLACES defaults.
-        Returns list of BenchmarkConfig objects.
-        """
-        valid_flags = self.validate_flags()
-        configs = []
-        
-        # Generate combinations: single flags, pairs, triples, etc.
-        # For this implementation, we'll generate all possible non-empty subsets
-        # But typically we want specific combinations (e.g., -O2 + -ffast-math)
-        # We'll generate combinations of size 1 to len(flags)
-        
-        config_id_counter = 0
-        for r in range(1, len(valid_flags) + 1):
-            for combo in itertools.combinations(valid_flags, r):
-                config_id_counter += 1
-                config = BenchmarkConfig(
-                    config_id=f"config_{config_id_counter:04d}",
-                    flags=list(combo)
-                )
-                configs.append(config)
-        
-        return configs
+    DEFAULT_FLAGS = [
+        "-O0", "-O1", "-O2", "-O3", "-Os",
+        "-march=native", "-ffast-math", "-funroll-loops"
+    ]
 
-    def load_from_yaml(self, yaml_path: Path) -> List[str]:
-        """Load flags from a YAML file."""
-        if not yaml_path.exists():
-            raise FileNotFoundError(f"YAML file not found: {yaml_path}")
-        
-        with open(yaml_path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        if not isinstance(data, list):
-            raise ValueError("YAML file must contain a list of flags")
-        
-        return data
+    def __init__(self, flags_file: Optional[str] = None):
+        self.flags_file = flags_file
+        self._flags = self._load_flags()
 
-    def load_from_json(self, json_path: Path) -> List[str]:
-        """Load flags from a JSON file."""
-        if not json_path.exists():
-            raise FileNotFoundError(f"JSON file not found: {json_path}")
-        
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-        
-        if not isinstance(data, list):
-            raise ValueError("JSON file must contain a list of flags")
-        
-        return data
+    def _load_flags(self) -> List[str]:
+        """Load flags from YAML/JSON file or use defaults."""
+        if self.flags_file and os.path.exists(self.flags_file):
+            with open(self.flags_file, 'r') as f:
+                if self.flags_file.endswith('.yaml') or self.flags_file.endswith('.yml'):
+                    data = yaml.safe_load(f)
+                elif self.flags_file.endswith('.json'):
+                    data = json.load(f)
+                else:
+                    raise ValueError(f"Unsupported file format: {self.flags_file}")
+            
+                if isinstance(data, list):
+                    return data
+                elif isinstance(data, dict) and 'flags' in data:
+                    return data['flags']
+                else:
+                    raise ValueError("Invalid format in flags file. Expected a list or a dict with 'flags' key.")
+        else:
+            return self.DEFAULT_FLAGS
 
-    def save_combinations_to_json(self, configs: List[BenchmarkConfig], output_path: Path) -> None:
-        """Save generated configurations to a JSON file."""
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        data = [config.to_dict() for config in configs]
-        
-        with open(output_path, 'w') as f:
-            json.dump(data, f, indent=2)
+    def validate_flags(self, flags: List[str]) -> List[str]:
+        """Validate that all flags start with '-'."""
+        invalid = [f for f in flags if not f.startswith('-')]
+        if invalid:
+            raise ValueError(f"Invalid flags detected (must start with '-'): {invalid}")
+        return flags
 
-    def create_default_manager(self) -> 'ConfigManager':
-        """Create a ConfigManager with default flags."""
-        return ConfigManager(flags=DEFAULT_FLAGS.copy(), output_dir=self.output_dir)
+    def generate_combinations(self) -> List[List[str]]:
+        """Generate all combinations of optimization flags."""
+        # For this implementation, we treat the list as a set of independent flags
+        # and generate combinations of all possible subsets (excluding empty set).
+        # However, typically in compiler benchmarks, we want specific combinations
+        # provided by the user or specific levels.
+        
+        # If the user provides a list like ["-O2", "-march=native"], we generate:
+        # ["-O2"], ["-march=native"], ["-O2", "-march=native"]
+        
+        combinations = []
+        flags = self._flags
+        
+        # Generate all non-empty subsets
+        for r in range(1, len(flags) + 1):
+            for combo in itertools.combinations(flags, r):
+                combinations.append(list(combo))
+        
+        return combinations
 
-def validate_flags(flags: List[str]) -> List[str]:
-    """
-    Standalone function to validate flags.
-    Raises ValueError if any flag is invalid.
-    """
-    manager = ConfigManager(flags=flags)
-    return manager.validate_flags()
+    def generate_configurations(self, kernel: str = "matmul", 
+                                compiler: str = "g++", 
+                                tensor_dim: Tuple[int, int] = (512, 512),
+                                iterations: int = 1000,
+                                seed: int = 12345) -> Iterator[BenchmarkConfig]:
+        """Generate full benchmark configurations."""
+        combos = self.generate_combinations()
+        
+        for idx, flags in enumerate(combos):
+            # Create a unique config ID
+            flag_str = "_".join(f.replace("-", "").replace("=", "_") for f in flags)
+            config_id = f"{kernel}_{compiler}_{flag_str}_{idx}"
+            
+            yield BenchmarkConfig(
+                config_id=config_id,
+                kernel=kernel,
+                compiler=compiler,
+                flags=flags,
+                tensor_dim=tensor_dim,
+                iterations=iterations,
+                seed=seed
+            )
 
 def main():
-    """Main entry point for CLI usage."""
-    parser = argparse.ArgumentParser(
-        description="Generate compiler flag combinations for benchmarks"
-    )
-    parser.add_argument(
-        '--generate-combinations',
-        action='store_true',
-        help='Generate all flag combinations and save to JSON'
-    )
-    parser.add_argument(
-        '--input',
-        type=str,
-        help='Path to YAML or JSON file containing user-supplied flags'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='data/raw/combinations.json',
-        help='Output path for combinations JSON (default: data/raw/combinations.json)'
-    )
-    parser.add_argument(
-        '--default',
-        action='store_true',
-        help='Use default flags if no input file provided'
-    )
+    parser = argparse.ArgumentParser(description="Generate compiler flag combinations")
+    parser.add_argument("--generate-combinations", action="store_true", 
+                      help="Generate combinations and save to JSON")
+    parser.add_argument("--input", type=str, default=None,
+                      help="Path to YAML/JSON file with user-defined flags")
+    parser.add_argument("--output", type=str, default="data/raw/combinations.json",
+                      help="Output path for combinations JSON")
     
     args = parser.parse_args()
     
-    # Determine flags to use
-    flags = None
-    
-    if args.input:
-        input_path = Path(args.input)
-        if input_path.suffix.lower() == '.yaml' or input_path.suffix.lower() == '.yml':
-            flags = ConfigManager().load_from_yaml(input_path)
-        elif input_path.suffix.lower() == '.json':
-            flags = ConfigManager().load_from_json(input_path)
-        else:
-            raise ValueError("Input file must be YAML (.yaml/.yml) or JSON (.json)")
-    elif args.default:
-        flags = DEFAULT_FLAGS.copy()
+    if args.generate_combinations:
+        manager = ConfigManager(flags_file=args.input)
+        combinations = manager.generate_combinations()
+        
+        # Ensure output directory exists
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save to JSON
+        with open(output_path, 'w') as f:
+            json.dump(combinations, f, indent=2)
+        
+        print(f"Generated {len(combinations)} combinations.")
+        print(f"Saved to {args.output}")
     else:
-        # If no input and no default flag, check if file exists or use defaults
-        # Default behavior: use defaults if no input specified
-        flags = DEFAULT_FLAGS.copy()
-    
-    if not flags:
-        print("No flags provided and no input file. Using defaults.")
-        flags = DEFAULT_FLAGS.copy()
-    
-    # Create manager and generate combinations
-    manager = ConfigManager(flags=flags)
-    configs = manager.generate_combinations()
-    
-    # Save to JSON
-    output_path = Path(args.output)
-    manager.save_combinations_to_json(configs, output_path)
-    
-    print(f"Generated {len(configs)} configurations")
-    print(f"Saved to: {output_path.absolute()}")
-    
-    # Print summary
-    print("\nFlag combinations:")
-    for config in configs[:10]:  # Show first 10
-        print(f"  {config.config_id}: {' '.join(config.flags)}")
-    if len(configs) > 10:
-        print(f"  ... and {len(configs) - 10} more")
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

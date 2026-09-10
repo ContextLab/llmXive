@@ -1,0 +1,8 @@
+- "-O0"
+- "-O1"
+- "-O2"
+- "-O3"
+- "-Os"
+- "-march=native"
+- "-ffast-math"
+- "-funroll-loops"

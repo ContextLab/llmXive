@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` directory structure (`__init__.py`, `config.py`, `ingest.py`, `model.py`, `diagnostics.py`, `utils.py`, `main.py`)
+- [ ] T001a [P] Create `code/` directory structure (`__init__.py`, `config.py`, `ingest.py`, `model.py`, `diagnostics.py`, `utils.py`, `main.py`) <!-- FAILED: unspecified -->
 - [ ] T001b [P] Create `tests/` directory structure (`__init__.py`, `test_ingest.py`, `test_model.py`, `test_diagnostics.py`)
 - [ ] T001c [P] Create `data/` directory structure (`raw/`, `processed/`, `reports/`)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinned `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopy`, `pyyaml`, `matplotlib`, `seaborn`, `pyarrow`, `h3`)
@@ -88,7 +88,7 @@
 - [X] T013 [US1] Implement NOAA ISD download and pre-filtering in `code/ingest.py` (use HuggingFace `noaa/isd-hourly` fallback, filter by proximity)
 - [X] T014 [US1] Implement spatial-temporal merge logic: MUST implement linear interpolation for time gaps between weather stations; fallback to nearest-hour ONLY if interpolation fails; verify output contains `match_method=interpolated` for time-delta > 0 in `code/ingest.py`
 - [X] T015 [US1] Implement severity encoding (=Property, Injury, Fatality) and exclusion logic in `code/ingest.py`
-- [~] T016 [US1] Implement contract validation step to ensure output matches `merged_dataset.schema.yaml` in `code/ingest.py`
+- [ ] T016 [US1] Implement contract validation step to ensure output matches `merged_dataset.schema.yaml` in `code/ingest.py`
 - [ ] T017 [US1] Add logging for merge coverage rate (target ≥85%) and exclusion counts in `code/ingest.py`
 - [ ] T017b [US1] Implement calculation and verification of SC-001 coverage metric (valid weather records / total FARS records) and verify ≥85% target; MUST log exclusion counts for records failing proximity check in `code/ingest.py`
 

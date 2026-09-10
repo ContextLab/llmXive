@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://www.nhtsa.gov/sites/nhtsa.gov/files/2022-fars.csv
   verified_at: '2026-07-05T16:11:23.980560Z'
-- artifact_hash: 2e163af54d02435f2949fca3b3cde648efabde0c6ee14d09c33a3af5837910e4
+- artifact_hash: d10527d178ecdd4753a5abe868c7b9e0d3a8ec913b31f14cadf6df52d4226413
   artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://en.wikipedia.org/wiki/Delta_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Delta
-  verified_at: '2026-08-09T09:55:23.626821Z'
-- artifact_hash: 2e163af54d02435f2949fca3b3cde648efabde0c6ee14d09c33a3af5837910e4
+  verified_at: '2026-09-10T14:20:37.510925Z'
+- artifact_hash: d10527d178ecdd4753a5abe868c7b9e0d3a8ec913b31f14cadf6df52d4226413
   artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://en.wikipedia.org/wiki/Dhurandhar
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Dhurandhar
-  verified_at: '2026-08-09T09:55:23.626821Z'
+  verified_at: '2026-09-10T14:20:37.510925Z'

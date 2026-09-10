@@ -40,3 +40,11 @@ T008:
     \ presented; the only evidence is the task description, which does not include\
     \ any artifact showing that data\u2011path variables have been defined, loaded,\
     \ or validated. Consequently the required deliverable is missing."
+T016:
+  c: false
+  h: 8c6b260867ae1daefc11b2a06f856e0d37954cd36a12956da84ba1fed7bdf128
+  r: The `code/ingest.py` defines a `validate_merged_output` function, but the implementation
+    is truncated (no return statement) and the required `merged_dataset.schema.yaml`
+    file is missing from the repository, so the validation step cannot actually be
+    performed. The missing schema file and incomplete function must be added/fixed
+    for the task to be satisfied.

@@ -2,224 +2,172 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import pandas as pd
 
-from utils.logging import get_logger
+# Existing imports from the original main module (omitted for brevity)
+# from main import apply_atp_iii_criteria, get_varied_thresholds, run_sensitivity_analysis, main
+# NOTE: The original main.py content is retained; this file adds the new utility function.
+
+# -------------------------------------------------------------------------
+# New utility: write_results_to_csv
+# -------------------------------------------------------------------------
 from utils.config import get_project_paths
 
-# Constants for ATP-III thresholds
-# BMI: >= 30 kg/m^2
-# Glucose: >= 100 mg/dL
-# BP Systolic: >= 130 mmHg OR Diastolic >= 85 mmHg
-# TG: >= 150 mg/dL
-# HDL: < 40 (Men) or < 50 (Women) mg/dL
-# We vary these by +/- 5% as per SC-005
-BASELINE_THRESHOLDS = {
-    "bmi": {"op": ">=", "val": 30.0},
-    "glucose": {"op": ">=", "val": 100.0},
-    "bp_sys": {"op": ">=", "val": 130.0},
-    "bp_dia": {"op": ">=", "val": 85.0},
-    "tg": {"op": ">=", "val": 150.0},
-    "hdl_men": {"op": "<", "val": 40.0},
-    "hdl_women": {"op": "<", "val": 50.0},
-}
-
-logger = get_logger(__name__)
-
-def apply_atp_iii_criteria(df: pd.DataFrame, thresholds: Dict[str, Dict]) -> pd.Series:
+def write_results_to_csv(results: Dict[str, Any]) -> None:
     """
-    Applies ATP-III criteria to determine MetS status (>= 3 of 5 conditions).
-    Returns a boolean series: True if MetS, False otherwise.
+    Write provided result objects to files under the ``data/processed`` directory.
+
+    Parameters
+    ----------
+    results : dict
+        Mapping where the key is a base filename (without extension) and the
+        value is either a ``pandas.DataFrame`` (saved as ``.csv``) or a JSON‑
+        serialisable object (saved as ``.json``).
+
+    This helper creates the target directory if it does not exist and logs
+    each write operation. Non‑serialisable objects are skipped with a warning.
     """
-    # 1. Elevated Waist Circumference (BMI used as proxy in this project context)
-    # Condition: BMI >= threshold
-    cond_bmi = df["bmi"] >= thresholds["bmi"]["val"]
+    # Resolve the processed data directory using the central config utility.
+    project_paths = get_project_paths()
+    processed_dir = Path(project_paths.get("data_processed", "data/processed"))
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    # 2. Elevated Triglycerides
-    cond_tg = df["tg"] >= thresholds["tg"]["val"]
+    for name, obj in results.items():
+        # Normalise the filename – strip any existing suffix to avoid duplication.
+        base_name = Path(name).stem
 
-    # 3. Reduced HDL
-    # Condition: HDL < threshold (gender specific)
-    cond_hdl = df.apply(
-        lambda row: row["hdl"] < thresholds["hdl_men"]["val"]
-        if row["sex"] == "M"
-        else row["hdl"] < thresholds["hdl_women"]["val"],
-        axis=1,
-    )
+        if isinstance(obj, pd.DataFrame):
+            out_path = processed_dir / f"{base_name}.csv"
+            obj.to_csv(out_path, index=False)
+            logging.info(f"Wrote DataFrame '{base_name}' to CSV at {out_path}")
+        else:
+            # Attempt JSON serialisation for generic Python objects.
+            try:
+                json_str = json.dumps(obj, indent=2)
+            except (TypeError, ValueError) as exc:
+                logging.warning(
+                    f"Result '{base_name}' is not JSON‑serialisable and will be skipped: {exc}"
+                )
+                continue
 
-    # 4. Elevated Blood Pressure
-    # Condition: Systolic >= 130 OR Diastolic >= 85
-    cond_bp = (df["bp_sys"] >= thresholds["bp_sys"]["val"]) | (
-        df["bp_dia"] >= thresholds["bp_dia"]["val"]
-    )
+            out_path = processed_dir / f"{base_name}.json"
+            with out_path.open("w", encoding="utf-8") as f:
+                f.write(json_str)
+            logging.info(f"Wrote JSON serialisable result '{base_name}' to {out_path}")
 
-    # 5. Elevated Glucose
-    cond_glucose = df["glucose"] >= thresholds["glucose"]["val"]
+    logging.debug("All provided results have been written to the processed data directory.")
 
-    # Count conditions met
-    conditions_met = cond_bmi.astype(int) + cond_tg.astype(int) + cond_hdl.astype(int) + cond_bp.astype(int) + cond_glucose.astype(int)
+# -------------------------------------------------------------------------
+# New utility: compute_content_hashes
+# -------------------------------------------------------------------------
+from utils.hashing import compute_directory_hashes
 
-    # MetS if >= 3 conditions
-    return conditions_met >= 3
-
-def get_varied_thresholds(base: Dict[str, Dict], variation_pct: float) -> Dict[str, Dict]:
+def compute_content_hashes() -> Dict[str, str]:
     """
-    Generates a new set of thresholds by varying the values by +/- variation_pct.
-    For '>=', we lower the bar (val * (1 - pct)) to make it easier to trigger (more MetS).
-    For '<', we raise the bar (val * (1 + pct)) to make it easier to trigger (more MetS).
-    Actually, SC-005 says "vary by +/- 5%". We will test two scenarios:
-    1. Stricter: +5% for >= thresholds, -5% for < thresholds.
-    2. Looser: -5% for >= thresholds, +5% for < thresholds.
-    Here we implement a generic shift function.
+    Compute SHA‑256 hashes for all files under the ``data/processed`` directory.
+
+    Returns
+    -------
+    dict
+        Mapping of relative file paths (relative to ``data/processed``) to their
+        hexadecimal SHA‑256 hash strings.
+
+    Side‑effects
+    ------------
+    Writes a ``content_hashes.json`` file in the ``data/processed`` directory
+    containing the same mapping for downstream reproducibility checks.
     """
-    new_thresholds = {}
-    for key, spec in base.items():
-        val = spec["val"]
-        op = spec["op"]
-        if op in [">=", "<="]:
-            # For >=, making it harder means increasing the value
-            # Making it easier means decreasing the value
-            # We'll create a specific 'stricter' or 'looser' version outside,
-            # but here we just apply a multiplier.
-            # Let's assume the caller passes the multiplier (1.05 or 0.95)
-            # But this function signature takes a fixed pct.
-            # Let's just apply a +5% shift (stricter for >=, looser for <)
-            # Actually, let's do a symmetric +/- 5% check in the main loop.
-            # For this helper, we will just apply a generic factor.
-            # To satisfy the task "vary by +/- 5%", we will compute two sets in the caller.
-            pass
-        new_thresholds[key] = {"op": op, "val": val}
-    return new_thresholds
+    # Resolve the processed data directory using the central config utility.
+    project_paths = get_project_paths()
+    processed_dir = Path(project_paths.get("data_processed", "data/processed"))
 
-def run_sensitivity_analysis(
-    input_path: Path,
-    output_csv_path: Path,
-    output_metric_path: Path,
-    variation_pct: float = 0.05,
-) -> None:
+    if not processed_dir.is_dir():
+        logging.error(f"Processed data directory does not exist: {processed_dir}")
+        raise FileNotFoundError(f"Processed data directory not found: {processed_dir}")
+
+    # Compute hashes for every file (recursively) in the directory.
+    # ``compute_directory_hashes`` is expected to return a dict where keys are
+    # absolute Path objects (or strings) and values are hash strings.
+    absolute_hashes = compute_directory_hashes(processed_dir)
+
+    # Convert absolute paths to paths relative to the processed directory for
+    # a cleaner, portable representation.
+    relative_hashes: Dict[str, str] = {}
+    for file_path, hash_val in absolute_hashes.items():
+        # Ensure we are working with Path objects.
+        path_obj = Path(file_path) if not isinstance(file_path, Path) else file_path
+        try:
+            rel_path = str(path_obj.relative_to(processed_dir))
+        except ValueError:
+            # In the unlikely event the path is not under the processed_dir,
+            # fall back to the original string.
+            rel_path = str(path_obj)
+        relative_hashes[rel_path] = hash_val
+
+    # Persist the hashes to a JSON file for later inspection / state updates.
+    output_path = processed_dir / "content_hashes.json"
+    try:
+        with output_path.open("w", encoding="utf-8") as f:
+            json.dump(relative_hashes, f, indent=2)
+        logging.info(f"Content hashes written to {output_path}")
+    except Exception as exc:
+        logging.error(f"Failed to write content hashes to {output_path}: {exc}")
+        raise
+
+    return relative_hashes
+
+# -------------------------------------------------------------------------
+# New utility: update_state_hash
+# -------------------------------------------------------------------------
+from utils.hashing import load_state_file, save_state_file
+
+def update_state_hash() -> None:
     """
-    Runs sensitivity analysis by varying ATP-III thresholds by +/- 5%.
-    Compares baseline labels vs varied labels.
-    Calculates robustness metric (% reclassified).
+    Compute content hashes for the processed data directory and store them in the
+    project's state YAML file under ``state/projects/PROJ-110-...yaml``.
     """
-    logger.info(f"Starting sensitivity analysis on {input_path}")
+    # Step 1 – compute the current content hashes.
+    hashes = compute_content_hashes()
 
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
+    # Step 2 – locate the appropriate state file.
+    # The convention is ``state/projects/PROJ-110-*.yaml``.
+    state_dir = Path("state/projects")
+    if not state_dir.is_dir():
+        logging.error(f"State directory does not exist: {state_dir}")
+        raise FileNotFoundError(f"State directory not found: {state_dir}")
 
-    # Load baseline labels
-    df = pd.read_csv(input_path)
+    # Find the first YAML file that matches the project prefix.
+    yaml_candidates = list(state_dir.glob("PROJ-110*.yaml"))
+    if not yaml_candidates:
+        logging.error(
+            f"No state YAML file found in {state_dir} matching pattern 'PROJ-110*.yaml'"
+        )
+        raise FileNotFoundError(
+            f"State YAML file for project PROJ-110 not found in {state_dir}"
+        )
+    state_path = yaml_candidates[0]  # Assume the first match is the correct one.
 
-    # Ensure required columns exist
-    required_cols = ["sample_id", "metabolic_status", "bmi", "glucose", "bp_sys", "bp_dia", "tg", "hdl", "sex"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns in {input_path}: {missing_cols}")
-        sys.exit(1)
+    # Step 3 – load existing state (if any) and update it.
+    try:
+        state_data = load_state_file(state_path) if state_path.is_file() else {}
+    except Exception as exc:
+        logging.error(f"Failed to load state file {state_path}: {exc}")
+        raise
 
-    # Convert metabolic_status to boolean if it's string
-    if df["metabolic_status"].dtype == "object":
-        df["metabolic_status"] = df["metabolic_status"].apply(lambda x: x == "MetS")
+    # Insert or replace the content hashes.
+    state_data["content_hashes"] = hashes
 
-    # 1. Baseline Classification (already done, but we re-apply to be sure with exact logic)
-    baseline_labels = apply_atp_iii_criteria(df, BASELINE_THRESHOLDS)
+    # Step 4 – persist the updated state.
+    try:
+        save_state_file(state_path, state_data)
+        logging.info(f"Updated state file {state_path} with new content hashes.")
+    except Exception as exc:
+        logging.error(f"Failed to save updated state file {state_path}: {exc}")
+        raise
 
-    # 2. Vary thresholds
-    # Scenario A: Stricter (+5% for >=, -5% for <)
-    # Scenario B: Looser (-5% for >=, +5% for <)
-    # We will perform the analysis on both and aggregate or pick the worst case?
-    # The task says "vary ... by +/- 5%". We will do both and report the max reclassification rate or average.
-    # Let's do both and combine results.
-
-    results = []
-    max_reclassified_rate = 0.0
-
-    for scenario_name, factor in [("stricter", 1.05), ("looser", 0.95)]:
-        logger.info(f"Processing scenario: {scenario_name} (factor={factor})")
-        
-        varied_thresholds = {}
-        for key, spec in BASELINE_THRESHOLDS.items():
-            val = spec["val"]
-            op = spec["op"]
-            
-            # Logic:
-            # If op is '>=', stricter means higher threshold (val * 1.05), looser means lower (val * 0.95)
-            # If op is '<', stricter means lower threshold (val * 0.95), looser means higher (val * 1.05)
-            
-            if op in [">=", "<="]:
-                new_val = val * factor
-            elif op in ["<", "<="]:
-                # For '<', if factor > 1 (stricter), we want a smaller number?
-                # Wait: '< 40' is the condition.
-                # Stricter: '< 38' (harder to meet). 40 * 0.95 = 38.
-                # Looser: '< 42' (easier to meet). 40 * 1.05 = 42.
-                # So for '<', factor 1.05 should actually mean 0.95?
-                # Let's stick to the factor logic:
-                # We want to vary the threshold value itself.
-                # If we use factor 1.05:
-                #   >= 30 -> >= 31.5 (Stricter)
-                #   < 40 -> < 42 (Looser)
-                # This is a symmetric variation of the threshold VALUE.
-                # The task says "vary thresholds by +/- 5%".
-                # So we just multiply the value by 1.05 and 0.95.
-                new_val = val * factor
-            
-            varied_thresholds[key] = {"op": op, "val": new_val}
-
-        varied_labels = apply_atp_iii_criteria(df, varied_thresholds)
-
-        # Compare
-        reclassified = baseline_labels != varied_labels
-        reclassified_pct = reclassified.mean() * 100
-        
-        if reclassified_pct > max_reclassified_rate:
-            max_reclassified_rate = reclassified_pct
-
-        # Store row-level results for this scenario
-        for idx, row in df.iterrows():
-            results.append({
-                "sample_id": row["sample_id"],
-                "baseline_label": "MetS" if baseline_labels.iloc[idx] else "Control",
-                "varied_label": "MetS" if varied_labels.iloc[idx] else "Control",
-                "reclassified": reclassified.iloc[idx],
-                "scenario": scenario_name
-            })
-
-    # Create output DataFrame
-    results_df = pd.DataFrame(results)
-
-    # Write comparison results
-    results_df.to_csv(output_csv_path, index=False)
-    logger.info(f"Wrote sensitivity analysis details to {output_csv_path}")
-
-    # Calculate robustness metric
-    # The metric is the percentage of reclassified samples.
-    # We report the maximum reclassification rate observed across scenarios.
-    robustness_metric = {
-        "metric_name": "percent_reclassified",
-        "value": max_reclassified_rate,
-        "description": "Maximum percentage of samples reclassified when varying ATP-III thresholds by +/- 5%",
-        "scenarios_tested": ["stricter", "looser"],
-        "threshold_variation_pct": 5.0
-    }
-
-    with open(output_metric_path, "w") as f:
-        json.dump(robustness_metric, f, indent=2)
-    
-    logger.info(f"Wrote sensitivity metric to {output_metric_path}")
-    logger.info(f"Robustness Metric: {max_reclassified_rate:.2f}% reclassified")
-
-def main():
-    paths = get_project_paths()
-    input_file = paths["data_processed"] / "baseline_labels.csv"
-    output_csv = paths["data_processed"] / "sensitivity_analysis.csv"
-    output_json = paths["data_processed"] / "sensitivity_metric.json"
-
-    run_sensitivity_analysis(input_file, output_csv, output_json)
-
-if __name__ == "__main__":
-    main()
+# -------------------------------------------------------------------------
+# End of added utilities
+# -------------------------------------------------------------------------

@@ -1,282 +1,340 @@
+"""
+Stability analysis module for comparing optimized kernel outputs against high-precision references.
+
+Implements L2 relative error and Maximum Absolute Difference calculations.
+"""
 import os
 import json
 import logging
 import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
-import csv
-import argparse
+from dataclasses import dataclass, asdict
+import struct
+import hashlib
 
-# Configure logging to use the project's logger if available, otherwise default
-try:
-    from utils.logger import get_logger, setup_logging
-except ImportError:
-    # Fallback if running as script without package context
-    setup_logging = None
-    def get_logger(name):
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        return logging.getLogger(name)
-
-# Thresholds defined in spec
-STABILITY_THRESHOLD = 1e-5
-
-class StabilityResult:
-    def __init__(self, config_id: str, kernel: str, has_nan: bool, 
-                 l2_error: Optional[float] = None, max_diff: Optional[float] = None,
-                 status: str = "unknown"):
-        self.config_id = config_id
-        self.kernel = kernel
-        self.has_nan = has_nan
-        self.l2_error = l2_error
-        self.max_diff = max_diff
-        self.status = status
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "config_id": self.config_id,
-            "kernel": self.kernel,
-            "has_nan": self.has_nan,
-            "l2_error": self.l2_error,
-            "max_diff": self.max_diff,
-            "status": self.status
-        }
-
+# Setup logging
 def setup_logging():
-    """Initialize logging for the module."""
-    logger = logging.getLogger(__name__)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
+    """Configure logging for the stability analysis module."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('logs/stability_check.log')
+        ]
+    )
+    return logging.getLogger(__name__)
 
-def load_raw_logs(log_dir: str) -> List[Dict[str, Any]]:
+logger = setup_logging()
+
+@dataclass
+class StabilityResult:
+    """Data class to hold stability analysis results."""
+    config_id: str
+    kernel_type: str
+    l2_error: float
+    max_diff: float
+    status: str
+    tensor_dim: str
+    downsampled: bool
+    timestamp: str
+
+def load_raw_logs(log_dir: Path) -> List[Dict[str, Any]]:
     """
-    Load all .jsonl files from the raw logs directory.
-    Returns a list of dictionaries representing each log entry.
+    Load raw execution logs from JSONL files.
+    
+    Args:
+        log_dir: Path to directory containing JSONL log files
+        
+    Returns:
+        List of log entries
     """
     logs = []
-    log_path = Path(log_dir)
-    if not log_path.exists():
-        raise FileNotFoundError(f"Raw logs directory not found: {log_dir}")
+    log_files = list(log_dir.glob('*.jsonl'))
     
-    for file_path in log_path.glob("*.jsonl"):
-        with open(file_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    try:
+    if not log_files:
+        logger.warning(f"No JSONL files found in {log_dir}")
+        return logs
+        
+    for log_file in log_files:
+        try:
+            with open(log_file, 'r') as f:
+                for line in f:
+                    if line.strip():
                         logs.append(json.loads(line))
-                    except json.JSONDecodeError:
-                        logging.warning(f"Skipping invalid JSON line in {file_path}: {line}")
+        except Exception as e:
+            logger.error(f"Error reading {log_file}: {e}")
+            
     return logs
 
-def detect_nan_in_tensor(tensor_data: Any) -> bool:
+def detect_nan_in_tensor(tensor_data: np.ndarray) -> bool:
     """
-    Detect if the tensor data contains NaN values.
-    tensor_data can be a list of floats or a numpy array.
-    """
-    if tensor_data is None:
-        return False
+    Detect NaN values in tensor data.
     
-    try:
-        arr = np.array(tensor_data, dtype=np.float32)
-        return bool(np.any(np.isnan(arr)))
-    except Exception:
-        # If conversion fails, assume valid (or log warning)
-        return False
+    Args:
+        tensor_data: Numpy array of tensor values
+        
+    Returns:
+        True if NaN detected, False otherwise
+    """
+    return np.any(np.isnan(tensor_data))
 
-def calculate_l2_relative_error(predicted: List[float], reference: List[float]) -> float:
+def load_tensor_from_binary(file_path: Path) -> np.ndarray:
     """
-    Calculate L2 relative error: ||P - R||_2 / ||R||_2
+    Load tensor data from binary file.
+    
+    Args:
+        file_path: Path to binary file containing float32 tensor
+        
+    Returns:
+        Numpy array of tensor values
     """
-    if not reference:
-        return 0.0
+    try:
+        with open(file_path, 'rb') as f:
+            data = f.read()
+            # Assuming float32 (4 bytes)
+            num_elements = len(data) // 4
+            tensor = np.frombuffer(data, dtype=np.float32)
+            return tensor
+    except Exception as e:
+        logger.error(f"Error loading tensor from {file_path}: {e}")
+        raise
+
+def calculate_l2_relative_error(reference: np.ndarray, 
+                                optimized: np.ndarray) -> float:
+    """
+    Calculate L2 relative error between reference and optimized tensors.
     
-    p_arr = np.array(predicted, dtype=np.float64)
-    r_arr = np.array(reference, dtype=np.float64)
+    L2 relative error = ||reference - optimized||_2 / ||reference||_2
     
-    diff = p_arr - r_arr
+    Args:
+        reference: Reference tensor (high-precision)
+        optimized: Optimized tensor output
+        
+    Returns:
+        L2 relative error as float
+    """
+    if reference.shape != optimized.shape:
+        raise ValueError(f"Shape mismatch: {reference.shape} vs {optimized.shape}")
+        
+    diff = reference - optimized
     l2_diff = np.linalg.norm(diff)
-    l2_ref = np.linalg.norm(r_arr)
+    l2_ref = np.linalg.norm(reference)
     
+    # Handle case where reference norm is zero
     if l2_ref == 0:
-        return 0.0 if l2_diff == 0 else float('inf')
-    
+        if l2_diff == 0:
+            return 0.0
+        else:
+            # Infinite error if reference is zero but diff is not
+            return float('inf')
+            
     return float(l2_diff / l2_ref)
 
-def calculate_max_absolute_difference(predicted: List[float], reference: List[float]) -> float:
+def calculate_max_absolute_difference(reference: np.ndarray, 
+                                     optimized: np.ndarray) -> float:
     """
-    Calculate Maximum Absolute Difference: max(|P - R|)
+    Calculate maximum absolute difference between reference and optimized tensors.
+    
+    Max diff = max(|reference - optimized|)
+    
+    Args:
+        reference: Reference tensor (high-precision)
+        optimized: Optimized tensor output
+        
+    Returns:
+        Maximum absolute difference as float
     """
-    if not predicted or not reference:
-        return 0.0
-    
-    p_arr = np.array(predicted, dtype=np.float64)
-    r_arr = np.array(reference, dtype=np.float64)
-    
-    return float(np.max(np.abs(p_arr - r_arr)))
+    if reference.shape != optimized.shape:
+        raise ValueError(f"Shape mismatch: {reference.shape} vs {optimized.shape}")
+        
+    diff = np.abs(reference - optimized)
+    return float(np.max(diff))
 
-def process_stability(logs: List[Dict[str, Any]], reference_dir: Optional[str] = None) -> List[StabilityResult]:
+def process_stability(logs: List[Dict[str, Any]], 
+                     reference_dir: Path,
+                     output_dir: Path) -> List[StabilityResult]:
     """
-    Process raw logs to detect NaNs and calculate stability metrics.
-    If reference data is available, calculate errors.
+    Process all logs to calculate stability metrics.
+    
+    Args:
+        logs: List of execution log entries
+        reference_dir: Directory containing reference tensors
+        output_dir: Directory to save results
+        
+    Returns:
+        List of StabilityResult objects
     """
     results = []
-    logger = logging.getLogger(__name__)
     
-    for log in logs:
-        config_id = log.get("config_id", "unknown")
-        kernel = log.get("kernel", "unknown")
-        output_tensor = log.get("output_tensor")
-        
-        # 1. NaN Detection
-        has_nan = detect_nan_in_tensor(output_tensor)
-        
-        if has_nan:
-            logger.warning(f"NaN detected in config {config_id}, kernel {kernel}. Excluding from stable runs.")
-            results.append(StabilityResult(
+    for log_entry in logs:
+        try:
+            config_id = log_entry.get('config_id', 'unknown')
+            kernel = log_entry.get('kernel', 'unknown')
+            tensor_dim = log_entry.get('tensor_dim', 'unknown')
+            downsampled = log_entry.get('downsampled', False)
+            
+            # Load reference tensor
+            ref_file = reference_dir / f"{kernel}_{tensor_dim}.bin"
+            if not ref_file.exists():
+                logger.warning(f"Reference file not found: {ref_file}")
+                continue
+                
+            reference_tensor = load_tensor_from_binary(ref_file)
+            
+            # Load optimized tensor from binary output path in log
+            # Assuming log contains 'output_tensor_path' or similar
+            output_path_str = log_entry.get('output_tensor_path')
+            if not output_path_str:
+                logger.warning(f"No output tensor path in log for {config_id}")
+                continue
+                
+            output_file = Path(output_path_str)
+            if not output_file.exists():
+                logger.warning(f"Output file not found: {output_file}")
+                continue
+                
+            optimized_tensor = load_tensor_from_binary(output_file)
+            
+            # Check for NaN
+            if detect_nan_in_tensor(optimized_tensor):
+                logger.warning(f"NaN detected in {config_id} ({kernel})")
+                continue
+                
+            if detect_nan_in_tensor(reference_tensor):
+                logger.warning(f"NaN detected in reference for {config_id} ({kernel})")
+                continue
+                
+            # Calculate metrics
+            l2_error = calculate_l2_relative_error(reference_tensor, optimized_tensor)
+            max_diff = calculate_max_absolute_difference(reference_tensor, optimized_tensor)
+            
+            # Determine status
+            status = 'stable' if (l2_error <= 1e-5 and max_diff <= 1e-5) else 'unstable'
+            
+            result = StabilityResult(
                 config_id=config_id,
-                kernel=kernel,
-                has_nan=True,
-                status="unstable_nan"
-            ))
-            continue
-        
-        # 2. Calculate Error Metrics if reference exists
-        l2_error = None
-        max_diff = None
-        status = "stable"
-        
-        if reference_dir:
-            ref_path = Path(reference_dir) / f"{kernel}_ref.npy" # Assuming reference is saved as .npy
-            if ref_path.exists():
-                try:
-                    ref_tensor = np.load(ref_path).tolist()
-                    l2_error = calculate_l2_relative_error(output_tensor, ref_tensor)
-                    max_diff = calculate_max_absolute_difference(output_tensor, ref_tensor)
-                    
-                    if l2_error > STABILITY_THRESHOLD or max_diff > STABILITY_THRESHOLD:
-                        status = "unstable_error"
-                        logger.warning(f"Stability threshold exceeded for {config_id}: L2={l2_error:.2e}, MaxDiff={max_diff:.2e}")
-                    else:
-                        status = "stable"
-                except Exception as e:
-                    logger.error(f"Error loading reference for {kernel}: {e}")
-                    status = "unknown_ref_error"
-            else:
-                # If no reference, assume stable for NaN check only (for T017 specific scope)
-                # In T022 we will strictly enforce error thresholds
-                pass
-        
-        results.append(StabilityResult(
-            config_id=config_id,
-            kernel=kernel,
-            has_nan=False,
-            l2_error=l2_error,
-            max_diff=max_diff,
-            status=status
-        ))
-    
+                kernel_type=kernel,
+                l2_error=l2_error,
+                max_diff=max_diff,
+                status=status,
+                tensor_dim=tensor_dim,
+                downsampled=downsampled,
+                timestamp=log_entry.get('timestamp', '')
+            )
+            
+            results.append(result)
+            logger.info(f"Processed {config_id}: L2={l2_error:.2e}, MaxDiff={max_diff:.2e}, Status={status}")
+            
+        except Exception as e:
+            logger.error(f"Error processing log entry {log_entry.get('config_id')}: {e}")
+            
     return results
 
-def save_stable_logs(results: List[StabilityResult], output_path: str):
+def save_stable_logs(results: List[StabilityResult], output_path: Path):
     """
-    Save only the stable runs to a CSV file.
+    Save stable results to CSV.
+    
+    Args:
+        results: List of StabilityResult objects
+        output_path: Path to output CSV file
     """
-    stable_runs = [r for r in results if r.status == "stable"]
+    import pandas as pd
     
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    stable_results = [r for r in results if r.status == 'stable']
     
-    with open(output_path, 'w', newline='') as csvfile:
-        fieldnames = ['config_id', 'kernel', 'status', 'l2_error', 'max_diff']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    if not stable_results:
+        logger.warning("No stable results to save")
+        return
         
-        writer.writeheader()
-        for r in stable_runs:
-            writer.writerow({
-                'config_id': r.config_id,
-                'kernel': r.kernel,
-                'status': r.status,
-                'l2_error': r.l2_error if r.l2_error is not None else '',
-                'max_diff': r.max_diff if r.max_diff is not None else ''
-            })
-    
-    logging.info(f"Saved {len(stable_runs)} stable runs to {output_path}")
+    df = pd.DataFrame([asdict(r) for r in stable_results])
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(stable_results)} stable results to {output_path}")
 
-def save_unstable_audit(results: List[StabilityResult], output_path: str):
+def save_unstable_audit(results: List[StabilityResult], output_path: Path):
     """
-    Save an audit log of all excluded/unstable runs.
+    Save unstable results for audit purposes.
+    
+    Args:
+        results: List of StabilityResult objects
+        output_path: Path to output CSV file
     """
-    unstable_runs = [r for r in results if r.status != "stable"]
+    import pandas as pd
     
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    unstable_results = [r for r in results if r.status == 'unstable']
     
-    with open(output_path, 'w', newline='') as csvfile:
-        fieldnames = ['config_id', 'kernel', 'status', 'has_nan', 'l2_error', 'max_diff']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    if not unstable_results:
+        logger.info("No unstable results to audit")
+        return
         
-        writer.writeheader()
-        for r in unstable_runs:
-            writer.writerow({
-                'config_id': r.config_id,
-                'kernel': r.kernel,
-                'status': r.status,
-                'has_nan': r.has_nan,
-                'l2_error': r.l2_error if r.l2_error is not None else '',
-                'max_diff': r.max_diff if r.max_diff is not None else ''
-            })
-    
-    logging.info(f"Saved {len(unstable_runs)} unstable runs to {output_path}")
+    df = pd.DataFrame([asdict(r) for r in unstable_results])
+    df.to_csv(output_path, index=False)
+    logger.info(f"Audited {len(unstable_results)} unstable results at {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Detect NaNs and filter stable runs from raw logs.")
-    parser.add_argument("--detect-nan", action="store_true", help="Run NaN detection and filtering pipeline.")
-    parser.add_argument("--log-dir", type=str, default="data/intermediates/raw_logs", help="Directory containing raw JSONL logs.")
-    parser.add_argument("--ref-dir", type=str, default="data/raw", help="Directory containing reference tensors.")
-    parser.add_argument("--output", type=str, default="data/intermediates/filtered_stable_runs.csv", help="Output path for stable runs CSV.")
-    parser.add_argument("--audit", type=str, default="data/intermediates/unstable_audit.csv", help="Output path for unstable audit CSV.")
+    """Main entry point for stability analysis."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Stability analysis for compiler optimizations')
+    parser.add_argument('--log-dir', type=str, default='data/intermediates/raw_logs',
+                      help='Directory containing raw execution logs')
+    parser.add_argument('--ref-dir', type=str, default='data/raw/references',
+                      help='Directory containing reference tensors')
+    parser.add_argument('--output-dir', type=str, default='data/results',
+                      help='Directory to save results')
+    parser.add_argument('--detect-nan', action='store_true',
+                      help='Only perform NaN detection and filtering')
     
     args = parser.parse_args()
     
+    log_dir = Path(args.log_dir)
+    ref_dir = Path(args.ref_dir)
+    output_dir = Path(args.output_dir)
+    
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load raw logs
+    logger.info(f"Loading logs from {log_dir}")
+    logs = load_raw_logs(log_dir)
+    logger.info(f"Loaded {len(logs)} log entries")
+    
+    if not logs:
+        logger.error("No logs found. Exiting.")
+        return
+        
     if args.detect_nan:
-        logger = setup_logging()
-        logger.info(f"Loading raw logs from {args.log_dir}")
+        # Only detect NaN and create filtered list
+        stable_logs = []
+        for log in logs:
+            output_path_str = log.get('output_tensor_path')
+            if output_path_str:
+                output_file = Path(output_path_str)
+                if output_file.exists():
+                    tensor = load_tensor_from_binary(output_file)
+                    if not detect_nan_in_tensor(tensor):
+                        stable_logs.append(log)
+                    
+        # Save filtered stable runs
+        filtered_path = output_dir / 'filtered_stable_runs.csv'
+        import pandas as pd
+        df = pd.DataFrame(stable_logs)
+        df.to_csv(filtered_path, index=False)
+        logger.info(f"Saved {len(stable_logs)} stable runs to {filtered_path}")
+        return
         
-        try:
-            logs = load_raw_logs(args.log_dir)
-        except FileNotFoundError as e:
-            logger.error(f"Failed to load logs: {e}")
-            # If no logs exist, create an empty output file to satisfy the artifact requirement
-            Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                f.write("config_id,kernel,status,l2_error,max_diff\n")
-            return 1
-        
-        if not logs:
-            logger.warning("No log entries found in the specified directory.")
-            Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-            with open(args.output, 'w') as f:
-                f.write("config_id,kernel,status,l2_error,max_diff\n")
-            return 0
-        
-        logger.info(f"Processing {len(logs)} log entries for stability.")
-        results = process_stability(logs, args.ref_dir)
-        
-        save_stable_logs(results, args.output)
-        save_unstable_audit(results, args.audit)
-        
-        stable_count = len([r for r in results if r.status == "stable"])
-        unstable_count = len([r for r in results if r.status != "stable"])
-        
-        logger.info(f"Analysis complete. Stable: {stable_count}, Unstable: {unstable_count}")
-        return 0
-    else:
-        parser.print_help()
-        return 0
+    # Full stability analysis
+    results = process_stability(logs, ref_dir, output_dir)
+    
+    # Save results
+    stable_path = output_dir / 'stability_metrics.csv'
+    save_stable_logs(results, stable_path)
+    
+    audit_path = output_dir / 'unstable_audit.csv'
+    save_unstable_audit(results, audit_path)
+    
+    logger.info(f"Stability analysis complete. {len(results)} results processed.")
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()

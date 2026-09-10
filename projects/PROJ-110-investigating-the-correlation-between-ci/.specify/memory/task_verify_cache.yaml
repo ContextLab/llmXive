@@ -5,3 +5,17 @@ T017:
     and the provided excerpt of `code/data/classifier.py` does not show an implementation
     of a `store_baseline_labels` function that writes to that path. Both the artifact
     and the expected function are missing, so the task is not satisfied.
+T046:
+  c: false
+  h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653
+  r: "The required artifact `tests/integration/test_pipeline.py` is missing from the\
+    \ repository, so no integration test exists to verify full pipeline execution\
+    \ on sample data. The task cannot be considered completed until this file is added\
+    \ with a functional end\u2011to\u2011end test."
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No GitHub Actions workflow file or CI configuration was provided, and there is
+    no evidence of a step that runs a script asserting `torch.cuda.is_available()`
+    is `False`. Without the workflow artifact showing this check, the requirement
+    is not satisfied.
