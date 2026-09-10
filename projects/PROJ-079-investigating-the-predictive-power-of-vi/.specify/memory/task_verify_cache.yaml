@@ -1,21 +1,3 @@
-T012:
-  c: false
-  h: 1e6297556c243b883f1d65251728266fcd3436ed7573bbf73793f66a5151f8de
-  r: "The `fetch_viral_genomes` function in `src/download.py` is a stub that raises\
-    \ `NotImplementedError`, so no real NCBI Virus API query, FASTA parsing, or dict\
-    \ output is produced. Moreover, the required `data/manifest_v1.json` file does\
-    \ not exist, and the manifest generation logic does not compute SHA\u2011256 checksums\
-    \ or follow the exact key schema. The task\u2019s core functionality and manifest\
-    \ output are missing."
-T013:
-  c: false
-  h: 304720ebd37465bf7773f84da7c502874512b9813c2174e8044ce65b48cb84b1
-  r: "The `fetch_geo_data` function is still a stub that raises `NotImplementedError`,\
-    \ so no GEO download or parsing occurs, and no dictionary of sample\u2011to\u2011\
-    strain accessions is produced. Moreover, the required `data/manifest_v2.json`\
-    \ file does not exist (and the manifest generation code leaves the `checksums`\
-    \ field empty). Both the core function and the manifest output are missing, so\
-    \ the task is not satisfied."
 T017:
   c: false
   h: 7831e9417d8ba4bef374b0992595d1dff6ccb7385d24338cf7cae416f59ac68c

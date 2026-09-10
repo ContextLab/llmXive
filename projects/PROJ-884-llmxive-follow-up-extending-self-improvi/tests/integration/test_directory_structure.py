@@ -1,98 +1,68 @@
 """
-Integration test to verify the tests directory structure is correctly set up.
-This test ensures that the setup process creates the expected hierarchy.
+Integration test to verify the complete directory structure setup.
+
+This test ensures that the entire project directory hierarchy
+(code/, data/, tests/) is correctly established and writable.
 """
 import os
-import sys
-from pathlib import Path
 import pytest
+from pathlib import Path
+import tempfile
+import shutil
 
-# Get the project root
-CURRENT_FILE = Path(__file__).resolve()
-TESTS_DIR = CURRENT_FILE.parent
-PROJECT_ROOT = TESTS_DIR.parent
-CODE_DIR = PROJECT_ROOT / "code"
+from code.setup_tests import setup_tests_directories
+from code.setup_data_dirs import setup_data_directories
+from code.setup_structure import setup_code_directories
 
-# Add code directory to path to import setup module
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
 
-from setup_tests import TESTS_BASE, UNIT_DIR, INTEGRATION_DIR
+class TestCompleteDirectoryStructure:
+    """Integration tests for the full project directory structure."""
 
-class TestTestsDirectoryStructure:
-    """Integration tests for the tests directory structure."""
-
-    def test_tests_base_exists(self):
-        """Test that the tests base directory exists."""
-        assert TESTS_BASE.exists(), f"tests/ directory should exist at {TESTS_BASE}"
-        assert TESTS_BASE.is_dir(), f"{TESTS_BASE} should be a directory"
-
-    def test_unit_directory_exists(self):
-        """Test that the unit subdirectory exists."""
-        assert UNIT_DIR.exists(), f"tests/unit/ directory should exist at {UNIT_DIR}"
-        assert UNIT_DIR.is_dir(), f"{UNIT_DIR} should be a directory"
-
-    def test_integration_directory_exists(self):
-        """Test that the integration subdirectory exists."""
-        assert INTEGRATION_DIR.exists(), f"tests/integration/ directory should exist at {INTEGRATION_DIR}"
-        assert INTEGRATION_DIR.is_dir(), f"{INTEGRATION_DIR} should be a directory"
-
-    def test_directory_hierarchy_correct(self):
-        """Test that the directory hierarchy is correctly structured."""
-        # Verify parent-child relationships
-        assert UNIT_DIR.parent == TESTS_BASE, "tests/unit/ should be a direct child of tests/"
-        assert INTEGRATION_DIR.parent == TESTS_BASE, "tests/integration/ should be a direct child of tests/"
+    def test_full_structure_creation(self, tmp_path):
+        """Verify that all major directory trees can be created."""
+        # Setup data directories
+        data_dirs = setup_data_directories(tmp_path)
         
-        # Verify relative paths
-        assert UNIT_DIR.relative_to(TESTS_BASE) == Path("unit"), "unit should be at tests/unit"
-        assert INTEGRATION_DIR.relative_to(TESTS_BASE) == Path("integration"), "integration should be at tests/integration"
-
-    def test_directories_are_writable(self):
-        """Test that all test directories are writable."""
-        test_files = []
+        # Setup code directories
+        code_dirs = setup_code_directories(tmp_path)
         
-        try:
-            # Test unit directory writability
-            unit_test_file = UNIT_DIR / ".integration_test_writable"
-            with open(unit_test_file, 'w') as f:
-                f.write("integration test writable")
-            test_files.append(unit_test_file)
-            
-            with open(unit_test_file, 'r') as f:
-                content = f.read()
-            assert content == "integration test writable", "Unit directory write/read successful"
-            
-            # Test integration directory writability
-            integration_test_file = INTEGRATION_DIR / ".integration_test_writable"
-            with open(integration_test_file, 'w') as f:
-                f.write("integration test writable")
-            test_files.append(integration_test_file)
-            
-            with open(integration_test_file, 'r') as f:
-                content = f.read()
-            assert content == "integration test writable", "Integration directory write/read successful"
-            
-        finally:
-            # Clean up test files
-            for test_file in test_files:
+        # Setup tests directories
+        tests_dirs = setup_tests_directories(tmp_path)
+        
+        # Verify all expected top-level directories exist
+        assert (tmp_path / "data").exists()
+        assert (tmp_path / "code").exists()
+        assert (tmp_path / "tests").exists()
+        
+        # Verify tests subdirectories
+        assert (tmp_path / "tests" / "unit").exists()
+        assert (tmp_path / "tests" / "integration").exists()
+
+    def test_all_directories_writable(self, tmp_path):
+        """Verify that all created directories are writable."""
+        # Create all structures
+        setup_data_directories(tmp_path)
+        setup_code_directories(tmp_path)
+        setup_tests_directories(tmp_path)
+        
+        # Test write capability in tests directories
+        for subdir in ["unit", "integration"]:
+            test_file = tmp_path / "tests" / subdir / "integration_test.txt"
+            try:
+                test_file.write_text("Integration test content")
+                assert test_file.read_text() == "Integration test content"
+            finally:
                 if test_file.exists():
                     test_file.unlink()
 
-    def test_directory_permissions(self):
-        """Test that directories have appropriate permissions."""
-        import stat
+    def test_no_collision_with_existing_files(self, tmp_path):
+        """Verify setup handles existing files gracefully where possible."""
+        # Create a dummy file in the root
+        dummy_file = tmp_path / "tests.txt"
+        dummy_file.write_text("dummy")
         
-        # Check that directories have read, write, execute permissions for owner
-        for dir_path in [TESTS_BASE, UNIT_DIR, INTEGRATION_DIR]:
-            if os.name == 'posix':  # Unix/Linux/macOS
-                mode = dir_path.stat().st_mode
-                # Check owner permissions (read=4, write=2, execute=1)
-                owner_perms = (mode >> 6) & 0o7
-                assert owner_perms & stat.S_IRUSR, f"{dir_path} should be readable by owner"
-                assert owner_perms & stat.S_IWUSR, f"{dir_path} should be writable by owner"
-                assert owner_perms & stat.S_IXUSR, f"{dir_path} should be executable (traversable) by owner"
-            else:  # Windows
-                # On Windows, just check that we can access the directory
-                assert os.access(dir_path, os.R_OK), f"{dir_path} should be readable"
-                assert os.access(dir_path, os.W_OK), f"{dir_path} should be writable"
-                assert os.access(dir_path, os.X_OK), f"{dir_path} should be traversable"
+        # Setup should still succeed for directories
+        result = setup_tests_directories(tmp_path)
+        assert len(result) == 3
+        assert dummy_file.exists()  # Original file untouched
+        assert (tmp_path / "tests").exists()

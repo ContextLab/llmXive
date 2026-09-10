@@ -13,22 +13,6 @@ T023:
     \ to `data/results/latency_violations.json` using the required schema while allowing\
     \ the wrapped function to continue. The missing JSON file is expected to be created\
     \ at runtime, not as a static artifact."
-T023b:
-  c: false
-  h: b0142699dd71386b9b4b1ee522b4b8aaae8f2c7526a60dadea196ceeeea9fc4f
-  r: "The provided `experiment_runner.py` does not contain any code that reads `latency_violations.json`,\
-    \ checks the >10% >100\u202Fms condition, adjusts parameters, or writes an abort\
-    \ entry to `data/results/sweep_abort_log.json`. Moreover, the required `sweep_abort_log.json`\
-    \ file is absent. The task\u2019s mitigation logic and abort\u2011log artifact\
-    \ are therefore missing."
-T026:
-  c: false
-  h: e9fd845f66cd4ca9db34628ea287e6a8042735c59fd6e959a01588f3dd6ff039
-  r: 'The required `data/results/final_report.md` file does not exist, and the existing
-    `deltas.json` contains only placeholder zero values (e.g., `total_traces: 0`).
-    Moreover, the test shown runs `experiment_runner.py` rather than `main.py --compare`,
-    so the asserted behavior is not demonstrated. The integration test therefore does
-    not verify the production of the required output artifacts.'
 T030b:
   c: false
   h: 8569f46b4a46a8999c95879c46551fb1b4c4e68cc0f3ba102a39817768a0b2e4

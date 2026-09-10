@@ -1,16 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure was presented or listed; the claim provides no evidence
-    that the required folders (`code/`, `data/raw/`, `data/processed/`, `data/artifacts/`,
-    `tests/`, `state/`) actually exist on disk. The implementer must create and show
-    the project hierarchy to satisfy the task.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/projects/PROJ-386...yaml` file (or any equivalent YAML schema) was
-    presented, and there is no evidence that a schema for artifact hashing and checksums
-    was created. The required artifact is missing, so the task is not satisfied.
 T009:
   c: false
   h: 0d2ebdc55da25c1f604d251285e3581fed9012c9f548dd49117df2ade323b119
@@ -18,15 +5,6 @@ T009:
     \ from the repository, so no test code exists to verify the schema pre\u2011check\
     \ skip logic. The artifact must be added with appropriate test cases for the task\
     \ to be considered complete."
-T023:
-  c: false
-  h: 5d59864f8747e29cf36284949b4cac3643468cd4b90d87ea36e9842ce9728353
-  r: "The provided `preprocessing.py` shows only data loading, interaction feature\
-    \ creation, and normalization; there is no function that computes pairwise correlations,\
-    \ flags pairs with correlation\u202F>\u202F0.8, or writes a JSON report. Moreover,\
-    \ the required `data/artifacts/collinearity_report.json` file does not exist.\
-    \ Both the code implementation and the artifact are missing, so the task is not\
-    \ satisfied."
 T032:
   c: false
   h: 5ef7080e350019ef5d46549bb782dcb72470d76c821599dd4607d29d1a9f9e0e

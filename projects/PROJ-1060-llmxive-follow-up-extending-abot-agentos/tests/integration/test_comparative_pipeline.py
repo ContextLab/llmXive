@@ -1,178 +1,112 @@
 """
 Integration test for the full comparative pipeline (US3).
-
-This test orchestrates the end-to-end comparison between the Symbolic Memory system
-and the Neural Baseline (ABot-AgentOS v1.0 or mock). It verifies:
-1. Real data loading (ALFWorld traces).
-2. Graph construction via the symbolic pipeline.
-3. Baseline execution.
-4. Metrics collection (success, latency, memory).
-5. Statistical analysis (McNemar test).
-6. Final report generation.
-
-The test runs the actual scripts to produce real output files in data/results/.
+Verifies that running `main.py --compare` produces the required output artifacts:
+- data/results/final_report.md
+- data/results/deltas.json
 """
-
-import json
 import os
 import subprocess
+import json
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
 
-# Project root relative to this file
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-RESULTS_DIR = DATA_DIR / "results"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
 
-# Expected output artifacts
-EXPECTED_ARTIFACTS = [
-    RESULTS_DIR / "sweep_metrics.csv",
-    RESULTS_DIR / "latency_violations.json",
-    RESULTS_DIR / "reconstruction_error.json",
-    RESULTS_DIR / "comparative_results.json",
-    RESULTS_DIR / "final_report.md",
-    RESULTS_DIR / "error_coverage.json",
-    RESULTS_DIR / "deltas.json",
-]
+# Ensure we can import from the code directory
+sys.path.insert(0, str(CODE_DIR))
 
-@pytest.fixture(scope="module", autouse=True)
-def ensure_directories():
-    """Ensure required output directories exist."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    (DATA_DIR / "raw").mkdir(parents=True, exist_ok=True)
+
+@pytest.fixture(autouse=True)
+def setup_environment():
+    """Ensure output directories exist and clean previous results."""
+    DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    # Clean up potential previous artifacts to ensure fresh run
+    final_report = DATA_RESULTS_DIR / "final_report.md"
+    deltas_file = DATA_RESULTS_DIR / "deltas.json"
+    if final_report.exists():
+        final_report.unlink()
+    if deltas_file.exists():
+        deltas_file.unlink()
     yield
+    # No teardown needed for test isolation
 
-def run_python_script(script_name: str, args: list = None, timeout: int = 300) -> tuple:
-    """Helper to run a Python script in the code directory."""
-    cmd = [sys.executable, str(CODE_DIR / script_name)]
-    if args:
-        cmd.extend(args)
+def test_full_pipeline():
+    """
+    Assert that running `main.py --compare` produces `data/results/final_report.md`
+    and `data/results/deltas.json`.
+    """
+    # Construct the command
+    main_script = CODE_DIR / "main.py"
+    cmd = [sys.executable, str(main_script), "--compare"]
 
+    # Run the command
+    # We capture output to inspect if it fails, but we expect success
     try:
         result = subprocess.run(
             cmd,
             cwd=str(PROJECT_ROOT),
             capture_output=True,
             text=True,
-            timeout=timeout,
+            timeout=300  # 5 minute timeout for the full pipeline
         )
-        return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
-        pytest.fail(f"Script {script_name} timed out after {timeout}s")
+        pytest.fail("The comparative pipeline timed out after 300 seconds.")
 
-def test_01_run_graph_construction_sweep():
-    """
-    Step 1: Run the graph construction sweep (T016).
-    This populates sweep_metrics.csv and ensures the symbolic graph builder works.
-    """
-    # T016: Parametric sweep
-    rc, out, err = run_python_script("experiment_runner.py", ["--mode", "sweep"])
-    assert rc == 0, f"Graph sweep failed: {err}\n{out}"
-    assert (RESULTS_DIR / "sweep_metrics.csv").exists(), "sweep_metrics.csv not generated"
+    # Assert the command exited successfully
+    if result.returncode != 0:
+        pytest.fail(
+            f"Command failed with return code {result.returncode}.\n"
+            f"STDOUT:\n{result.stdout}\n"
+            f"STDERR:\n{result.stderr}"
+        )
 
-def test_02_run_baseline_and_symbolic_comparison():
-    """
-    Step 2: Run the comparative experiment (T028).
-    This executes both the symbolic pipeline and the baseline, collects metrics,
-    runs McNemar test (T029), and generates the final report (T032).
-    """
-    # T028: Comparative experiment orchestration
-    # T029: McNemar test is called internally by metrics.py or experiment_runner
-    # T032: Final report generation
-    rc, out, err = run_python_script("experiment_runner.py", ["--mode", "compare"])
-    
-    # Assert success
-    assert rc == 0, f"Comparative experiment failed: {err}\n{out}"
-    
-    # Verify output files exist
-    assert (RESULTS_DIR / "comparative_results.json").exists(), "comparative_results.json missing"
-    assert (RESULTS_DIR / "final_report.md").exists(), "final_report.md missing"
-    
-    # Verify content of final report (T032)
-    report_path = RESULTS_DIR / "final_report.md"
-    with open(report_path, "r") as f:
-        content = f.read()
-    
-    # Check for required statistical markers
-    assert "p-value" in content.lower(), "Report missing p-value"
-    assert "success_rate_delta" in content.lower() or "success rate difference" in content.lower(), "Report missing success rate delta"
-    assert "memory_reduction" in content.lower() or "memory reduction" in content.lower(), "Report missing memory reduction metric"
+    # Verify artifact existence
+    final_report_path = DATA_RESULTS_DIR / "final_report.md"
+    deltas_path = DATA_RESULTS_DIR / "deltas.json"
 
-def test_03_verify_latency_guard_integration():
-    """
-    Step 3: Verify that the latency guard (T023) was triggered and logged.
-    """
-    # T023: Latency guard violations
-    violations_path = RESULTS_DIR / "latency_violations.json"
-    assert violations_path.exists(), "latency_violations.json missing"
-    
-    with open(violations_path, "r") as f:
-        violations = json.load(f)
-    
-    # The file must be valid JSON list/dict, even if empty (no violations)
-    assert isinstance(violations, (list, dict)), "latency_violations.json is not valid JSON structure"
+    assert final_report_path.exists(), "data/results/final_report.md was not created."
+    assert deltas_path.exists(), "data/results/deltas.json was not created."
 
-def test_04_verify_error_analysis_coverage():
-    """
-    Step 4: Verify error analysis (T030, T030b) coverage report.
-    """
-    # T030b: Error coverage report
-    coverage_path = RESULTS_DIR / "error_coverage.json"
-    assert coverage_path.exists(), "error_coverage.json missing"
-    
-    with open(coverage_path, "r") as f:
-        coverage = json.load(f)
-    
-    assert "coverage_percentage" in coverage or "categorized_failures" in coverage, \
-        "Error coverage report missing required fields"
+    # Verify content validity
+    # 1. Check final_report.md is not empty
+    report_content = final_report_path.read_text()
+    assert len(report_content) > 100, "data/results/final_report.md is unexpectedly empty."
+    # Basic check for expected sections (optional but good for integration)
+    assert "p-value" in report_content.lower(), "Report missing 'p-value' section."
+    assert "deltas" in report_content.lower(), "Report missing 'deltas' section."
 
-def test_05_verify_reconstruction_error():
-    """
-    Step 5: Verify ground truth validation (T009b).
-    """
-    # T009b: Reconstruction error
-    error_path = RESULTS_DIR / "reconstruction_error.json"
-    assert error_path.exists(), "reconstruction_error.json missing"
-    
-    with open(error_path, "r") as f:
-        error_data = json.load(f)
-    
-    assert "error_rate" in error_data, "Reconstruction error missing error_rate"
+    # 2. Check deltas.json is valid JSON and has expected keys
+    try:
+        deltas_data = json.loads(deltas_path.read_text())
+    except json.JSONDecodeError as e:
+        pytest.fail(f"data/results/deltas.json is not valid JSON: {e}")
 
-def test_06_final_artifact_check():
-    """
-    Final check: Ensure all expected artifacts from the pipeline exist and are non-empty.
-    """
-    missing = []
-    for artifact in EXPECTED_ARTIFACTS:
-        if not artifact.exists():
-            missing.append(str(artifact.relative_to(PROJECT_ROOT)))
-        elif artifact.stat().st_size == 0:
-            missing.append(f"{artifact.relative_to(PROJECT_ROOT)} (empty)")
-    
-    if missing:
-        pytest.fail(f"Missing or empty artifacts: {', '.join(missing)}")
+    required_keys = ["success_rate_delta", "memory_reduction_pct"]
+    for key in required_keys:
+        assert key in deltas_data, f"deltas.json missing required key: {key}"
 
-def test_07_verify_deltas_content():
-    """
-    Step 7: Verify deltas.json contains real calculated values.
-    """
-    deltas_path = RESULTS_DIR / "deltas.json"
-    assert deltas_path.exists(), "deltas.json missing"
-    
-    with open(deltas_path, "r") as f:
-        deltas = json.load(f)
-    
-    assert "success_rate_delta" in deltas, "deltas.json missing success_rate_delta"
-    assert "memory_reduction_pct" in deltas, "deltas.json missing memory_reduction_pct"
-    
-    # Values should be floats (not None or strings)
-    assert isinstance(deltas["success_rate_delta"], (int, float)), "success_rate_delta is not a number"
-    assert isinstance(deltas["memory_reduction_pct"], (int, float)), "memory_reduction_pct is not a number"
+    # Verify that values are numbers (not just placeholders like "0.0" strings if any)
+    # The task requires REAL measurements. If the pipeline ran successfully,
+    # it should have computed these.
+    # Note: We allow 0.0 if the experiment actually yielded 0 delta, but we ensure it's a float/int.
+    for key in required_keys:
+        val = deltas_data[key]
+        assert isinstance(val, (int, float)), f"deltas[{key}] is not a number: {type(val)}"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+    # Final assertion: Ensure the pipeline actually ran the comparative logic
+    # by checking if total_traces > 0 in deltas (implies data was processed)
+    # This is a strong indicator that the pipeline didn't just create empty files.
+    # If the system is designed to handle empty data gracefully, this check might need adjustment,
+    # but for a "comparative pipeline", we expect some data.
+    if "total_traces" in deltas_data:
+        assert deltas_data["total_traces"] > 0, (
+            "deltas.json indicates 0 total_traces. "
+            "The pipeline may have failed to load or process data."
+        )
+
+    # If we reach here, the test passes
+    assert True

@@ -115,7 +115,7 @@
 - [X] T021 [US2] Depends on T020: Extend `code/query_engine.py` to handle complex queries requiring chaining multiple predicates (e.g., "Find X near Y which is before Z").
 - [X] T022 [US2] Depends on T020: Extend `code/query_engine.py` to return "not found" (null) status when no path exists, without hallucinating a path.
 - [X] T023 [US2] Depends on T020: Implement `code/latency_guard.py` decorator `@latency_guard(threshold)` to measure query latency; if limit exceeded, log violation to `data/results/latency_violations.json` (schema: `[{\"query_id\": str, \"latency_ms\": float, \"timestamp\": str}]`) and continue (do NOT fail the run).
-- [ ] T023b [US2] Depends on T023: Implement mitigation logic in `code/experiment_runner.py`: If `latency_violations.json` shows > 10% of queries exceed 100ms, automatically tune parameters (e.g., reduce graph depth) or abort the sweep and log the failure to `data/results/sweep_abort_log.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T023b [US2] Depends on T023: Implement mitigation logic in `code/experiment_runner.py`: If `latency_violations.json` shows > 10% of queries exceed 100ms, automatically tune parameters (e.g., reduce graph depth) or abort the sweep and log the failure to `data/results/sweep_abort_log.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T024 [US2] Depends on T020: Add validation in `tests/integration/test_gpu_free.py::test_no_gpu_usage`: Assert `torch.cuda.is_available()` is False (or ignored) and `subprocess.run(["nvidia-smi"]).stdout` contains no active processes during query execution.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

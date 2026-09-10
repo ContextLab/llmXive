@@ -4,94 +4,181 @@ from typing import List, Dict, Any, Optional
 import requests
 from pathlib import Path
 import pandas as pd
-import sys
-
-from src.config import DATA_PROCESSED_PATH, SEED
+from src.config import DATA_PROCESSED_PATH
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def filter_samples(merged_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Removes rows with missing strain links and ensures >=30 samples remain.
-    Aborts the pipeline with a fatal error if fewer than 30 samples remain.
+# Ensembl Compara v109 API endpoint
+ENSMBL_COMPARA_URL = "https://rest.ensembl.org/compara/synteny/region/human/"
 
-    Per FR-013: Pipeline MUST abort if N < 30.
+def map_isg_genes(species: str, gene_list: List[str]) -> List[str]:
+    """
+    Map human ISG set to orthologs for non-human species using Ensembl Compara v109.
 
     Args:
-        merged_df: DataFrame containing the merged dataset with at least
-                   a 'strain_accession' column.
+        species: Target species name (e.g., 'mouse', 'rat', 'pig').
+        gene_list: List of human gene symbols or Ensembl IDs to map.
 
     Returns:
-        Filtered DataFrame with valid strain links and >= 30 rows.
+        List of orthologous Ensembl IDs for the target species.
+        If mapping fails for a specific gene, it is excluded from the result
+        and logged. The function does NOT abort globally.
 
     Raises:
-        SystemExit: If the number of valid samples is less than 30.
+        ValueError: If species is 'human' (no mapping needed) or invalid format.
     """
-    if merged_df.empty:
-        logger.error("Input DataFrame is empty. Cannot filter samples.")
-        sys.exit(1)
+    if species.lower() == 'human':
+        logger.warning("Species is human. No ortholog mapping required. Returning original gene list.")
+        return gene_list
 
-    # Identify the column name for strain linkage.
-    # The schema expects 'strain_accession' based on T012/T013/T021 specs.
-    strain_col = 'strain_accession'
+    if not gene_list:
+        logger.warning("Empty gene list provided. Returning empty list.")
+        return []
+
+    ortholog_map = []
+    failed_genes = []
+
+    headers = {"Content-Type": "application/json"}
+
+    for gene in gene_list:
+        try:
+            # Construct the endpoint URL
+            # Format: /compara/synteny/region/{species}/{region}
+            # We use a generic region query or specific gene lookup if ID is provided.
+            # For robustness, we attempt to look up the ortholog directly via the gene ID.
+            # Ensembl API endpoint for orthologs: /homology/id/{id}
+            # However, the task specifies Compara v109. Let's use the homology endpoint
+            # which is part of Compara.
+            
+            # Using the homology endpoint which is more direct for gene-to-gene mapping
+            homology_url = f"https://rest.ensembl.org/homology/id/{gene}"
+            params = {"species": species, "type": "ortholog"}
+            
+            # Fallback to the specific Compara region endpoint if homology fails or for region-based logic
+            # But homology/id is the standard way to get orthologs for a specific ID.
+            
+            # Let's try the homology endpoint first.
+            # Note: If 'gene' is a symbol, we might need to map to ID first. 
+            # For this implementation, we assume gene_list contains Ensembl IDs or 
+            # symbols that the API can resolve if we use the correct endpoint.
+            # The task says "map human ISG set". Usually ISG sets are defined by symbols or IDs.
+            # We will assume Ensembl IDs for stability, or attempt to resolve symbols via /lookup.
+            
+            # Strategy: 
+            # 1. If gene looks like an ID (starts with ENSG), use /homology/id/{gene}
+            # 2. If it's a symbol, use /lookup/{symbol} to get ID, then /homology/id/{id}
+            
+            target_id = gene
+            if not gene.startswith('ENSG'):
+                # Try to resolve symbol to ID
+                lookup_url = f"https://rest.ensembl.org/lookup/symbol/human/{gene}"
+                lookup_resp = requests.get(lookup_url, headers=headers, timeout=10)
+                if lookup_resp.status_code == 200:
+                    target_id = lookup_resp.json().get('id')
+                else:
+                    logger.warning(f"Could not resolve symbol {gene} to ID. Skipping.")
+                    failed_genes.append(gene)
+                    continue
+
+            if not target_id:
+                logger.warning(f"Failed to resolve ID for {gene}. Skipping.")
+                failed_genes.append(gene)
+                continue
+
+            # Now query orthologs
+            url = f"https://rest.ensembl.org/homology/id/{target_id}"
+            params = {"species": species, "type": "ortholog"}
+            
+            resp = requests.get(url, headers=headers, params=params, timeout=10)
+            
+            if resp.status_code != 200:
+                logger.warning(f"API request failed for {gene} (status {resp.status_code}). Skipping.")
+                failed_genes.append(gene)
+                continue
+
+            data = resp.json()
+            
+            # Extract ortholog ID
+            # Structure: {'data': [{'target': {'id': 'ENSMUSG000...'}}]}
+            if 'data' in data and len(data['data']) > 0:
+                homology_entry = data['data'][0]
+                # Find the ortholog for the target species
+                for hom in homology_entry.get('homologies', []):
+                    if hom.get('target', {}).get('species') == species:
+                        ortholog_id = hom['target']['id']
+                        ortholog_map.append(ortholog_id)
+                        break
+                else:
+                    # No ortholog found for this species
+                    logger.warning(f"No ortholog found for {gene} in {species}. Skipping.")
+                    failed_genes.append(gene)
+            else:
+                logger.warning(f"No homology data returned for {gene}. Skipping.")
+                failed_genes.append(gene)
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Network error mapping {gene}: {e}")
+            failed_genes.append(gene)
+        except Exception as e:
+            logger.error(f"Unexpected error mapping {gene}: {e}")
+            failed_genes.append(gene)
+
+    if failed_genes:
+        logger.info(f"Successfully mapped {len(ortholog_map)} genes. Failed to map {len(failed_genes)}: {failed_genes[:5]}...")
     
-    if strain_col not in merged_df.columns:
-        logger.error(f"Required column '{strain_col}' not found in merged DataFrame. "
-                     f"Available columns: {list(merged_df.columns)}")
-        sys.exit(1)
+    return ortholog_map
 
-    logger.info(f"Starting sample filtering. Total rows: {len(merged_df)}")
-
-    # Remove rows where strain_accession is missing (NaN, None, or empty string)
-    initial_count = len(merged_df)
-    filtered_df = merged_df.dropna(subset=[strain_col])
-    
-    # Also drop rows where strain_accession is an empty string if it exists
-    if not filtered_df.empty:
-        filtered_df = filtered_df[filtered_df[strain_col].astype(str).str.strip() != ""]
-    
-    final_count = len(filtered_df)
-    removed_count = initial_count - final_count
-
-    if removed_count > 0:
-        logger.warning(f"Removed {removed_count} rows due to missing/empty '{strain_col}'.")
-    else:
-        logger.info("No rows removed due to missing strain links.")
-
-    # Enforce minimum sample size per FR-013
-    MIN_SAMPLES = 30
-    if final_count < MIN_SAMPLES:
-        error_msg = (
-            f"CRITICAL: After filtering, only {final_count} samples remain. "
-            f"Minimum required is {MIN_SAMPLES} per FR-013. "
-            f"Aborting pipeline."
-        )
-        logger.critical(error_msg)
-        # Raise SystemExit with non-zero code to abort the pipeline
-        sys.exit(1)
-
-    logger.info(f"Filtering complete. Remaining samples: {final_count} (>= {MIN_SAMPLES}).")
-    return filtered_df
-
-def save_filtered_samples(filtered_df: pd.DataFrame, output_path: Optional[str] = None) -> Path:
+def save_ortholog_mapping(mapping: Dict[str, List[str]], output_path: Optional[str] = None) -> str:
     """
-    Saves the filtered DataFrame to a CSV file.
+    Saves the ortholog mapping to a CSV file.
     
     Args:
-        filtered_df: The filtered DataFrame.
-        output_path: Optional path to save the file. Defaults to 
-                     'data/processed/filtered_dataset.csv'.
-                     
+        mapping: Dict where key is human gene ID/symbol and value is list of ortholog IDs.
+        output_path: Optional path to save the file. Defaults to data/processed/ortholog_map.csv.
+        
     Returns:
-        Path object of the saved file.
+        The path where the file was saved.
     """
     if output_path is None:
-        output_path = str(Path(DATA_PROCESSED_PATH) / "filtered_dataset.csv")
+        output_path = Path(DATA_PROCESSED_PATH) / "ortholog_map.csv"
     
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    filtered_df.to_csv(output_file, index=False)
-    logger.info(f"Filtered dataset saved to {output_file}")
-    return output_file
+    rows = []
+    for human_gene, orthologs in mapping.items():
+        for orth in orthologs:
+            rows.append({"human_gene": human_gene, "ortholog_id": orth})
+    
+    df = pd.DataFrame(rows)
+    if not df.empty:
+        df.to_csv(output_path, index=False)
+        logger.info(f"Ortholog mapping saved to {output_path}")
+    else:
+        logger.warning("No mappings to save. Creating empty file.")
+        df.to_csv(output_path, index=False)
+        
+    return str(output_path)
+
+def process_isg_mapping_for_species(species: str, isg_genes: List[str]) -> List[str]:
+    """
+    Wrapper to map ISG genes for a specific species and return the list of orthologs.
+    Handles the 'response_unknown' logic by excluding unmapped genes from the list
+    but logging the event.
+    
+    Args:
+        species: Target species.
+        isg_genes: List of human ISG genes.
+        
+    Returns:
+        List of mapped ortholog Ensembl IDs.
+    """
+    mapped_genes = map_isg_genes(species, isg_genes)
+    
+    if not mapped_genes:
+        logger.error(f"CRITICAL: No orthologs found for species {species}. ISG calculation will be skipped for this sample.")
+        # We do NOT abort globally, but we return empty list which downstream should handle
+        # by marking response_unknown.
+    
+    return mapped_genes
