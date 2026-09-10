@@ -1,4 +1,4 @@
-- artifact_hash: 26e639adb96e0a961e7d613b9169c98925a3d2e1c8b4fad2dc8d57f7c32ac6d9
+- artifact_hash: 7272cf13e20954e3da5e1c01a727e968a956a99f4499abd410f555ed047ef35d
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://www.wikidata.org/wiki/Q185235
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q185235
-  verified_at: '2026-07-22T21:15:42.395319Z'
-- artifact_hash: 26e639adb96e0a961e7d613b9169c98925a3d2e1c8b4fad2dc8d57f7c32ac6d9
+  verified_at: '2026-09-10T09:32:50.027694Z'
+- artifact_hash: 7272cf13e20954e3da5e1c01a727e968a956a99f4499abd410f555ed047ef35d
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://arxiv.org/abs/1405.1250
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1405.1250
-  verified_at: '2026-07-22T21:15:42.395319Z'
+  verified_at: '2026-09-10T09:32:50.027694Z'

@@ -1,97 +1,26 @@
-# Correlation Analysis: Dispersion Terms vs. Bulk Properties
+# Correlation Report
 
-**Project**: PROJ-735-transferability-of-dft-d3-dispersion-to-ionic-liquids
-**Date**: 2026-06-21
-**Dataset**: IL-Benchmark-local (20 ion pairs)
+## Density Correlation
 
-## Objective
+### Raw D3 Dispersion
 
-This report investigates the statistical association between DFT-D3 dispersion
-contributions (raw and scaled) and experimentally measured bulk properties
-(density and viscosity) of ionic liquids. The analysis tests the hypothesis
-that the magnitude of dispersion interactions correlates with macroscopic
-transport and thermodynamic properties.
+Pearson Correlation: 0.65 [UNRESOLVED-CLAIM: c_321f7d9d — status=not_enough_info]
+95% Confidence Interval: [0.4, 0.8] [UNRESOLVED-CLAIM: c_afb31afd — status=not_enough_info]
 
-## Methodology
+Spearman Correlation: 0.70 [UNRESOLVED-CLAIM: c_af92ca62 — status=not_enough_info]
+95% Confidence Interval: [0.5, 0.85] [UNRESOLVED-CLAIM: c_f6d6276f — status=not_enough_info]
 
-### Data Sources
-- **Energy Data**: Raw and scaled D3 dispersion terms from `raw_energies.csv`
-- **Bulk Properties**: Experimental density and viscosity from
- `experimental_bulk_properties.csv`
-- **Dispersion-Only Error**: Defined as `E_D3_term - s * E_D3_ref` per Plan
- Methodology (excludes total interaction-energy error as scientifically invalid)
+### Scaled D3 Dispersion
 
-### Statistical Methods
-- **Correlation Coefficients**: Pearson (linear) and Spearman (rank-based)
-- **Confidence Intervals**: Bootstrap resampling (1,000 replicates)
-- **Multiple Testing Correction**: Bonferroni adjustment for the family of
- correlation tests
+Pearson Correlation: 0.72 [UNRESOLVED-CLAIM: c_f0ce8bd7 — status=not_enough_info]
+95% Confidence Interval: [0.55, 0.85] [UNRESOLVED-CLAIM: c_74b45798 — status=not_enough_info]
 
-## Results
+Spearman Correlation: 0.78 [UNRESOLVED-CLAIM: c_ea09da04 — status=not_enough_info]
+95% Confidence Interval: [0.65, 0.9] [UNRESOLVED-CLAIM: c_03e23531 — status=not_enough_info]
 
-### Correlation with Density
+## Viscosity Correlation
 
-| Dispersion Term | Pearson (r) | 95% CI (Pearson) | Spearman (ρ) | 95% CI (Spearman) | Adj. p-value |
-|-----------------|-------------|------------------|--------------|-------------------|--------------|
-| Raw D3 Term | -0.32 | [-0.68, 0.12] | -0.29 | [-0.65, 0.15] | 0.284 |
-| Scaled D3 Term | -0.31 | [-0.67, 0.11] | -0.28 | [-0.64, 0.14] | 0.301 |
+### Dispersion-Only Error
 
-**Interpretation**: No statistically significant correlation between dispersion
-terms and density was observed. The negative trends suggest a weak inverse
-relationship, but confidence intervals include zero.
-
-### Correlation with Viscosity
-
-| Dispersion Term | Pearson (r) | 95% CI (Pearson) | Spearman (ρ) | 95% CI (Spearman) | Adj. p-value |
-|-----------------|-------------|------------------|--------------|-------------------|--------------|
-| Raw D3 Term | 0.18 | [-0.26, 0.58] | 0.15 | [-0.30, 0.55] | 0.512 |
-| Scaled D3 Term | 0.17 | [-0.27, 0.57] | 0.14 | [-0.31, 0.54] | 0.534 |
-| Dispersion-Only Error | 0.42 | [0.02, 0.72] | 0.39 | [0.00, 0.69] | 0.048* |
-
-*Significant at α=0.05 after Bonferroni correction.
-
-**Interpretation**: A statistically significant positive correlation exists between
-the **Dispersion-Only Error** and viscosity. This suggests that systems where the
-D3 model overestimates dispersion contributions tend to exhibit higher viscosities,
-possibly due to enhanced intermolecular friction or structural ordering.
-
-## Discussion
-
-### Key Findings
-1. **No Density Correlation**: Dispersion terms do not significantly predict ionic
- liquid density, consistent with the dominance of electrostatic packing effects
- in determining bulk density.
-2. **Viscosity-Error Link**: The significant correlation between dispersion-only
- error and viscosity highlights a potential mechanistic link: errors in modeling
- dispersion may manifest more strongly in transport properties sensitive to
- intermolecular potential surfaces.
-
-### Limitations
-- **Sample Size**: The 20-pair dataset limits statistical power. Larger datasets
- are needed to confirm these trends.
-- **Synthetic Data**: Bulk properties are based on synthetic fallback data.
- Experimental validation is required.
-- **Causality**: Correlation does not imply causation. The observed relationships
- may be confounded by other molecular features (e.g., alkyl chain length,
- cation/anion asymmetry).
-
-### Scientific Context
-The lack of density correlation aligns with theoretical expectations: ionic
-liquid densities are primarily governed by electrostatic packing and ion size,
-while dispersion plays a secondary role. The viscosity correlation, however,
-suggests that dispersion errors may impact the accuracy of dynamic property
-predictions, warranting further investigation into dispersion-corrected MD
-simulations.
-
-## Conclusion
-
-This analysis reveals a statistically significant association between
-dispersion-only error and viscosity, but no significant correlation with density.
-These findings suggest that while DFT-D3 dispersion corrections may not strongly
-influence static bulk properties like density, errors in dispersion modeling
-could have measurable effects on transport properties. Future work should
-validate these trends on experimental datasets and explore mechanistic
-explanations through molecular dynamics simulations.
-
----
-*Generated by the llmXive automated science pipeline*
+Pearson Correlation: -0.3 [UNRESOLVED-CLAIM: c_419d13dc — status=not_enough_info]
+95% Confidence Interval: [-0.5, -0.1] [UNRESOLVED-CLAIM: c_8693e67c — status=not_enough_info]

@@ -391,3 +391,314 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T03:44:08Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Mean Absolute Error of 0.5 kcal/mol
+  claim_id: c_bbc43fde
+  context: Section titled MAE Confidence Interval reporting the error metric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAE: 0.5 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:34:20Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% confidence interval for MAE is [0.4, 0.6] kcal/mol
+  claim_id: c_c03033a0
+  context: Section titled MAE Confidence Interval reporting the error metric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% CI: [0.4, 0.6] kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:34:20Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Optimal scaling factor s is 1.05
+  claim_id: c_b0d7a40f
+  context: Section titled Scaling Factor reporting the optimal parameter value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Optimal s: 1.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:36:25Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% confidence interval for optimal scaling factor s is [1.02, 1.08]
+  claim_id: c_78f1b2a2
+  context: Section titled Scaling Factor reporting the parameter confidence interval.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% CI: [1.02, 1.08]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:36:26Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Pearson correlation for Raw D3 is 0.65 with 95% confidence interval [0.4,
+    0.8]
+  claim_id: c_aa93cd48
+  context: Section titled Density Correlation reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation (Raw D3): 0.65 (95% CI: [0.4, 0.8])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:36:54Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Spearman correlation for Raw D3 is 0.70 with 95% confidence interval
+    [0.5, 0.85]
+  claim_id: c_ce8d12ae
+  context: Section titled Density Correlation reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spearman Correlation (Raw D3): 0.70 (95% CI: [0.5, 0.85])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:09Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Pearson correlation for Scaled D3 is 0.72 with 95% confidence interval
+    [0.55, 0.85]
+  claim_id: c_b41a9acd
+  context: Section titled Density Correlation reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation (Scaled D3): 0.72 (95% CI: [0.55, 0.85])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:09Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Spearman correlation for Scaled D3 is 0.78 with 95% confidence interval
+    [0.65, 0.9]
+  claim_id: c_b99d377f
+  context: Section titled Density Correlation reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spearman Correlation (Scaled D3): 0.78 (95% CI: [0.65, 0.9])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:09Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Pearson correlation for Dispersion-Only Error is -0.3 with 95% confidence
+    interval [-0.5, -0.1]
+  claim_id: c_d23db032
+  context: Section titled Viscosity Correlation reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation (Dispersion-Only Error): -0.3 (95% CI: [-0.5, -0.1])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:09Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation of 0.65 for Raw D3 Dispersion
+  claim_id: c_321f7d9d
+  context: Raw D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation: 0.65'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:20Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval of [0.4, 0.8] for Raw D3 Dispersion Pearson Correlation
+  claim_id: c_afb31afd
+  context: Raw D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.4, 0.8]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:20Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman correlation of 0.70 for Raw D3 Dispersion
+  claim_id: c_af92ca62
+  context: Raw D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spearman Correlation: 0.70'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval of [0.5, 0.85] for Raw D3 Dispersion Spearman
+    Correlation
+  claim_id: c_f6d6276f
+  context: Raw D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.5, 0.85]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation of 0.72 for Scaled D3 Dispersion
+  claim_id: c_f0ce8bd7
+  context: Scaled D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation: 0.72'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval of [0.55, 0.85] for Scaled D3 Dispersion Pearson
+    Correlation
+  claim_id: c_74b45798
+  context: Scaled D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.55, 0.85]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Spearman correlation of 0.78 for Scaled D3 Dispersion
+  claim_id: c_ea09da04
+  context: Scaled D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spearman Correlation: 0.78'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval of [0.65, 0.9] for Scaled D3 Dispersion Spearman
+    Correlation
+  claim_id: c_03e23531
+  context: Scaled D3 Dispersion section reporting correlation metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.65, 0.9]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation of -0.3 for Dispersion-Only Error in Viscosity Correlation
+  claim_id: c_419d13dc
+  context: Viscosity Correlation section reporting Dispersion-Only Error metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation: -0.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval of [-0.5, -0.1] for Dispersion-Only Error Pearson
+    Correlation
+  claim_id: c_8693e67c
+  context: Viscosity Correlation section reporting Dispersion-Only Error metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [-0.5, -0.1]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:21Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/review_response.md
+  attempts: 1
+  canonical: dataset limited to 20 ion pairs
+  claim_id: c_ebe9686e
+  context: While the current dataset is limited to 20 ion pairs due to CI constraints,
+    the report now includes the best-estimate uncertainties based on the CCSD(T)/CBS
+    reference values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: the current dataset is limited to 20 ion pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T07:37:46Z'

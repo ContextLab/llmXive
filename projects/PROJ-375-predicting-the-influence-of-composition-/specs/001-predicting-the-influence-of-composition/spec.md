@@ -88,7 +88,7 @@ The system must perform permutation testing (a sufficient number of iterations) 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Predictive accuracy (R²) is measured against the baseline of a linear weighted average of elemental CTEs on the held-out test set (See US-2).
-- **SC-002**: Statistical significance (p-value) of the model's performance is measured against the null hypothesis of random chance via permutation testing (1000 iterations) (See US-3).
+- **SC-002**: Statistical significance (p-value) of the model's performance is measured against the null hypothesis of random chance via permutation testing using a sufficiently large number of iterations. (See US-3).
 - **SC-003**: Feature importance rankings are compared against the magnitude of correlation coefficients between each descriptor and CTE; the system MUST report the Spearman rank correlation coefficient (ρ) between the two rankings as a diagnostic metric (See US-3).
 - **SC-004**: Computational efficiency (runtime and memory usage) is measured against the GitHub Actions free-tier limits (≤2 cores, ≤7 GB RAM, ≤6 hours) (See US-2).
 

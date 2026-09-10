@@ -1,53 +1,31 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "MetallicGlassDataset"
-description: "Schema for the metallic glass composition and CTE dataset."
-type: "object"
-properties:
-  composition:
-    type: "string"
-    description: "Chemical formula string (e.g., Zr50Cu40Al10)."
-  cte:
-    type: "number"
-    description: "Coefficient of Thermal Expansion (1/K)."
-  atomic_radius_mean:
-    type: "number"
-    description: "Weighted mean atomic radius."
-  electronegativity_var:
-    type: "number"
-    description: "Variance of electronegativity."
-  vec:
-    type: "number"
-    description: "Valence Electron Concentration."
-  size_mismatch:
-    type: "number"
-    description: "Atomic size mismatch parameter (original)."
-  size_mismatch_resid:
-    type: "number"
-    description: "Orthogonalized atomic size mismatch (residualized against atomic_radius_mean)."
-  alloy_family:
-    type: "string"
-    description: "Alloy family classification (e.g., Zr-based)."
-  source:
-    type: "string"
-    description: "Source of the data (e.g., zenodo, materials_project)."
-  is_amorphous:
-    type: "boolean"
-    description: "Flag indicating if the material is amorphous."
-  vif_score:
-    type: "number"
-    description: "Variance Inflation Factor score for collinearity check (optional)."
-  stability_score:
-    type: "number"
-    description: "Stability score from bootstrapping (optional)."
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Metallic Glass Processed Dataset"
+type: object
 required:
+  - material_id
   - composition
   - cte
-  - atomic_radius_mean
-  - electronegativity_var
+  - weighted_mean_atomic_radius
+  - electronegativity_variance
   - vec
-  - size_mismatch
-  - size_mismatch_resid
-  - alloy_family
-  - source
-  - is_amorphous
-additionalProperties: false
+  - atomic_size_mismatch
+  - source_method
+  - amorphous_flag
+  - checksum
+properties:
+  material_id:
+    type: string
+    description: "Unique Materials Project identifier, e.g., 'mp-12345'."
+  composition:
+    type: string
+    description: "Stoichiometric formula"
+  cte:
+    type: number
+    description: "Coefficient of thermal …"
+  cte:
+    type: number
+    description: "Coefficient ..."
+  cte:
+    duplicate
+  cack:
+    ...

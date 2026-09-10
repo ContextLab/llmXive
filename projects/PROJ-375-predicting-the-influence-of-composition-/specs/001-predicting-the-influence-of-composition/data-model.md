@@ -1,57 +1,54 @@
 # Data Model: Predicting the Influence of Composition on the Thermal Expansion of Metallic Glasses
 
-## Entities
+## Overview
+The pipeline operates on a single canonical table of processed metallic‑glass entries. Downstream artifacts (models, performance metrics) reference rows from this table via a stable `material_id`.
+
+## Entity Definitions
 
 ### MetallicGlassEntry
-Represents a single alloy sample.
-- `composition`: string (e.g., "Zr50Cu40Al10")
-- `cte`: float (Coefficient of Thermal Expansion, 1/K)
-- `atomic_radius_mean`: float (Weighted mean)
-- `electronegativity_var`: float
-- `vec`: float (Valence Electron Concentration)
-- `size_mismatch`: float (Original, coupled feature)
-- `size_mismatch_resid`: float (Orthogonalized feature for linear models)
-- `alloy_family`: string (e.g., "Zr-based")
-- `source`: string (e.g., "zenodo", "materials_project", "aflow")
-- `is_amorphous`: boolean
-- `vif_score`: float (Optional, for linear model collinearity check)
-- `stability_score`: float (Optional, for feature importance stability)
+| Field | Type | Description |
+|-------|------|-------------|
+| `material_id` | string | Unique identifier from Materials Project (e.g., `"mp-12345"`). |
+| `composition` | string | Stoichiometric formula (e.g., `"Zr50Cu40Al10"`). |
+| `cte` | float | Coefficient of thermal expansion (1/K). |
+| `weighted_mean_atomic_radius` | float | Σ fraction × atomic radius (pm). |
+| `electronegativity_variance` | float | Weighted variance of Pauling electronegativity. |
+| `vec` | float | Valence electron concentration (e⁻/atom). |
+| `atomic_size_mismatch` | float | Weighted standard deviation of atomic radius (pm). |
+| `source_method` | string | `"DFT"` or `"Experimental"` (as reported by MP). |
+| `thermal_history` | string | optional | Free‑text description of any post‑synthesis heat treatment (if present). |
+| `amorphous_flag` | boolean | `True` if the entry is flagged as amorphous/metallic glass. |
+| `checksum` | string | SHA‑256 of the raw JSON record. |
+| `vif_score` | number | optional | VIF computed for each descriptor (may be absent if VIF filtering removed the feature). |
+| `thermal_history_flag` | boolean | optional | `True` if the `thermal_history` string does not match the simple `<temp>K for <time>h` pattern, indicating a potential inconsistency for sensitivity analysis. |
 
 ### ModelPerformance
-Represents evaluation results.
-- `model_type`: string (e.g., "linear", "random_forest", "baseline_weighted_avg")
-- `r2`: float
-- `mae`: float
-- `rmse`: float
-- `p_value`: float (from permutation test)
-- `is_significant`: boolean (based on p < 0.05, not R² threshold)
-- `divergence_score`: float (Difference between importance rank and correlation rank, descriptive only)
-- `stability_score`: float (Average stability across bootstraps)
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | string | `"linear_regression"` or `"random_forest"` or `"baseline_linear"` . |
+| `r2_test` | float | R² on held‑out test set. |
+| `mae_test` | float | Mean Absolute Error (K⁻¹). |
+| `rmse_test` | float | Root Mean Squared Error (K⁻¹). |
+| `p_value` | float | nullable | Permutation test p‑value; null if R² < 0.3 (null result). |
+| `null_result_flag` | boolean | `True` if R² < 0.3. |
+| `runtime_seconds` | float | Wall‑clock time for training + evaluation. |
+| `memory_peak_mb` | float | Peak resident memory usage. |
 
 ### FeatureImportance
-Represents ranked features.
-- `feature_name`: string
-- `importance_score`: float
-- `correlation_coefficient`: float
-- `rank`: integer
-- `vif_score`: float (if applicable)
-- `stability_score`: float (from bootstrapping)
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | string | `"random_forest"` or `"linear_regression"` (coefficients). |
+| `feature_name` | string | Name of the compositional descriptor. |
+| `importance_score` | float | Normalized importance (RF) or absolute coefficient (LR). |
+| `rank` | integer | 1 = highest importance. |
+| `pearson_corr` | float | Pearson correlation between feature and CTE. |
+| `abs_corr_rank` | integer | Rank of the absolute Pearson correlation. |
+| `spearman_rho` | float | nullable | Spearman rank correlation between the two rankings (importance vs. absolute‑correlation). |
 
-## Data Flow
+## Relationships
+- Each `ModelPerformance` entry references a `model_type` that was trained on the **entire** `MetallicGlassEntry` table (after cleaning).  
+- `FeatureImportance` rows are linked to the same `model_type`.  
+- All files are version‑controlled; the checksum column guarantees reproducibility (Constitution Principle III).
 
-1.  **Ingestion**: Raw data fetched from Zenodo -> `data/raw/zenodo_mg.parquet`
-2.  **Cleaning**: Filter for amorphous, valid CTE -> `data/processed/clean_mg_data.parquet`
-3.  **Feature Engineering**: Calculate descriptors + **Orthogonalization** -> `data/processed/clean_mg_data_with_features.parquet` (includes `size_mismatch_resid`)
-4.  **Splitting**: 60/20/20 Split (Train/Val/Test) -> `data/processed/train_split.parquet`, `data/processed/val_split.parquet`, `data/processed/test_split.parquet`
-5.  **Modeling**: Training -> `results/metrics.csv`, `results/feature_importance.csv`
-6.  **Analysis**: Stability Analysis + Divergence Analysis -> `results/divergence.csv`, `results/correlations.csv`, `results/stability.csv`
 
-## Constraints
-
-- **Data Integrity**: No in-place modification. All transformations create new files.
-- **Checksums**: All files in `data/` must have a corresponding `.sha256` hash.
-- **Schema Validation**: All Parquet files must conform to `contracts/mg_dataset.schema.yaml`.
-- **Collinearity**: **Orthogonalization** must be applied to `size_mismatch` before linear models. VIF scores must be calculated for linear models.
-- **Split**: 3-way split (Train/Val/Test) must be used to satisfy SC-003.
-  - **Validation Set**: Used for SC-003 Stability Analysis and tuning.
-  - **Test Set**: Used for final R²/MAE reporting.
+## Data ?????? ?? ?? ?? ??? ... (garbled) 

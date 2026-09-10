@@ -6,14 +6,6 @@ T014:
     is absent. Consequently the required dataset with the specified schema and validation
     checks is not present. The implementer must provide a complete script that generates
     the CSV and include the generated `sample_validation.csv` file.
-T017b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No log entry or any other artifact confirming that the ground\u2011truth validation\
-    \ routine from T013 was executed and passed (exit code\u202F0) is present. The\
-    \ required evidence\u2014a concrete log confirming verification of the current\
-    \ configuration batch\u2014is missing, so the task\u2019s deliverable has not\
-    \ been satisfied."
 T021b:
   c: true
   h: e02a93d0fc558d840ca666d35ddd0a5be317019c1835c558b66d5c62071a9c85
@@ -23,13 +15,11 @@ T021b:
     \ function. Both required artifacts are present and non\u2011empty."
 T021b#1:
   c: false
-  h: 05c45372c4d1a45ec5fbcb485c7c36611e5136aaaf278b324d1c46d7154614d5
-  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file and\
-    \ the `simulation_engine.py` implementation does not contain any logic to stream\
-    \ or write raw p\u2011values to that file (the file\u2011locking/write utilities\
-    \ are imported but never used). Consequently the task\u2019s core requirement\u2014\
-    recording each replicate\u2019s p\u2011value in the specified schema\u2014is not\
-    \ satisfied."
+  h: 70112e26fa474ee686fe0076294dd20542fe5f1f0d05a2f8f99ce975235bf691
+  r: "The provided `simulation_engine.py` is truncated and contains no code that streams\
+    \ or writes p\u2011values to `data/processed/raw_pvalues.csv`; the required CSV\
+    \ file does not exist. Consequently the task\u2019s core requirement\u2014recording\
+    \ every raw p\u2011value in the specified schema\u2014is not satisfied."
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b

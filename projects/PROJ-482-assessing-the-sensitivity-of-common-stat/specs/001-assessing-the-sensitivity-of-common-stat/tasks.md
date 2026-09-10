@@ -110,7 +110,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T015 [P] [US2] Unit test for Type I error classification logic in `tests/unit/test_simulation.py`
-- [X] T016 [P] [US2] Unit test for {{claim:c_5fee34d9}} (1405.1250, https://arxiv.org/abs/1405.1250) in `tests/unit/test_simulation.py`
+- [X] T016 [P] [US2] Unit test for {{claim:c_5 (Wikipedia: Chi-squared test, https://en.wikipedia.org/wiki/Chi-squared_test) fee34d9}} in `tests/unit/test_simulation.py`
 - [X] T017 [P] [US2] Integration test for adaptive replication loop termination in `tests/integration/test_simulation_loop.py`
 
 ### Implementation for User Story 2

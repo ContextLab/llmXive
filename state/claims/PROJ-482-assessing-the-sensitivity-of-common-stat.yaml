@@ -1265,3 +1265,135 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-22T21:16:53Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: MD5 checksum definition linked to Wikidata Q185235
+  claim_id: c_063f39cf
+  context: Schema for sample_validation.csv requires a checksum column which must
+    be the MD5 hash of the row data, explicitly referencing Wikidata Q185235.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: MD5
+      source_id: Q185235
+      url: https://www.wikidata.org/wiki/Q185235
+      value: MD5
+    filled: true
+  kind: entity_fact
+  raw_text: checksum must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235)
+    of the row data
+  resolved_value: MD5
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T08:37:01Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: Checksum in sample_validation.csv is calculated using MD5 algorithm
+  claim_id: c_11ffac3e
+  context: '**Schema**: The CSV MUST include columns: `sample_size`, `distribution_type`,
+    `effect_size`, `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`,
+    `checksum`. **Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff`
+    must be within 1e-6 of theoretical value; `checksum` must be MD5 (Wikidata Q185235,
+    https://www.wikidata.org/wiki/Q185235) of the row data.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: MD5
+      source_id: Q185235
+      url: https://www.wikidata.org/wiki/Q185235
+      value: MD5
+    filled: true
+  kind: entity_fact
+  raw_text: checksum must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235)
+    of the row data.
+  resolved_value: MD5
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T09:33:00Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: CSV schema for sample_validation.csv includes specific statistical columns
+  claim_id: c_55689c85
+  context: 'Create a script code/run_data_gen.py to generate and save a small sample
+    dataset to data/raw/sample_validation.csv for manual verification. **Schema**:
+    The CSV MUST include columns: `sample_size`, `distribution_type`, `effect_size`,
+    `group_mean_1`, `group_mean_2`, `mean_diff`, `variance`, `skewness`, `checksum`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSV_schema_for_sample_validation.csv_includes_specific_stati
+  kind: entity_fact
+  raw_text: 'The CSV MUST include columns: sample_size, distribution_type, effect_size,
+    group_mean_1, group_mean_2, mean_diff, variance, skewness, checksum.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T09:33:33Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Mean difference validation tolerance is 1e-6
+  claim_id: c_7f38de1c
+  context: '**Validation**: `effect_size` must match input (0.0 or 0.5); `mean_diff`
+    must be within 1e-6 of theoretical value; `checksum` must be MD5 (Wikidata Q185235,
+    https://www.wikidata.org/wiki/Q185235) of the row data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean_diff must be within 1e-6 of theoretical value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T09:34:00Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact test is used for expected cell counts less than 5
+  claim_id: c_e0f8dd8a
+  context: '- Fisher''s Exact (scipy.stats.fisher_exact) triggered when expected cell
+    counts < 5'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "To reduce the error in approximation, Frank Yates suggested a correction\
+        \ for continuity that adjusts the formula for Pearson's chi-squared test by\
+        \ subtracting 0.5 from the absolute difference between each observed value\
+        \ and its expected value in a 2 \xD7 2 contingency table. This reduces the\
+        \ chi-squared value obtained and thus increases its p-value."
+      source_id: Chi-squared test
+      url: https://en.wikipedia.org/wiki/Chi-squared_test
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Fisher's Exact is triggered when expected cell counts < 5
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T09:34:18Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Full simulation suite execution time must be under 6 hours
+  claim_id: c_330f5fcc
+  context: '**Verification**: Run the benchmark and confirm the total time is < 6
+    hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark total time must be < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T09:34:18Z'

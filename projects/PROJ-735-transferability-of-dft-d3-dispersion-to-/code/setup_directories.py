@@ -3,22 +3,33 @@ from pathlib import Path
 
 def main():
     """
-    Create the required directory structure for the project data.
-    This script ensures that 'data/raw' and 'data/derived' exist.
+    Create required project directories: data/raw/, data/derived/, code/, tests/.
+    This script ensures the directory structure exists for the llmXive pipeline.
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    data_dir = base_dir / "data"
-    raw_dir = data_dir / "raw"
-    derived_dir = data_dir / "derived"
+    # Define relative paths based on project root
+    directories = [
+        "data/raw",
+        "data/derived",
+        "code",
+        "tests"
+    ]
 
-    # Create directories if they don't exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    derived_dir.mkdir(parents=True, exist_ok=True)
+    for dir_path in directories:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {path}")
+        else:
+            print(f"Directory already exists: {path}")
 
-    # Verify creation
-    print(f"Created directory: {raw_dir}")
-    print(f"Created directory: {derived_dir}")
-    print(f"Directory structure verified: {raw_dir.exists()} and {derived_dir.exists()}")
+    # Verify creation by listing contents
+    print("\nVerification of created directories:")
+    for dir_path in directories:
+        path = Path(dir_path)
+        if path.exists():
+            print(f"  [OK] {path}")
+        else:
+            print(f"  [FAIL] {path} was not created")
 
 if __name__ == "__main__":
     main()
