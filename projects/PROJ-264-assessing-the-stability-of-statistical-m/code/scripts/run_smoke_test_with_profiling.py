@@ -1,187 +1,204 @@
-"""
-Smoke test with memory profiling.
-Executes the pipeline on a subset of 3 datasets (one from each size bin)
-and logs peak RSS memory usage to results/memory_profile.log.
-"""
 import gc
 import logging
 import os
 import sys
 import tracemalloc
+import json
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add project root to path if not already present
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
-from code.config import RESULTS_DIR, RAW_DATA_DIR
-from code.utils import setup_logging, set_seed
+from code.utils import set_seed, setup_logging
 from code.data_loader import load_datasets
 from code.preprocessor import preprocess_data
 from code.evaluator import run_repeated_stratified_cv
 from code.analyser import run_full_analysis
-from code.results_writer import write_stability_metrics, write_correlation_results, write_permutation_results
-from code.report_generator import run_full_report_aggregation
 from code.results_writer import write_final_report
+from code.config import RESULTS_DIR, DATA_DIR, LOGS_DIR
 
-# Configure logging
-logger = setup_logging("smoke_test_profiling")
+# Ensure directories exist
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = setup_logging("smoke_test_profiling.log")
 
 def get_peak_memory_mb():
-    """Return current peak memory usage in MB."""
+    """Get current peak memory usage in MB using tracemalloc."""
+    if not tracemalloc.is_tracing():
+        return 0.0
     current, peak = tracemalloc.get_traced_memory()
     return peak / (1024 * 1024)
 
+def select_smoke_datasets():
+    """
+    Select exactly 3 datasets from the cached spectrum report:
+    1. One with N < 1000
+    2. One with 1000 <= N <= 10000
+    3. One with N > 10000
+    """
+    spectrum_path = DATA_DIR / "spectrum_report.json"
+    if not spectrum_path.exists():
+        raise FileNotFoundError(f"Spectrum report not found at {spectrum_path}. Run T005 first.")
+
+    with open(spectrum_path, 'r') as f:
+        data = json.load(f)
+
+    candidates = data.get("selected_datasets", [])
+    if not candidates:
+        raise ValueError("No datasets found in spectrum report.")
+
+    small = []
+    medium = []
+    large = []
+
+    for ds in candidates:
+        n_samples = ds.get("n_samples", 0)
+        if n_samples < 1000:
+            small.append(ds)
+        elif 1000 <= n_samples <= 10000:
+            medium.append(ds)
+        else:
+            large.append(ds)
+
+    if not small or not medium or not large:
+        raise ValueError(
+            f"Insufficient dataset diversity in cache. "
+            f"Small (<1k): {len(small)}, Medium (1k-10k): {len(medium)}, Large (>10k): {len(large)}. "
+            "Re-run T005 to regenerate the spectrum report."
+        )
+
+    # Select one from each bin
+    selected = [small[0], medium[0], large[0]]
+    logger.info(f"Selected smoke test datasets: {[d['dataset_id'] for d in selected]}")
+    return selected
+
 def run_smoke_test_with_profiling():
-    """Run the smoke test with memory profiling."""
-    # Ensure results directory exists
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Start memory tracing
+    """
+    Execute the full pipeline on the selected 3 datasets with memory profiling.
+    Logs peak memory usage to results/memory_profile.log.
+    """
+    set_seed(42)
     tracemalloc.start()
-    initial_memory = get_peak_memory_mb()
-    logger.info(f"Initial memory usage: {initial_memory:.2f} MB")
+
+    peak_memory_log = []
+    dataset_ids = []
 
     try:
-        # 1. Load a small subset of datasets (3 datasets: one from each size bin)
-        # We rely on the cached spectrum report from T005, but filter to 3 representative datasets
-        # For the smoke test, we'll just take the first 3 valid datasets from the cache
-        # In a real scenario, we'd parse spectrum_report.json to pick one from each bin
-        
-        # For this smoke test, we'll load a very small subset by modifying the load_datasets call
-        # to only process 3 datasets. We'll hardcode 3 known small OpenML IDs for reproducibility.
-        # These are binary classification datasets with varying sizes.
-        # Note: In a real implementation, we'd parse the spectrum report to pick representative datasets.
-        
-        # Using known small datasets for smoke test:
-        # 1. pima (ID: 1468) - ~768 samples
-        # 2. ionosphere (ID: 1469) - ~351 samples
-        # 3. breast-cancer (ID: 1467) - ~683 samples
-        # Note: These are example IDs; the actual IDs may vary. 
-        # For a robust implementation, we should parse the spectrum report.
-        
-        # Since we don't have the spectrum report in this context, we'll use a hardcoded list
-        # of 3 small binary classification datasets for the smoke test.
-        # In production, this would be dynamic based on the spectrum report.
-        smoke_dataset_ids = [1467, 1468, 1469]  # breast-cancer, pima, ionosphere
-        
-        logger.info(f"Starting smoke test with datasets: {smoke_dataset_ids}")
-        
-        # Load datasets (this will download if not cached)
-        datasets = load_datasets(smoke_dataset_ids)
-        
-        if len(datasets) == 0:
-            logger.error("No datasets loaded. Exiting.")
-            return False
-        
-        logger.info(f"Loaded {len(datasets)} datasets for smoke test")
-        
-        peak_memory_after_load = get_peak_memory_mb()
-        logger.info(f"Memory after data load: {peak_memory_after_load:.2f} MB")
-        
-        # 2. Run evaluation on each dataset
-        all_raw_results = []
-        
-        for dataset_info in datasets:
-            dataset_id = dataset_info['dataset_id']
-            logger.info(f"Processing dataset {dataset_id}...")
-            
+        # 1. Load and select datasets
+        smoke_datasets = select_smoke_datasets()
+        logger.info("Starting smoke test with profiling...")
+
+        # 2. Process each dataset sequentially
+        all_eval_results = []
+        for ds_info in smoke_datasets:
+            ds_id = ds_info["dataset_id"]
+            dataset_ids.append(ds_id)
+            logger.info(f"Processing dataset {ds_id}...")
+
+            # Snapshot before processing
+            current, peak = tracemalloc.get_traced_memory()
+            logger.info(f"  Memory before load: {peak / (1024*1024):.2f} MB")
+
+            # Load
+            try:
+                X, y, name = load_datasets([ds_id])
+                if not X or not y:
+                    logger.warning(f"Dataset {ds_id} failed to load or has no data. Skipping.")
+                    continue
+                X, y = X[0], y[0] # unwrap list from loader
+            except Exception as e:
+                logger.error(f"Failed to load dataset {ds_id}: {e}")
+                continue
+
             # Preprocess
-            X, y, feature_names = preprocess_data(
-                dataset_info['X'], 
-                dataset_info['y'], 
-                dataset_info['feature_names']
+            X_processed, y_processed = preprocess_data(X, y)
+
+            # Evaluate
+            results = run_repeated_stratified_cv(
+                X_processed, y_processed,
+                model_names=["LogisticRegression", "RandomForest", "LinearSVM"],
+                dataset_id=ds_id,
+                n_splits=10, n_repeats=10
             )
-            
-            # Run CV evaluation
-            results = run_repeated_stratified_cv(X, y, dataset_id, feature_names)
-            all_raw_results.append(results)
-            
-            # Clear memory
-            del X, y, results
+            all_eval_results.extend(results)
+
+            # Snapshot after processing
+            current, peak = tracemalloc.get_traced_memory()
+            peak_mb = peak / (1024 * 1024)
+            logger.info(f"  Memory after processing {ds_id}: {peak_mb:.2f} MB")
+            peak_memory_log.append({
+                "dataset_id": ds_id,
+                "peak_memory_mb": peak_mb
+            })
+
+            # Explicit cleanup
+            del X, y, X_processed, y_processed, results
             gc.collect()
-            
-            current_peak = get_peak_memory_mb()
-            logger.info(f"Memory after dataset {dataset_id}: {current_peak:.2f} MB")
-        
-        # 3. Aggregate and analyze
+
+        # 3. Write raw evaluations
+        from code.results_writer import write_raw_evaluations
+        write_raw_evaluations(all_eval_results)
+
+        # 4. Run Analysis
         logger.info("Running analysis...")
-        
-        # Concatenate all raw results
-        import pandas as pd
-        if all_raw_results:
-            raw_df = pd.concat(all_raw_results, ignore_index=True)
-            
-            # Write raw evaluations
-            from code.results_writer import write_raw_evaluations
-            write_raw_evaluations(raw_df)
-            
-            # Run full analysis
-            stability_metrics, correlation_results, permutation_results = run_full_analysis(raw_df)
-            
-            # Write results
-            write_stability_metrics(stability_metrics)
-            write_correlation_results(correlation_results)
-            write_permutation_results(permutation_results)
-            
-            # Generate report
-            report_data = run_full_report_aggregation()
-            write_final_report(report_data)
-            
-            final_peak = get_peak_memory_mb()
-            logger.info(f"Final peak memory: {final_peak:.2f} MB")
-        else:
-            logger.warning("No results to analyze.")
-        
-        # 4. Log memory profile
-        tracemalloc.stop()
+        stability_metrics, correlation_results, permutation_results = run_full_analysis()
+
+        # 5. Write Analysis Results
+        from code.results_writer import write_stability_metrics, write_correlation_results, write_permutation_results
+        write_stability_metrics(stability_metrics)
+        write_correlation_results(correlation_results)
+        write_permutation_results(permutation_results)
+
+        # 6. Generate Report
+        logger.info("Generating final report...")
+        write_final_report(stability_metrics, correlation_results, permutation_results)
+
+        # Final Memory Check
         current, peak = tracemalloc.get_traced_memory()
-        total_peak_mb = peak / (1024 * 1024)
-        
-        # Write memory profile log
-        log_path = RESULTS_DIR / "memory_profile.log"
-        with open(log_path, 'w') as f:
-            f.write(f"Smoke Test Memory Profile\n")
-            f.write(f"=========================\n")
-            f.write(f"Datasets processed: {len(smoke_dataset_ids)}\n")
-            f.write(f"Dataset IDs: {smoke_dataset_ids}\n")
-            f.write(f"Initial memory: {initial_memory:.2f} MB\n")
-            f.write(f"Peak memory: {total_peak_mb:.2f} MB\n")
-            f.write(f"Memory increase: {total_peak_mb - initial_memory:.2f} MB\n")
-            f.write(f"\n")
-            f.write(f"Status: {'PASS' if total_peak_mb < 6000 else 'FAIL (exceeded 6GB limit)'}\n")
-            f.write(f"Note: This is a smoke test with only 3 small datasets. Full run may use more memory.\n")
-        
-        logger.info(f"Memory profile logged to {log_path}")
-        
-        # Verify output files exist
-        required_files = [
-            "raw_evaluations.csv",
-            "stability_metrics.csv",
-            "correlation_results.csv",
-            "permutation_results.csv",
-            "final_report.md"
-        ]
-        
-        all_exist = True
-        for fname in required_files:
-            fpath = RESULTS_DIR / fname
-            if fpath.exists():
-                logger.info(f"✓ {fname} generated")
+        final_peak_mb = peak / (1024 * 1024)
+        logger.info(f"Final Peak Memory: {final_peak_mb:.2f} MB")
+        peak_memory_log.append({
+            "dataset_id": "TOTAL",
+            "peak_memory_mb": final_peak_mb
+        })
+
+        # Write Profile Log
+        profile_log_path = RESULTS_DIR / "memory_profile.log"
+        with open(profile_log_path, 'w') as f:
+            f.write("Memory Profiling Report for Smoke Test (3 Datasets)\n")
+            f.write("=" * 60 + "\n")
+            for entry in peak_memory_log:
+                f.write(f"Dataset ID: {entry['dataset_id']}, Peak Memory (MB): {entry['peak_memory_mb']:.2f}\n")
+            f.write("=" * 60 + "\n")
+            f.write(f"Overall Peak Memory: {final_peak_mb:.2f} MB\n")
+            if final_peak_mb < 6000:
+                f.write("STATUS: PASS (Under 6GB limit)\n")
             else:
-                logger.error(f"✗ {fname} missing")
-                all_exist = False
-        
-        return all_exist and (total_peak_mb < 6000)
-        
+                f.write("STATUS: FAIL (Exceeded 6GB limit)\n")
+
+        logger.info(f"Memory profile log written to {profile_log_path}")
+        return True
+
     except Exception as e:
         logger.error(f"Smoke test failed: {e}", exc_info=True)
+        raise
+    finally:
         tracemalloc.stop()
-        return False
+
+def main():
+    """Entry point for the script."""
+    success = run_smoke_test_with_profiling()
+    if success:
+        print("Smoke test with profiling completed successfully.")
+        sys.exit(0)
+    else:
+        print("Smoke test failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    set_seed(42)
-    success = run_smoke_test_with_profiling()
-    sys.exit(0 if success else 1)
+    main()

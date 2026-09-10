@@ -1854,3 +1854,43 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T06:50:21Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: Model validation using synthetic data from distinct generative process
+  claim_id: c_292c691f
+  context: 'Independent Test: The model can be tested by feeding it synthetic data
+    generated from a *different* generative process with noise characteristics distinct
+    from the fitting model, verifying that the posterior estimates converge to the
+    ground truth within a defined error margin.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_validation_using_synthetic_data_from_distinct_generati
+  kind: entity_fact
+  raw_text: The model can be tested by feeding it synthetic data generated from a
+    different generative process with noise characteristics distinct from the fitting
+    model, verifying that the posterior estimates converge to the ground truth within
+    a defined error margin.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:48:05Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: verify claim c_02979941 against arXiv 2607.02000
+  claim_id: c_ea9f9ed3
+  context: T021 [P] [US2] Contract test for model convergence in tests/contract/test_model_convergence.py
+    (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000))
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:52:38Z'

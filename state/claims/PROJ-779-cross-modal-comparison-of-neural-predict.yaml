@@ -4943,3 +4943,236 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T20:08:16Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 0
+  canonical: CI pipeline uses Python 3.11
+  claim_id: c_9f142961
+  context: 'Task T036a defines the CI workflow with python-version: ''3.11''.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The CI pipeline uses Python version 3.11.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T00:57:00Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: All data must originate from OpenNeuro datasets with no synthetic data
+    generation permitted
+  claim_id: c_0b74e3dd
+  context: Task T011 explicitly states the 'Real Data' assumption in docs/README.md
+    and code/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_data_must_originate_from_OpenNeuro_datasets_with_no_synt
+  kind: entity_fact
+  raw_text: All data must originate from OpenNeuro datasets and that no synthetic
+    data generation is permitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:57:36Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sampling rate validation threshold is 500 Hz
+  claim_id: c_dc9cbbec
+  context: Task T005 defines a sampling rate threshold of >=500 Hz, and T017/T018
+    enforce this check.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sampling_rate_validation_threshold_is_500_Hz
+  kind: magnitude
+  raw_text: The pipeline validates that sampling rate is greater than or equal to
+    500 Hz.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:58:15Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Minimum oddball trial count is 100
+  claim_id: c_48cc4fe6
+  context: Task T005 defines a trial threshold of >=100 oddball trials, and T017/T018
+    enforce this check.
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline validates that the number of oddball trials is greater than
+    or equal to 100.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T00:58:16Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Minimum standard trial count is 300
+  claim_id: c_203313f4
+  context: Task T005 defines a trial threshold of >=300 standard trials, and T017/T018
+    enforce this check.
+  evidence:
+    asserted: '300.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline validates that the number of standard trials is greater than
+    or equal to 300.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T00:58:17Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: SHA256 checksums computed for OpenNeuro datasets ds000246 and ds000117
+  claim_id: c_476e0fd7
+  context: Task T016a specifies generating checksums for ds000246 and ds000117 and
+    writing them to the state file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHA256_checksums_computed_for_OpenNeuro_datasets_ds000246_an
+  kind: entity_fact
+  raw_text: The system computes SHA256 checksums for downloaded raw datasets ds000246
+    and ds000117.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:58:46Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Visual modality mean amplitude extracted within 150-350 ms window
+  claim_id: c_0d99dc26
+  context: "Task T030 specifies implementing mean amplitude extraction for the visual\
+    \ modality within the 150\u2013350 ms window."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean amplitude for the visual modality is extracted within the 150\u2013\
+    350 ms window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:59:18Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps spatial smoothing kernel sigma over 5, 10,
+    and 15 mm
+  claim_id: c_7b0041f0
+  context: Task T039 specifies implementing sensitivity analysis to sweep spatial
+    smoothing kernel sigma over {5, 10, 15} mm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps spatial smoothing kernel sigma over values
+    of 5, 10, and 15 mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T00:59:49Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: CI pipeline runs on ubuntu-latest
+  claim_id: c_0f3a0920
+  context: 'Task T036a defines the CI workflow with runs-on: ubuntu-latest.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_pipeline_runs_on_ubuntu-latest
+  kind: magnitude
+  raw_text: The CI pipeline is configured to run on ubuntu-latest.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T01:00:46Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Source overlap equivalence requires Dice coefficient greater than 0.6
+  claim_id: c_b9d480fd
+  context: Task T047 specifies that if TOST p < 0.05 AND Dice > 0.6, the report should
+    state 'Equivalence Supported'.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Source_overlap_equivalence_requires_Dice_coefficient_greater
+  kind: magnitude
+  raw_text: The source overlap logic uses a Dice coefficient threshold greater than
+    0.6 for equivalence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T01:04:10Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Latency classification threshold is 50 ms
+  claim_id: c_a73ba721
+  context: "Task T046 specifies checking |\u0394t| < 50ms for latency classification."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_classification_threshold_is_50_ms
+  kind: magnitude
+  raw_text: Latency classification checks if the absolute difference in latency is
+    less than 50 ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T01:04:58Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Dataset ds000246 used for auditory data and ds000117 for visual data
+  claim_id: c_7cb4cea1
+  context: Task T016a references ds000246 and ds000117 as the raw datasets for checksums,
+    and T018 references ds000117 for visual validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000246_used_for_auditory_data_and_ds000117_for_vis
+  kind: entity_fact
+  raw_text: The datasets ds000246 and ds000117 are used for auditory and visual data
+    respectively.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T01:05:32Z'

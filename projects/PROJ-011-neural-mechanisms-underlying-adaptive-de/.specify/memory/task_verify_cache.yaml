@@ -5,13 +5,6 @@ T013:
     existing `state/exclusions.yaml` is only a placeholder with no real exclusion
     data. Both the script implementation and the populated exclusions log are missing,
     so the task is not satisfied.
-T018b:
-  c: false
-  h: a63f9424f0d70143b1cfefb65ce0f465bac41fe4c8e4ad8cc53a4d536b528539
-  r: The provided `qc_reporter.py` is truncated (e.g., `assess_stability` ends abruptly
-    and there is no code that writes `qc_summary.json`). Moreover, the required output
-    file `data/reports/qc_summary.json` does not exist. The module does not fully
-    implement the calculation and reporting steps demanded by the task.
 T025b:
   c: false
   h: 181c3e467fc13575bfbe61a11a51b47d0c0aa0e64f94b9c22f046cd6686d407c
@@ -21,3 +14,10 @@ T025b:
     assertion logic. Moreover, the expected output file `data/models/convergence_report.json`
     is missing. The implementer must provide a complete, runnable script that creates
     the JSON report.
+T029:
+  c: false
+  h: 374dd4ca785a33d41548b406cc5fa5a30c49dd629ed4be1b68666c3ede796e42
+  r: The required artifact `tests/contract/test_glm_correlation.py` does not exist
+    in the repository, so the contract test for GLM correlation is missing. The task
+    cannot be considered completed until this file is added with appropriate test
+    code.

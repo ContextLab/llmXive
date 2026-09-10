@@ -65,6 +65,33 @@ SC002_COMPLIANCE_PATH = DATA_RESULTS_DIR / "sc002_compliance.json"
 FINAL_REPORT_PATH = DATA_RESULTS_DIR / "final_report.md"
 STATE_PROJECT_FILE = PROJECTS_DIR / "PROJ-779-cross-modal-comparison-of-neural-predict.yaml"
 
+# Real Data Policy Statement
+REAL_DATA_POLICY = """
+================================================================================
+REAL DATA POLICY
+================================================================================
+
+This project strictly adheres to the following data sourcing principles:
+
+1. ALL data must originate from OpenNeuro datasets (ds000246 for auditory,
+   ds000117 for visual).
+
+2. SYNTHETIC DATA GENERATION IS STRICTLY PROHIBITED. No code in this project
+   shall generate, mock, or simulate EEG data as a fallback or primary source.
+
+3. If real data cannot be fetched (network error, dataset unavailable,
+   validation failure), the pipeline MUST HALT immediately with a clear error
+   message. No silent fallback to synthetic data is permitted.
+
+4. All data validation (sampling rate ≥500 Hz, trial counts ≥100 oddball /
+   ≥300 standard) is enforced before any processing begins.
+
+5. This policy is enforced by Constitution Principle VII (Validation
+   Independence) and will be audited during execution.
+
+================================================================================
+"""
+
 def ensure_directories() -> None:
     """
     Create all necessary project directories if they do not exist.
@@ -98,6 +125,7 @@ def get_config() -> Dict[str, Any]:
         "bandpass_filter_params": BANDPASS_FILTER_PARAMS,
         "ica_rejection_criteria": ICA_REJECTION_CRITERIA,
         "random_seed": RANDOM_SEED,
+        "real_data_policy": REAL_DATA_POLICY,
         "output_paths": {
             "cleaned_data": str(CLEANED_DATA_PATH),
             "metrics_summary": str(METRICS_SUMMARY_PATH),

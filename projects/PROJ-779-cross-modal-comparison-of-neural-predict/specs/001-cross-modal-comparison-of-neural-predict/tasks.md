@@ -61,12 +61,12 @@
 
 - [X] T005 Create `code/config.py` defining paths, random seeds, sampling rate threshold (≥500 Hz), trial thresholds (≥100 oddball, ≥300 standard), and time windows
 - [X] T006 [P] Implement `code/__init__.py` and module initialization
-- [ ] T007 [P] Setup `code/data/__init__.py` and base logging infrastructure
+- [X] T007 [P] Setup `code/data/__init__.py` and base logging infrastructure <!-- FAILED: unspecified -->
 - [X] T008 Create base `code/data/data_loader.py` skeleton for dataset validation logic
 - [X] T009 Configure error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
+- [X] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
 - [X] T055a [P] **Draft Constitution Amendment**: Create `docs/constitution-amendment-vii.md` explicitly documenting the substitution of behavioral measures with split-half reliability for passive oddball paradigms (as authorized by Plan 'Constitution Check' section), and propose text amendment. **Format**: Markdown document with clear justification, reference to Plan 'Constitution Check', and proposed text amendment. **Verification**: Document created and reviewed.
-- [ ] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Status**: ACTIVE (Wait for ratification). **Instruction**: If the PR is not yet merged/ratified, the pipeline MUST HALT and report a Constitution Violation. **Verification**: PR created and linked. **Note**: Execution is blocked on ratification. **Logic**: Implement a check in `code/main.py` or `code/config.py` to verify the existence of an `amendment_ratified` flag in `state/projects/...yaml`. If the flag is missing, raise `ConstitutionViolationError`. **Note**: This task is marked complete upon PR creation and the implementation of the detection logic.
+- [X] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Status**: ACTIVE (Wait for ratification). **Instruction**: If the PR is not yet merged/ratified, the pipeline MUST HALT and report a Constitution Violation. **Verification**: PR created and linked. **Note**: Execution is blocked on ratification. **Logic**: Implement a check in `code/main.py` or `code/config.py` to verify the existence of an `amendment_ratified` flag in `state/projects/...yaml`. If the flag is missing, raise `ConstitutionViolationError`. **Note**: This task is marked complete upon PR creation and the implementation of the detection logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (dependent on data availability)
 

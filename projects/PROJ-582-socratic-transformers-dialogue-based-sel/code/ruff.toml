@@ -1,32 +1,69 @@
 # Ruff configuration for Socratic Transformers project
+# Extends settings from pyproject.toml but provides explicit overrides
+
+line-length = 88
 target-version = "py39"
-line-length = 100
+
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    ".eggs",
+    "venv",
+    ".venv"
+]
 
 [lint]
+# Enable specific rule sets
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "ARG",  # flake8-unused-arguments
+    "PTH"   # flake8-use-pathlib
 ]
+
+# Ignore specific rules that conflict with project style or are too strict
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501",  # Line too long (black handles this)
+    "W291",  # Trailing whitespace
+    "B904",  # Within an except clause, raise exceptions with raise ... from err
+    "ARG002" # Unused method argument (sometimes needed for API compatibility)
 ]
+
+# Per-file ignores
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ARG001"]  # Allow assert in tests, unused args in fixtures
+"src/utils/config.py" = ["ARG001"] # Config often has unused args for extensibility
 
 [lint.isort]
-known-first-party = ["src", "tests"]
-force-to-top = ["src"]
+known-first-party = ["src"]
+known-third-party = [
+    "datasets",
+    "nltk",
+    "pandas",
+    "peft",
+    "pytest",
+    "scikit_learn",
+    "tokenizers",
+    "transformers",
+    "bitsandbytes",
+    "psutil"
+]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+force-single-line = false
+lines-after-imports = 2
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101", "ARG"]
+[lint.pydocstyle]
+convention = "google"
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true

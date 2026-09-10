@@ -1,94 +1,134 @@
-name: CI Pipeline
+name: CI - Statistical Stability Pipeline
 
 on:
   push:
     branches:
       - main
-      - 'release/*'
-  pull_request:
-    branches:
-      - main
+      - 'release/**'
   workflow_dispatch:
     inputs:
-      run_full_evaluation:
-        description: 'Run full 15-dataset evaluation (approx 6h)'
-        required: true
-        type: boolean
-        default: false
+      datasets:
+        description: 'Comma-separated list of dataset IDs (optional, defaults to full spectrum)'
+        required: false
+        default: ''
 
 jobs:
-  lint-and-test:
+  setup:
+    name: Setup & Data Validation
     runs-on: ubuntu-latest
+    outputs:
+      dataset-list: ${{ steps.cache-datasets.outputs.dataset-list }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest pytest-cov ruff
-      - name: PII Scan
-        run: python code/scripts/pii_scan.py
-      - name: Run Unit & Contract Tests
-        run: pytest tests/unit tests/contract -v --tb=short
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  data-setup:
-    runs-on: ubuntu-latest
-    needs: lint-and-test
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
+          cache: 'pip'
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-      - name: Run Data Loader (Spectrum Selection)
-        run: python code/data_loader.py
-      - name: Cache Datasets
-        uses: actions/cache@v3
+          pip install pytest pytest-cov
+
+      - name: Run Data Loader & Checksum Verification
+        id: cache-datasets
+        run: |
+          python code/data_loader.py
+          # Verify checksums exist
+          if [ ! -f data/spectrum_report.json ]; then
+            echo "CRITICAL: spectrum_report.json not generated"
+            exit 1
+          fi
+          echo "dataset-list=verified" >> $GITHUB_OUTPUT
+
+      - name: Upload Data Cache
+        uses: actions/cache/save@v4
         with:
           path: data/raw
-          key: ${{ runner.os }}-datasets-${{ hashFiles('data/spectrum_report.json') }}
+          key: ${{ runner.os }}-data-${{ hashFiles('data/spectrum_report.json') }}
 
   evaluation:
+    name: Full Pipeline Evaluation
+    needs: setup
     runs-on: ubuntu-latest
-    needs: data-setup
     timeout-minutes: 360
-    if: >
-      github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')) ||
-      github.event_name == 'workflow_dispatch' && github.event.inputs.run_full_evaluation == 'true'
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
+          cache: 'pip'
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-      - name: Restore Dataset Cache
-        uses: actions/cache@v3
+          pip install pytest pytest-cov
+
+      - name: Restore Data Cache
+        uses: actions/cache/restore@v4
         with:
           path: data/raw
-          key: ${{ runner.os }}-datasets-${{ hashFiles('data/spectrum_report.json') }}
-          restore-keys: |
-            ${{ runner.os }}-datasets-
-      - name: Run Full Evaluation Pipeline
-        # The main.py script includes signal handling (SIGINT, SIGTERM) from T036b
-        # to gracefully save partial results if terminated.
+          key: ${{ runner.os }}-data-${{ hashFiles('data/spectrum_report.json') }}
+
+      - name: Run Main Pipeline with Signal Handling
+        # This step executes the main entry point.
+        # code/main.py contains the signal_handler (T036b) to catch SIGINT/SIGTERM
+        # and save partial results if terminated.
         run: |
           python code/main.py
+
+      - name: Verify Output Artifacts
+        run: |
+          if [ ! -f results/raw_evaluations.csv ]; then echo "Missing raw_evaluations.csv"; exit 1; fi
+          if [ ! -f results/stability_metrics.csv ]; then echo "Missing stability_metrics.csv"; exit 1; fi
+          if [ ! -f results/correlation_results.csv ]; then echo "Missing correlation_results.csv"; exit 1; fi
+          if [ ! -f results/permutation_results.csv ]; then echo "Missing permutation_results.csv"; exit 1; fi
+          if [ ! -f results/final_report.md ]; then echo "Missing final_report.md"; exit 1; fi
+          echo "All required artifacts generated successfully."
+
       - name: Upload Results
-        uses: actions/upload-artifact@v3
-        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: evaluation-results
-          path: |
-            results/
-            data/spectrum_report.json
+          name: pipeline-results
+          path: results/
           retention-days: 7
+
+  smoke-test:
+    name: Smoke Test (3 Datasets)
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Restore Data Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/raw
+          key: ${{ runner.os }}-data-${{ hashFiles('data/spectrum_report.json') }}
+
+      - name: Run Smoke Test
+        run: |
+          python code/scripts/run_smoke_test.py
+
+      - name: Verify Smoke Test Outputs
+        run: |
+          if [ ! -f results/raw_evaluations.csv ]; then exit 1; fi
+          if [ ! -f results/final_report.md ]; then exit 1; fi

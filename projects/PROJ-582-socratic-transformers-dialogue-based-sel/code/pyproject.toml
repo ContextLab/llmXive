@@ -3,12 +3,11 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "socratic-transformers"
+name = "socratic-transformers-dialogue-based-sel"
 version = "0.1.0"
-description = "Dialogue-Based Selection on Belief using Socratic Transformers"
+description = "Socratic Transformers: Dialogue-Based Selection on Belief"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
 dependencies = [
     "transformers",
     "peft",
@@ -19,19 +18,57 @@ dependencies = [
     "pytest",
     "tokenizers",
     "nltk",
-    "psutil",
-    "ruff",
-    "black",
+    "psutil"
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*"]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "black",
-    "pytest",
-    "pytest-cov",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0"
 ]
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info"
+]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "W291"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
+
+[tool.isort]
+profile = "black"
+line_length = 88

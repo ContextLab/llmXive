@@ -1,105 +1,240 @@
 """
 Metric utility for standard accuracy and loss calculations.
+Implements evaluation metrics for the Socratic Transformers pipeline.
 """
 
 import math
 from typing import List, Optional, Tuple, Union
+
 import torch
 from transformers import PreTrainedModel, PreTrainedTokenizer
 
+
 class MetricCalculator:
-    """Calculates various metrics for model evaluation."""
+    """
+    Calculator for various evaluation metrics including accuracy, loss,
+    and specialized metrics for the Socratic dialogue evaluation.
+    """
 
-    def __init__(self, model: PreTrainedModel, tokenizer: PreTrainedTokenizer):
-        self.model = model
-        self.tokenizer = tokenizer
-        self.model.eval()
-
-    def compute_accuracy(self, predictions: List[int], labels: List[int]) -> float:
+    def __init__(
+        self,
+        model: Optional[PreTrainedModel] = None,
+        tokenizer: Optional[PreTrainedTokenizer] = None
+    ):
         """
-        Computes accuracy given predicted and true token IDs.
+        Initialize the MetricCalculator.
 
         Args:
-            predictions: List of predicted token IDs.
-            labels: List of true token IDs.
+            model: The transformer model for generating predictions or computing loss.
+            tokenizer: The tokenizer for processing text inputs.
+        """
+        self.model = model
+        self.tokenizer = tokenizer
+
+    def compute_accuracy(
+        self,
+        predictions: Union[List[int], torch.Tensor],
+        labels: Union[List[int], torch.Tensor]
+    ) -> float:
+        """
+        Compute standard token-level accuracy.
+
+        Args:
+            predictions: Model predictions (logits or token IDs).
+            labels: Ground truth token IDs.
 
         Returns:
-            Accuracy score.
+            Accuracy as a float between 0 and 1.
         """
-        if len(predictions) != len(labels):
-            raise ValueError("Predictions and labels must be of the same length.")
-        
-        if not predictions:
+        if isinstance(predictions, torch.Tensor):
+            if predictions.dim() > 1:
+                # If logits, take argmax
+                pred_ids = predictions.argmax(dim=-1)
+            else:
+                pred_ids = predictions
+        else:
+            pred_ids = torch.tensor(predictions)
+
+        if isinstance(labels, torch.Tensor):
+            label_ids = labels
+        else:
+            label_ids = torch.tensor(labels)
+
+        # Align lengths
+        min_len = min(len(pred_ids), len(label_ids))
+        pred_ids = pred_ids[:min_len]
+        label_ids = label_ids[:min_len]
+
+        correct = (pred_ids == label_ids).sum().item()
+        total = min_len
+
+        if total == 0:
             return 0.0
 
-        correct = sum(p == l for p, l in zip(predictions, labels))
-        return correct / len(predictions)
+        return correct / total
 
-    def compute_loss(self, input_ids: torch.Tensor, labels: torch.Tensor) -> float:
+    def compute_loss(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        labels: Optional[torch.Tensor] = None
+    ) -> float:
         """
-        Computes the loss for a given batch.
+        Compute model loss (cross-entropy) for a batch.
 
         Args:
             input_ids: Input token IDs.
-            labels: Target token IDs.
+            attention_mask: Attention mask.
+            labels: Optional labels for loss computation. If None, uses input_ids shifted.
 
         Returns:
-            The computed loss.
+            Loss value as a float.
         """
+        if self.model is None:
+            raise ValueError("Model must be provided to compute loss.")
+
         with torch.no_grad():
-            outputs = self.model(input_ids=input_ids, labels=labels)
-            return outputs.loss.item()
+            outputs = self.model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                labels=labels
+            )
+            loss = outputs.loss
+
+        return loss.item()
+
+    def compute_perplexity(self, loss: float) -> float:
+        """
+        Compute perplexity from loss.
+
+        Args:
+            loss: Cross-entropy loss value.
+
+        Returns:
+            Perplexity (exp(loss)).
+        """
+        return math.exp(loss)
+
+    def compute_exact_match(
+        self,
+        predictions: List[str],
+        references: List[str]
+    ) -> float:
+        """
+        Compute exact match accuracy for string outputs.
+
+        Args:
+            predictions: List of predicted strings.
+            references: List of reference strings.
+
+        Returns:
+            Exact match ratio.
+        """
+        if len(predictions) != len(references):
+            raise ValueError("Predictions and references must have same length.")
+
+        if len(predictions) == 0:
+            return 0.0
+
+        matches = sum(1 for p, r in zip(predictions, references) if p.strip() == r.strip())
+        return matches / len(predictions)
 
 def compute_prediction_error_proxy(
     model: PreTrainedModel,
     tokenizer: PreTrainedTokenizer,
     question: str,
-    answer: str
+    expected_answer: str
 ) -> float:
     """
-    Computes a proxy for prediction error by evaluating the likelihood of the answer.
+    Compute a proxy for prediction error by comparing model output to expected answer.
+
+    This function generates an answer from the model and computes a simple
+    error metric based on token overlap and length difference.
 
     Args:
-        model: The model.
+        model: The transformer model.
         tokenizer: The tokenizer.
-        question: The question string.
-        answer: The answer string.
+        question: The input question.
+        expected_answer: The expected answer string.
 
     Returns:
-        A proxy error score (negative log likelihood).
+        A proxy error score (lower is better).
     """
-    prompt = f"Question: {question}\nAnswer: {answer}"
-    inputs = tokenizer(prompt, return_tensors="pt")
-    
+    inputs = tokenizer(question, return_tensors="pt", truncation=True, max_length=512)
+
     with torch.no_grad():
-        outputs = model(**inputs, labels=inputs['input_ids'])
-        loss = outputs.loss.item()
-    
-    return loss
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=128,
+            do_sample=False,
+            pad_token_id=tokenizer.eos_token_id
+        )
+
+    # Decode the generated answer
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # Simple error proxy: 1 - (overlap / max_length)
+    gen_tokens = set(generated_text.split())
+    exp_tokens = set(expected_answer.split())
+
+    if len(gen_tokens) == 0 or len(exp_tokens) == 0:
+        return 1.0
+
+    overlap = len(gen_tokens.intersection(exp_tokens))
+    max_tokens = max(len(gen_tokens), len(exp_tokens))
+
+    return 1.0 - (overlap / max_tokens)
 
 def compute_calibration_error(
-    predicted_probs: List[float],
-    actual_outcomes: List[bool]
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizer,
+    question: str,
+    num_samples: int = 5
 ) -> float:
     """
-    Computes the calibration error (Brier score variant).
+    Compute a proxy for calibration error by measuring variance in log-probabilities
+    across multiple samples.
 
     Args:
-        predicted_probs: List of predicted probabilities.
-        actual_outcomes: List of boolean outcomes.
+        model: The transformer model.
+        tokenizer: The tokenizer.
+        question: The input question.
+        num_samples: Number of samples to generate.
 
     Returns:
-        The calibration error.
+        Average log-probability variance as a calibration error proxy.
     """
-    if len(predicted_probs) != len(actual_outcomes):
-        raise ValueError("Lengths must match.")
-    
-    total_error = 0.0
-    for p, actual in zip(predicted_probs, actual_outcomes):
-        actual_val = 1.0 if actual else 0.0
-        total_error += (p - actual_val) ** 2
-    
-    return total_error / len(predicted_probs)
+    inputs = tokenizer(question, return_tensors="pt", truncation=True, max_length=512)
+
+    log_probs = []
+
+    with torch.no_grad():
+        for _ in range(num_samples):
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=64,
+                do_sample=True,
+                temperature=0.7,
+                pad_token_id=tokenizer.eos_token_id,
+                return_dict_in_generate=True,
+                output_scores=True
+            )
+
+            # Extract scores (logits) and convert to log probs
+            scores = outputs.scores
+            if len(scores) > 0:
+                # Average log prob across generated tokens
+                avg_log_prob = torch.stack(scores).mean().item()
+                log_probs.append(avg_log_prob)
+
+    if len(log_probs) < 2:
+        return 0.0
+
+    # Variance as calibration proxy
+    mean_lp = sum(log_probs) / len(log_probs)
+    variance = sum((lp - mean_lp) ** 2 for lp in log_probs) / len(log_probs)
+
+    return variance
 
 def compute_ngram_overlap(
     text1: str,
@@ -107,7 +242,7 @@ def compute_ngram_overlap(
     n: int = 2
 ) -> float:
     """
-    Computes the n-gram overlap (Jaccard similarity) between two texts.
+    Compute n-gram overlap (Jaccard similarity) between two texts.
 
     Args:
         text1: First text.
@@ -115,26 +250,24 @@ def compute_ngram_overlap(
         n: N-gram size.
 
     Returns:
-        Jaccard similarity score.
+        Jaccard similarity score between 0 and 1.
     """
-    def get_ngrams(text, n):
-        words = text.lower().split()
-        return set([' '.join(words[i:i+n]) for i in range(len(words) - n + 1)])
+    def get_ngrams(text: str, n: int) -> set:
+        tokens = text.lower().split()
+        if len(tokens) < n:
+            return set()
+        return set(
+            ' '.join(tokens[i:i+n])
+            for i in range(len(tokens) - n + 1)
+        )
 
     ngrams1 = get_ngrams(text1, n)
     ngrams2 = get_ngrams(text2, n)
 
-    if not ngrams1 or not ngrams2:
+    if len(ngrams1) == 0 or len(ngrams2) == 0:
         return 0.0
 
     intersection = ngrams1.intersection(ngrams2)
     union = ngrams1.union(ngrams2)
 
     return len(intersection) / len(union)
-
-def main():
-    """Test the metrics utility."""
-    print("Metrics utility initialized.")
-
-if __name__ == "__main__":
-    main()

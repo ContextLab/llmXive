@@ -1,7 +1,6 @@
 """
-Structured logging utility for Socratic Transformers project.
-
-Handles degenerate dialogue events as JSON lines following the schema:
+Structured logging utility for degenerate dialogue events.
+Handles events as JSON lines following the schema:
 {"event_type": str, "timestamp": str, "details": dict}
 """
 
@@ -13,190 +12,200 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Ensure the src directory is in the path for imports when running scripts
-# This handles cases where the script is run from the project root or code directory
-if "code" in os.getcwd():
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-else:
-    # Fallback for relative imports if run from within the code directory structure
-    parent = Path(__file__).resolve().parent.parent
-    if str(parent) not in sys.path:
-        sys.path.insert(0, str(parent))
+# Ensure src is in path for imports when running from project root
+# This is a safeguard; proper execution assumes correct PYTHONPATH
+_src_path = Path(__file__).resolve().parent.parent.parent
+if str(_src_path) not in sys.path:
+    sys.path.insert(0, str(_src_path))
 
 
 class SocraticJsonFormatter(logging.Formatter):
     """
-    Custom JSON formatter for structured logging.
-
-    Formats log records as JSON lines with the required schema:
+    Custom logging formatter that outputs log records as JSON lines.
+    Each log entry follows the schema:
     {
-      "event_type": str,
-      "timestamp": str (ISO 8601),
-      "details": dict (contains level, message, extra data)
+        "event_type": str,      # Log level name (e.g., 'INFO', 'ERROR')
+        "timestamp": str,        # ISO 8601 timestamp with timezone
+        "details": dict          # Contains message and extra fields
     }
     """
 
     def format(self, record: logging.LogRecord) -> str:
-        # Create the event structure
-        event = {
-            "event_type": record.levelname.lower(),
+        """
+        Format the log record as a JSON string.
+
+        Args:
+            record: The log record to format.
+
+        Returns:
+            A JSON string representing the log event.
+        """
+        event_data = {
+            "event_type": record.levelname,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "details": {
-                "message": record.getMessage(),
-                "logger": record.name,
-                "module": record.module,
-                "function": record.funcName,
-                "line": record.lineno,
-            }
+            "details": {}
         }
 
-        # Add any extra fields passed in the log call
+        # Add standard message
+        event_data["details"]["message"] = record.getMessage()
+
+        # Add extra fields if present
         if hasattr(record, "details") and isinstance(record.details, dict):
-            event["details"].update(record.details)
+            event_data["details"].update(record.details)
 
-        # Handle exception info if present
+        # Add exception info if present
         if record.exc_info:
-            event["details"]["exception"] = self.formatException(record.exc_info)
+            event_data["details"]["exception"] = self.formatException(record.exc_info)
 
-        return json.dumps(event)
+        return json.dumps(event_data)
 
 
 class SocraticLogger:
     """
-    Wrapper class to manage structured logging for the project.
-    Provides convenient methods for logging events with structured details.
+    Utility class to manage structured logging for the Socratic project.
+    Handles file initialization, logger configuration, and event logging.
     """
 
-    def __init__(self, name: str, log_file: Optional[Path] = None, level: int = logging.INFO):
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
-        self.logger.handlers = []  # Clear existing handlers to avoid duplicates
+    def __init__(self, name: str = "socratic_research", log_dir: Optional[str] = None):
+        """
+        Initialize the logger.
 
-        # Create console handler with JSON formatter
+        Args:
+            name: Name of the logger.
+            log_dir: Directory to store log files. Defaults to 'projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/data/logs'.
+        """
+        self.name = name
+        self.log_dir = log_dir or str(Path(__file__).resolve().parent.parent.parent / "data" / "logs")
+        self._logger = logging.getLogger(name)
+        self._logger.setLevel(logging.DEBUG)
+
+        # Prevent duplicate handlers if logger is re-initialized
+        if not self._logger.handlers:
+            self._setup_handlers()
+
+    def _setup_handlers(self) -> None:
+        """Configure file and console handlers with JSON formatting."""
+        os.makedirs(self.log_dir, exist_ok=True)
+        log_file = Path(self.log_dir) / f"{self.name}.jsonl"
+
+        # File handler for JSON lines
+        file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(SocraticJsonFormatter())
+
+        # Console handler for human-readable output (optional, but useful for debugging)
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(SocraticJsonFormatter())
-        self.logger.addHandler(console_handler)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
-        # Add file handler if log file is specified
-        if log_file:
-            # Ensure directory exists
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(SocraticJsonFormatter())
-            self.logger.addHandler(file_handler)
+        self._logger.addHandler(file_handler)
+        self._logger.addHandler(console_handler)
 
-    def log_event(self, event_type: str, message: str, details: Optional[Dict[str, Any]] = None, level: int = logging.INFO):
+    def log_event(self, event_type: str, message: str, details: Optional[Dict[str, Any]] = None, level: int = logging.INFO) -> None:
         """
         Log a structured event.
 
         Args:
-            event_type: Type of event (e.g., 'dialogue_event', 'critique_generated')
-            message: Human-readable message
-            details: Additional structured data to include
-            level: Logging level (INFO, WARNING, ERROR, etc.)
+            event_type: Type of event (e.g., 'DIALOGUE_GENERATION', 'CRITIQUE_APPLIED').
+            message: Human-readable message.
+            details: Additional dictionary data to include in the event.
+            level: Logging level (e.g., logging.INFO, logging.ERROR).
         """
         extra = {"details": details} if details else {}
-        self.logger.log(level, message, extra=extra)
+        self._logger.log(level, message, extra=extra)
 
-    def info(self, message: str, details: Optional[Dict[str, Any]] = None):
-        self.log_event("info", message, details, logging.INFO)
+    def get_logger(self) -> logging.Logger:
+        """
+        Return the underlying logging.Logger instance.
 
-    def warning(self, message: str, details: Optional[Dict[str, Any]] = None):
-        self.log_event("warning", message, details, logging.WARNING)
-
-    def error(self, message: str, details: Optional[Dict[str, Any]] = None):
-        self.log_event("error", message, details, logging.ERROR)
-
-    def debug(self, message: str, details: Optional[Dict[str, Any]] = None):
-        self.log_event("debug", message, details, logging.DEBUG)
+        Returns:
+            The configured logger.
+        """
+        return self._logger
 
 
-# Global logger instance (lazy initialization)
-_global_logger: Optional[SocraticLogger] = None
-
-
-def get_logger(
-    name: str = "socratic",
-    log_file: Optional[Path] = None,
-    level: int = logging.INFO
-) -> SocraticLogger:
+def get_logger(name: str = "socratic_research", log_dir: Optional[str] = None) -> SocraticLogger:
     """
-    Get or create a structured logger instance.
+    Convenience function to retrieve or create a SocraticLogger instance.
 
     Args:
-        name: Logger name
-        log_file: Optional path to log file
-        level: Logging level
+        name: Name of the logger.
+        log_dir: Directory for log files.
 
     Returns:
-        SocraticLogger instance
+        A configured SocraticLogger instance.
     """
-    global _global_logger
-    if _global_logger is None:
-        _global_logger = SocraticLogger(name, log_file, level)
-    return _global_logger
+    # Simple cache to avoid re-creating loggers with same name in same process
+    if not hasattr(get_logger, "_instances"):
+        get_logger._instances = {}
+
+    key = (name, log_dir)
+    if key not in get_logger._instances:
+        get_logger._instances[key] = SocraticLogger(name, log_dir)
+
+    return get_logger._instances[key]
 
 
-def log_event(
-    event_type: str,
-    message: str,
-    details: Optional[Dict[str, Any]] = None,
-    level: int = logging.INFO,
-    logger_name: str = "socratic"
-) -> None:
+def log_event(event_type: str, message: str, details: Optional[Dict[str, Any]] = None, level: int = logging.INFO, logger_name: str = "socratic_research") -> None:
     """
-    Convenience function to log a structured event.
+    Convenience function to log an event directly without managing the logger instance.
 
     Args:
-        event_type: Type of event
-        message: Message to log
-        details: Additional structured data
-        level: Logging level
-        logger_name: Name of the logger to use
+        event_type: Type of event.
+        message: Log message.
+        details: Additional data.
+        level: Logging level.
+        logger_name: Name of the logger to use.
     """
     logger = get_logger(logger_name)
     logger.log_event(event_type, message, details, level)
 
 
-def init_default_logger(
-    log_dir: Optional[Path] = None,
-    level: int = logging.INFO
-) -> SocraticLogger:
+def init_default_logger(log_dir: Optional[str] = None) -> SocraticLogger:
     """
-    Initialize the default logger with optional file output.
+    Initialize and return the default project logger.
 
     Args:
-        log_dir: Directory for log files (default: data/logs)
-        level: Logging level
+        log_dir: Optional override for log directory.
 
     Returns:
-        Initialized SocraticLogger
+        The default logger instance.
     """
-    if log_dir is None:
-        # Default to data/logs relative to project root
-        log_dir = Path("data/logs")
-
-    log_file = log_dir / "socratic_events.jsonl"
-    return get_logger("socratic", log_file, level)
+    return get_logger("socratic_research", log_dir)
 
 
-def main():
+def main() -> None:
     """
-    Demo function to test the logging utility.
+    Entry point for testing the logging utility directly.
+    Writes sample events to verify JSON structure.
     """
-    # Initialize logger
     logger = init_default_logger()
 
-    # Test logging various events
-    logger.info("System initialized", {"version": "1.0.0", "environment": "production"})
-    logger.warning("Low memory detected", {"available_mb": 512})
-    logger.error("Dialogue generation failed", {"error_code": "E001", "dialogue_id": "dlg_123"})
-    logger.debug("Processing step completed", {"step": "critique", "duration_ms": 150})
+    # Sample degenerate dialogue event
+    logger.log_event(
+        event_type="DIALOGUE_START",
+        message="Starting dialogue generation for sample ID 123",
+        details={"sample_id": 123, "source": "GSM8K", "timestamp": "2026-01-01T00:00:00Z"},
+        level=logging.INFO
+    )
 
-    # Test direct log_event function
-    log_event("dialogue_event", "New dialogue started", {"dialogue_id": "dlg_456", "participants": ["model", "critic"]})
+    # Sample degenerate event (rejection)
+    logger.log_event(
+        event_type="CRITIQUE_REJECTION",
+        message="Candidate answer rejected due to logical contradiction",
+        details={"reason": "contradiction", "candidate_index": 2, "error_phrase": "division by zero"},
+        level=logging.WARNING
+    )
 
-    print("Logging utility test completed. Check data/logs/socratic_events.jsonl for output.")
+    # Sample error event
+    logger.log_event(
+        event_type="MODEL_LOAD_ERROR",
+        message="Failed to load critic model",
+        details={"model_id": "small-critic-v1", "error": "Out of Memory"},
+        level=logging.ERROR
+    )
+
+    print("Logging test completed. Check data/logs/socratic_research.jsonl for output.")
 
 
 if __name__ == "__main__":

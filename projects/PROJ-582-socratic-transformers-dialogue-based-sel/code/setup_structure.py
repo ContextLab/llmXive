@@ -1,80 +1,71 @@
-"""
-Task T001: Initialize project directory structure.
-
-Creates the required directory hierarchy for the Socratic Transformers project
-and places .gitkeep files in data directories to ensure they are tracked by git.
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_directories():
-    """Create the project directory structure."""
-    # Define the root path for this specific project
-    project_root = Path("projects/PROJ-582-socratic-transformers-dialogue-based-sel/code")
+    """Create the required project directory structure."""
+    base_path = Path(__file__).parent / "projects" / "PROJ-582-socratic-transformers-dialogue-based-sel" / "code"
     
-    # Define subdirectories to create
-    subdirs = [
-        "src",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "tests"
+    # Define directories to create
+    directories = [
+        base_path / "src",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "tests",
     ]
     
-    created_paths = []
+    for dir_path in directories:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
     
-    for subdir in subdirs:
-        full_path = project_root / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(str(full_path))
-        print(f"Created directory: {full_path}")
-        
-        # Create .gitkeep in data directories
-        if subdir.startswith("data"):
-            gitkeep_path = full_path / ".gitkeep"
-            gitkeep_path.touch(exist_ok=True)
-            print(f"  -> Created .gitkeep in {full_path}")
+    # Create .gitkeep files in data directories
+    data_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+    ]
     
-    return created_paths
+    for data_dir in data_dirs:
+        gitkeep_path = data_dir / ".gitkeep"
+        gitkeep_path.write_text("# Placeholder to keep directory in version control\n")
+        print(f"Created .gitkeep in: {data_dir}")
 
 def verify_structure():
-    """Verify that the required directories exist."""
-    project_root = Path("projects/PROJ-582-socratic-transformers-dialogue-based-sel/code")
+    """Verify that all required directories exist."""
+    base_path = Path(__file__).parent / "projects" / "PROJ-582-socratic-transformers-dialogue-based-sel" / "code"
     
     required_dirs = [
-        project_root / "src",
-        project_root / "data/raw",
-        project_root / "data/processed",
-        project_root / "data/results",
-        project_root / "tests"
+        base_path / "src",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "tests",
     ]
     
-    all_exist = True
-    for dir_path in required_dirs:
-        if not dir_path.is_dir():
-            print(f"ERROR: Missing directory {dir_path}")
-            all_exist = False
-        else:
-            print(f"Verified: {dir_path}")
+    all_exist = all(dir_path.is_dir() for dir_path in required_dirs)
     
-    return all_exist
+    # Check for .gitkeep files
+    data_gitkeeps = [
+        base_path / "data" / "raw" / ".gitkeep",
+        base_path / "data" / "processed" / ".gitkeep",
+        base_path / "data" / "results" / ".gitkeep",
+    ]
+    
+    gitkeeps_exist = all(gitkeep_path.is_file() for gitkeep_path in data_gitkeeps)
+    
+    return all_exist and gitkeeps_exist
 
 def main():
-    """Main entry point for the script."""
-    print("Initializing project directory structure for PROJ-582...")
+    """Main entry point for setup script."""
+    print("Initializing project directory structure...")
+    create_directories()
     
-    # Create directories
-    created = create_directories()
-    print(f"\nSuccessfully created {len(created)} directories.")
-    
-    # Verify structure
-    print("\nVerifying structure...")
     if verify_structure():
-        print("\n✅ All directories verified successfully.")
+        print("Project structure initialized successfully.")
         return 0
     else:
-        print("\n❌ Verification failed. Some directories are missing.")
+        print("Error: Failed to verify project structure.")
         return 1
 
 if __name__ == "__main__":
