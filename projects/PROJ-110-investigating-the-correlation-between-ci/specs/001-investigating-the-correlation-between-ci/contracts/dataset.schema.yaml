@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "GTEx Dataset Schema"
-description: "Schema for the raw and processed GTEx dataset used in the circadian-metabolic correlation study."
+description: "Schema for the raw and processed GTEx dataset used in the circadian‑metabolic correlation study."
 type: "object"
 properties:
   donor_id:
@@ -27,7 +27,7 @@ properties:
     description: "Triglycerides (mg/dL)."
   hdl:
     type: "number"
-    description: "High-Density Lipoprotein (mg/dL)."
+    description: "High‑Density Lipoprotein (mg/dL)."
   systolic_bp:
     type: "number"
     description: "Systolic blood pressure (mmHg)."
@@ -36,7 +36,7 @@ properties:
     description: "Diastolic blood pressure (mmHg)."
   pmi:
     type: "number"
-    description: "Post-Mortem Interval (hours)."
+    description: "Post‑Mortem Interval (hours)."
   time_of_death:
     type: "string"
     description: "Time of death (HH:MM)."
@@ -52,12 +52,12 @@ properties:
   metabolic_status:
     type: "string"
     enum: ["MetS", "Control"]
-    description: "Classification based on ATP-III criteria."
+    description: "Classification based on ATP‑III criteria."
   criteria_count:
     type: "integer"
     minimum: 0
     maximum: 5
-    description: "Number of ATP-III criteria met."
+    description: "Number of ATP‑III criteria met."
 required:
   - donor_id
   - age

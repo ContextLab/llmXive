@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Metabolic Syndrome Classification Schema"
-description: "Schema for the output of the ATP-III classification step."
+description: "Schema for the output of the ATP‑III classification step."
 type: object
 properties:
   sample_id:
@@ -10,7 +10,7 @@ properties:
     type: integer
     minimum: 0
     maximum: 5
-    description: "Number of ATP-III criteria met (0-5)"
+    description: "Number of ATP‑III criteria met (none to all)"
   metabolic_status:
     type: string
     enum: ["MetS", "Control", "Excluded"]
@@ -27,4 +27,5 @@ required:
   - criteria_met
   - metabolic_status
   - validation_status
+  - exclusion_reason
 additionalProperties: false

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Differential Expression Results"
+type: object
+required:
+  - tissue
+  - gene_symbol
+  - n_mets
+  - n_control
+  - wilcoxon_stat
+  - p_value_raw
+  - p_value_adj
+  - effect_size_cliffs_delta
+  - significance
+properties:
+  tissue:
+    type: string
+    description: "Tissue name"
+  gene_symbol:
+    type: string
+    description: "Core circadian gene symbol"
+  n_mets:
+    type: integer
+    minimum: 0
+    description: "Number of MetS donors in this tissue"
+  n_control:
+    type: integer
+    minimum: 0
+    description: "Number of Control donors in this tissue"
+  wilcoxon_stat:
+    type: number
+    description: "Mann‑Whitney U statistic"
+  p_value_raw:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Two‑sided raw p‑value"
+  p_value_adj:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg adjusted p‑value"
+  effect_size_cliffs_delta:
+    type: number
+    description: "Cliff’s Δ effect size"
+  significance:
+    type: boolean
+    description: "True if adjusted p‑value < 0.05"

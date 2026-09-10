@@ -1,0 +1,111 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Logistic Regression Summary"
+type: object
+required:
+  - model_type
+  - cv_folds
+  - auc_mean
+  - auc_ci95
+  - predictors
+  - covariates
+properties:
+  model_type:
+    type: string
+    enum: ["logistic_regression"]
+    description: "Model identifier"
+  cv_folds:
+    type: integer
+    minimum: 2
+    description: "Number of cross‑validation folds"
+  auc_mean:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mean AUC across folds"
+  auc_ci95:
+    type: string
+    description: "95 % confidence interval string, e.g., \"0.71–0.78\""
+  predictors:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+        - odds_ratio
+        - std_error
+        - p_value
+        - vif
+      properties:
+        name:
+          type: string
+          description: "Predictor variable name (e.g., log2_tpm_PER1)"
+        odds_ratio:
+          type: number
+          description: "Exponentiated coefficient"
+        std_error:
+          type: number
+          description: "Standard error of coefficient"
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Wald test p‑value"
+        vif:
+          type: number
+          description: "Variance Inflation Factor"
+  covariates:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+        - odds_ratio
+        - std_error
+        - p_value
+        - vif
+      properties:
+        name:
+          type: string
+        odds_ratio:
+          type: number
+        std_error:
+          type: number
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        vif:
+          type: number
+  severity_score_model:
+    type: object
+    description: "Linear regression model using the continuous ATP‑III severity score"
+    required:
+      - r_squared
+      - coefficients
+    properties:
+      r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Coefficient of determination"
+      coefficients:
+        type: object
+        description: "Mapping predictor → coefficient details"
+        additionalProperties:
+          type: object
+          required:
+            - name
+            - estimate
+            - std_error
+            - p_value
+          properties:
+            name:
+              type: string
+            estimate:
+              type: number
+            std_error:
+              type: number
+            p_value:
+              type: number
+              minimum: 0
+              maximum: 1

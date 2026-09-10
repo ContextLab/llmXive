@@ -1,82 +1,98 @@
 # Data Model: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
 
 ## Overview
+All intermediate and final artifacts are stored as CSV or Parquet files under `data/processed/`. The schema definitions below are used by contract tests to guarantee structural integrity.
 
-This document defines the data entities, relationships, and schemas used in the project. It ensures that all data transformations are traceable and that the data flow adheres to the project constitution (Principle III: Data Hygiene, Principle IV: Single Source of Truth).
+### 1. `donors.parquet`
+| Column | Type | Description |
+|--------|------|-------------|
+| `donor_id` | string | Unique MESA or GTEx donor identifier |
+| `age` | int | Age at blood draw (MESA) or at death (GTEx) (years) |
+| `sex` | string (`"M"`/`"F"`) | Biological sex |
+| `tissue` | string | Tissue name (`"Blood"` for MESA; GTEx tissue ontology for GTEx) |
+| `pmi` | float | Post‑mortem interval (hours) – GTEx only |
+| `time_of_death` | float | Clock time of death (hours, 0‑24) – GTEx only |
+| `batch` | string | Sequencing batch identifier (if available) |
+| `bmi` | float | Body mass index (kg/m²) |
+| `fasting_glucose` | float | Fasting glucose (mg/dL) |
+| `sbp` | float | Systolic blood pressure (mmHg) |
+| `dbp` | float | Diastolic blood pressure (mmHg) |
+| `triglycerides` | float | Triglycerides (mg/dL) |
+| `hdl` | float | HDL cholesterol (mg/dL) |
+| `metabolic_status` | string (`"MetS"`/`"Control"`/`"Exploratory"`) | ATP‑III classification (MESA) or `"Exploratory"` for GTEx (no label) |
+| `criteria_count` | int (0‑5) | Number of ATP‑III criteria met |
+| `study_status` | string (`"exploratory"`/`"full"`) | Set after power analysis |
 
-## Entities
+### 2. `expression.parquet`
+| Column | Type | Description |
+|--------|------|-------------|
+| `donor_id` | string | Foreign key to `donors` |
+| `gene` | string | Gene symbol (core circadian list) |
+| `tpm` | float | Transcripts per million (raw) |
+| `log_tpm` | float | `log2(tpm + 1)` for modeling |
 
-### 1. Donor
-Represents a human subject from the GTEx dataset.
-- **Attributes**:
-  - `donor_id` (str): Unique identifier.
-  - `age` (int): Age at death.
-  - `sex` (str): 'M' or 'F'.
-  - `tissue` (str): Tissue source (e.g., 'Liver', 'Adipose').
-  - `bmi` (float): Body Mass Index.
-  - `fasting_glucose` (float): mg/dL.
-  - `triglycerides` (float): mg/dL.
-  - `hdl` (float): mg/dL.
-  - `systolic_bp` (float): mmHg.
-  - `diastolic_bp` (float): mmHg.
-  - `pmi` (float): Post-Mortem Interval (hours).
-  - `time_of_death` (str): Time of death (HH:MM).
-  - `metabolic_status` (str): 'MetS' or 'Control' (derived).
-  - `criteria_count` (int): 0-5 (number of ATP-III criteria met).
-  - `exclusion_reason` (str): If excluded, reason (e.g., 'missing_glucose').
+### 3. `de_results.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `gene` | string | Core circadian gene |
+| `tissue` | string | Tissue name |
+| `beta` | float | Hierarchical ANCOVA coefficient for MetS |
+| `ci_lower` | float | 95 % CI lower bound |
+| `ci_upper` | float | 95 % CI upper bound |
+| `p_value` | float | Raw p‑value |
+| `adj_p_value` | float | BH‑adjusted p‑value |
+| `significant` | bool | `true` if `adj_p_value < 0.05` |
 
-### 2. GeneExpression
-Represents transcript abundance for a specific gene in a donor's tissue.
-- **Attributes**:
-  - `donor_id` (str): FK to Donor.
-  - `gene_symbol` (str): e.g., 'PER1', 'BMAL1'.
-  - `tissue` (str): FK to Donor.tissue.
-  - `tpm` (float): Transcripts Per Million.
-  - `log_tpm` (float): log2(TPM + 1) (derived).
+### 4. `correlation_results.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `gene` | string | Core circadian gene |
+| `trait` | string | One of `bmi`, `fasting_glucose`, `sbp`, `dbp`, `triglycerides`, `hdl` |
+| `rho` | float | Spearman (or Pearson) correlation coefficient |
+| `p_value` | float | Raw p‑value |
+| `adj_p_value` | float | BH‑adjusted p‑value |
+| `significant` | bool | `true` if `adj_p_value < 0.05` |
+| `model_beta` | float | Fixed‑effect estimate from mixed‑effects model |
+| `model_ci_lower` | float | 95 % CI lower bound |
+| `model_ci_upper` | float | 95 % CI upper bound |
 
-### 3. AnalysisResult
-Stores the output of statistical tests.
-- **Attributes**:
-  - `gene_symbol` (str).
-  - `tissue` (str).
-  - `test_type` (str): 'wilcoxon', 'logistic_regression', 'correlation'.
-  - `statistic` (float): Test statistic (e.g., W, Z, beta).
-  - `p_value` (float): Raw p-value.
-  - `adj_p_value` (float): FDR-adjusted p-value.
-  - `effect_size` (float): e.g., Odds Ratio, Correlation coefficient.
-  - `significant` (bool): True if adj_p_value < 0.05.
+### 5. `logistic_model_coefficients.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `feature` | string | Predictor name (`gene_PER1`, `age`, `sex_F`, …) |
+| `odds_ratio` | float | Exponentiated coefficient |
+| `ci_lower` | float | 95 % CI lower bound |
+| `ci_upper` | float | 95 % CI upper bound |
+| `p_value` | float | Wald test p‑value |
+| `vif` | float | Variance Inflation Factor (≥ 5 flagged) |
 
-## Data Flow
+### 6. `auxiliary_traits_coefficients.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `trait` | string | Clinical trait name |
+| `odds_ratio` | float | Exponentiated coefficient from traits‑only model |
+| `ci_lower` | float | 95 % CI lower bound |
+| `ci_upper` | float | 95 % CI upper bound |
+| `p_value` | float | Wald test p‑value |
 
-```mermaid
-graph TD
-    A[Raw GTEx Data] -->|Stream & Parse| B(Cleaned Donor Table)
-    B -->|Filter Missing| C{Complete Cases?}
-    C -->|No| D[Log Exclusion]
-    C -->|Yes| E[Classify MetS]
-    E --> F[MetS Labels]
-    A -->|Stream & Parse| G[Gene Expression Matrix]
-    F --> H[Join Donor + Expression]
-    H --> I[Statistical Analysis]
-    I --> J[Results Table]
-    J --> K[Visualization]
-    J --> L[Report Generation]
-```
+### 7. `cv_performance.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `fold` | int | CV fold index (1‑5) |
+| `auc` | float | Area Under ROC curve |
+| `auc_ci_lower` | float | 95 % CI lower bound (bootstrapped) |
+| `auc_ci_upper` | float | 95 % CI upper bound |
+| `delta_auc_vs_random` | float | `auc - 0.5` |
 
-## File Structure
+### 8. `validation_results.csv` (MESA Blood)
+| Column | Type | Description |
+|--------|------|-------------|
+| `metric` | string | `gene_overlap`, `auc_difference` |
+| `value` | float | Numeric result |
+| `p_value` | float | Significance test result |
+| `pass` | bool | Whether the metric meets the replication threshold (FR‑010) |
 
-| File Path | Purpose | Schema |
-| :--- | :--- | :--- |
-| `data/raw/gtex_raw.parquet` | Raw downloaded data (immutable) | `contracts/dataset.schema.yaml` |
-| `data/processed/donors_clean.csv` | Cleaned donor data with classifications | `contracts/dataset.schema.yaml` |
-| `data/processed/baseline_labels.csv` | Binary MetS labels and criteria counts | `contracts/output.schema.yaml` |
-| `data/processed/gene_expression.csv` | Log-transformed expression matrix | `contracts/dataset.schema.yaml` |
-| `data/processed/statistical_results.csv` | P-values, FDR, Odds Ratios | `contracts/output.schema.yaml` |
-| `data/processed/model_metrics.json` | AUC, CV scores | `contracts/output.schema.yaml` |
+All files are version‑controlled via git LFS pointers if > 100 MB; otherwise stored directly under `data/processed/`.
 
-## Constraints
+---
 
-- **Immutability**: Raw data files are never modified.
-- **Checksums**: All files in `data/` are checksummed (SHA-256) and recorded in `state/`.
-- **PII**: No personally identifying information is stored. `donor_id` is an anonymized GTEx ID.
-- **Missing Data**: Samples with missing clinical variables are excluded, not imputed.

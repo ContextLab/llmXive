@@ -1653,3 +1653,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-10T14:29:21Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1, PER2, PER3, CRY1, CRY2, BMAL1,
+    CLOCK, NR1D1, RORA
+  claim_id: c_9f4c5e69
+  context: Phase 2 foundational task T012 defines the constant CORE_CIRCADIAN_GENES
+    with the listed genes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1,_PER2,_PER3,_CRY1,_CR
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: PER1 (Wikidata Q15326762,\
+    \ https://www.wikidata.org/wiki/Q15326762), PER2, PER3, CRY1, CRY2, BMAL1 (ARNTL),\
+    \ CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:41:55Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: GTEx v8 dataset required columns include bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death
+  claim_id: c_ddfa8ce1
+  context: Phase 0 task T009a inspects the GTEx v8 schema to verify these columns
+    exist before download.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GTEx_v8_dataset_required_columns_include_bmi,_fasting_glucos
+  kind: entity_fact
+  raw_text: 'Check for the presence of required columns: bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:42:28Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: random classifier baseline AUC is 0.5
+  claim_id: c_b191c48b
+  context: Reporting task T059 states that the baseline AUC for a random classifier
+    is 0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline random-classifier reference (AUC = 0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:43:15Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: list of core circadian genes PER1 PER2 PER3 CRY1 CRY2 BMAL1 CLOCK NR1D1
+    RORA
+  claim_id: c_bc1bc633
+  context: Task T012 defines the core circadian gene list constant in code/data/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_core_circadian_genes_PER1_PER2_PER3_CRY1_CRY2_BMAL1
+  kind: entity_fact
+  raw_text: The CORE_CIRCADIAN_GENES constant includes PER1 (Wikidata Q15326762),
+    PER2, PER3, CRY1, CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, and RORA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:44:21Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: required GTEx v8 columns bmi fasting_glucose triglycerides hdl systolic_bp
+    diastolic_bp pmi time_of_death
+  claim_id: c_69a5dbd6
+  context: Task T009a implements schema inspection to verify presence of these columns
+    before downloading GTEx data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_GTEx_v8_columns_bmi_fasting_glucose_triglycerides_h
+  kind: entity_fact
+  raw_text: The GTEx v8 dataset schema must contain the columns bmi, fasting_glucose,
+    triglycerides, hdl, systolic_bp, diastolic_bp, pmi, and time_of_death.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:45:17Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: core circadian gene list includes PER1 (Wikidata Q15326762), PER2, PER3,
+    CRY1, CRY2, BMAL1 (ARNTL), CLOCK, NR1D1, RORA
+  claim_id: c_72d058d7
+  context: Define the core circadian gene list constant in code/data/config.py as
+    a constant CORE_CIRCADIAN_GENES.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Core_circadian_gene_list_includes_PER1_(Wikidata_Q15326762),
+  kind: entity_fact
+  raw_text: "List of core clock genes with specific isoforms: PER1 (Wikidata Q15326762,\
+    \ https://www.wikidata.org/wiki/Q15326762), PER2, PER3, CRY1, CRY2, BMAL1 (ARNTL),\
+    \ CLOCK, NR1D1, RORA (mapped from spec's ROR\u03B1)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:45:44Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: required columns in GTEx v8 dataset are bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death
+  claim_id: c_b94f1289
+  context: Implement inspect_gtex_schema in code/data/downloader.py to verify variable
+    presence before downloading the GTEx v8 dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_columns_in_GTEx_v8_dataset_are_bmi,_fasting_glucose
+  kind: entity_fact
+  raw_text: 'Check for the presence of required columns: bmi, fasting_glucose, triglycerides,
+    hdl, systolic_bp, diastolic_bp, pmi, time_of_death.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:45:47Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: baseline random classifier AUC is 0.5
+  claim_id: c_306e1af6
+  context: "Final report should include the average AUC and its 95\u202F% CI together\
+    \ with a baseline random\u2011classifier reference (AUC\u202F=\u202F0.5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Baseline random\u2011classifier reference (AUC = 0.5)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T19:45:47Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: PER1 corresponds to Wikidata Q15326762
+  claim_id: c_e24a50ec
+  context: List of core clock genes with specific isoforms includes PER1 (Wikidata
+    Q15326762, https://www.wikidata.org/wiki/Q15326762).
+  evidence:
+    entailment_evidence: PER1 corresponds to Wikidata Q15326762
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/PER1_corresponds_to_Wikidata_Q15326762
+  kind: entity_fact
+  raw_text: PER1 (Wikidata Q15326762, https://www.wikidata.org/wiki/Q15326762)
+  resolved_value: PER1 corresponds to Wikidata Q15326762
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T19:46:07Z'
+- artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/tasks.md
+  attempts: 1
+  canonical: BMAL1 is also known as ARNTL
+  claim_id: c_aa717238
+  context: List of core clock genes with specific isoforms includes BMAL1 (ARNTL).
+  evidence:
+    entailment_evidence: BMAL1 is also known as ARNTL
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BMAL1_is_also_known_as_ARNTL
+  kind: entity_fact
+  raw_text: BMAL1 (ARNTL)
+  resolved_value: BMAL1 is also known as ARNTL
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T19:46:09Z'

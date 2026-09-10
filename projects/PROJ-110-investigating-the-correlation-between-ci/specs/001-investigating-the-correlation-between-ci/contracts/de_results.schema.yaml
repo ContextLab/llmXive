@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Differential Expression Results Schema"
+type: object
+required:
+  - gene
+  - tissue
+  - beta
+  - ci_lower
+  - ci_upper
+  - p_value
+  - adj_p_value
+  - significant
+properties:
+  gene:
+    type: string
+    description: "Core circadian gene symbol (e.g., PER1, BMAL1)."
+  tissue:
+    type: string
+    description: "GTEx tissue name (e.g., Liver, Skeletal_Muscle)."
+  beta:
+    type: number
+    description: "ANCOVA coefficient for the MetS effect."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95 % confidence interval for beta."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95 % confidence interval for beta."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw two‑sided p‑value from the ANCOVA test."
+  adj_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg adjusted p‑value across all gene‑tissue tests."
+  significant:
+    type: boolean
+    description: "True if adj_p_value < 0.05, else False."

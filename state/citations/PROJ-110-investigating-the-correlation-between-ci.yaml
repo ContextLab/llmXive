@@ -30,4 +30,15 @@
   value: https://www.wikidata.org/wiki/Q15326762
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q15326762
-  verified_at: '2026-09-10T14:29:11.762343Z'
+  verified_at: '2026-09-10T19:45:59.109353Z'
+- artifact_hash: eddf8e8a8ed6ffbb94cdd02f1df18f499def23d9bb8245aba244949ff6129686
+  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.nhlbi.nih.gov/health-topics/ATP-III
+  verification_status: mismatch
+  verified_against_url: https://www.nhlbi.nih.gov/health-topics/ATP-III
+  verified_at: '2026-09-10T20:09:37.835646Z'

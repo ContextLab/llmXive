@@ -8,7 +8,7 @@ properties:
     description: "Name of the predictor variable."
   Coefficient:
     type: "number"
-    description: "Log-odds coefficient."
+    description: "Log‑odds coefficient."
   Std_Error:
     type: "number"
     description: "Standard error of the coefficient."
@@ -25,7 +25,7 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "P-value for the coefficient."
+    description: "P‑value for the coefficient."
   VIF:
     type: "number"
     description: "Variance Inflation Factor. Calculated for all predictors."

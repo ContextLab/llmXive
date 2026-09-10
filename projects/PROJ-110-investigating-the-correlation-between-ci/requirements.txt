@@ -6,6 +6,4 @@ statsmodels
 matplotlib
 seaborn
 pyyaml
-joblib
-datasets
-# other dependencies already listed in the project ...
+torch

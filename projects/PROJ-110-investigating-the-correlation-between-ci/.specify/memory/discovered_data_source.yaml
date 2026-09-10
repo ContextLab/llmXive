@@ -1,18 +1,19 @@
 status: none
-intent: download GTEx v8 TPM matrix phenotype and TCGA clinical data python package
+intent: download GTEx v8 TPM matrix and phenotype, TCGA normal, MESA MetS python package
   dataset
 required_fields:
-- sample_id
 - donor_id
-- tissue_type
-- BMI
+- sample_id
+- tissue
+- gene_symbol
+- tpm
+- bmi
 - fasting_glucose
 - systolic_bp
 - diastolic_bp
 - triglycerides
-- HDL
-- gene_id
-- TPM
-cache_key: b588e862b9defda0e76c4802e780c644735ca03428bfbfc7d6161accf038c580
-searched_at: '2026-08-04T19:23:05.133468+00:00'
+- hdl
+- age
+cache_key: 2af9ed1fa7e8bf08ae29140c1138482b960c0d52fda1b6b19db26c558444154d
+searched_at: '2026-09-10T20:15:52.617881+00:00'
 retry_count: 1
