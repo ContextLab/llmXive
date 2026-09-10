@@ -75,13 +75,13 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [US1] Contract test `test_execution_log_schema_validates_task_id_field` in `code/tests/test_agent_runner.py` (Depends on: T012, T014) <!-- ATOMIZE: requested -->
-- [ ] T011 [US1] Integration test `test_baseline_execution_flow_logs_recovery_segments` in `code/tests/test_baseline.py` (Depends on: T012, T014)
+- [ ] T010 [US1] Contract test `test_execution_log_schema_validates_task_id_field` in `code/tests/test_agent_runner.py` (Depends on: T012, T014) <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [ ] T011 [US1] Integration test `test_baseline_execution_flow_logs_recovery_segments` in `code/tests/test_baseline.py` (Depends on: T012, T014) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement baseline execution runner in `code/agent_runner.py` (full context, dense rewards) for all tasks in the benchmark suite.
-- [ ] T012a [US1] Implement task selection logic in `code/download.py` to filter the error-prone tasks. If the hourly/size constraint is hit, implement and log the sampling strategy (e.g., `itertools.islice` first N rows) as per Edge Cases.
+- [X] T012 [US1] Implement baseline execution runner in `code/agent_runner.py` (full context, dense rewards) for all tasks in the benchmark suite.
+- [X] T012a [US1] Implement task selection logic in `code/download.py` to filter the error-prone tasks. If the hourly/size constraint is hit, implement and log the sampling strategy (e.g., `itertools.islice` first N rows) as per Edge Cases.
 - [ ] T013 [US1] Implement error injection mechanism in `code/inject_errors.py` by modifying the `observations` field in the trajectory to introduce a state mismatch. Output artifact: `data/processed/injected_trajectories.jsonl`.
 - [ ] T014 [US1] Implement recovery segment tagging logic in `code/utils/state_diff.py` using **cosine similarity of sentence embeddings** (proxy for attention-weighted overlap) to identify segments contributing >5% to state change (FR-007). *Note: This is a staged deviation from FR-007's literal 'attention-weighted' requirement.*
 - [ ] T015 [US1] Create `data/processed/baseline_execution_logs.csv` containing task ID, success status, and identified recovery segments

@@ -1,31 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/data`, `code/analysis`, `code/tests`,
-    `data/raw`, `data/processed`, `docs/output`) is provided; the claim lacks any
-    artifact or directory listing to confirm they were created. The task cannot be
-    considered complete until the specified folder structure exists and is visible.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `.flake8`, or `black` settings) are present in the provided evidence, so the\
-    \ requirement to configure ruff/flake8 and black cannot be verified as fulfilled.\
-    \ The implementer must add the appropriate configuration artifacts and ensure\
-    \ they are non\u2011empty."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the required directories (`data/raw/`,
-    `data/processed/`, `docs/output/`) actually exist in the repository; the claim
-    is unsubstantiated. The implementer must add the directory structure (or a manifest
-    confirming its creation) to satisfy the task.
-T007:
-  c: false
-  h: efa237599068aca2f63f6e5614d69984846ceaaf6cd5359509a25b71c6d244a6
-  r: The `code/tests/__init__.py` file is present, but the required `conftest.py`
-    file is missing entirely, so the pytest framework setup is not fully provided.
-    The task demands both artifacts.
 T012:
   c: false
   h: 7e84148e62fd1b4a3bc27c287c428c15a23979acd6db651cea9999efd6eaf64e
@@ -74,9 +46,32 @@ T025:
     \ does not exist, and the provided excerpt of `code/analysis/regression.py` shows\
     \ no implementation of a quadratic CBNRM term or saving of such results. The task\u2019\
     s core requirement is therefore unmet."
+T027:
+  c: false
+  h: 2ad5c1796f2f01ca506a0c421d66bc9dd20e35d167b2dde4056545e9d99b8a78
+  r: The repository lacks the required `data/processed/regression_metadata.json` file,
+    and the provided `code/analysis/regression.py` excerpt does not show any code
+    that creates an `is_associational = True` flag or writes it to that JSON. Consequently,
+    the explicit associational flag generation and saving step is not implemented.
+T036:
+  c: false
+  h: ce7e5b5e90619f7929ee108f4a8e3f438ea075642c80c6bd572f0476c5cb3e92
+  r: "The `code/analysis/report.py` file exists but is incomplete (truncated) and\
+    \ never writes a `docs/output/report.md`. Moreover, the required input JSON files\
+    \ (`data/processed/metrics.json`, `data/processed/sensitivity_coefficients.json`,\
+    \ `data/processed/regression_metadata.json`) are absent, so the script cannot\
+    \ load the needed data. The task\u2019s core requirements are therefore unmet."
 T050:
   c: false
   h: b9de05f9e422142d72193396e7db1f99c90e2c95bd5595f187791a231290471e
   r: "The provided `regression.py` does not show any implementation that counts distinct\
     \ hypothesis tests or writes a JSON file, and the required `data/processed/test_count.json`\
     \ file is missing. The task\u2019s core output is absent."
+T051:
+  c: false
+  h: b9de05f9e422142d72193396e7db1f99c90e2c95bd5595f187791a231290471e
+  r: "The repository lacks the required `data/processed/test_count.json` file, and\
+    \ the provided `code/analysis/regression.py` does not contain any implementation\
+    \ of Benjamini\u2011Hochberg FDR correction (the file is truncated and shows no\
+    \ logic for reading the test count or aggregating p\u2011values). Both the essential\
+    \ input file and the correction code are missing."

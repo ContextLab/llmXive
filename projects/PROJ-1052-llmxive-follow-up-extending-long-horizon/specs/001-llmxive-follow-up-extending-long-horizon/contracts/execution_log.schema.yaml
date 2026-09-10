@@ -1,69 +1,103 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Execution Log Schema
 description: >
-  Schema for logging agent execution results, including reward fidelity levels,
-  recovery segment identification, and success metrics. Used for US1 (Baseline)
-  and US2 (Pruning/Fidelity Manipulation) outputs.
+  Schema for logging agent execution results, including recovery segment identification
+  and reward fidelity metrics. Used to establish ground truth and track performance
+  across different fidelity manipulations.
 type: object
 required:
   - task_id
+  - run_id
   - timestamp
   - fidelity_level
   - success
-  - recovery_segment_id
-  - total_tokens
-  - discarded_segments
+  - recovery_segments
+  - metrics
 properties:
   task_id:
     type: string
-    description: Unique identifier for the benchmark task (e.g., 'os-1', 'web-2').
+    description: Unique identifier for the benchmark task (e.g., 'os-1', 'k8s-2')
+    pattern: "^[a-z0-9-]+$"
+  run_id:
+    type: string
+    description: Unique identifier for this specific execution run (UUID)
+    format: uuid
   timestamp:
     type: string
+    description: ISO 8601 timestamp of execution start
     format: date-time
-    description: ISO 8601 timestamp of the execution.
   fidelity_level:
     type: string
+    description: The reward fidelity level used for this run
     enum:
       - dense
       - binary
-      - three-bin
-      - random-prune
-    description: The reward fidelity level used for this execution.
-  success:
-    type: boolean
-    description: Whether the agent successfully completed the task.
-  recovery_segment_id:
-    type: string
-    description: >
-      Identifier for the specific context segment identified as critical for
-      error recovery. If no recovery was needed or possible, this may be null
-      or a sentinel value (e.g., 'none').
-  total_tokens:
-    type: integer
-    minimum: 0
-    description: Total number of tokens consumed in the context window.
-  discarded_segments:
-    type: array
-    items:
-      type: string
-    description: List of segment IDs that were pruned/discarded during execution.
+      - three_bin
+      - random_pruning
   model_used:
     type: string
-    description: The specific model identifier used (e.g., 'Llama-3-8B-Q4', 'Qwen-1.5-1.8B').
-  latency_ms:
-    type: number
-    minimum: 0
-    description: Total execution latency in milliseconds.
+    description: The specific model identifier used for this run (e.g., 'Llama-3-8B-Q4', 'Qwen-1.5-1.8B')
+  success:
+    type: boolean
+    description: Whether the agent successfully completed the task
   error_type:
     type: string
-    enum:
-      - none
-      - state_mismatch
-      - terminal_failure
-      - timeout
-      - unrecoverable
-    description: Classification of the error encountered, if any.
-  notes:
-    type: string
-    description: Optional free-text notes about the execution.
-additionalProperties: false
+    nullable: true
+    description: Classification of error if success is false (e.g., 'unrecoverable', 'context_loss', 'state_mismatch')
+  trajectory_length:
+    type: integer
+    description: Total number of steps in the trajectory
+  tokens_consumed:
+    type: integer
+    description: Total tokens consumed during the run
+  recovery_segments:
+    type: array
+    description: List of segments identified as critical for error recovery
+    items:
+      type: object
+      required:
+        - segment_id
+        - start_step
+        - end_step
+        - similarity_score
+        - contribution_percentage
+      properties:
+        segment_id:
+          type: string
+          description: Unique identifier for the segment
+        start_step:
+          type: integer
+          description: Starting step index of the segment
+        end_step:
+          type: integer
+          description: Ending step index of the segment
+        similarity_score:
+          type: number
+          format: float
+          description: Cosine similarity score of the segment embedding
+        contribution_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Estimated contribution to state change (percentage)
+  metrics:
+    type: object
+    description: Additional performance metrics
+    properties:
+      initial_reward_sum:
+        type: number
+        format: float
+      final_reward_sum:
+        type: number
+        format: float
+      reward_variance:
+        type: number
+        format: float
+      context_pruned_tokens:
+        type: integer
+        description: Number of tokens removed by pruning (0 if dense)
+  metadata:
+    type: object
+    description: Additional metadata (config hashes, environment info)
+    additionalProperties: true

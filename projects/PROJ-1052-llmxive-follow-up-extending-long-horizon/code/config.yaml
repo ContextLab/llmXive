@@ -1,42 +1,45 @@
-# llmXive Follow-up Configuration
-# Environment and logging settings for the automated science pipeline
+# llmXive Project Configuration
+# Generated for PROJ-1052-llmxive-follow-up-extending-long-horizon
+# Task: T009 - Environment configuration and logging infrastructure
 
 project:
   name: "llmXive-follow-up-extending-long-horizon"
-  version: "0.1.0"
-  root_dir: "."
+  version: "1.0.0"
+  root_path: "."
 
 data:
   raw_dir: "data/raw"
   processed_dir: "data/processed"
-  dataset_name: "lmz/agentbench"
+  output_dir: "results"
+  figures_dir: "figures"
 
 logging:
   level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file: "logs/run.log"
-  # Custom fields to be captured in structured logs
-  custom_fields:
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Metrics to capture in structured logs
+  metrics:
     - "reward_fidelity_level"
     - "recovery_segment_id"
     - "task_id"
-    - "model_name"
+    - "success_status"
+    - "token_count"
 
-execution:
-  # Default reward fidelity for baseline runs
-  default_fidelity: "dense"
-  # Quantization settings for CPU-only execution
-  quantization:
-    bits: 4
-    type: "q4_k_m"
-  # Model fallback chain
-  model_chain:
-    - "Llama-3-8B"
-    - "Qwen-1.5-1.8B"
+# Default experimental settings
+defaults:
+  reward_fidelity_level: "dense"
+  model_name: "llama-3-8b"
+  quantization: "q4_0"
+  max_context_length: 4096
 
-analysis:
-  statistical_tests:
-    - "logistic_regression"
-    - "cochran_armitage"
-  correction_method: "bonferroni"
-  power_threshold: 0.8
+# Agent configuration
+agent:
+  temperature: 0.0
+  top_p: 0.9
+  max_tokens: 1024
+
+# Pruning settings
+pruning:
+  enable: true
+  min_segment_length: 50
+  similarity_threshold: 0.85

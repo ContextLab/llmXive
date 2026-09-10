@@ -1,126 +1,155 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Result Schema
 description: >
-  Schema for the output of the statistical analysis phase (US3).
-  Contains inflection points, regression coefficients, and significance metrics.
+  Schema for statistical analysis results, including inflection point detection,
+  logistic regression coefficients, and multiple-comparison corrections.
 type: object
 required:
-  - analysis_timestamp
+  - analysis_id
+  - timestamp
+  - model_type
   - inflection_point
-  - logistic_coefficients
+  - coefficients
   - p_values
-  - correction_method
+  - corrected_p_values
   - power_analysis
-  - inflection_point_ci
+  - summary
 properties:
-  analysis_timestamp:
+  analysis_id:
     type: string
+    description: Unique identifier for this analysis run
+  timestamp:
+    type: string
+    description: ISO 8601 timestamp of analysis completion
     format: date-time
-    description: ISO 8601 timestamp of the analysis run.
-  dataset_version:
+  model_type:
     type: string
-    description: Version or hash of the input data used (e.g., AgentBench commit).
+    description: Type of statistical model used (e.g., 'logistic_regression', 'cochran_armitage')
   inflection_point:
-    type: number
-    description: >
-      The identified fidelity threshold where recovery capability degrades
-      non-linearly. Normalized to [0, 1] or specific bin index.
-  inflection_point_ci:
     type: object
+    description: The identified inflection point where recovery capability degrades
     required:
-      - lower
-      - upper
-      - confidence_level
+      - fidelity_level
+      - threshold_value
+      - confidence_interval
     properties:
-      lower:
+      fidelity_level:
+        type: string
+        description: The fidelity level at the inflection point
+      threshold_value:
         type: number
-      upper:
-        type: number
-      confidence_level:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Confidence level (e.g., 0.95).
-  logistic_coefficients:
+        format: float
+        description: The numerical threshold value
+      confidence_interval:
+        type: object
+        properties:
+          lower:
+            type: number
+            format: float
+          upper:
+            type: number
+            format: float
+      method:
+        type: string
+        description: Method used to identify the point (e.g., 'curve_fit', 'ci_non_overlap')
+  coefficients:
     type: object
-    required:
-      - intercept
-      - fidelity_slope
-      - density_slope
-      - interaction_term
+    description: Logistic regression coefficients
     properties:
+      fidelity_coefficient:
+        type: number
+        format: float
+      density_coefficient:
+        type: number
+        format: float
       intercept:
         type: number
-      fidelity_slope:
-        type: number
-      density_slope:
-        type: number
-      interaction_term:
-        type: number
-        description: Coefficient for fidelity * density interaction.
+        format: float
+      standard_errors:
+        type: object
+        properties:
+          fidelity:
+            type: number
+            format: float
+          density:
+            type: number
+            format: float
+          intercept:
+            type: number
+            format: float
   p_values:
     type: object
-    required:
-      - fidelity_effect
-      - density_effect
-      - interaction_effect
+    description: Raw p-values for coefficients
     properties:
-      fidelity_effect:
+      fidelity:
         type: number
-        minimum: 0
-        maximum: 1
-      density_effect:
+        format: float
+      density:
         type: number
-        minimum: 0
-        maximum: 1
-      interaction_effect:
+        format: float
+      intercept:
         type: number
-        minimum: 0
-        maximum: 1
-  correction_method:
-    type: string
-    enum:
-      - bonferroni
-      - benjamini-hochberg
-      - none
-    description: Method used for multiple comparison correction.
+        format: float
+  corrected_p_values:
+    type: object
+    description: P-values after multiple-comparison correction (Bonferroni or BH)
+    properties:
+      fidelity:
+        type: number
+        format: float
+      density:
+        type: number
+        format: float
+      intercept:
+        type: number
+        format: float
+    method:
+      type: string
+      description: Correction method used (e.g., 'bonferroni', 'benjamini_hochberg')
   power_analysis:
     type: object
-    required:
-      - achieved_power
-      - effect_size
-      - sample_size
+    description: Statistical power analysis results
     properties:
       achieved_power:
         type: number
-        minimum: 0
-        maximum: 1
+        format: float
+      target_power:
+        type: number
+        format: float
       effect_size:
         type: number
-        description: Cohen's d or similar metric.
+        format: float
       sample_size:
         type: integer
-        minimum: 1
-  fallback_test_used:
-    type: string
-    enum:
-      - none
-      - cochran-armitage
-    description: If logistic regression failed, indicates the fallback test used.
-  token_savings_metrics:
+      epv:
+        type: number
+        format: float
+        description: Events Per Variable
+      fallback_triggered:
+        type: boolean
+        description: Whether the Cochran-Armitage fallback was triggered
+  token_savings:
     type: object
+    description: Token consumption metrics
     properties:
-      avg_tokens_dense:
+      baseline_avg_tokens:
         type: number
-      avg_tokens_pruned:
+        format: float
+      pruned_avg_tokens:
         type: number
-      reduction_percentage:
+        format: float
+      savings_percentage:
         type: number
-        minimum: 0
-        maximum: 100
+        format: float
+  summary:
+    type: string
+    description: Human-readable summary of the analysis findings
   warnings:
     type: array
+    description: List of warnings generated during analysis
     items:
       type: string
-    description: List of warnings generated during analysis (e.g., low power).
-additionalProperties: false
+  metadata:
+    type: object
+    description: Additional metadata
+    additionalProperties: true

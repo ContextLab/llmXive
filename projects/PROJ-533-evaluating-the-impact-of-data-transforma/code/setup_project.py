@@ -1,14 +1,16 @@
-"""
-Script to initialize the project directory structure for llmXive research pipeline.
-Executes the exact command logic:
-mkdir -p code/utils data/raw data/processed results/type1_error results/power results/aggregated results/checkpoints tests/unit tests/integration
-"""
 import os
 from pathlib import Path
 
 def main():
-    # Define the relative paths to be created based on task T001 requirements
-    base_dirs = [
+    """
+    Creates the project directory structure as specified in T001.
+    Command equivalent: mkdir -p code/utils data/raw data/processed results/type1_error results/power results/aggregated results/checkpoints tests/unit tests/integration
+    """
+    # Define the root directory (current working directory)
+    root = Path.cwd()
+
+    # Define all required relative paths based on the task description
+    directories = [
         "code/utils",
         "data/raw",
         "data/processed",
@@ -20,13 +22,17 @@ def main():
         "tests/integration"
     ]
 
-    # Create directories
-    for dir_path in base_dirs:
-        full_path = Path(dir_path)
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path.resolve()}")
+    created_count = 0
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
 
-    print("Project structure initialization complete.")
+    print(f"Project structure setup complete. {created_count} new directories created.")
 
 if __name__ == "__main__":
     main()

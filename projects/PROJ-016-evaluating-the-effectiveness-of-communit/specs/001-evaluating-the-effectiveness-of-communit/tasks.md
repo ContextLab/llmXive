@@ -57,7 +57,7 @@
 - [X] T005 [P] Implement logging infrastructure: Create `code/__init__.py` with `dictConfig` setup for JSON format, level INFO, output to console and `logs/run.log`
 - [X] T006 [P] Create base configuration loader in `code/config.py` defining API endpoints and `YEAR_RANGE = (2000, 2020)`
 - [ ] T007 Setup unit test framework (pytest) with `code/tests/__init__.py` and `conftest.py`
-- [ ] T008 [P] [US1] Verify and Fetch Total Records: Query FAO and World Bank APIs to determine the **total available records** (denominator) for years 2000–2020 for low/middle-income countries. Save the count to `data/processed/total_records_count.json`. This establishes the baseline for SC-001.
+- [ ] T008 [P] [US1] Verify and Fetch Total Records: Query FAO and World Bank APIs to determine the **total available records** (denominator) for years 2000–2020 for low/middle-income countries. Save the count to `data/processed/total_records_count.json`. This establishes the baseline for SC-001. <!-- FAILED: unspecified -->
 - [ ] T009 [P] [US1] Fetch CBNRM Proxy: Query the World Bank API for the specific CBNRM proxy indicator (e.g., Community Forestry area share) identified in the data model. Validate the indicator code. Save the raw data to `data/raw/cbnrm_proxy.csv` and the metadata (indicator code, source URL) to `data/processed/cbnrm_proxy_metadata.json`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -107,8 +107,8 @@
 - [ ] T025 [US2] Implement Non-linearity Robustness Check in `code/analysis/regression.py`: Add quadratic term for CBNRM index; test significance. Save results to `data/processed/regression_results_nonlinear.json`.
 - [X] T041 [US2] Implement Random Effects Fallback in `code/analysis/regression.py`: If ALL countries are time-invariant (T022 flags all), switch to Random Effects model and run Hausman test.
 - [ ] T050 [US2] [D: T023, T024, T025] Implement Test Count Logic in `code/analysis/regression.py`: Dynamically count the number of distinct hypothesis tests performed (Primary, Sensitivity, Non-linearity). Output the count to `data/processed/test_count.json`.
-- [~] T051 [US2] [D: T023, T024, T025, T050] Implement Benjamini-Hochberg FDR correction in `code/analysis/regression.py`: Read the test count from `data/processed/test_count.json` (T050). **If count >= 2**, aggregate p-values from Primary (T023), Sensitivity (T024), and Non-linearity (T025) tests and apply correction. If count < 2, skip correction.
-- [~] T027 [US2] Add explicit "Associational" flag generation in `code/analysis/regression.py` (FR-004): Set a boolean flag `is_associational = True` and save to `data/processed/regression_metadata.json`.
+- [ ] T051 [US2] [D: T023, T024, T025, T050] Implement Benjamini-Hochberg FDR correction in `code/analysis/regression.py`: Read the test count from `data/processed/test_count.json` (T050). **If count >= 2**, aggregate p-values from Primary (T023), Sensitivity (T024), and Non-linearity (T025) tests and apply correction. If count < 2, skip correction.
+- [ ] T027 [US2] Add explicit "Associational" flag generation in `code/analysis/regression.py` (FR-004): Set a boolean flag `is_associational = True` and save to `data/processed/regression_metadata.json`.
 - [X] T028 [US2] Implement F-test for Joint Significance in `code/analysis/regression.py`: Perform an F-test specifically for the **joint significance of the regime_type variable** (and interaction terms if applicable) in the fixed-effects model, as required by FR-003.
 
 ### Tests for User Story 2
@@ -133,7 +133,7 @@
 
 - [X] T034 [US3] Implement Residual Scatter Plot generation in `code/analysis/visualization.py`: Plot Predicted vs. Residuals.
 - [X] T035 [US3] Implement Coefficient Plot generation in `code/analysis/visualization.py`: Display CBNRM effect with confidence interval error bars.
-- [~] T036 [US3] [D: T015, T024, T041, T027] Implement report text generation in `code/analysis/report.py`: Load Coverage Rate from `data/processed/metrics.json` (T015), Sensitivity results (raw coefficients) from `data/processed/sensitivity_coefficients.json` (T024), and the "Associational" flag from `data/processed/regression_metadata.json` (T027). Generate `docs/output/report.md` with explicit "Associational" disclaimer and all metrics.
+- [ ] T036 [US3] [D: T015, T024, T041, T027] Implement report text generation in `code/analysis/report.py`: Load Coverage Rate from `data/processed/metrics.json` (T015), Sensitivity results (raw coefficients) from `data/processed/sensitivity_coefficients.json` (T024), and the "Associational" flag from `data/processed/regression_metadata.json` (T027). Generate `docs/output/report.md` with explicit "Associational" disclaimer and all metrics.
 - [X] T037 [US3] Ensure all plotting uses CPU-only rendering (no GPU acceleration) in `code/analysis/visualization.py`.
 
 ### Tests for User Story 3

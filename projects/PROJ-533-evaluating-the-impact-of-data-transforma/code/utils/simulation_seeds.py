@@ -1,32 +1,42 @@
 """
-Utility for logging simulation seeds to satisfy Constitution VII.
-Ensures seeds are recorded alongside results for reproducibility.
+Utilities for logging simulation seeds to ensure reproducibility.
+Satisfies Constitution VII "alongside results" requirement.
 """
 from pathlib import Path
 from typing import Optional
+import os
 
-def log_simulation_seed(
-    run_id: str,
-    seed: int,
-    output_path: str = "results/simulation_seeds.txt"
-) -> None:
+SEEDS_FILE_PATH = "results/simulation_seeds.txt"
+
+def log_simulation_seed(run_id: str, seed: int = 42, output_dir: Optional[str] = None) -> str:
     """
-    Log a simulation run ID and its corresponding seed to a file.
+    Logs a simulation seed to the central seeds log file.
     
-    Format: RUN_ID=<id> SEED=<seed>
-    
-    This file is placed in results/ alongside specific simulation outputs
-    to satisfy Constitution VII "alongside results" requirement.
+    This function ensures the seed is recorded BEFORE the simulation loop executes,
+    satisfying the precondition requirement for reproducibility (Constitution VII).
     
     Args:
-        run_id: Unique identifier for the simulation run
-        seed: Random seed used for reproducibility
-        output_path: Path to the seeds log file (default: results/simulation_seeds.txt)
+        run_id: Unique identifier for the simulation run.
+        seed: The random seed used for this run (default 42).
+        output_dir: Optional override for the output directory. Defaults to 'results/'.
+        
+    Returns:
+        The absolute path to the seeds file where the entry was logged.
+        
+    Raises:
+        FileNotFoundError: If the results directory does not exist and cannot be created.
     """
-    log_path = Path(output_path)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_dir is None:
+        output_dir = "results"
     
-    log_line = f"RUN_ID={run_id} SEED={seed}\n"
+    seeds_path = Path(output_dir)
+    seeds_path.mkdir(parents=True, exist_ok=True)
     
-    with open(log_path, "a") as f:
-        f.write(log_line)
+    file_path = seeds_path / "simulation_seeds.txt"
+    
+    log_entry = f"RUN_ID={run_id} SEED={seed}\n"
+    
+    with open(file_path, "a", encoding="utf-8") as f:
+        f.write(log_entry)
+        
+    return str(file_path)

@@ -3,12 +3,14 @@ Download and validate the AgentBench dataset.
 
 This script fetches the 'lmz/agentbench' dataset from Hugging Face,
 saves it to 'data/raw/', performs cryptographic hash validation,
-and verifies the presence of required variables (observations, actions, rewards).
+verifies the presence of required variables (observations, actions, rewards),
+and implements task selection logic to filter error-prone tasks.
 """
 import hashlib
 import logging
 import os
 import sys
+import itertools
 from pathlib import Path
 
 from datasets import load_dataset
@@ -26,6 +28,22 @@ EXPECTED_SHA256 = None  # Replace with actual hash if known from documentation
 
 # Required variables for the research pipeline
 REQUIRED_VARIABLES = ["observations", "actions", "rewards"]
+
+# Task selection configuration
+# Filter for tasks known to be error-prone based on domain characteristics
+# or specific task IDs from the benchmark.
+# In a real implementation, this would be populated from a configuration file
+# or research specification.
+ERROR_PRONE_TASK_KEYWORDS = [
+    "math",  # Mathematical reasoning tasks
+    "code",  # Code generation tasks
+    "logic", # Logic puzzles
+    "planning" # Multi-step planning
+]
+
+# Size constraints for sampling (in rows)
+# If the filtered dataset exceeds this, we sample the first N rows
+MAX_TASKS_LIMIT = 100  # Example limit; adjust based on compute constraints
 
 # Setup logging
 logging.basicConfig(
@@ -67,6 +85,94 @@ def validate_variables(dataset, dataset_id: str) -> None:
         raise ValueError(error_msg)
     
     logger.info(f"✓ Validation PASSED: All required variables {REQUIRED_VARIABLES} found in '{dataset_id}'.")
+
+def filter_error_prone_tasks(dataset, keywords=None) -> list:
+    """
+    Filter the dataset to include only error-prone tasks based on keywords.
+    
+    Args:
+        dataset: The Hugging Face dataset object.
+        keywords: List of keywords to search for in task descriptions or IDs.
+                
+    Returns:
+        List of indices of tasks that match the error-prone criteria.
+    """
+    if keywords is None:
+        keywords = ERROR_PRONE_TASK_KEYWORDS
+    
+    filtered_indices = []
+    
+    # Determine the column to search for task identification
+    # Typically 'task_id', 'task_name', or 'description'
+    search_columns = []
+    for col in ["task_id", "task_name", "description", "category"]:
+        if col in dataset.column_names:
+            search_columns.append(col)
+    
+    if not search_columns:
+        logger.warning("No suitable column found for task filtering. Returning all tasks.")
+        return list(range(len(dataset)))
+    
+    logger.info(f"Searching for error-prone tasks using keywords: {keywords} in columns: {search_columns}")
+    
+    for idx, item in enumerate(dataset):
+        is_error_prone = False
+        for col in search_columns:
+            if col in item and item[col]:
+                text = str(item[col]).lower()
+                if any(keyword.lower() in text for keyword in keywords):
+                    is_error_prone = True
+                    break
+        
+        if is_error_prone:
+            filtered_indices.append(idx)
+    
+    return filtered_indices
+
+def select_tasks_for_baseline(dataset, max_tasks=None):
+    """
+    Select tasks for baseline execution with sampling strategy if constraints are hit.
+    
+    This implements the task selection logic for T012a:
+    - Filters for error-prone tasks
+    - If the count exceeds max_tasks, samples the first N rows using itertools.islice
+    - Logs the sampling strategy used
+    
+    Args:
+        dataset: The Hugging Face dataset object.
+        max_tasks: Maximum number of tasks to select. If None, uses MAX_TASKS_LIMIT.
+    
+    Returns:
+        List of selected task indices.
+    """
+    if max_tasks is None:
+        max_tasks = MAX_TASKS_LIMIT
+    
+    logger.info(f"Starting task selection for baseline execution with limit: {max_tasks}")
+    
+    # Filter for error-prone tasks
+    filtered_indices = filter_error_prone_tasks(dataset)
+    total_filtered = len(filtered_indices)
+    
+    logger.info(f"Found {total_filtered} error-prone tasks out of {len(dataset)} total tasks.")
+    
+    if total_filtered == 0:
+        logger.warning("No error-prone tasks found. Falling back to all tasks.")
+        return list(range(len(dataset)))
+    
+    # Apply size constraint if necessary
+    if total_filtered > max_tasks:
+        logger.info(f"Constraint hit: {total_filtered} tasks > {max_tasks} limit.")
+        logger.info(f"Sampling strategy: Using itertools.islice to select first {max_tasks} rows.")
+        
+        # Use itertools.islice to select the first N rows
+        selected_indices = list(itertools.islice(filtered_indices, max_tasks))
+        
+        logger.info(f"Selected {len(selected_indices)} tasks for baseline execution.")
+        return selected_indices
+    else:
+        logger.info(f"All {total_filtered} error-prone tasks selected (within limit).")
+        return filtered_indices
 
 def main():
     """Main entry point for downloading, validating, and checking the dataset."""
@@ -112,7 +218,27 @@ def main():
         logger.info("Validating required variables (observations, actions, rewards)...")
         validate_variables(dataset, DATASET_ID)
 
-        logger.info("Dataset download and validation completed successfully.")
+        # Task selection logic for T012a
+        selected_indices = select_tasks_for_baseline(dataset)
+        
+        # Create a subset dataset for the selected tasks
+        if selected_indices:
+            selected_dataset = dataset.select(selected_indices)
+            subset_output_path = OUTPUT_DIR / "agentbench_baseline_subset.parquet"
+            logger.info(f"Saving baseline subset ({len(selected_indices)} tasks) to: {subset_output_path}")
+            selected_dataset.to_parquet(str(subset_output_path))
+            
+            # Log the selected task IDs for verification
+            logger.info("Selected task IDs (first 10):")
+            for i, idx in enumerate(selected_indices[:10]):
+                task_id = dataset[idx].get("task_id", f"index_{idx}")
+                logger.info(f"  {i+1}. {task_id}")
+            if len(selected_indices) > 10:
+                logger.info(f"  ... and {len(selected_indices) - 10} more.")
+        else:
+            logger.warning("No tasks selected for baseline execution.")
+
+        logger.info("Dataset download, validation, and task selection completed successfully.")
 
     except ValueError as e:
         if "ERR_MISSING_VAR" in str(e):

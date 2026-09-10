@@ -3,112 +3,128 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 import json
 
-# Define the log directory relative to project root
-LOG_DIR = Path(__file__).resolve().parent.parent.parent / "logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure the logs directory exists relative to project root
+# We assume the project root is the parent of the 'code' directory
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_LOG_DIR = _PROJECT_ROOT / "logs"
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Log file naming convention: YYYYMMDD_HHMMSS_<process_id>.log
+# This ensures unique files for parallel runs or re-runs
+_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
+_LOG_FILE = _LOG_DIR / f"pipeline_{_TIMESTAMP}.log"
 
 # Global logger instance
 _logger: Optional[logging.Logger] = None
 
-def get_logger(name: str = "llmXive_pipeline") -> logging.Logger:
+def _get_file_handler() -> logging.FileHandler:
+    """Creates a file handler with JSON-like structured formatting for provenance."""
+    fh = logging.FileHandler(_LOG_FILE)
+    fh.setLevel(logging.INFO)
+    # Custom format to include timestamp, level, module, and message
+    formatter = logging.Formatter(
+        '%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    fh.setFormatter(formatter)
+    return fh
+
+def _get_console_handler() -> logging.StreamHandler:
+    """Creates a console handler for immediate feedback."""
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        '%(asctime)s | %(levelname)-8s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    ch.setFormatter(formatter)
+    return ch
+
+def get_logger(name: str = "llmXive.pipeline") -> logging.Logger:
     """
     Returns a configured logger instance.
-    Creates the logger only once and reuses it on subsequent calls.
+    Initializes the logger with file and console handlers if not already done.
     """
     global _logger
+    
     if _logger is None:
         _logger = logging.getLogger(name)
         _logger.setLevel(logging.DEBUG)
-
+        
+        # Avoid adding handlers multiple times if called repeatedly
         if not _logger.handlers:
-            # Console Handler
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(logging.INFO)
-            console_formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S"
-            )
-            console_handler.setFormatter(console_formatter)
-            _logger.addHandler(console_handler)
-
-            # File Handler (Rotating)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            log_file_path = LOG_DIR / f"pipeline_{timestamp}.log"
-            file_handler = logging.FileHandler(log_file_path)
-            file_handler.setLevel(logging.DEBUG)
-            file_formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S"
-            )
-            file_handler.setFormatter(file_formatter)
-            _logger.addHandler(file_handler)
-
-    return _logger
-
-def log_provenance(step_name: str, input_source: str, output_target: str, details: Optional[dict] = None) -> None:
-    """
-    Logs data provenance information for audit trails.
-    Records where data came from, what step processed it, and where it went.
-    """
-    logger = get_logger()
-    timestamp = datetime.now().isoformat()
+            _logger.addHandler(_get_file_handler())
+            _logger.addHandler(_get_console_handler())
     
-    log_entry = {
-        "timestamp": timestamp,
-        "event_type": "PROVENANCE",
-        "step": step_name,
-        "input_source": input_source,
-        "output_target": output_target,
-        "details": details or {}
-    }
-    
-    logger.info(f"PROVENANCE: {json.dumps(log_entry)}")
+    # Return a child logger for the specific module
+    return logging.getLogger(f"{name}.{name.split('.')[-1]}")
 
-def log_processing_step(step_name: str, status: str, metrics: Optional[dict] = None) -> None:
+def log_provenance(
+    step_name: str, 
+    input_sources: Dict[str, str], 
+    output_targets: Dict[str, str], 
+    parameters: Optional[Dict[str, Any]] = None,
+    logger_name: str = "llmXive.pipeline"
+) -> None:
     """
-    Logs the status of a specific processing step.
-    Status can be 'START', 'COMPLETE', 'WARN', 'FAIL'.
+    Logs data provenance: what data was used, what was produced, and with what parameters.
+    This is critical for reproducibility and auditing.
     """
-    logger = get_logger()
-    timestamp = datetime.now().isoformat()
+    log = get_logger(logger_name)
     
-    log_entry = {
-        "timestamp": timestamp,
-        "event_type": "PROCESSING_STEP",
-        "step": step_name,
-        "status": status,
-        "metrics": metrics or {}
-    }
+    msg_parts = [
+        f"PROVENANCE: {step_name}",
+        f"Inputs: {json.dumps(input_sources)}",
+        f"Outputs: {json.dumps(output_targets)}"
+    ]
     
-    if status == "FAIL":
-        logger.error(f"STEP_FAIL: {json.dumps(log_entry)}")
-    elif status == "WARN":
-        logger.warning(f"STEP_WARN: {json.dumps(log_entry)}")
+    if parameters:
+        msg_parts.append(f"Params: {json.dumps(parameters)}")
+    
+    log.info(" | ".join(msg_parts))
+
+def log_processing_step(
+    step_name: str,
+    status: str,
+    details: Optional[str] = None,
+    duration_seconds: Optional[float] = None,
+    logger_name: str = "llmXive.pipeline"
+) -> None:
+    """
+    Logs the execution status of a specific processing step.
+    """
+    log = get_logger(logger_name)
+    
+    msg = f"STEP: {step_name} | Status: {status}"
+    if details:
+        msg += f" | Details: {details}"
+    if duration_seconds is not None:
+        msg += f" | Duration: {duration_seconds:.2f}s"
+    
+    if status == "FAILED":
+        log.error(msg)
+    elif status == "COMPLETED":
+        log.info(msg)
     else:
-        logger.info(f"STEP_{status}: {json.dumps(log_entry)}")
+        log.debug(msg)
 
-def log_error(step_name: str, error_message: str, error_type: str, traceback_str: Optional[str] = None) -> None:
+def log_error(
+    step_name: str,
+    error_type: str,
+    error_message: str,
+    traceback_str: Optional[str] = None,
+    logger_name: str = "llmXive.pipeline"
+) -> None:
     """
-    Logs a structured error event.
+    Logs a specific error event with context.
     """
-    logger = get_logger()
-    timestamp = datetime.now().isoformat()
+    log = get_logger(logger_name)
     
-    log_entry = {
-        "timestamp": timestamp,
-        "event_type": "ERROR",
-        "step": step_name,
-        "error_type": error_type,
-        "error_message": error_message,
-        "traceback": traceback_str
-    }
+    msg = f"ERROR: {step_name} | Type: {error_type} | Message: {error_message}"
+    if traceback_str:
+        msg += f" | Traceback: {traceback_str}"
     
-    logger.error(f"ERROR_LOG: {json.dumps(log_entry)}")
-    
-    # Also write a dedicated error file for easy retrieval
-    error_log_path = LOG_DIR / f"errors_{datetime.now().strftime('%Y%m%d')}.jsonl"
-    with open(error_log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
+    log.critical(msg)

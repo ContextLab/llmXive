@@ -104,9 +104,9 @@
 - [X] T013 [US1] Implement `code/generate_synthetic_data.py`: **Runs in parallel with T012**. Generate synthetic human-avatar interaction data with known ground-truth motion-agency relationships (FR-011) ONLY if T012 returns status "unavailable" OR "invalid". Ensure `user response trigger` is distinct from agency score (FR-012).
 - [ ] T014 [US1] Implement `code/preprocess.py`: Extract motion features (latency, smoothness/jerk, lead_time) and aggregate agency scores (FR-002, FR-003).
 - [ ] T015 [US1] Implement VIF diagnostic logic in `code/preprocess.py`: Flag and exclude features with VIF ≥5 (FR-006); log collinearity issues.
-- [ ] T017 [US1] Output `data/processed/cleaned_data.csv` with documented scoring method and standardization (0–1 range if needed) (Edge Case).
+- [ ] T017 [US1] Output `data/processed/cleaned_data.csv` with documented scoring method and standardization (0–1 range if needed) (Edge Case). <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Implement power analysis and sample size check: Read `data/processed/cleaned_data.csv` from T017. Calculate N. **Logic**: If N < 80, set `abort_flag` to true in config. If 80 <= N < 100, set `max_depth` to 3. **Output**: `data/processed/modeling_config.json` containing `n_samples`, `max_depth`, `abort_flag`. **Note**: This task calculates and writes the config; it does NOT abort the process.
-- [ ] T016b [US1] **Enforce N>=80 Gate**: Read `data/processed/modeling_config.json` from T016. If `abort_flag` is true, raise `SystemExit(1)` with error "Analysis aborted: Insufficient sample size (N < 80)".
+- [X] T016b [US1] **Enforce N>=80 Gate**: Read `data/processed/modeling_config.json` from T016. If `abort_flag` is true, raise `SystemExit(1)` with error "Analysis aborted: Insufficient sample size (N < 80)".
 - [ ] T018 [US1] Add validation logic to exclude trait/personality measures from primary regression; allow only as covariates in secondary checks (Assumption: Post-task ratings).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -126,9 +126,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] **Implement Multiple Linear Regression (OLS)**: Read `data/processed/modeling_config.json` from T016. Fit standard Multiple Linear Regression (not Ridge) to predict agency scores from motion features. **Output**: Standard OLS coefficients and p-values (required for FR-005).
+- [X] T021 [US2] **Implement Multiple Linear Regression (OLS)**: Read `data/processed/modeling_config.json` from T016. Fit standard Multiple Linear Regression (not Ridge) to predict agency scores from motion features. **Output**: Standard OLS coefficients and p-values (required for FR-005).
 - [ ] T021b [US2] **Implement Ridge Regression (Robustness Check)**: **Depends on T021 completion**. Fit Ridge Regression with k-fold cross-validation for comparison. Output: Ridge coefficients and feature importance.
-- [ ] T022 [US2] Implement statistical significance testing with Bonferroni or Benjamini-Hochberg correction for ≥3 features (FR-005).
+- [ ] T022 [US2] Implement statistical significance testing with Bonferroni or Benjamini-Hochberg correction for ≥3 features (FR-005). <!-- FAILED: unspecified -->
 - [ ] T022b [US2] **Implement Random Forest Model**: Fit a Random Forest model with k-fold cross-validation to predict agency scores. **Output**: Feature importance scores and out-of-sample performance metrics (R², RMSE) as required by FR-004 and US-2 Acceptance Scenario 2.
 - [ ] T023 [US2] Implement sensitivity analysis in `code/sensitivity_analysis.py`: **Sweep decision thresholds** (absolute regression coefficient magnitude ∈ {0.01, 0.05, 0.1}). **Logic**: For each threshold, calculate the 'significance rate' (fraction of bootstrap samples where p < 0.05). **Output**: `data/results/sensitivity_analysis.csv` with columns `threshold, significance_rate, p_value_variance`.
 - [ ] T024 [US2] Compute and store out-of-sample metrics (R², RMSE) and feature importance maps (FR-004, SC-002).
@@ -154,10 +154,10 @@
 - [X] T028 [US3] Implement `code/visualization.py`: Generate scatter plots of each motion feature vs. agency scores (FR-007).
 - [ ] T029 [US3] Implement feature importance bar chart generation (FR-007).
 - [ ] T030 [US3] Implement partial dependence plot for the top predictor (FR-007).
-- [~] T031 [US3] Implement interpretation logic: Describe direction/magnitude of predictors or frame null results as evidence for other factors (US-3 Scenario 3).
+- [ ] T031 [US3] Implement interpretation logic: Describe direction/magnitude of predictors or frame null results as evidence for other factors (US-3 Scenario 3).
 - [ ] T032 [US3] Save all plots to `data/results/plots/` and generate a summary interpretation in `data/results/interpretation.md`.
 - [X] T033 [US3] **Generate Human Review Protocol**: Create `docs/human_review_protocol.md` including: (1) Survey template for independent reviewers, (2) Recruitment script for finding reviewers, (3) Aggregation logic (Python script) for calculating % rating ≥4/5. **Ethics Note**: Since this project uses synthetic data, explicit IRB approval is not required; however, the protocol MUST include a "Human Subject Ethics Declaration" stating that no real human data is involved and reviewers are assessing code artifacts only. **Note**: CI verifies the protocol exists; actual human ratings are a manual step outside CI.
-- [~] T033b [US3] **Manual Review Execution Plan**: Document the step-by-step procedure for recruiting multiple independent reviewers, distributing the survey from T033, collecting ratings, and running the aggregation script to verify SC-005 (≥80% rating ≥4/5).
+- [ ] T033b [US3] **Manual Review Execution Plan**: Document the step-by-step procedure for recruiting multiple independent reviewers, distributing the survey from T033, collecting ratings, and running the aggregation script to verify SC-005 (≥80% rating ≥4/5).
 
 **Checkpoint**: All user stories should now be independently functional
 

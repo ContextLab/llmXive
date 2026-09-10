@@ -12,3 +12,18 @@ T010:
   r: The required file `code/tests/test_agent_runner.py` does not exist, so the contract
     test `test_execution_log_schema_validates_task_id_field` is absent. No test code
     is present to satisfy the task.
+T011:
+  c: false
+  h: b1d5c84bd9c2e7fe88279146eaa3e117da18a1bf7702deee23289814e9d2f9f0
+  r: "The required test file `code/tests/test_baseline.py` is missing entirely, so\
+    \ the integration test `test_baseline_execution_flow_logs_recovery_segments` does\
+    \ not exist. Without this artifact, the task\u2019s requirement cannot be satisfied.\
+    \ The implementer must add the missing test file with the specified test implementation."
+T013:
+  c: false
+  h: dcebfe3c4e93160158d432e570e9975e55425d5166742bd6a3d2bcc401364660
+  r: "The repository contains a partially\u2011implemented `code/inject_errors.py`\
+    \ (functions are defined but the file is truncated and no code writes the processed\
+    \ trajectories), and the required output `data/processed/injected_trajectories.jsonl`\
+    \ does not exist. The artifact the task demanded is missing, so the requirement\
+    \ is not satisfied."

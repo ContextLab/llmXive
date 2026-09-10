@@ -1,97 +1,94 @@
-"""
-Power analysis and sample size check module.
-
-Reads the cleaned dataset from T017, calculates N, and determines
-modeling configuration parameters based on sample size thresholds.
-"""
 import json
 import pandas as pd
 from pathlib import Path
 import logging
 from utils.logging_config import get_logger
 
-# Configure logger
 logger = get_logger(__name__)
 
 def calculate_power_analysis(
-    input_path: str = "data/processed/cleaned_data.csv",
-    output_path: str = "data/processed/modeling_config.json",
-    min_samples_abort: int = 80,
-    min_samples_reduced_depth: int = 100
+    input_path: str,
+    output_path: str,
+    min_sample_threshold: int = 80,
+    ideal_sample_threshold: int = 100
 ) -> dict:
     """
-    Calculate sample size and generate modeling configuration.
-
+    Reads cleaned data, calculates sample size N, and determines modeling config.
+    
     Logic:
-    - If N < 80: abort_flag = True, max_depth = None (or 0)
-    - If 80 <= N < 100: abort_flag = False, max_depth = 3
-    - If N >= 100: abort_flag = False, max_depth = None (default)
-
+    - If N < 80: abort_flag = True
+    - If 80 <= N < 100: max_depth = 3
+    - If N >= 100: max_depth = None (or default)
+    
     Args:
-        input_path: Path to the cleaned CSV file.
-        output_path: Path to write the JSON config.
-        min_samples_abort: Threshold below which the process should abort.
-        min_samples_reduced_depth: Threshold below which max_depth is reduced.
-
+        input_path: Path to data/processed/cleaned_data.csv
+        output_path: Path to write data/processed/modeling_config.json
+        min_sample_threshold: Minimum N to proceed (default 80)
+        ideal_sample_threshold: N where we stop constraining max_depth (default 100)
+        
     Returns:
-        dict: The generated configuration dictionary.
+        dict: The generated config dictionary
     """
-    logger.info(f"Loading data from {input_path} for power analysis...")
+    logger.info(f"Starting power analysis for sample size check. Input: {input_path}")
+    
     input_file = Path(input_path)
-
     if not input_file.exists():
-        raise FileNotFoundError(f"Required input file not found: {input_path}")
-
+        logger.error(f"Input file not found: {input_file}")
+        raise FileNotFoundError(f"Cleaned data file not found at {input_path}")
+    
     try:
         df = pd.read_csv(input_file)
     except Exception as e:
-        raise RuntimeError(f"Failed to read {input_path}: {e}")
-
+        logger.error(f"Failed to read CSV: {e}")
+        raise
+    
     n_samples = len(df)
-    logger.info(f"Sample size calculated: N = {n_samples}")
-
-    # Determine configuration based on thresholds
+    logger.info(f"Calculated sample size N: {n_samples}")
+    
     abort_flag = False
-    max_depth = None  # Default to None (unconstrained)
-
-    if n_samples < min_samples_abort:
+    max_depth = None
+    
+    if n_samples < min_sample_threshold:
         abort_flag = True
         max_depth = None
-        logger.warning(f"Sample size {n_samples} is below abort threshold ({min_samples_abort}). Setting abort_flag=True.")
-    elif n_samples < min_samples_reduced_depth:
-        abort_flag = False
+        logger.warning(f"Sample size {n_samples} is below threshold {min_sample_threshold}. Abort flag set to True.")
+    elif n_samples < ideal_sample_threshold:
         max_depth = 3
-        logger.info(f"Sample size {n_samples} is below reduced depth threshold ({min_samples_reduced_depth}). Setting max_depth=3.")
+        logger.info(f"Sample size {n_samples} is between {min_sample_threshold} and {ideal_sample_threshold}. Setting max_depth=3.")
     else:
-        abort_flag = False
-        max_depth = None
-        logger.info(f"Sample size {n_samples} meets all thresholds. No depth restriction.")
-
+        logger.info(f"Sample size {n_samples} meets ideal threshold. No max_depth constraint.")
+    
     config = {
         "n_samples": n_samples,
         "max_depth": max_depth,
-        "abort_flag": abort_flag
+        "abort_flag": abort_flag,
+        "min_sample_threshold": min_sample_threshold,
+        "ideal_sample_threshold": ideal_sample_threshold
     }
-
-    logger.info(f"Writing modeling config to {output_path}")
+    
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-
+    
     with open(output_file, 'w') as f:
         json.dump(config, f, indent=2)
-
+    
+    logger.info(f"Modeling config written to {output_path}")
     return config
 
 def main():
-    """Entry point for the power analysis script."""
+    """Entry point for running power analysis as a script."""
+    input_path = "data/processed/cleaned_data.csv"
+    output_path = "data/processed/modeling_config.json"
+    
     try:
-        config = calculate_power_analysis()
+        config = calculate_power_analysis(input_path, output_path)
         print(f"Power analysis complete. Config: {config}")
-        if config["abort_flag"]:
-            print("WARNING: Abort flag is set. Subsequent tasks may need to handle this.")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        exit(1)
     except Exception as e:
-        logger.error(f"Power analysis failed: {e}")
-        raise
+        print(f"Unexpected error during power analysis: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()

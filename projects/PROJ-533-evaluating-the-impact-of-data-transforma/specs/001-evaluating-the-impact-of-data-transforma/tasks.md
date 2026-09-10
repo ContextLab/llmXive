@@ -45,7 +45,7 @@
 
 - [ ] T001 Create project structure using exact command: `mkdir -p code/utils data/raw data/processed results/type1_error results/power results/aggregated results/checkpoints tests/unit tests/integration` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
-- [ ] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`) in `requirements.txt` [UNRESOLVED-CLAIM: c_41e1c411 — status=not_enough_info]
+- [X] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`) in `requirements.txt`
 
 - [ ] T003 Configure linting (flake8) and formatting (black) tools
 
@@ -59,11 +59,11 @@
 
 - [ ] T004 Implement `utils/checkpointing.py` to handle state saving/loading for resumption (Constitution Principle V)
 
-- [ ] T005 Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk, and Friedman test wrappers [UNRESOLVED-CLAIM: c_5af3ab69 — status=not_enough_info]
+- [ ] T005 Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk, and Friedman test wrappers
 
-- [ ] T006 {{claim:c_c481db98}}
+- [ ] T006 {{claim:c_c481db98}} <!-- ATOMIZE: requested -->
 
-- [ ] T3147a81a-bee9-48db-86ca-03f81b08df78 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, excluded_reason]` [UNRESOLVED-CLAIM: c_ec5848df — status=not_enough_info] (Note: Only retained datasets are included; `shapiro_p_value` is logged but not stored in the final CSV per US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]` <!-- ATOMIZE: requested -->
+- [ ] T3147a81a-bee9-48db-86ca-03f81b08df78 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, excluded_reason]` (Note: Only retained datasets are included; `shapiro_p_value` is logged but not stored in the final CSV per US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]` <!-- ATOMIZE: requested -->
 
 - [ ] T008 Create `results/simulation_seeds.txt` to log seeds per run ID (format: `RUN_ID=<id> SEED=42`) ensuring the file is located in `results/` alongside specific simulation outputs to satisfy Constitution VII "alongside results" requirement
 
@@ -75,7 +75,7 @@
 
 ## Phase 3: User Story 1 - Download and Filter Real-World Datasets (Priority: P1) 🎯 MVP
 
-**Goal**: Download at least 50 public datasets from UCI/OpenML, filter for non-normality (Shapiro-Wilk p < 0.05) and sample size (N ≥ 30) [UNRESOLVED-CLAIM: c_359bb504 — status=not_enough_info], and preserve metadata.
+**Goal**: Download at least 50 public datasets from UCI/OpenML, filter for non-normality (Shapiro-Wilk p < 0.05) and sample size (N ≥ 30), and preserve metadata.
 
 **Independent Test**: Execute `code/download_datasets.py` and `code/filter_datasets.py` and verify `data/datasets.csv` contains ≥50 valid entries with SHA-256 checksums in `data/checksums.csv`.
 
@@ -99,7 +99,7 @@
 
 - [ ] T014 [US1] Append SHA-256 checksum computation to `code/download_datasets.py`, write to `data/checksums.csv`, AND update `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml` artifact_hashes map (FR-010, Constitution III/V). **Dependency**: Must run immediately AFTER T013 (Download) to checksum the raw downloaded data before any filtering or exclusion logic is applied.
 
-- [ ] T015 [US1] Implement missing value imputation (mean/median) and exclusion logic (>10% missing) in `code/filter_datasets.py`
+- [X] T015 [US1] Implement missing value imputation (mean/median) and exclusion logic (>10% missing) in `code/filter_datasets.py`
 
 - [ ] T016 [US1] Implement Shapiro-Wilk normality test and sample size filtering (N ≥ 30) in `code/filter_datasets.py` (FR-002). **Dependency**: Must run AFTER T015 (Imputation) to ensure complete data for testing.
 
@@ -151,7 +151,7 @@
 
 **Goal**: Generate simulated datasets with known effect sizes (Cohen's d) and measure statistical power.
 
-**Independent Test**: Run `code/simulate_power.py` with fixed effect sizes and Power estimates will match expected values within 95% CI half-width ±0.02..
+**Independent Test**: Run `code/simulate_power.py` with fixed effect sizes and Run code/simulate_power.py with fixed effect sizes and Power estimates will match expected values within 95% CI half-width ±0.02...
 
 ### Tests for User Story 4 (TDD First - Write these BEFORE implementation)
 

@@ -4,177 +4,200 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import statsmodels.api as sm
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, RidgeCV
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.preprocessing import StandardScaler
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def fit_ols(df, target_col='agency_score', feature_cols=None):
+def fit_ols(X: pd.DataFrame, y: pd.Series) -> dict:
     """
-    Fit standard Multiple Linear Regression (OLS).
+    Fit Ordinary Least Squares regression.
+    Returns dict with coefficients, p-values, and R2.
     """
-    if feature_cols is None:
-        feature_cols = [c for c in df.columns if c != target_col and c != 'participant_id']
-    
-    X = df[feature_cols].dropna()
-    y = df.loc[X.index, target_col]
-    
-    if len(X) == 0:
-        raise ValueError("No valid samples after dropping NaNs.")
-    
-    X = sm.add_constant(X)
-    model = sm.OLS(y, X).fit()
+    logger.info("Fitting OLS model...")
+    X_const = sm.add_constant(X)
+    model = sm.OLS(y, X_const).fit()
     
     results = {
-        'coefficients': model.params.to_dict(),
-        'pvalues': model.pvalues.to_dict(),
-        'rsquared': model.rsquared,
-        'nobs': model.nobs
+        "type": "OLS",
+        "coefficients": model.params.to_dict(),
+        "p_values": model.pvalues.to_dict(),
+        "r2": model.rsquared,
+        "adj_r2": model.rsquared_adj,
+        "n_obs": model.nobs
     }
-    logger.info(f"OLS fit complete. R²: {model.rsquared:.4f}, N: {model.nobs}")
+    logger.info(f"OLS R2: {results['r2']:.4f}")
     return results
 
-def fit_ridge(df, target_col='agency_score', feature_cols=None, alpha=1.0, cv_folds=5):
+def fit_ridge(X: pd.DataFrame, y: pd.Series, output_path: Path) -> dict:
     """
     Fit Ridge Regression with k-fold cross-validation for robustness check.
-    
-    Returns:
-        dict: Ridge coefficients, best alpha (if tuned), CV R² scores, and feature importance.
+    Selects best alpha via RidgeCV, then refits on full data.
+    Returns dict with coefficients and feature importance.
     """
-    if feature_cols is None:
-        feature_cols = [c for c in df.columns if c != target_col and c != 'participant_id']
+    logger.info("Fitting Ridge Regression with k-fold CV...")
     
-    # Drop rows with any NaN in features or target
-    valid_idx = df[feature_cols + [target_col]].dropna().index
-    X_raw = df.loc[valid_idx, feature_cols]
-    y = df.loc[valid_idx, target_col]
+    # Ensure numeric types
+    X = X.astype(float)
+    y = y.astype(float)
     
-    if len(X_raw) == 0:
-        raise ValueError("No valid samples after dropping NaNs for Ridge fit.")
-    
-    # Standardize features (required for Ridge to be meaningful)
+    # Standardize features for Ridge (important for regularization)
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_raw)
+    X_scaled = scaler.fit_transform(X)
     
-    # K-Fold setup
-    kfold = KFold(n_splits=cv_folds, shuffle=True, random_state=42)
-    ridge = Ridge(alpha=alpha)
+    # Define alpha candidates
+    alphas = [0.01, 0.1, 0.5, 1.0, 10.0, 100.0]
     
-    # Cross-validation R² scores
-    cv_scores = cross_val_score(ridge, X_scaled, y, cv=kfold, scoring='r2')
-    mean_cv_r2 = np.mean(cv_scores)
-    std_cv_r2 = np.std(cv_scores)
+    # Use RidgeCV for automated alpha selection with k-fold CV
+    # cv=5 implies 5-fold cross-validation
+    ridge_cv = RidgeCV(alphas=alphas, cv=5, store_cv_results=True)
+    ridge_cv.fit(X_scaled, y)
     
-    # Fit on full data to get coefficients
-    ridge.fit(X_scaled, y)
+    best_alpha = ridge_cv.best_alpha
+    logger.info(f"Selected best alpha: {best_alpha}")
     
-    # Coefficients correspond to scaled features
-    coefficients = dict(zip(feature_cols, ridge.coef_))
-    intercept = ridge.intercept_
+    # Refit with best alpha on full data
+    final_ridge = Ridge(alpha=best_alpha)
+    final_ridge.fit(X_scaled, y)
     
-    # Feature importance: magnitude of standardized coefficients
-    importance = {feat: abs(coef) for feat, coef in coefficients.items()}
+    # Calculate R2 on full data (approximate out-of-sample via CV score)
+    cv_scores = cross_val_score(Ridge(alpha=best_alpha), X_scaled, y, cv=5)
+    mean_r2 = np.mean(cv_scores)
+    
+    # Feature importance in Ridge is typically the magnitude of coefficients
+    # (since features are standardized, coefficients are comparable)
+    feature_importance = dict(zip(X.columns, np.abs(final_ridge.coef_)))
+    
     # Sort by importance
-    importance = dict(sorted(importance.items(), key=lambda x: x[1], reverse=True))
+    sorted_importance = dict(sorted(feature_importance.items(), key=lambda x: x[1], reverse=True))
     
     results = {
-        'coefficients': coefficients,
-        'intercept': float(intercept),
-        'alpha': alpha,
-        'cv_r2_mean': float(mean_cv_r2),
-        'cv_r2_std': float(std_cv_r2),
-        'feature_importance': importance,
-        'n_samples': len(y)
+        "type": "Ridge",
+        "best_alpha": float(best_alpha),
+        "cv_r2_mean": float(mean_r2),
+        "cv_r2_std": float(np.std(cv_scores)),
+        "coefficients": {k: float(v) for k, v in zip(X.columns, final_ridge.coef_)},
+        "feature_importance": sorted_importance,
+        "scaler_mean": scaler.mean_.tolist(),
+        "scaler_scale": scaler.scale_.tolist()
     }
     
-    logger.info(f"Ridge fit complete. Alpha: {alpha}, CV R²: {mean_cv_r2:.4f} (+/- {std_cv_r2:.4f})")
+    logger.info(f"Ridge CV R2: {mean_r2:.4f} (+/- {np.std(cv_scores):.4f})")
+    logger.info(f"Top 3 features by importance: {list(sorted_importance.keys())[:3]}")
+    
+    # Save results to the specified output path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
     return results
 
-def fit_random_forest(df, target_col='agency_score', feature_cols=None, cv_folds=5):
+def fit_random_forest(X: pd.DataFrame, y: pd.Series) -> dict:
     """
-    Fit Random Forest model with k-fold cross-validation.
+    Fit Random Forest model.
+    Returns feature importance and out-of-sample metrics.
     """
     from sklearn.ensemble import RandomForestRegressor
-    
-    if feature_cols is None:
-        feature_cols = [c for c in df.columns if c != target_col and c != 'participant_id']
-    
-    valid_idx = df[feature_cols + [target_col]].dropna().index
-    X = df.loc[valid_idx, feature_cols]
-    y = df.loc[valid_idx, target_col]
-    
-    if len(X) == 0:
-        raise ValueError("No valid samples after dropping NaNs for RF fit.")
+    logger.info("Fitting Random Forest model...")
     
     rf = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
-    kfold = KFold(n_splits=cv_folds, shuffle=True, random_state=42)
     
-    cv_scores = cross_val_score(rf, X, y, cv=kfold, scoring='r2')
-    mean_cv_r2 = np.mean(cv_scores)
-    
+    # Calculate cross-validated R2 and RMSE
+    cv_scores = cross_val_score(rf, X, y, cv=5, scoring='r2')
     rf.fit(X, y)
     
-    importance = dict(zip(feature_cols, rf.feature_importances_))
-    importance = dict(sorted(importance.items(), key=lambda x: x[1], reverse=True))
+    # Calculate RMSE via CV
+    # We need to get predictions to calculate RMSE
+    from sklearn.model_selection import cross_val_predict
+    y_pred = cross_val_predict(rf, X, y, cv=5)
+    rmse = np.sqrt(np.mean((y - y_pred) ** 2))
     
     results = {
-        'feature_importance': importance,
-        'cv_r2_mean': float(mean_cv_r2),
-        'n_estimators': 100,
-        'n_samples': len(y)
+        "type": "RandomForest",
+        "r2_cv_mean": float(np.mean(cv_scores)),
+        "r2_cv_std": float(np.std(cv_scores)),
+        "rmse_cv": float(rmse),
+        "feature_importance": dict(zip(X.columns, rf.feature_importances_)),
+        "n_estimators": 100
     }
     
-    logger.info(f"Random Forest fit complete. CV R²: {mean_cv_r2:.4f}")
+    logger.info(f"RF CV R2: {results['r2_cv_mean']:.4f}")
     return results
 
 def main():
     """
-    Main entry point to run OLS, Ridge, and Random Forest models.
-    Reads cleaned data from data/processed/cleaned_data.csv.
-    Outputs metrics to data/results/model_metrics.json (appending Ridge/RF results).
+    Main entry point for model fitting.
+    Reads cleaned data, fits OLS, Ridge, and RF models.
+    Outputs model metrics to data/results/model_metrics.json.
     """
-    base_path = Path(__file__).resolve().parent.parent.parent
+    base_path = Path(__file__).resolve().parents[2]
     data_path = base_path / "data" / "processed" / "cleaned_data.csv"
+    config_path = base_path / "data" / "processed" / "modeling_config.json"
     output_path = base_path / "data" / "results" / "model_metrics.json"
     
     if not data_path.exists():
-        logger.error(f"Input file not found: {data_path}")
-        sys.exit(1)
+        logger.error(f"Cleaned data not found at {data_path}")
+        raise FileNotFoundError(f"Data file missing: {data_path}")
+    
+    if not config_path.exists():
+        logger.error(f"Modeling config not found at {config_path}")
+        raise FileNotFoundError(f"Config file missing: {config_path}")
     
     logger.info(f"Loading data from {data_path}")
     df = pd.read_csv(data_path)
     
-    # Ensure output directory exists
+    # Load config to check abort flag (though T016b should have handled this)
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    if config.get('abort_flag', False):
+        logger.error("Analysis aborted per modeling config (insufficient sample size).")
+        raise SystemExit("Analysis aborted: Insufficient sample size (N < 80)")
+    
+    # Define features and target based on project scope
+    # Features: latency, smoothness, lead_time (if available)
+    target_col = 'agency_score'
+    feature_cols = [col for col in ['latency', 'smoothness', 'lead_time'] if col in df.columns]
+    
+    if len(feature_cols) < 2:
+        logger.error(f"Insufficient features found. Found: {feature_cols}")
+        raise ValueError("Not enough features for regression analysis.")
+    
+    X = df[feature_cols].dropna()
+    y = df.loc[X.index, target_col]
+    
+    # Drop rows with missing target as well
+    valid_idx = y.notna()
+    X = X[valid_idx]
+    y = y[valid_idx]
+    
+    logger.info(f"Dataset shape after cleaning: {X.shape[0]} samples, {X.shape[1]} features")
+    
+    # Fit models
+    ols_results = fit_ols(X, y)
+    ridge_results = fit_ridge(X, y, base_path / "data" / "results" / "ridge_results.json")
+    rf_results = fit_random_forest(X, y)
+    
+    # Aggregate results
+    all_metrics = {
+        "ols": ols_results,
+        "ridge": ridge_results,
+        "random_forest": rf_results,
+        "metadata": {
+            "n_samples": int(X.shape[0]),
+            "features": feature_cols,
+            "target": target_col
+        }
+    }
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing metrics if present (from T021 OLS)
-    metrics = {}
-    if output_path.exists():
-        with open(output_path, 'r') as f:
-            metrics = json.load(f)
-    
-    # 1. Run OLS (if not already present or to refresh)
-    if 'ols_results' not in metrics:
-        logger.info("Fitting OLS model...")
-        metrics['ols_results'] = fit_ols(df)
-    
-    # 2. Run Ridge Regression (T021b)
-    logger.info("Fitting Ridge Regression (Robustness Check)...")
-    metrics['ridge_results'] = fit_ridge(df, alpha=1.0, cv_folds=5)
-    
-    # 3. Run Random Forest (T022b)
-    logger.info("Fitting Random Forest model...")
-    metrics['random_forest_results'] = fit_random_forest(df, cv_folds=5)
-    
-    # Save updated metrics
     with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
+        json.dump(all_metrics, f, indent=2)
     
     logger.info(f"Model metrics saved to {output_path}")
-    return metrics
+    return all_metrics
 
 if __name__ == "__main__":
-    import sys
     main()

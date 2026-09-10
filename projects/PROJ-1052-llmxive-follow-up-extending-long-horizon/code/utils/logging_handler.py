@@ -1,144 +1,144 @@
 """
 Custom logging handler for llmXive research pipeline.
-Captures specific research metrics (reward_fidelity_level, recovery_segment_id)
-and formats them for structured analysis.
+Provides structured logging for research metrics like reward_fidelity_level
+and recovery_segment_id.
 """
 import logging
 import os
 import json
 from typing import Optional, Dict, Any
 from pathlib import Path
+import yaml
 
 class ResearchLogFormatter(logging.Formatter):
-    """
-    Custom formatter that appends research-specific metadata to log records.
-    Ensures fields like `reward_fidelity_level` and `recovery_segment_id`
-    are present in the output, even if set via `extra`.
-    """
+    """Custom formatter that outputs structured JSON for research metrics."""
     
-    def __init__(self, fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"):
-        super().__init__(fmt)
-    
+    def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None):
+        super().__init__(fmt, datefmt)
+        self.metric_keys = {
+            'reward_fidelity_level',
+            'recovery_segment_id',
+            'task_id',
+            'success_status',
+            'token_count'
+        }
+
     def format(self, record: logging.LogRecord) -> str:
-        # Ensure standard attributes exist
-        if not hasattr(record, 'reward_fidelity_level'):
-            record.reward_fidelity_level = "N/A"
-        if not hasattr(record, 'recovery_segment_id'):
-            record.recovery_segment_id = "N/A"
-        if not hasattr(record, 'task_id'):
-            record.task_id = "N/A"
+        # Check if this record contains research metrics
+        has_metrics = any(hasattr(record, key) for key in self.metric_keys)
         
-        # Prepend custom fields to the message for easy parsing
-        custom_info = f" [reward_fidelity_level={record.reward_fidelity_level}] [recovery_segment_id={record.recovery_segment_id}]"
-        
-        # Append to the base message
-        if isinstance(record.msg, str):
-            record.msg = record.msg + custom_info
-        
-        return super().format(record)
+        if has_metrics:
+            # Create a structured JSON log entry
+            log_entry = {
+                'timestamp': self.formatTime(record, self.datefmt),
+                'level': record.levelname,
+                'logger': record.name,
+                'message': record.getMessage(),
+            }
+            
+            # Add any metric attributes present
+            for key in self.metric_keys:
+                if hasattr(record, key):
+                    log_entry[key] = getattr(record, key)
+            
+            return json.dumps(log_entry)
+        else:
+            return super().format(record)
 
 class StructuredResearchHandler(logging.Handler):
-    """
-    A handler that writes structured JSON lines for research metrics,
-    while also passing the formatted string to the base stream/file.
-    Useful for programmatic parsing of specific research variables.
-    """
-    def __init__(self, stream):
-        super().__init__()
-        self.stream = stream
+    """Handler that captures and formats research-specific metrics."""
     
+    def __init__(self, log_path: str):
+        super().__init__()
+        self.log_path = Path(log_path)
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Set formatter
+        self.setFormatter(ResearchLogFormatter())
+
     def emit(self, record: logging.LogRecord):
         try:
-            log_data = {
-                "timestamp": self.formatTime(record, self.datefmt),
-                "level": record.levelname,
-                "logger": record.name,
-                "message": record.getMessage(),
-                "metrics": {
-                    "reward_fidelity_level": getattr(record, 'reward_fidelity_level', "N/A"),
-                    "recovery_segment_id": getattr(record, 'recovery_segment_id', "N/A"),
-                    "task_id": getattr(record, 'task_id', "N/A"),
-                    "model_name": getattr(record, 'model_name', "N/A")
-                }
-            }
-            self.stream.write(json.dumps(log_data) + "\n")
-            self.flush()
+            msg = self.format(record)
+            with open(self.log_path, 'a', encoding='utf-8') as f:
+                f.write(msg + '\n')
         except Exception:
             self.handleError(record)
 
 def setup_logger(
-    name: str = "llmxive",
+    name: str = "llmXive",
     log_file: str = "logs/run.log",
     level: int = logging.INFO,
-    config_path: str = "code/config.yaml"
+    console_output: bool = True
 ) -> logging.Logger:
     """
-    Initializes the project logger with both standard and structured handlers.
-    Reads configuration from config.yaml if available, otherwise uses defaults.
+    Setup a research logger with both file and console handlers.
     
     Args:
         name: Logger name
-        log_file: Path to the log file relative to project root
+        log_file: Path to the log file
         level: Logging level
-        config_path: Path to config file (optional)
-    
+        console_output: Whether to output to console
+        
     Returns:
         Configured logger instance
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
     
-    # Prevent duplicate handlers if called multiple times
+    # Prevent duplicate handlers
     if logger.handlers:
         return logger
-    
-    # Ensure log directory exists
-    log_path = Path(log_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # File Handler
-    file_handler = logging.FileHandler(log_file, mode='a')
+
+    # File handler for structured research logs
+    file_handler = StructuredResearchHandler(log_file)
     file_handler.setLevel(level)
-    file_handler.setFormatter(ResearchLogFormatter())
-    
-    # Structured Handler (for metric extraction)
-    structured_handler = StructuredResearchHandler(open(log_file, 'a'))
-    structured_handler.setLevel(level)
-    structured_handler.setFormatter(logging.Formatter('%(message)s')) # JSON is self-contained
-    
     logger.addHandler(file_handler)
-    logger.addHandler(structured_handler)
-    
+
+    if console_output:
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(level)
+        console_handler.setFormatter(
+            logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        )
+        logger.addHandler(console_handler)
+
     return logger
 
 def log_metric(
     logger: logging.Logger,
     message: str,
-    reward_fidelity_level: Optional[str] = None,
-    recovery_segment_id: Optional[str] = None,
-    task_id: Optional[str] = None,
-    model_name: Optional[str] = None,
-    level: int = logging.INFO
+    **kwargs: Any
 ) -> None:
     """
-    Helper function to log a message with specific research metrics.
+    Log a research metric with key-value pairs.
     
     Args:
         logger: Logger instance
         message: Log message
-        reward_fidelity_level: The fidelity level (e.g., 'dense', 'binary')
-        recovery_segment_id: The ID of the recovery segment
-        task_id: The task identifier
-        model_name: The model used
-        level: Log level
+        **kwargs: Metric key-value pairs (e.g., reward_fidelity_level='dense')
     """
-    logger.log(
-        level,
+    # Create a log record with custom attributes
+    record = logger.makeRecord(
+        logger.name,
+        logging.INFO,
+        "",
+        0,
         message,
-        extra={
-            'reward_fidelity_level': reward_fidelity_level or "N/A",
-            'recovery_segment_id': recovery_segment_id or "N/A",
-            'task_id': task_id or "N/A",
-            'model_name': model_name or "N/A"
-        }
+        (),
+        None
     )
+    
+    # Attach metric attributes to the record
+    for key, value in kwargs.items():
+        setattr(record, key, value)
+    
+    logger.handle(record)
+
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    config_file = Path(config_path)
+    if not config_file.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    with open(config_file, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)

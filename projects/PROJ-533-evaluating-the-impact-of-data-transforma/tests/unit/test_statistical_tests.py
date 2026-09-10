@@ -1,149 +1,91 @@
-"""
-Unit tests for statistical test wrappers in code/utils/statistical_tests.py.
-"""
-
 import pytest
 import numpy as np
-from utils.statistical_tests import (
-    independent_t_test,
-    one_way_anova,
-    shapiro_wilk,
-    friedman_test,
-    get_test_summary
-)
+import pandas as pd
+from code.utils.statistical_tests import t_test, anova_one_way, shapiro_test, friedman_test
 
 
-class TestIndependentTTest:
-    def test_welch_ttest_basic(self):
-        """Test Welch's t-test (default) with known data."""
-        group1 = [1.0, 2.0, 3.0, 4.0, 5.0]
-        group2 = [2.0, 3.0, 4.0, 5.0, 6.0]
+class TestTTest:
+    def test_equal_variance(self):
+        # Two normal distributions with same variance
+        g1 = np.random.normal(0, 1, 100)
+        g2 = np.random.normal(0.5, 1, 100)
+        stat, pval = t_test(g1, g2)
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
+        assert 0 <= pval <= 1
 
-        result = independent_t_test(group1, group2, equal_variance=False)
+    def test_unequal_variance(self):
+        g1 = np.random.normal(0, 1, 100)
+        g2 = np.random.normal(0, 2, 100)
+        stat, pval = t_test(g1, g2, equal_var=False)
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
 
-        assert "statistic" in result
-        assert "p_value" in result
-        assert result["test_type"] == "welch"
-        assert isinstance(result["p_value"], float)
-
-    def test_student_ttest_basic(self):
-        """Test Student's t-test with equal variance."""
-        group1 = [1.0, 2.0, 3.0, 4.0, 5.0]
-        group2 = [2.0, 3.0, 4.0, 5.0, 6.0]
-
-        result = independent_t_test(group1, group2, equal_variance=True)
-
-        assert result["test_type"] == "student"
-        assert result["p_value"] >= 0.0
-
-    def test_empty_input_raises_error(self):
-        """Test that empty arrays raise ValueError."""
+    def test_empty_input(self):
         with pytest.raises(ValueError):
-            independent_t_test([], [1, 2, 3])
-
-    def test_single_element_raises_error(self):
-        """Test that single element arrays raise error (scipy requirement)."""
-        # scipy.stats.ttest_ind requires at least 2 elements usually,
-        # but let's ensure our wrapper handles edge cases gracefully
-        # depending on scipy version behavior.
-        # We test that it doesn't crash on minimal valid input if scipy allows.
-        # If scipy raises, we let it propagate as it's a valid scipy error.
-        try:
-            independent_t_test([1.0], [2.0])
-        except Exception:
-            # Expected behavior if scipy rejects it
-            pass
+            t_test([], [1, 2, 3])
 
 
-class TestOneWayAnova:
-    def test_anova_basic(self):
-        """Test one-way ANOVA with simple groups."""
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [4.0, 5.0, 6.0]
-        g3 = [7.0, 8.0, 9.0]
+class TestAnovaOneWay:
+    def test_basic_anova(self):
+        g1 = np.random.normal(0, 1, 50)
+        g2 = np.random.normal(1, 1, 50)
+        g3 = np.random.normal(2, 1, 50)
+        stat, pval = anova_one_way([g1, g2, g3])
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
 
-        result = one_way_anova(g1, g2, g3)
+    def test_2d_input(self):
+        data = np.random.rand(5, 3)  # 5 blocks, 3 treatments
+        # Note: Anova expects independent groups, so 2D input here is treated as rows=groups
+        # Just checking it runs without error
+        stat, pval = anova_one_way(data)
+        assert isinstance(stat, float)
 
-        assert "statistic" in result
-        assert "p_value" in result
-        assert result["p_value"] >= 0.0
-
-    def test_two_groups(self):
-        """ANOVA with two groups should work (equivalent to t-test squared)."""
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [4.0, 5.0, 6.0]
-
-        result = one_way_anova(g1, g2)
-        assert result["p_value"] >= 0.0
-
-    def test_single_group_raises_error(self):
-        """Test that ANOVA requires at least two groups."""
+    def test_single_group(self):
         with pytest.raises(ValueError):
-            one_way_anova([1, 2, 3])
-
-    def test_empty_group_raises_error(self):
-        """Test that empty groups raise ValueError."""
-        with pytest.raises(ValueError):
-            one_way_anova([1, 2], [])
+            anova_one_way([np.array([1, 2, 3])])
 
 
-class TestShapiroWilk:
+class TestShapiroTest:
     def test_normal_data(self):
-        """Test Shapiro-Wilk on normal data (should have high p-value)."""
-        np.random.seed(42)
-        data = np.random.normal(loc=0, scale=1, size=50)
+        data = np.random.normal(0, 1, 100)
+        stat, pval = shapiro_test(data)
+        assert isinstance(stat, float)
+        assert 0 <= pval <= 1
 
-        result = shapiro_wilk(data)
+    def test_small_sample(self):
+        data = [1, 2, 3]
+        stat, pval = shapiro_test(data)
+        assert isinstance(stat, float)
 
-        assert result["statistic"] <= 1.0
-        assert result["p_value"] >= 0.0
-        # Note: We don't assert p > 0.05 as randomness can vary,
-        # but the structure must be correct.
-
-    def test_small_sample_size(self):
-        """Test with minimum required sample size (3)."""
-        data = [1.0, 2.0, 3.0]
-        result = shapiro_wilk(data)
-        assert result["p_value"] is not None
-
-    def test_insufficient_data_raises_error(self):
-        """Test that < 3 points raises ValueError."""
+    def test_too_small(self):
         with pytest.raises(ValueError):
-            shapiro_wilk([1.0, 2.0])
+            shapiro_test([1, 2])
+
+    def test_too_large(self):
+        # Shapiro-Wilk limit is 5000
+        with pytest.raises(ValueError):
+            shapiro_test(np.random.rand(5001))
 
 
 class TestFriedmanTest:
-    def test_friedman_basic(self):
-        """Test Friedman test with simple repeated measures."""
-        # 3 subjects, 3 conditions
-        g1 = [1.0, 2.0, 3.0]
-        g2 = [2.0, 3.0, 4.0]
-        g3 = [3.0, 4.0, 5.0]
+    def test_basic_friedman(self):
+        # 10 subjects, 3 treatments
+        data = np.random.rand(10, 3)
+        stat, pval = friedman_test(data)
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
 
-        result = friedman_test(g1, g2, g3)
+    def test_dataframe_input(self):
+        df = pd.DataFrame(np.random.rand(5, 4))
+        stat, pval = friedman_test(df)
+        assert isinstance(stat, float)
 
-        assert "statistic" in result
-        assert "p_value" in result
-
-    def test_mismatched_lengths_raises_error(self):
-        """Test that groups of different lengths raise ValueError."""
-        with pytest.raises(ValueError):
-            friedman_test([1, 2, 3], [1, 2])
-
-    def test_single_group_raises_error(self):
-        """Test that single group raises ValueError."""
+    def test_non_2d(self):
         with pytest.raises(ValueError):
             friedman_test([1, 2, 3])
 
-
-class TestGetTestSummary:
-    def test_known_tests(self):
-        """Test retrieval of descriptions for known tests."""
-        assert "t-test" in get_test_summary("t-test")
-        assert "ANOVA" in get_test_summary("anova")
-        assert "normality" in get_test_summary("shapiro")
-        assert "Friedman" in get_test_summary("friedman")
-
-    def test_unknown_test(self):
-        """Test retrieval for unknown test name."""
-        assert "Unknown" in get_test_summary("unknown_test")
+    def test_single_column(self):
+        with pytest.raises(ValueError):
+            friedman_test(np.random.rand(5, 1))

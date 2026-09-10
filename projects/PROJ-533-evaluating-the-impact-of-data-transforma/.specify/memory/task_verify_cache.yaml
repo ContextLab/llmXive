@@ -1,9 +1,32 @@
-T001:
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or other proof was provided showing that the exact `mkdir\
-    \ -p \u2026` command was executed and the required folder hierarchy exists; without\
-    \ such evidence the task cannot be confirmed as completed."
+  r: "No linting or formatting configuration artifacts (e.g., .flake8, pyproject.toml,\
+    \ setup.cfg, requirements.txt, or pre\u2011commit hook files) are present or referenced,\
+    \ and the provided evidence only describes a data\u2011transformation feature,\
+    \ not the required flake8/black setup. The task therefore lacks the necessary\
+    \ files to satisfy the linting/formatting configuration requirement."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/checkpointing.py` file or any code implementing state saving/loading\
+    \ was provided; the only artifacts shown relate to dataset handling and analysis,\
+    \ not to the required checkpointing utility. The task\u2019s core requirement\
+    \ remains unmet."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/statistical_tests.py` file or its contents are present; the claim\
+    \ provides only high\u2011level user story descriptions and no actual code implementing\
+    \ t\u2011test, ANOVA, Shapiro\u2011Wilk, or Friedman test wrappers. The required\
+    \ module is missing, so the task is not satisfied."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No download, transformation, or aggregation scripts, datasets, result tables,\
+    \ or figures are present; the required artifacts (\u226550 filtered real\u2011\
+    world datasets, Type\u202FI error estimates per transformation, aggregated summary\
+    \ tables/plots) are missing, so the task is not satisfied."
 T009:
   c: true
   h: b7058e7d475f41ad12907873495d405451a159f27c102bb18c0fb9e67c5152a6
@@ -20,3 +43,11 @@ T012a:
     \ and filter scripts and checks for the existence and row count of `data/datasets.csv`.\
     \ The missing `datasets.csv` is expected until the test is executed; the required\
     \ test implementation is present."
+T014:
+  c: false
+  h: a3c898b4b8eeedd7a5c098f6b2f3852c579014ebe667b4cdfe61c202e024affa
+  r: "The repository lacks the required `data/checksums.csv` file and the `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml`\
+    \ artifact, so the checksum output and the artifact_hashes map update are not\
+    \ present. Additionally, the `download_datasets.py` script is truncated before\
+    \ showing a complete implementation of writing the SHA\u2011256 hash, indicating\
+    \ the functionality is not fully realized."

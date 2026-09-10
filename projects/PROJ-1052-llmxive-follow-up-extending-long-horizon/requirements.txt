@@ -6,4 +6,3 @@ pandas==2.0.0
 pyyaml==6.0.1
 pytest==7.4.0
 statsmodels==0.14.0
-huggingface-hub>=0.16.0
