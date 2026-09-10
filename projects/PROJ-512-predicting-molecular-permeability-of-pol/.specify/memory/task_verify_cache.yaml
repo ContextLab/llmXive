@@ -1,0 +1,9 @@
+T012:
+  c: false
+  h: 24a95bc1e12d89385a269a151f7dfcf5542f864ebaa0dfba9aa4c9a7da52c7da
+  r: "The provided `ingestion.py` snippet stops after the `smiles_to_polymer_graph`\
+    \ function and never shows any implementation of the required data\u2011cleaning\
+    \ steps (missing permeability exclusion, duplicate handling, MW check, or logging).\
+    \ Moreover, the required `review_log.csv` file is absent, so the script cannot\
+    \ record the mandated exclusion and conflict flags. The task\u2019s core logic\
+    \ and logging artifact are therefore missing."
