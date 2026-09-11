@@ -1,39 +1,27 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PolymerRecord"
-type: "object"
+type: object
 properties:
   smiles:
-    type: "string"
-    description: "Canonical SMILES string of the polymer"
-  degradation_pathway:
-    type: "string"
-    description: "Categorical label (always 'unknown' in feasibility study)"
-    enum:
-      - "unknown"
+    type: string
+    description: "SMILES string representing the polymer."
   temperature:
-    type: "number"
-    description: "Temperature in Kelvin"
-    minimum: 0
+    type: number
+    format: float
+    description: "Temperature in Celsius."
   ph:
-    type: "number"
-    description: "pH value"
-    minimum: 0
-    maximum: 14
+    type: number
+    format: float
+    description: "pH value."
   uv_exposure:
-    type: "number"
-    description: "Normalized UV exposure level"
-    minimum: 0
-    maximum: 1
-  source:
-    type: "string"
-    description: "Origin of the record"
-  flags:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of flags (e.g., missing_pathway, missing_ph, imputed_temp)"
+    type: number
+    format: float
+    description: "UV exposure level."
+  degradation_pathway:
+    type: string
+    description: "Degradation pathway."
 required:
   - smiles
+  - temperature
+  - ph
+  - uv_exposure
   - degradation_pathway
-  - source
-additionalProperties: false

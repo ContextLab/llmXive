@@ -1,52 +1,108 @@
-# Data Model: Polymer Degradation Pipeline Feasibility Study
-
-## Overview
-
-This document defines the data structures used throughout the project, ensuring consistency between ingestion, preprocessing, training, and analysis. The data model is designed to support the lightweight GNN architecture and the statistical validation requirements. **Note**: The `degradation_pathway` field is populated with `"unknown"` for all records in the current feasibility study due to the absence of ground-truth labels.
+# Data Model: Predicting Polymer Degradation Pathways
 
 ## Entities
 
-### 1. PolymerRecord
-Represents a single entry from the source data.
-- **`smiles`**: `string` - Canonical SMILES string of the polymer.
-- **`degradation_pathway`**: `string` - Categorical label. **Always "unknown"** in the current feasibility study due to missing ground truth.
-- **`temperature`**: `float` - Temperature in Kelvin (Celsius converted).
-- **`ph`**: `float` - pH value.
-- **`uv_exposure`**: `float` - UV exposure level (normalized).
-- **`source`**: `string` - Origin of the record (e.g., "nist", "materials_project", "smiles-proxy").
-- **`flags`**: `list[string]` - List of flags (e.g., "missing_ph", "imputed_temp", "missing_pathway").
+*   **PolymerRecord**: Represents a single polymer instance with its chemical structure, environmental conditions, and observed degradation pathway.
 
-### 2. MolecularGraph
-The graph representation of a `PolymerRecord` used for GNN input.
-- **`node_features`**: `tensor` - Matrix of shape (num_atoms, feature_dim). Features include atomic number, hybridization, degree, and environmental conditions (broadcasted).
-- **`edge_index`**: `tensor` - Matrix of shape (2, num_edges) representing bond connectivity.
-- **`edge_features`**: `tensor` - Matrix of shape (num_edges, edge_feature_dim). Features include bond type, conjugation, and environmental conditions (broadcasted).
-- **`label`**: `int` - Encoded degradation pathway label. **Always encoded as "unknown"** in the current feasibility study.
+    *   `smiles` (str): SMILES string representing the polymer's chemical structure.
+    *   `temperature` (float): Temperature in Celsius during degradation.
+    *   `ph` (float): pH value during degradation.
+    *   `uv_exposure` (float): UV exposure level during degradation.
+    *   `degradation_pathway` (str): Categorical label representing the observed degradation pathway (e.g., "hydrolysis", "oxidation").
+*   **MolecularGraph**: The graph representation of a polymer record.
 
-### 3. MotifImportance
-Derived metric linking a structural motif to a degradation pathway (for technical demonstration only).
-- **`motif_id`**: `string` - Unique identifier for the subgraph pattern.
-- **`structure`**: `string` - SMILES representation of the motif.
-- **`pathway`**: `string` - Associated degradation pathway. **Always "unknown"** in the current feasibility study.
-- **`importance_score`**: `float` - Score from Integrated Gradients (technical demonstration only).
-- **`p_value`**: `float` - Significance from Null Attribution Test (algorithmic validation only).
+    *   `nodes` (list): List of node features (atom types, charges, etc.).
+    *   `edges` (list): List of edge features (bond types, distances, etc.).
+*   **DegradationPathway**: Categorical label representing the type of degradation.
 
-## Data Flow
+    *   `pathway_name` (str):  The name of the degradation pathway (e.g. "hydrolysis", "photolysis", "oxidation").
+*   **MotifImportance**:  Represents the importance of a specific structural motif in predicting degradation.
 
-1.  **Ingestion**: Raw data from sources (NIST, Materials Project, or SMILES proxies) is loaded into `PolymerRecord` objects.
-2.  **Preprocessing**: `PolymerRecord` is converted to `MolecularGraph` using RDKit. Missing values are imputed/flagged. **All records are flagged as `missing_pathway`**.
-3.  **Feasibility Study**: `MolecularGraph` objects are fed into a *randomly initialized* GNN.
-4.  **Attribution**: `MotifImportance` objects are generated from model predictions and Integrated Gradients (technical demonstration only).
-5.  **Validation**: `MotifImportance` objects are used in Null Attribution Tests to validate the algorithm.
-6.  **Statistical Analysis**: A χ² test is performed on the distribution of structural motifs in the dataset.
+    *   `motif_id` (int): Unique identifier for the motif.
+    *   `pathway` (str): The degradation pathway the motif is associated with.
+    *   `importance_score` (float):  The score representing the importance of the motif.
 
-## Schema Definitions
+## Relationships
 
-See `contracts/polymer_record.schema.yaml` and `contracts/model_output.schema.yaml` for formal YAML schemas.
+*   A `PolymerRecord` is represented as a `MolecularGraph`.
+*   A `PolymerRecord` has one `DegradationPathway`.
+*   A `DegradationPathway` can be associated with multiple `MotifImportance` records.
 
-## Constraints
+## Schema
 
-- **SMILES Validity**: All SMILES strings must be valid according to RDKit. Invalid strings are logged and excluded.
-- **Label Presence**: If `degradation_pathway` is missing (which is always true for proxy data), the record is flagged as `missing_pathway` and excluded from any supervised training.
-- **Environmental Defaults**: Missing `temperature`, `ph`, or `uv_exposure` are imputed with community-standard defaults (e.g., 298K, pH 7, 0 UV) and flagged.
-- **Graph Size**: Graphs must be within memory limits (typically < 1000 atoms for CPU feasibility).
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  PolymerRecord:
+    type: object
+    properties:
+      smiles:
+        type: string
+        description: "SMILES string representing the polymer."
+      temperature:
+        type: number
+        format: float
+        description: "Temperature in Celsius."
+      ph:
+        type: number
+        format: float
+        description: "pH value."
+      uv_exposure:
+        type: number
+        format: float
+        description: "UV exposure level."
+      degradation_pathway:
+        type: string
+        description: "Degradation pathway."
+    required:
+      - smiles
+      - temperature
+      - ph
+      - uv_exposure
+      - degradation_pathway
+
+  MolecularGraph:
+    type: object
+    properties:
+      nodes:
+        type: array
+        items:
+          type: array
+          description: "Node features."
+      edges:
+        type: array
+        items:
+          type: array
+          description: "Edge features."
+    required:
+      - nodes
+      - edges
+
+  DegradationPathway:
+    type: object
+    properties:
+      pathway_name:
+        type: string
+        description: "Name of the degradation pathway."
+    required:
+      - pathway_name
+
+  MotifImportance:
+    type: object
+    properties:
+      motif_id:
+        type: integer
+        description: "Unique identifier for the motif."
+      pathway:
+        type: string
+        description: "Degradation pathway."
+      importance_score:
+        type: number
+        format: float
+        description: "Importance score of the motif."
+    required:
+      - motif_id
+      - pathway
+      - importance_score
+```

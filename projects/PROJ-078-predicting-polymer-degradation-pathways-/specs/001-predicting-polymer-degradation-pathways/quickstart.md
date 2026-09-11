@@ -1,93 +1,66 @@
-# Quickstart: Polymer Degradation Pipeline Feasibility Study
+# Quickstart: Predicting Polymer Degradation Pathways
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- Git
-- Access to a Linux environment (or WSL on Windows)
-- ~14GB free disk space
+*   Python 3.11 or higher
+*   Pip package manager
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  Clone the repository:
+
     ```bash
-    git clone <repo-url>
-    cd projects/PROJ-078-predicting-polymer-degradation-pathways-/code
+    git clone [repository URL]
+    cd [repository directory]
     ```
 
-2.  **Create a virtual environment**:
+2.  Create a virtual environment:
+
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    python3 -m venv venv
+    source venv/bin/activate
     ```
 
-3.  **Install dependencies**:
+3.  Install dependencies:
+
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins specific versions of `rdkit`, `torch`, `torch-geometric`, and `scikit-learn`.*
 
-## Data Setup
+## Usage
 
-1.  **Download raw data**:
-    Run the ingestion script to download available SMILES data (note: degradation labels are missing):
+1.  **Data Ingestion:**
+
     ```bash
-    python pipelines/ingest.py --source smiles-proxy
-    ```
-    *This will populate `data/raw/` with downloaded files.*
-
-2.  **Verify checksums**:
-    The script will automatically verify checksums against the project's state file.
-
-## Running the Pipeline
-
-1.  **Preprocess data**:
-    Convert SMILES to molecular graphs and handle missing values:
-    ```bash
-    python pipelines/preprocess.py
+    python src/data/ingestion.py --source webbooks --output data/processed_data.csv
     ```
 
-2.  **Flag missing labels**:
-    Validate and flag records with missing degradation pathways:
+2.  **Model Training:**
+
     ```bash
-    python pipelines/flags.py
+    python src/models/gnn.py --data data/processed_data.csv --epochs 100
     ```
 
-3.  **Run Feasibility Study**:
-    Execute the pipeline with a randomly initialized model to demonstrate code paths:
+3.  **Feature Attribution and Validation:**
+
     ```bash
-    python models/trainer.py
+    python src/analysis/statistical_validation.py --model model.pth --data data/processed_data.csv
     ```
 
-4.  **Generate attribution and validation**:
-    Compute Integrated Gradients and run Null Attribution Tests:
-    ```bash
-    python analysis/null_test.py
-    ```
+## Data Format
 
-5.  **Generate the final report**:
-    ```bash
-    python analysis/report_gen.py
-    ```
+The input data should be a CSV file with the following columns:
 
-## Expected Outputs
+*   `smiles`: SMILES string of the polymer.
+*   `temperature`: Temperature during degradation (float).
+*   `ph`: pH during degradation (float).
+*   `uv_exposure`: UV exposure level during degradation (float).
+*   `degradation_pathway`: Degradation pathway (string).
 
-- `data/processed/graphs.parquet`: Processed molecular graphs.
-- `analysis/results/motif_importance.json`: Feature importance scores (technical demonstration only).
-- `analysis/results/chi_square_test.json`: Motif distribution statistics.
-- `reports/final_report.md`: Comprehensive report with structural analysis and pipeline validation results.
+## Output
 
-## Troubleshooting
+The project will generate the following outputs:
 
-- **Missing Labels**: If the pipeline reports "No degradation labels found", this is expected due to the lack of verified open datasets. The pipeline will proceed with structural analysis only, and the report will note this limitation.
-- **Memory Errors**: If you encounter memory errors, reduce the `hidden_dim` in `models/gnn.py` or further subsample the dataset.
-- **RDKit Errors**: Invalid SMILES strings will be logged in `logs/rdkit_errors.log`. Check this file for specific examples.
-
-## Reproducibility
-
-To ensure reproducibility, set the random seed before running any script:
-```bash
-export PYTHONHASHSEED=42
-export RANDOM_SEED=42
-```
-The `trainer.py` and `null_test.py` scripts will use this seed.
+*   `data/processed_data.csv`: Processed dataset with filtered and converted data.
+*   `model.pth`: Trained GNN model.
+*   `report.txt`: Statistical report with feature importance scores and validation results.

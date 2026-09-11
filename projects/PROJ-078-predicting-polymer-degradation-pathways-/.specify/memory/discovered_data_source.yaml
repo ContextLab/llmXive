@@ -1,17 +1,15 @@
 status: none
-intent: download polymer degradation dataset NIST Chemistry WebBook Materials Project
-  python package dataset
+intent: NIST Chemistry WebBook polymer degradation dataset download Materials Project
+  python package
 required_fields:
-- SMILES
+- smiles
 - polymer_type
-- degradation_pathway_label
-- degradation_product_SMILES
 - temperature
 - pH
-- UV_intensity
-- reaction_time
-- environmental_conditions
-- record_source
-cache_key: 37fca932c06180c1ed39ea09b2508d5e770167ead942c8508c44efed6c61ab00
-searched_at: '2026-08-24T20:13:08.318342+00:00'
+- uv_intensity_or_wavelength
+- degradation_label_or_pathway
+- degradation_products
+- record_source (NIST or Materials Project)
+cache_key: 667c7aedc5e26abbe77fa974a1ded718b631cba07131735d02b3625711df20e6
+searched_at: '2026-09-11T06:31:57.835321+00:00'
 retry_count: 1
