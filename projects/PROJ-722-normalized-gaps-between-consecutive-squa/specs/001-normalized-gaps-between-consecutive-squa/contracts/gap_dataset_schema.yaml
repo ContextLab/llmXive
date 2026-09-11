@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+description: Schema for the Gap Dataset
+properties:
+  raw_gaps:
+    type: array
+    items:
+      type: number
+      format: float
+    description: List of raw gaps between consecutive squarefree numbers.
+  normalized_gaps:
+    type: array
+    items:
+      type: number
+      format: float
+    description: List of normalized gaps.
+  mean_gap:
+    type: number
+    format: float
+    description: The empirical mean of the raw gaps.
+  N:
+    type: integer
+    description: The upper limit of the squarefree sequence.
+required:
+  - raw_gaps
+  - normalized_gaps
+  - mean_gap
+  - N

@@ -1,0 +1,10 @@
+status: none
+intent: OEIS A005117 squarefree numbers dataset python package dataset
+required_fields:
+- n
+- is_squarefree
+- gap
+- normalized_gap
+cache_key: 9cf100ebfda1f2570e62eb782ba51db13a050712f9617555ce3ff01ee3fee35c
+searched_at: '2026-09-11T18:30:13.655618+00:00'
+retry_count: 1
