@@ -19,6 +19,14 @@ T001b:
     \ Lee &\u202FSee (2004) and Langer (1975) has not been delivered. The implementer\
     \ must create a non\u2011empty markdown file at the specified path containing\
     \ the requested summary."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No Python code, notebook, or output files showing a pre\u2011study power analysis\
+    \ for the planned directional contrasts and the overall ANOVA are present. The\
+    \ claim lacks any concrete artifact (e.g., a script using `scipy.stats`/`numpy`,\
+    \ calculated sample size or power values, or a report of the results), so the\
+    \ requirement is not demonstrably satisfied."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +51,9 @@ T010b:
     \ is no artifact (e.g., the Lee & See 2004 Trust Scale questionnaire, PDF, or\
     \ data file) present. Consequently, the core requirement\u2014retrieving and providing\
     \ the canonical trust scale\u2014is not met."
+T010c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No verified source file for the Lee & See (2004) trust scale items is present
+    in the provided artifacts; the implementer supplied no code, data, or document
+    containing the items, so the required deliverable is missing.

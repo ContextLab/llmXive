@@ -1,0 +1,159 @@
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: significant correlation between graph spectral gap and average gate error
+  claim_id: c_e2111ab7
+  context: Key Findings section summarizing the primary results of the analysis on
+    IBM Quantum backends.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significant_correlation_between_graph_spectral_gap_and_avera
+  kind: entity_fact
+  raw_text: Significant correlations were observed between graph spectral gap and
+    average gate error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:51:48Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: robustness checks confirmed stability of correlations across device subsets
+    and temporal snapshots
+  claim_id: c_b09f00b3
+  context: Key Findings section describing the validation of the primary correlations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_checks_confirmed_stability_of_correlations_across
+  kind: entity_fact
+  raw_text: Robustness checks (LODO and Time Window) confirmed the stability of these
+    correlations across different device subsets and temporal snapshots.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:52:14Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: sample size of 30 to 40 active devices provides sufficient power to detect
+    medium-to-large effect sizes
+  claim_id: c_3076e401
+  context: Key Findings section discussing the statistical power of the study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power analysis indicates that the current sample size (N \u2248 30-40\
+    \ active devices) provides sufficient statistical power to detect medium-to-large\
+    \ effect sizes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:52:55Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: spearman correlation of -0.42 between spectral gap and average gate error
+    with adjusted p-value 0.032
+  claim_id: c_d0423cdb
+  context: Correlation Results table showing statistically significant correlations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman rank-order correlation between Spectral Gap and Average Gate
+    Error was -0.42 with an adjusted p-value of 0.032.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:53:16Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: spearman correlation of -0.38 between clustering coefficient and readout
+    error with adjusted p-value 0.045
+  claim_id: c_613ef727
+  context: Correlation Results table showing statistically significant correlations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman rank-order correlation between Clustering Coefficient and Readout
+    Error was -0.38 with an adjusted p-value of 0.045.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:53:58Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: spectral gap and gate error correlation remained stable across all LODO
+    iterations
+  claim_id: c_b011345a
+  context: Robustness Checks section detailing the LODO analysis results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spectral_gap_and_gate_error_correlation_remained_stable_acro
+  kind: entity_fact
+  raw_text: The primary correlation between Spectral Gap and Gate Error remained stable
+    across all Leave-One-Device-Out (LODO) iterations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:54:22Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: correlation directions and magnitudes preserved within 30-day historical
+    window
+  claim_id: c_df2597e1
+  context: Robustness Checks section detailing the Time Window Consistency analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation directions and magnitudes were preserved within the historical
+    subset when restricted to a 30-day historical window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:54:50Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: minimum detectable effect size of 0.33 at 80% power for sample size of
+    35
+  claim_id: c_7c1a31c4
+  context: Power Analysis section listing specific statistical power metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Given the sample size of active devices (N \u2248 35), the minimum detectable\
+    \ effect size is approximately 0.33 at 80% power with alpha = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:55:18Z'
+- artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/docs/report.md
+  attempts: 1
+  canonical: 95% confidence interval for primary correlation is -0.65 to -0.12
+  claim_id: c_519a6d88
+  context: Power Analysis section providing confidence intervals for the main result.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The 95% confidence interval for the primary correlation (\u03C1 = -0.42)\
+    \ is [-0.65, -0.12]."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T10:55:39Z'

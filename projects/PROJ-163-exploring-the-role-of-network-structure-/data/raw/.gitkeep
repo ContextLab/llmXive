@@ -1,1 +1,4 @@
-# Keep this directory
+# This directory stores raw JSON calibration snapshots from IBM Quantum backends.
+# Files are named {backend_name}_{timestamp}.json with corresponding .sha256 checksum files.
+# Do not commit large data files; use .gitignore for this directory.
+.gitignore

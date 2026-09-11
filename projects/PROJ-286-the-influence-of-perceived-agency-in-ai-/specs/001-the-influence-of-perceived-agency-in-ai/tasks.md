@@ -32,7 +32,7 @@
  **Logic**:
  1. Parse `spec.md` and `plan.md` to extract claimed citations (e.g., "Lee & See (2004)", "Langer (1975)").
  2. For Lee & See (2004), use the **explicitly known DOI** `10.1518/hfes.46.1.50_30392` as defined in the plan. **Do NOT infer or search** for the DOI.
- 3. Use `requests` to call `https://api.crossref.org/works/10.1518/hfes.46.1.50_30392` and fetch metadata.
+ 3. Use `requests` to call ` and fetch metadata.
  4. Compute a string overlap score between fetched `title` and claimed title using `difflib.SequenceMatcher`.
  5. **Verify Metadata ONLY**: Title, DOI, Year, Journal. **DO NOT** attempt to verify item text via API as Crossref does not provide full text.
  6. If any overlap < 0.7, DOI lookup fails (404), or metadata is missing, raise `SystemExit(1)` with message **"Citation Metadata Verification Failed"**.
@@ -81,7 +81,7 @@
  **Output**: `code/analysis/config_defaults.yaml` and `code/analysis/config_user.yaml`.
  **Dependency**: T000-GATE-METADATA, T000-HUMAN-SOURCE, T000-GATE-ITEMS-AUTO.
 
-- [ ] T042 [P] [FR-006] Generate `docs/protocol.md` with pre‑registered analysis plan.
+- [ ] T042 [P] [FR-006] Generate `docs/protocol.md` with pre‑registered analysis plan. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  **Requirement**: Reference FR‑006, US‑3, and the specific sensitivity sweep parameters.
  **Logic**:
  1. Read sensitivity sweep ranges defined in `code/analysis/config_defaults.yaml` (from T008-init-std).
@@ -116,7 +116,7 @@
  **Output**: `research/literature_review.md`.
  **Dependency**: T001b-1.
 
-- [ ] T010c [P] [SC-004] **Create** the verified source file for Lee & See (2004) items.
+- [ ] T010c [P] [SC-004] **Create** the verified source file for Lee & See (2004) items. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  **Logic**:
  1. Verify `data/processed/citation_log.json` (from T000-GATE-METADATA, T000-HUMAN-SOURCE, T000-GATE-ITEMS-AUTO) confirms the item text source and status "verified".
  2. Read the 12 items from `research/human_verified_items.json` (created by T000-HUMAN-SOURCE).
@@ -128,10 +128,10 @@
 
 - [ ] T002 [P] Execute pre‑study power analysis calculation for **planned directional contrasts** AND **overall ANOVA** using Python `scipy` and `numpy`.
  **Script**: `code/research/power_analysis.py`.
- **Args**: Hard‑coded design parameters: `effect_size` (f=0.25), `alpha` (0.05), `power` (0.80).
+ **Args**: Hard‑coded design parameters: `effect_size` (f=0.25), `alpha` (0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))), `power` (0.80).
  **Implementation**: (code omitted for brevity – see original).
  **Output**: `research/power_calculation.json` (machine‑readable with keys `params` and `results`).
- **Dependency**: T000-GATE-METADATA, T000-HUMAN-SOURCE, T000-GATE-ITEMS-AUTO, T001a-2.
+ **Dependency**:T000-GATE-METADATA, T000-HUMAN-SOURCE, T000-GATE-ITEMS-AUTO, T001a-2.
 
 - [ ] T002b-REPORT [P] Generate the pre-study power analysis report.
  **Requirement**: Generate `docs/power_analysis_report.md` as referenced in the Plan.md Phase 0.

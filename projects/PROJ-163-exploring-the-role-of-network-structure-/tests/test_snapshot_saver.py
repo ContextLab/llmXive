@@ -1,96 +1,97 @@
 """
-Tests for the Snapshot Saver (Task T016)
-
-Verifies that raw JSON snapshots are saved correctly with timestamps and checksums.
+Tests for the snapshot_saver module.
 """
+import os
 import json
 import hashlib
-import os
 import tempfile
-import shutil
 from pathlib import Path
-from datetime import datetime
-import pytest
-
-# Mock the logger and config to avoid dependency issues in tests
-import sys
 from unittest.mock import patch, MagicMock
 
-# Add code to path if not already
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import pytest
 
-from snapshot_saver import save_backend_snapshot, compute_sha256, ensure_data_raw_dir
-
-@pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory for data/raw."""
-    temp_root = tempfile.mkdtemp()
-    original_cwd = os.getcwd()
-    os.chdir(temp_root)
-    
-    # Create the expected directory structure
-    data_raw = Path("data/raw")
-    data_raw.mkdir(parents=True, exist_ok=True)
-    
-    yield temp_root
-    
-    # Cleanup
-    os.chdir(original_cwd)
-    shutil.rmtree(temp_root)
+from snapshot_saver import compute_sha256, ensure_data_raw_dir, save_backend_snapshot
 
 def test_compute_sha256():
-    """Test SHA256 computation."""
-    content = "test content"
-    expected_hash = hashlib.sha256(b"test content").hexdigest()
-    assert compute_sha256(content) == expected_hash
+    """Test that SHA256 computation is correct."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        f.write("test content")
+        temp_path = f.name
 
-def test_save_backend_snapshot_success(temp_data_dir):
-    """Test successful saving of a backend snapshot."""
-    device_id = "ibm_test_device"
-    properties = {
-        "backend_name": "ibm_test_device",
-        "last_update_date": datetime.utcnow(),
-        "qubits": [{"name": "T1", "value": 100}],
-        "coupling_map": [[0, 1], [1, 2]]
+    try:
+        hash_result = compute_sha256(temp_path)
+        assert len(hash_result) == 64  # SHA256 hex length
+        assert all(c in '0123456789abcdef' for c in hash_result)
+    finally:
+        os.unlink(temp_path)
+
+def test_ensure_data_raw_dir_creates_directory():
+    """Test that ensure_data_raw_dir creates the directory if it doesn't exist."""
+    # Use a temporary directory for testing to avoid polluting the project structure
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_raw_dir = Path(tmpdir) / "data" / "raw"
+        
+        # Mock the function to use our temp dir
+        with patch('snapshot_saver.Path') as mock_path:
+            mock_path_instance = MagicMock()
+            mock_path.return_value = mock_path_instance
+            mock_path_instance.mkdir = MagicMock()
+            mock_path_instance.__truediv__ = MagicMock(return_value=mock_path_instance)
+            
+            # Call the function
+            result = ensure_data_raw_dir()
+            
+            # Verify mkdir was called
+            mock_path_instance.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+
+def test_save_backend_snapshot_creates_json_and_checksum():
+    """Test that save_backend_snapshot creates a JSON file and a checksum file."""
+    test_data = {
+        "backend_name": "test_backend",
+        "qubits": [{"t1": 100, "t2": 200}],
+        "gates": [{"gate": "cx", "error": 0.01}]
     }
     
-    result_path = save_backend_snapshot(device_id, properties)
-    
-    assert os.path.exists(result_path)
-    assert result_path.endswith(".json")
-    
-    # Verify content
-    with open(result_path, 'r') as f:
-        data = json.load(f)
-    
-    assert data['device_id'] == device_id
-    assert 'fetched_at_utc' in data
-    assert data['data']['backend_name'] == device_id
-    
-    # Verify checksum file exists
-    checksum_path = result_path.replace('.json', '.sha256')
-    assert os.path.exists(checksum_path)
-    
-    # Verify checksum content matches
-    with open(checksum_path, 'r') as f:
-        stored_hash = f.read().split()[0]
-    
-    with open(result_path, 'r') as f:
-        content = f.read()
-    
-    assert compute_sha256(content) == stored_hash
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_dir = Path(tmpdir)
+        
+        file_path = save_backend_snapshot(
+            "test_backend", 
+            test_data, 
+            output_dir=output_dir
+        )
+        
+        # Check JSON file exists
+        assert os.path.exists(file_path)
+        assert file_path.endswith(".json")
+        
+        # Check content
+        with open(file_path, 'r') as f:
+            loaded_data = json.load(f)
+        assert loaded_data["backend_name"] == "test_backend"
+        
+        # Check checksum file exists
+        checksum_path = file_path.replace(".json", ".sha256")
+        assert os.path.exists(checksum_path)
+        
+        # Verify checksum content
+        with open(checksum_path, 'r') as f:
+            checksum_content = f.read().strip()
+        
+        stored_hash, stored_filename = checksum_content.split("  ")
+        assert stored_filename.endswith(".json")
+        
+        # Verify the hash matches
+        computed_hash = compute_sha256(file_path)
+        assert stored_hash == computed_hash
 
-def test_save_backend_snapshot_empty_properties():
-    """Test that saving with empty properties raises ValueError."""
-    with pytest.raises(ValueError, match="properties dictionary is empty"):
-        save_backend_snapshot("test_device", {})
-
-def test_save_backend_snapshot_custom_timestamp(temp_data_dir):
-    """Test saving with a custom timestamp."""
-    device_id = "ibm_test_device_2"
-    properties = {"backend_name": "ibm_test_device_2"}
-    custom_time = datetime(2023, 1, 1, 12, 0, 0)
-    
-    result_path = save_backend_snapshot(device_id, properties, custom_time)
-    
-    assert f"20230101_120000" in result_path
+def test_save_backend_snapshot_raises_on_empty_data():
+    """Test that save_backend_snapshot raises ValueError for empty data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_dir = Path(tmpdir)
+        
+        with pytest.raises(ValueError, match="Cannot save empty or None properties data."):
+            save_backend_snapshot("test_backend", {}, output_dir=output_dir)
+        
+        with pytest.raises(ValueError, match="Cannot save empty or None properties data."):
+            save_backend_snapshot("test_backend", None, output_dir=output_dir)

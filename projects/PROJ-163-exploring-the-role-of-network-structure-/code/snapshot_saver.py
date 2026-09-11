@@ -1,11 +1,6 @@
 """
-Snapshot Saver for IBM Quantum Calibration Data (Task T016)
-
-This module implements the logic to save raw JSON snapshots of backend properties
-to the data/raw/ directory. It ensures each snapshot includes:
-1. A timestamp in the filename.
-2. A SHA256 checksum of the content for integrity verification.
-3. Metadata regarding the source and timestamp of the fetch.
+Module to save raw JSON calibration snapshots from IBM Quantum backends.
+Handles timestamped filenames and SHA256 checksum generation.
 """
 import json
 import hashlib
@@ -15,111 +10,145 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from logger import setup_logger
+from config import load_config
 
-# Ensure logger is configured
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
-DATA_RAW_DIR = Path("data/raw")
-
-def compute_sha256(content: str) -> str:
-    """Compute SHA256 hash of a string content."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
-
-def ensure_data_raw_dir() -> Path:
-    """Ensure the data/raw directory exists, creating it if necessary."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    return DATA_RAW_DIR
-
-def save_backend_snapshot(
-    device_id: str,
-    properties: Dict[str, Any],
-    fetch_timestamp: Optional[datetime] = None
-) -> str:
+def compute_sha256(file_path: str) -> str:
     """
-    Save a raw JSON snapshot of backend properties to data/raw/.
-
-    The filename format is: {device_id}_{timestamp}.json
-    A corresponding checksum file {device_id}_{timestamp}.sha256 is also created.
+    Compute SHA256 hash of a file.
 
     Args:
-        device_id: The ID of the backend (e.g., 'ibmq_manila').
-        properties: The raw dictionary of backend properties.
-        fetch_timestamp: Optional datetime. If None, current time is used.
+        file_path: Path to the file to hash.
 
     Returns:
-        The path to the saved JSON file.
+        Hexadecimal string of the SHA256 hash.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def ensure_data_raw_dir() -> Path:
+    """
+    Ensure the data/raw directory exists.
+
+    Returns:
+        Path object for the data/raw directory.
+    """
+    raw_dir = Path("data/raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directory exists: {raw_dir}")
+    return raw_dir
+
+def save_backend_snapshot(
+    backend_name: str,
+    properties_data: Dict[str, Any],
+    output_dir: Optional[Path] = None
+) -> str:
+    """
+    Save a raw JSON snapshot of backend properties with timestamp and checksum.
+
+    Args:
+        backend_name: Name of the IBM Quantum backend (e.g., 'ibmq_manila').
+        properties_data: Dictionary containing the raw calibration properties.
+        output_dir: Optional directory to save the file. Defaults to data/raw/.
+
+    Returns:
+        Path to the saved JSON file.
 
     Raises:
-        ValueError: If properties is empty or invalid.
-        IOError: If writing to disk fails.
+        ValueError: If properties_data is empty or None.
+        IOError: If the file cannot be written.
     """
-    if not properties:
-        raise ValueError(f"Cannot save snapshot for {device_id}: properties dictionary is empty.")
+    if not properties_data:
+        raise ValueError("Cannot save empty or None properties data.")
 
-    if fetch_timestamp is None:
-        fetch_timestamp = datetime.utcnow()
+    if output_dir is None:
+        output_dir = ensure_data_raw_dir()
 
-    # Format timestamp for filename (ISO 8601 basic, safe for filenames)
-    timestamp_str = fetch_timestamp.strftime("%Y%m%d_%H%M%S_%f")
-    
-    # Ensure directory exists
-    base_dir = ensure_data_raw_dir()
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
+    filename = f"{backend_name}_{timestamp}.json"
+    file_path = output_dir / filename
 
-    # Construct filenames
-    json_filename = f"{device_id}_{timestamp_str}.json"
-    checksum_filename = f"{device_id}_{timestamp_str}.sha256"
-    
-    json_path = base_dir / json_filename
-    checksum_path = base_dir / checksum_filename
+    # Write JSON with indentation for readability
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(properties_data, f, indent=2, default=str)
 
-    # Prepare content with metadata
-    snapshot_data = {
-        "device_id": device_id,
-        "fetched_at_utc": fetch_timestamp.isoformat(),
-        "data": properties
-    }
+    # Compute and log checksum
+    checksum = compute_sha256(str(file_path))
+    logger.info(f"Saved snapshot for {backend_name} to {file_path} (SHA256: {checksum})")
 
-    # Serialize to JSON with indentation for readability
-    json_content = json.dumps(snapshot_data, indent=2, default=str)
-    
-    # Compute checksum
-    content_hash = compute_sha256(json_content)
+    # Optionally write a sidecar checksum file for verification
+    checksum_path = output_dir / f"{backend_name}_{timestamp}.sha256"
+    with open(checksum_path, "w", encoding="utf-8") as f:
+        f.write(f"{checksum}  {filename}\n")
 
-    try:
-        # Write JSON
-        with open(json_path, 'w', encoding='utf-8') as f:
-            f.write(json_content)
-        
-        # Write checksum
-        with open(checksum_path, 'w', encoding='utf-8') as f:
-            f.write(f"{content_hash}  {json_filename}\n")
-        
-        logger.info(f"Saved raw snapshot for {device_id} to {json_path} (SHA256: {content_hash[:16]}...)")
-        return str(json_path)
-
-    except IOError as e:
-        logger.error(f"Failed to write snapshot for {device_id}: {e}")
-        raise
+    return str(file_path)
 
 def main():
     """
-    Entry point for the snapshot saver.
-    
-    This function is intended to be called by the main pipeline after 
-    fetching backend properties. It iterates through a list of valid 
-    devices and saves their raw data.
-    
-    For demonstration purposes in this standalone script, it logs 
-    what it would do if called with data. In the real pipeline, 
-    fetcher.py will call save_backend_snapshot directly.
+    Main entry point for saving snapshots.
+    This script demonstrates saving a snapshot by loading config and
+    fetching properties for a specific backend (e.g., 'ibmq_manila' if available).
+    In a full pipeline, this would be called by fetcher.py after retrieving data.
     """
     logging.basicConfig(level=logging.INFO)
-    logger.info("Snapshot Saver Module Loaded. Ready to save raw calibration data.")
     
-    # Example usage (commented out to prevent accidental execution without data):
-    # sample_props = {"backend_name": "test", "qubits": []}
-    # save_backend_snapshot("test_device", sample_props)
+    config = load_config()
+    service = config.setup_ibm_runtime()
+    
+    # Attempt to fetch a specific backend to demonstrate the saver
+    # In a real run, this might iterate over a list of backends
+    target_backend_name = "ibm_brisbane" # Using a generic modern backend name if available
+    # Fallback to a common one if the specific one isn't available in the environment
+    available_backends = [b.name for b in service.backends()]
+    
+    if target_backend_name not in available_backends:
+        # Try to find any valid backend
+        if available_backends:
+            target_backend_name = available_backends[0]
+        else:
+            logger.error("No backends available to fetch.")
+            return
+
+    logger.info(f"Fetching properties for {target_backend_name}...")
+    
+    try:
+        backend = service.backend(target_backend_name)
+        properties = backend.properties()
+        
+        if properties:
+            # Convert properties to a dictionary for saving
+            props_dict = {
+                "backend_name": properties.backend_name,
+                "last_update_date": properties.last_update_date.isoformat() if properties.last_update_date else None,
+                "qubits": [
+                    {
+                        "t1": q[0].value, "t2": q[1].value, "frequency": q[2].value,
+                        "readout_error": q[3].value, "operational": bool(q[4].value)
+                    } for q in properties.qubits
+                ],
+                "gates": [
+                    {
+                        "gate": g.gate, "qubits": g.qubits, 
+                        "error": g.error, "parameters": g.parameters
+                    } for g in properties.gates
+                ],
+                "general": [
+                    {k: v for k, v in item.items()} for item in properties.general
+                ]
+            }
+            
+            file_path = save_backend_snapshot(target_backend_name, props_dict)
+            logger.info(f"Successfully saved snapshot: {file_path}")
+        else:
+            logger.warning(f"No properties found for {target_backend_name}.")
+            
+    except Exception as e:
+        logger.error(f"Failed to fetch or save properties for {target_backend_name}: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

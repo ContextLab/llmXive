@@ -9,7 +9,7 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does replacing the learned memory condenser and seeker modules in LaMem-VLA with a deterministic vector quantization and sparse retrieval mechanism preserve long-horizon robotic manipulation performance, thereby isolating the contribution of continuous latent representation learning from the benefits of discrete, static memory tokenization?
+To what extent does the learning dynamics of memory encoding (continuous latent adaptation vs. discrete static tokenization) influence the capacity of Vision-Language-Action models to reason over long-horizon robotic manipulation tasks?
 
 ## Motivation
 
@@ -18,15 +18,14 @@ Standard Vision-Language-Action (VLA) models often struggle with long-horizon ta
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv using terms: "Vision-Language-Action memory mechanisms," "latent memory retrieval robotics," "vector quantization VLA," and "deterministic memory augmentation robotic manipulation." We also broadened the search to "efficient VLA inference" and "non-learned context retrieval in robotics." The search returned six relevant papers, all of which are surveys, general VLA overviews, or works focusing on diffusion-based or attention-regularized improvements, but none specifically address replacing learned memory condensers with deterministic vector quantization for long-horizon tasks.
+We queried Semantic Scholar and arXiv using terms: "Vision-Language-Action memory mechanisms," "latent memory retrieval robotics," "vector quantization VLA," and "deterministic memory augmentation robotic manipulation." We also broadened the search to "efficient VLA inference" and "non-learned context retrieval in robotics." The search returned five relevant papers, all of which are surveys, general VLA overviews, or works focusing on diffusion-based or attention-regularized improvements, but none specifically address replacing learned memory condensers with deterministic vector quantization for long-horizon tasks.
 
 ### What is known
-- [Robotic VLA Benefits from Joint Learning with Motion Image Diffusion (2025)](https://arxiv.org/abs/2512.18007) — Establishes that joint learning with diffusion models improves VLA performance but relies on learned generative processes rather than deterministic retrieval.
-- [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey (2025)](https://arxiv.org/abs/2508.13073) — Reviews VLA architectures and notes the scarcity of works addressing memory efficiency via non-learned retrieval mechanisms.
-- [Survey of Vision-Language-Action Models for Embodied Manipulation (2025)](https://arxiv.org/abs/2508.15201) — Highlights the general trend toward learning-based memory augmentation but does not evaluate deterministic alternatives.
-- [MLA: A Multisensory Language-Action Model for Multimodal Understanding and Forecasting in Robotic Manipulation (2025)](https://arxiv.org/abs/2509.26642) — Proposes a multisensory action model but focuses on sensory fusion rather than memory retrieval optimization.
-- [RoboMamba: Efficient Vision-Language-Action Model for Robotic Reasoning and Manipulation (2024)](https://arxiv.org/abs/2406.04339) — Introduces an efficient VLA using state-space models but does not explore replacing learned memory modules with static quantization.
-- [Gaze-Regularized Vision-Language-Action Models for Robotic Manipulation (2026)](https://arxiv.org/abs/2603.23202) — Addresses fine-grained task performance via gaze regularization, a distinct mechanism from memory tokenization.
+- [Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey (2025)](https://arxiv.org/abs/2508.13073) — Establishes the current state of VLA architectures and notes the scarcity of works addressing memory efficiency via non-learned retrieval mechanisms.
+- [Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories (2026)](https://arxiv.org/abs/2607.15330) — Demonstrates the benefits of scaling with real-world data but relies on massive parameter counts and learned representations rather than static retrieval.
+- [Inference-Time Attention Steering for Vision-Language-Action Driving Models (2026)](https://arxiv.org/abs/2608.17095) — Proposes steering attention mechanisms for safety but focuses on dynamic inference control rather than static memory tokenization.
+- [RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (2023)](https://arxiv.org/abs/2307.15818) — Shows how web-scale knowledge transfers to control but uses standard end-to-end learned pipelines without discrete memory isolation.
+- [Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review (2025)](https://arxiv.org/abs/2505.20503) — Reviews foundation model integration in robotics, highlighting the general trend toward learning-based memory but lacking specific analysis of deterministic alternatives.
 
 ### What is NOT known
 No published work has empirically tested whether a deterministic, vector-quantized memory retrieval system can replace learned condenser/seeker modules in VLA architectures while maintaining performance on long-horizon tasks. Specifically, there is no evidence on whether the "continuous latent representation" hypothesis of LaMem-VLA holds when the retrieval dynamics are stripped of neural learning.
@@ -61,42 +60,41 @@ We expect the Static-LaMem variant to retain at least 85% of the full LaMem-VLA'
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-01T12:43:56Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-11T10:56:35Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Dual Latent Memory in Vision-Language-Action Models for Robotic Manipu" computer science
-**Verified citation count**: 6
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Dual Latent Memory in Vision-Language-Action Models for Robotic Manipu" computer science | 0 |
-| 1 | Vision-Language-Action models for robotic manipulation | 5 |
+| 1 | Vision-Language-Action models for robotics | 5 |
 | 2 | Dual latent memory architectures in embodied AI | 0 |
-| 3 | Latent memory mechanisms for robot control policies | 0 |
-| 4 | Multimodal memory systems in vision-language-action agents | 0 |
-| 5 | End-to-end robotic manipulation with VLA models | 0 |
-| 6 | Persistent latent representations in robot learning | 0 |
-| 7 | Long-term memory integration in embodied language models | 0 |
-| 8 | Vision-language-action transformers for robot tasks | 0 |
-| 9 | Dual-stream memory networks for robotic planning | 0 |
-| 10 | Memory-augmented policies for robotic manipulation | 0 |
-| 11 | Multimodal latent space learning for robot control | 0 |
-| 12 | Continuous memory modules in vision-language robotics | 0 |
-| 13 | Hierarchical latent memory for embodied agents | 0 |
-| 14 | Robotic manipulation with language-conditioned memory | 0 |
-| 15 | Attention mechanisms for dual latent memory in robots | 0 |
-| 16 | Context-aware latent memory in VLA frameworks | 0 |
-| 17 | Memory retention strategies in vision-language robotics | 0 |
-| 18 | Latent variable models for robotic action generation | 0 |
-| 19 | Multimodal fusion with dual memory in robotics | 0 |
-| 20 | Scalable memory architectures for vision-language-action systems | 0 |
+| 3 | Latent memory modules for robotic manipulation | 0 |
+| 4 | Multimodal memory mechanisms in VLA models | 0 |
+| 5 | Long-term memory in vision-language-action systems | 0 |
+| 6 | Robotic manipulation with memory-augmented transformers | 0 |
+| 7 | Episodic memory for robotic control policies | 0 |
+| 8 | Multimodal latent space navigation in robotics | 0 |
+| 9 | Memory-enhanced vision-language-action learning | 0 |
+| 10 | Dual-stream memory networks for robot learning | 0 |
+| 11 | Persistent latent representations in robotic agents | 0 |
+| 12 | Context-aware memory for robotic task execution | 0 |
+| 13 | Multimodal integration with latent memory in robotics | 0 |
+| 14 | Memory-augmented reinforcement learning for manipulation | 0 |
+| 15 | Hierarchical latent memory in embodied language models | 0 |
+| 16 | Robotic manipulation via multimodal latent retrieval | 0 |
+| 17 | Dual-component memory systems for VLA agents | 0 |
+| 18 | Memory-augmented policies for complex robotic tasks | 0 |
+| 19 | Multimodal latent dynamics in robotic control | 0 |
+| 20 | Extended context memory in vision-language-robotics | 0 |
 
 ### Verified citations
 
-1. **Robotic VLA Benefits from Joint Learning with Motion Image Diffusion** (2025). Yu Fang, Kanchana Ranasinghe, Le Xue, Honglu Zhou, Juntao Tan, et al.. arXiv. [2512.18007](https://arxiv.org/abs/2512.18007). PDF-sampled: No.
-2. **Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey** (2025). Rui Shao, Wei Li, Lingsen Zhang, Renshan Zhang, Zhiyang Liu, et al.. arXiv. [2508.13073](https://arxiv.org/abs/2508.13073). PDF-sampled: No.
-3. **Survey of Vision-Language-Action Models for Embodied Manipulation** (2025). Haoran Li, Yuhui Chen, Wenbo Cui, Weiheng Liu, Kai Liu, et al.. arXiv. [2508.15201](https://arxiv.org/abs/2508.15201). PDF-sampled: No.
-4. **MLA: A Multisensory Language-Action Model for Multimodal Understanding and Forecasting in Robotic Manipulation** (2025). Zhuoyang Liu, Jiaming Liu, Jiadong Xu, Nuowei Han, Chenyang Gu, et al.. arXiv. [2509.26642](https://arxiv.org/abs/2509.26642). PDF-sampled: No.
-5. **RoboMamba: Efficient Vision-Language-Action Model for Robotic Reasoning and Manipulation** (2024). Jiaming Liu, Mengzhen Liu, Zhenyu Wang, Pengju An, Xiaoqi Li, et al.. arXiv. [2406.04339](https://arxiv.org/abs/2406.04339). PDF-sampled: No.
-6. **Gaze-Regularized Vision-Language-Action Models for Robotic Manipulation** (2026). Anupam Pani, Yanchao Yang. arXiv. [2603.23202](https://arxiv.org/abs/2603.23202). PDF-sampled: No.
+1. **Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey** (2025). Rui Shao, Wei Li, Lingsen Zhang, Renshan Zhang, Zhiyang Liu, et al.. arXiv. [2508.13073](https://arxiv.org/abs/2508.13073). PDF-sampled: No.
+2. **Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories** (2026).  Xiaomi Robotics Team, Jun Guo, Piaopiao Jin, Jason Li, Peiyan Li, et al.. arXiv. [2607.15330](https://arxiv.org/abs/2607.15330). PDF-sampled: No.
+3. **Inference-Time Attention Steering for Vision-Language-Action Driving Models** (2026). Darshan Nagendra Prasad, Lars Ullrich, Knut Graichen. arXiv. [2608.17095](https://arxiv.org/abs/2608.17095). PDF-sampled: No.
+4. **RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control** (2023). Anthony Brohan, Noah Brown, Justice Carbajal, Yevgen Chebotar, Xi Chen, et al.. arXiv. [2307.15818](https://arxiv.org/abs/2307.15818). PDF-sampled: No.
+5. **Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review** (2025). Matthew Lisondra, Beno Benhabib, Goldie Nejat. arXiv. [2505.20503](https://arxiv.org/abs/2505.20503). PDF-sampled: No.

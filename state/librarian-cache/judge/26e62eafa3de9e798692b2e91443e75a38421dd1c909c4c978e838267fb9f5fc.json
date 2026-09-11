@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.17095",
+  "judged_at": "2026-09-11T10:56:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dual latent memory in vision-language-action models for robotic manipu\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (inference-time attention steering/modification) and domain (Vision-Language-Action models) as the user's question, providing empirical evidence on how manipulating attention affects model behavior in VLA systems, which is directly relevant to extending research on \"Dual Latent Memory\" in this specific architecture class.",
+  "relevant": true
+}

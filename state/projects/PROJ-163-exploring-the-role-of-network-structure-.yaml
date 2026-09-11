@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T18:27:45.431354Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-163-exploring-the-role-of-network-structure-
-last_run_id: 97b3cd09-c129-4bd1-bcbc-fd2f73b787cc
+last_run_id: cf06caf9-232f-4b4f-93b3-2ba131b8c7cf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-163-exploring-the-role-of-network-structure-/specs/001-exploring-the-role-of-network-structure
 title: Exploring the Role of Network Structure in Superconducting Qubit Coupling
-updated_at: '2026-07-09T02:53:06.558416Z'
+updated_at: '2026-09-11T10:55:47.586919Z'

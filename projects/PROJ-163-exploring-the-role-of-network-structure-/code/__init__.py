@@ -1,5 +1,3 @@
 """
-Code package for llmXive automated science pipeline.
-Provides infrastructure for fetching, processing, and analyzing IBM Quantum data.
+Code package for the Superconducting Qubit Coupling Network Structure study.
 """
-__version__ = "0.1.0"

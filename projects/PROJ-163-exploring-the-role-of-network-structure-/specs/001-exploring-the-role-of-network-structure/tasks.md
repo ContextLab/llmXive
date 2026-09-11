@@ -135,7 +135,7 @@
 - [X] T031b [US3] Implement `robustness_check_time_window` in `code/stats_engine.py` to retrieve performance metrics from a fixed 30-day historical window and compare correlation direction/magnitude with the full dataset (satisfying SC-004). <!-- FAILED: unspecified -->
 - [X] T032 [US3] Implement `sensitivity_analysis` in `code/stats_engine.py` sweeping a configurable set of p-value thresholds (derived from a constant) over conventional values
 - [X] T033 [US3] Implement `power_analysis` in `code/stats_engine.py` to estimate Minimum Detectable Effect Size (MDES) given sample size (N), number of tests performed (multiple comparison burden), and report 95% CI if N < 30
-- [ ] T034 [US3] Generate `data/processed/correlation_results.csv` with `metric_a`, `metric_b`, `spearman_rho`, `p_value`, `adj_p_value`, `is_significant`, `is_excluded`
+- [X] T034 [US3] Generate `data/processed/correlation_results.csv` with `metric_a`, `metric_b`, `spearman_rho`, `p_value`, `adj_p_value`, `is_significant`, `is_excluded`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,7 +147,7 @@
 
 - [X] T035 [US3] Implement `generate_scatter_plots` in `code/viz.py` for significant correlations
 - [X] T036 [US3] Implement `generate_heatmap` in `code/viz.py` for the full correlation matrix
-- [ ] T037 [US3] Generate final summary report artifact `docs/report.md` aggregating plots from T035/T036, including sections for: Methodology (referencing T008), Correlation Results, Robustness Checks (LODO and Time Window), and Power Analysis.
+- [X] T037 [US3] Generate final summary report artifact `docs/report.md` aggregating plots from T035/T036, including sections for: Methodology (referencing T008), Correlation Results, Robustness Checks (LODO and Time Window), and Power Analysis.
 - [ ] T038 [P] Run `code/hygiene.py` to update artifact hashes and state file
 - [ ] T039 [P] Validate `quickstart.md` and ensure all scripts run end-to-end
 

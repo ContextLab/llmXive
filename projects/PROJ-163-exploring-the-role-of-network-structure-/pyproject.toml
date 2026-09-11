@@ -5,8 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-proj-163"
 version = "0.1.0"
-description = "Exploring the role of network structure in superconducting qubit coupling"
-readme = "README.md"
+description = "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
 requires-python = ">=3.11"
 dependencies = [
     "qiskit-ibm-runtime",
@@ -16,22 +15,17 @@ dependencies = [
     "matplotlib",
     "requests",
     "pytest",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "seaborn",
+    "pyyaml",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -44,11 +38,12 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 88
-target-version = "py311"
-src = ["code", "tests"]
+# Ruff configuration is also in .ruff.toml for lint rules,
+# but we keep this file for project metadata and Black settings.
+# This ensures Black and Ruff are configured in the same place for the project.
+extend-include = ["*.ipynb"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+python_files = ["test_*.py"]
 addopts = "-v --tb=short"

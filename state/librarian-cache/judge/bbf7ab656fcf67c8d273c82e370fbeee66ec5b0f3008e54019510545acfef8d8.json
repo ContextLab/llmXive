@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.20503",
+  "judged_at": "2026-09-11T10:56:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dual latent memory in vision-language-action models for robotic manipu\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (e) as a foundational systematic review on the specific domain of Vision-Language-Action (VLA) models for robotics, which is the exact empirical population and technical framework referenced in the user's question about \"Dual Latent Memory in Vision-Language-Action Models.\" Even though it is a review rather than a specific study on the \"Dual Latent Memory\" mechanism, it establishes the canonical baseline and context for any literature review extending work i",
+  "relevant": true
+}
