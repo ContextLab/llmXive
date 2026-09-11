@@ -1,67 +1,44 @@
-# Dataset Schema for Nostalgia and Cognitive Flexibility Study
-# Generated for PROJ-524
-# Based on Input/Output Schema requirements from spec.md
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "WCST Aging Dataset Schema"
-description: "Schema for the raw and processed dataset containing WCST performance metrics and nostalgia stimulus conditions for aging adults."
-
 type: object
-required:
-  - participant_id
-  - age
-  - stimulus_type
-  - perseverative_errors
-  - categories_completed
-
 properties:
   participant_id:
     type: string
-    description: "Unique identifier for the participant"
-    pattern: "^[A-Z0-9]{6,12}$"
-    
+    description: Unique identifier for the participant
+    required: true
   age:
     type: integer
-    description: "Age of the participant in years"
+    description: Age of the participant in years
     minimum: 65
-    
+    required: true
   stimulus_type:
     type: string
-    description: "Type of stimulus presented (nostalgia or control)"
+    description: Type of stimulus presented (nostalgia or control)
     enum:
-      - nostalgia
-      - control
-    
+    - nostalgia
+    - control
+    required: true
   perseverative_errors:
     type: integer
-    description: "Number of perseverative errors made on the Wisconsin Card Sorting Test"
+    description: Number of perseverative errors made in the task
     minimum: 0
-    
+    required: true
   categories_completed:
     type: integer
-    description: "Number of categories successfully completed on the WCST"
+    description: Number of categories successfully completed
     minimum: 0
-    
+    required: true
   MMSE:
-    type: integer
-    description: "Mini-Mental State Examination score (optional field for cognitive screening)"
+    type:
+    - integer
+    - 'null'
+    description: Mini-Mental State Examination score (optional)
     minimum: 0
     maximum: 30
-    nullable: true
-    
-  response_time_ms:
-    type: integer
-    description: "Average response time in milliseconds (optional)"
-    nullable: true
-    
-  trial_count:
-    type: integer
-    description: "Total number of trials presented (optional)"
-    minimum: 0
-    nullable: true
-    
-additionalProperties: false
-metadata:
-  version: "1.0.0"
-  generated_at: "2024-01-01T00:00:00Z"
-  source: "spec.md Input/Output Schema"
+    required: false
+required_fields:
+- participant_id
+- age
+- stimulus_type
+- perseverative_errors
+- categories_completed
+optional_fields:
+- MMSE

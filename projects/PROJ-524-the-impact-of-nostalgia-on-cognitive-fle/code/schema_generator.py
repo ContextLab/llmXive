@@ -1,288 +1,166 @@
-"""
-Schema Generator Module for PROJ-524
-Generates YAML schema files for dataset and output structures.
-"""
-
 import os
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any
-
-# Import from project utilities
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
-from config import ensure_dirs, get_config
-
-# Define schema content as dictionaries
-DATASET_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "WCST Aging Dataset Schema",
-    "description": "Schema for the raw and processed dataset containing WCST performance metrics and nostalgia stimulus conditions for aging adults.",
-    "type": "object",
-    "required": [
-        "participant_id",
-        "age",
-        "stimulus_type",
-        "perseverative_errors",
-        "categories_completed"
-    ],
-    "properties": {
-        "participant_id": {
-            "type": "string",
-            "description": "Unique identifier for the participant",
-            "pattern": "^[A-Z0-9]{6,12}$"
-        },
-        "age": {
-            "type": "integer",
-            "description": "Age of the participant in years",
-            "minimum": 65
-        },
-        "stimulus_type": {
-            "type": "string",
-            "description": "Type of stimulus presented (nostalgia or control)",
-            "enum": ["nostalgia", "control"]
-        },
-        "perseverative_errors": {
-            "type": "integer",
-            "description": "Number of perseverative errors made on the Wisconsin Card Sorting Test",
-            "minimum": 0
-        },
-        "categories_completed": {
-            "type": "integer",
-            "description": "Number of categories successfully completed on the WCST",
-            "minimum": 0
-        },
-        "MMSE": {
-            "type": "integer",
-            "description": "Mini-Mental State Examination score (optional field for cognitive screening)",
-            "minimum": 0,
-            "maximum": 30,
-            "nullable": True
-        },
-        "response_time_ms": {
-            "type": "integer",
-            "description": "Average response time in milliseconds (optional)",
-            "nullable": True
-        },
-        "trial_count": {
-            "type": "integer",
-            "description": "Total number of trials presented (optional)",
-            "minimum": 0,
-            "nullable": True
-        }
-    },
-    "additionalProperties": False,
-    "metadata": {
-        "version": "1.0.0",
-        "generated_at": get_timestamp(),
-        "source": "spec.md Input/Output Schema"
-    }
-}
-
-OUTPUT_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Statistical Analysis Output Schema",
-    "description": "Schema for the statistical analysis output including t-test results, effect sizes, and power analysis.",
-    "type": "object",
-    "required": [
-        "analysis_metadata",
-        "group_statistics",
-        "hypothesis_tests",
-        "effect_sizes",
-        "power_analysis"
-    ],
-    "properties": {
-        "analysis_metadata": {
-            "type": "object",
-            "required": ["timestamp", "dataset_version", "analysis_type"],
-            "properties": {
-                "timestamp": {"type": "string", "format": "date-time"},
-                "dataset_version": {"type": "string"},
-                "analysis_type": {
-                    "type": "string",
-                    "enum": ["welch_t_test", "bonferroni_corrected", "effect_size_analysis", "power_analysis"]
-                },
-                "software_version": {"type": "string"},
-                "python_version": {"type": "string"}
-            }
-        },
-        "group_statistics": {
-            "type": "object",
-            "required": ["nostalgia", "control"],
-            "properties": {
-                "nostalgia": {
-                    "type": "object",
-                    "required": ["n", "mean_perseverative_errors", "mean_categories_completed", "std_perseverative_errors", "std_categories_completed"],
-                    "properties": {
-                        "n": {"type": "integer"},
-                        "mean_perseverative_errors": {"type": "number"},
-                        "mean_categories_completed": {"type": "number"},
-                        "std_perseverative_errors": {"type": "number"},
-                        "std_categories_completed": {"type": "number"}
-                    }
-                },
-                "control": {
-                    "type": "object",
-                    "required": ["n", "mean_perseverative_errors", "mean_categories_completed", "std_perseverative_errors", "std_categories_completed"],
-                    "properties": {
-                        "n": {"type": "integer"},
-                        "mean_perseverative_errors": {"type": "number"},
-                        "mean_categories_completed": {"type": "number"},
-                        "std_perseverative_errors": {"type": "number"},
-                        "std_categories_completed": {"type": "number"}
-                    }
-                }
-            }
-        },
-        "hypothesis_tests": {
-            "type": "object",
-            "required": ["perseverative_errors", "categories_completed"],
-            "properties": {
-                "perseverative_errors": {
-                    "type": "object",
-                    "required": ["t_statistic", "p_value", "degrees_of_freedom", "corrected_p_value", "significant"],
-                    "properties": {
-                        "t_statistic": {"type": "number"},
-                        "p_value": {"type": "number"},
-                        "degrees_of_freedom": {"type": "number"},
-                        "corrected_p_value": {"type": "number"},
-                        "significant": {"type": "boolean"},
-                        "method": {"type": "string", "enum": ["welch_independent_samples"]}
-                    }
-                },
-                "categories_completed": {
-                    "type": "object",
-                    "required": ["t_statistic", "p_value", "degrees_of_freedom", "corrected_p_value", "significant"],
-                    "properties": {
-                        "t_statistic": {"type": "number"},
-                        "p_value": {"type": "number"},
-                        "degrees_of_freedom": {"type": "number"},
-                        "corrected_p_value": {"type": "number"},
-                        "significant": {"type": "boolean"},
-                        "method": {"type": "string", "enum": ["welch_independent_samples", "bonferroni_corrected"]}
-                    }
-                }
-            }
-        },
-        "effect_sizes": {
-            "type": "object",
-            "required": ["perseverative_errors", "categories_completed"],
-            "properties": {
-                "perseverative_errors": {
-                    "type": "object",
-                    "required": ["cohen_d", "ci_lower", "ci_upper"],
-                    "properties": {
-                        "cohen_d": {"type": "number"},
-                        "ci_lower": {"type": "number"},
-                        "ci_upper": {"type": "number"},
-                        "confidence_level": {"type": "number", "default": 0.95}
-                    }
-                },
-                "categories_completed": {
-                    "type": "object",
-                    "required": ["cohen_d", "ci_lower", "ci_upper"],
-                    "properties": {
-                        "cohen_d": {"type": "number"},
-                        "ci_lower": {"type": "number"},
-                        "ci_upper": {"type": "number"},
-                        "confidence_level": {"type": "number", "default": 0.95}
-                    }
-                }
-            }
-        },
-        "power_analysis": {
-            "type": "object",
-            "required": ["achieved_power", "minimum_detectable_effect"],
-            "properties": {
-                "achieved_power": {
-                    "type": "object",
-                    "required": ["perseverative_errors", "categories_completed"],
-                    "properties": {
-                        "perseverative_errors": {"type": "number"},
-                        "categories_completed": {"type": "number"}
-                    }
-                },
-                "minimum_detectable_effect": {
-                    "type": "object",
-                    "required": ["perseverative_errors", "categories_completed"],
-                    "properties": {
-                        "perseverative_errors": {"type": "number"},
-                        "categories_completed": {"type": "number"},
-                        "power_level": {"type": "number", "default": 0.80}
-                    }
-                }
-            }
-        },
-        "sensitivity_analysis": {
-            "type": "object",
-            "required": ["threshold_sweep", "borderline_status"],
-            "properties": {
-                "threshold_sweep": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "threshold": {"type": "number"},
-                            "significant_pe": {"type": "boolean"},
-                            "significant_cc": {"type": "boolean"}
-                        }
-                    }
-                },
-                "borderline_status": {
-                    "type": "object",
-                    "properties": {
-                        "is_sensitive_to_threshold": {"type": "boolean"},
-                        "borderline_range": {"type": "string"}
-                    }
-                }
-            }
-        }
-    },
-    "additionalProperties": False,
-    "metadata": {
-        "version": "1.0.0",
-        "generated_at": get_timestamp(),
-        "source": "spec.md Input/Output Schema"
-    }
-}
 
 def generate_dataset_schema() -> Dict[str, Any]:
-    """Generate the dataset schema dictionary."""
-    return DATASET_SCHEMA
+    """
+    Generates the dataset schema based on the project specifications.
+    Includes required fields: participant_id, age, stimulus_type,
+    perseverative_errors, categories_completed, and optional MMSE.
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "participant_id": {
+                "type": "string",
+                "description": "Unique identifier for the participant",
+                "required": True
+            },
+            "age": {
+                "type": "integer",
+                "description": "Age of the participant in years",
+                "minimum": 65,
+                "required": True
+            },
+            "stimulus_type": {
+                "type": "string",
+                "description": "Type of stimulus presented (nostalgia or control)",
+                "enum": ["nostalgia", "control"],
+                "required": True
+            },
+            "perseverative_errors": {
+                "type": "integer",
+                "description": "Number of perseverative errors made in the task",
+                "minimum": 0,
+                "required": True
+            },
+            "categories_completed": {
+                "type": "integer",
+                "description": "Number of categories successfully completed",
+                "minimum": 0,
+                "required": True
+            },
+            "MMSE": {
+                "type": ["integer", "null"],
+                "description": "Mini-Mental State Examination score (optional)",
+                "minimum": 0,
+                "maximum": 30,
+                "required": False
+            }
+        },
+        "required_fields": ["participant_id", "age", "stimulus_type", "perseverative_errors", "categories_completed"],
+        "optional_fields": ["MMSE"]
+    }
+    return schema
 
 def generate_output_schema() -> Dict[str, Any]:
-    """Generate the output schema dictionary."""
-    return OUTPUT_SCHEMA
+    """
+    Generates the output schema for analysis results.
+    """
+    schema = {
+        "type": "object",
+        "properties": {
+            "statistical_test": {
+                "type": "string",
+                "description": "Name of the statistical test performed",
+                "required": True
+            },
+            "p_value": {
+                "type": "number",
+                "description": "Raw p-value from the test",
+                "required": True
+            },
+            "p_value_corrected": {
+                "type": "number",
+                "description": "Bonferroni-corrected p-value",
+                "required": True
+            },
+            "effect_size": {
+                "type": "number",
+                "description": "Cohen's d effect size",
+                "required": True
+            },
+            "effect_size_ci": {
+                "type": "object",
+                "description": "95% Confidence Interval for effect size",
+                "properties": {
+                    "lower": {"type": "number"},
+                    "upper": {"type": "number"}
+                },
+                "required": True
+            },
+            "power": {
+                "type": "number",
+                "description": "Calculated statistical power",
+                "required": True
+            },
+            "mdes": {
+                "type": "number",
+                "description": "Minimum Detectable Effect Size",
+                "required": True
+            },
+            "sensitivity_flags": {
+                "type": "object",
+                "description": "Flags indicating sensitivity to threshold choices",
+                "required": True
+            }
+        },
+        "required_fields": [
+            "statistical_test", "p_value", "p_value_corrected",
+            "effect_size", "effect_size_ci", "power", "mdes", "sensitivity_flags"
+        ]
+    }
+    return schema
 
 def write_schema(schema: Dict[str, Any], output_path: Path) -> None:
-    """Write a schema dictionary to a YAML file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(schema, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    log_info(f"Schema written to: {output_path}")
+    """
+    Writes the schema dictionary to a YAML file.
+    """
+    with open(output_path, 'w') as f:
+        yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
+    log_info(f"Schema written to {output_path}")
 
 def main() -> None:
-    """Main entry point for schema generation."""
-    # Setup logging
-    log_level = get_config().get('log_level', 'INFO')
-    setup_logging(level=log_level)
-    
-    # Ensure directories exist
-    config = get_config()
-    contracts_dir = Path(config.get('contracts_dir', 'contracts'))
-    ensure_dirs([contracts_dir])
-    
+    """
+    Main entry point for generating contract schemas.
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    setup_logging()
+
+    # Ensure contracts directory exists
+    contracts_dir = Path("contracts")
+    contracts_dir.mkdir(exist_ok=True)
+
     # Generate and write dataset schema
     dataset_schema = generate_dataset_schema()
-    dataset_schema_path = contracts_dir / 'dataset.schema.yaml'
+    dataset_schema_path = contracts_dir / "dataset.schema.yaml"
     write_schema(dataset_schema, dataset_schema_path)
+
+    # Validate required fields exist in dataset schema
+    required_fields = ["participant_id", "age", "stimulus_type", "perseverative_errors", "categories_completed"]
+    optional_fields = ["MMSE"]
     
+    schema_props = dataset_schema.get("properties", {})
+    missing_required = [f for f in required_fields if f not in schema_props]
+    if missing_required:
+        log_error(f"Missing required fields in dataset schema: {missing_required}")
+        raise ValueError(f"Schema validation failed: missing fields {missing_required}")
+    
+    if "MMSE" not in schema_props:
+        log_warning("MMSE field is missing from schema (expected to be optional)")
+    else:
+        log_info("MMSE field present in schema (optional)")
+
     # Generate and write output schema
     output_schema = generate_output_schema()
-    output_schema_path = contracts_dir / 'output.schema.yaml'
+    output_schema_path = contracts_dir / "output.schema.yaml"
     write_schema(output_schema, output_schema_path)
-    
-    log_info("Schema generation completed successfully.")
+
+    log_info("Contract schemas generated successfully.")
 
 if __name__ == "__main__":
     main()

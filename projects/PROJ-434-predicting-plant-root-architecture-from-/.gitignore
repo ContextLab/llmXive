@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual Environments
 .venv/
@@ -26,42 +27,68 @@ venv/
 ENV/
 env/
 
-# IDE
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# Environment Variables (Keep .env.example, ignore .env)
-.env
-!.env.example
-
-# Data Artifacts
-data/raw/*.gz
-data/raw/*.zip
-data/processed/*.csv
-data/processed/*.parquet
-data/processed/*.json
-data/logs/*.log
-data/interim/
-
-# Model Artifacts
-artifacts/*.pkl
-artifacts/*.json
-artifacts/*.csv
-
-# Figures
-figures/*.png
-figures/*.jpg
-figures/*.svg
+.project
+.settings/
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
 coverage.xml
+.tox/
+nosetests.xml
 
-# OS
+# Logs
+data/logs/*.log
+*.log
+
+# Data Artifacts (Raw and Processed)
+data/raw/
+data/processed/
+data/interim/
+data/temp/
+
+# Model Artifacts
+artifacts/*.pkl
+artifacts/*.h5
+artifacts/*.onnx
+artifacts/*.json
+artifacts/*.csv
+
+# Figures
+figures/*.png
+figures/*.jpg
+figures/*.pdf
+figures/*.svg
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# OS Generated Files
 .DS_Store
+.DS_Store?
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary Files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Jupyter Notebooks (optional - uncomment if not tracking)
+# .ipynb_checkpoints/
+
+# Specific Project Exclusions
+code/__pycache__/
+code/**/*.pyc
+code/**/*.pyo

@@ -1,82 +1,143 @@
 import pytest
 import pandas as pd
-import numpy as np
+import os
+import sys
 from pathlib import Path
 import tempfile
-import os
+import shutil
 
-# Add code to path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code root to path for imports
+code_root = Path(__file__).resolve().parent.parent.parent / 'code'
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from ingestion.generate_outputs import count_valid_observations, generate_exclusion_summary
 
-@pytest.fixture
-def sample_df():
-    data = {
-        "species_name": ["A", "A", "A", "A", "B", "B", "C", "C", "C", "C", "C"],
-        "latitude": [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        "longitude": [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        "N": [10, 10, 10, 10, 20, 20, 30, 30, 30, 30, 30],
-        "P": [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        "K": [5, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7],
-        "pH": [6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 8],
-        "root_depth": [10, 10, 10, 10, 20, 20, 30, 30, 30, 30, 30],
-        "root_mass": [5, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7]
-    }
-    return pd.DataFrame(data)
+class TestGenerateOutputs:
+    @pytest.fixture
+    def temp_dirs(self):
+        """Create temporary directories for testing."""
+        temp_dir = tempfile.mkdtemp()
+        processed_dir = Path(temp_dir) / 'processed'
+        logs_dir = Path(temp_dir) / 'logs'
+        processed_dir.mkdir()
+        logs_dir.mkdir()
+        yield processed_dir, logs_dir, temp_dir
+        shutil.rmtree(temp_dir)
 
-@pytest.fixture
-def sample_df_with_nulls():
-    data = {
-        "species_name": ["A", "A", "A", "A", "B", "B", "C", "C", "C", "C", "C"],
-        "latitude": [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        "longitude": [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        "N": [10, 10, None, 10, 20, 20, 30, 30, 30, 30, 30],
-        "P": [1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3],
-        "K": [5, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7],
-        "pH": [6, 6, 6, 6, 7, 7, 8, 8, 8, 8, 8],
-        "root_depth": [10, 10, 10, 10, 20, 20, 30, 30, 30, 30, 30],
-        "root_mass": [5, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7]
-    }
-    return pd.DataFrame(data)
-
-def test_count_valid_observations_all_valid(sample_df):
-    counts = count_valid_observations(sample_df)
-    assert counts["A"] == 4
-    assert counts["B"] == 2
-    assert counts["C"] == 5
-
-def test_count_valid_observations_with_nulls(sample_df_with_nulls):
-    counts = count_valid_observations(sample_df_with_nulls)
-    # Species A has one row with null N, so only 3 valid
-    assert counts["A"] == 3
-    assert counts["B"] == 2
-    assert counts["C"] == 5
-
-def test_generate_exclusion_summary(sample_df):
-    counts = pd.Series({"A": 4, "B": 2, "C": 5})
-    summary = generate_exclusion_summary(counts, threshold=10)
-    
-    assert len(summary) == 3
-    assert set(summary["species_name"]) == {"A", "B", "C"}
-    assert all(summary["reason"] == "observation_count < 10")
-    assert summary[summary["species_name"] == "A"]["observation_count"].values[0] == 4
-
-def test_generate_exclusion_summary_empty(sample_df):
-    counts = pd.Series({"A": 15, "B": 20})
-    summary = generate_exclusion_summary(counts, threshold=10)
-    assert len(summary) == 0
-
-def test_generate_exclusion_summary_file_output(sample_df):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_summary.csv"
-        counts = pd.Series({"A": 4, "B": 2})
-        generate_exclusion_summary(counts, threshold=10, output_path=output_path)
+    def test_count_valid_observations(self, temp_dirs):
+        """Test reading species counts."""
+        processed_dir, _, _ = temp_dirs
+        counts_file = processed_dir / 'species_counts.csv'
         
-        assert output_path.exists()
-        df = pd.read_csv(output_path)
-        assert len(df) == 2
-        assert "species_name" in df.columns
-        assert "observation_count" in df.columns
-        assert "reason" in df.columns
+        # Create mock data
+        data = {
+            'species_name': ['A', 'B', 'C'],
+            'valid_count': [15, 5, 20]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(counts_file, index=False)
+        
+        # Test function
+        result = count_valid_observations(counts_file)
+        assert len(result) == 3
+        assert 'valid_count' in result.columns
+        assert result.loc[result['species_name'] == 'B', 'valid_count'].values[0] == 5
+
+    def test_generate_exclusion_summary(self, temp_dirs):
+        """Test generation of exclusion summary and log."""
+        processed_dir, logs_dir, _ = temp_dirs
+        counts_file = processed_dir / 'species_counts.csv'
+        summary_file = processed_dir / 'excluded_species_summary.csv'
+        log_file = logs_dir / 'species_exclusions.log'
+        
+        # Create mock data with some species below threshold
+        data = {
+            'species_name': ['A', 'B', 'C', 'D'],
+            'valid_count': [15, 5, 20, 8]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(counts_file, index=False)
+        
+        # Run function
+        summary_df, log_data = generate_exclusion_summary(
+            counts_file, summary_file, log_file, min_observations=10
+        )
+        
+        # Assertions
+        assert summary_file.exists(), "Summary CSV not created"
+        assert log_file.exists(), "Log file not created"
+        
+        # Check summary content
+        assert len(summary_df) == 2, "Expected 2 excluded species"
+        assert 'observation_count' in summary_df.columns
+        assert 'reason' in summary_df.columns
+        
+        # Verify specific species were excluded
+        excluded_names = set(summary_df['species_name'].tolist())
+        assert excluded_names == {'B', 'D'}
+        
+        # Verify reason string
+        assert all(summary_df['reason'] == 'observation_count < 10')
+
+    def test_no_exclusions(self, temp_dirs):
+        """Test behavior when no species are excluded."""
+        processed_dir, logs_dir, _ = temp_dirs
+        counts_file = processed_dir / 'species_counts.csv'
+        summary_file = processed_dir / 'excluded_species_summary.csv'
+        log_file = logs_dir / 'species_exclusions.log'
+        
+        # Create mock data all above threshold
+        data = {
+            'species_name': ['A', 'B'],
+            'valid_count': [15, 20]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(counts_file, index=False)
+        
+        # Run function
+        summary_df, log_data = generate_exclusion_summary(
+            counts_file, summary_file, log_file, min_observations=10
+        )
+        
+        # Assertions
+        assert len(summary_df) == 0
+        assert log_data == []
+        assert summary_file.exists()
+        assert log_file.exists()
+        # Check that the files are empty or have headers only
+        assert len(pd.read_csv(summary_file)) == 0
+        # Log file might be empty or just headers depending on implementation
+        # We just check it exists
+        
+    def test_missing_input_file(self, temp_dirs):
+        """Test error handling for missing input file."""
+        processed_dir, logs_dir, _ = temp_dirs
+        counts_file = processed_dir / 'nonexistent.csv'
+        summary_file = processed_dir / 'summary.csv'
+        log_file = logs_dir / 'log.txt'
+        
+        with pytest.raises(FileNotFoundError):
+            generate_exclusion_summary(
+                counts_file, summary_file, log_file, min_observations=10
+            )
+
+    def test_missing_columns(self, temp_dirs):
+        """Test error handling for missing required columns."""
+        processed_dir, logs_dir, _ = temp_dirs
+        counts_file = processed_dir / 'species_counts.csv'
+        summary_file = processed_dir / 'summary.csv'
+        log_file = logs_dir / 'log.txt'
+        
+        # Create data with wrong columns
+        data = {
+            'name': ['A', 'B'],
+            'count': [5, 10]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(counts_file, index=False)
+        
+        with pytest.raises(ValueError):
+            generate_exclusion_summary(
+                counts_file, summary_file, log_file, min_observations=10
+            )

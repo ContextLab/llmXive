@@ -1,66 +1,63 @@
 """
 Task T001: Create all required data directories.
-
-Creates the following directory structure:
-- data/raw/
-- data/processed/
-- data/results/
-- data/stimuli/
-- contracts/
-- code/ (ensures existence)
-- tests/
-- paper/
+Creates: data/raw/, data/processed/, data/results/, data/stimuli/, contracts/, code/, tests/, paper/
 """
 import os
 import sys
 import logging
 from pathlib import Path
-
 from config import get_config, ensure_dirs
 from utils import setup_logging, log_info, log_warning
 
-
-def main():
-    """Create all required directories for the project."""
-    # Setup logging
-    logger = setup_logging(level=logging.INFO)
-    
-    # Get base path from config
+def create_required_directories():
+    """
+    Creates the standard directory structure required for the project.
+    Returns a list of created directory paths.
+    """
     config = get_config()
-    base_path = Path(config.get("base_path", "."))
+    base_dir = config.get('base_dir', Path.cwd())
     
-    # Define required directories relative to base path
     required_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "data/stimuli",
-        "contracts",
-        "code",
-        "tests",
-        "paper",
+        'data/raw',
+        'data/processed',
+        'data/results',
+        'data/stimuli',
+        'contracts',
+        'code',
+        'tests',
+        'paper'
     ]
     
-    created_count = 0
-    skipped_count = 0
+    created_dirs = []
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            log_info(f"Created directory: {full_path}")
+            created_dirs.append(str(full_path))
+        else:
+            log_info(f"Directory already exists: {full_path}")
+            created_dirs.append(str(full_path))
     
-    for dir_name in required_dirs:
-        dir_path = base_path / dir_name
-        
-        try:
-            if not dir_path.exists():
-              dir_path.mkdir(parents=True, exist_ok=True)
-              log_info(logger, f"Created directory: {dir_path}")
-              created_count += 1
-            else:
-                log_info(logger, f"Directory already exists: {dir_path}")
-                skipped_count += 1
-        except OSError as e:
-            log_warning(logger, f"Failed to create directory {dir_path}: {e}")
-    
-    log_info(logger, f"Directory setup complete. Created: {created_count}, Skipped: {skipped_count}")
-    return 0
+    return created_dirs
 
+def main():
+    """
+    Main entry point for T001 execution.
+    """
+    # Setup logging
+    log_level = get_config().get('log_level', 'INFO')
+    logger = setup_logging(level=log_level)
+    
+    log_info("Starting T001: Create required data directories")
+    
+    try:
+        created = create_required_directories()
+        log_info(f"Successfully created/verified {len(created)} directories")
+        return 0
+    except Exception as e:
+        log_error(f"Failed to create directories: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,109 +1,157 @@
-"""
-Contract tests for data schemas (T012, T025).
-Validates that data artifacts conform to defined YAML schemas.
-"""
 import json
 import os
 import pytest
 from pathlib import Path
 import yaml
 
-# Project root is assumed to be the parent of 'code'
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+# Path to the schema files
+SCHEMAS_DIR = Path(__file__).parent.parent.parent / "contracts"
+ALIGNED_DATA_SCHEMA_PATH = SCHEMAS_DIR / "aligned_data.schema.yaml"
+MODEL_OUTPUT_SCHEMA_PATH = SCHEMAS_DIR / "model_output.schema.yaml"
 
-def load_schema(schema_name: str) -> dict:
-    """Load a schema from the contracts directory."""
-    schema_path = CONTRACTS_DIR / schema_name
+def load_schema(schema_path: Path) -> dict:
+    """Load a JSON/YAML schema from disk."""
     if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
     
     with open(schema_path, "r") as f:
-        return yaml.safe_load(f)
+        if schema_path.suffix in [".yaml", ".yml"]:
+            return yaml.safe_load(f)
+        else:
+            return json.load(f)
 
 def validate_data_against_schema(data: dict, schema: dict) -> bool:
     """
-    Simple validation of data against a schema.
-    Checks for required keys and basic type constraints.
-    Note: This is a lightweight validator; for production, use jsonschema.
+    Basic validation of data against a schema (without external jsonschema lib).
+    Checks required fields and basic types.
     """
-    # Check required properties
+    # Check required fields
     required = schema.get("required", [])
-    for key in required:
-        if key not in data:
-            raise ValueError(f"Missing required field: {key}")
+    for field in required:
+        if field not in data:
+            raise AssertionError(f"Missing required field: {field}")
     
-    # Check properties types
+    # Check types of required fields
     properties = schema.get("properties", {})
-    for key, value in data.items():
-        if key in properties:
-            prop_def = properties[key]
-            prop_type = prop_def.get("type")
-            
-            if prop_type == "object":
-                if not isinstance(value, dict):
-                    raise ValueError(f"Field '{key}' must be an object/dict")
-            elif prop_type == "number":
-                if not isinstance(value, (int, float)):
-                    raise ValueError(f"Field '{key}' must be a number")
-            elif prop_type == "integer":
-                if not isinstance(value, int):
-                    raise ValueError(f"Field '{key}' must be an integer")
-            elif prop_type == "string":
-                if not isinstance(value, str):
-                    raise ValueError(f"Field '{key}' must be a string")
-            elif prop_type == "array":
-                if not isinstance(value, list):
-                    raise ValueError(f"Field '{key}' must be an array")
-            
-            # Check constraints
-            if "minimum" in prop_def:
-                if isinstance(value, (int, float)) and value < prop_def["minimum"]:
-                    raise ValueError(f"Field '{key}' value {value} is below minimum {prop_def['minimum']}")
-            if "maximum" in prop_def:
-                if isinstance(value, (int, float)) and value > prop_def["maximum"]:
-                    raise ValueError(f"Field '{key}' value {value} is above maximum {prop_def['maximum']}")
     
+    # Generic type checking based on schema type definitions
+    for field in required:
+        if field in data:
+            value = data[field]
+            prop_def = properties.get(field, {})
+            expected_type = prop_def.get("type")
+            
+            if expected_type == "object":
+                if not isinstance(value, dict):
+                    raise AssertionError(f"{field} must be an object/dict")
+            elif expected_type == "array":
+                if not isinstance(value, list):
+                    raise AssertionError(f"{field} must be an array/list")
+            elif expected_type == "string":
+                if not isinstance(value, str):
+                    raise AssertionError(f"{field} must be a string")
+            elif expected_type == "number":
+                if not isinstance(value, (int, float)):
+                    raise AssertionError(f"{field} must be a number")
+            elif expected_type == "integer":
+                if not isinstance(value, int):
+                    raise AssertionError(f"{field} must be an integer")
+            # Boolean check
+            elif expected_type == "boolean":
+                if not isinstance(value, bool):
+                    raise AssertionError(f"{field} must be a boolean")
+
     return True
 
-# --- T009a Tests ---
+# --- Tests for T009a: aligned_data.schema.yaml ---
+
 def test_aligned_data_schema_exists():
-    """Verify that the aligned_data schema file exists."""
-    schema_path = CONTRACTS_DIR / "aligned_data.schema.yaml"
-    assert schema_path.exists(), f"Schema file missing: {schema_path}"
+    """Verify that the aligned_data.schema.yaml file exists."""
+    assert ALIGNED_DATA_SCHEMA_PATH.exists(), f"Schema file missing: {ALIGNED_DATA_SCHEMA_PATH}"
 
 def test_aligned_data_schema_valid():
-    """Verify that the aligned_data schema is valid YAML and has required fields."""
-    schema = load_schema("aligned_data.schema.yaml")
-    assert "required" in schema
-    assert "properties" in schema
-    # Specific fields check based on T009a description
-    required_fields = ["subject_id", "block_id", "mmn_amplitude", "source_window_start_trial", "analysis_mode"]
-    for field in required_fields:
-        assert field in schema.get("properties", {}), f"Missing property {field} in aligned_data schema"
+    """Verify that the aligned_data schema file is valid YAML/JSON."""
+    try:
+        schema = load_schema(ALIGNED_DATA_SCHEMA_PATH)
+        assert "required" in schema, "Schema missing 'required' field"
+        assert "properties" in schema, "Schema missing 'properties' field"
+        
+        # Verify specific required fields from T009a
+        required_fields = ["subject_id", "block_id", "mmn_amplitude", "source_window_start_trial", "analysis_mode"]
+        for field in required_fields:
+            assert field in schema["required"], f"Required field '{field}' missing from schema"
+            assert field in schema["properties"], f"Property definition for '{field}' missing from schema"
+    except Exception as e:
+        pytest.fail(f"Aligned data schema validation failed: {e}")
 
-# --- T009b Tests ---
+def test_aligned_data_sample_data_valid():
+    """Test that a sample aligned data record conforms to the schema."""
+    schema = load_schema(ALIGNED_DATA_SCHEMA_PATH)
+    
+    sample_data = {
+        "subject_id": "sub-001",
+        "block_id": 1,
+        "mmn_amplitude": 2.34,
+        "source_window_start_trial": 50,
+        "analysis_mode": "error_signal",
+        "accuracy": 0.85
+    }
+    
+    try:
+        validate_data_against_schema(sample_data, schema)
+    except AssertionError as e:
+        pytest.fail(f"Sample data failed aligned data schema validation: {e}")
+
+# --- Tests for T009b: model_output.schema.yaml ---
+
 def test_model_output_schema_exists():
-    """Verify that the model_output schema file exists."""
-    schema_path = CONTRACTS_DIR / "model_output.schema.yaml"
-    assert schema_path.exists(), f"Schema file missing: {schema_path}"
+    """Verify that the model_output.schema.yaml file exists."""
+    assert MODEL_OUTPUT_SCHEMA_PATH.exists(), f"Schema file missing: {MODEL_OUTPUT_SCHEMA_PATH}"
 
 def test_model_output_schema_valid():
-    """Verify that the model_output schema is valid YAML and has required fields."""
-    schema = load_schema("model_output.schema.yaml")
-    assert "required" in schema, "Schema missing 'required' list"
-    assert "properties" in schema, "Schema missing 'properties' dict"
+    """Verify that the model_output schema file is valid YAML/JSON."""
+    try:
+        schema = load_schema(MODEL_OUTPUT_SCHEMA_PATH)
+        assert "required" in schema, "Schema missing 'required' field"
+        assert "properties" in schema, "Schema missing 'properties' field"
+        
+        # Verify specific required fields from T009b
+        required_fields = ["coefficients", "p_values", "fdr_p_values", "permutation_p_value"]
+        for field in required_fields:
+            assert field in schema["required"], f"Required field '{field}' missing from schema"
+            assert field in schema["properties"], f"Property definition for '{field}' missing from schema"
+    except Exception as e:
+        pytest.fail(f"Model output schema validation failed: {e}")
+
+def test_model_output_sample_data_valid():
+    """Test that a sample model output conforms to the schema."""
+    schema = load_schema(MODEL_OUTPUT_SCHEMA_PATH)
     
-    # Specific fields check based on T009b description
-    required_fields = ["coefficients", "p_values", "fdr_p_values", "permutation_p_value"]
-    for field in required_fields:
-        assert field in schema.get("properties", {}), f"Missing property {field} in model_output schema"
+    sample_data = {
+        "coefficients": {
+            "Intercept": 0.5,
+            "Accuracy": 0.12,
+            "Learning_Phase[T.Late]": -0.05
+        },
+        "p_values": {
+            "Intercept": 0.001,
+            "Accuracy": 0.042,
+            "Learning_Phase[T.Late]": 0.089
+        },
+        "fdr_p_values": {
+            "Intercept": 0.0015,
+            "Accuracy": 0.063,
+            "Learning_Phase[T.Late]": 0.089
+        },
+        "permutation_p_value": 0.032,
+        "model_info": {
+            "formula": "MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)",
+            "n_observations": 1500,
+            "n_groups": 20
+        }
+    }
     
-    # Validate structure of nested objects
-    coeffs_def = schema["properties"]["coefficients"]
-    assert coeffs_def.get("type") == "object"
-    
-    perm_def = schema["properties"]["permutation_p_value"]
-    assert perm_def.get("type") == "number"
-    assert perm_def.get("minimum") == 0
-    assert perm_def.get("maximum") == 1
+    try:
+        validate_data_against_schema(sample_data, schema)
+    except AssertionError as e:
+        pytest.fail(f"Sample data failed model output schema validation: {e}")

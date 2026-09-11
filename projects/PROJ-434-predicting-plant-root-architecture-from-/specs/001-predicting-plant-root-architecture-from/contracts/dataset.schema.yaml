@@ -1,129 +1,204 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Root Trait and Soil Nutrient Dataset Schema"
-description: >
-  Schema for the unified dataset produced by User Story 1 (Data Ingestion and Geospatial Alignment).
-  This dataset pairs root trait measurements with extracted soil nutrient profiles (N, P, K, pH)
-  at the same geospatial coordinates.
+title: "Merged Root Trait and Soil Nutrient Dataset"
+description: |
+  Schema for the unified dataset produced by User Story 1 (T014/T015).
+  Contains paired observations of root architecture traits and soil nutrient profiles.
+  This file serves as the contract for data ingestion and validation.
 type: object
 required:
-  - $schema
+  - columns
+  - rows
   - metadata
-  - data
 properties:
-  $schema:
-    type: string
-    const: "http://json-schema.org/draft-07/schema#"
-  metadata:
-    type: object
-    required:
-      - source_files
-      - processing_date
-      - record_count
-      - species_count
-    properties:
-      source_files:
-        type: array
-        description: List of source files used to generate this dataset
-        items:
-          type: string
-      processing_date:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the dataset was generated
-      record_count:
-        type: integer
-        minimum: 0
-        description: Total number of records in the dataset
-      species_count:
-        type: integer
-        minimum: 0
-        description: Number of unique species in the dataset
-      validation_status:
-        type: string
-        enum: ["valid", "partial", "invalid"]
-        description: Result of schema validation
-      match_proportion:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Proportion of input rows that successfully matched soil data
-  data:
+  columns:
     type: array
-    description: Array of records, each containing paired soil and root trait data
+    description: "List of column definitions matching the dataset headers."
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+          description: "Column name as it appears in the CSV."
+        type:
+          type: string
+          enum:
+            - string
+            - integer
+            - float
+            - boolean
+          description: "Data type of the column."
+        description:
+          type: string
+          description: "Human-readable description of the column."
+        units:
+          type: string
+          description: "Physical units if applicable (e.g., 'cm', 'mg/kg')."
+        nullable:
+          type: boolean
+          default: false
+          description: "Whether null values are permitted."
+    minItems: 10
+  rows:
+    type: array
+    description: "Array of row objects representing individual observations."
     items:
       type: object
       required:
         - record_id
         - species_name
-        - latitude
-        - longitude
+        - depth
+        - branching
         - soil_n
         - soil_p
         - soil_k
         - soil_ph
-        - root_depth
-        - root_branching
+        - latitude
+        - longitude
       properties:
         record_id:
           type: string
-          description: Unique identifier for this record
-          pattern: "^REC-[0-9]+$"
+          description: "Unique identifier for the record (e.g., UUID or composite key)."
         species_name:
           type: string
-          description: Scientific name of the plant species
-          minLength: 1
-        latitude:
+          description: "Scientific name of the plant species."
+        depth:
           type: number
-          minimum: -90
-          maximum: 90
-          description: Latitude in WGS84 (EPSG:4326)
-        longitude:
+          format: float
+          description: "Maximum root depth observed."
+          minimum: 0
+          units: "cm"
+        branching:
           type: number
-          minimum: -180
-          maximum: 180
-          description: Longitude in WGS84 (EPSG:4326)
+          format: float
+          description: "Root branching density or count."
+          minimum: 0
+          units: "branch/cm"
         soil_n:
           type: number
-          description: Soil Nitrogen (N) concentration in mg/kg
+          format: float
+          description: "Nitrogen concentration in soil."
           minimum: 0
+          units: "mg/kg"
           nullable: true
         soil_p:
           type: number
-          description: Soil Phosphorus (P) concentration in mg/kg
+          format: float
+          description: "Phosphorus concentration in soil."
           minimum: 0
+          units: "mg/kg"
           nullable: true
         soil_k:
           type: number
-          description: Soil Potassium (K) concentration in mg/kg
+          format: float
+          description: "Potassium concentration in soil."
           minimum: 0
+          units: "mg/kg"
           nullable: true
         soil_ph:
           type: number
-          description: Soil pH value
+          format: float
+          description: "Soil pH value."
           minimum: 0
           maximum: 14
           nullable: true
-        root_depth:
+        latitude:
           type: number
-          description: Maximum root depth in cm
-          minimum: 0
-          nullable: true
-        root_branching:
+          format: float
+          description: "Latitude coordinate (WGS84)."
+          minimum: -90
+          maximum: 90
+        longitude:
           type: number
-          description: Root branching intensity (count or index)
-          minimum: 0
-          nullable: true
-        data_source:
+          format: float
+          description: "Longitude coordinate (WGS84)."
+          minimum: -180
+          maximum: 180
+        source_dataset:
           type: string
-          description: Source of the trait data (e.g., "Zenodo", "Dryad", "Field Study")
-        quality_flags:
-          type: array
-          description: List of quality flags applied to this record
-          items:
-            type: string
-            enum:
-              - "geocoding_confidence_low"
-              - "soil_interpolation"
-              - "outlier_detected"
-              - "unit_conversion_applied"
-additionalProperties: false
+          description: "Name of the source dataset for this record."
+        extraction_date:
+          type: string
+          format: date-time
+          description: "Timestamp of soil data extraction."
+  metadata:
+    type: object
+    required:
+      - version
+      - generated_at
+      - source_datasets
+      - processing_steps
+    properties:
+      version:
+        type: string
+        description: "Schema version (e.g., '1.0.0')."
+      generated_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of dataset generation."
+      source_datasets:
+        type: array
+        description: "List of source datasets used to create this merged file."
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            id:
+              type: string
+              description: "DOI, Zenodo ID, or internal identifier."
+            url:
+              type: string
+              format: uri
+      processing_steps:
+        type: array
+        description: "Ordered list of processing steps applied."
+        items:
+          type: string
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw CSV file."
+      validation_status:
+        type: string
+        enum:
+          - passed
+          - failed
+          - pending
+        description: "Result of schema validation."
+examples:
+  - columns:
+      - name: record_id
+        type: string
+        description: "Unique record identifier"
+      - name: species_name
+        type: string
+        description: "Plant species"
+      - name: depth
+        type: float
+        description: "Root depth"
+        units: "cm"
+    rows:
+      - record_id: "rec_001"
+        species_name: "Zea mays"
+        depth: 45.2
+        branching: 12.5
+        soil_n: 15.4
+        soil_p: 8.2
+        soil_k: 120.0
+        soil_ph: 6.5
+        latitude: 40.7128
+        longitude: -74.0060
+    metadata:
+      version: "1.0.0"
+      generated_at: "2023-10-27T10:00:00Z"
+      source_datasets:
+        - name: "Root Trait Database"
+          id: "10.5281/zenodo.123456"
+      processing_steps:
+        - "Loaded root traits from source"
+        - "Extracted SoilGrids values at coordinates"
+        - "Merged on coordinate proximity"
+        - "Filtered for valid species counts"

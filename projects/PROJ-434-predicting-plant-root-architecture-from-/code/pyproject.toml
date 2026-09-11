@@ -6,27 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Profiles"
+readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "rasterio",
-    "geopandas",
-    "requests",
-    "pyyaml",
-    "pytest",
-    "python-dotenv",
-    "ruff",
-    "black",
-    "matplotlib",
-    "seaborn",
-    "tqdm",
-    "shapely",
-    "pyproj",
-    "xarray",
-    "dask",
-]
 
 [tool.black]
 line-length = 88
@@ -34,35 +15,36 @@ target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.ruff]
 line-length = 88
 target-version = "py39"
-src = ["code", "tests"]
+src = ["code"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B"]
-ignore = ["E501"]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"code/ingestion/__init__.py" = ["F401"]
+"code/modeling/__init__.py" = ["F401"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-src = ["code"]

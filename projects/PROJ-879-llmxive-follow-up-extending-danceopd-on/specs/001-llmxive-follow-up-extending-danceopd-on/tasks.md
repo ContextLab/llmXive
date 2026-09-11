@@ -77,7 +77,7 @@
 
 **Goal**: Generate a synthetic dataset of `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples by running the pre‑trained DanceOPD teacher model on sampled ImageNet‑1K and LAION‑400M prompts.
 
-**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions. [UNRESOLVED-CLAIM: c_5482bd26 — status=not_enough_info]
+**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -190,7 +190,7 @@
 - [X] T030a [US3] **Compute FID and CLIP Scores**. Compute metrics for tree-generated images against teacher baseline images using metrics from `code/utils/metrics.py`.
  - **Input**: Results from T028a (both image sets).
  - **Deliverable**: Metrics saved in `data/results/fidelity_metrics.csv`.
-- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation. [UNRESOLVED-CLAIM: c_8bc3866a — status=not_enough_info]
+- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation.
  - **Dependency**: Depends on T030a.
  - **Deliverable**: Pilot variance estimate.
 - [ ] T030c [US3] **Calculate Power and Configure Sample Size**. Calculate required sample size based on pilot variance.

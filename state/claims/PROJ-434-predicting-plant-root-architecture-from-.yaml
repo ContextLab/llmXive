@@ -345,3 +345,125 @@
   source_type: external
   status: verified
   updated_at: '2026-08-24T11:59:50Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 2.0 provides soil property predictions at 250m resolution
+  claim_id: c_d65bd6f0
+  context: 'Source: ISRIC - SoilGrids 2.0. Description: Global gridded soil information
+    system providing predictions for soil properties including pH, Nitrogen (N), Phosphorus
+    (P), and Potassium (K) at 250m resolution.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: SoilGrids 2.0 provides predictions for soil properties including pH, Nitrogen
+    (N), Phosphorus (P), and Potassium (K) at 250m resolution.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-11T02:56:16Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: TRY Plant Trait Database is world's largest repository of plant trait
+    data with measurements for thousands of species
+  claim_id: c_d2015ec0
+  context: 'Source: TRY Plant Trait Database. Description: The world''s largest repository
+    of plant trait data, containing root depth, branching density, and specific root
+    length measurements for thousands of species.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TRY_Plant_Trait_Database_is_world's_largest_repository_of_pl
+  kind: magnitude
+  raw_text: The TRY Plant Trait Database is the world's largest repository of plant
+    trait data, containing root depth, branching density, and specific root length
+    measurements for thousands of species.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T02:58:58Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Kattge et al. 2020 TRY plant trait database Global Change Biology 26
+    119 188
+  claim_id: c_43a5cb4b
+  context: 'Source: The TRY Plant Trait Database (via Zenodo/HuggingFace) Description:
+    A global database of plant functional traits, including root depth and branching
+    patterns. Access: Programmatically accessible via the trydata Python package or
+    direct download from Zenodo. Citation: Kattge, J., et al. (2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Kattge, J., et al. (2020). TRY plant trait database \u2013 enhanced coverage\
+    \ and open access. Global Change Biology, 26(1), 119\u2013188."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:04Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Poggio et al. 2021 SoilGrids 2.0 SOIL 7 217 240
+  claim_id: c_850c0d8c
+  context: 'Source: SoilGrids 2.0 Description: Global soil information system providing
+    gridded maps of soil properties (N, P, K, pH) at 250m resolution. Access: Available
+    via the ISRIC API or downloadable GeoTIFFs from the SoilGrids repository. Citation:
+    Poggio, L., et al. (2021).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Poggio, L., et al. (2021). SoilGrids 2.0: producing soil information\
+    \ for the globe with quantified spatial uncertainty. SOIL, 7(1), 217\u2013240."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:11Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Varma and Simon 2006 Bias in error estimation BMC Bioinformatics 7 91
+  claim_id: c_feb408ca
+  context: 'LOSO is the primary validation strategy to assess model generalizability
+    to unseen species. Reference: Varma, S., & Simon, R. (2006). Bias in error estimation
+    when using cross-validation for model selection. BMC Bioinformatics, 7, 91.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Varma, S., & Simon, R. (2006). Bias in error estimation when using cross-validation
+    for model selection. BMC Bioinformatics, 7, 91.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:16Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Altmann et al. 2010 Permutation importance Bioinformatics 26 1340 1347
+  claim_id: c_b8e6196a
+  context: "Sensitivity analysis is performed by sweeping p-value thresholds to evaluate\
+    \ the robustness of feature rankings. Reference: Altmann, A., et al. (2010). Permutation\
+    \ importance: a corrected feature importance measure. Bioinformatics, 26(10),\
+    \ 1340\u20131347."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Altmann, A., et al. (2010). Permutation importance: a corrected feature\
+    \ importance measure. Bioinformatics, 26(10), 1340\u20131347."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:21Z'

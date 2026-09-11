@@ -1,239 +1,48 @@
-# Output Schema for Nostalgia and Cognitive Flexibility Study
-# Generated for PROJ-524
-# Defines the structure of statistical analysis results and reports
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Analysis Output Schema"
-description: "Schema for the statistical analysis output including t-test results, effect sizes, and power analysis."
-
 type: object
-required:
-  - analysis_metadata
-  - group_statistics
-  - hypothesis_tests
-  - effect_sizes
-  - power_analysis
-
 properties:
-  analysis_metadata:
+  statistical_test:
+    type: string
+    description: Name of the statistical test performed
+    required: true
+  p_value:
+    type: number
+    description: Raw p-value from the test
+    required: true
+  p_value_corrected:
+    type: number
+    description: Bonferroni-corrected p-value
+    required: true
+  effect_size:
+    type: number
+    description: Cohen's d effect size
+    required: true
+  effect_size_ci:
     type: object
-    required:
-      - timestamp
-      - dataset_version
-      - analysis_type
+    description: 95% Confidence Interval for effect size
     properties:
-      timestamp:
-        type: string
-        format: date-time
-      dataset_version:
-        type: string
-      analysis_type:
-        type: string
-        enum:
-          - welch_t_test
-          - bonferroni_corrected
-          - effect_size_analysis
-          - power_analysis
-      software_version:
-        type: string
-      python_version:
-        type: string
-        
-  group_statistics:
+      lower:
+        type: number
+      upper:
+        type: number
+    required: true
+  power:
+    type: number
+    description: Calculated statistical power
+    required: true
+  mdes:
+    type: number
+    description: Minimum Detectable Effect Size
+    required: true
+  sensitivity_flags:
     type: object
-    required:
-      - nostalgia
-      - control
-    properties:
-      nostalgia:
-        type: object
-        required:
-          - n
-          - mean_perseverative_errors
-          - mean_categories_completed
-          - std_perseverative_errors
-          - std_categories_completed
-        properties:
-          n:
-            type: integer
-          mean_perseverative_errors:
-            type: number
-          mean_categories_completed:
-            type: number
-          std_perseverative_errors:
-            type: number
-          std_categories_completed:
-            type: number
-      control:
-        type: object
-        required:
-          - n
-          - mean_perseverative_errors
-          - mean_categories_completed
-          - std_perseverative_errors
-          - std_categories_completed
-        properties:
-          n:
-            type: integer
-          mean_perseverative_errors:
-            type: number
-          mean_categories_completed:
-            type: number
-          std_perseverative_errors:
-            type: number
-          std_categories_completed:
-            type: number
-            
-  hypothesis_tests:
-    type: object
-    required:
-      - perseverative_errors
-      - categories_completed
-    properties:
-      perseverative_errors:
-        type: object
-        required:
-          - t_statistic
-          - p_value
-          - degrees_of_freedom
-          - corrected_p_value
-          - significant
-        properties:
-          t_statistic:
-            type: number
-          p_value:
-            type: number
-          degrees_of_freedom:
-            type: number
-          corrected_p_value:
-            type: number
-          significant:
-            type: boolean
-          method:
-            type: string
-            enum:
-              - welch_independent_samples
-      categories_completed:
-        type: object
-        required:
-          - t_statistic
-          - p_value
-          - degrees_of_freedom
-          - corrected_p_value
-          - significant
-        properties:
-          t_statistic:
-            type: number
-          p_value:
-            type: number
-          degrees_of_freedom:
-            type: number
-          corrected_p_value:
-            type: number
-          significant:
-            type: boolean
-          method:
-            type: string
-            enum:
-              - welch_independent_samples
-              - bonferroni_corrected
-              
-  effect_sizes:
-    type: object
-    required:
-      - perseverative_errors
-      - categories_completed
-    properties:
-      perseverative_errors:
-        type: object
-        required:
-          - cohen_d
-          - ci_lower
-          - ci_upper
-        properties:
-          cohen_d:
-            type: number
-          ci_lower:
-            type: number
-          ci_upper:
-            type: number
-          confidence_level:
-            type: number
-            default: 0.95
-      categories_completed:
-        type: object
-        required:
-          - cohen_d
-          - ci_lower
-          - ci_upper
-        properties:
-          cohen_d:
-            type: number
-          ci_lower:
-            type: number
-          ci_upper:
-            type: number
-          confidence_level:
-            type: number
-            default: 0.95
-            
-  power_analysis:
-    type: object
-    required:
-      - achieved_power
-      - minimum_detectable_effect
-    properties:
-      achieved_power:
-        type: object
-        required:
-          - perseverative_errors
-          - categories_completed
-        properties:
-          perseverative_errors:
-            type: number
-          categories_completed:
-            type: number
-      minimum_detectable_effect:
-        type: object
-        required:
-          - perseverative_errors
-          - categories_completed
-        properties:
-          perseverative_errors:
-            type: number
-          categories_completed:
-            type: number
-          power_level:
-            type: number
-            default: 0.80
-            
-  sensitivity_analysis:
-    type: object
-    required:
-      - threshold_sweep
-      - borderline_status
-    properties:
-      threshold_sweep:
-        type: array
-        items:
-          type: object
-          properties:
-            threshold:
-              type: number
-            significant_pe:
-              type: boolean
-            significant_cc:
-              type: boolean
-      borderline_status:
-        type: object
-        properties:
-          is_sensitive_to_threshold:
-            type: boolean
-          borderline_range:
-            type: string
-            
-additionalProperties: false
-metadata:
-  version: "1.0.0"
-  generated_at: "2024-01-01T00:00:00Z"
-  source: "spec.md Input/Output Schema"
+    description: Flags indicating sensitivity to threshold choices
+    required: true
+required_fields:
+- statistical_test
+- p_value
+- p_value_corrected
+- effect_size
+- effect_size_ci
+- power
+- mdes
+- sensitivity_flags

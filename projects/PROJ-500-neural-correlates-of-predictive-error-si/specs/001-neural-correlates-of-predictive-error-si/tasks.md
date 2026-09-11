@@ -79,7 +79,7 @@
 - [X] T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds, and parameters (Low-frequency to Hz filter, –250ms window, `ACCURACY_BLOCK_SIZE`)
 - [X] T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability
 - [X] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
-- [ ] T012 [P] Contract test for data schema validation in `tests/contract/test_schemas.py`. **Dependency**: Requires T009a/b completion.
+- [X] T012 [P] Contract test for data schema validation in `tests/contract/test_schemas.py`. **Dependency**: Requires T009a/b completion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -95,11 +95,11 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" are explicitly excluded. **Exclusion Logic**: Must verify BOTH (1) cohort size < 20 subjects AND (2) insufficient trials per condition (<500 trials/condition) as per Spec FR-005 and Constitution Principle VII. **Dependency**: Requires T009a/b, T014, T015, T016 completion.
+- [X] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" are explicitly excluded. **Exclusion Logic**: Must verify BOTH (1) cohort size < 20 subjects AND (2) insufficient trials per condition (<500 trials/condition) as per Spec FR-005 and Constitution Principle VII. **Dependency**: Requires T009a/b, T014, T015, T016 completion. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
+- [X] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
 - [ ] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
 - [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects OR <500 trials/condition) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` with columns: `subject_id`, `reason` (must explicitly state if excluded due to subject count <20 OR trial count <500). **Logic**: Explicitly filter `aligned_data.csv` generation (T024) to remove these subjects from the primary GLMM input (Constitution VII, Plan Phase 0.5). **Verification**: Confirm `excluded_subjects.csv` exists and contains entries for BOTH exclusion criteria (subject count AND trial count) where applicable.
 - [ ] T017 [US1] Implement epoching logic in `src/data/preprocess.py` (ms to 500ms, standard/deviant separation based on metadata) (FR-003)

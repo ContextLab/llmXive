@@ -1,34 +1,35 @@
 """
-Script to create the required directory structure for the project.
-This is for documentation and future automation.
+Script to create the project directory structure.
+This script is for documentation and future automation only.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create all required directories."""
-    project_root = Path(__file__).resolve().parent.parent
+    """Create the required directory structure."""
+    # Define the base directory (project root)
+    base_dir = Path(__file__).resolve().parent.parent
     
+    # List of directories to create relative to the project root
     directories = [
-        project_root / "code",
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "logs",
-        project_root / "tests",
-        project_root / "artifacts",
-        project_root / "figures",
-        project_root / "code" / "utils",
-        project_root / "code" / "ingestion",
-        project_root / "code" / "modeling",
+        "code",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/logs",
+        "tests",
+        "artifacts",
+        "figures"
     ]
-
+    
+    # Create each directory
     for dir_path in directories:
-        os.makedirs(dir_path, exist_ok=True)
-        print(f"Created/Verified: {dir_path}")
-
-    print("Directory structure setup complete.")
+        full_path = base_dir / dir_path
+        os.makedirs(full_path, exist_ok=True)
+        print(f"Created directory: {full_path}")
+    
+    print("Directory structure creation complete.")
 
 if __name__ == "__main__":
     main()

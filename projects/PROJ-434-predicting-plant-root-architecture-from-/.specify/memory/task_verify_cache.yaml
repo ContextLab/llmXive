@@ -30,12 +30,6 @@ T025a:
   r: "No `artifacts/feature_importance.csv` file was presented, and no evidence of\
     \ its contents (required columns `feature_name` and `importance_score`) was provided.\
     \ Consequently the task\u2019s deliverable is missing."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `quickstart.md` or `research.md` files were presented in the evidence, and
-    there is no content indicating they were created or populated. The required documentation
-    artifacts are missing, so the task is not satisfied.
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,3 +44,10 @@ T035:
     provided; thus the required document with community significance standards and
     dataset citations is missing. The implementer must create and supply that markdown
     file with the specified information.
+T035#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-predict-root-architecture/research.md` file was provided, and\
+    \ thus there is no evidence that it contains the required community standards\
+    \ for significance levels and citations for soil/root trait datasets. The task\u2019\
+    s primary artifact is missing."

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T09:42:32.836400Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-434-predicting-plant-root-architecture-from-
-last_run_id: cb9b5a00-a97d-453d-bada-51d494387954
+last_run_id: 6473d287-aae3-424f-9a53-9d99a5e802a7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from
 title: Predicting Plant Root Architecture from Soil Nutrient Profiles
-updated_at: '2026-08-24T12:00:55.898013Z'
+updated_at: '2026-09-11T03:05:24.440509Z'

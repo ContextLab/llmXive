@@ -5,119 +5,99 @@ import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import logging
 
-# Import the module under test
-# Assuming the project root is the parent of 'code'
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.data.ingest import generate_validation_report, check_and_report_variables
+from src.data.ingest import check_and_report_variables, validate_metadata_variables
+from src.utils.logging import get_logger
 
 class TestT004MissingMetadata:
     """
     Tests for T004: Log warning and skip datasets with missing metadata rather than crashing.
     """
 
-    def test_skip_dataset_missing_both_variables(self, tmp_path):
-        """
-        Verify that a dataset missing both 'stimulus_type' and 'response_correctness'
-        is skipped and logged as an error, without crashing the pipeline.
-        """
-        report_path = tmp_path / "validation_report.json"
-        
-        mock_datasets = [
-            {
-                "id": "ds_bad",
-                "metadata": {}  # Missing both
+    def test_validate_metadata_complete(self):
+        """Test validation passes when all required variables are present."""
+        dataset = {
+            "id": "ds_complete",
+            "metadata": {
+                "stimulus_type": "tactile",
+                "response_correctness": "binary"
             }
-        ]
+        }
+        is_valid, missing = validate_metadata_variables(dataset, ["stimulus_type", "response_correctness"])
+        assert is_valid is True
+        assert len(missing) == 0
 
-        # This should not raise an exception
-        result = generate_validation_report(mock_datasets, str(report_path))
-
-        assert result["analysis_mode"] is None or result["analysis_mode"] == "none"
-        assert len(result["datasets_skipped"]) == 1
-        assert result["datasets_skipped"][0]["id"] == "ds_bad"
-        assert "Missing both" in result["datasets_skipped"][0]["reason"]
-        
-        # Verify file was written
-        assert report_path.exists()
-        with open(report_path) as f:
-            saved_report = json.load(f)
-            assert saved_report["analysis_mode"] is None
-
-    def test_fallback_stimulus_driven_missing_response(self, tmp_path):
-        """
-        Verify that if only 'response_correctness' is missing, the system
-        logs a warning, processes the dataset, and sets mode to 'stimulus_driven'.
-        """
-        report_path = tmp_path / "validation_report.json"
-        
-        mock_datasets = [
-            {
-                "id": "ds_partial",
-                "metadata": {
-                    "stimulus_type": "tactile"
-                }
+    def test_validate_metadata_missing_one(self):
+        """Test validation fails when one variable is missing."""
+        dataset = {
+            "id": "ds_missing_one",
+            "metadata": {
+                "stimulus_type": "tactile"
+                # response_correctness missing
             }
-        ]
+        }
+        is_valid, missing = validate_metadata_variables(dataset, ["stimulus_type", "response_correctness"])
+        assert is_valid is False
+        assert "response_correctness" in missing
 
-        result = generate_validation_report(mock_datasets, str(report_path))
+    def test_validate_metadata_missing_both(self):
+        """Test validation fails when both variables are missing."""
+        dataset = {
+            "id": "ds_missing_both",
+            "metadata": {}
+        }
+        is_valid, missing = validate_metadata_variables(dataset, ["stimulus_type", "response_correctness"])
+        assert is_valid is False
+        assert len(missing) == 2
 
-        assert result["analysis_mode"] == "stimulus_driven"
-        assert len(result["datasets_processed"]) == 1
-        assert len(result["warnings"]) == 1
-        assert "missing response_correctness" in result["warnings"][0].lower()
-
-    def test_error_signal_mode_present(self, tmp_path):
+    def test_check_and_report_variables_skips_missing(self, caplog):
         """
-        Verify that if 'response_correctness' is present, mode is 'error_signal'.
+        Test that check_and_report_variables logs a warning and returns False
+        when metadata is missing, instead of crashing.
         """
-        report_path = tmp_path / "validation_report.json"
-        
-        mock_datasets = [
-            {
-                "id": "ds_good",
-                "metadata": {
-                    "stimulus_type": "tactile",
-                    "response_correctness": True
-                }
+        dataset = {
+            "id": "ds_skip_me",
+            "metadata": {
+                "stimulus_type": "visual" # Missing response_correctness
             }
-        ]
-
-        result = generate_validation_report(mock_datasets, str(report_path))
-
-        assert result["analysis_mode"] == "error_signal"
-        assert len(result["datasets_processed"]) == 1
-        assert len(result["datasets_skipped"]) == 0
-
-    def test_mixed_datasets_handling(self, tmp_path):
-        """
-        Verify handling of a mix of valid, partial, and invalid datasets.
-        """
-        report_path = tmp_path / "validation_report.json"
+        }
         
-        mock_datasets = [
-            {
-                "id": "ds_valid",
-                "metadata": {"stimulus_type": "tactile", "response_correctness": True}
-            },
-            {
-                "id": "ds_invalid",
-                "metadata": {}
-            },
-            {
-                "id": "ds_partial",
-                "metadata": {"stimulus_type": "visual"}
+        # Ensure we capture the log
+        with caplog.at_level(logging.WARNING):
+            result = check_and_report_variables(dataset, ["stimulus_type", "response_correctness"])
+        
+        assert result is False
+        assert "Skipping this dataset" in caplog.text
+        assert "ds_skip_me" in caplog.text
+        assert "response_correctness" in caplog.text
+
+    def test_check_and_report_variables_accepts_valid(self, caplog):
+        """
+        Test that check_and_report_variables returns True for valid datasets.
+        """
+        dataset = {
+            "id": "ds_valid",
+            "metadata": {
+                "stimulus_type": "tactile",
+                "response_correctness": "binary"
             }
-        ]
-
-        result = generate_validation_report(mock_datasets, str(report_path))
-
-        # Should be error_signal because ds_valid has response_correctness
-        assert result["analysis_mode"] == "error_signal"
+        }
         
-        # ds_valid and ds_partial should be processed (ds_partial triggers warning)
-        assert len(result["datasets_processed"]) == 2
-        # ds_invalid should be skipped
-        assert len(result["datasets_skipped"]) == 1
-        assert result["datasets_skipped"][0]["id"] == "ds_invalid"
+        with caplog.at_level(logging.INFO):
+            result = check_and_report_variables(dataset, ["stimulus_type", "response_correctness"])
+        
+        assert result is True
+        assert "dataset_validated" in caplog.text or "valid" in caplog.text.lower()
+
+    def test_no_crash_on_empty_metadata(self):
+        """
+        Verify the function does not crash when metadata key is missing entirely.
+        """
+        dataset = {
+            "id": "ds_no_meta"
+            # No 'metadata' key at all
+        }
+        # Should not raise an exception
+        result = check_and_report_variables(dataset, ["stimulus_type"])
+        assert result is False

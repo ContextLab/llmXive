@@ -1,28 +1,29 @@
 # Quickstart Guide: The Impact of Nostalgia on Cognitive Flexibility
 
-This guide provides instructions for setting up the environment, installing dependencies, and running the data ingestion pipeline on a sample dataset.
+This guide provides instructions to set up the environment, install dependencies, and run the data ingestion pipeline on a sample dataset.
 
 ## Prerequisites
 
 - Python 3.9 or higher
-- pip package manager
-- Git (optional, for cloning the repository)
+- pip (Python package installer)
+- A virtual environment (recommended)
 
 ## Installation
 
-1. **Clone the repository** (if applicable):
+1. **Clone the repository** (if not already done):
  ```bash
  git clone <repository-url>
  cd PROJ-524-the-impact-of-nostalgia-on-cognitive-fle
  ```
 
-2. **Create a virtual environment** (recommended):
+2. **Create and activate a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
 3. **Install dependencies**:
+ Ensure you are in the project root directory, then run:
  ```bash
  pip install -r requirements.txt
  ```
@@ -40,95 +41,91 @@ This guide provides instructions for setting up the environment, installing depe
  - black
  - ruff
 
-4. **Verify linting configuration**:
- Ensure `pyproject.toml` exists and contains valid configuration sections for `black` and `ruff`. You can verify this by running:
+4. **Verify installation**:
  ```bash
- python code/task_t003b_verify_pyproject.py
+ python -c "import pandas; import scipy; import openml; print('Dependencies installed successfully.')"
  ```
 
-## Directory Structure Setup
+## Project Structure
 
-The pipeline requires specific directories for data storage. Run the following script to create them:
+Ensure the following directory structure exists. If not, run the setup task `T001` (create directories):
 
+```
+.
+├── code/
+├── data/
+│ ├── raw/
+│ ├── processed/
+│ ├── results/
+│ └── stimuli/
+├── contracts/
+├── specs/001-nostalgia-cognitive-flexibility/
+├── tests/
+└── paper/
+```
+
+## Hello World: Run the Ingestion Pipeline
+
+This example demonstrates how to run the data ingestion pipeline on a sample dataset. The pipeline will:
+1. Attempt to fetch real data from OpenML or HuggingFace.
+2. If no valid real dataset is found, it will generate a deterministic synthetic dataset for validation.
+3. Validate the schema and apply initial filters (age ≥ 65).
+4. Save the cleaned dataset and exclusion logs.
+
+### Step 1: Ensure Directories and Configuration
+
+Run the directory setup script (if not already done):
 ```bash
 python code/setup_dirs.py
 ```
 
-This creates:
-- `data/raw/`
-- `data/processed/`
-- `data/results/`
-- `data/stimuli/`
-- `contracts/`
-- `code/`
-- `tests/`
-- `paper/`
+### Step 2: Run the Ingestion Pipeline
 
-## Hello World: Running the Ingestion Pipeline
-
-This example demonstrates how to run the data ingestion pipeline on a sample dataset.
-
-### Step 1: Fetch Data
-
-The ingestion pipeline will attempt to fetch real data from OpenML or HuggingFace. If no valid real dataset is found, it will generate a deterministic synthetic dataset for validation purposes.
-
-Run the main ingestion script:
-
+Execute the main ingestion script:
 ```bash
 python code/ingestion.py
 ```
 
-**What this does:**
-- Searches for datasets containing keywords "WCST", "cognitive", "aging", or "executive function".
-- Fetches the dataset and saves it to `data/raw/raw_dataset.csv`.
-- Validates the schema for required fields: `age`, `stimulus_type`, `perseverative_errors`, `categories_completed`.
-- Sets `simulation_mode` in `data/raw/metadata.json` if a fallback synthetic dataset is used.
+**What happens:**
+- The script searches for datasets containing keywords like "WCST", "cognitive", "aging", or "executive function".
+- If a match is found, it downloads the data to `data/raw/raw_dataset.csv`.
+- If no match is found, it generates a synthetic fallback dataset and sets `simulation_mode=True` in `data/raw/metadata.json`.
+- The script filters records where `age >= 65` and logs exclusions to `data/processed/exclusion_log.json`.
+- The cleaned dataset is saved to `data/processed/cleaned_dataset_intermediate.csv`.
 
-### Step 2: Validate and Clean Data
+### Step 3: Verify Outputs
 
-The pipeline automatically validates and filters the data:
-- Excludes records where `age < 65`.
-- Excludes records with missing `stimulus_type` or cognitive metrics.
-- Optionally excludes records where `MMSE < 24` (if the `MMSE` column is present).
+Check the generated files:
 
-The cleaned dataset is saved to `data/processed/cleaned_dataset.csv`.
+- **Raw Data**: `data/raw/raw_dataset.csv`
+- **Metadata**: `data/raw/metadata.json` (includes `simulation_mode` flag)
+- **Exclusion Log**: `data/processed/exclusion_log.json` (details of excluded records)
+- **Cleaned Data**: `data/processed/cleaned_dataset_intermediate.csv`
 
-### Step 3: Review Outputs
+Example check:
+```bash
+cat data/raw/metadata.json
+```
 
-After the pipeline completes, review the following generated files:
-
-- **`data/raw/metadata.json`**: Contains dataset source information and simulation mode flag.
-- **`data/processed/exclusion_log.json`**: Logs the count of excluded records and reasons.
-- **`data/processed/validity_metrics.json`**: Shows the percentage of valid records.
-- **`data/processed/cleaned_dataset.csv`**: The final cleaned dataset ready for analysis.
+You should see an entry like:
+```json
+{
+ "dataset_source": "...",
+ "simulation_mode": true,
+ "stimuli_checksums": null
+}
+```
 
 ## Next Steps
 
-Once the ingestion pipeline is successfully run, you can proceed to:
-
-1. **Statistical Analysis** (User Story 2): Run `code/analysis.py` to perform Welch's t-tests and calculate effect sizes.
-2. **Sensitivity Analysis** (User Story 3): Run sensitivity sweeps to check robustness against different thresholds.
-3. **Generate Final Report**: Compile results into `paper/001_results.md`.
+- **Data Validation**: Run `code/task_t012d_mmse_exclusion.py` to handle MMSE filtering.
+- **Statistical Analysis**: Once data is cleaned, proceed to User Story 2 (`code/analysis.py`) for statistical testing.
+- **Testing**: Run the test suite with `pytest tests/` to ensure all components are functioning correctly.
 
 ## Troubleshooting
 
-- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed.
-- **Data Fetch Failures**: If the pipeline cannot fetch real data, it will fall back to a deterministic synthetic dataset and set `simulation_mode=True` in `data/raw/metadata.json`.
-- **Schema Validation Errors**: Check that the input dataset contains all required fields as defined in `contracts/dataset.schema.yaml`.
+- **Missing Dependencies**: Re-run `pip install -r requirements.txt`.
+- **Directory Errors**: Ensure `data/` and subdirectories exist. Run `python code/setup_dirs.py`.
+- **Data Fetch Failures**: The pipeline will automatically fall back to synthetic data and log `SIMULATION_FALLBACK`. Check `data/processed/exclusion_log.json` for details.
 
-## Configuration
-
-Environment variables can be used to customize the pipeline:
-- `MMSE_THRESHOLD`: Minimum MMSE score for inclusion (default: 24).
-- `DATA_SOURCE_URL`: Custom URL for data fetching.
-- `LOG_LEVEL`: Logging verbosity (default: INFO).
-
-Set these variables before running the pipeline:
-```bash
-export MMSE_THRESHOLD=26
-python code/ingestion.py
-```
-
-## Support
-
-For issues or questions, refer to the project documentation or open an issue in the repository.
+For more details, refer to the full documentation in `paper/` or the `README.md`.
