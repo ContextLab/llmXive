@@ -1,3 +1,1 @@
-"""
-Preprocessing module.
-"""
+"""Preprocessing modules package."""

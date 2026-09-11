@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/raw/`, `data/processed/`,
+    `tests/`, `state/`, `docs/`) is provided; the implementer did not supply any artifact
+    showing that the project structure was created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
+    with black settings, or CI scripts invoking these tools) are present. The provided
+    artifacts relate only to the scientific feature specification and contain no evidence
+    that ruff/flake8 and black have been set up. The task therefore remains unfulfilled.
+T004:
+  c: false
+  h: 63e05013eaaea74728304f1bc9e1dae231e2039458b92096e3f53bcf760088b4
+  r: The `code/utils/update_state.py` file is present but its implementation is truncated
+    (the `update_state_file`/`update_state` logic is not fully shown), and the required
+    state YAML file `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml`
+    does not exist on disk. Consequently the script cannot actually read data checksums
+    and write the `artifact_hashes` map as required. The missing YAML file and incomplete
+    function definitions must be added for the task to be considered complete.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `code/data/`,\
+    \ `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`,\
+    \ `code/report/`, `tests/`) is present; the implementer did not supply any file\u2011\
+    system listing or screenshots showing the structure. The task remains undone."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a script or workflow that checks T010\u2019s result, determines\
+    \ a verified URL, downloads the EDS maps from that URL and Zenodo, and saves them\
+    \ to `data/raw/`. The required raw files or any log showing the conditional behavior\
+    \ are absent, so the task\u2019s core requirement is not satisfied."
+T014c:
+  c: false
+  h: 9e15fb8fad0452fa6c10c6f9d5f7a08cb8cef96fce47d076922d042bece6435d
+  r: "The `code/data/ingest.py` file contains only placeholder download logic and\
+    \ a truncated `ingest_and_filter_dataset` function that never writes the required\
+    \ unified CSV, and the expected output file `data/processed/unified_dataset.csv`\
+    \ is absent. The script does not produce the specified columns or a non\u2011\
+    empty dataset, so the task is not fulfilled."

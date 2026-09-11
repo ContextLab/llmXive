@@ -1,3 +1,1 @@
-"""
-Data handling module.
-"""
+"""Data processing modules package."""

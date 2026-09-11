@@ -1,59 +1,95 @@
+"""
+Unit tests for the directory setup functionality (Task T001).
+Verifies that the required project structure is created correctly.
+"""
 import os
-import sys
-import pytest
+import tempfile
+import shutil
 from pathlib import Path
+import pytest
 
-# Add the project root to the path so we can import the setup script logic
-# assuming this test runs from the project root or code/tests
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# We need to import the function. Since we are running tests from the repo root,
+# we assume the code directory is in the path or we import relative to the script.
+# For this test, we will mock the creation in a temp directory to avoid polluting the real repo
+# during testing, but we verify the logic.
 
-from setup_directories import main
-
-class TestSetupDirectories:
-    def test_directories_exist(self, tmp_path, monkeypatch):
-        """Verify that the script creates the required directory structure."""
-        # Monkeypatch the base_dir detection to use our temp directory
+def test_create_directories_structure():
+    """
+    Test that create_directories creates all required folders.
+    """
+    # Create a temporary directory to simulate the project root
+    with tempfile.TemporaryDirectory() as tmpdir:
         original_cwd = os.getcwd()
         try:
-            os.chdir(tmp_path)
-            # We need to simulate the script running from code/
-            code_dir = tmp_path / "code"
-            code_dir.mkdir()
-            os.chdir(code_dir)
+            os.chdir(tmpdir)
             
-            # Run the main function
-            result = main()
-            assert result == 0
-
-            # Verify directories exist
-            required_dirs = [
-                "code", "data", "data/raw", "data/intermediate",
-                "data/processed", "data/provenance", "data/results",
-                "tests", "tests/unit", "tests/integration", "tests/contract"
+            # Import the function after changing directory to ensure relative imports work if needed
+            # But since setup_directories.py uses pathlib relative to '.', it should work from any CWD
+            from setup_directories import create_directories
+            
+            created = create_directories()
+            
+            required_paths = [
+                "code",
+                "data",
+                "data/raw",
+                "data/intermediate",
+                "data/processed",
+                "data/provenance",
+                "data/results",
+                "tests",
+                "tests/unit",
+                "tests/integration",
+                "tests/contract"
             ]
             
-            for dir_name in required_dirs:
-                target = Path(dir_name)
-                assert target.exists(), f"Directory {target} was not created"
-                assert target.is_dir(), f"{target} exists but is not a directory"
+            for path_str in required_paths:
+                full_path = Path(tmpdir) / path_str
+                assert full_path.exists(), f"Directory {path_str} was not created."
+                assert full_path.is_dir(), f"Path {path_str} exists but is not a directory."
+                
+                # Verify it's in the returned list (normalized)
+                assert str(full_path) in created, f"Path {full_path} not in returned list."
+                
         finally:
             os.chdir(original_cwd)
 
-    def test_idempotency(self, tmp_path, monkeypatch):
-        """Verify that running the script twice does not error."""
+def test_idempotency():
+    """
+    Test that running the script twice doesn't fail.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
         original_cwd = os.getcwd()
         try:
-            os.chdir(tmp_path)
-            code_dir = tmp_path / "code"
-            code_dir.mkdir()
-            os.chdir(code_dir)
+            os.chdir(tmpdir)
+            from setup_directories import create_directories
             
             # Run twice
-            main()
-            main()
+            first_run = create_directories()
+            second_run = create_directories()
             
-            # Should still exist
-            assert (Path("data") / "raw").exists()
+            assert len(first_run) == len(second_run), "Second run created different number of dirs."
+            
+        finally:
+            os.chdir(original_cwd)
+
+def test_non_directory_path_collision():
+    """
+    Test that the function fails gracefully if a required directory name 
+    is taken by a file.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmpdir)
+            
+            # Create a file named 'code'
+            Path("code").touch()
+            
+            from setup_directories import create_directories
+            
+            with pytest.raises(RuntimeError, match="not a directory"):
+                create_directories()
+                
         finally:
             os.chdir(original_cwd)

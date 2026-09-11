@@ -1,3 +1,1 @@
-"""
-Validation module.
-"""
+"""Validation modules package."""

@@ -6,208 +6,199 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from sibling modules using the exact API surface provided
+# Import from sibling modules based on provided API surface
 from extraction.git_utils import clone_repository, get_all_files_in_repo, calculate_median_commit_age
-from extraction.snippet_extractor import extract_snippets_from_file, ComplexityCalculator, TokenCounter
+from extraction.snippet_extractor import extract_snippets_from_directory, TokenCounter, ComplexityCalculator
 from utils.logging import get_logger, setup_logging
 from utils.config import ensure_directories
-
-# Constants for error handling
-MIN_VALID_REPOS = 3
-MAX_RETRIES = 3
 
 logger = get_logger(__name__)
 
 def process_single_repo(
     repo_url: str,
     output_dir: Path,
-    extraction_log: List[Dict[str, Any]]
+    min_snippets: int = 100,
+    max_repos: Optional[int] = None
 ) -> bool:
     """
-    Process a single repository: clone, extract snippets, calculate metrics.
+    Process a single repository: clone, extract snippets, calculate ages, and save to CSV.
     
-    Returns True if processing succeeded, False if repo was skipped due to errors.
+    Returns True if the repo was processed successfully, False if it was skipped due to errors.
     """
-    repo_name = repo_url.split("/")[-1].replace(".git", "")
-    repo_dir = output_dir / repo_name
-    
     logger.info(f"Processing repository: {repo_url}")
+    temp_dir = None
     
     try:
-        # Clone repository with retry logic
-        success = False
-        for attempt in range(MAX_RETRIES):
-            try:
-                clone_repository(repo_url, repo_dir)
-                success = True
-                break
-            except Exception as e:
-                logger.warning(f"Clone attempt {attempt + 1} failed for {repo_url}: {e}")
-                if attempt == MAX_RETRIES - 1:
-                    raise
-                time.sleep(2 ** attempt)  # Exponential backoff
-        
-        if not success:
-            logger.error(f"Failed to clone {repo_url} after {MAX_RETRIES} attempts")
-            extraction_log.append({
-                "repo_url": repo_url,
-                "status": "clone_failed",
-                "error": str(e),
-                "snippets_count": 0
-            })
+        # Clone the repository
+        logger.debug(f"Cloning {repo_url}...")
+        temp_dir = clone_repository(repo_url)
+        if not temp_dir or not temp_dir.exists():
+            logger.error(f"Failed to clone repository: {repo_url}")
             return False
-
+        
         # Get all Python files
-        try:
-            python_files = get_all_files_in_repo(repo_dir)
-            if not python_files:
-                logger.warning(f"No Python files found in {repo_url}")
-                extraction_log.append({
-                    "repo_url": repo_url,
-                    "status": "no_python_files",
-                    "error": "No .py files found",
-                    "snippets_count": 0
-                })
-                return False
-        except Exception as e:
-            logger.error(f"Failed to list files in {repo_url}: {e}")
-            extraction_log.append({
-                "repo_url": repo_url,
-                "status": "file_list_failed",
-                "error": str(e),
-                "snippets_count": 0
-            })
-            return False
-
-        # Extract snippets and calculate metrics
-        all_snippets = []
-        complexity_calc = ComplexityCalculator()
-        token_counter = TokenCounter()
+        logger.debug(f"Scanning for Python files in {temp_dir}...")
+        python_files = get_all_files_in_repo(temp_dir, ext=".py")
         
+        if not python_files:
+            logger.warning(f"No Python files found in {repo_url}. Skipping.")
+            return False
+        
+        logger.info(f"Found {len(python_files)} Python files in {repo_url}")
+        
+        # Initialize data collection
+        all_snippets = []
+        valid_files_count = 0
+        
+        # Process each file
         for file_path in python_files:
             try:
                 # Calculate median commit age for this file
-                median_age = calculate_median_commit_age(repo_dir, file_path)
+                median_age = calculate_median_commit_age(temp_dir, file_path)
                 
                 # Extract snippets
-                snippets = extract_snippets_from_file(file_path)
+                snippets = extract_snippets_from_directory(
+                    repo_dir=temp_dir,
+                    file_path=file_path,
+                    min_tokens=50
+                )
+                
+                if not snippets:
+                    continue
+                
+                valid_files_count += 1
                 
                 for snippet in snippets:
-                    # Calculate token length and complexity
-                    token_len = token_counter.count_tokens(snippet.content)
-                    if token_len < 50:
-                        continue
-                        
-                    complexity = complexity_calc.calculate(snippet.content)
+                    # Enrich snippet with repo and file metadata
+                    enriched_snippet = {
+                        'snippet_id': f"{repo_url.replace('/', '_')}_{file_path.replace('/', '_')}_{snippet['function_name']}_{snippet['start_line']}",
+                        'repo_url': repo_url,
+                        'file_path': str(file_path),
+                        'median_commit_age': median_age,
+                        'snippet_content': snippet['content'],
+                        'token_count': snippet['token_count'],
+                        'complexity': snippet['complexity'],
+                        'token_length': snippet['token_count']  # Explicitly adding token_length as per T010.1
+                    }
+                    all_snippets.append(enriched_snippet)
                     
-                    all_snippets.append({
-                        "snippet_id": f"{repo_name}_{file_path.stem}_{snippet.line_start}",
-                        "repo_url": repo_url,
-                        "file_path": str(file_path),
-                        "median_commit_age": median_age,
-                        "snippet_content": snippet.content,
-                        "token_count": token_len,
-                        "complexity": complexity,
-                        "token_length": token_len
-                    })
             except Exception as e:
-                logger.warning(f"Error processing {file_path} in {repo_url}: {e}")
+                logger.warning(f"Error processing file {file_path} in {repo_url}: {e}")
                 continue
-
+        
         if not all_snippets:
-            logger.warning(f"No valid snippets extracted from {repo_url}")
-            extraction_log.append({
-                "repo_url": repo_url,
-                "status": "no_snippets",
-                "error": "No snippets met token length criteria",
-                "snippets_count": 0
-            })
+            logger.warning(f"No valid snippets extracted from {repo_url}. Skipping.")
             return False
-
-        # Write snippets to CSV
-        csv_path = output_dir / f"{repo_name}_snippets.csv"
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=all_snippets[0].keys())
+        
+        # Write to CSV
+        output_file = output_dir / f"extraction_{Path(repo_url).name.replace('/', '_')}.csv"
+        if output_file.exists():
+            output_file.unlink()
+            
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            fieldnames = ['snippet_id', 'repo_url', 'file_path', 'median_commit_age', 
+                         'snippet_content', 'token_count', 'complexity', 'token_length']
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_snippets)
-
-        logger.info(f"Successfully processed {repo_url}: {len(all_snippets)} snippets")
-        extraction_log.append({
-            "repo_url": repo_url,
-            "status": "success",
-            "error": None,
-            "snippets_count": len(all_snippets)
-        })
+        
+        logger.info(f"Successfully processed {repo_url}: {len(all_snippets)} snippets extracted "
+                   f"from {valid_files_count} files. Saved to {output_file}")
         return True
-
+        
     except Exception as e:
-        logger.error(f"Critical error processing {repo_url}: {e}")
-        extraction_log.append({
-            "repo_url": repo_url,
-            "status": "critical_error",
-            "error": str(e),
-            "snippets_count": 0
-        })
+        logger.error(f"Critical error processing repository {repo_url}: {e}", exc_info=True)
         return False
+    finally:
+        # Cleanup temp directory
+        if temp_dir and temp_dir.exists():
+            try:
+                import shutil
+                shutil.rmtree(temp_dir)
+                logger.debug(f"Cleaned up temporary directory: {temp_dir}")
+            except Exception as e:
+                logger.warning(f"Failed to remove temp directory {temp_dir}: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract code snippets from repositories")
+    """
+    CLI entry point for the extraction pipeline.
+    Orchestrates repo cloning, snippet extraction, age calculation, and complexity calculation.
+    Implements error handling to skip inaccessible repos while ensuring a minimum of 3 valid repos.
+    """
+    parser = argparse.ArgumentParser(description="Extract Python snippets from repositories")
     parser.add_argument(
-        "--repos", 
-        nargs="+", 
+        "--repos",
+        type=str,
+        nargs="+",
         required=True,
         help="List of repository URLs to process"
     )
     parser.add_argument(
         "--output-dir",
-        type=Path,
-        default=Path("data/extracted"),
-        help="Directory to store extracted data"
+        type=str,
+        default="data/extracted",
+        help="Directory to save output CSV files"
     )
     parser.add_argument(
-        "--log-file",
-        type=Path,
-        default=Path("data/extracted/extraction_log.json"),
-        help="Path to save extraction log"
+        "--min-valid-repos",
+        type=int,
+        default=3,
+        help="Minimum number of valid repos to process before stopping (default: 3)"
     )
-    args = parser.parse_args()
-
-    # Setup logging and directories
-    setup_logging(level=logging.INFO)
-    ensure_directories([args.output_dir])
-
-    extraction_log = []
-    valid_repos = 0
-    total_repos = len(args.repos)
-
-    logger.info(f"Starting extraction for {total_repos} repositories")
-    logger.info(f"Minimum valid repos required: {MIN_VALID_REPOS}")
-
-    for repo_url in args.repos:
-        success = process_single_repo(repo_url, args.output_dir, extraction_log)
-        if success:
-            valid_repos += 1
-        
-        # Check if we've met the minimum requirement and can stop early
-        # (Optional optimization: if we have enough valid repos and want to save time)
-        if valid_repos >= MIN_VALID_REPOS and valid_repos < total_repos:
-            logger.info(f"Minimum {MIN_VALID_REPOS} valid repos reached. Continuing to process remaining repos...")
-            # We continue processing to get maximum data, but we've met the requirement
-
-    # Save extraction log
-    import json
-    args.log_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(args.log_file, 'w') as f:
-        json.dump(extraction_log, f, indent=2)
-
-    # Final summary
-    logger.info(f"Extraction complete. Valid repos: {valid_repos}/{total_repos}")
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level"
+    )
     
-    if valid_repos < MIN_VALID_REPOS:
-        logger.error(f"Failed to meet minimum requirement of {MIN_VALID_REPOS} valid repositories")
+    args = parser.parse_args()
+    
+    # Setup logging
+    setup_logging(level=args.log_level)
+    ensure_directories([Path(args.output_dir)])
+    
+    logger.info(f"Starting extraction pipeline for {len(args.repos)} repositories")
+    logger.info(f"Minimum valid repos required: {args.min_valid_repos}")
+    
+    valid_repos_count = 0
+    failed_repos = []
+    start_time = time.time()
+    
+    for repo_url in args.repos:
+        # Check if we have enough valid repos
+        if valid_repos_count >= args.min_valid_repos:
+            logger.info(f"Minimum valid repos ({args.min_valid_repos}) reached. Stopping processing.")
+            break
+        
+        success = process_single_repo(repo_url, Path(args.output_dir))
+        
+        if success:
+            valid_repos_count += 1
+        else:
+            failed_repos.append(repo_url)
+            logger.warning(f"Repository {repo_url} was skipped due to errors.")
+    
+    elapsed_time = time.time() - start_time
+    
+    logger.info("=" * 60)
+    logger.info(f"Extraction pipeline completed in {elapsed_time:.2f} seconds")
+    logger.info(f"Successfully processed: {valid_repos_count} repositories")
+    logger.info(f"Failed/Skipped: {len(failed_repos)} repositories")
+    
+    if failed_repos:
+        logger.warning("Failed repositories:")
+        for repo in failed_repos:
+            logger.warning(f"  - {repo}")
+    
+    # Final validation
+    if valid_repos_count < args.min_valid_repos:
+        logger.error(f"CRITICAL: Only {valid_repos_count} valid repos processed. "
+                    f"Minimum required: {args.min_valid_repos}")
         sys.exit(1)
     else:
-        logger.info("Minimum repository requirement satisfied")
+        logger.info(f"SUCCESS: Minimum requirement met with {valid_repos_count} valid repositories.")
         sys.exit(0)
 
 if __name__ == "__main__":

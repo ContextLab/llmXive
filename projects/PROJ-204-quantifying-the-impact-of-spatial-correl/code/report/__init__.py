@@ -1,3 +1,1 @@
-"""
-Report generation module.
-"""
+"""Reporting modules package."""

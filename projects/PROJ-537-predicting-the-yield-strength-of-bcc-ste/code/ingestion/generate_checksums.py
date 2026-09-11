@@ -2,68 +2,75 @@ import os
 import sys
 import logging
 from pathlib import Path
-
 from config import CONFIG
 from utils.checksums import generate_all_checksums
-from utils.logging import get_logger, log_provenance_event
-
-logger = get_logger(__name__)
 
 def main():
     """
-    Generate checksums for all raw and intermediate files and save to
-    data/provenance/checksums.txt.
-
-    This task fulfills T019: Generate `data/provenance/checksums.txt`
-    for all raw and intermediate files.
+    Generate SHA-256 checksums for all raw and intermediate files
+    and write them to data/provenance/checksums.txt
     """
-    logger.info("Starting checksum generation for T019...")
+    logger = logging.getLogger(__name__)
+    logger.info("Starting checksum generation for provenance tracking")
 
-    # Ensure the provenance directory exists
-    provenance_dir = Path(CONFIG.PROVENANCE_DIR)
-    provenance_dir.mkdir(parents=True, exist_ok=True)
+    # Define directories to scan for checksums
+    directories_to_scan = [
+        CONFIG.DATA_RAW_DIR,
+        CONFIG.DATA_INTERMEDIATE_DIR,
+        CONFIG.DATA_PROCESSED_DIR,
+    ]
 
-    # Define the files to checksum based on the pipeline outputs
-    # We scan the raw and intermediate directories for CSV/JSONL files
-    raw_dir = Path(CONFIG.RAW_DATA_DIR)
-    intermediate_dir = Path(CONFIG.INTERMEDIATE_DATA_DIR)
-
-    files_to_checksum = []
-
-    if raw_dir.exists():
-        for ext in ["*.csv", "*.jsonl", "*.json", "*.txt"]:
-            files_to_checksum.extend(raw_dir.glob(ext))
-
-    if intermediate_dir.exists():
-        for ext in ["*.csv", "*.jsonl", "*.json", "*.txt"]:
-            files_to_checksum.extend(intermediate_dir.glob(ext))
-
-    if not files_to_checksum:
-        logger.warning("No raw or intermediate files found to checksum.")
-        # Still create an empty or minimal checksum file to indicate completion
-        # but log the issue.
-        checksum_file = provenance_dir / "checksums.txt"
-        with open(checksum_file, "w") as f:
-            f.write("# No data files found to checksum.\n")
-        log_provenance_event("checksums_generated", status="empty", path=str(checksum_file))
+    # Filter to existing directories only
+    valid_dirs = [d for d in directories_to_scan if d.exists()]
+    
+    if not valid_dirs:
+        logger.warning("No data directories found to generate checksums for")
+        # Still create the output file even if empty, to maintain provenance record
+        checksums_path = CONFIG.DATA_PROVENANCE_DIR / "checksums.txt"
+        checksums_path.parent.mkdir(parents=True, exist_ok=True)
+        checksums_path.write_text("# No data files found to checksum\n")
         return
 
-    logger.info(f"Found {len(files_to_checksum)} files to checksum.")
+    logger.info(f"Scanning directories: {[str(d) for d in valid_dirs]}")
 
-    # Generate checksums
-    checksums = generate_all_checksums(files_to_checksum)
+    # Generate checksums for all files in valid directories
+    checksums = generate_all_checksums(valid_dirs)
 
-    # Write to the specific output file required by T019
-    output_path = provenance_dir / "checksums.txt"
-    with open(output_path, "w") as f:
-        for filepath, checksum in checksums.items():
-            # Format: <checksum>  <relative_path>
-            f.write(f"{checksum}  {filepath}\n")
+    if not checksums:
+        logger.warning("No files found to checksum in the specified directories")
+        checksums_path = CONFIG.DATA_PROVENANCE_DIR / "checksums.txt"
+        checksums_path.parent.mkdir(parents=True, exist_ok=True)
+        checksums_path.write_text("# No files found to checksum\n")
+        return
 
-    logger.info(f"Checksums written to {output_path}")
-    log_provenance_event("checksums_generated", status="success", path=str(output_path), count=len(checksums))
+    # Write checksums to provenance file
+    checksums_path = CONFIG.DATA_PROVENANCE_DIR / "checksums.txt"
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Successfully generated checksums for {len(checksums)} files at {output_path}")
+    with open(checksums_path, 'w') as f:
+        f.write(f"# Checksums generated at {CONFIG.PROVENANCE_TIMESTAMP}\n")
+        f.write(f"# Project: {CONFIG.PROJECT_ID}\n")
+        f.write("# Format: <sha256_hash>  <relative_path>\n")
+        f.write("#" + "=" * 78 + "\n")
+        for rel_path, checksum in sorted(checksums.items()):
+            f.write(f"{checksum}  {rel_path}\n")
+
+    logger.info(f"Successfully wrote {len(checksums)} checksums to {checksums_path}")
+    
+    # Log provenance event
+    from utils.logging import log_provenance_event
+    log_provenance_event(
+        event_type="checksum_generation",
+        details={
+            "output_file": str(checksums_path),
+            "files_checksummed": len(checksums),
+            "directories_scanned": [str(d) for d in valid_dirs]
+        }
+    )
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()

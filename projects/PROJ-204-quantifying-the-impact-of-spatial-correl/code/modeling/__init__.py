@@ -1,3 +1,1 @@
-"""
-Modeling module.
-"""
+"""Modeling modules package."""

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "Running formatter (black)..."
-python -m black .
+echo "Running black formatting..."
+black code/
 
-echo "Running import sorter (isort)..."
-python -m isort .
+echo "Running isort formatting..."
+isort code/
 
-echo "Formatting complete."
+echo "All formatting checks passed!"

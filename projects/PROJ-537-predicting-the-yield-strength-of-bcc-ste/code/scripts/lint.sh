@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "Running linter (flake8)..."
-python -m flake8 .
+echo "Running flake8 linting..."
+flake8 code/
 
-echo "Running formatter check (black)..."
-python -m black --check .
+echo "Running black check..."
+black --check code/
 
-echo "Running import sorter check (isort)..."
-python -m isort --check-only .
+echo "Running isort check..."
+isort --check-only code/
 
-echo "All checks passed."
+echo "All linting checks passed!"

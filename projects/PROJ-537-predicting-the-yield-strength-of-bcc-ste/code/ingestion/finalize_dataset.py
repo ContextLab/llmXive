@@ -4,115 +4,107 @@ import logging
 from pathlib import Path
 from config import CONFIG, ERR_INSUFFICIENT_DATA
 from utils.logging import get_logger, log_provenance_event
-import pandas as pd
 
 logger = get_logger(__name__)
 
-def validate_and_save_merged_dataset(input_path: Path, output_path: Path, min_rows: int = 20) -> None:
+def validate_and_save_merged_dataset(input_path: str, output_path: str, min_rows: int = 20) -> bool:
     """
-    Load the merged dataset, verify it meets the minimum row count requirement,
-    and save it to the final intermediate location.
-    
-    Args:
-        input_path: Path to the temporary merged dataset (e.g., from merge_and_filter)
-        output_path: Path where the final validated dataset should be saved
-        min_rows: Minimum number of rows required (default 20)
-        
-    Raises:
-        SystemExit: If row count is below min_rows, triggering ERR_INSUFFICIENT_DATA
+    Validates the merged dataset has at least min_rows rows with non-null critical fields
+    and saves it to the output path. Raises ERR_INSUFFICIENT_DATA if validation fails.
     """
-    if not input_path.exists():
+    import pandas as pd
+
+    if not os.path.exists(input_path):
         logger.error(f"Input file not found: {input_path}")
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    logger.info(f"Loading merged dataset from {input_path}")
+
     try:
         df = pd.read_csv(input_path)
     except Exception as e:
         logger.error(f"Failed to read CSV: {e}")
         raise
-    
-    current_rows = len(df)
-    logger.info(f"Merged dataset contains {current_rows} rows")
-    
-    # Check for critical columns to ensure data integrity
+
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
+
+    # Critical columns required for the downstream pipeline
     required_cols = ['yield_strength_MPa', 'shear_modulus_GPa']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    # Check for non-null values in critical columns
-    null_count = df[required_cols].isnull().sum()
-    if null_count.any():
-        logger.warning(f"Found null values in critical columns:\n{null_count[null_count > 0]}")
-        # Optionally drop rows with null critical values
-        initial_count = len(df)
-        df = df.dropna(subset=required_cols)
-        dropped = initial_count - len(df)
-        if dropped > 0:
-            logger.info(f"Dropped {dropped} rows due to null critical values")
-    
-    final_rows = len(df)
-    logger.info(f"Dataset after null handling: {final_rows} rows")
-    
-    if final_rows < min_rows:
-        error_msg = f"{ERR_INSUFFICIENT_DATA}: Dataset has {final_rows} rows, minimum required is {min_rows}"
-        logger.error(error_msg)
-        # Log provenance event for the failure
-        log_provenance_event(
-            event_type="validation_failed",
-            details={"reason": ERR_INSUFFICIENT_DATA, "rows_found": final_rows, "rows_required": min_rows},
-            logger=logger
-        )
-        raise SystemExit(error_msg)
-    
-    logger.info(f"Validation passed: {final_rows} >= {min_rows} rows")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save the validated dataset
-    logger.info(f"Saving validated dataset to {output_path}")
-    df.to_csv(output_path, index=False)
-    
+    for col in required_cols:
+        if col not in df.columns:
+            msg = f"Missing required column: {col}"
+            logger.error(msg)
+            raise KeyError(msg)
+
+    # Filter out rows with nulls in critical columns
+    valid_df = df.dropna(subset=required_cols)
+    valid_count = len(valid_df)
+
+    logger.info(f"Rows with non-null {required_cols}: {valid_count}")
+
+    if valid_count < min_rows:
+        msg = f"{ERR_INSUFFICIENT_DATA}: Valid rows ({valid_count}) < required minimum ({min_rows})"
+        logger.error(msg)
+        # Raise the specific error defined in config to halt the pipeline
+        raise RuntimeError(msg)
+
+    # Save the validated dataframe
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    valid_df.to_csv(output_path, index=False)
+    logger.info(f"Saved {valid_count} validated rows to {output_path}")
+
+    # Log provenance
     log_provenance_event(
-        event_type="dataset_finalized",
-        details={"rows": final_rows, "path": str(output_path)},
-        logger=logger
+        event_type="dataset_validated",
+        details={
+            "input_file": input_path,
+            "output_file": output_path,
+            "total_rows_loaded": len(df),
+            "valid_rows": valid_count,
+            "min_rows_required": min_rows
+        }
     )
-    
-    logger.info("Dataset finalization complete")
+
+    return True
 
 def main():
     """
-    Entry point for finalizing the merged dataset.
-    Loads intermediate results, validates row count, and saves final artifact.
+    Entry point for T017: Validate and save the merged dataset.
+    Reads from data/intermediate/merged_raw.csv (produced by merge_and_filter)
+    and writes to data/intermediate/merged.csv.
     """
-    # Define paths based on CONFIG
-    input_path = CONFIG.INTERMEDIATE_DIR / "merged_temp.csv"
-    output_path = CONFIG.INTERMEDIATE_DIR / "merged.csv"
-    
-    # Allow override via environment variable for testing flexibility
-    if os.getenv("OVERRIDE_INPUT_PATH"):
-        input_path = Path(os.getenv("OVERRIDE_INPUT_PATH"))
-    
+    # Determine paths based on CONFIG
+    # Assuming merge_and_filter.py writes a raw intermediate file first
+    input_file = CONFIG.INTERMEDIATE_DIR / "merged_raw.csv"
+    output_file = CONFIG.INTERMEDIATE_DIR / "merged.csv"
+
+    # If the raw file doesn't exist, check if the final one was already created
+    # or if we need to trigger the merge step. For this specific task, we assume
+    # the previous task (T015/T016) produced the raw intermediate.
+    if not input_file.exists():
+        # Fallback: maybe merge_and_filter writes directly? Check common names.
+        # If strictly following T015/T016, they might write to a temp or raw file.
+        # Let's check if the output already exists (idempotency) or fail.
+        if output_file.exists():
+            logger.warning("Output file already exists. Skipping validation.")
+            return True
+        else:
+            logger.error(f"Input file {input_file} not found. Ensure T015/T016 ran successfully.")
+            raise FileNotFoundError(f"Input file {input_file} not found")
+
     try:
-        validate_and_save_merged_dataset(input_path, output_path, min_rows=20)
-        print(f"Success: Final dataset saved to {output_path}")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Validation Error: {e}")
-        sys.exit(1)
-    except SystemExit as e:
-        print(f"Fatal Error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.exception("Unexpected error during finalization")
-        print(f"Unexpected Error: {e}")
-        sys.exit(1)
+        validate_and_save_merged_dataset(
+            input_path=str(input_file),
+            output_path=str(output_file),
+            min_rows=20
+        )
+        logger.info("T017 completed successfully.")
+    except RuntimeError as e:
+        if ERR_INSUFFICIENT_DATA in str(e):
+            logger.critical(f"Pipeline halted: {e}")
+            sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     main()

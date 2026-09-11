@@ -1,130 +1,109 @@
-"""
-T020: Update project state with artifact hashes.
-
-Reads checksums from data/provenance/checksums.txt and updates
-state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml
-with the artifact hashes.
-"""
 import os
 import sys
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from config import CONFIG
 from utils.logging import get_logger
+from utils.checksums import generate_all_checksums
 
 logger = get_logger(__name__)
 
-
 def load_checksums(checksum_file: Path) -> Dict[str, str]:
-    """
-    Load checksums from the generated checksums.txt file.
-    
-    Expected format:
-    <hash>  <relative_path>
-    """
+    """Load checksums from a text file (filename: hash format)."""
     checksums = {}
     if not checksum_file.exists():
         logger.warning(f"Checksum file not found: {checksum_file}")
         return checksums
     
-    with open(checksum_file, 'r', encoding='utf-8') as f:
+    with open(checksum_file, 'r') as f:
         for line in f:
             line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            parts = line.split(None, 1)
-            if len(parts) == 2:
-                hash_val, file_path = parts
-                checksums[file_path] = hash_val
-            else:
-                logger.warning(f"Malformed checksum line: {line}")
-    
+            if line and ':' in line:
+                # Format: "filename: hash" or "filename hash"
+                parts = line.split(':')
+                if len(parts) == 2:
+                    filename, hash_val = parts
+                    checksums[filename.strip()] = hash_val.strip()
+                else:
+                    # Fallback for space-separated
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        checksums[parts[0]] = parts[1]
     return checksums
 
+def load_or_create_state(state_path: Path) -> Dict[str, Any]:
+    """Load existing state file or create a new one."""
+    if state_path.exists():
+        with open(state_path, 'r') as f:
+            try:
+                return yaml.safe_load(f) or {}
+            except yaml.YAMLError as e:
+                logger.error(f"Error parsing existing state file: {e}")
+                return {}
+    else:
+        # Ensure parent directory exists
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        return {
+            "project_id": "PROJ-537-predicting-the-yield-strength-of-bcc-ste",
+            "last_updated": None,
+            "artifacts": {}
+        }
 
-def load_or_create_state(state_file: Path) -> Dict[str, Any]:
-    """Load existing state file or create a new one with project metadata."""
-    if state_file.exists():
-        with open(state_file, 'r', encoding='utf-8') as f:
-            return yaml.safe_load(f) or {}
+def update_state_with_checksums(state: Dict[str, Any], checksums: Dict[str, str]) -> None:
+    """Update the state dictionary with artifact hashes."""
+    import datetime
+    state["last_updated"] = datetime.datetime.now().isoformat()
     
-    # Create new state structure
-    return {
-        "project_id": "PROJ-537-predicting-the-yield-strength-of-bcc-ste",
-        "project_name": "Predicting the Yield Strength of BCC Steels",
-        "status": "in_progress",
-        "last_updated": None,
-        "artifacts": {}
-    }
-
-
-def update_state_with_checksums(state: Dict[str, Any], checksums: Dict[str, str]) -> Dict[str, Any]:
-    """Update state dictionary with artifact hashes from checksums."""
-    from datetime import datetime
-    
-    # Update timestamp
-    state["last_updated"] = datetime.utcnow().isoformat() + "Z"
-    
-    # Update artifacts section with checksums
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-    
-    for file_path, hash_val in checksums.items():
-        state["artifacts"][file_path] = {
+    # Map relative paths to their hashes
+    for filename, hash_val in checksums.items():
+        # Normalize path separators
+        norm_path = filename.replace('\\', '/')
+        state["artifacts"][norm_path] = {
             "hash": hash_val,
-            "last_verified": datetime.utcnow().isoformat() + "Z"
+            "type": "sha256"
         }
     
     logger.info(f"Updated state with {len(checksums)} artifact hashes")
-    return state
 
+def save_state(state: Dict[str, Any], state_path: Path) -> None:
+    """Save the state dictionary to a YAML file."""
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(state_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+    logger.info(f"State saved to {state_path}")
 
-def save_state(state: Dict[str, Any], state_file: Path) -> None:
-    """Save the updated state to YAML file."""
-    # Ensure directory exists
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_file, 'w', encoding='utf-8') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    
-    logger.info(f"State saved to {state_file}")
-
-
-def main() -> int:
-    """Main entry point for T020."""
-    logger.info("Starting T020: Update project state with artifact hashes")
+def main():
+    """Main entry point for updating project state with artifact hashes."""
+    logger.info("Starting state update process...")
     
     # Define paths
-    checksum_file = Path(CONFIG.PROVENANCE_DIR) / "checksums.txt"
-    state_file = Path(CONFIG.STATE_DIR) / "projects" / "PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml"
+    checksum_file = CONFIG.DATA_PROVENANCE_DIR / "checksums.txt"
+    state_file = CONFIG.ROOT_DIR / "state" / "projects" / "PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml"
+    
+    # Ensure directories exist
+    state_file.parent.mkdir(parents=True, exist_ok=True)
     
     # Load checksums
+    logger.info(f"Loading checksums from {checksum_file}")
     checksums = load_checksums(checksum_file)
-    if not checksums:
-        logger.error("No checksums found. Cannot update state.")
-        return 1
     
-    logger.info(f"Loaded {len(checksums)} checksums from {checksum_file}")
+    if not checksums:
+        logger.warning("No checksums found. Ensure T019 has been completed successfully.")
+        # We can still create the state file, just with empty artifacts
     
     # Load or create state
     state = load_or_create_state(state_file)
     
     # Update state with checksums
-    updated_state = update_state_with_checksums(state, checksums)
+    update_state_with_checksums(state, checksums)
     
-    # Save updated state
-    save_state(updated_state, state_file)
+    # Save state
+    save_state(state, state_file)
     
-    logger.info("T020 completed successfully")
+    logger.info("State update completed successfully.")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

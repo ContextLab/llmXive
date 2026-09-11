@@ -1,71 +1,59 @@
 """
 Setup script to create the required project directory structure.
-This script ensures all necessary directories for data, code, tests, and provenance exist.
+Creates all directories specified in tasks.md for the llmXive pipeline.
 """
 import os
 import sys
 from pathlib import Path
 
-# Define the required directory structure relative to the project root
-REQUIRED_DIRS = [
-    "code",
-    "data",
-    "data/raw",
-    "data/intermediate",
-    "data/processed",
-    "data/provenance",
-    "data/results",
-    "tests",
-    "tests/unit",
-    "tests/integration",
-    "tests/contract",
-]
-
-def create_directories(base_path: Path) -> None:
+def create_directories():
     """
-    Create all required directories if they do not exist.
-
-    Args:
-        base_path: The root directory from which paths are resolved.
+    Create the standard project directory structure.
+    Returns a list of created paths.
     """
-    for dir_path in REQUIRED_DIRS:
-        full_path = base_path / dir_path
+    # Base directories as defined in tasks.md T001
+    base_dirs = [
+        "code",
+        "data",
+        "data/raw",
+        "data/intermediate",
+        "data/processed",
+        "data/provenance",
+        "data/results",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract"
+    ]
+
+    created = []
+    root = Path(".")
+
+    for dir_path in base_dirs:
+        full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
             print(f"Created directory: {full_path}")
         else:
-            print(f"Directory already exists: {full_path}")
+            # Verify it's actually a directory
+            if not full_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
+            created.append(str(full_path))
 
-def main() -> int:
-    """
-    Main entry point for the directory setup script.
-    """
-    # Determine the project root (assuming this script is in code/ or root)
-    # We look for the 'data' or 'tests' directory to find the root, or assume cwd is root.
-    # Based on the task, we assume the script is run from the project root or code/
-    current_file = Path(__file__).resolve()
-    
-    # If running from code/, go up one level to project root
-    if current_file.parent.name == "code":
-        project_root = current_file.parent.parent
-    else:
-        project_root = current_file.parent
+    return created
 
-    print(f"Project root detected at: {project_root}")
-    create_directories(project_root)
-    
-    # Verify creation
-    missing = []
-    for dir_path in REQUIRED_DIRS:
-        if not (project_root / dir_path).exists():
-            missing.append(dir_path)
-    
-    if missing:
-        print(f"Error: Failed to create the following directories: {missing}", file=sys.stderr)
+def main():
+    """Entry point for directory creation."""
+    print("Initializing project directory structure for PROJ-537...")
+    try:
+        created_dirs = create_directories()
+        print(f"\nSuccessfully created/verified {len(created_dirs)} directories.")
+        print("Structure ready for pipeline execution.")
+        return 0
+    except Exception as e:
+        print(f"Error creating directories: {e}", file=sys.stderr)
         return 1
-    
-    print("All required directories created successfully.")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

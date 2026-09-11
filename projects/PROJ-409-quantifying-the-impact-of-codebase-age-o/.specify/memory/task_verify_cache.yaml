@@ -1,0 +1,48 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a changed `run_extraction.py` is provided\u2014no code snippet,\
+    \ diff, or test output showing logging of inaccessible git histories, skipping\
+    \ of those repos, or enforcement of processing at least three valid repositories.\
+    \ Without the actual script or verification logs, the requirement cannot be confirmed\
+    \ as met."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV file or any excerpt of its contents was provided; the only information
+    is the task description and project spec. Without an actual extraction output
+    showing the required columns (`snippet_id`, `repo_url`, `file_path`, `median_commit_age`,
+    `snippet_content`, `token_count`, `complexity`, `token_length`), we cannot verify
+    that the output matches the specification. The implementer must supply the generated
+    CSV (or a representative sample) to confirm the structure.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing the modified `run_inference.py` (or any script) is provided;\
+    \ without the updated code we cannot confirm that failures are logged, NaN values\
+    \ are recorded for timeouts/OOMs, and processing continues without crashing. The\
+    \ implementer must supply the revised script (or a diff) demonstrating the required\
+    \ error\u2011handling behavior."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_inference.py` file or code changes were presented, and there is no evidence\
+    \ that logic for runtime monitoring, threshold handling, or report finalization\
+    \ (including the conditional 'incomplete' vs 'complete' status based on the 800\u2011\
+    snippet minimum) was added. The required artifact is missing."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV files were presented; the response contains only the task description
+    and project spec, with no `inference_output.csv` (or similarly named file) showing
+    the required columns, nor a `file_metrics.csv` containing aggregated data. The
+    required artifacts are missing, so the task is not satisfied.
+T020:
+  c: false
+  h: cd479e14a9e999e415d80aa3678e559232a8cf59e499d70fd96624ceb2293b0b
+  r: The required input file `data/aggregated/file_metrics.csv` is absent, so the
+    script cannot be exercised. Moreover, the implemented `correlation.py` references
+    columns like `median_age`, `mean_complexity`, and `mean_length` instead of the
+    specified `median_commit_age`, `complexity`, and `token_length`, and the visible
+    code does not clearly perform a Spearman rank correlation with those covariates.
+    The task therefore remains unfinished.

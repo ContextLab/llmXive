@@ -1,5 +1,5 @@
-'|checksum data generate raw sha256 store':
-  quote: SHA-256
-  source_id: Q110651361
-  url: https://www.wikidata.org/wiki/Q110651361
-  value: SHA-256
+'|cross fold model selection strategy use validation':
+  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '5'

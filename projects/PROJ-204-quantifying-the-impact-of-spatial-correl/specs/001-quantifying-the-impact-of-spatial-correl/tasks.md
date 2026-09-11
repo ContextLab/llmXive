@@ -59,7 +59,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `state/`, `docs/`
-- [ ] T002 Create `requirements.txt` containing pinned versions: numpy, scipy, scikit-learn, pandas, hyperSpy, pyyaml, matplotlib, statsmodels, pygam, pytest
+- [X] T002 Create `requirements.txt` containing pinned versions: numpy, scipy, scikit-learn, pandas, hyperSpy, pyyaml, matplotlib, statsmodels, pygam, pytest
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -73,7 +73,7 @@
 - [ ] T004 Implement `code/utils/update_state.py` to read `data/` checksums and update `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml` with `artifact_hashes` map
 - [ ] T005 [P] Setup directory structure: `data/raw/`, `data/processed/`, `code/data/`, `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`, `code/report/`, `tests/`
 - [X] T006 [P] Create base configuration loader for environment variables, random seeds, and thresholds (e.g., `min_sample_count`, `ingestion_success_threshold`) in `code/utils/config.py`
-- [ ] T007 Implement `code/main_pipeline.py` entry point: accepts `--config` path, logs to `logs/pipeline.log`, orchestrates download -> preprocess -> analyze -> report steps
+- [X] T007 Implement `code/main_pipeline.py` entry point: accepts `--config` path, logs to `logs/pipeline.log`, orchestrates download -> preprocess -> analyze -> report steps
 - [X] T008 Create data model definitions (ElementalMap, DevicePerformance, SpatialMetric, AnalysisResult) in `code/data/models.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,13 +88,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] **Data Feasibility Check**: Verify programmatic access to EDS maps. Search NREL Perovskite Database and Zenodo for a verified URL/DOI. If no verified source is found, halt execution and generate "Data Availability Report". Output: `state/data_feasibility_status.yaml` (success/fail + URL). <!-- FAILED: unspecified -->
-- [~] T011 [US1] **Conditional Download**: If T010 succeeded, fetch EDS maps from the verified URL determined by T010 (not placeholder URLs) and Zenodo, saving raw files to `data/raw/`. If T010 failed, skip this task. (FR-001) <!-- FAILED: unspecified -->
+- [ ] T010 [US1] **Data Feasibility Check**: Verify programmatic access to EDS maps. Search NREL Perovskite Database and Zenodo for a verified URL/DOI. If no verified source is found, halt execution and generate "Data Availability Report". Output: `state/data_feasibility_status.yaml` (success/fail + URL). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T011 [US1] **Conditional Download**: If T010 succeeded, fetch EDS maps from the verified URL determined by T010 (not placeholder URLs) and Zenodo, saving raw files to `data/raw/`. If T010 failed, skip this task. (FR-001) <!-- FAILED: unspecified -->
 - [X] T012 [US1] Implement `code/data/align.py` to resample maps to a common pixel grid and handle dimension mismatches (US-1 Edge Case)
 - [X] T013 [US1] Implement `code/preprocess/calibrate.py` to mask defective regions (dead pixels, artifacts) and log masked area percentage (US-1 Scenario 2)
-- [~] T014c [US1] Implement `code/data/ingest.py` to orchestrate download, alignment, and masking, outputting a unified CSV to `data/processed/unified_dataset.csv` with columns: sample_id, Pb_map_path, I_map_path, MA_map_path, PCE, J_sc, V_oc. **Note**: This task produces the "pre-filter" valid dataset used for sensitivity analysis.
+- [ ] T014c [US1] Implement `code/data/ingest.py` to orchestrate download, alignment, and masking, outputting a unified CSV to `data/processed/unified_dataset.csv` with columns: sample_id, Pb_map_path, I_map_path, MA_map_path, PCE, J_sc, V_oc. **Note**: This task produces the "pre-filter" valid dataset used for sensitivity analysis.
 - [~] T015 [US1] Add validation logic to exclude samples with missing performance metrics and log warnings with specific sample IDs (US-1 Scenario 3)
-- [ ] T016 [US1] Implement co-location validation check in `code/validation/co_location.py` to verify EDS map and PCE originate from the same device by matching `device_id` metadata fields, setting a `validation_flag` for each sample (FR-007)
+- [X] T016 [US1] Implement co-location validation check in `code/validation/co_location.py` to verify EDS map and PCE originate from the same device by matching `device_id` metadata fields, setting a `validation_flag` for each sample (FR-007)
 - [X] T023 [US1] Implement depth resolution validation in `code/validation/depth_check.py` to flag samples where bulk EDS may not correlate with surface PCE, setting a `depth_flag` (FR-008)
 - [~] T010b [US1] **Calculate Ingestion Rate**: Compute `ingestion_success_rate` (N_processed / N_requested) from T010/T011 results and write to `state/ingestion_stats.json` for reporting.
 
@@ -147,7 +147,7 @@
 
 - [~] T034a [P] Update `README.md` with usage instructions and example commands
 - [~] T035 Add docstrings to all public functions in `code/` (Complete coverage of public API)
-- [ ] T036 Optimize memory usage: ensure peak RAM < 7GB during full pipeline run on CPU-only CI
+- [~] T036 Optimize memory usage: ensure peak RAM < 7GB during full pipeline run on CPU-only CI
 - [ ] T037 [P] Add additional unit tests to achieve >80% code coverage in `tests/unit/`
 - [ ] T038 Run quickstart.md validation
 

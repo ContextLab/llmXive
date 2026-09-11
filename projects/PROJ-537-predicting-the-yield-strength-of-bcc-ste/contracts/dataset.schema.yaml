@@ -1,104 +1,67 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Merged Dataset Schema
-description: |
-  Schema for the merged experimental and DFT dataset used in yield strength prediction.
-  This schema validates data produced by code/ingestion/merge_and_filter.py.
+title: Merged Yield Strength Dataset Schema
+description: Schema for the merged dataset containing experimental yield strength and DFT elastic constants for BCC steels.
 type: object
 required:
-  - metadata
-  - data
+  - properties
+  - required
+  - type
 properties:
-  metadata:
+  properties:
     type: object
-    required:
-      - version
-      - generated_at
-      - row_count
-      - source_experimental
-      - source_dft
+    description: Definition of dataset columns
     properties:
-      version:
+      material_id:
         type: string
-        description: Schema version identifier
-      generated_at:
+        description: Unique identifier for the material
+      formula:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation
-      row_count:
+        description: Chemical formula of the alloy
+      composition:
+        type: string
+        description: Comma-separated element:fraction pairs (e.g., "Fe:0.95,C:0.05")
+      yield_strength_MPa:
+        type: number
+        description: Experimental yield strength in MPa
+      yield_strength_uncertainty:
+        type: number
+        description: Uncertainty flag or value (1.0 if range midpoint used)
+      space_group:
         type: integer
-        minimum: 20
-        description: Number of valid rows in the dataset (must be >= 20)
+        description: Crystallographic space group number (229 for BCC)
+      shear_modulus_GPa:
+        type: number
+        description: DFT-calculated shear modulus in GPa
+      bulk_modulus_GPa:
+        type: number
+        description: DFT-calculated bulk modulus in GPa
+      elastic_tensor:
+        type: string
+        description: String representation of the 6x6 elastic tensor (Voigt notation)
       source_experimental:
         type: string
-        description: URL or identifier of the experimental data source
+        description: Source of experimental data (e.g., "MatNavi", "NIST")
       source_dft:
         type: string
-        description: Identifier of the DFT data source (e.g., Materials Project)
-      filtering_criteria:
-        type: object
-        properties:
-          space_group:
-            type: integer
-            description: Target space group (229 for BCC)
-          min_yield_strength:
-            type: number
-            nullable: true
-          max_yield_strength:
-            type: number
-            nullable: true
-  data:
-    type: array
-    items:
-      type: object
-      required:
-        - composition
-        - yield_strength_MPa
-        - shear_modulus_GPa
-      properties:
-        composition:
-          type: object
-          description: Elemental composition as atomic fractions
-          additionalProperties:
-            type: number
-            minimum: 0
-            maximum: 1
-        yield_strength_MPa:
-          type: number
-          minimum: 0
-          description: Yield strength in Megapascals
-          nullable: false
-        shear_modulus_GPa:
-          type: number
-          minimum: 0
-          description: Shear modulus in Gigapascals (from DFT)
-          nullable: false
-        bulk_modulus_GPa:
-          type: number
-          minimum: 0
-          description: Bulk modulus in Gigapascals (from DFT)
-          nullable: true
-        elastic_tensor:
-          type: array
-          description: Full 3x3x3x3 elastic tensor (flattened 21 independent components)
-          items:
-            type: number
-          nullable: true
-        space_group:
-          type: integer
-          description: Crystallographic space group number
-        structure_id:
-          type: string
-          description: Unique identifier for the crystal structure
-        uncertainty_flags:
-          type: array
-          items:
-            type: string
-          description: Flags indicating data quality issues (e.g., 'range_value_used')
-        provenance:
-          type: object
-          properties:
-            experimental_source:
-              type: string
-            dft_query_id:
-              type: string
-additionalProperties: false
+        description: Source of DFT data (e.g., "Materials Project")
+      provenance_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of data ingestion
+    required:
+      - material_id
+      - formula
+      - composition
+      - yield_strength_MPa
+      - shear_modulus_GPa
+      - space_group
+      - source_experimental
+      - source_dft
+  required:
+    - material_id
+    - formula
+    - composition
+    - yield_strength_MPa
+    - shear_modulus_GPa
+    - space_group
+  type: object

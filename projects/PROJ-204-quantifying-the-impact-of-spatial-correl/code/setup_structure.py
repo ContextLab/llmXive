@@ -1,35 +1,60 @@
+"""
+Script to set up the project directory structure for the llmXive pipeline.
+Creates necessary directories for data, code modules, tests, and reports.
+"""
 import os
 from pathlib import Path
 
-__all__ = ["create_project_structure"]
-
-def create_project_structure(base_dir: Path = Path(".")) -> None:
+def create_project_structure():
     """
-    Create the standard project directory hierarchy.
-
-    The function ensures the existence of the following directories:
-
-    - ``code/``
-    - ``data/raw/``
-    - ``data/processed/``
-    - ``tests/``
-    - ``state/``
-    - ``docs/``
-
-    Parameters
-    ----------
-    base_dir: Path, optional
-        Base directory where the structure will be created (default current
-        directory).
+    Creates the standard directory structure for the project.
+    Ensures all required folders exist relative to the project root.
     """
-    dirs = [
-        base_dir / "code",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "tests",
-        base_dir / "state",
-        base_dir / "docs",
+    # Define the root directory (current working directory or project root)
+    root = Path(__file__).resolve().parent.parent
+
+    # Define the directory structure to create
+    directories = [
+        # Data directories
+        "data/raw",
+        "data/processed",
+        
+        # Code module directories
+        "code/data",
+        "code/preprocess",
+        "code/analysis",
+        "code/modeling",
+        "code/validation",
+        "code/report",
+        "code/utils",
+        
+        # Testing directory
+        "tests",
+        
+        # State and documentation directories (referenced in T001/T004)
+        "state",
+        "state/projects",
+        "docs",
+        
+        # Logs directory (referenced in T007)
+        "logs",
+        
+        # Figures directory for output plots
+        "figures",
     ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    print("Project structure created.")
+
+    created_count = 0
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
+
+    print(f"Project structure setup complete. {created_count} new directories created.")
+    return created_count
+
+if __name__ == "__main__":
+    create_project_structure()
