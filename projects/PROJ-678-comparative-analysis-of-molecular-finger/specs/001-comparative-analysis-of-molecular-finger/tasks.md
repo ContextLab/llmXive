@@ -197,7 +197,7 @@ description: "Task list template for feature implementation"
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on **K-Fold scores**.
-- [ ] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
+- [X] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
 
 ### Implementation for User Story 3
 
@@ -264,8 +264,8 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Address specific research-stage reviews regarding measurement uncertainty and calibration (by documenting their exclusion per spec).
 
-- [ ] T033 Code cleanup and refactoring to ensure all random seeds are reproducible.
-- [ ] T034 Run `quickstart.md` validation to ensure full pipeline execution within 60 minutes on CI.
+- [ ] T033 Code cleanup and refactoring to ensure all random seeds are reproducible. <!-- FAILED: unspecified -->
+- [ ] T034 Run `quickstart.md` validation to ensure full pipeline execution within 60 minutes on CI. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: All documentation and reporting requirements met
 

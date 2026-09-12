@@ -1513,3 +1513,369 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T03:56:27Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Tox21 dataset source is deepchem/tox on HuggingFace
+  claim_id: c_80d8f344
+  context: Implement code/download.py to fetch Tox dataset from HuggingFace datasets.load_dataset('deepchem/tox'),
+    including checksum verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_source_is_deepchem/tox_on_HuggingFace
+  kind: entity_fact
+  raw_text: The Tox21 dataset is fetched from HuggingFace using datasets.load_dataset('deepchem/tox').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:52:57Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Organophosphate SMARTS pattern is [P](=O)([O,SC])[O,SC]
+  claim_id: c_7b7f54c2
+  context: 'Create code/constants.py with exact variable definitions: SMARTS_PATTERN
+    = ''[P](=O)([O,SC])[O,SC]'' (str).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Organophosphate_SMARTS_pattern_is_%5BP%5D(=O)(%5BO,SC%5D)%5BO,SC%5D
+  kind: entity_fact
+  raw_text: The SMARTS pattern used to filter organophosphates is '[P](=O)([O,SC])[O,SC]'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:53:22Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint parameters are radius 2 and 2048 bits
+  claim_id: c_89604790
+  context: Implement code/fingerprints.py to generate Morgan (radius=2, 2048 bits)
+    and MACCS (bits) fingerprints for all compounds in filtered CSV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprints are generated with a radius of 2 and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:53:40Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint parameters are 166 bits
+  claim_id: c_acf4e56d
+  context: 'Create code/constants.py with exact variable definitions: MACCS_BITS =
+    166 (int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS fingerprints are generated with 166 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:54:10Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Greedy split Tanimoto threshold is less than 0.85
+  claim_id: c_b68c4d2d
+  context: Perform a Single Greedy Maximal Dissimilarity Split (Tanimoto < 0.85) for
+    the held-out test set.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Greedy_split_Tanimoto_threshold_is_less_than_0.85
+  kind: magnitude
+  raw_text: The greedy maximal dissimilarity split uses a Tanimoto similarity threshold
+    of less than 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:55:06Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Single split test set size minimum is 20
+  claim_id: c_9125175e
+  context: Verify test set size >= 20.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single_split_test_set_size_minimum_is_20
+  kind: magnitude
+  raw_text: The test set size for the single split is required to be at least 20 compounds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:56:11Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Single split test set size maximum is 20% of total
+  claim_id: c_e03fe135
+  context: Add to test set if distance > threshold and test set size < 20% of total.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single_split_test_set_size_maximum_is_20%25_of_total
+  kind: magnitude
+  raw_text: The test set for the single split must comprise less than 20% of the total
+    dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:56:59Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: K-Fold cross-validation count is defined by N_FOLDS constant
+  claim_id: c_52852943
+  context: Implement code/split.py to generate K-Fold Split Indices (where K=N_FOLDS
+    from code/constants.py) using Greedy Maximal Dissimilarity per fold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-Fold_cross-validation_count_is_defined_by_N_FOLDS_constant
+  kind: entity_fact
+  raw_text: The K-Fold cross-validation uses N_FOLDS as defined in code/constants.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:57:35Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Random Forest model parameters are 100 trees and max_depth 15
+  claim_id: c_a6ac4fbc
+  context: Implement code/train.py to train Random Forest models (100 trees, max_depth=15)
+    using K-Fold Cross-Validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models are trained with 100 trees and a maximum depth of
+    15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:58:01Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Corrected Resampled t-test is applied to K-Fold ROC-AUC scores
+  claim_id: c_9cfa2a3a
+  context: Implement code/evaluate.py to perform the Corrected Resampled t-test (Nadeau
+    & Bengio) on the K-Fold ROC-AUC scores from data/processed/kfold_scores.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Corrected_Resampled_t-test_is_applied_to_K-Fold_ROC-AUC_scor
+  kind: entity_fact
+  raw_text: The Corrected Resampled t-test (Nadeau & Bengio) is performed on K-Fold
+    ROC-AUC scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:58:25Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Statistical test parameters are random_seed 42 and 1000 iterations
+  claim_id: c_d4d89e32
+  context: 'Reproducibility: Use random_seed=42 and n_iterations=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test uses a random seed of 42 and 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:58:56Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Bootstrap confidence interval parameters are 1000 iterations and random_seed
+    42
+  claim_id: c_509a4e0a
+  context: 'Reproducibility: Use random_seed=42 and n_iterations=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap confidence intervals are generated using 1000 resamples with
+    a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:59:28Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Phosphorus atom identification uses SMARTS pattern [P](=O)([O,SC])[O,SC]
+  claim_id: c_1500aa11
+  context: Locate the phosphorus atom in each molecule by matching the SMARTS pattern
+    '[P](=O)([O,SC])[O,SC]' defined in FR-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Phosphorus_atom_identification_uses_SMARTS_pattern_%5BP%5D(=O)(%5B
+  kind: entity_fact
+  raw_text: The feature importance analysis identifies the phosphorus atom by matching
+    the SMARTS pattern '[P](=O)([O,SC])[O,SC]'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T09:59:51Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Lowest atom index selected for multiple phosphorus matches
+  claim_id: c_3bb1f5eb
+  context: If multiple phosphorus atoms match the SMARTS pattern in a single molecule,
+    select the one with the lowest atom index in canonical atom order.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lowest_atom_index_selected_for_multiple_phosphorus_matches
+  kind: magnitude
+  raw_text: If multiple phosphorus atoms match the SMARTS pattern, the one with the
+    lowest atom index is selected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:00:19Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Morgan fingerprint bits for phosphorus are within radius 2
+  claim_id: c_0086acfd
+  context: Use RDKit GetBitInfo() to find Morgan fingerprint bits within radius=2
+    of the selected phosphorus atom index.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Morgan fingerprint bits for feature importance are found within a radius
+    of 2 of the phosphorus atom.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:00:42Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 60 minutes on 2-core CPU
+  claim_id: c_dd415ff1
+  context: Execute training script on a sample subset to verify memory safety, artifact
+    generation, and completion within 60 minutes on 2-core CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project pipeline must complete within 60 minutes on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:02:15Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Report floating-point values rounded to 4 decimal places
+  claim_id: c_5509d182
+  context: Round all floating-point values to a consistent precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Floating-point values in reports are rounded to 4 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:03:16Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: P-values below 0.0001 reported as <0.0001
+  claim_id: c_e551c8e0
+  context: 'P-Value format: ''<0.0001'' if < 0.0001, otherwise 4 decimals.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-values_below_0.0001_reported_as_%3C0.0001
+  kind: magnitude
+  raw_text: P-values less than 0.0001 are reported as '<0.0001'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:05:04Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Chunked processing batch size 500 if memory > 7GB
+  claim_id: c_2d734215
+  context: implement chunked processing (batch=500) if memory > 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Chunked processing with a batch size of 500 is implemented if memory usage
+    exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:05:30Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Low sample size warning triggered if n < 50
+  claim_id: c_bee3ae49
+  context: 'If total sample size < 50, verify data/processed/filter_log.txt contains
+    the exact string ''WARNING: Low Sample Size (n < 50)''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_sample_size_warning_triggered_if_n_%3C_50
+  kind: magnitude
+  raw_text: The sample size validation triggers a warning if the total sample size
+    is less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:06:30Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Python dependencies are rdkit, scikit-learn, pandas, numpy, requests,
+    pytest
+  claim_id: c_05b38d36
+  context: 'Initialize Python project files: requirements.txt (pinning rdkit, scikit-learn,
+    pandas, numpy, requests, pytest)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_dependencies_are_rdkit,_scikit-learn,_pandas,_numpy,
+  kind: entity_fact
+  raw_text: The project uses Python libraries rdkit, scikit-learn, pandas, numpy,
+    requests, and pytest.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T10:06:53Z'

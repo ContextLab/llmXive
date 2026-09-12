@@ -96,7 +96,7 @@ Examples of foundational tasks (adjust based on your project):
  - Exclude samples with missing fiber data
  - Merge into `data/processed/merged_harmonized.tsv`
 - [ ] T015 [US1] Add validation logic to ensure no PII leaks and checksums are recorded in `state/`
-- [~] T016 [US1] Add logging for ingestion steps (download status, filter counts, harmonization results)
+- [ ] T016 [US1] Add logging for ingestion steps (download status, filter counts, harmonization results)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

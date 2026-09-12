@@ -1,49 +1,44 @@
-# llmXive Project: Dietary Fiber and Gut Microbiome Correlation
+# llmXive Project 112: Fiber-Gut Microbiome Correlation
 
 ## Overview
 This project investigates the correlation between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and UK Biobank (UKBB).
 
 ## Project Structure
-```
-.
-├── code/
-│ ├── src/
-│ │ ├── ingestion/ # Data loading modules
-│ │ ├── preprocessing/ # Data cleaning and transformation
-│ │ ├── analysis/ # Statistical analysis modules
-│ │ ├── utils/ # Shared utilities
-│ │ └── main.py # Entry point
-│ ├── tests/ # Test suites
-│ ├── requirements.txt # Dependencies
-│ └── pyproject.toml # Project configuration
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Cleaned and transformed data
-│ └── processed/results/ # Analysis outputs
-├── docs/ # Documentation
-└── state/ # Pipeline state files
-```
+- `src/`: Source code modules
+ - `ingestion/`: Data loading and harmonization
+ - `preprocessing/`: Data transformation and cleaning
+ - `analysis/`: Statistical analysis and modeling
+ - `utils/`: Utility functions and helpers
+- `tests/`: Test suites
+ - `contract/`: Schema validation tests
+ - `integration/`: End-to-end pipeline tests
+ - `unit/`: Unit tests for individual functions
+- `data/`: Data storage
+ - `raw/`: Raw downloaded data
+ - `processed/`: Cleaned and transformed data
+ - `processed/results/`: Analysis output files
+- `docs/`: Documentation
+- `state/`: Checksums and validation state files
 
 ## Setup
-1. Ensure Python 3.11 is installed.
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 2. Install dependencies:
  ```bash
- pip install -r code/requirements.txt
+ pip install -r requirements.txt
  ```
-3. Initialize directory structure:
+3. Run the main pipeline:
  ```bash
- python code/src/setup_data_structure.py
+ python -m src.main
  ```
 
-## Running the Pipeline
-```bash
-python code/src/main.py
-```
-
-## Testing
-```bash
-pytest code/tests/
-```
+## Development
+- Linting: `ruff check.`
+- Formatting: `black.`
+- Testing: `pytest`
 
 ## License
 MIT

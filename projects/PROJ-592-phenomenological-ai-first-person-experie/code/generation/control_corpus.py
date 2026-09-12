@@ -1,330 +1,238 @@
-"""Control corpus generation using real technical reports.
-
-This module generates a control corpus of non-phenomenological text (technical
-reports) to serve as a baseline for discriminant validity analysis.
-
-Real Data Source: 'cnn_dailymail' dataset (articles column treated as technical text).
-Fallback: 'imdb' dataset (reviews treated as technical text) if primary fails.
 """
+Control Corpus Generation Module.
+Generates technical report samples to serve as a control group (non-phenomenological).
+Merges these with phenomenological outputs for discriminant validity analysis.
+"""
+from __future__ import annotations
+
 import os
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import random
+
 import pandas as pd
+from datasets import load_dataset
 
-from utils.logging import log_operation, get_logger, retry_on_failure
-from utils.io import safe_write_csv, safe_write_json
+# Project imports
+from config import get_marker_dictionaries, PROJECT_ROOT
+from utils.logging import get_logger, log_operation, retry_on_failure
 
-# Verified Real Source: 'cnn_dailymail' (view as 'article' column)
-# This is a standard news summarization dataset where articles are non-first-person
-# technical/journalistic text, suitable for control corpus.
-DATASET_ID = "cnn_dailymail"
-DATASET_CONFIG = "3.0.0"
-TEXT_COLUMN = "article"
+# Constants
+TARGET_SAMPLES = 80
+DATASET_NAME = "cnn_dailymail"  # Verified real source: CNN/DailyMail news summaries
+DATASET_SPLIT = "3.0.0"  # Specific version to ensure reproducibility
+SAMPLE_SIZE = 150  # Load slightly more than target to account for filtering
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
-def load_control_dataset(split: str = "train", limit: Optional[int] = None):
-    """Load a real dataset to serve as control corpus.
-    
-    Args:
-        split: Dataset split to load (default: 'train')
-        limit: Maximum number of samples to load (None for all)
-        
-    Returns:
-        Dataset object with text samples
-        
-    Raises:
-        RuntimeError: If no real dataset can be loaded
+class ControlCorpusError(Exception):
+    """Custom exception for control corpus generation errors."""
+    pass
+
+
+def load_control_dataset() -> Any:
     """
-    log_operation("load_control_dataset", dataset=DATASET_ID, split=split, limit=limit)
-    
+    Load the CNN/DailyMail dataset.
+    This dataset contains news articles and summaries, which are typically
+    written in an objective, third-person, technical/journalistic style.
+    """
+    log_operation("load_control_dataset_start", dataset=DATASET_NAME)
     try:
-        from datasets import load_dataset
-        
-        # Load dataset with streaming to handle large datasets efficiently
-        dataset = load_dataset(
-            DATASET_ID, 
-            name=DATASET_CONFIG, 
-            split=split, 
-            trust_remote_code=True,
-            streaming=True
-        )
-        
-        # Convert streaming dataset to list if limit is specified
-        if limit:
-            samples = []
-            for item in dataset:
-                if len(samples) >= limit:
-                    break
-                samples.append(item)
-            # Create a simple list-based dataset-like object
-            class SimpleDataset:
-                def __init__(self, data):
-                    self.data = data
-                def __iter__(self):
-                    return iter(self.data)
-                def __len__(self):
-                    return len(self.data)
-            dataset = SimpleDataset(samples)
-        else:
-            # If no limit, convert to list for easier iteration
-            dataset = list(dataset)
-            class SimpleDataset:
-                def __init__(self, data):
-                    self.data = data
-                def __iter__(self):
-                    return iter(self.data)
-                def __len__(self):
-                    return len(self.data)
-            dataset = SimpleDataset(dataset)
-        
+        # Use streaming to avoid loading the full dataset into memory
+        dataset = load_dataset(DATASET_NAME, "3.0.0", split="train", streaming=True)
+        logger.info(f"Successfully loaded dataset stream: {DATASET_NAME}")
         return dataset
     except Exception as e:
-        logger.warning(f"Failed to load {DATASET_ID}: {e}. Falling back to 'imdb'.")
-        try:
-            from datasets import load_dataset
-            dataset = load_dataset("imdb", split="train", streaming=True)
-            # Map 'text' to 'article' for consistency
-            class MappedDataset:
-                def __init__(self, base_dataset):
-                    self.base_dataset = base_dataset
-                def __iter__(self):
-                    for item in self.base_dataset:
-                        item['article'] = item.pop('text')
-                        yield item
-                def __len__(self):
-                    # Unknown for streaming, return 0 or estimate
-                    return 0
-            dataset = MappedDataset(dataset)
-            return dataset
-        except Exception as e2:
-            logger.error(f"Failed to load fallback dataset: {e2}")
-            raise RuntimeError("Could not load any real dataset for control corpus.") from e2
+        logger.error(f"Failed to load dataset {DATASET_NAME}: {e}")
+        raise ControlCorpusError(f"Dataset load failed: {e}")
 
 
 @retry_on_failure(max_attempts=3, delay=2.0, logger=logger)
-def sample_control_corpus(dataset, n_samples: int = 80) -> List[Dict[str, Any]]:
-    """Sample n_samples from the dataset and format as control.
-    
-    Args:
-        dataset: Dataset object to sample from
-        n_samples: Number of samples to extract
-        
-    Returns:
-        List of formatted control samples
+def sample_control_corpus(dataset: Any, n: int = TARGET_SAMPLES) -> List[Dict[str, Any]]:
     """
-    log_operation("sample_control_corpus", n_samples=n_samples)
-    
+    Sample n items from the control dataset.
+    Filters for items with sufficient length to be meaningful reports.
+    """
+    log_operation("sample_control_corpus_start", n=n)
     samples = []
     count = 0
     
+    # Iterate through the streaming dataset
     for item in dataset:
-        if count >= n_samples:
+        if count >= n:
             break
         
-        text = item.get(TEXT_COLUMN, "")
-        # Ensure text has sufficient length and is not empty
-        if text and len(text.strip()) > 100:
+        # Filter for reasonable length (avoid very short snippets)
+        text = item.get("article", "") or item.get("highlights", "")
+        if len(text) > 50:
             samples.append({
                 "id": f"control_{count:04d}",
-                "text": text[:2000],  # Truncate to avoid massive tokens
-                "strategy": "Technical",
-                "type": "control",
-                "control_label": "control",
-                "seed": random.randint(1000, 9999)
+                "text": text,
+                "source": DATASET_NAME,
+                "type": "control"  # Explicitly mark as control
             })
             count += 1
     
-    if len(samples) < n_samples:
-        logger.warning(f"Only sampled {len(samples)} control samples, requested {n_samples}")
+    if count < n:
+        logger.warning(f"Only collected {count} samples, requested {n}. Dataset may be exhausted.")
     
+    log_operation("sample_control_corpus_complete", collected=count)
     return samples
 
 
-def save_control_corpus(samples: List[Dict[str, Any]], output_path: str) -> None:
-    """Save control samples to CSV/JSON.
+def save_control_corpus(samples: List[Dict[str, Any]], output_path: Path) -> None:
+    """Save the control samples to a JSON file."""
+    log_operation("save_control_corpus_start", path=str(output_path))
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        samples: List of sample dictionaries
-        output_path: Path to output file
-    """
-    log_operation("save_control_corpus", output_path=output_path, num_samples=len(samples))
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(samples, f, indent=2, ensure_ascii=False)
     
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save as CSV
-    df = pd.DataFrame(samples)
-    df.to_csv(output_path, index=False)
     logger.info(f"Saved {len(samples)} control samples to {output_path}")
+    log_operation("save_control_corpus_complete", path=str(output_path), count=len(samples))
 
 
-def merge_with_phenomenological(control_path: str, pheno_path: str, output_path: str) -> None:
-    """Merge control corpus with existing phenomenological outputs.
-    
-    Args:
-        control_path: Path to control corpus CSV
-        pheno_path: Path to phenomenological corpus CSV (if exists)
-        output_path: Path to merged output CSV
+def verify_marker_absence(samples: List[Dict[str, Any]]) -> Dict[str, float]:
     """
-    log_operation("merge_with_phenomenological", 
-                control_path=control_path, 
-                pheno_path=pheno_path, 
-                output_path=output_path)
-    
-    # Load control data
-    control_df = pd.read_csv(control_path)
-    
-    # Load phenomenological data if it exists
-    if os.path.exists(pheno_path):
-        pheno_df = pd.read_csv(pheno_path)
-        # Ensure both have 'type' column
-        if 'type' not in pheno_df.columns:
-            pheno_df['type'] = 'phenomenological'
-        if 'type' not in control_df.columns:
-            control_df['type'] = 'control'
-        
-        # Concatenate
-        merged_df = pd.concat([pheno_df, control_df], ignore_index=True)
-    else:
-        # Only control data exists
-        if 'type' not in control_df.columns:
-            control_df['type'] = 'control'
-        merged_df = control_df
-    
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Write merged dataset
-    merged_df.to_csv(output_path, index=False)
-    logger.info(f"Merged {len(merged_df)} samples to {output_path}")
-    logger.info(f"Control samples: {(merged_df['type'] == 'control').sum()}")
-    logger.info(f"Phenomenological samples: {(merged_df['type'] == 'phenomenological').sum()}")
-
-
-def verify_marker_absence(samples: List[Dict[str, Any]], marker_dicts: Dict[str, List[str]]) -> Dict[str, Any]:
-    """Verify that control samples lack phenomenological markers.
-    
-    Args:
-        samples: List of control samples
-        marker_dicts: Dictionary of marker categories and keywords
-        
-    Returns:
-        Dictionary with verification results
+    Verify that control samples lack phenomenological markers.
+    Returns a dictionary of marker density scores (should be low).
     """
-    log_operation("verify_marker_absence", num_samples=len(samples))
+    log_operation("verify_marker_absence_start")
+    markers = get_marker_dictionaries()
+    all_markers = [m for cat in markers.values() for m in cat]
     
     results = {
-        "total_samples": len(samples),
-        "samples_with_markers": 0,
-        "marker_counts": {"sensory": 0, "temporal": 0, "intentional": 0},
-        "details": []
+        "sensory": 0,
+        "temporal": 0,
+        "intentional": 0,
+        "total_markers": 0,
+        "sample_count": len(samples)
     }
-    
-    from config import get_marker_dictionaries
-    if not marker_dicts:
-        marker_dicts = get_marker_dictionaries()
     
     for sample in samples:
         text = sample.get("text", "").lower()
-        sample_markers = {"sensory": 0, "temporal": 0, "intentional": 0}
+        for category, marker_list in markers.items():
+            count = sum(1 for m in marker_list if m in text)
+            results[category] += count
         
-        for category, keywords in marker_dicts.items():
-            if category in sample_markers:
-                for keyword in keywords:
-                    if keyword.lower() in text:
-                        sample_markers[category] += 1
-                        results["marker_counts"][category] += 1
-        
-        if sum(sample_markers.values()) > 0:
-            results["samples_with_markers"] += 1
-            results["details"].append({
-                "id": sample.get("id"),
-                "markers": sample_markers
-            })
+        results["total_markers"] += sum(
+            1 for m in all_markers if m in text
+        )
     
-    logger.info(f"Verification: {results['samples_with_markers']}/{results['total_samples']} "
-               f"control samples contained phenomenological markers")
+    # Calculate density (markers per sample)
+    if len(samples) > 0:
+        results["density_sensory"] = results["sensory"] / len(samples)
+        results["density_temporal"] = results["temporal"] / len(samples)
+        results["density_intentional"] = results["intentional"] / len(samples)
+        results["density_total"] = results["total_markers"] / len(samples)
     
+    log_operation("verify_marker_absence_complete", densities={
+        k: v for k, v in results.items() if k.startswith("density")
+    })
     return results
 
 
-def generate_control_corpus(config: Dict[str, Any]) -> None:
-    """Main entry point for control corpus generation.
-    
-    Args:
-        config: Configuration dictionary with generation parameters
+def merge_with_phenomenological(
+    control_path: Path, 
+    phenomenological_path: Path, 
+    output_path: Path
+) -> Path:
     """
-    log_operation("generate_control_corpus")
+    Merge control samples with phenomenological outputs into a single CSV.
+    Ensures the 'type' column distinguishes between 'control' and 'phenomenological'.
+    """
+    log_operation("merge_datasets_start", control=str(control_path), pheno=str(phenomenological_path))
     
-    limit = config.get("generation_limit", 80)
-    output_dir = Path(config.get("output_dir", "data/processed"))
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Load control data
+    with open(control_path, "r", encoding="utf-8") as f:
+        control_data = json.load(f)
+    df_control = pd.DataFrame(control_data)
+    if "type" not in df_control.columns:
+        df_control["type"] = "control"
     
-    control_path = output_dir / "control_corpus.csv"
-    merged_path = output_dir / "merged_dataset.csv"
-    pheno_path = output_dir / "phenomenological_corpus.csv"  # Expected path for pheno data
-    
-    # Load real data
-    logger.info(f"Loading control dataset (limit={limit})...")
-    dataset = load_control_dataset(limit=limit)
-    
-    # Sample
-    logger.info(f"Sampling {limit} control samples...")
-    samples = sample_control_corpus(dataset, n_samples=limit)
-    
-    # Save control corpus
-    save_control_corpus(samples, str(control_path))
-    
-    # Merge with phenomenological data if it exists
-    # Note: phenomenological data should be generated by T009/T009b
-    if os.path.exists(pheno_path):
-        logger.info(f"Found phenomenological corpus at {pheno_path}, merging...")
-        merge_with_phenomenological(str(control_path), pheno_path, str(merged_path))
-    elif os.path.exists(merged_path):
-        # Append to existing merged file
-        logger.info(f"Appending to existing merged dataset at {merged_path}")
-        merge_with_phenomenological(str(control_path), merged_path, str(merged_path))
+    # Load phenomenological data (assuming it's already a CSV or JSON)
+    if phenomenological_path.suffix == ".csv":
+        df_pheno = pd.read_csv(phenomenological_path)
     else:
-        # No phenomenological data yet, just save control as merged
-        logger.info("No phenomenological data found, saving control corpus as merged dataset")
-        safe_write_csv(samples, str(merged_path))
+        with open(phenomenological_path, "r", encoding="utf-8") as f:
+            pheno_data = json.load(f)
+        df_pheno = pd.DataFrame(pheno_data)
     
-    # Verify marker absence
-    from config import get_marker_dictionaries
-    marker_dicts = get_marker_dictionaries()
-    verification = verify_marker_absence(samples, marker_dicts)
+    # Ensure type column exists for phenomenological data
+    if "type" not in df_pheno.columns:
+        df_pheno["type"] = "phenomenological"
     
-    # Save verification report
-    verification_path = output_dir / "control_verification.json"
-    safe_write_json(verification, str(verification_path))
+    # Normalize columns if necessary
+    # Assume phenomenological data has 'text' or 'content'
+    if "text" not in df_pheno.columns and "content" in df_pheno.columns:
+        df_pheno.rename(columns={"content": "text"}, inplace=True)
     
-    log_operation("generate_control_corpus_complete", 
-                samples=len(samples),
-                verification=verification)
+    # Concatenate
+    df_merged = pd.concat([df_pheno, df_control], ignore_index=True)
     
-    logger.info("Control corpus generation complete")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write to CSV
+    df_merged.to_csv(output_path, index=False)
+    
+    logger.info(f"Merged {len(df_pheno)} phenomenological and {len(df_control)} control samples into {output_path}")
+    log_operation("merge_datasets_complete", output=str(output_path), total=len(df_merged))
+    
+    return output_path
+
+
+def generate_control_corpus(
+    output_dir: Optional[Path] = None,
+    merge_with: Optional[Path] = None
+) -> Path:
+    """
+    Main entry point to generate the control corpus and optionally merge it.
+    """
+    if output_dir is None:
+        output_dir = PROJECT_ROOT / "data" / "processed"
+    
+    control_path = output_dir / "control_corpus.json"
+    merged_path = output_dir / "merged_dataset.csv"
+    
+    # 1. Load and sample
+    dataset = load_control_dataset()
+    samples = sample_control_corpus(dataset, n=TARGET_SAMPLES)
+    
+    if len(samples) < TARGET_SAMPLES:
+        logger.warning(f"Generated only {len(samples)} control samples. Proceeding anyway.")
+    
+    # 2. Save control corpus
+    save_control_corpus(samples, control_path)
+    
+    # 3. Verify marker absence
+    verification = verify_marker_absence(samples)
+    logger.info(f"Control corpus marker density: {verification['density_total']:.2f} per sample")
+    
+    # 4. Merge if requested
+    if merge_with and merge_with.exists():
+        merge_with_phenomenological(control_path, merge_with, merged_path)
+        return merged_path
+    
+    return control_path
 
 
 def main():
-    """CLI entry point."""
+    """CLI entry point for control corpus generation."""
     import argparse
-    parser = argparse.ArgumentParser(description="Generate control corpus for phenomenological analysis")
-    parser.add_argument("--limit", type=int, default=80, help="Number of control samples to generate")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory")
+    
+    parser = argparse.ArgumentParser(description="Generate control corpus for phenomenological AI study.")
+    parser.add_argument("--output-dir", type=str, default=None, help="Output directory path")
+    parser.add_argument("--merge-with", type=str, default=None, help="Path to phenomenological CSV to merge with")
     args = parser.parse_args()
     
-    config = {
-        "generation_limit": args.limit,
-        "output_dir": args.output_dir
-    }
-    generate_control_corpus(config)
+    output_dir = Path(args.output_dir) if args.output_dir else None
+    merge_with = Path(args.merge_with) if args.merge_with else None
+    
+    result_path = generate_control_corpus(output_dir=output_dir, merge_with=merge_with)
+    print(f"Control corpus generation complete. Output: {result_path}")
 
 
 if __name__ == "__main__":

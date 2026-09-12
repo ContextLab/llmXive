@@ -56,3 +56,17 @@ T024b:
     exist, and the provided `code/evaluate.py` (as shown) contains no logic that writes
     a JSON with the specified schema. Consequently the task of generating the descriptive
     metrics file has not been fulfilled.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, commit diff, or documentation was provided showing that random seeds
+    were set or that the codebase was refactored for reproducibility. Without any
+    artifact demonstrating seed handling (e.g., updated scripts, configuration files,
+    or a test confirming identical results across runs), the claim cannot be verified.
+    The required evidence of reproducible random seed implementation is missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run, CI logs, or timing results\
+    \ is provided; the required artifact demonstrating that the full pipeline completes\
+    \ within 60\u202Fminutes on CI is missing."

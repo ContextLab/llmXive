@@ -36,3 +36,10 @@ T015:
   r: "No code, script, or configuration file was presented that adds validation logic\
     \ to prevent PII leakage or records checksums in the `state/` directory. The required\
     \ artifact is missing, so the task\u2019s requirement is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging implementation, configuration, or example log output was provided;
+    the evidence contains no code changes, log files, or documentation showing download
+    status, filter counts, or harmonization results being logged. The required artifact
+    is missing.
