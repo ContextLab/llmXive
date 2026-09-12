@@ -114,7 +114,7 @@ k-fold scaffold-split cross-validation will be employed to evaluate model genera
 - [X] T020a [P] [US2] Implement `code/training.py` scaffold splitting logic (Murcko Scaffolds) for 5-fold CV
 - [X] T020b [US2] Implement k-fold CV loop orchestration in `code/training.py` (depends on T020a)
 - [ ] T020c [US2] Implement training wrapper for GCN (CPU backend) with Early Stopping (patience=10)
-- [ ] T021 [US2] Implement training loop for Random Forest and Linear Regression baselines
+- [ ] T021 [US2] Implement training loop for Random Forest and Linear Regression baselines <!-- FAILED: unspecified -->
 - [ ] T022 [US2] Implement metric aggregation (R², MAE, RMSE) and save predictions to `data/processed/predictions.csv`
 - [ ] T023 [US2] Add Timeout enforcement
 

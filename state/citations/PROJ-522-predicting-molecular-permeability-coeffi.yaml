@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://pytorch-geometric.readthedocs.io/en/latest/
   verified_at: '2026-07-24T19:23:01.017301Z'
-- artifact_hash: 93b990abee9ea66ab7e2d277f00b207795c72f26edec1333ed5c7beaae1d1549
+- artifact_hash: 40a2d19585ac6e46bab55806cc0c1b65ec801318335c5c7d34ebbfec21e173b5
   artifact_path: projects/PROJ-522-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: '2105.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-07-26T22:33:28.430168Z'
+  verified_at: '2026-09-11T21:30:17.660274Z'

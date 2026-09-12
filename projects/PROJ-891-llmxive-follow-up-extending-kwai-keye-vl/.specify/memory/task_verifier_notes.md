@@ -13,5 +13,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008** — No configuration scripts, Dockerfiles, cgroup/ulimit wrapper code, or documentation were presented to demonstrate that memory and time limits have been set up. The required artifacts for task T008 are missing, so the claim is not substantiated.
 - **T012b** — declared artifact(s) missing/empty/invalid: src/generators/fetch_original.py
 - **T013** — declared artifact(s) missing/empty/invalid: src/generators/distort_video.py
-- **T014** — declared artifact(s) missing/empty/invalid: src/generators/validate_generation.py
-- **T015** — No code, configuration, tests, or documentation showing the added error‑handling logic for low‑frame‑rate videos or the detection/flagging of unresolvable 1‑pixel lines was provided. Consequently the required artifact is missing.

@@ -225,27 +225,6 @@
   updated_at: '2026-08-17T09:27:02Z'
 - artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
   attempts: 1
-  canonical: Use YOLOv8 for primary subject bounding box detection when ActivityNet
-    annotations are unavailable
-  claim_id: c_4b4d2ce8
-  context: 'Implement FR-001 logic: exclude/regenerate clips where primary subject
-    bounding box area is reduced >95%. Use YOLOv8 (ultralytics) to detect primary
-    subject bounding box if ActivityNet annotations are unavailable.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Use_YOLOv8_for_primary_subject_bounding_box_detection_when_A
-  kind: entity_fact
-  raw_text: Use YOLOv8 to detect primary subject bounding box if ActivityNet annotations
-    are unavailable.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T09:27:24Z'
-- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
-  attempts: 1
   canonical: Exclude clips if primary subject bounding box area reduced by more than
     95%
   claim_id: c_7aed2d21
@@ -300,3 +279,202 @@
   source_type: external
   status: verified
   updated_at: '2026-08-17T09:28:18Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 0
+  canonical: Perform Shapiro-Wilk test for normality with alpha 0.05
+  claim_id: c_2bb17445
+  context: Perform Shapiro-Wilk test to check normality (alpha=0.05). Select and execute
+    PAIRED t-test or Wilcoxon signed-rank test on the Paired mIoU scores from same
+    source IDs (distorted vs. square-cropped).
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform Shapiro-Wilk test to check normality with alpha=0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-11T21:47:13Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Apply extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to ActivityNet
+    Captions dataset
+  claim_id: c_9595bfbe
+  context: 'Goal: Programmatically generate a synthetic video benchmark dataset by
+    applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet
+    Captions dataset while preserving temporal ground-truth annotations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply geometric distortions at varying aspect ratios spanning from highly
+    compressed to highly elongated configurations (1:10, 10:1, 1:20, 20:1) to the
+    ActivityNet Captions dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:47:39Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 2
+  canonical: Use YOLOv8 for primary subject bounding box detection when ActivityNet
+    annotations are unavailable
+  claim_id: c_4b4d2ce8
+  context: 'Implement FR-001 logic: exclude/regenerate clips where primary subject
+    bounding box area is reduced >95%. Use YOLOv8 (ultralytics) to detect primary
+    subject bounding box if ActivityNet annotations are unavailable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_YOLOv8_for_primary_subject_bounding_box_detection_when_A
+  kind: entity_fact
+  raw_text: Use YOLOv8 to detect primary subject bounding box if ActivityNet annotations
+    are unavailable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:47:57Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Exclude clips with primary subject bounding box area reduction greater
+    than 95%
+  claim_id: c_26fc0e46
+  context: 'Implement FR-001 logic: exclude/regenerate clips where primary subject
+    bounding box area is reduced >95%. Use YOLOv8 (ultralytics) to detect primary
+    subject bounding box if ActivityNet annotations are unavailable.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_clips_with_primary_subject_bounding_box_area_reducti
+  kind: magnitude
+  raw_text: Exclude or regenerate clips where the primary subject bounding box area
+    is reduced by more than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:48:40Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Load Kwai-Keye-VL-2.0-Int4 checkpoint in INT4 quantization
+  claim_id: c_36e7eee2
+  context: Load the Kwai-Kyle/Kwai-Keye-VL-2.0-Int4 checkpoint (or verified equivalent
+    from T004) in INT4 quantization. (or FP16 vision encoder fallback per FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load the Kwai-Kyle/Kwai-Keye-VL-2.0-Int4 checkpoint in INT4 quantization
+    for CPU-only execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:49:13Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Peak VmRSS less than 7GB during inference
+  claim_id: c_6a87bca9
+  context: 'Independent Test: Run inference on a subset of videos. Verify no OOM errors,
+    model loads via llama.cpp or Optimum-Intel on CPU, and a JSON output file contains
+    valid timestamp predictions. Peak VmRSS must be < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_VmRSS_less_than_7GB_during_inference
+  kind: magnitude
+  raw_text: Peak VmRSS must be less than 7GB during inference execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:49:41Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Enforce 7GB memory limit using ulimit or cgroups with SIGKILL on OOM
+  claim_id: c_92c0c88a
+  context: Implement memory limit enforcement using cgroups or ulimit wrapper (FR-006).
+    Use cgexec -g memory:limit_group or ulimit -v 7340032 (7GB in KB) and send SIGKILL
+    on OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use ulimit -v 7340032 (7GB in KB) or cgroups to enforce memory limits
+    and send SIGKILL on OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:50:06Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Use paired t-test or Wilcoxon signed-rank test on distorted vs square-cropped
+    mIoU scores
+  claim_id: c_12b69276
+  context: Perform Shapiro-Wilk test to check normality (alpha=0.05). Select and execute
+    PAIRED t-test or Wilcoxon signed-rank test on the Paired mIoU scores from same
+    source IDs (distorted vs. square-cropped).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_paired_t-test_or_Wilcoxon_signed-rank_test_on_distorted
+  kind: entity_fact
+  raw_text: Use a paired t-test or Wilcoxon signed-rank test on mIoU scores from the
+    same source IDs (distorted vs. square-cropped).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:50:36Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Use Welch's t-test or Mann-Whitney U test on original vs distorted mIoU
+    scores
+  claim_id: c_005995ab
+  context: Perform Welch's t-test or Mann-Whitney U on Independent mIoU scores from
+    Original Unmodified vs. Distorted sets (Plan requirement). Calculate p-value and
+    effect size.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Welch's_t-test_or_Mann-Whitney_U_test_on_original_vs_dis
+  kind: entity_fact
+  raw_text: Use Welch's t-test or Mann-Whitney U test on independent mIoU scores from
+    Original Unmodified vs. Distorted sets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:51:29Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: Verify aspect ratios are within 0.1% tolerance
+  claim_id: c_e5532898
+  context: "Independent Test: Run the generation script and verify output/distorted/\
+    \ contains the expected number of videos distributed equally across ratios. with\
+    \ valid codecs, correct aspect ratios (\xB10.1%), and a metadata CSV mapping to\
+    \ original timestamps."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify output contains valid aspect ratios with a tolerance of \xB10.1%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T21:51:29Z'

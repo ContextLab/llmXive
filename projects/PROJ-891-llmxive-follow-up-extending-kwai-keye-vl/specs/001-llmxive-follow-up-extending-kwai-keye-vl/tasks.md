@@ -88,15 +88,15 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 
 ### Implementation for User Story 1
 
-- [ ] T012b [US1] Implement `src/generators/fetch_original.py`:
+- [ ] T012b [US1] Implement `src/generators/fetch_original.py`: <!-- FAILED: unspecified -->
  - Retrieve **Original Unmodified ActivityNet Captions** clips for the control group required by the Plan (Independent Samples).
  - Use `huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train', streaming=True)` to fetch a representative subset of source clips.
  - Save to `data/raw/original/` with metadata mapping IDs to timestamps.
  - **Distinct from T013**: This provides the "Original Unmodified" control set for the Independent test (Plan), while T013 provides the "Square-Cropped" control set for the Paired test (Spec).
-- [ ] T013 [US1] Implement `src/generators/distort_video.py`:
+- [ ] T013 [US1] Implement `src/generators/distort_video.py`: <!-- FAILED: unspecified -->
  - Stream ActivityNet Captions data using `huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train', streaming=True)`.
  - Apply geometric distortions at varying aspect ratios spanning from highly compressed to highly elongated configurations. using `ffmpeg` or `opencv-python`.
- - Implement FR-001 logic: exclude/regenerate clips where primary subject bounding box area is reduced >95%. **Use YOLOv8 (ultralytics) to detect primary subject bounding box if ActivityNet annotations are unavailable.**
+ - Implement FR-001 logic: exclude/regenerate clips where primary subject bounding box area is reduced >95%. **Use YOLOv8 to detect primary subject bounding box if ActivityNet annotations are unavailable. [UNRESOLVED-CLAIM: c_4b4d2ce8 — status=not_enough_info]**
  - **Generate a set of square-cropped clips from the SAME source IDs used for distortion (distributed across ratio groups).** for the Paired test (Spec).
  - Preserve original temporal ground-truth annotations.
  - Output metadata CSV linking distorted videos to original IDs and timestamps.

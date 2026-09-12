@@ -3,25 +3,37 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required data directory structure for the project.
+    Creates the required data directory structure for the llmXive project.
     Directories created:
       - data/raw
       - data/distorted
       - data/outputs
       - data/metadata
     """
-    base_dir = Path("data")
-    subdirs = ["raw", "distorted", "outputs", "metadata"]
+    project_root = Path(__file__).resolve().parent.parent
+    base_dir = project_root / "data"
 
-    for subdir in subdirs:
-        dir_path = base_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    directories = [
+        "raw",
+        "distorted",
+        "outputs",
+        "metadata"
+    ]
 
-    # Create a .gitkeep file in each to ensure they are tracked by git
-    for subdir in subdirs:
-        dir_path = base_dir / subdir / ".gitkeep"
-        dir_path.touch()
+    created = []
+    for subdir in directories:
+        target = base_dir / subdir
+        target.mkdir(parents=True, exist_ok=True)
+        created.append(str(target))
+        print(f"Created directory: {target}")
+
+    # Create a .gitkeep in each to ensure they are tracked if empty
+    for subdir in directories:
+        target = base_dir / subdir / ".gitkeep"
+        target.write_text("")
+
+    print(f"Data directory structure ready under {base_dir}")
+    return created
 
 if __name__ == "__main__":
     main()

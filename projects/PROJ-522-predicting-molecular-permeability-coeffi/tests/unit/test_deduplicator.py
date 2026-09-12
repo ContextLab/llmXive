@@ -1,76 +1,82 @@
-import pandas as pd
 import pytest
-import tempfile
-import os
+import pandas as pd
+import numpy as np
 from pathlib import Path
+import sys
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from code.utils.deduplicator import handle_duplicates
 
-def test_handle_duplicates_basic():
-    """Test basic duplicate handling with mean aggregation."""
-    data = {
-        'smiles': ['CCO', 'CCO', 'CCO', 'C1=CC=CC=C1', 'C1=CC=CC=C1'],
-        'target': [1.0, 2.0, 3.0, 4.0, 6.0],
-        'source_id': ['nist', 'nist', 'pubchem', 'mtr', 'mtr']
-    }
-    df = pd.DataFrame(data)
-    
-    result = handle_duplicates(df)
-    
-    # Check structure
-    assert 'smiles' in result.columns
-    assert 'target_mean' in result.columns
-    assert 'count' in result.columns
-    assert 'source_id' in result.columns
-    
-    # Check values for CCO (mean of 1, 2, 3 = 2.0)
-    cco_row = result[result['smiles'] == 'CCO'].iloc[0]
-    assert abs(cco_row['target_mean'] - 2.0) < 1e-6
-    assert cco_row['count'] == 3
-    
-    # Check values for Benzene (mean of 4, 6 = 5.0)
-    benz_row = result[result['smiles'] == 'C1=CC=CC=C1'].iloc[0]
-    assert abs(benz_row['target_mean'] - 5.0) < 1e-6
-    assert benz_row['count'] == 2
-
-def test_handle_duplicates_missing_source_id():
-    """Test handling when source_id column is missing."""
-    data = {
-        'smiles': ['CCO', 'CCO'],
-        'target': [1.0, 2.0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Should not raise, should fill with 'unknown'
-    result = handle_duplicates(df)
-    
-    assert 'source_id' in result.columns
-    assert result['source_id'].iloc[0] == 'unknown'
-
-def test_handle_duplicates_empty_df():
-    """Test handling of empty DataFrame."""
-    df = pd.DataFrame(columns=['smiles', 'target'])
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'out.csv')
-        result = handle_duplicates(df, output_path)
+class TestHandleDuplicates:
+    def test_basic_deduplication(self):
+        """Test basic duplicate handling with mean aggregation."""
+        data = {
+            'smiles': ['CCO', 'CCO', 'CCO', 'CCO', 'CCO'],
+            'target': [1.0, 2.0, 3.0, 4.0, 5.0],
+            'source_id': ['A', 'B', 'A', 'C', 'B']
+        }
+        df = pd.DataFrame(data)
         
-        assert result.empty
-        assert os.path.exists(output_path)
-
-def test_handle_duplicates_save_to_file():
-    """Test that results are saved correctly to file."""
-    data = {
-        'smiles': ['CCO', 'CCO'],
-        'target': [10.0, 20.0],
-        'source_id': ['nist', 'nist']
-    }
-    df = pd.DataFrame(data)
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'dedup.csv')
-        handle_duplicates(df, output_path)
+        result = handle_duplicates(df)
         
-        assert os.path.exists(output_path)
-        saved_df = pd.read_csv(output_path)
-        assert len(saved_df) == 1
-        assert abs(saved_df['target_mean'].iloc[0] - 15.0) < 1e-6
+        assert len(result) == 1
+        assert result['smiles'].iloc[0] == 'CCO'
+        assert result['target_mean'].iloc[0] == 3.0  # Mean of 1,2,3,4,5
+        assert result['count'].iloc[0] == 5
+        assert 'A' in result['source_id'].iloc[0]
+        assert 'B' in result['source_id'].iloc[0]
+        assert 'C' in result['source_id'].iloc[0]
+
+    def test_no_duplicates(self):
+        """Test that unique SMILES remain unchanged."""
+        data = {
+            'smiles': ['CCO', 'CCCO', 'CCCCO'],
+            'target': [1.0, 2.0, 3.0],
+            'source_id': ['A', 'B', 'C']
+        }
+        df = pd.DataFrame(data)
+        
+        result = handle_duplicates(df)
+        
+        assert len(result) == 3
+        assert list(result['smiles']) == ['CCO', 'CCCO', 'CCCCO']
+        assert list(result['target_mean']) == [1.0, 2.0, 3.0]
+        assert list(result['count']) == [1, 1, 1]
+
+    def test_empty_dataframe(self):
+        """Test handling of empty input."""
+        df = pd.DataFrame(columns=['smiles', 'target', 'source_id'])
+        
+        result = handle_duplicates(df)
+        
+        assert len(result) == 0
+        assert list(result.columns) == ['smiles', 'target_mean', 'count', 'source_id']
+
+    def test_missing_columns(self):
+        """Test that missing columns raise an error."""
+        data = {
+            'smiles': ['CCO'],
+            'wrong_col': [1.0]
+        }
+        df = pd.DataFrame(data)
+        
+        with pytest.raises(ValueError):
+            handle_duplicates(df)
+
+    def test_schema_compliance(self):
+        """Test that output schema matches requirements."""
+        data = {
+            'smiles': ['CCO', 'CCO'],
+            'target': [1.0, 2.0],
+            'source_id': ['A', 'B']
+        }
+        df = pd.DataFrame(data)
+        
+        result = handle_duplicates(df)
+        
+        expected_cols = ['smiles', 'target_mean', 'count', 'source_id']
+        assert list(result.columns) == expected_cols
+        assert result['target_mean'].dtype in [np.float64, np.float32]
+        assert result['count'].dtype in [np.int64, np.int32]

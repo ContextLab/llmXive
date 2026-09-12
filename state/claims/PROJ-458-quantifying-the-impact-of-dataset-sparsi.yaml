@@ -897,3 +897,450 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T04:47:19Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Systematic experimental design tests low, moderate, and high sparsity
+    configurations to identify efficiency and accuracy trade-offs (Smith et al., 2023)
+  claim_id: c_bc4ed221
+  context: 'Phase 1: Setup, Task T004 config.py content'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study investigates how varying levels of sparsity influence model
+    efficiency and accuracy. We employ a systematic experimental design that tests
+    a range of sparsity configurations, including low, moderate, and high levels,
+    to identify optimal trade-offs. (Smith et al., 2023;).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:01:51Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Cap training pool at RSS_SIZE entries
+  claim_id: c_69a9f9b2
+  context: Implement code/sparsity_generation.py to cap the training pool at a Representative
+    Stratified Sample (RSS) of RSS_SIZE entries (read from config.py).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cap_training_pool_at_RSS_SIZE_entries
+  kind: entity_fact
+  raw_text: Cap the training pool at a Representative Stratified Sample (RSS) of RSS_SIZE
+    entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:03:28Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Study investigates sparsity influence on model efficiency and accuracy
+  claim_id: c_c79626cb
+  context: Create code/config.py with RSS_SIZE=30000 and The study investigates how
+    varying levels of sparsity influence model efficiency and accuracy. We employ
+    a systematic experimental design that tests a range of sparsity configurations,
+    including low, moderate, and high levels, to identify optimal trade-offs. (Smith
+    et al., 2023;).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: can obtain around 50% of main memory and computing re-
+      source_id: '2412.12178'
+      url: https://arxiv.org/abs/2412.12178
+      value: 50%
+    filled: true
+  kind: entity_fact
+  raw_text: The study investigates how varying levels of sparsity influence model
+    efficiency and accuracy.
+  resolved_value: 50%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-11T22:03:59Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Plan lists 5 sparsity levels while implementation requires 7 levels
+  claim_id: c_012113a8
+  context: Plan lists 5 levels, but Spec and implementation require Multiple levels
+    (1, 2, 5, 10, 25, 50, 100). Plan requires kickback update.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan lists 5 sparsity levels (20, 30, 40, 50, 100) while the implementation
+    requires 7 levels (1, 2, 5, 10, 25, 50, 100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:04:40Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Plan lists sparsity levels 20, 30, 40, 50, 100
+  claim_id: c_f3460570
+  context: The Plan's "Technical Context" lists sparsity levels as "20, 30, 40, 50,
+    100" (5 levels), while Task T032 implements 7 levels (1, 2, 5, 10, 25, 50, 100)
+    as per the Spec's intent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan's Technical Context lists sparsity levels as 20, 30, 40, 50,
+    100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:05:05Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Implementation requires 7 sparsity levels 1, 2, 5, 10, 25, 50, 100
+  claim_id: c_155a0544
+  context: The Plan's "Technical Context" lists sparsity levels as "20, 30, 40, 50,
+    100" (5 levels), while Task T032 implements 7 levels (1, 2, 5, 10, 25, 50, 100)
+    as per the Spec's intent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The implementation requires 7 sparsity levels: 1, 2, 5, 10, 25, 50, 100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:05:43Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Drop rows with more than 50% missing values
+  claim_id: c_a8085379
+  context: Implement imputation logic in code/data_ingestion.py to mean-fill missing
+    numeric descriptors using statistics from the data/processed/descriptors_pool.csv
+    (training pool); drop rows with >50% missing values and log count to data/results/ingestion_log.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values
+  kind: magnitude
+  raw_text: Drop rows with greater than 50% missing values.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:06:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Slope variance between consecutive sparsity levels is less than 10%
+  claim_id: c_03ac09e3
+  context: Implement sensitivity analysis in code/statistical_analysis.py to verify
+    elbow point stability by checking that the slope variance between consecutive
+    sparsity levels is < 10%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_variance_between_consecutive_sparsity_levels_is_less_t
+  kind: magnitude
+  raw_text: The slope variance between consecutive sparsity levels is less than 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:06:49Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Jensen-Shannon divergence threshold is less than 0.05
+  claim_id: c_2c7b1352
+  context: Implement stratification validation in code/validate_stratification.py
+    using Jensen-Shannon divergence (threshold < 0.05) and KS-test (p > 0.05); block
+    training if thresholds exceeded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Jensen-Shannon_divergence_threshold_is_less_than_0.05
+  kind: magnitude
+  raw_text: Jensen-Shannon divergence threshold is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:07:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: KS-test p-value is greater than 0.05
+  claim_id: c_dd12f5da
+  context: Implement stratification validation in code/validate_stratification.py
+    using Jensen-Shannon divergence (threshold < 0.05) and KS-test (p > 0.05); block
+    training if thresholds exceeded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS-test_p-value_is_greater_than_0.05
+  kind: magnitude
+  raw_text: KS-test p-value is greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:07:53Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Random Forest models use n_estimators=100
+  claim_id: c_d01ca34f
+  context: Implement code/model_training.py to train GPR (RBF kernel, normalize_y=True,
+    max_iter_predict=1000 ) and Random Forest models (n_estimators=100) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest models use n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:08:24Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: GPR models use max_iter_predict=1000
+  claim_id: c_e4f710c4
+  context: Implement code/model_training.py to train GPR (RBF kernel, normalize_y=True,
+    max_iter_predict=1000 ) and Random Forest models (n_estimators=100) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPR models use max_iter_predict=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:08:50Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version is 1.3.0
+  claim_id: c_8b80d7ab
+  context: Create code/requirements.txt with pinned versions for all dependencies
+    (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib,
+    requests).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn version is 1.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:09:11Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: pandas version is 2.0.3
+  claim_id: c_77b82a89
+  context: Create code/requirements.txt with pinned versions for all dependencies
+    (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib,
+    requests).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas version is 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:09:37Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Systematic experimental design testing low, moderate, and high sparsity
+    configurations
+  claim_id: c_dc7e2cbc
+  context: Task T004 config.py definition referencing arXiv:2412.12178
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Systematic_experimental_design_testing_low,_moderate,_and_hi
+  kind: entity_fact
+  raw_text: We employ a systematic experimental design that tests a range of sparsity
+    configurations, including low, moderate, and high levels, to identify optimal
+    trade-offs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:11:27Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Imputation statistics calculated only on training pool not test set
+  claim_id: c_b904157c
+  context: Task T026 descriptor generation note
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Imputation_statistics_calculated_only_on_training_pool_not_t
+  kind: entity_fact
+  raw_text: Imputation statistics must be calculated ONLY on the training pool (filtered_pool),
+    not the test set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:12:17Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Drop rows with more than 50% missing values
+  claim_id: c_63a93f12
+  context: Task T027 imputation logic implementation
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values
+  kind: magnitude
+  raw_text: Drop rows with >50% missing values and log count to data/results/ingestion_log.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:12:42Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Sparsity levels include 1, 2, 5, 10, 25, 50, and 100 percent
+  claim_id: c_e218f5b2
+  context: Task T032 note regarding Plan and Spec inconsistency
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Plan lists 5 levels, but Spec and implementation require Multiple levels
+    (1, 2, 5, 10, 25, 50, 100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:13:10Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Nested sampling logic for sparsity levels
+  claim_id: c_2f03f391
+  context: Task T032 nested logic description
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nested_sampling_logic_for_sparsity_levels
+  kind: entity_fact
+  raw_text: Generate the [deferred] set first, then sample [deferred] of the indices
+    from the [deferred] set to create the [deferred] set, then sample [deferred] of
+    the indices from the [deferred] set to create the [deferred] set, and so on down
+    to [deferred].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:14:03Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Verify sparsity_1pct.csv is subset of sparsity_2pct.csv
+  claim_id: c_1e3b0369
+  context: Task T032 verification requirement
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_sparsity_1pct.csv_is_subset_of_sparsity_2pct.csv
+  kind: entity_fact
+  raw_text: Verify sparsity_1pct.csv is a subset of sparsity_2pct.csv by comparing
+    checksums or row counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:14:25Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: K-fold Cross-Validation with multiple independent seeds per sparsity
+    level
+  claim_id: c_7133bfdb
+  context: Task T036 implementation requirement
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-fold_Cross-Validation_with_multiple_independent_seeds_per
+  kind: entity_fact
+  raw_text: Implement k-fold Cross-Validation with multiple independent seeds per
+    sparsity level.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:15:13Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Log metrics to metrics.csv with sparsity_level, model, seed, rmse, mae,
+    variance, calibration_slope
+  claim_id: c_8e4208b3
+  context: Task T038 logging requirement
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_metrics_to_metrics.csv_with_sparsity_level,_model,_seed,
+  kind: entity_fact
+  raw_text: 'Log metrics to data/results/metrics.csv with columns: sparsity_level,
+    model, seed, rmse, mae, variance, calibration_slope.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:15:54Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Linear Mixed-Effects Modeling with formula error ~ sparsity_level + (1|seed)
+  claim_id: c_e9f4abdb
+  context: Task T043 statistical analysis implementation
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: seed)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Linear_Mixed-Effects_Modeling_with_formula_error_~_sparsity
+    source_value: https://en.wikipedia.org/wiki/Linear_Mixed-Effects_Modeling_with_formula_error_~_sparsity_
+    subject: Linear Mixed-Effects Modeling with formula error ~ sparsity_level + (1
+  kind: relational
+  raw_text: Implement Linear Mixed-Effects Modeling (LMM) using statsmodels.MixedLM
+    with formula error ~ sparsity_level + (1|seed) to handle nested sparsity levels.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:16:45Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Slope variance between consecutive sparsity levels is less than 10 percent
+  claim_id: c_d3ae459e
+  context: Task T047 sensitivity analysis requirement
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_variance_between_consecutive_sparsity_levels_is_less_t
+  kind: magnitude
+  raw_text: Verify elbow point stability by checking that the slope variance between
+    consecutive sparsity levels is < 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T22:17:11Z'

@@ -4,15 +4,22 @@ from pathlib import Path
 
 def create_directories():
     """
-    Initialize project directory structure for the molecular permeability project.
-    Creates all required data, code, and test directories in a single atomic operation.
+    Creates the required project directory structure for the molecular permeability
+    prediction pipeline.
+    
+    Creates:
+    - data/raw/
+    - data/processed/
+    - code/models/
+    - code/analysis/
+    - code/utils/
+    - code/config/
+    - tests/contract/
+    - tests/unit/
+    - tests/integration/
     """
-    # Define the project root (assuming code/ is inside the project root)
-    # We need to go up one level from code/ to find the project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-
-    # Define all required directories relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    
     directories = [
         "data/raw",
         "data/processed",
@@ -24,42 +31,31 @@ def create_directories():
         "tests/unit",
         "tests/integration"
     ]
-
+    
     created_count = 0
-    skipped_count = 0
-
-    print(f"Initializing project structure at: {project_root}")
-
+    existing_count = 0
+    
     for dir_path in directories:
         full_path = project_root / dir_path
-        
-        if full_path.exists():
-            print(f"  [SKIP] {dir_path} already exists")
-            skipped_count += 1
-        else:
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  [CREATE] {dir_path}")
+            print(f"Created directory: {full_path}")
             created_count += 1
-
-    print(f"\nDirectory initialization complete:")
-    print(f"  Created: {created_count}")
-    print(f"  Skipped: {skipped_count}")
-    print(f"  Total:   {len(directories)}")
-
-    # Verify all directories exist
-    all_exist = all((project_root / d).exists() for d in directories)
+        else:
+            existing_count += 1
     
-    if all_exist:
-        print("\n[SUCCESS] All required directories verified.")
-        return True
-    else:
-        print("\n[ERROR] Some directories failed to create.")
-        return False
+    print(f"\nDirectory setup complete.")
+    print(f"  Created: {created_count}")
+    print(f"  Existing: {existing_count}")
+    print(f"  Total: {len(directories)}")
+    
+    return created_count, existing_count
 
 def main():
-    """Entry point for directory initialization script."""
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    """Entry point for directory creation script."""
+    print("Initializing project directory structure...")
+    created, existing = create_directories()
+    print("Done.")
 
 if __name__ == "__main__":
     main()

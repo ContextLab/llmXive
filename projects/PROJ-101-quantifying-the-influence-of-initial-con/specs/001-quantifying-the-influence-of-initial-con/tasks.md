@@ -1,3 +1,8 @@
+---
+
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
 **Input**: Design documents from `/specs/001-quantify-initial-conditions/`
@@ -45,9 +50,9 @@
 
 - [ ] T001a [P] Create directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `state/`
 - [X] T001b [P] Create `code/__init__.py`, `code/data/__init__.py`, `code/analysis/__init__.py`
-- [ ] T001c [P] Create `tests/unit/`, `tests/integration/` directories
+- [X] T001c [P] Create `tests/unit/`, `tests/integration/` directories
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, matplotlib, pandas, pytest, statsmodels)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools. **Deliverable**: Create `pyproject.toml` with `[tool.ruff]` section enabling rules `E, F, W` and `max-line-length=88`, and `[tool.black]` section with `line-length=88`.
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting tools. **Deliverable**: Create `pyproject.toml` with `[tool.ruff]` section enabling rules `E, F, W` and `max-line-length=88`, and `[tool.black]` section with `line-length=88`.
 
 ---
 
@@ -61,7 +66,7 @@
 - [X] T005 [P] Implement `code/__init__.py` and package structure
 - [X] T006 Setup `code/data/__init__.py` and `code/analysis/__init__.py`
 - [X] T007 [P] Implement base utility for numerical stability checks in `code/utils/stability.py`. **Deliverables**: Implement `check_boundedness(state_vector, threshold=100)` returning bool; implement `check_convergence(values, tol=1e-6)` returning bool. These functions are the single source of truth for boundedness and convergence logic used by T016 and T026.
-- [ ] T008 Configure `pytest` with fixtures for random seeds and temporary data directories
+- [X] T008 Configure `pytest` with fixtures for random seeds and temporary data directories
 - [X] T009 Implement `code/main.py` pipeline orchestrator skeleton with argument parsing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -90,7 +95,7 @@
 - [X] T016a [US1] Implement `code/data/generator.py` noise check logic: Raise `HighNoiseWarning` if `sigma_noise > 0.1`; Raise `UnphysicalTrajectoryError` if `sigma_noise > 1.0` OR if `max(|state_vector|) > 100` (attractor bound). **CRITICAL**: Use `check_boundedness` from T007 to perform the `max(|state_vector|) > 100` check for ALL noise levels. **Constraint**: If `UnphysicalTrajectoryError` is raised, the specific trial's analysis pipeline MUST halt immediately; do not proceed to save or further analysis for that trial.
 - [X] T016b [US1] Implement `code/data/generator.py` flow control: Ensure the check logic in T016a is executed post-integration and pre-save. If `UnphysicalTrajectoryError` is raised, the trajectory must NOT be saved.
 - [X] T017 [US1] Implement `code/data/loader.py` to save/load trajectories to `data/raw/` as **CSV** files with SHA-256 checksums (aligned with Constitution Data Hygiene principles for transparent formats).
-- [X] T018 [US1] Implement `code/main.py` logic to trigger the full generation loop. **Deliverable**: Run loop for **N \in \{, 5\}** (restricted to plan scope) and sigma $\in$ {a range of small to moderate values}. **Trial Logic**: For each noise level, determine `k` as: `{{claim:c_b7191009}}`. Run `k` trials per level. **Output**: Save each trajectory to `data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.csv` (where t=1..k). **CLI**: Support `--noise-levels` and `--N-values` arguments. **Constraint**: Must include `sigma > 1.0` (1.5, 2.0) to validate FR-007 unphysical regime. **Dependency**: Must call `T017.save()` to persist artifacts. **Solver**: Must enforce `method='DOP853'`, `rtol=1e-9`, `atol=1e-12`.
+- [X] T018 [US1] Implement `code/main.py` logic to trigger the full generation loop. **Deliverable**: Run loop for **N \in {3, 5}** (restricted to plan scope) and sigma $\in$ {a range of small to moderate values}. **Trial Logic**: For each noise level, determine `k` as: `k = max(30, int(100 * sigma))` . Run `k` trials per level. **Output**: Save each trajectory to `data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.csv` (where t=1..k). **CLI**: Support `--noise-levels` and `--N-values` arguments. **Constraint**: Must include `sigma > 1.0` (1.5, 2.0) to validate FR-007 unphysical regime. **Solver**: Must enforce `method='DOP853'`, `rtol=1e-9`, `atol=1e-12`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,9 +120,9 @@
 - [X] T026 [US2/FR-006] Implement `code/analysis/baseline.py` logic to detect non-chaotic regimes: Compute numerical `lambda_max` for the specific configuration; if `lambda_max <= 0`, raise `NonChaoticSystemError` with message "Non-chaotic regime detected: lambda_max={lambda_max} <= 0". (Do NOT use fixed rho threshold).
 - [X] T028 [US2/FR-006] Implement `code/main.py` gating mechanism: Create `validate_and_gate(baseline_results: dict) -> None` function. **Logic**: If T024 (convergence value check) or T026 (non-chaotic check) fails, raise `GateFailedError` with specific message. **Return**: None on success. **Dependency**: Must be called before T045 execution.
 - [X] T022 [US2] Implement `code/analysis/ftle.py` with tangent-linear propagation algorithm (Jacobian evaluation at noisy points). **DEPENDS ON**: T024 (Baseline Data), T026 (Error Classes), T007 (Stability Utils). **Data Flow**: Read `lambda_max` from `data/processed/baseline_{N}.json` key `lambda_max`.
-- [X] T023 [US2] Implement `code/analysis/ftle.py` sliding window logic for `T \in \{500, 1000, 5000\}` ensuring **T < total_length - 10** (strict multi-step offset as per Edge Cases) to allow for tangent vector propagation. **DEPENDS ON**: T024, T026, T007. **Data Flow**: Read `lambda_max` from `data/processed/baseline_{N}.json` key `lambda_max`.
+- [X] T023 [US2] Implement `code/analysis/ftle.py` sliding window logic for `T \in {500, 1000, 5000}` ensuring **T < total_length - 10** (strict multi-step offset as per Edge Cases) to allow for tangent vector propagation. **DEPENDS ON**: T024, T026, T007. **Data Flow**: Read `lambda_max` from `data/processed/baseline_{N}.json` key `lambda_max`.
 - [X] T035a [US3] Implement `code/analysis/regression.py` to ensure **k(σ) independent trials** per noise level are available in `data/raw/`, where **k=50 for σ < 0.01** and **k ≥ 30 for σ ≥ 0.01**, covering the full noise range defined in T018. **Input**: Noise levels `sigma` from T018. **Output**: Verify `data/raw/` contains the required variable number of trajectories per level. **Logic**: For each sigma, count files; if count < (50 if sigma < 0.01 else 30), raise error. **Dependency**: T018 (Generation Loop). **Note**: This task ensures the statistical requirement of SC-003 (variable power) is met.
-- [ ] T045 [US2] Implement execution of the sliding window sweep: Run the FTLE algorithm (T022/T023) across `T \in \{500, 1000, 5000\}` for all trials generated in T018. **Dependency**: **T028 (Gating)** must pass before this execution runs. **Aggregation Logic**: Append all results (one row per trial/window) to a list. **Writer Logic**: Save aggregated results to `data/processed/ftle_sweep.json` with schema `{"trial_id": int, "N": int, "sigma": float, "T": int, "lambda_ftle": float}`. **Constraint**: This task includes the writer logic (previously T027) to avoid race conditions.
+- [X] T045 [US2] Implement execution of the sliding window sweep: Run the FTLE algorithm (T022/T023) across `T \in {500, 1000, 5000}` for all trials generated in T018. **Dependency**: **T028 (Gating)** must pass before this execution runs. **Aggregation Logic**: Append all results (one row per trial/window) to a list. **Writer Logic**: Save aggregated results to `data/processed/ftle_sweep.json` with schema `{"trial_id": int, "N": int, "sigma": float, "T": int, "lambda_ftle": float}`. **Constraint**: This task includes the writer logic (previously T027) to avoid race conditions.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,7 +146,7 @@
 - [X] T032 [US3] Implement `code/analysis/regression.py` model selection strategy (AIC/BIC) to determine functional form (additive, multiplicative, saturation). **Output**: Select best model and save to `data/processed/regression_model.json`. **Dependency**: T031.
 - [X] T032b [US3] Implement `code/analysis/regression.py` to perform **t-test specifically on the bias term coefficient** of the selected regression model. **Library**: Use `scipy.stats.ttest_1samp` on residuals or `statsmodels` OLS summary. **Confidence**: %. **Input**: `data/processed/regression_model.json`. **Output**: Update `data/processed/results.json` with `p_value_model` and `effect_size_model` for the **bias term**. **Constraint**: Do NOT test raw deviations; test the model coefficient.
 - [X] T034 [US3] Implement `code/analysis/regression.py` scaling exponent calculation relating system dimension to FTLE bias magnitude
-- [X] T036 [US3] Implement `code/analysis/regression.py` visualization module: plot deviation vs. noise with error bars (SE). **Output**: `data/processed/plot_deviation_vs_noise.png`. **Library**: `matplotlib`. **Data**: `data/processed/results.json`. **Prerequisite**: Must use data from k(σ) trials (T035a) to derive standard error. **Dependency**: T032b, T045.
+- [X] T036 [US3] Implement `code/analysis/regression.py` visualization module: plot deviation vs. noise with error bars (SE). **Output**: `data/processed/plot_deviation_vs_noise.png`. **Library**: `matplotlib`. **Data**: `data/processed/results.json`. **Prerequisite**: Must use data from k(σ) trials (T035a) to derive standard error.
 - [X] T037a [US3] Implement `code/main.py` orchestration to run full analysis pipeline and save results to `data/processed/`
 - [X] T037b [US3] Implement `code/analysis/regression.py` visualization module: convergence plot (FTLE vs. T) for **at least three distinct noise levels** (explicitly selecting three levels as required by FR-005). **Output**: `data/processed/plot_convergence.png`. **Data**: `data/processed/ftle_sweep.json`. **Dependency**: T045.
 
@@ -158,7 +163,7 @@
 - [ ] T038 Code cleanup and refactoring for readability
 - [ ] T039 Performance optimization: parallelize trials across CPU cores using `multiprocessing`
 - [ ] T040 [P] Additional unit tests for edge cases (high noise, non-chaotic params) in `tests/unit/`
-- [ ] T041 Run `quickstart.md` validation to ensure full pipeline reproducibility <!-- ATOMIZE: requested -->
+- [ ] T041 Run `quickstart.md` validation to ensure full pipeline reproducibility
 - [X] T042 [US1/US2/US3] Implement integration test in `tests/integration/test_pipeline.py` that runs the full N=5 generation and analysis loop, verifying total runtime <= 30s (Addressing US-1 Acceptance Scenario 3). **Note: This task requires US1, US2, and US3 to be implemented.**
 - [X] T043 [US2] Implement `code/analysis/boundedness.py` to perform **Boundedness/Escape Time Check** as a post-generation validation step (not a blocking dependency for FTLE calculation). **Output**: Log validation status. **Dependency**: T018 (Generation). **Logic**: Use `check_boundedness` from T007 to verify trajectory remains within attractor bounds; calculate escape time if trajectory diverges. **Constraint**: Implements the required boundedness check exclusively, as mandated by the Plan for stochastic regimes.
 - [X] T044 [P] [US2] Implement `code/analysis/ftle.py` to explicitly log and handle the case where `T` (window size) approaches total trajectory length, ensuring a strict `T < total_length - 10` check is enforced to prevent tangent vector propagation errors.
@@ -243,8 +248,8 @@ Task: "Implement code/data/generator.py trajectory integration"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (FTLE + Baseline)
-4. Add User Story 3 → Test independently → Deploy/Demo (Regression + Plots)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy

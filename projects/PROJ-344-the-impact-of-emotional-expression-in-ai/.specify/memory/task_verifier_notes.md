@@ -11,5 +11,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T019** — declared artifact(s) missing/empty/invalid: code/analyze.py
 - **T020** — No extraction or regression scripts, no output files (CSV, regression table, or figures) were provided, and there is no evidence of p‑values or pseudo R‑squared values being generated. Consequently the required artifact for User Story 2 is missing.
 - **T021** — No code, data files, regression output, or unified analysis report were provided; the claim lacks any tangible artifact demonstrating integration of regression results with consistency scores. The required deliverables (e.g., a report combining US1 consistency scores and regression findings, accompanying CSVs or figures) are missing.
+- **T025** — No figure file was provided in the `outputs/` directory, and there is no evidence of an exported image with a title that includes the correlation coefficient. The required artifact (the final labeled figure) is missing.
 - **T026a** — declared artifact(s) missing/empty/invalid: code/run_pipeline.py
 - **T026** — declared artifact(s) missing/empty/invalid: code/run_pipeline.py
+- **T028** — No CSV, JSON, or PNG artifacts are present, and there is no evidence of schema validation or success‑criteria checks for those files. The implementer provided only feature specifications and acceptance scenarios, but no actual output files or validation reports.

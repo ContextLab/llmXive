@@ -45,3 +45,16 @@ T021:
     results with consistency scores. The required deliverables (e.g., a report combining
     US1 consistency scores and regression findings, accompanying CSVs or figures)
     are missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No figure file was provided in the `outputs/` directory, and there is no evidence
+    of an exported image with a title that includes the correlation coefficient. The
+    required artifact (the final labeled figure) is missing.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV, JSON, or PNG artifacts are present, and there is no evidence of schema\
+    \ validation or success\u2011criteria checks for those files. The implementer\
+    \ provided only feature specifications and acceptance scenarios, but no actual\
+    \ output files or validation reports."

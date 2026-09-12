@@ -1,132 +1,122 @@
 """
-Task T055: Document that `spec.md` FR-006 specifies "Linear Mixed-Effects Modeling (LMM)".
-This script verifies the alignment between the Plan's deviation (LMM) and the Spec's FR-006.
-It logs "PASS" if the specification explicitly mentions LMM, otherwise it fails loudly.
+Spec Alignment Check Module.
+
+This module verifies that the project's specification document (spec.md)
+aligns with the required deviations mandated by the plan, specifically
+regarding Linear Mixed-Effects Modeling (LMM) in FR-006.
 """
 import os
 import sys
 import json
 from pathlib import Path
+
 from utils.logging import get_logger
 
-def load_spec_content(spec_path: Path) -> str:
-    """Load the content of spec.md."""
-    if not spec_path.exists():
-        raise FileNotFoundError(f"Specification file not found at {spec_path}")
-    with open(spec_path, "r", encoding="utf-8") as f:
+logger = get_logger(__name__)
+
+def load_spec_content(spec_path: str = "specs/001-quantifying-the-impact-of-dataset-sparsity/spec.md") -> str:
+    """
+    Load the content of the spec.md file.
+
+    Args:
+        spec_path: Relative path to the spec.md file from project root.
+
+    Returns:
+        The full text content of the spec file.
+
+    Raises:
+        FileNotFoundError: If the spec file does not exist.
+    """
+    full_path = Path(spec_path)
+    if not full_path.exists():
+        raise FileNotFoundError(f"Spec file not found at {full_path}")
+    
+    with open(full_path, "r", encoding="utf-8") as f:
         return f.read()
 
-def check_fr006_alignment(content: str) -> bool:
+def check_fr006_alignment(spec_content: str) -> bool:
     """
-    Check if FR-006 in the spec explicitly mentions 'Linear Mixed-Effects Modeling' or 'LMM'.
-    The Plan deviated from ANOVA to LMM; the Spec must reflect this.
+    Verify that FR-006 in the spec explicitly mentions 'Linear Mixed-Effects Modeling (LMM)'.
+
+    The Plan mandates a deviation from the original Spec (which might have said ANOVA)
+    to use LMM for handling nested data structures. This function checks for the
+    presence of the required terminology.
+
+    Args:
+        spec_content: The full text of spec.md.
+
+    Returns:
+        True if FR-006 mentions LMM, False otherwise.
     """
-    # Look for the specific requirement text
-    indicators = [
-        "FR-006",
+    # Check for the specific required phrase
+    required_phrases = [
         "Linear Mixed-Effects Modeling",
         "Linear Mixed-Effects",
         "LMM",
-        "MixedLM"
+        "Mixed-Effects Model"
     ]
     
-    # Simple heuristic: Check if FR-006 section exists and contains LMM keywords
-    # We assume the spec has a structure where FR-006 is a distinct block
-    lines = content.split('\n')
+    # Look for FR-006 context specifically
+    # We search for the section containing FR-006 and check for LMM mentions nearby
+    lines = spec_content.split('\n')
+    fr006_section = []
     in_fr006 = False
-    fr006_content = []
     
-    for line in lines:
-        if "FR-006" in line:
+    for i, line in enumerate(lines):
+        if "FR-006" in line or "FR006" in line:
             in_fr006 = True
         if in_fr006:
-            fr006_content.append(line)
-            # Stop at the next FR-XX or end of file logic (simplified)
-            if line.strip().startswith("FR-0") and "FR-006" not in line:
-                break
+            fr006_section.append(line)
+            # Stop when we hit the next FR or a major section break
+            if (line.strip().startswith("FR-00") or line.strip().startswith("##")) and len(fr006_section) > 1:
+                if "FR-00" in line and "FR-006" not in line:
+                    break
     
-    fr006_text = "\n".join(fr006_content).lower()
+    fr006_text = " ".join(fr006_section).lower()
     
-    # Check for LMM indicators
-    has_lmm = any(term.lower() in fr006_text for term in ["linear mixed-effects", "lmm", "mixedlm"])
-    has_anova = "anova" in fr006_text and "mixed" not in fr006_text
+    # Check if any of the required phrases are present in the FR-006 section
+    found = any(phrase.lower() in fr006_text for phrase in required_phrases)
     
-    if not has_lmm:
-        logger = get_logger()
-        logger.warning("FR-006 does not explicitly mention Linear Mixed-Effects Modeling (LMM).")
-        logger.warning("Current content snippet: " + fr006_text[:200])
-        return False
-    
-    if has_anova and not has_lmm:
-        logger = get_logger()
-        logger.warning("FR-006 mentions ANOVA but not LMM. Plan deviation not reflected.")
-        return False
-        
-    return True
+    return found
 
 def main():
-    logger = get_logger()
-    logger.info("Starting T055: Verifying FR-006 alignment for Linear Mixed-Effects Modeling.")
+    """
+    Main entry point for the spec alignment check.
     
-    # Determine spec path relative to project root
-    # Assuming code/ is the root for this script, spec is in specs/ or root
-    possible_paths = [
-        Path("specs/001-quantifying-the-impact-of-dataset-sparsity/spec.md"),
-        Path("spec.md"),
-        Path("../spec.md"),
-        Path("../../spec.md")
-    ]
-    
-    spec_path = None
-    for p in possible_paths:
-        if p.exists():
-            spec_path = p
-            break
-    
-    if not spec_path:
-        logger.error("Could not locate spec.md file.")
-        print("FAIL: spec.md not found")
-        sys.exit(1)
+    Reads spec.md, verifies FR-006 alignment with LMM requirement,
+    and logs the result.
+    """
+    spec_path = "specs/001-quantifying-the-impact-of-dataset-sparsity/spec.md"
     
     try:
         content = load_spec_content(spec_path)
-        is_aligned = check_fr006_alignment(content)
+        aligned = check_fr006_alignment(content)
         
-        if is_aligned:
-            logger.info("PASS: FR-006 correctly specifies Linear Mixed-Effects Modeling (LMM).")
-            print("PASS")
-            
-            # Log the alignment record
-            alignment_record = {
-                "task_id": "T055",
-                "status": "PASS",
-                "check": "FR-006 LMM Alignment",
-                "spec_path": str(spec_path),
-                "timestamp": str(Path.cwd()) # Simplified timestamp logic
-            }
-            
-            # Ensure results directory exists
-            results_dir = Path("data/results")
-            results_dir.mkdir(parents=True, exist_ok=True)
-            
-            log_path = results_dir / "spec_alignment_t055.json"
-            with open(log_path, "w", encoding="utf-8") as f:
-                json.dump(alignment_record, f, indent=2)
-            
-            logger.info(f"Alignment record saved to {log_path}")
+        if aligned:
+            logger.info("PASS: FR-006 correctly specifies 'Linear Mixed-Effects Modeling (LMM)'.")
+            result = {"status": "PASS", "feature": "FR-006", "requirement": "LMM", "details": "Spec explicitly mentions LMM."}
         else:
-            logger.error("FAIL: FR-006 does not specify LMM. Spec deviation not resolved.")
-            print("FAIL: FR-006 does not specify LMM")
-            sys.exit(1)
-            
+            logger.error("FAIL: FR-006 does not specify 'Linear Mixed-Effects Modeling (LMM)'.")
+            result = {"status": "FAIL", "feature": "FR-006", "requirement": "LMM", "details": "Spec does not mention LMM."}
+        
+        # Write result to data/results directory
+        output_dir = Path("data/results")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / "spec_alignment_fr006.json"
+        
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Alignment check result written to {output_file}")
+        
+        return 0 if aligned else 1
+        
     except FileNotFoundError as e:
-        logger.error(f"File error: {e}")
-        print(f"FAIL: {e}")
-        sys.exit(1)
+        logger.error(f"Spec file not found: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        print(f"FAIL: {e}")
-        sys.exit(1)
+        logger.error(f"Error during alignment check: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

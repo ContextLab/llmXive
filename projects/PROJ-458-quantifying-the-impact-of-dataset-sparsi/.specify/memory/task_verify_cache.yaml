@@ -34,13 +34,6 @@ T034:
   r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
     files, nor any listing of their contents with the required keys (`seed`, `percentage`,
     `criteria`, `checksum`). Consequently the required metadata artifacts are missing.
-T056:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No spec.md file or its contents were provided, so there is no evidence that\
-    \ the \u201CAssumptions\u201D section was edited to replace \u201Cno authentication\
-    \ barriers\u201D with \u201CRequires MP_API_KEY environment variable.\u201D The\
-    \ required artifact is missing, preventing verification that the task was completed."
 T057:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
