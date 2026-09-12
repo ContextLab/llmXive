@@ -1,3 +1,2 @@
-# This file is a duplicate for IDE compatibility; main config is in pyproject.toml
-# Extends the configuration defined in pyproject.toml
+# Standalone ruff config for IDE compatibility if pyproject.toml is not picked up
 extend = "pyproject.toml"

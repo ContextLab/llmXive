@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/raw`, `data/derived`,
+    `results/`) was provided; the implementer did not supply a directory listing or
+    any files confirming the project structure exists.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`,
+    or similar) or documentation showing that ruff linting and black formatting have
+    been set up for the project are present. The implementer provided no artifacts
+    to verify that the linting/formatting tools are configured, so the requirement
+    is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/` directory structure or `.gitkeep` files are presented; the evidence
+    lacks any filesystem artifacts confirming the required directories and placeholder
+    files exist. The implementer must add the `data/` folder with the appropriate
+    raw/derived subfolders and include `.gitkeep` files in each.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.env` example file containing the required dataset and model path variables\
+    \ was presented; the evidence provided does not include any artifact showing those\
+    \ environment variables have been configured. The implementer must supply a non\u2011\
+    empty `.env` (or `.env.example`) file with the appropriate variables defined."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No Python scripts (`00_download_data.py`, `01_compute_metrics.py`, `02_run_inference.py`,\
+    \ `03_analyze_results.py`) with argument parsing and logging are present in the\
+    \ provided evidence; the claim lacks any actual code artifacts. The required files\
+    \ must be created and contain functional argument\u2011parsing and logging logic."
+T010:
+  c: false
+  h: 9949a2a526ea970b3f26796c99f52f32ca212e3c832e7e3419c549284c66919d
+  r: The required artifact `code/tests/test_metrics.py` does not exist in the repository,
+    so no unit tests for the specified edge cases are present. The implementer must
+    add the missing test file with appropriate test cases.

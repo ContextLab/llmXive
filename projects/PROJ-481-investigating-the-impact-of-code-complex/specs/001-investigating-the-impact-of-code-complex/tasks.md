@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/derived`, `results/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `radon`, `transformers`, `datasets`, `scikit-learn`, `statsmodels`, `seaborn`, `llama-cpp-python`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `radon`, `transformers`, `datasets`, `scikit-learn`, `statsmodels`, `seaborn`, `llama-cpp-python`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -37,11 +37,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. Note: While T005-T007 can be developed in parallel, the *execution* of downstream scripts (T012, T017, T024) is strictly blocked until these utility modules are committed and importable.
 
 - [ ] T004 Create `data/` directory structure and `.gitkeep` files for raw/derived artifacts
-- [ ] T005 [P] Implement `code/utils/metrics.py` with Radon wrappers (Cyclomatic, Halstead, Cognitive) and error handling for invalid syntax
-- [ ] T006 [P] Implement `code/utils/inference.py` with CPU-optimized LLM loading (GGUF via `llama-cpp-python`), batching logic, and timeout/fail-fast mechanisms
+- [X] T005 [P] Implement `code/utils/metrics.py` with Radon wrappers (Cyclomatic, Halstead, Cognitive) and error handling for invalid syntax
+- [X] T006 [P] Implement `code/utils/inference.py` with CPU-optimized LLM loading (GGUF via `llama-cpp-python`), batching logic, and timeout/fail-fast mechanisms
 - [X] T007 [P] Implement `code/utils/stats.py` with segmented regression (change-point detection), bootstrap CI calculation, and correlation functions
-- [~] T008 Configure environment variables for dataset paths and model paths in `.env` example file
-- [~] T009 Create base script runners (`00_download_data.py`, `01_compute_metrics.py`, `02_run_inference.py`, `03_analyze_results.py`) with argument parsing and logging
+- [ ] T008 Configure environment variables for dataset paths and model paths in `.env` example file
+- [ ] T009 Create base script runners (`00_download_data.py`, `01_compute_metrics.py`, `02_run_inference.py`, `03_analyze_results.py`) with argument parsing and logging
 - [X] T011a [P] [US1] Implement `code/00_download_data.py` to fetch **BigCodeBench** (primary target) or **CodeSearchNet** (fallback) using `datasets.load_dataset`. Must include checksumming and verification of the downloaded file.
 - [X] T011b [P] [US1] Implement schema verification in `code/00_download_data.py` to check for the presence of ground truth annotations required for FR-003. Log the presence of 'summarization' and 'bug detection' fields.
 - [X] T011c [P] [US1] Implement the 'Reconstruction-Only' fallback logic in `code/00_download_data.py`. If independent annotations are missing, flag the dataset configuration as 'Reconstruction-Only' and log this scope change explicitly.
@@ -58,7 +58,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T010 [P] [US1] Unit test for metric calculation edge cases (empty functions, zero complexity) in `code/tests/test_metrics.py`
+- [ ] T010 [P] [US1] Unit test for metric calculation edge cases (empty functions, zero complexity) in `code/tests/test_metrics.py`
 - [~] T010b [US1] Run the 'Independent Test' pipeline: Execute `code/01_compute_metrics.py` on a 50-function subset and verify `data/derived/metrics.csv` matches manual `radon` calculations. **Deliverable**: Generate `tests/outputs/us1_validation_report.md` containing the diff summary and pass/fail status.
 
 ### Implementation for User Story 1

@@ -1,2 +1,2 @@
 # This file ensures the derived data directory is tracked by git.
-# Processed metrics and inference results will be saved here.
+# Processed data (metrics.csv, inference_results.csv) will be stored here.

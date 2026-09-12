@@ -16,12 +16,11 @@ T013:
     \ satisfied."
 T013c:
   c: false
-  h: 2743b63771fdc4a4e4076c863b758fa73a75c9c585952b75231cd388c4dd3e51
-  r: "The required input file `data/raw/study_manifest.json` does not exist, and consequently\
-    \ the expected output `data/raw/filtered_study_manifest.json` is also missing.\
-    \ Although a `filter_studies.py` script is present, it is incomplete (truncated)\
-    \ and cannot be verified to perform the required filtering. The task\u2019s core\
-    \ artifacts are absent."
+  h: 5e099a21b8465e31942865a389690b040e962b6aafa3591c70ad26d13971432f
+  r: "The required `data/raw/study_manifest.json` is absent, and the script `code/data/filter_studies.py`\
+    \ is incomplete (truncated, contains placeholder/mock returns and does not implement\
+    \ the full filtering, value mapping, or JSON output). Consequently `data/raw/filtered_study_manifest.json`\
+    \ is also missing. The task\u2019s core artifacts and functionality are not present."
 T015a:
   c: false
   h: 569a5eebb96fd38afe18bd7334ed8b275e82da18958f72deccdd2c9d53dc14e6

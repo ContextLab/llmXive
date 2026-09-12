@@ -1,2 +1,2 @@
 # This file ensures the results directory is tracked by git.
-# Statistical reports and plots will be saved here.
+# Final analysis reports, plots, and threshold detection results will be stored here.

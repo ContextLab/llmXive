@@ -19,12 +19,12 @@ T015b:
     \ entry \u201CFR\u2011002c Deferred\u201D\u2014is missing."
 T017:
   c: false
-  h: e32dc8241282678d14d23777e6c0555a9d8f051e91cc67a251a581af267acda3
-  r: "The required output files `data/processed/anonymized.csv` and `data/processed/raw_counts.json`\
-    \ are absent, and the provided `code/01_ingest.py` contains numerous placeholder\
-    \ functions and is truncated, showing no logic that actually writes those files.\
-    \ The implementation does not fulfill the task\u2019s requirement to save the\
-    \ specified artifacts."
+  h: 9c7e2649c611eff8e286b916843c2e7b11b33e78aed8e46d6ef9661295839fca
+  r: "The repository lacks the required output files `data/processed/anonymized.csv`\
+    \ and `data/processed/raw_counts.json`, and the provided `code/01_ingest.py` contains\
+    \ many placeholder functions and truncated logic without any implementation that\
+    \ writes those files. The task\u2019s core requirement\u2014to save the processed\
+    \ CSV and JSON\u2014is therefore not met."
 T020:
   c: false
   h: c9eafd40438f6e734dfdfa1a0fb8df710ad8e0938fbfab951b2b956c085c1f4e
@@ -38,3 +38,9 @@ T021:
     unit test for VADER `neg_score` extraction and range validation is present. The
     task cannot be considered completed until this file is created with appropriate
     tests.
+T022:
+  c: false
+  h: 419c01a2d98097d78217ca47a0f710863e9d5501ece1aacd88edb2035fb0d261
+  r: "The required file `tests/unit/test_sampling.py` does not exist, so no unit test\
+    \ for the stratified sampling logic is present. The task\u2019s deliverable is\
+    \ missing entirely."

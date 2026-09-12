@@ -1,2 +1,2 @@
 # This file ensures the raw data directory is tracked by git.
-# Raw datasets (e.g., BigCodeBench) will be downloaded here.
+# Raw data downloaded from external sources (e.g., BigCodeBench) will be stored here.

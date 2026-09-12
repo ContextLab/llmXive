@@ -106,7 +106,7 @@
 
 - [ ] T020 [P] [US2] Unit test for `prosocial_action_count` lexicon logic (excluding prime keywords) in `tests/unit/test_lexicon.py`
 - [ ] T021 [P] [US2] Unit test for VADER `neg_score` extraction and range validation in `tests/unit/test_vader.py`
-- [~] T022 [P] [US2] Unit test for stratified sampling logic (FR-010, FR-010a) in `tests/unit/test_sampling.py`
+- [ ] T022 [P] [US2] Unit test for stratified sampling logic (FR-010, FR-010a) in `tests/unit/test_sampling.py`
 
 ### Implementation for User Story 2
 
