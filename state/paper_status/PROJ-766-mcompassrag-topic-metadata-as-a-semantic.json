@@ -18,12 +18,12 @@
         "page": 33
       }
     ],
-    "audited_at": "2026-09-12T21:50:45.626594+00:00"
+    "audited_at": "2026-09-12T22:21:44.122546+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-766-mcompassrag-topic-metadata-as-a-semantic",
-  "updated_at": "2026-09-12T21:50:45.626606+00:00"
+  "updated_at": "2026-09-12T22:21:44.122559+00:00"
 }
