@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cosmic-ray-solar-analysis"
+name = "llmxive-cosmic-ray-analysis"
 version = "0.1.0"
-description = "Analysis of cosmic ray composition and solar activity cycles"
+description = "Analysis of Cosmic Ray Composition and Solar Activity Cycles"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -17,8 +17,15 @@ dependencies = [
     "pyyaml",
     "statsmodels",
     "pytest",
-    "flake8",
-    "black",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0",
+    "black>=23.0",
+    "isort>=5.0",
+    "mypy>=1.0",
+    "pytest-cov>=4.0",
 ]
 
 [tool.black]
@@ -28,19 +35,40 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code", "analysis", "data", "utils"]
+known_third_party = ["pandas", "numpy", "scipy", "matplotlib", "requests", "pytest", "statsmodels", "sklearn"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "data"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = false
+check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

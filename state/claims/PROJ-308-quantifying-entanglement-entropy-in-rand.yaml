@@ -2655,3 +2655,143 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T00:57:28Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation Phys Rev Lett 93 207204 2004
+  claim_id: c_d474043b
+  context: Phase 0 Research Document generation requires citing Refael-Moore regarding
+    scaling ansatz.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett., 93, 207204 (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:21:41Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Entanglement entropy scaling S(L) proportional to log L in critical regime
+  claim_id: c_39f42b67
+  context: Phase 0 Research Document generation requires populating the scaling ansatz.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entanglement_entropy_scaling_S(L)_proportional_to_log_L_in_c
+  kind: entity_fact
+  raw_text: 'Scaling ansatz: $S(L) \approx c_{eff} \log L$ (critical) vs Area Law
+    (localized).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:32:05Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Hypothesis linking alpha exponent to area-law or logarithmic scaling
+    regimes
+  claim_id: c_a4306430
+  context: Phase 0 Research Document generation requires stating the hypothesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_linking_alpha_exponent_to_area-law_or_logarithmic
+  kind: entity_fact
+  raw_text: 'Hypothesis: S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law
+    in the localized regime and $\alpha$ indicating logarithmic scaling in the critical
+    regime.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:34:48Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses at least 1000 samples to estimate standard
+    error and p-value
+  claim_id: c_4463dcbc
+  context: Phase 2 Task T007 describes implementing the bootstrap module.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_1000_samples_to_estimate
+  kind: magnitude
+  raw_text: Non-parametric percentile bootstrap with $\ge 1000$ resamples to estimate
+    SE and p-value for $\alpha$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:36:57Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Theoretical CFT alpha value at delta=0 is between 0.30 and 0.36
+  claim_id: c_ff66abc0
+  context: Phase 4 Task T030 defines an assertion for the fitted alpha at delta=0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical CFT value for alpha at delta=0 is in the range [0.30, 0.36].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:37:07Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Confidence interval width must be less than or equal to 0.05 for delta
+    less than or equal to 0.3
+  claim_id: c_42e9c9fd
+  context: Phase 5 Task T037 describes validating CI width constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Confidence_interval_width_must_be_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: CI width must be $\le 0.05$ for all $\delta \le 0.3$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:37:16Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Abrupt spikes in edge entropy defined as deviation greater than 3 standard
+    deviations
+  claim_id: c_f9d384f0
+  context: Phase 7 Task T049 defines the check for abrupt spikes in edge entropy.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abrupt_spikes_in_edge_entropy_defined_as_deviation_greater_t
+  kind: magnitude
+  raw_text: Abrupt spikes in edge entropy are defined as deviation > 3 standard deviations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:37:29Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore arXiv ID is cond-mat/0406730
+  claim_id: c_418c9967
+  context: Phase 8 notes require ensuring citations for Refael-Moore are correct including
+    the arXiv ID.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refael-Moore arXiv identifier is cond-mat/0406730.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T16:37:35Z'

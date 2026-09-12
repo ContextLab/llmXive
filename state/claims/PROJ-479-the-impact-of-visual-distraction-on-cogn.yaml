@@ -2736,24 +2736,6 @@
   updated_at: '2026-09-06T15:46:00Z'
 - artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
   attempts: 1
-  canonical: Generate at least 100 synthetic participant records
-  claim_id: c_ad483400
-  context: "Fallback Simulation: Generate synthetic participant records (N \u2265\
-    \ 100) with participant_id, reaction_time, accuracy, and visual_complexity."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_100_synthetic_participant_records
-  kind: magnitude
-  raw_text: "Generate synthetic participant records with N \u2265 100."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-06T15:46:03Z'
-- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
-  attempts: 1
   canonical: Verify missing values in reaction_time and accuracy are less than or
     equal to 5 percent
   claim_id: c_71d35e5b
@@ -3454,3 +3436,198 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T01:13:54Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Download 150 workspace images from Unsplash API
+  claim_id: c_875e9ac2
+  context: 'Real Data Path (Primary): Fetch Workspace Images - Query Unsplash API
+    for workspace images... Download N=150 images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Download N=150 images from Unsplash API using keywords: ''home office'',
+    ''desk'', ''workspace'', ''remote work'', ''study room''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:00:03Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 2
+  canonical: Generate at least 100 synthetic participant records
+  claim_id: c_ad483400
+  context: "Fallback Simulation: Generate synthetic participant records (N \u2265\
+    \ 100) with participant_id, reaction_time, accuracy, and visual_complexity."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_100_synthetic_participant_records
+  kind: magnitude
+  raw_text: "Generate synthetic participant records with N \u2265 100."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:00:19Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Merged dataset must have at least 100 rows with non-null reaction_time,
+    accuracy, and visual_complexity
+  claim_id: c_00ad67fc
+  context: "Independent Test: Verify that data/processed/merged_data.csv exists with\
+    \ \u2265100 rows, non-null reaction_time, accuracy, and visual_complexity columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_dataset_must_have_at_least_100_rows_with_non-null_rea
+  kind: magnitude
+  raw_text: Verify merged dataset contains non-null reaction_time, accuracy, and visual_complexity
+    columns with at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:00:27Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: YOLOv8n object counting uses confidence threshold 0.25
+  claim_id: c_285bb0ee
+  context: 'Object Count: Implement using ultralytics YOLOvn (nano) in CPU mode. CRITICAL:
+    Use weights file yolov8n.pt and confidence threshold 0.25.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use YOLOv8n model with a confidence threshold of 0.25 for object counting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:00:31Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses at least 1000 iterations
+  claim_id: c_f213a5fb
+  context: "Bootstrap: Implement bootstrap resampling (\u22651000 iterations) for\
+    \ CIs using scipy.stats.bootstrap."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Perform bootstrap resampling with at least 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:00:48Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni method cites Holm 1979 Scandinavian Journal of Statistics
+  claim_id: c_ec00b5b6
+  context: 'Create data/citations.yaml with verified primary sources for: 1. Holm-Bonferroni:
+    Holm, S. (1979). ''A Simple Sequentially Rejective Multiple Test Procedure''.
+    Scandinavian Journal of Statistics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Holm-Bonferroni correction is based on Holm, S. (1979). 'A Simple Sequentially
+    Rejective Multiple Test Procedure'. Scandinavian Journal of Statistics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:00:55Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: OpenCV Edge Detection cites Canny 1986 IEEE TPAMI
+  claim_id: c_1b4b606f
+  context: 'Create data/citations.yaml with verified primary sources for: 2. OpenCV
+    Edge Detection: Canny, J. (1986). ''A Computational Approach to Edge Detection''.
+    IEEE TPAMI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OpenCV Edge Detection is based on Canny, J. (1986). 'A Computational Approach
+    to Edge Detection'. IEEE TPAMI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:01:32Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Color Entropy cites Shannon 1948 A Mathematical Theory of Communication
+  claim_id: c_c32ecf36
+  context: 'Create data/citations.yaml with verified primary sources for: 3. Color
+    Entropy: Shannon, C.E. (1948 (Wikipedia: A Mathematical Theory of Communication...)).
+    ''A Mathematical Theory of Communication''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Color Entropy metric is based on Shannon, C.E. (1948). 'A Mathematical
+    Theory of Communication'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:01:42Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: YOLOv8 cites Redmon et al. and Ultralytics documentation
+  claim_id: c_7efbe2b7
+  context: 'Create data/citations.yaml with verified primary sources for: 4. YOLOv8:
+    Redmon, J., et al. (n.d.) and Ultralytics YOLOv8 documentation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8_cites_Redmon_et_al._and_Ultralytics_documentation
+  kind: entity_fact
+  raw_text: YOLOv8 references Redmon, J., et al. and Ultralytics YOLOv8 documentation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:01:52Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Binning results table must have 6 rows per strategy
+  claim_id: c_7d72709d
+  context: 'Generate results/sensitivity/binning_results.csv... CRITICAL: Ensure exactly
+    6 rows are generated for each binning strategy (one for each predictor-outcome
+    pair).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Binning results table must contain exactly 6 rows for each binning strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:02:00Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Alpha threshold justification minimum 150 words
+  claim_id: c_484e6b9a
+  context: 'The justification must include... Minimum length: 150 words.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alpha_threshold_justification_minimum_150_words
+  kind: magnitude
+  raw_text: Alpha threshold justification must be at least 150 words.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T17:02:16Z'

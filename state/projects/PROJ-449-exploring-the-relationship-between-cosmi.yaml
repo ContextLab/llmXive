@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T16:40:16.448511Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-449-exploring-the-relationship-between-cosmi
-last_run_id: f2c342fb-ac06-43fe-8855-5dad7b7d91c5
+last_run_id: 6a9457a3-bec5-4968-ad7f-22244209138c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi
 title: Exploring the Relationship Between Cosmic Ray Composition and Solar Activity
   Cycles
-updated_at: '2026-07-10T06:39:46.953250Z'
+updated_at: '2026-09-12T16:53:31.928543Z'

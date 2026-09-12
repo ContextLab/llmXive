@@ -243,3 +243,5 @@ With multiple developers:
 - **Data Integrity**: All data loaders MUST fail loudly on fetch errors. NO synthetic data fallbacks allowed.
 - **Compute Constraints**: All models must run on CPU (XGBoost `tree_method='hist'`). Full dataset must be streamed or sampled to fit < 7GB RAM.
 - **Plan Discrepancy Note**: The `plan.md` currently describes a temporal split and Lake Powell scope. The tasks above (T020, T025) explicitly override this to match the `spec.md` requirements (Spatial Split, Continental Scale). The plan.md must be updated to reflect this alignment.
+
+- [ ] T334 **FR-001**: Implement data loader for EBD checklists (2015-2023) in `code/data_loader.py`, filtering for complete checklists and streaming to `data/raw/ebd_subset.csv`. Implement checksum verification.

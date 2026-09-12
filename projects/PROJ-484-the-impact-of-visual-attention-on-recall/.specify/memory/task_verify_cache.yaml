@@ -54,11 +54,11 @@ T071:
     \ file exists. Without these artifacts the task\u2019s requirements are not satisfied."
 T071b:
   c: false
-  h: ddc68d43b65a73060c1fd2f8e0dbd0b58f1ee613f146edb7daa54b362e2aad4e
-  r: "The `verify_data.py` file only contains a stub comment and a partially\u2011\
-    written fallback block; it never reads `verified_sources_hypothetical.json` nor\
-    \ loads defaults from a `config.yaml` (which is missing). Consequently the required\
-    \ fallback behavior is not implemented."
+  h: cb975c25abf458286c96cedb197910c9bca4c640dd8f71c06ab94bd121859b23
+  r: "The `verify_data.py` file is truncated and never contains the logic to check\
+    \ `verified_sources_hypothetical.json` for a \u2018hypothetical\u2019 flag nor\
+    \ to load defaults from a `config.yaml`. Moreover, the required `config.yaml`\
+    \ file is missing entirely. The fallback behavior therefore is not implemented."
 T072:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

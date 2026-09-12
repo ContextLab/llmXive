@@ -98,7 +98,7 @@ description: "Task list template for feature implementation"
 
 - [X] T017 [P] [US1] Create `data/citations.yaml` with verified primary sources (Moved to Phase 2 for independence). **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
 
-- [ ] T018 [US1] **VERIFY DATA INTEGRITY**: Run validation on `data/processed/merged_data.csv` to ensure: <!-- FAILED: unspecified -->
+- [ ] T018 [US1] **VERIFY DATA INTEGRITY**: Run validation on `data/processed/merged_data.csv` to ensure: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  1. N ≥ 100.
  2. No missing values in `reaction_time` or `accuracy` > 5%.
  3. Metadata exists for all images.
@@ -141,7 +141,7 @@ description: "Task list template for feature implementation"
 - [ ] T026-verify [US2] **VERIFY IMPLEMENTATION**: Run unit tests T021, T022, T023 against the newly implemented `code/02_visual_metrics.py`. Mark [X] only if all tests pass and the file exists.
  **DEPENDS ON: T026a, T026b, T026c**.
 
-- [ ] T027 [US2] Create `code/02_visual_metrics.py` main execution block to:
+- [X] T027 [US2] Create `code/02_visual_metrics.py` main execution block to: <!-- FAILED: unspecified -->
  1. **Wait for `data/processed/.ready` marker** (from T015) and T018 validation.
  2. Iterate over all images in `data/raw/workspace_images/` (or `data/raw/synthetic_images/` if fallback).
  3. Handle missing images by logging error and skipping.

@@ -50,14 +50,23 @@ def verify_temporal_load(events_data, stimulus_duration_ms):
             return False
     return True
 
+def load_verified_sources(source_path):
+    """
+    Loads the verified sources configuration.
+    Checks for 'hypothetical' status for the target dataset.
+    """
+    if not os.path.exists(source_path):
+        return None
+    return load_json_file(source_path)
+
 def main():
     parser = argparse.ArgumentParser(description='Verify data metadata and calibration.')
     parser.add_argument('--config', type=str, default='config.json', help='Path to the configuration file.')
     parser.add_argument('--hypothetical', action='store_true', help='Enable hypothetical mode with default values.')
+    parser.add_argument('--source-file', type=str, default='code/verified_sources_hypothetical.json', help='Path to verified sources JSON.')
     args = parser.parse_args()
 
     config = load_json_file(args.config)
-
     bids_directory = config.get('bids_directory')
     
     if bids_directory is None:
@@ -74,13 +83,26 @@ def main():
     screen_width_px, viewing_distance_mm, sampling_rate_hz = extract_geometry_metadata(sidecar_data)
     
     # T071b: Implement "Hypothetical Geometry Fallback"
-    # If verified_sources_hypothetical.json marks dataset as hypothetical, 
-    # load defaults from config.yaml even if BIDS metadata is missing
+    # 1. Check explicit CLI flag or config flag
     hypothetical_mode = args.hypothetical or config.get('hypothetical_mode', False)
     
+    # 2. Check verified_sources_hypothetical.json for dataset status
+    verified_sources = load_verified_sources(args.source_file)
+    dataset_id = config.get('dataset_id', 'ds001435')
+    
+    if verified_sources and dataset_id in verified_sources:
+        entry = verified_sources[dataset_id]
+        if entry.get('status') == 'hypothetical':
+            hypothetical_mode = True
+            print(f"INFO: Dataset {dataset_id} marked as 'hypothetical' in source file.")
+        elif entry.get('status') == 'verified':
+            # If verified, we strictly require real data
+            hypothetical_mode = False
+
     if screen_width_px is None or viewing_distance_mm is None or sampling_rate_hz is None:
         if hypothetical_mode:
-            print("WARNING: Missing geometry metadata. Using hypothetical defaults from config.")
+            print("WARNING: Missing geometry metadata in BIDS. Using hypothetical defaults from config.yaml.")
+            # Load defaults from config (which acts as config.yaml equivalent in JSON format here)
             screen_width_px = config.get('default_screen_width_px')
             viewing_distance_mm = config.get('default_viewing_distance_mm')
             sampling_rate_hz = config.get('default_sampling_rate_hz')

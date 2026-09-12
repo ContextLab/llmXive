@@ -47,7 +47,7 @@
 **Critical**: This phase must complete before Phase 1. The `research.md` file generated here is the source of truth for scientific hypotheses and citations.
 
 - [X] T000 [P] **Generate Research Document**: Create `research.md` in `specs/PROJ-308-001-quantifying-entanglement/`. Populate with:
- - Scaling ansatz: $S(L) \approx c_{eff} \log L$ (critical) vs Area Law (localized).
+ - Scaling ansatz: $S(L) \approx c_{eff} \log L$ (critical) vs Area Law (localized). [UNRESOLVED-CLAIM: c_39f42b67 — status=not_enough_info]
  - Citation: Refael-Moore (Phys. Rev. Lett., ()).
  - Hypothesis: "S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law in the localized regime and $\alpha$ indicating logarithmic scaling in the critical regime".
  - Verify file creation via `ls`.

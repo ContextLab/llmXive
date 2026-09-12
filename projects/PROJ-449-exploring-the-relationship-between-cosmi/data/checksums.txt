@@ -1,0 +1,2 @@
+# Checksums for downloaded datasets
+# Format: <md5_hash>  <filename>

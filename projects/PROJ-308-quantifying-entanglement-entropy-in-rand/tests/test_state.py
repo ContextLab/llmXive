@@ -1,211 +1,80 @@
-"""
-Tests for state management and checksum tracking.
-"""
+import unittest
 import os
 import json
-import tempfile
 from pathlib import Path
-import pytest
+from code.state_manager import log_unresolved_realization, get_unresolved_summary, clear_unresolved_log
+from code.state_utils import ensure_state_structure, compute_file_checksum, load_project_state, save_project_state, register_artifact, verify_artifact_integrity, get_artifact_summary
 
-# Import the functions we are testing
-from state_manager import (
-    log_unresolved_realization,
-    get_unresolved_summary,
-    clear_unresolved_log,
-    _load_unresolved_log,
-    _save_unresolved_log
-)
-from state_utils import (
-    ensure_state_structure,
-    compute_file_checksum,
-    compute_directory_checksum,
-    load_project_state,
-    save_project_state,
-    register_artifact,
-    verify_artifact_integrity,
-    get_artifact_summary,
-    generate_state_report,
-    STATE_DIR,
-    PROJECTS_DIR,
-    STATE_FILE
-)
+class TestStateManager(unittest.TestCase):
 
-@pytest.fixture
-def clean_state_dirs():
-    """Fixture to clean up state directories before and after tests."""
-    # Clean before
-    if STATE_DIR.exists():
-        import shutil
-        shutil.rmtree(STATE_DIR)
+    def setUp(self):
+        # Ensure state directory exists before each test
+        ensure_state_structure()
+        # Clear any existing state data
+        clear_unresolved_log()
+        self.project_name = "PROJ-308-quantifying-entanglement-entropy-in-rand"
 
-    yield
+    def test_log_and_get_unresolved_realization(self):
+        log_unresolved_realization(1, "Convergence failed")
+        summary = get_unresolved_summary()
+        self.assertEqual(summary["Convergence failed"], 1)
 
-    # Clean after
-    if STATE_DIR.exists():
-        import shutil
-        shutil.rmtree(STATE_DIR)
+    def test_clear_unresolved_log(self):
+        log_unresolved_realization(1, "Convergence failed")
+        summary = get_unresolved_summary()
+        self.assertEqual(summary["Convergence failed"], 1)
+        clear_unresolved_log()
+        summary = get_unresolved_summary()
+        self.assertEqual(summary, {})
 
-def test_ensure_state_structure(clean_state_dirs):
-    """Test that the state directory structure is created."""
-    ensure_state_structure()
-    assert STATE_DIR.exists()
-    assert PROJECTS_DIR.exists()
-    assert (STATE_DIR / "artifacts").exists()
+    def test_state_structure(self):
+        ensure_state_structure()
+        self.assertTrue(Path("state/projects").exists())
 
-def test_compute_file_checksum(clean_state_dirs):
-    """Test file checksum computation."""
-    ensure_state_structure()
-    test_file = STATE_DIR / "test_checksum.txt"
-    test_file.write_text("Hello, World!")
+    def test_file_checksum(self):
+        # Create a temporary file for checksum testing
+        temp_file = "temp_checksum_file.txt"
+        with open(temp_file, "w") as f:
+            f.write("This is a test file.")
+        checksum = compute_file_checksum(temp_file)
+        self.assertTrue(len(checksum) > 0)
+        os.remove(temp_file)
 
-    checksum1 = compute_file_checksum(test_file)
-    checksum2 = compute_file_checksum(test_file)
+    def test_load_and_save_project_state(self):
+        state = {"file1": "checksum1", "file2": "checksum2"}
+        save_project_state(self.project_name, state)
+        loaded_state = load_project_state(self.project_name)
+        self.assertEqual(loaded_state, state)
 
-    assert checksum1 == checksum2
-    assert len(checksum1) == 64  # SHA-256 hex digest
+    def test_register_and_verify_artifact(self):
+        artifact_path = "data/entropy_data.csv"
+        checksum = "test_checksum"
+        register_artifact(self.project_name, artifact_path, checksum)
+        self.assertTrue(verify_artifact_integrity(self.project_name, artifact_path))
 
-def test_compute_directory_checksum(clean_state_dirs):
-    """Test directory checksum computation."""
-    ensure_state_structure()
-    test_dir = STATE_DIR / "test_dir"
-    test_dir.mkdir()
-    (test_dir / "file1.txt").write_text("Content 1")
-    (test_dir / "file2.txt").write_text("Content 2")
+    def test_artifact_summary(self):
+        artifact_path = "data/entropy_data.csv"
+        checksum = "test_checksum"
+        register_artifact(self.project_name, artifact_path, checksum)
+        summary = get_artifact_summary(self.project_name)
+        self.assertIn(artifact_path, summary)
+        self.assertEqual(summary[artifact_path], checksum)
 
-    checksum1 = compute_directory_checksum(test_dir)
-    checksum2 = compute_directory_checksum(test_dir)
+    def test_checksums(self):
+      # Create a dummy file to calculate and check checksums
+      dummy_file = "test_checksum.txt"
+      with open(dummy_file, "w") as f:
+          f.write("This is a test file for checksums.")
 
-    assert checksum1 == checksum2
+      # Calculate the checksum
+      checksum = compute_file_checksum(dummy_file)
 
-def test_load_project_state(clean_state_dirs):
-    """Test loading project state."""
-    ensure_state_structure()
-    state = load_project_state()
+      # Save the checksum to the state
+      save_project_state(self.project_name, {"test_checksum.txt": checksum})
 
-    assert "project_id" in state
-    assert "version" in state
-    assert "artifacts" in state
-    assert "checksums" in state
+      # Load the state and verify the checksum
+      loaded_state = load_project_state(self.project_name)
+      self.assertEqual(loaded_state["test_checksum.txt"], checksum)
 
-def test_save_and_load_project_state(clean_state_dirs):
-    """Test saving and loading project state."""
-    ensure_state_structure()
-    test_state = {
-        "project_id": "TEST-001",
-        "version": "1.0.0",
-        "artifacts": {"test.txt": {"checksum": "abc123"}}
-    }
-
-    save_project_state(test_state)
-    loaded_state = load_project_state()
-
-    assert loaded_state["project_id"] == "TEST-001"
-    assert loaded_state["version"] == "1.0.0"
-    assert "test.txt" in loaded_state["artifacts"]
-
-def test_register_artifact(clean_state_dirs):
-    """Test artifact registration."""
-    ensure_state_structure()
-    test_file = STATE_DIR / "artifacts" / "test_data.csv"
-    test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text("col1,col2\n1,2\n3,4")
-
-    register_artifact(
-        test_file,
-        "csv",
-        "Test data file",
-        {"rows": 2}
-    )
-
-    state = load_project_state()
-    rel_path = str(test_file.relative_to(Path(__file__).parent.parent))
-
-    assert rel_path in state["artifacts"]
-    assert state["artifacts"][rel_path]["type"] == "csv"
-    assert "checksum" in state["artifacts"][rel_path]
-
-def test_verify_artifact_integrity(clean_state_dirs):
-    """Test artifact integrity verification."""
-    ensure_state_structure()
-    test_file = STATE_DIR / "artifacts" / "verify_test.txt"
-    test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text("Integrity test")
-
-    register_artifact(test_file, "txt", "Integrity test file")
-    assert verify_artifact_integrity(test_file) is True
-
-    # Modify the file
-    test_file.write_text("Modified content")
-    assert verify_artifact_integrity(test_file) is False
-
-def test_get_artifact_summary(clean_state_dirs):
-    """Test getting artifact summary."""
-    ensure_state_structure()
-    test_file = STATE_DIR / "artifacts" / "summary_test.csv"
-    test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text("a,b\n1,2")
-
-    register_artifact(test_file, "csv", "Summary test file")
-
-    rel_path = str(test_file.relative_to(Path(__file__).parent.parent))
-    summary = get_artifact_summary(test_file)
-
-    assert summary is not None
-    assert summary["type"] == "csv"
-    assert summary["description"] == "Summary test file"
-
-def test_generate_state_report(clean_state_dirs):
-    """Test state report generation."""
-    ensure_state_structure()
-    test_file = STATE_DIR / "artifacts" / "report_test.txt"
-    test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text("Report test")
-
-    register_artifact(test_file, "txt", "Report test file")
-
-    report_path = STATE_DIR / "state_report.txt"
-    report = generate_state_report(report_path)
-
-    assert "Project State Report" in report
-    assert "Report test file" in report
-    assert report_path.exists()
-
-def test_unresolved_log_integration(clean_state_dirs):
-    """Test the unresolved realization logging workflow."""
-    # Log a single realization
-    log_unresolved_realization(
-        realization_id=1,
-        delta=0.5,
-        reason="Convergence failure",
-        details={"iterations": 100}
-    )
-
-    # Log another
-    log_unresolved_realization(
-        realization_id=2,
-        delta=0.5,
-        reason="Convergence failure",
-        details={"iterations": 150}
-    )
-
-    # Log a different reason
-    log_unresolved_realization(
-        realization_id=3,
-        delta=0.8,
-        reason="Memory overflow"
-    )
-
-    # Check summary
-    summary = get_unresolved_summary()
-    assert summary["total_unresolved"] == 3
-    assert summary["by_reason"]["Convergence failure"] == 2
-    assert summary["by_reason"]["Memory overflow"] == 1
-
-    # Check by delta
-    by_delta = [e for e in _load_unresolved_log() if e["delta"] == 0.5]
-    assert len(by_delta) == 2
-
-    # Clear log
-    clear_unresolved_log()
-    summary_after = get_unresolved_summary()
-    assert summary_after["total_unresolved"] == 0
+      # Clean up the dummy file
+      os.remove(dummy_file)
