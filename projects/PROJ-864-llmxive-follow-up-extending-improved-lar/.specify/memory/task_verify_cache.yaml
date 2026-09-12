@@ -7,6 +7,14 @@ T001:
     \ the specified logic, even though a `code/config.yaml` file is present. The task\
     \ needs a complete `generate_config.py` that reads the JSON, checks `approved`,\
     \ and writes the config, plus the missing scope record JSON."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings, screenshots, or verification commands were provided to\
+    \ show that `code/`, `data/`, `tests/`, and `state/` exist under `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/`.\
+    \ The implementer must supply concrete evidence (e.g., `ls` output, a script that\
+    \ checks `os.path.isdir`, or a file\u2011system snapshot) confirming the directories\
+    \ were created."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,6 +24,13 @@ T004:
     directory, so the required setup cannot be verified. The implementer must add
     the actual ruff and black configuration (and optionally integration scripts) in
     the specified path.
+T005:
+  c: false
+  h: c240ee51cb4acc896f109b24e49b0c1223cbe0df398302c276a68e7d98c67572
+  r: The required file `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt`
+    does not exist, and the existing `code/requirements.txt` has a lower torch version
+    (`torch>=2.0.0` instead of `>=2.2.0`) and includes extra packages not specified.
+    The task is therefore not fulfilled.
 T006:
   c: false
   h: 175963997e5c7269a2e49c0829d66745bd9c615e0408584671d828be6157e85d

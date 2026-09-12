@@ -1,4 +1,4 @@
-rdkit
+rdkkit
 scikit-learn
 pandas
 numpy
@@ -8,8 +8,11 @@ huggingface_hub
 matplotlib
 seaborn
 scipy
-datasets
+datasets>=2.14.0,<3.0.0
+torch
+dgl
 ruff
 black
 mypy
 pytest
+tracemalloc

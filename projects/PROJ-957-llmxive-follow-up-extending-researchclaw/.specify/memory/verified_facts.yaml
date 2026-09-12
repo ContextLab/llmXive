@@ -1,6 +1,7 @@
-'|budget clock enforced second time wall':
-  quote: not compute budgets. We study optimal model sizing under fixed time budgets
-    from 5 minutes to 24 hours on
-  source_id: '2603.28823'
-  url: https://arxiv.org/abs/2603.28823
-  value: 24 hours
+'|python':
+  quote: "Python 3.11 expanded exception handling functionality. Around this version,\
+    \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
+    60% faster than 3.10, and 3.12 increases by an additional 5%."
+  source_id: History of Python
+  url: https://en.wikipedia.org/wiki/History_of_Python
+  value: "10\u201360%"

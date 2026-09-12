@@ -43,7 +43,7 @@
  Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/resolve_strategy.py`.
  **Logic**:
  1. Parse `spec.md` to extract the token target from FR‑001 (expected 10M).
- 2. Parse `plan.md` to extract the token target from the Summary (1M).
+ 2. Parse `plan.md` to extract the token target from the Summary (1M). [UNRESOLVED-CLAIM: c_8706479e — status=not_enough_info]
  3. Run the static RAM validator (T009) for both regimes to determine feasibility.
  4. If the plan regime (1M) is feasible and the spec regime (10M) is not, write `data/artifacts/conflict_resolution_strategy.json` with `chosen_regime: "1M"`, `override_reason: "Plan feasibility overrides Spec requirement"`, `spec_requirement: "10M"`, `plan_requirement: "1M"`, `status: "RESOLVED"`.
  5. If both are feasible, default to Spec (10M). If neither, raise `FatalError`.

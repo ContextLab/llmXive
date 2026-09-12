@@ -5158,3 +5158,396 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T14:19:35Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: '7 agents with 4096 max tokens and 0.7 temperature: Llama-8B, Mistral-7B,
+    Gemma-7B, CodeLlama-7B, Zephyr-7B, OpenChat-7B, WizardLM-7B'
+  claim_id: c_64c7e30e
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Alpha (Llama-8B, 4096, 0.7, "General reasoning")...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Agent-Alpha (Llama-8B, 4096, 0.7, "General reasoning"), Agent-Beta (Mistral-7B,
+    4096, 0.7, "Code generation"), Agent-Gamma (Gemma-7B, 4096, 0.7, "Scientific text"),
+    Agent-Delta (CodeLlama-7B, 4096, 0.7, "Code execution"), Agent-Epsilon (Zephyr-7B,
+    4096, 0.7, "Instruction following"), Agent-Zeta (OpenChat-7B, 4096, 0.7, "Multi-turn
+    dialogue"), Agent-Eta (WizardLM-7B, 4096, 0.7, "Complex reasoning")
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:33:24Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Expected baseline calculated as 7 agents * 2 conditions * 10 tasks =
+    140
+  claim_id: c_967a0a61
+  context: The task MUST explicitly calculate the expected baseline as 7 agents *
+    2 conditions * 10 tasks = 140 and verify the denominator against this formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST explicitly calculate the expected baseline as 7 agents *
+    2 conditions * 10 tasks = 140
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:33:59Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Statistical power threshold of 0.4
+  claim_id: c_e794afa8
+  context: perform a normality check (Shapiro-Wilk) and select either a paired t-test
+    or Wilcoxon signed-rank test accordingly (FR-005); if power is low (<0.4), log
+    warning but proceed with the selected test
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if power is low (<0.4), log warning but proceed with the selected test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:34:00Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 24-hour budget duration 2603.28823
+  claim_id: c_d8723055
+  context: This loop MUST import Config from src/config.py (T006) to enforce the budget
+    (86400s / 24 hours (2603.28823, https://arxiv.org/abs/2603.28823)).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: enforce a concurrency limit and total wall-clock budget... 24 hours (2603.28823,
+    https://arxiv.org/abs/2603.28823)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-12T21:34:03Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Select first 10 task IDs
+  claim_id: c_f26c0b5c
+  context: Sort by task_id ascending and select the first 10 IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the first 10 IDs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:34:30Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Minimum task count threshold of 10
+  claim_id: c_2c6e7341
+  context: 'CRITICAL: If the count of matching tasks is < 10, the system MUST ABORT'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If count < 10, the system MUST ABORT
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:34:31Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Memory usage limit of 7GB
+  claim_id: c_2c7f929e
+  context: ensuring the process never exceeds 7GB RAM. Use chunk_size=1000.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_of_7GB
+  kind: entity_fact
+  raw_text: ensure the process never exceeds 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:35:06Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Dataset chunk size of 1000
+  claim_id: c_26770669
+  context: Use chunk_size=1000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use chunk_size=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:35:30Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Per-run timeout of 3600 seconds
+  claim_id: c_eaea0084
+  context: raises a TimeoutError if the agent exceeds TIMEOUT_PER_RUN (3600s).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TIMEOUT_PER_RUN (3600s)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:35:48Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Protocol Alignment score range 0 to 50
+  claim_id: c_b4fc93d7
+  context: defining the JSON structure for "Protocol Alignment" (0-50) and "Scientific
+    Core" scoring logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Protocol Alignment scoring range 0-50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:36:08Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Rubric thresholds high 40 and low 10
+  claim_id: c_8af70c46
+  context: This schema MUST include keys threshold_high (value 40) and threshold_low
+    (value 10) for FR-008 validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_high (value 40) and threshold_low (value 10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:36:24Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Rubric low threshold 10
+  claim_id: c_5b342b66
+  context: This schema MUST include keys threshold_high (value 40) and threshold_low
+    (value 10) for FR-008 validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_low (value 10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:36:44Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Linting line length 88
+  claim_id: c_34802df5
+  context: The file MUST contain a [tool.ruff] section with line-length = 88 and target-version
+    = "py311"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:37:14Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Project Python version 3.11
+  claim_id: c_5ed51c58
+  context: Initialize Python 3.11 project with dependencies
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Python 3.11 expanded exception handling functionality. Around this version,\
+        \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
+        60% faster than 3.10, and 3.12 increases by an additional 5%."
+      source_id: History of Python
+      url: https://en.wikipedia.org/wiki/History_of_Python
+      value: "10\u201360%"
+    filled: true
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: "10\u201360%"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-12T21:37:23Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Dataset ID researchclawbench/v1
+  claim_id: c_8f69132c
+  context: 'The file MUST define a class Config with the following attributes and
+    default values: RESEARCHCLAWBENCH_DATASET_ID: str = "researchclawbench/v1"'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ID_researchclawbench/v1
+  kind: entity_fact
+  raw_text: 'RESEARCHCLAWBENCH_DATASET_ID: str = "researchclawbench/v1"'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:37:41Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Scientific core margin 5
+  claim_id: c_624680f7
+  context: 'The file MUST define a class Config with the following attributes and
+    default values: ... SCIENTIFIC_CORE_MARGIN: int = 5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'SCIENTIFIC_CORE_MARGIN: int = 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:37:57Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Max concurrency 7
+  claim_id: c_3eb0be00
+  context: 'The file MUST define a class Config with the following attributes and
+    default values: ... MAX_CONCURRENCY: int = 7'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAX_CONCURRENCY: int = 7'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:38:26Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: arXiv paper ID 2603.28823
+  claim_id: c_8a04a9fc
+  context: enforce the budget (86400s / 24 hours (2603.28823, https://arxiv.org/abs/2603.28823))
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2603.28823'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:45:00Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 140-run experimental baseline derived from 7 agents, 2 conditions, and
+    10 tasks
+  claim_id: c_383a3db3
+  context: The task MUST explicitly calculate the expected baseline as 7 agents *
+    2 conditions * 10 tasks = 140 and verify the denominator against this formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 7 agents * 2 conditions * 10 tasks = 140
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:45:22Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: Mistral-7B model used for Agent-Beta
+  claim_id: c_8ea56f10
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Beta (Mistral-7B, 4096, 0.7, Code generation)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mistral-7B_model_used_for_Agent-Beta
+  kind: entity_fact
+  raw_text: Mistral-7B
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:46:16Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B model used for Agent-Delta
+  claim_id: c_f374065f
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Delta (CodeLlama-7B, 4096, 0.7, Code execution)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama-7B_model_used_for_Agent-Delta
+  kind: entity_fact
+  raw_text: CodeLlama-7B
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:46:43Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: OpenChat-7B model used for Agent-Zeta
+  claim_id: c_5fbd99a5
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Zeta (OpenChat-7B, 4096, 0.7, Multi-turn dialogue)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenChat-7B_model_used_for_Agent-Zeta
+  kind: entity_fact
+  raw_text: OpenChat-7B
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:47:02Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: WizardLM-7B model used for Agent-Eta
+  claim_id: c_eebd48f0
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Eta (WizardLM-7B, 4096, 0.7, Complex reasoning).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WizardLM-7B_model_used_for_Agent-Eta
+  kind: entity_fact
+  raw_text: WizardLM-7B
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:47:20Z'

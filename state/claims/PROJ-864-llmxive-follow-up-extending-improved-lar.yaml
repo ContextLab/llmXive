@@ -3162,3 +3162,296 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T22:00:13Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: spec FR-001 token target is 10M
+  claim_id: c_3313b767
+  context: "Logic: 1. Parse `spec.md` to extract the token target from FR\u2011001\
+    \ (expected 10M). 2. Parse `plan.md` to extract the token target from the Summary\
+    \ (1M)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/resolve_strategy.py`\
+    \ to parse `spec.md` to extract the token target from FR\u2011001 (expected 10M)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:18:54Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: plan summary token target is 1M
+  claim_id: c_8706479e
+  context: "Logic: 1. Parse `spec.md` to extract the token target from FR\u2011001\
+    \ (expected 10M). 2. Parse `plan.md` to extract the token target from the Summary\
+    \ (1M)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_summary_token_target_is_1M
+  kind: entity_fact
+  raw_text: Parse `plan.md` to extract the token target from the Summary (1M).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:19:19Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: RAM calculation uses FP16 at 2 bytes per param and FP32 at 4 bytes per
+    param
+  claim_id: c_5ca3d7f5
+  context: Using fixed constants (FP16 = 2 bytes/param, FP32 = 4 bytes/param) and
+    a target RAM budget of 7 GB, compute the maximum feasible `d_model` and `num_layers`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The static RAM validator uses fixed constants of FP16 = 2 bytes/param
+    and FP32 = 4 bytes/param.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:20:45Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: RAM feasibility target budget is 7 GB
+  claim_id: c_0e047e6d
+  context: Using fixed constants (FP16 = 2 bytes/param, FP32 = 4 bytes/param) and
+    a target RAM budget of 7 GB, compute the maximum feasible `d_model` and `num_layers`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target RAM budget for the feasibility calculation is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:21:05Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size assumption is Cohen's d 0.5
+  claim_id: c_55c015ce
+  context: "using a simple effect\u2011size assumption (e.g., Cohen's d = 0.5) compute\
+    \ statistical power for the planned multiple seeds per group."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses a simple effect-size assumption of Cohen's d =
+    0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:23:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Power analysis pass threshold is 0.8
+  claim_id: c_57805a28
+  context: 'Write `data/artifacts/power_analysis.json` with `{ "status": "PASS", "power_value":
+    float, "effect_size_used": float, "required_seeds": int }`. Raise `FatalError`
+    if power < 0.8.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_pass_threshold_is_0.8
+  kind: magnitude
+  raw_text: The power analysis requires a statistical power of at least 0.8 to pass.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:24:35Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Corpus interleaving chunk size is 10000
+  claim_id: c_f2063a0e
+  context: "Interleave chunks round\u2011robin with `chunk_size=10 000`. Stop when\
+    \ cumulative token count reaches target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The micro-corpus interleaves chunks round-robin with a chunk size of 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:25:01Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Corpus token balance ratio must be within 10% of 50/50
+  claim_id: c_83e3dfde
+  context: Assert the ratio is within 10 % of 50/50; otherwise raise `RuntimeError`
+    with a clear message.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The corpus validation asserts the ratio of code-heavy to logical prose
+    tokens is within 10% of 50/50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:25:01Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Corpus token count must be within 1% of target
+  claim_id: c_dd60689d
+  context: "Ensure token count is within \xB11 % of `token_target`. If below [deferred]\
+    \ of target, halt with \"Insufficient Data\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The corpus validation ensures the token count is within \xB11% of the\
+    \ token target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:25:02Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Train test split ratio is 90/10
+  claim_id: c_86807bfd
+  context: Split `micro_corpus_full.jsonl` into train/test (90/10 split) ensuring
+    no overlapping sequences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data split uses a 90/10 ratio for train and test sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:25:29Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Data truncation limit is target plus 10000 tokens
+  claim_id: c_81cd4762
+  context: If total tokens exceed `token_target + 10 000`, truncate to that limit
+    and log to `truncation_log.json` with reason "Exceeded Target".
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total tokens exceed the target plus 10,000, the data is truncated to
+    that limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:26:01Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Training experiment uses 5 seeds
+  claim_id: c_3363568c
+  context: For each architecture (AR, MDM) and each seed (5 seeds), invoke `train_loop.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop is configured to run for 5 seeds per architecture.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:26:26Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: ANOVA requires minimum 3 seeds per group
+  claim_id: c_025f237b
+  context: "Run Mixed\u2011Model Repeated\u2011Measures ANOVA on `gap ~ model_type\
+    \ * epoch + (1|seed_id)` using `pingouin`. Require at least 3 seeds per group."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ANOVA_requires_minimum_3_seeds_per_group
+  kind: magnitude
+  raw_text: The ANOVA test requires at least 3 seeds per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:27:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Correlation threshold for generalization gap is 0.5
+  claim_id: c_88e7caf1
+  context: "include a boolean `threshold_met` indicating whether |r| \u2265 0.5 for\
+    \ each model."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_threshold_for_generalization_gap_is_0.5
+  kind: magnitude
+  raw_text: The correlation analysis checks if the absolute value of the Pearson correlation
+    coefficient r is greater than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:28:35Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit is 6.5 GB
+  claim_id: c_215879f9
+  context: 'Verify Peak RAM: `verify_ram.py` reads `training_logs.csv`, asserts max
+    RAM < 6.5 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_is_6.5_GB
+  kind: magnitude
+  raw_text: The peak RAM verification asserts maximum RAM usage is less than 6.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:29:12Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Dynamic batch size retry aborts below 4
+  claim_id: c_09b9046a
+  context: Extend `train_loop.py` to catch OOM, halve batch size, retry; abort if
+    batch size < 4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dynamic batch-size OOM handling retries with half the batch size and
+    aborts if the batch size drops below 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:29:29Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Timeout error raised after 6 hours
+  claim_id: c_62e58087
+  context: Implement `get_elapsed_time()` and `check_timeout()` in `utils/monitor.py`;
+    raise `TimeoutError` after 6 h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout monitor raises a TimeoutError after 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-12T21:29:48Z'
