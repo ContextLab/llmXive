@@ -1,3 +1,8 @@
+---
+
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Plant Root Architecture from Soil Nutrient Profiles
 
 **Input**: Design documents from `/specs/001-predict-root-architecture/`
@@ -36,7 +41,7 @@
 - [X] T001b [P] Implement `setup_dirs.py`: Create a Python script `code/setup_dirs.py` that calls `os.makedirs(path, exist_ok=True)` for each directory listed in T001a. This script is for documentation and future automation only.
 - [X] T001c [P] Create `code/requirements.txt` with pinned dependencies (scikit-learn, pandas, numpy, rasterio, geopandas, requests, pyyaml, pytest)
 - [ ] T001d [P] Create `.gitignore` for Python and data artifacts
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting tools
 
 ---
 
@@ -93,10 +98,8 @@
  1. Calculate match proportion = `count(valid_rows) / count(total_input_rows)` where valid rows are those with non-null soil data for all predictors.
  2. **Flag and exclude** individual rows with missing soil data (graceful degradation) as per Spec US-1 Acceptance Scenario 2.
  3. **Log excluded records** to `data/logs/record_exclusions.log` with columns `record_id`, `reason_code` (e.g., 'missing_soil_data', 'failed_geocoding', 'invalid_value').
- 4. **Calculate valid observations per species** for ALL species (including those < 10) and **WRITE** to `data/processed/species_counts.csv` **BEFORE** applying any filtering logic to the main dataset. The file MUST contain columns `species_name`, `valid_count`.
- 5. **Log validation summary** to `data/logs/validation_summary.log` with columns `timestamp`, `match_proportion`, `total_rows`, `valid_rows`, `excluded_rows`, `error_message`.
- 6. **Hard Stop Enforcement**: If match proportion < 0.90, **MUST** raise `DataQualityError` with the specific reason and halt execution. **Do NOT** log a warning and continue.
- 7. **Apply Filter**: Only after writing `species_counts.csv`, apply the filter to the main dataset to retain species with ≥10 observations.
+ 4. **Hard Stop Enforcement**: If match proportion < 0.90, **MUST** raise `DataQualityError` with the specific reason and halt execution. **Do NOT** log a warning and continue.
+ 5. **Apply Filter**: Only after writing `species_counts.csv`, apply the filter to the main dataset to retain species with ≥10 observations.
  **Dependency**: Runs after T014.
 
 - [ ] T017 [US1] Generate `data/processed/excluded_species_summary.csv` and `data/logs/species_exclusions.log`.
@@ -189,7 +192,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation, **sweep** p-value thresholds over {0.01, 0.05, 0.10}, and track top-3 feature stability to generate the stability table required by FR-005. **Input**: MUST consume `artifacts/feature_importance.csv` from T025a. **Action**: Append `p_value` column and generate the stability table. **Dependency**: **Depends on T025a completion**. Must run after T025b.
+- [X] T027 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation, **sweep** p-value thresholds over {0.01, 0.05, 0.10}, and track top-3 feature stability to generate the stability table required by FR-005. **Input**: MUST consume `artifacts/feature_importance.csv` from T025a. **Action**: Append `p_value` column and generate the stability table. **Dependency**: Must run after T025a.
 
 - [X] T028 [US3] Implement `code/modeling/sensitivity.py`: Aggregate the sweep results into the final stability table for the report. **Dependency**: Must run after T027.
 
@@ -208,7 +211,7 @@
 
 ---
 
-## Phase 1 (Supplement): Research & Documentation (MOVED TO PHASE 2)
+## Phase 0 (Supplement): Research & Documentation (MOVED TO PHASE 2)
 
 **Purpose**: Generate missing artifacts required by downstream tasks
 **Note**: T035 has been moved to Phase 2 to ensure it completes before T029.
@@ -339,3 +342,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Ordering**: T016 must precede T013. T012 must precede T012b. T012b must precede T014. T015 must precede T017. T020A must precede T020B. T020B must precede T020C. T020C must precede T021. T021 must precede T022. T022 must precede T023. T023 must precede T024. T024 must precede T025a. T025a must precede T025b. T025b must precede T027. T035 must precede T029 (hard dependency).
+
+- [ ] T300 Add task to address review concern: "Verify that the checksum verification process is robust and handles potential file corruption scenarios" (File: `code/ingestion/soil_data.py`).
+- [ ] T301 Add task to address review concern: "Document the rationale for choosing a specific number of iterations for the permutation tests." (File: `code/utils/stats.py`).
+- [ ] T302 Add task to address review concern: "Clarify the error handling strategy for cases where the SoilGrids API is unavailable or returns invalid data." (File: `code/ingestion/soil_data.py`).

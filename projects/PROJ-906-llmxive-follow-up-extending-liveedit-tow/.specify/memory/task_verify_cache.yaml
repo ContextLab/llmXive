@@ -1,12 +1,3 @@
-T009a:
-  c: false
-  h: 14b5027c8acef3a8e91505c9cd1e296fa8986295f988dc84876e44594134c4cf
-  r: "The provided `flow.py` raises errors on NaN/Inf values and on all\u2011invalid\
-    \ flow, while the unit tests expect graceful handling (return\u202F0.0 or ignore\
-    \ invalid entries). The test imports `data.flow`, but only `code/data/flow.py`\
-    \ exists, causing an import error. Moreover, the required output file `data/flow/magnitudes.json`\
-    \ is missing. The implementation does not satisfy the task\u2019s specifications\
-    \ or pass the tests."
 T013a:
   c: false
   h: 7ef88ad84643c596caace50ba16cd3f7c1214d09913f8ad769c8773f3ede1cc5
@@ -62,3 +53,34 @@ T027a:
     and `data/metrics/flow_results.json`) are missing. Implement the loader function
     (e.g., returning the two loaded lists) and ensure the module can be imported so
     the test can run and verify the FileNotFoundError behavior.
+T027b:
+  c: false
+  h: f25e6faa876170bb8554dbf7d85cf23a94b05e996447ae0627baca3fa859ff67
+  r: The code for merging exists, but the required input files (`data/metrics/baseline_results.json`,
+    `data/metrics/flow_results.json`) and the expected output file (`data/metrics/paired_metrics.json`)
+    are all missing, and the unit test file `tests/unit/test_stats_aggregator.py`
+    is absent, so the task cannot be verified as completed.
+T028:
+  c: false
+  h: fbdc23201772bfdd97cbea707873ed8a2ac47c6466994df2ffb24383ddf5d5e1
+  r: "The `compute_kolmogorov_smirnov_test` function in `code/analysis/stats.py` accepts\
+    \ a single `paired_data` argument, but the unit test calls it with two separate\
+    \ lists (`sample_baseline_records`, `sample_flow_records`). This signature mismatch\
+    \ will cause a TypeError, and the required output file `data/metrics/ks_test.json`\
+    \ does not exist. The implementation must be adjusted to match the test\u2019\
+    s API and actually write the JSON file."
+T030:
+  c: false
+  h: 6906a3010367a960bce288beeb7475d693db73372a2c34788f48511181ac0ee2
+  r: "The required output `data/metrics/sensitivity_analysis.json` does not exist,\
+    \ and the verification test `tests/unit/test_stats_sensitivity.py` is also missing.\
+    \ Consequently the sensitivity\u2011analysis script either was not implemented\
+    \ or cannot be exercised, so the task\u2019s requirements are not satisfied."
+T031a:
+  c: false
+  h: b909ed8a56e939eb507a95e485d95cdc57a51880706b5978836d25991d6aa301
+  r: The required `data/metrics/analysis_results.json` file is absent, and `code/analysis/reporter.py`
+    does not contain a function that creates this JSON with the keys `ks_test`, `pc_regression`,
+    and `sensitivity_analysis`. Consequently the unit test `test_json_summary_generation`
+    cannot succeed. The implementation must generate the analysis summary JSON with
+    the specified keys.
