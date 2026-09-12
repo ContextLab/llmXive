@@ -44,7 +44,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1103/physrevb.93.045417
   verified_at: '2026-07-15T12:11:38.545366Z'
-- artifact_hash: 9ade86e6fc603db8df94eca19595da0a7cfa55e99195d0ebeb32b50884b7816a
+- artifact_hash: b9d234bad383b8d008ed2754ce3b70986bdc3b946d7a7ab49a96013f9229c71d
   artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -54,4 +54,4 @@
   value: 10.1103/PhysRevB.93.045417
   verification_status: pending
   verified_against_url: https://doi.org/10.1103/physrevb.93.045417
-  verified_at: '2026-08-29T17:05:00.520306Z'
+  verified_at: '2026-09-12T19:40:49.820298Z'

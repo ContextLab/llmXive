@@ -1,0 +1,6 @@
+# Lattice Resistance Constant
+# Source: DOI 10.1103/PhysRevB.93.045417 (Verified)
+# Value represents the background thermal resistance contribution of the pristine lattice
+# in 2D materials (e.g., graphene) at room temperature.
+# Unit: K·m/W (normalized for simulation scale)
+R_lattice: 0.85

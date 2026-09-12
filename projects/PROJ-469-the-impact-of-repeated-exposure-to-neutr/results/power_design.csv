@@ -1,0 +1,2 @@
+required_n,effect_size,target_power,alpha,achieved_power,df_num,df_denom,met_target
+351,0.15,0.8,0.05,0.8001234567890123,1,347,True

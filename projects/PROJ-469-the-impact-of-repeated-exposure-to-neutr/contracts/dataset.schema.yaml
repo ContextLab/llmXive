@@ -1,103 +1,115 @@
-name: project_implicit_political_iat
-description: >-
-  Schema for the Project Implicit Political IAT dataset used in the study
-  "The Impact of Self-Reported Political News Exposure on Implicit Political Bias".
-  Defines required columns, data types, and validation logic for data ingestion.
 version: "1.0.0"
-
+description: >
+  Schema for the Project Implicit Political IAT dataset.
+  Defines required columns, data types, validation rules, and
+  constraints for the core analysis variables.
+source:
+  name: "Project Implicit Political IAT"
+  description: "Data from the Project Implicit website regarding political ideology and implicit bias."
+  fetch_task: "T038"
 columns:
   - name: IAT_D_score
     type: float
-    description: >-
-      The D-score measure of implicit bias from the Implicit Association Test.
-      Positive values indicate faster association of the first category with the
-      first attribute (e.g., Liberal+Good), negative values indicate the reverse.
-      Calculated using the improved D-algorithm.
+    description: >
+      The D-score metric for the political IAT.
+      Represents the strength of the implicit association.
+      Negative values indicate a preference for one group,
+      positive for the other, magnitude indicates strength.
+    constraints:
+      min: -2.0
+      max: 2.0
+      allow_nan: true
+      nan_policy: "impute"
     validation:
-      - min: -4.0
-        max: 4.0
-        message: "IAT_D_score must be within the plausible range [-4.0, 4.0]."
-      - not_null: true
-        message: "IAT_D_score cannot be null."
-
+      - "is_finite_or_nan"
+  
   - name: political_ideology
     type: float
-    description: >-
-      Self-reported political ideology on a continuous scale (typically 1-7).
-      1 = Very Liberal, 7 = Very Conservative. Used as a continuous predictor
-      in the primary interaction model.
+    description: >
+      Self-reported political ideology on a continuous scale.
+      Typically 1 (Very Liberal) to 7 (Very Conservative) or similar.
+      Higher values indicate more conservative ideology.
+    constraints:
+      min: 1.0
+      max: 7.0
+      allow_nan: true
+      nan_policy: "impute"
     validation:
-      - min: 1.0
-        max: 7.0
-        message: "political_ideology must be within the scale range [1.0, 7.0]."
-      - not_null: true
-        message: "political_ideology cannot be null."
+      - "is_finite_or_nan"
+      - "in_range(1.0, 7.0)"
 
   - name: news_exposure_freq
     type: float
-    description: >-
-      Frequency of political news exposure (self-reported).
-      Typically measured on a Likert scale (e.g., 1 = Never, 5 = Daily).
-      Used as the primary exposure variable.
+    description: >
+      Self-reported frequency of political news exposure.
+      Scale typically 1 (Never) to 7 (Very Often).
+      Higher values indicate more frequent exposure.
+    constraints:
+      min: 1.0
+      max: 7.0
+      allow_nan: true
+      nan_policy: "impute"
     validation:
-      - min: 1.0
-        max: 7.0
-        message: "news_exposure_freq must be within the plausible scale range [1.0, 7.0]."
-      - not_null: true
-        message: "news_exposure_freq cannot be null."
+      - "is_finite_or_nan"
+      - "in_range(1.0, 7.0)"
 
-  # Optional covariates often present in the raw data, validated if present
   - name: age
     type: float
     description: "Participant age in years."
+    constraints:
+      min: 18.0
+      max: 120.0
+      allow_nan: true
+      nan_policy: "impute"
     validation:
-      - min: 18.0
-        max: 120.0
-        message: "age must be between 18 and 120."
-      - not_null: false # Optional in primary analysis, but if present must be valid
+      - "is_finite_or_nan"
 
   - name: gender
     type: string
     description: "Self-reported gender."
+    constraints:
+      allowed_values: ["Male", "Female", "Non-binary", "Other", "Prefer not to answer"]
+      allow_nan: true
+      nan_policy: "drop"
     validation:
-      - allowed_values: ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
-        message: "gender must be one of the allowed categories."
+      - "is_valid_categorical"
 
   - name: education
     type: string
-    description: "Highest level of education completed."
+    description: "Self-reported education level."
+    constraints:
+      allowed_values: ["Less than high school", "High school graduate", "Some college", "Bachelor's degree", "Graduate degree"]
+      allow_nan: true
+      nan_policy: "drop"
     validation:
-      - allowed_values: ["High School", "Some College", "Bachelor's Degree", "Master's Degree", "Doctorate", "Professional Degree"]
-        message: "education must be one of the allowed categories."
+      - "is_valid_categorical"
 
-validation_logic:
-  description: >-
-    Rules to be applied when loading data to ensure integrity before analysis.
-  steps:
-    - name: check_required_columns
-      description: "Verify all columns marked 'required' in the analysis plan exist."
-      columns: ["IAT_D_score", "political_ideology", "news_exposure_freq"]
-      action: "raise ValueError"
+global_validations:
+  - name: "check_sample_size"
+    description: "Ensure the dataset has enough rows for analysis."
+    condition: "len(df) >= 30"
+    error_message: "Dataset has fewer than 30 rows. Power is insufficient for reliable analysis."
+    severity: "error"
 
-    - name: validate_ranges
-      description: "Ensure numeric columns fall within their defined min/max bounds."
-      action: "raise ValueError"
+  - name: "check_missingness_rate"
+    description: "Check if missingness in key variables exceeds 50%."
+    columns: ["IAT_D_score", "political_ideology", "news_exposure_freq"]
+    threshold: 0.50
+    error_message: "Missingness rate for key variables exceeds 50%. Imputation may not be reliable."
+    severity: "error"
 
-    - name: check_missingness
-      description: >-
-        Calculate missingness rate for each required column.
-        If any required column has > 50% missing values, halt processing.
-        (Imputation will handle lower rates of missingness).
-      threshold: 0.50
-      action: "raise ValueError"
+derived_columns:
+  - name: news_exposure_z
+    source: news_exposure_freq
+    transformation: "z_score"
+    description: "Z-scored news exposure frequency."
+  
+  - name: ideology_binary
+    source: political_ideology
+    transformation: "median_split"
+    description: "Binary ideology (0: Liberal, 1: Conservative) based on median split."
 
-    - name: type_coercion
-      description: "Ensure all numeric columns are cast to float64."
-      action: "warn and coerce"
-
-meta:
-  source: "Project Implicit Research Data"
-  license: "CC BY-NC-SA 4.0"
-  citation: >-
-    Nosek, B. A., et al. (2002). Project Implicit: The Implicit Association Test.
-    Retrieved from https://implicit.harvard.edu/implicit/
+metadata:
+  created_by: "T007"
+  created_date: "2023-10-27"
+  last_modified: "2023-10-27"

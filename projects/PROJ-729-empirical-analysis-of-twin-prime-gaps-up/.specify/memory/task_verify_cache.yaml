@@ -1,17 +1,3 @@
-T012:
-  c: false
-  h: 84ec6adbac6ab8b532afb6b2fa81baaed0242ad970c528b684c24e566dbd4389
-  r: "The `data/raw/twin_primes.csv` file does not exist, and the provided `code/generate_primes.py`\
-    \ is truncated (ends abruptly before writing any output), so it cannot produce\
-    \ the required CSV with the correct columns and values. The task\u2019s verification\
-    \ conditions are therefore unmet."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or console log showing the computation of the Hardy\u2011Littlewood\
-    \ expected twin\u2011prime count and the deviation percentage is present. The\
-    \ required artifact (evidence of the calculation and logged deviation) is missing,\
-    \ so the task is not satisfied."
 T015:
   c: false
   h: b912b4770988c3fa9be18b3493bf54103259988663983ea64e0e681ff677f143

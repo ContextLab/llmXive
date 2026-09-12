@@ -5,3 +5,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003a** — declared artifact(s) missing/empty/invalid: ruff.toml
 - **T004a** — No evidence of the required directories (e.g., `data/raw`, `src/metrics`, `tests/unit`, etc.) was provided; the claim lacks any artifact confirming the directory structure was created. The implementer must supply a listing or screenshot showing the full hierarchy.
 - **T004b** — No `.gitkeep` files or directory listings were provided as evidence, so we cannot verify that they have been added to all created directories. The required artifact is missing.
+- **T005a** — declared artifact(s) missing/empty/invalid: src/utils/load_lattice_constant.py, src/constants/lattice_resistance.yaml

@@ -1,32 +1,36 @@
 [lint]
-# Select error codes:
-# E: pycodestyle errors
-# F: Pyflakes
-# W: pycodestyle warnings
-select = ["E", "F", "W"]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "C9", # mccabe complexity
+    "ANN",# type annotations (optional strictness)
+]
+ignore = [
+    "E501", # line too long (handled by formatter/black)
+    "ANN101", # missing type annotation for self in method (optional)
+    "ANN102", # missing type annotation for self in method (optional)
+]
+# Per-file ignores for specific cases
+per-file-ignores = {
+    "__init__.py" = ["F401", "F403"], # Allow imports in __init__.py
+}
 
-# Ignore specific rules if necessary (none selected for now)
-ignore = []
+[lint.flake8-quotes]
+inline-quotes = "double"
+multiline-quotes = "double"
 
-# Allow unused variables that start with underscore (e.g., _unused)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.mccabe]
+max-complexity = 10
 
-# Maximum line length (matching black default)
-max-line-length = 88
+[lint.permissive]
+# Allow wildcard imports for specific modules if needed, though generally discouraged
+# extend-ignore = ["F403"]
 
 [format]
-# Quote style for strings
-quote-style = "double"
-
-# Indent style (spaces)
+line-length = 88
 indent-style = "space"
-
-# Skip magic trailing comma
-skip-magic-trailing-comma = false
-
-# Line ending (default to unix)
-line-ending = "lf"
-
-[lint.per-file-ignores]
-# Allow specific ignores for test files if needed
-"tests/**/*.py" = []
+quote-style = "double"

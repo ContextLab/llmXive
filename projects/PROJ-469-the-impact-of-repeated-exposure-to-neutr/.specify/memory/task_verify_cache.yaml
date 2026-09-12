@@ -7,11 +7,12 @@ T008:
     \ so the task is not satisfied."
 T014:
   c: false
-  h: 2ac8274479677becf09687ac24ce30da0b98d856463092176f0640e73c7ddac7
-  r: "The `code/preprocessing.py` file only contains placeholder functions that raise\
-    \ `NotImplementedError`, so MICE imputation, missingness\u2011rate checking, logging,\
-    \ and CSV output are not implemented. Additionally, the required output file `data/processed/imputed_data.csv`\
-    \ does not exist. The task requirements are therefore not met."
+  h: 7d8a23bdfdd44c8a39492b5ab0d2cb4df1e86ce304a029bab922be9d24b6798e
+  r: "The repository contains `code/preprocessing.py`, but the file is truncated and\
+    \ does not show any code that writes the imputed DataFrame to `data/processed/imputed_data.csv`.\
+    \ Moreover, the missingness\u2011>50% case logs an error and raises a `ValueError`\
+    \ rather than logging a warning as required. The expected output CSV is absent,\
+    \ so the task is not fully satisfied."
 T017a:
   c: false
   h: a4021f1409c53fb227ba8784727c956ed3ccdb2afb6d04b48d109db58416c6cd

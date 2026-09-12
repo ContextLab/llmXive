@@ -62,8 +62,8 @@
 - [ ] T007 Create `contracts/dataset.schema.yaml` defining columns `IAT_D_score`, `political_ideology`, `news_exposure_freq` and validation logic
 - [ ] T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console)
 - [X] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
-- [ ] T017a [P] **A Priori Power Analysis**: Create `code/power.py` to calculate the minimum sample size required to detect the interaction effect with power ≥ 0.80 at α = 0.05 using literature-based effect sizes. Output `results/power_design.csv` with `required_n` and `met_target` status. This task MUST complete before US1.
-- [ ] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified -->
+- [X] T017a [P] **A Priori Power Analysis**: Create `code/power.py` to calculate the minimum sample size required to detect the interaction effect with power ≥ 0.80 at α = 0.05 using literature-based effect sizes. Output `results/power_design.csv` with `required_n` and `met_target` status. This task MUST complete before US1.
+- [ ] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
