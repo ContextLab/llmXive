@@ -1,3 +1,8 @@
+---
+
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Assessing the Sensitivity of Common Statistical Tests to Dataset Size
 
 **Input**: Design documents from `/specs/001-assess-test-sensitivity/`
@@ -79,8 +84,6 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
 - [X] T008a [P] [US1] Define and write test cases for normal distribution generation in `tests/unit/test_data_generator.py`
 - [X] T008b [P] [US1] Define and write test cases for log-normal skewness validation in `tests/unit/test_data_generator.py`
 - [X] T008c [P] [US1] Define and write test cases for log-normal effect size validation in `tests/unit/test_data_generator.py`
@@ -114,6 +117,7 @@
 - [X] T017 [P] [US2] Integration test for adaptive replication loop termination in `tests/integration/test_simulation_loop.py`
 
 ### Implementation for User Story 2
+
 - [X] T018 [US2] Implement `code/simulation_engine.py` with the core Monte Carlo loop: data generation (calling T011), test execution (calling T019), and result classification. **Integration**: Must integrate Fisher's Exact switch (T019) and Adaptive Loop (T020-2) logic. The loop must call the data generator, execute the appropriate test, and pass results to the adaptive logic.
 - [X] T019 [US2] Implement test execution logic in `code/simulation_engine.py`:
  - T-test (scipy.stats.ttest_ind)
@@ -149,7 +153,7 @@
 - [ ] T026-0 [P] [US3] **Decouple CI Methods**: Implement a distinct function `compute_final_cis(outcomes)` in `code/analyzer.py` that applies **Bootstrap Resampling** to the raw binary outcomes for final reporting. **Constraint**: This function must be separate from the Bootstrap logic in T020 to ensure consistency. **Dependency**: T020 must be complete.
 - [ ] T026b [US3] Implement **stability measurement** in `code/analyzer.py`: Calculate the Type I error rate **for each sample size** (not a single aggregate variance). Perform a **trend analysis** (regression of error rate vs. sample size) to verify SC-002. **Output**: Write results to `data/processed/stability_trend.csv` and generate a plot of error rate vs. sample size.
 - [ ] T027 [US3] Implement regression analysis in `code/analyzer.py`: Fit GLM/Binomial regression to predict the magnitude of deviation from the nominal significance threshold using log(sample size), distribution, and test type. **Steps**: 1. Calculate McFadden pseudo-R² using formula `1 - (log-likelihood_model / log-likelihood_null)`. 2. Report regression coefficients (beta) and p-values. 3. **Verify if McFadden R² meets the SC-005 threshold (> 0.1)**. If the threshold is not met, the task MUST fail or log a critical warning. **Target Variable**: Explicitly model the magnitude of deviation |p - α|. **Note**: Apply `config.LOG_EPSILON` (a small positive constant) to p-values of exactly 0 or 1 *only during the log-transform calculation* (i.e., `log(p + config.LOG_EPSILON)`). Do not modify the stored raw data. **Deliverable**: A JSON file at `data/processed/regression_results.json` containing keys: `beta`, `p_value`, `mc_fadden_r_squared`.
-- [ ] T027c-1 [P] [US3] **Align Theoretical Power Parameters**: Retrieve ground-truth parameters (effect size, distribution type) from `config.py` and `data_generator.py` to ensure the theoretical power curve calculation uses the exact same assumptions as the simulation for **all test types**. **Deliverable**: A configuration object or dictionary mapping simulation parameters to theoretical calculation parameters.
+- [ ] T027c-1 [US3] Retrieve ground-truth parameters (effect size, distribution type) from `config.py` and `data_generator.py` to ensure the theoretical power curve calculation uses the exact same assumptions as the simulation for **all test types**. **Deliverable**: A configuration object or dictionary mapping simulation parameters to theoretical calculation parameters.
 - [ ] T027c-2 [US3] **Calculate Theoretical Power Curve (t-test)**: Implement the calculation of the theoretical power curve for the **t-test** based on the aligned parameters from T027c-1 (using `scipy.stats.nct` with non-centrality parameter `delta = effect_size * sqrt(n/)` and degrees of freedom `df = 2n - 2`) and compute the mean absolute error (MAE) between the observed power curve and the theoretical power curve. **Success Criterion**: {{claim:c_0417f106}} **Deliverable**: A report containing the MAE metric and a plot comparing observed vs. theoretical power curves for t-tests. **Dependency**: T027c-1 must be complete.
 - [ ] T027c-3 [US3] **Calculate Theoretical Power Curve (ANOVA)**: Implement the calculation of the theoretical power curve for **ANOVA** using `scipy.stats.ncf` with the appropriate non-centrality parameter (lambda) derived from the effect size and sample size, and compute the MAE. **Deliverable**: A report containing the MAE metric and a plot for ANOVA. **Dependency**: T027c-1 must be complete.
 - [ ] T027c-4 [US3] **Calculate Theoretical Power Curve (Chi-Squared)**: Implement the calculation of the theoretical power curve for **Chi-Squared** tests using `scipy.stats.nchisq` (or equivalent non-central chi-squared distribution) with the non-centrality parameter derived from the effect size and sample size, and compute the MAE. **Deliverable**: A report containing the MAE metric and a plot for Chi-Squared tests. **Dependency**: T027c-1 must be complete.
@@ -170,7 +174,7 @@
 - [X] T032b Refactor `code/analyzer.py` to separate aggregation logic from visualization logic
 - [ ] T033 [P] Performance verification: Create `code/benchmark.py` to measure the execution time of the full simulation suite. **Deliverable**: The script MUST write results to `logs/benchmark.log`. **Schema**: The log MUST contain a JSON structure with a key `total_runtime_seconds` and the value in seconds. **Verification**: Run the benchmark and confirm the total time is < 6 hours.
 - [X] T034 [P] Add final integration tests in `tests/integration/test_full_pipeline.py`
-- [ ] T036 [P] [Foundational] Implement a `code/checkpoint_manager.py` to save partial results after every periodic interval of replicates per configuration. **Rationale**: Mitigates the risk of losing progress on the 6-hour runner if the process is killed mid-batch. **Output**: Save intermediate state to `data/processed/checkpoints/` and implement a resume flag in `main.py`. **Note**: This is optional scope as per the spec's assumptions, but included for robustness.
+- [ ] T036 [P] Implement a `code/checkpoint_manager.py` to save partial results after every periodic interval of replicates per configuration. **Rationale**: Mitigates the risk of losing progress on the 6-hour runner if the process is killed mid-batch. **Output**: Save intermediate state to `data/processed/checkpoints/` and implement a resume flag in `main.py`. **Note**: This is optional scope as per the spec's assumptions.
 
 ---
 
@@ -264,20 +268,18 @@ With multiple developers:
 - **Critical Constraint**: All simulations must run on CPU-only (limited cores, constrained RAM). Do not use GPU or heavy model loading. Use `scipy` and `numpy` only.
 - **Data Integrity**: Do not fabricate data. All inputs must be generated via the `data_generator` with known ground truth.
 - **CI Method**: The adaptive replication loop (T020) uses **Bootstrap Resampling** for binary outcomes as per Plan.md and Constitution Principle VII. T026 and T026-0 use **Bootstrap Resampling** for final reporting. These methods are explicitly decoupled but consistent.
-- **Regression Data**: Raw p-values MUST be stored by T021b (unmodified) and consumed by T027. T027 applies a numerical stability epsilon (`config.LOG_EPSILON`) *only* during log-transform calculation, explicitly documenting this as a deviation from raw data for numerical stability.
-- **Execution Order**: Phase 4 tasks must be executed in the order: T017b -> T020-1 -> T020-2 -> T021b-0 -> T021b -> T021c -> T018 -> T022. T017b (Ground-Truth Validation) must run before T018. T021c includes a hard failure if the streaming pipeline is inactive.
+- **Regression Data**: Raw p-values MUST be stored by T021b (unmodified) and consumed by T027. T027 applies a numerical stability epsilon (`config.LOG_EPSILON`) *only during the log-transform calculation*, explicitly documenting this as a deviation from raw data for numerical stability.
+- **Execution Order**: Phase 4 tasks must be executed in the order: T017b -> T020-1 -> T020-2 -> T021b-0 -> T021b -> T021c -> T018 -> T022. T017b (Ground-Truth Validation) must run before T018. T022 is the orchestrator; its implementation requires the code of T018 to be present.
 - **Robustness**: T036 adds checkpointing to prevent total data loss on long-running simulations if the runner times out. Note: This is optional scope as per the spec's assumptions.
-- **Theoretical Power**: T027c-1 explicitly aligns parameters with ground-truth definitions. T027c-2 covers t-test, T027c-3 covers ANOVA, and T027c-4 covers Chi-squared. MAE is calculated for each.
-- **Validation**: T021c explicitly validates observed Type I error rates against theoretical alpha to satisfy SC-001, with a hard failure if the streaming pipeline is not active. T017b ensures ground-truth validation is a blocking gate.
-- **Logging**: T033 mandates specific log artifacts (`logs/benchmark.log` with JSON structure) to ensure executability.
-- **Task Granularity**: T020, T027, T027c are atomized into sub-tasks for independent testing and implementation.
-- **Parallel Safety**: T036 is moved to Phase 6 and marked [Foundational] to run before simulation.
-- **Convergence**: T020-2 ensures the final convergence decision uses Bootstrap, aligning with Plan.md. T026-0 ensures final reporting uses Bootstrap.
-- **Data Transformation**: T027 explicitly documents the epsilon transformation as a deviation from raw data for numerical stability, referencing `config.LOG_EPSILON`.
-- **Scope Creep**: T036 is noted as optional scope but included for robustness.
-- **Removed Tasks**: T035, T035-1 (mock runner) removed as scope creep. T020-1, T020-4 merged into T020-2 (now T020-1/T020-2). T027b removed (logic integrated into T027). T021 (original) merged into T021b logic.
 - **McFadden R²**: T027 explicitly calculates McFadden pseudo-R² and verifies against SC-005 threshold.
 - **Power Curves**: T027c-2, T027c-3, T027c-4 cover all three test types required by SC-004.
 - **UNSTABLE Flag**: T020-2 explicitly flags 'UNSTABLE' if MAX_REPLICATES is reached, ensuring deterministic handling of partial results.
 - **Streaming Enforcement**: T021c removes the fallback batch and enforces the streaming pipeline as a hard requirement.
 - **CI Method Alignment**: T020-1/T020-2 use Bootstrap Resampling, consistent with Plan.md and Constitution Principle VII.
+- **Data Transformation**: T027 explicitly documents the epsilon transformation as a deviation from raw data for numerical stability, referencing `config.LOG_EPSILON`.
+- **Scope Creep**: T035, T035-1 (mock runner) removed as scope creep. T020-1, T020-4 merged into T020-2 (now T020-1/T020-2). T021 (original) merged into T021b logic.
+- **Removed Tasks**: T027b removed (logic integrated into T027). T021 (original) merged into T021b logic.
+
+- [ ] T037 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #1 from `# Prior research-stage reviews`: "The regression model lacks an interaction term between sample size and distribution type. This may miss important effects." **Add an interaction term to the regression model.** **File**: `code/analyzer.py`. **Rationale**: Incorporate reviewer feedback to improve model accuracy.
+- [ ] T038 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #2 from `# Prior research-stage reviews`: "The visualization does not clearly show the 95% confidence intervals for the error rates." **Increase the line width and transparency of the confidence interval bands in the plot.** **File**: `code/visualizer.py`. **Rationale**: Improve the clarity of the visualization to better communicate uncertainty.
+- [ ] T039 [US3] **Prior Research-Stage Reviews**: Address reviewer concern #3 from `# Prior research-stage reviews`: "The code lacks sufficient comments explaining the purpose of each function and variable." **Add detailed comments to all functions and variables in `code/analyzer.py` and `code/visualizer.py`.** **File**: `code/analyzer.py`, `code/visualizer.py`. **Rationale**: Improve code readability and maintainability.
