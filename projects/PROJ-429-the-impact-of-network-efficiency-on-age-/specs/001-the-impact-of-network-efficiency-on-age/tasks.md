@@ -1,5 +1,8 @@
 ---
 
+description: "Task list template for feature implementation"
+---
+
 # Tasks: The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG
 
 **Input**: Design documents from `/specs/001-network-efficiency-aging/`  
@@ -27,8 +30,10 @@ Include exact file paths in descriptions.
 
 - [ ] T001 Create project structure per `plan.md` (code/, data/, state/, tests/, docs/)
 - [X] T002 Initialize Python 3.11 project with virtualenv and `requirements.txt` (MNE, NetworkX, SciPy, Pandas, Statsmodels, PyWavelets)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting tools
 - [ ] T042d [P] Create `contracts/dataset.schema.yaml` defining the schema for input data validation (columns: participant_id, age, cognitive_instrument, cognitive_score, signal_quality). **Dep**: T001.
+
+---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -73,7 +78,6 @@ Include exact file paths in descriptions.
   5. Calculate SNR per epoch; flag SNR < 10 dB.  
   **Dep**: T004.
 - [X] T043 [P] Implement chunked streaming in `code/data/preprocess.py` to process epochs in batches, keeping memory < 6 GB during ICA and filtering. **Dep**: T006.
-- [ ] T006_run [P] **Execute** `code/data/preprocess.py` to generate `data/processed/epochs/` and flags. **Verification**: Confirm no GPU devices are visible (SC‑001). **Dep**: T006, T005_run, T043.
 - [X] T007 [P] Implement `code/network/connectivity.py` for **Imaginary Coherence** calculation (Welch method on fixed‑duration epochs) to address volume conduction as per ratified Design Decision **T014b** (overrides FR‑003). **Dep**: T014b, T014c.
 - [ ] T007_run [P] **Execute** `code/network/connectivity.py` to generate `data/processed/connectivity_matrices/`. **Verification**: Confirm CPU‑only execution (SC‑001). **Dep**: T007, T006_run.
 - [X] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient, Modularity. **Formula Constraints**:  
@@ -90,9 +94,6 @@ Include exact file paths in descriptions.
 - [X] T047 [P] Validate streaming implementation with **T048** integration test (`tests/integration/test_streaming.py`) to ensure no data loss or corruption during streaming. **Dep**: T046.
 - [X] T048 [P] Integration test for chunked processing (`tests/integration/test_streaming.py`). **Dep**: T047.
 - [X] T049 [P] Update `docs/quickstart.md` to include instructions for enabling/disabling streaming mode based on available system resources.
-- [X] T050 [P] Add performance benchmarks (`tests/benchmark/test_streaming_performance.py`) to compare streaming vs. non‑streaming processing times and memory usage.
-
-**Checkpoint**: Foundation ready – user story implementation can now begin in parallel
 
 ## Phase 2.5: Power Analysis (Foundational)
 
@@ -171,7 +172,7 @@ Include exact file paths in descriptions.
 - [ ] T032 [US3] [Dep: T031_run] Create `regression_summary.json` containing a `warnings` array; if `power_analysis.json` shows `is_sufficient == false`, append *“Low Power for Cognitive Analysis”* to the array. **Dep**: T027_run.
 - [X] T033 [US3] [Dep: T008_run] Implement `code/viz/plots.py` to generate age‑stratified bar plots with confidence intervals. Always executes (EEG‑only viz).
 - [X] T056 [US3] [Dep: T008_run] Implement network‑topology visualizations (e.g., `plot_connectome` & `plot_topomap`) for each age group → `figures/topology_age_{group}.png`. **Dep**: T008_run.
-- [ ] T034 [US3] [Dep: T031_run, T032] Conditional: Generate regression table with coefficients, SE, p‑values, inject `trace_id`. **Dep**: T031_run, T032.
+- [ ] T034 [US3] [Dep: T031_run, T032] Conditional: Generate regression table with coefficients, standard errors, and p‑values, inject `trace_id`. **Dep**: T031_run, T032.
 - [ ] T035 [US3] [Dep: T034] Validate output schema (`outcome, predictor, coef, std_err, t_value, p_value, trace_id`) and data types. **Dep**: T034.
 - [ ] T036 [US3] [Dep: T020, T027, T029, T035, T032, T018c] Generate final summary report (`report/final_report.md`) aggregating data‑quality metrics, power analysis, FWER validation, low‑power warnings, and sensitivity summary.
 - [X] T054 [US2] [P] Implement a visualization to display correlation coefficients between network metrics and Age/Cognitive score with confidence intervals → `figures/correlation_heatmap.png`.
