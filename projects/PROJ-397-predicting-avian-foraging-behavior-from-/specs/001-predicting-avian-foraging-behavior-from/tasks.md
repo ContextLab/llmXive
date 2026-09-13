@@ -1,5 +1,4 @@
 ---
-
 description: "Task list template for feature implementation"
 ---
 
@@ -186,7 +185,6 @@ description: "Task list template for feature implementation"
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **T043, T044, T045, T028 are parallel to each other after T042 completes.**
 
 ---
 
