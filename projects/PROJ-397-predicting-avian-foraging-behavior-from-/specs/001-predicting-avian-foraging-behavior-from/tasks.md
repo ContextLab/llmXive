@@ -199,7 +199,7 @@ description: "Task list template for feature implementation"
 - **Team A** finishes Setup + Foundational.  
 - **Team B** works on US 1.  
 - **Team C** works on US 2 (once US 1 data exists).  
-- **Team D** works on US 3 (once the model from US 2 is available).  
+- **Team D** works on US 3 (once the model from US 2 is available).
 
 ---
 
@@ -212,6 +212,13 @@ description: "Task list template for feature implementation"
 - `merge_and_buffer.py` must output **individual land‑cover proportion columns** (not a single aggregated column) to satisfy schema validation.  
 - `run_pipeline.sh` (T007.5b) must **fail loudly** if any step raises; no silent fallbacks.  
 - `utils/measure_pipeline.py` (T035) must enforce the **< 6 h runtime** and **< 7 GB peak memory** limits.  
-- All provenance metadata (source URLs, versions, extraction dates) must be recorded in `data/metadata.yaml` and carried forward into output files to satisfy Constitution Principle VI.  
+- All provenance metadata (source URLs, versions, extraction dates) must be recorded in `data/metadata.yaml` and carried forward into output files to satisfy Constitution Principle VI.
 
 ---
+- [ ] T050 [P] [US1] Add a task to verify the download of the EBD file by checking its size against a known expected value.
+- [ ] T051 [P] [US1] Implement a data quality check in `data/filter_and_log.py` to identify and log any missing or invalid coordinate values (latitude/longitude) in the EBD data.
+- [ ] T052 [US1] Implement a unit test for the `merge_and_buffer.py` script to verify that the land cover proportions sum to 1 for each observation.
+- [ ] T053 [US2] [P] Add a task to perform hyperparameter tuning for the Random Forest classifier using cross-validation and a grid search to optimize performance.
+- [ ] T054 [US2] Implement a test to verify that the stratified permutation test is correctly implemented by comparing its results to a known baseline or a simplified simulation.
+- [ ] T055 [US3] [P] Implement a task to generate a map showing the spatial distribution of the top species by observation count, highlighting areas with high foraging habitat suitability.
+- [ ] T056 [US3] Implement a task to create an interactive dashboard that allows users to explore the feature importance rankings and visualize the relationship between land cover types and foraging guilds.
