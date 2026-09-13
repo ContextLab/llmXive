@@ -61,7 +61,7 @@
 - [X] T005 [P] Implement checksum utility in `src/utils/checksums.py` to generate SHA-256 hashes for data artifacts and manage `data/checksums.json`
 - [X] T006 [P] Create base abstract agent class in `src/agents/base_agent.py` defining the interface for rule-set management and evaluation
 - [X] T007 [P] Implement CLI skeleton in `src/cli.py` (entry point only, no logic) to establish command structure
-- [ ] T008 [P] Implement schema validators in `tests/contract/` based on existing contracts (`contracts/`) to validate `dataset`, `agent_state`, and `result` JSON structures
+- [X] T008 [P] Implement schema validators in `tests/contract/` based on existing contracts (`contracts/`) to validate `dataset`, `agent_state`, and `result` JSON structures
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -246,3 +246,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained memory.. No GPU, no 8-bit quantization, no large model loading. Use `sympy`, `networkx`, and `scipy` exclusively.
+
+- [ ] T039a [US1] Implement retry logic with bounded attempts for the logic and grid generators in cases of failure (e.g., invalid proof) and log warnings for failed instances, ensuring the overall run continues.
+- [ ] T039b [US3] Add unit tests to `src/analysis/statistical_tests.py` to verify the correct application of the Mixed-Design ANOVA and Tukey tests with simulated data to ensure statistical validity, covering both cases where there's a significant difference between conditions and where there is not.

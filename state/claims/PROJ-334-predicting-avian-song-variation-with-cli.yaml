@@ -1,0 +1,141 @@
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Python dependencies
+  claim_id: c_140f571d
+  context: 'Initialize Python project with dependencies: pandas, numpy, scikit-learn,
+    statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas,
+    pyproj'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_dependencies
+  kind: entity_fact
+  raw_text: 'Initialize Python project with dependencies: pandas, numpy, scikit-learn,
+    statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas,
+    pyproj'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T05:24:58Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Configuration loader creation
+  claim_id: c_59afdfd8
+  context: Create base configuration loader for environment variables and paths
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configuration_loader_creation
+  kind: entity_fact
+  raw_text: Create base configuration loader for environment variables and paths
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T05:42:09Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Schema validation utilities implementation
+  claim_id: c_1b610a33
+  context: Implement schema validation utilities for `SongRecord`, `ClimateSnapshot`,
+    and `AnalysisDataset`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_validation_utilities_implementation
+  kind: entity_fact
+  raw_text: Implement schema validation utilities for `SongRecord`, `ClimateSnapshot`,
+    and `AnalysisDataset`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T05:59:44Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Coordinate reprojection logic
+  claim_id: c_cd5ea90f
+  context: Implement coordinate reprojection logic to handle WGS84/NAD83 conversions
+    for spatial joins
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coordinate_reprojection_logic
+  kind: entity_fact
+  raw_text: Implement coordinate reprojection logic to handle WGS84/NAD83 conversions
+    for spatial joins
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T06:17:11Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Data source contracts
+  claim_id: c_680a6351
+  context: Create data source contracts defining Xeno-Canto and WorldClim v2.1 URLs,
+    sample paths, and version pinning logic
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create data source contracts defining Xeno-Canto and WorldClim v2.1 URLs,
+    sample paths, and version pinning logic
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T06:17:11Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: 10km spatial join
+  claim_id: c_2440cd42
+  context: Implement spatial join logic to merge `SongRecord` and `ClimateSnapshot`
+    by performing a spatial join within a 10km radius of coordinates and applying
+    species-range mapping (since WorldClim lacks species_id)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P910: Category:Statutory instrument'
+      source_id: Q2795484
+      url: https://www.wikidata.org/wiki/Q2795484
+      value: '10'
+    filled: true
+  kind: entity_fact
+  raw_text: Implement spatial join logic to merge `SongRecord` and `ClimateSnapshot`
+    by performing a spatial join within a 10km radius of coordinates
+  resolved_value: '10'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T06:31:49Z'
+- artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
+  attempts: 1
+  canonical: Match rate and duplicate verification
+  claim_id: c_c092a199
+  context: Calculate and log match rate (matched/total) and verify no duplicates
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Match_rate_and_duplicate_verification
+  kind: entity_fact
+  raw_text: Calculate and log match rate (matched/total) and verify no duplicates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T06:49:49Z'

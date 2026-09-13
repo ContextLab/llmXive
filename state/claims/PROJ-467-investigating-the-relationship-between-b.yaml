@@ -577,3 +577,152 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T18:58:21Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: random seed 42
+  claim_id: c_28d74741
+  context: 'Implement `src/brainnet/utils.py`: Seed handling (`np.random.seed(42)`),
+    logging setup, and memory profiling decorators'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seed handling (`np.random.seed(42)`), and memory profiling decorators
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T07:35:28Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: band-pass filtering 0.01-0.1 Hz
+  claim_id: c_d2518fa8
+  context: "Implement `src/brainnet/preprocessing.py`: Motion correction, band-pass\
+    \ filtering (0.01\u20130.1 Hz), and MNI152 normalization using `nilearn`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "band-pass filtering (0.01\u20130.1 Hz)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T07:53:07Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas scale 200
+  claim_id: c_9993a08b
+  context: 'Implement `src/brainnet/preprocessing.py`: ROI extraction using Schaefer-200
+    atlas (scale=200)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Schaefer-200 atlas (scale=200)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T08:09:25Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: "HCP dataset size 1200\xB150"
+  claim_id: c_e236ecee
+  context: "Validate subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "expected N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T08:25:50Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_85a38475
+  context: 'Implement `src/brainnet/data_loader.py`: Function to load tactile instrument
+    metadata and cite cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+    per FR-007'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: tactile instrument metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T08:25:52Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: correlation threshold 0.2
+  claim_id: c_8476c748
+  context: "Implement `src/brainnet/static_metrics.py`: Graph construction with absolute\
+    \ correlation threshold \u22650.2; compute Modularity Q (Louvain) and Segregation\
+    \ Index"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Graph construction with absolute correlation threshold \u22650.2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T08:25:52Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: sliding window 60s length 30s step
+  claim_id: c_c4309f7c
+  context: 'Implement `src/brainnet/dynamic_metrics.py`: Sliding-window logic (length=60s,
+    step=30s) using Numba or efficient NumPy loops'
+  evidence:
+    entailment_evidence: Sliding window 60s length 30s step
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sliding_window_60s_length_30s_step
+  kind: entity_fact
+  raw_text: sliding-window logic (length=60s, step=30s)
+  resolved_value: sliding window 60s length 30s step
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T08:25:56Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: peak RAM 6.5GB
+  claim_id: c_210016c6
+  context: "Implement memory profiling in `src/brainnet/dynamic_metrics.py` to ensure\
+    \ peak RAM <6.5GB; log scaling behavior (O(n\xB2))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: peak RAM <6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T08:25:56Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PCA variance 90%
+  claim_id: c_8af64d63
+  context: "perform PCA retaining \u226590% variance"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "PCA retaining \u226590% variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T08:25:56Z'

@@ -59,8 +59,8 @@
 
 - [X] T006 [P] Implement `src/brainnet/utils.py`: Seed handling (`np.random.seed(42)`), logging setup, and memory profiling decorators
 - [ ] T007 [P] Create `contracts/raw_dataset.schema.yaml` and `contracts/network_metric.schema.yaml` per `data-model.md`
-- [ ] T008 [P] Implement `src/brainnet/preprocessing.py`: Motion correction, band-pass filtering (0.01–0.1 Hz), and MNI152 normalization using `nilearn`
-- [ ] T009 [P] Implement `src/brainnet/preprocessing.py`: ROI extraction using Schaefer-200 atlas (scale=200)
+- [ ] T008 [P] Implement `src/brainnet/preprocessing.py`: Motion correction, band-pass filtering (0.01–0.1 Hz) [UNRESOLVED-CLAIM: c_d2518fa8 — status=not_enough_info], and MNI152 normalization using `nilearn`
+- [ ] T009 [P] Implement `src/brainnet/preprocessing.py`: ROI extraction using Schaefer-200 atlas (scale=200) [UNRESOLVED-CLAIM: c_9993a08b — status=not_enough_info]
 - [ ] T010 [P] Create `src/brainnet/__init__.py` exposing `run_all`, `validate`, and `analyze` entry points
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -84,7 +84,7 @@
 
 - [ ] T013 [P] [US1] Implement `src/brainnet/data_loader.py`: Function to download HCP via `datasets.load_dataset` from verified HF URL
 - [ ] T014 [US1] Implement `src/brainnet/data_loader.py`: Function `validate_tactile_presence()` that checks for `tactile_score` column. **If missing**: HALT analysis and output exact error message: `Dataset validation failed: Standard HCP Young Adult dataset does NOT include tactile discrimination measures. Resolution required before proceeding: (1) Switch to an alternative dataset that contains both fMRI and tactile measures (e.g., ABCD Study, a large sample of subjects, validated tactile instrument per FR‑013), OR (2) Add tactile measurement protocol to a custom study (2‑point discrimination threshold, n ≥ 50 subjects, validated instrument per FR‑007). Analysis cannot proceed without both data modalities.`
-- [ ] T015 [US1] Implement `src/brainnet/data_loader.py`: Function `validate_completeness()` to compute missing value rates. Validates subject count matches the selected dataset documentation (expected N≈1200±50 for HCP or N≈1000±100 for alternative/custom). Generates `data/processed/subject_count_validation.json` or halts with specific error if mismatch.
+- [ ] T015 [US1] Implement `src/brainnet/data_loader.py`: Function `validate_completeness()` to compute missing value rates. Validates subject count matches the selected dataset documentation (expected N≈1200±50 for HCP or N≈1000±100 for alternative/custom [UNRESOLVED-CLAIM: c_e236ecee — status=not_enough_info]). Generates `data/processed/subject_count_validation.json` or halts with specific error if mismatch.
 - [ ] T016 [US1] Implement `src/brainnet/data_loader.py`: Function to load tactile instrument metadata and cite cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) per FR-007
 - [ ] T018 [US1] Generate `data/processed/completeness_report.json` with subject counts, missing rates, and validation status
 
@@ -101,11 +101,11 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [P] [US2] Implement `src/brainnet/static_metrics.py`: Compute Pearson correlation matrix (200x200) from ROI time series
-- [ ] T022 [US2] Implement `src/brainnet/static_metrics.py`: Graph construction with absolute correlation threshold ≥0.2; compute Modularity Q (Louvain) and Segregation Index
+- [ ] T022 [US2] Implement `src/brainnet/static_metrics.py`: Graph construction with absolute correlation threshold ≥0.2 [UNRESOLVED-CLAIM: c_8476c748 — status=not_enough_info]; compute Modularity Q (Louvain) and Segregation Index
 - [ ] T023 [P] [US2] Implement `src/brainnet/dynamic_metrics.py`: Sliding-window logic (length=60s, step=30s) using Numba or efficient NumPy loops
 - [ ] T024 [US2] Implement `src/brainnet/dynamic_metrics.py`: Compute dynamic modularity time-series (Louvain per window)
 - [ ] T025 [US2] Implement `src/brainnet/dynamic_metrics.py`: Compute Flexibility metric (count of community changes per node across windows) per research.md
-- [ ] T026 [US2] Implement memory profiling in `src/brainnet/dynamic_metrics.py` to ensure peak RAM <6.5GB; log scaling behavior (O(n²))
+- [ ] T026 [US2] Implement memory profiling in `src/brainnet/dynamic_metrics.py` to ensure peak RAM <6.5GB [UNRESOLVED-CLAIM: c_210016c6 — status=not_enough_info]; log scaling behavior (O(n²))
 - [ ] T027 [US2] Save static metrics to `data/processed/static_metrics.parquet` and dynamic series to `data/processed/dynamic_metrics.npz`
 - [ ] T028 [US2] Generate `metadata/static_metrics.json` and `metadata/dynamic_metrics.json` with parameters (window length, threshold, atlas)
 
@@ -122,7 +122,7 @@
 - [ ] T029c [Diag] Implement `src/brainnet/analysis.py`: Implement re-computation loop: remove the identified predictor and recompute VIFs for the remaining set. Repeat until VIF ≤ 5.0 or no predictors remain.
 - [ ] T029d [Diag] Implement `src/brainnet/analysis.py`: Benchmark Convergence validation: compare computed network metrics against known benchmark values (generated by T029e) to satisfy SC-002.
 - [ ] T029e [Diag] Implement `src/brainnet/analysis.py`: Generate benchmark values: Create a small synthetic dataset or load pre-computed benchmark values for connectivity metrics to validate convergence (SC-002).
-- [ ] T029f [Diag] Implement `src/brainnet/analysis.py`: PCA fallback trigger: if VIF > 5.0 persists after removal, perform PCA retaining ≥90% variance; save `data/processed/pca_components.parquet` and flag analysis.
+- [ ] T029f [Diag] Implement `src/brainnet/analysis.py`: PCA fallback trigger: if VIF > 5.0 persists after removal, perform PCA retaining ≥90% variance [UNRESOLVED-CLAIM: c_8af64d63 — status=not_enough_info]; save `data/processed/pca_components.parquet` and flag analysis.
 
 **Checkpoint**: Diagnostics complete; ready for Phase 5.
 

@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the specified directories (`src/brainnet`,
-    `tests/unit`, `tests/contract`, `data/processed`, `data/raw`, `results/figures`,
-    `metadata`, `contracts`) actually exist in the project. Without a directory listing,
-    screenshots, or other proof, we cannot confirm the required project structure
-    was created. The implementer must supply concrete proof (e.g., a tree listing
-    or file system snapshot) that these folders are present.
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
