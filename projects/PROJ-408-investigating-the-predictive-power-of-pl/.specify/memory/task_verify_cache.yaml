@@ -33,13 +33,11 @@ T032:
     \ the deliverable specified in the task is missing."
 T039:
   c: false
-  h: 2080aad4936b6aaee6c83614fdaab407c8b61ab87c2ee907fbc09ada7a3b8ce8
-  r: The `code/data_loader.py` contains a `_validate_species_mapping` function that
-    performs the required 1:1 checks, but the essential `data/raw/species_list.txt`
-    file is absent, so the validation cannot actually be run. Additionally, the snippet
-    does not show the function being called before any data fetches, leaving the integration
-    unverified. The missing species list file must be provided and the validation
-    invoked in the pipeline for the task to be complete.
+  h: 9f64abeb2be2d130d5246f115e609dd1008d6179831fe42abb18503ab23818d9
+  r: "The required `data/raw/species_list.txt` file is absent, so the code cannot\
+    \ perform the mandated validation. Moreover, `code/data_loader.py` only checks\
+    \ that each entry has non\u2011empty NCBI and KEGG fields; it does not enforce\
+    \ a unique 1:1 mapping or detect ambiguous/missing IDs, contrary to the task specification."
 T042:
   c: false
   h: f9a57b11379b0b656e877352f1d1bb48f675ed2fe9e67be22071a81da002fa51

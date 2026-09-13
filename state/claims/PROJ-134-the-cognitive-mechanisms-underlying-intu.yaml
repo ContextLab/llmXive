@@ -11206,3 +11206,141 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T02:33:03Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Real data source connection error
+  claim_id: c_7a5a4139
+  context: The logger MUST raise an exception (e.g., ConnectionError) if a real data
+    source is unreachable, ensuring "fail loudly" behavior is captured and propagated.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_data_source_connection_error
+  kind: entity_fact
+  raw_text: the system MUST raise a ConnectionError if a real data source is unreachable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T16:59:12Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: VR log missing error
+  claim_id: c_d0d65d2b
+  context: "1. If `DATA_MODE='real'`, verify real MFQ and Moral Stories sources (T075-Real)\
+    \ are available.\n 2. **CRITICAL**: If `DATA_MODE='real'` but VR logs are missing\
+    \ (as per Plan), **DO NOT** fail. Instead, log the Formal Deviation and **allow\
+    \ the simulation path (T013/T014) to proceed**."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VR_log_missing_error
+  kind: entity_fact
+  raw_text: If `DATA_MODE='real'` but VR logs are missing, the system MUST raise a
+    ConnectionError
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T17:16:44Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: HF/OSF fetch error
+  claim_id: c_f9cdbc9c
+  context: 'Constraint**: If `DATA_MODE=''real''` and the OSF or HuggingFace fetch
+    fails, the script MUST raise a `ConnectionError` and **NEVER** fall back to synthetic
+    data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HF/OSF_fetch_error
+  kind: entity_fact
+  raw_text: If `DATA_MODE='real'` and the OSF/HF fetch fails, the script MUST raise
+    a ConnectionError
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T17:33:39Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Model comparison report fields
+  claim_id: c_855e67b9
+  context: 'Deliverable**: A script that reads `data/results/baseline_aic.json` (from
+    T024-Comparison) and `data/results/bayesian_aic.json` (from T023-Sampling). **Constraint**:
+    Must raise `ValueError` if model fails to converge. **Requirement**: The script
+    MUST write a unified JSON report `data/results/model_comparison.json` containing
+    `delta_aic`, `waic`, `ppc_p_value`, and a `comparison_summary` field that explicitly
+    links the PPC results to the LMM comparison.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_comparison_report_fields
+  kind: entity_fact
+  raw_text: The script MUST write a unified JSON report `data/results/model_comparison.json`
+    containing `delta_aic`, `waic`, `ppc_p_value`, and a `comparison_summary` field
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T17:50:41Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Simulation mode logging
+  claim_id: c_1a0504f7
+  context: "1. If `DATA_MODE='real'`, verify real MFQ and Moral Stories sources (T075-Real)\
+    \ are available.\n 2. **CRITICAL**: If `DATA_MODE='real'` but VR logs are missing\
+    \ (as per Plan), **DO NOT** fail. Instead, log the Formal Deviation and **allow\
+    \ the simulation path (T013/T014) to proceed**."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_mode_logging
+  kind: entity_fact
+  raw_text: If `DATA_MODE='simulation'`, log the deviation and allow simulation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T18:07:38Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PPC p-value threshold
+  claim_id: c_e03556aa
+  context: 'Deliverable**: A function `run_ppc(model)` that generates posterior predictive
+    samples using `pm.sample_posterior_predictive`, compares distribution of simulated
+    data vs observed data using KS-test, and writes p-value to `data/results/ppc.json`.
+    **Constraint**: Must fail if p-value < 0.05 (indicates poor fit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If p-value < 0.05 (indicates poor fit).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T18:07:40Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Model robustness criteria
+  claim_id: c_00f2abcf
+  context: 'Deliverable**: A script that reads the three artifacts and outputs `data/results/robustness_summary.json`.
+    **Logic**: If Parameter Recovery coverage > 95% AND Sensitivity stability metric
+    < 0.1, then the model is robust.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Parameter Recovery coverage > 95% AND Sensitivity stability metric
+    < 0.1, then the model is robust.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T18:07:42Z'

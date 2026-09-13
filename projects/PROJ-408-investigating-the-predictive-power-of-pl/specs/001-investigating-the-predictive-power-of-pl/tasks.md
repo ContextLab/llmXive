@@ -30,9 +30,9 @@
 
 - [X] T002 [P] Initialize Python project with pinned Python dependencies in `requirements.txt` (biopython, scikit-bio, scipy, pandas, numpy, ete3, requests, lxml, matplotlib, seaborn, pytest). **Note**: System binaries `mafft` and `fasttree` are NOT included here; see T002a.
 
-- [X] T002a [P] Install system binaries `mafft` and `fasttree` on the runner via `apt-get install mafft fasttree`. **Constraint**: Must verify binaries are in PATH by running `mafft --version` and `FastTree --version` before proceeding. If `fasttree` is not found, attempt `apt-get install fasttree-mt` or build from source if the package is unavailable.
+- [X] T002a [P] Install system binaries `mafft` and `fasttree` on the runner via `apt-get install mafft fasttree`. **Constraint**: Must verify binaries are in PATH by running `mafft --version` and `FastTree --version` before proceeding. [UNRESOLVED-CLAIM: c_9e628246 — status=not_enough_info] If `fasttree` is not found, attempt `apt-get install fasttree-mt` or build from source if the package is unavailable.
 
-- [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools. **Constraint**: Must enforce specific error codes `F401` (unused import) and `ANN001` (missing type hint) via `ruff.toml` or `pyproject.toml`.
+- [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools. **Constraint**: {{claim:c_f23160f3}}
 
 ---
 
@@ -52,7 +52,7 @@
 
 - [X] T008 [P] Implement environment variable validation in `code/validate_env.py`. **Constraint**: Must raise `ValueError` with specific message if required variables (API keys, paths) are missing; no silent fallbacks to synthetic data.
 
-- [X] T009 [P] [US1] Generate `data/raw/species_list.txt` containing the target list of plant species with valid NCBI Taxonomy IDs and KEGG organism codes. **Source**: Run `scripts/fetch_species_list.py` which queries a verified public source (e.g., a curated list from a published paper or a specific KEGG/NCBI query script) to populate this file. **Constraint**: This file MUST exist before T020a runs. **Format**: One species per line, `NCBI_ID\tKEGG_CODE\tScientificName`. **Threshold**: Target list must support at least 80% retention.
+- [X] T009 [P] [US1] Generate `data/raw/species_list.txt` containing the target list of plant species with valid NCBI Taxonomy IDs and KEGG organism codes. **Source**: Run `scripts/fetch_species_list.py` which queries a verified public source (e.g., a curated list from a published paper or a specific KEGG/NCBI query script) to populate this file. **Constraint**: This file MUST exist before T020a runs. **Format**: One species per line, `NCBI_ID\tKEGG_CODE\tScientificName`. **Threshold**: {{claim:c_632fb54d}}
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,7 +66,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must read `data/raw/species_list.txt` (from T009) to calculate 'Total Target'. **Pre-condition**: Must verify `data/raw/species_list.txt` exists before proceeding; if missing, raise `FileNotFoundError`. Must distinguish between 'total data loss' (>20% species missing BOTH sequence AND metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning). **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total Target. **Threshold**: Halt if >20%.
+- [X] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must read `data/raw/species_list.txt` (from T009) to calculate 'Total Target'. **Pre-condition**: Must verify `data/raw/species_list.txt` exists before proceeding; if missing, raise `FileNotFoundError`. Must distinguish between 'total data loss' (>20% species missing BOTH sequence AND metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning). **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total Target. [UNRESOLVED-CLAIM: c_ed7d204a — status=not_enough_info] **Threshold**: Halt if >20%. [UNRESOLVED-CLAIM: c_ddad7ffb — status=not_enough_info]
 
 - [X] T013a [P] [US1] Create a stub function `fetch_species_data` in `code/data_loader.py` that raises `NotImplementedError`. **Constraint**: This task establishes the interface for T013b. **Signature**: `def fetch_species_data(species_id: str, loci: list) -> dict`.
 
@@ -78,11 +78,11 @@
 
 - [X] T014 [US1] Implement `code/data_loader.py`: KEGG COMPOUND/BRITE fetcher for secondary metabolite presence/absence. **Constraint**: Must handle species with no KEGG entry by excluding from matrix but flagging in log (do not halt).
 
-- [X] T021 [P] [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml` `artifact_hashes.data_raw` map with checksums (primary source of truth); local `checksums.txt` is secondary only. **Path**: `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml`. **Order**: Must execute immediately after T013b and T014.
+- [X] T021 [P] [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml` `artifact_hashes.data_raw` map with checksums [UNRESOLVED-CLAIM: c_77d1e3b8 — status=not_enough_info] (primary source of truth); local `checksums.txt` is secondary only. **Path**: `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml`. **Order**: Must execute immediately after T013b and T014.
 
 - [X] T015a [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence concatenation. **Input**: Individual FASTA files from T013b. **Output**: Single concatenated FASTA per species.
 
-- [X] T015b [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence alignment using the `mafft` binary (via subprocess). **Input**: Concatenated FASTA from a designated sample. **Output**: Aligned FASTA. **Constraint**: Must use `mafft` binary with `--thread` flags; no alternative aligners.
+- [X] T015b [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence alignment using the `mafft` binary (via subprocess). **Input**: Concatenated FASTA from a designated sample. **Output**: Aligned FASTA. **Constraint**: Must use `mafft` binary with `--thread` flags [UNRESOLVED-CLAIM: c_063eb406 — status=not_enough_info]; no alternative aligners.
 
 - [X] T016a [US1] Implement `code/phylo_pipeline.py`: Prepare alignment for FastTree (formatting, trimming if needed). **Input**: Aligned FASTA from T015b.
 
@@ -152,7 +152,7 @@
 
 - [X] T032 [US3] Implement `code/main.py`/`code/report.py`: Text summary generator. **Dependencies**: T019 (Mantel stats), T017 (Distance Matrix), T026 (Partial Mantel results). **Logic**: Read `data/processed/mantel_results.json` and `data/processed/partial_mantel_results.json`, extract r/p-values, calculate ratio (partial r / standard r), and write to `output/reports/analysis_summary.txt`. **Deliverables**: Must include headline r, p-value, partial r, and the comparative ratio to assess robustness per SC-002.
 
-- [X] T033 [US3] Ensure all figures meet high-resolution standards (DPI ≥ 300). **Constraint**: Must save as PNG with `dpi=300` parameter.
+- [X] T033 [US3] Ensure all figures meet high-resolution standards (DPI ≥ 300). **Constraint**: {{claim:c_3384731e}} (Wikipedia: Image scanner, https://en.wikipedia.org/wiki/Image_scanner)
 
 **Checkpoint**: All user stories have code paths; final validation pending T019/T026 completion.
 
