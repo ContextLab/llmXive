@@ -44,3 +44,44 @@ T019:
     \ unification, or runtime\u2011limit enforcement), and the required output file\
     \ `data/processed/variance_matrix.csv` does not exist. The orchestrator therefore\
     \ does not fulfill the specified steps."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `correlation.py` implementing the iterative permutation test is present,
+    nor is the required `output/correlation_results.json` file generated. The claim
+    lacks any concrete code or output artifacts to verify the requested functionality.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing the stressor stratification logic
+    is present; the claim provides no artifact to verify that temperature vs. nutrient
+    stratification based on metadata was added. The required implementation is missing.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/correlation_results.json` file (or any other artifact) was provided,\
+    \ and thus there is no evidence that the \u201CTemporal Resolution Flag\u201D\
+    \ logic was implemented, that the flag is set to `\"insufficient\"` when fewer\
+    \ than three generations or missing timescale, or that such entries are excluded\
+    \ from the final claim. The required output file and its contents are missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or output was provided that implements the required
+    logic to compute and report how the correlation coefficient between epigenetic
+    variance and gene expression variability changes across different thresholds.
+    The artifact is missing, so the task is not satisfied.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/timescale_alignment.json` file (or any code implementing the categorization\
+    \ logic) is present; without the required JSON output containing an `alignment_status`\
+    \ field, the task\u2019s deliverable is missing. The implementer must provide\
+    \ the file and the associated logic that produces it."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `output/timescale_alignment.json` file (or any code modifying it) was provided,
+    and there is no evidence that the logic for setting `temporal_validation_status`
+    was implemented as specified. The required artifact is missing, so the task is
+    not satisfied.

@@ -1,9 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the required directories (`projects/PROJ-008-psychology-research/`,\
-    \ `code/`, `data/`, `docs/`, `tests/`, `contracts/`, `scripts/`, `.github/workflows/`)\
-    \ actually exist; without such artifacts the task\u2019s requirement is not satisfied."
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

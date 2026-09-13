@@ -233,3 +233,182 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T22:01:30Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with specific libraries
+  claim_id: c_11f52bae
+  context: Initialize Python 3.11 project with `requirements.txt` (pandas, numpy,
+    scikit-learn, scipy, radon, textblob, matplotlib, seaborn, datasets, pyyaml)
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Guido van Rossum began working on Python in the late 1980s as a successor
+        to the ABC programming language. Python 3.0, released in 2008, was a major
+        revision and not completely backward-compatible with earlier versions. Beginning
+        with Python 3.5, capabilities and keywords for typing were added to the language,
+        allowing optional static typing. As of 2026, the Python Software Foundation
+        supports Python 3.10, 3.11, 3.12, 3.13, and 3.14, following the project's
+        annual release cycle and five-year support policy. Python 3.15.0rc1 (which
+        defaults to UTF-8) is out in preview, and the stable release is expected to
+        launch in October 2026. Earlier versions in the 3.x series have reached end-of-life
+        and no longer receive security updates.
+      source_id: Python (programming language)
+      url: https://en.wikipedia.org/wiki/Python_(programming_language)
+      value: '3.11'
+    filled: true
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with `requirements.txt` (pandas, numpy,
+    scikit-learn, scipy, radon, textblob, matplotlib, seaborn, datasets, pyyaml)
+  resolved_value: '3.11'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T09:57:10Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for numpy, pandas, and sklearn
+  claim_id: c_3eb76b4f
+  context: Implement `code/utils/config.py` for environment variable management and
+    random seed pinning (numpy, pandas, sklearn = 42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy, pandas, sklearn = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:12:54Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Dataset validation requires >= 95% valid records and >= 500 items per
+    group
+  claim_id: c_6747c5a4
+  context: "Independent Test: Verify that loading the dataset, running the classification\
+    \ pipeline, and checking completeness yields \u226595% valid records and \u2265\
+    500 items per group."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that loading the dataset, running the classification pipeline,\
+    \ and checking completeness yields \u226595% valid records and \u2265500 items\
+    \ per group."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:12:55Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Keyword classification unit test requires >= 2 keyword threshold
+  claim_id: c_b101310d
+  context: "Unit test for keyword classification logic in `tests/unit/test_classify.py`\
+    \ (test \u22652 keyword threshold)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test \u22652 keyword threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:12:55Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Data completeness check integration test triggers error if < 95% valid
+  claim_id: c_e5f07244
+  context: Integration test for data completeness check in `tests/integration/test_data_completeness.py`
+    (verify <95% triggers error)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify <95% triggers error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:12:55Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Power insufficiency check integration test triggers error if < 500 items
+    per group
+  claim_id: c_2a4e38f4
+  context: Integration test for power insufficiency check in `tests/integration/test_power_check.py`
+    (verify <500 per group triggers error)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify <500 per group triggers error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:12:55Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Code complexity calculated using radon library
+  claim_id: c_d3a3dee1
+  context: Implement `code/data/preprocess.py` logic to compute code complexity metrics
+    (cyclomatic complexity, LOC) using `radon`
+  evidence:
+    entailment_evidence: Code complexity calculated using radon library
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Code_complexity_calculated_using_radon_library
+  kind: entity_fact
+  raw_text: compute code complexity metrics (cyclomatic complexity, LOC) using `radon`
+  resolved_value: Code complexity calculated using radon library
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T10:12:57Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Execution halts if data completeness is less than 95% or group size is
+    less than 500
+  claim_id: c_547cd7d5
+  context: Implement validation logic in `code/data/preprocess.py` to halt execution
+    and raise a `ValueError` with a specific message if completeness <95% or group
+    size <500.
+  evidence:
+    entailment_evidence: Execution halts if data completeness is less than 95% or
+      gro
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Execution_halts_if_data_completeness_is_less_than_95%25_or_gro
+  kind: magnitude
+  raw_text: halt execution and raise a `ValueError` if completeness <95% or group
+    size <500.
+  resolved_value: Execution halts if data completeness is less than 95% or group size
+    is less than 500
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T10:12:59Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Multiple comparison correction using Bonferroni and Benjamini-Hochberg
+    methods
+  claim_id: c_5aeb1598
+  context: Implement `code/analysis/stats.py` multiple comparison correction logic
+    supporting BOTH Bonferroni and Benjamini-Hochberg, configurable via `code/utils/config.py`
+  evidence:
+    entailment_evidence: Multiple comparison correction using Bonferroni and Benjamin
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Multiple_comparison_correction_using_Bonferroni_and_Benjamin
+  kind: entity_fact
+  raw_text: Bonferroni and Benjamini-Hochberg
+  resolved_value: Multiple comparison correction using Bonferroni and Benjamini-Hochberg
+    methods
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T10:13:01Z'
