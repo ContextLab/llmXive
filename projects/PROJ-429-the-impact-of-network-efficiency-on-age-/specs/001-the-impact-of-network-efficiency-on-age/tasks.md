@@ -62,7 +62,7 @@
     - If `missing_cognitive_count > 0` OR `invalid_instrument_count > 0` (partial data), **set status to 'PARTIAL'** and **exit with code 0 (SUCCESS)**. Log WARNING: "Partial data available. Proceeding with EEG-only analysis for missing/invalid records."
     - If all records have valid cognitive data, **set status to 'OK'**.
  5. **Deliverable**: **Write the validation results to `data/quality/download_report.json`** with schema: `{"valid_count": int, "invalid_instrument_count": int, "missing_cognitive_count": int, "total_count": int, "status": "OK" | "PARTIAL" | "BLOCKED"}`. **Dep**: T042d, T025a.
-- [X] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Verification**: Ensure `data/quality/download_report.json` exists, is non-empty, and matches the schema (specifically the `status` field). **Note**: Execute `python code/data/download.py` (defaults to `data/raw/` if no args). **Dep**: T005.
+- [X] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Verification**: Ensure `data/quality/download_report.json` exists, is non-empty, and matches the schema (specifically the `status` field). **Dep**: T005.
 - [X] T042 [P] Implement chunked streaming in `code/data/download.py` using `mne.io.read_raw_edf` with offset/length parameters to handle large TUH corpus files without exceeding RAM limits. **Dep**: T005.
 - [X] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline. **Steps**:
  1. **Bandpass Filter**: Apply 1-40 Hz filter using `mne.filter.filter_data`.
