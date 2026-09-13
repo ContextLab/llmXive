@@ -123,7 +123,7 @@ Include exact file paths in descriptions.
 - [X] T018a [US1] [Dep: T008_run] Sensitivity analysis – sweep network density thresholds 0.1‑0.9 (step 0.1) → `sensitivity_density_report.csv`. Schema: `threshold, metric_name, mean_value, std_dev, is_stable`.
 - [X] T018b [US1] [Dep: T006_run, T007_run] Sensitivity analysis – vary artifact‑rejection thresholds → `sensitivity_artifact_report.csv`. Schema: `rejection_threshold, metric_name, std_dev, is_stable`.
 - [ ] T018c [US1] [Dep: T018a, T018b] Aggregate sensitivity results → `sensitivity_summary.json` (`{"density_stable": bool, "artifact_stable": bool, "overall_stable": bool, "status": str, "reason": str}`).
-- [ ] T019 [US1] [Dep: T018c] Validate that `trace_id` column exists in `network_metrics.csv` and contains valid SHA‑256 hex strings. **Note**: Injection handled in T008_run. Non‑blocking warning if missing.
+- [ ] T019 [US1] [Dep: T018c] Validate that `trace_id` column exists in `network_metrics.csv` and contains valid SHA‑256 hex strings. **Note**: Injection handled in T008_run. Non-blocking warning if missing.
 - [ ] T020 [US1] [Dep: T019] Validate output schema against expected columns (`participant_id, age, global_efficiency, local_efficiency, clustering_coeff, modularity, trace_id, signal_quality_flag`) and data types.
 - [X] T051 [US1] [P] Implement a data‑quality check to verify each participant has ≥ 5 valid epochs; flag and exclude participants failing this threshold.
 - [X] T052 [US1] [P] Generate a summary report of data‑quality metrics (valid participants, missing cognition, avg valid epochs per participant) → `data/quality/summary_report.json`.
@@ -149,7 +149,7 @@ Include exact file paths in descriptions.
 - [ ] T023_run [US2] Execute `code/stats/correlation.py` → generate `correlation_results.csv` (inject `trace_id`). Update `state/version_map.yaml` with CSV hash. **Dep**: T023.
 - [ ] T027_run [US2] Execute `code/stats/power.py` → generate `power_analysis.json`. **Dep**: T027.
 - [ ] T027b [US2] [Dep: T027_run] Halt check: if `is_sufficient == false` **AND** `actual_n < 85`, log warning *“Study underpowered for cognitive analysis; skipping cognitive visualization tasks”* and skip downstream US2/US3 tasks (T031, T031_run, T034, T035) while continuing to Phase 5. Skip entirely if `download_report.json` status is **PARTIAL** or **BLOCKED**. **Dep**: T027_run.
-- [ ] T028 [US2] [Dep: T023_run] Validate `trace_id` column exists in `correlation_results.csv` and contains valid SHA‑256 hex strings. Non‑blocking warning if missing.
+- [ ] T028 [US2] [Dep: T023_run] Validate `trace_id` column exists in `correlation_results.csv` and contains valid SHA‑256 hex strings. Non-blocking warning if missing.
 - [ ] T029 [US2] [Dep: T028] Validate output schema (`metric_name, outcome, spearman_r, p_value, p_adjusted, n, trace_id`) and data types. **Dep**: T028.
 - [X] T053 [US2] [P] Sensitivity analysis of multiple‑comparison correction methods (Bonferroni vs. FDR) → `correction_sensitivity_report.csv`. Schema: `method, metric_name, outcome, p_adjusted, is_stable`.
 
