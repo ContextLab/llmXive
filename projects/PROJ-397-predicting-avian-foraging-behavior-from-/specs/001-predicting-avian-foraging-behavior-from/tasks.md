@@ -126,7 +126,7 @@ description: "Task list template for feature implementation"
 - [ ] T044 [US3] Implement `viz/plot_importance.py` to extract feature‑importance scores from the trained Random Forest, plot a bar chart (`docs/results/feature_importance.png`), and write a JSON file with the raw importance values.
 - [ ] T045 [US3] Implement `viz/map_habitat.py` to (A) rasterize model predictions over a high‑resolution grid, (B) for each species in `top_25_species_ids.json` generate a PNG map (`docs/results/habitat_map_{species_id}.png`) and a consolidated GeoJSON (`docs/results/habitat_map.geojson`), ensuring the grid does not extrapolate beyond observed coordinates.
 - [ ] T028 [US3] Extend `viz/plot_importance.py` (or a helper) to write a markdown summary report `docs/results/feature_importance_report.md` that lists, for each foraging guild, the top land‑cover predictors (by mean decrease impurity) with their importance scores.
-- [ ] T028.5 [US3] Implement `viz/validate_importance.py` to perform a qualitative cross‑reference between the model‑identified top predictors and habitat descriptors from literature sources recorded in `data/metadata.yaml`. Produce a comparative table in `feature_importance_report.md` with a free‑form ecological‑validity note.
+- [ ] T028.5 [US3] Implement `viz/validate_importance.py` to perform a qualitative cross-reference between the model‑identified top predictors and habitat descriptors from literature sources recorded in `data/metadata.yaml`. Produce a comparative table in `feature_importance_report.md` with a free‑form ecological‑validity note.
 - [ ] T029 Update `notebooks/01_analysis.ipynb` to orchestrate the full pipeline, load all intermediate artifacts, and serve as the Single Source of Truth for results and figures.
 
 **Checkpoint**: All three user stories should now be independently functional
@@ -171,7 +171,8 @@ description: "Task list template for feature implementation"
 
 - All `[P]` tasks within a phase can run concurrently.  
 - Different user stories can be worked on simultaneously by separate developers once the foundational layer is ready.  
-- Tests marked `[P]` may be executed in parallel.
+- All tests for a user story marked `[P]` can run in parallel.
+- Models within a story marked `[P]` can run in parallel.
 
 ---
 
@@ -205,8 +206,8 @@ description: "Task list template for feature implementation"
 ## Notes & Critical Constraints
 
 - All data‑download tasks must use **real, reachable URLs** (eBird S3 bucket, USGS EarthExplorer). No synthetic fallbacks are permitted.  
-- All computations must be **CPU‑only**; scikit‑learn’s default implementations satisfy this.  
-- The **Stratified Permutation Test (stratified by species)** is mandatory (see T042). The previously mentioned “Across‑Species Permutation” must be ignored.  
+- All computations must be **CPU‑only**; scikit-learn’s default implementations satisfy this.  
+- The **Stratified Permutation Test (stratified by species)** is mandatory (see T042). The previously mentioned “Across-Species Permutation” must be ignored.  
 - Exactly **25 species** must be selected; ties at rank 25 are resolved alphabetically (deterministic).  
 - `merge_and_buffer.py` must output **individual land‑cover proportion columns** (not a single aggregated column) to satisfy schema validation.  
 - `run_pipeline.sh` (T007.5b) must **fail loudly** if any step raises; no silent fallbacks.  
