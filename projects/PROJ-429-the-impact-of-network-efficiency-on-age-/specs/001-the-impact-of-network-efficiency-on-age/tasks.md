@@ -62,7 +62,7 @@
     - If `missing_cognitive_count > 0` OR `invalid_instrument_count > 0` (partial data), **set status to 'PARTIAL'** and **exit with code 0 (SUCCESS)**. Log WARNING: "Partial data available. Proceeding with EEG-only analysis for missing/invalid records."
     - If all records have valid cognitive data, **set status to 'OK'**.
  5. **Deliverable**: **Write the validation results to `data/quality/download_report.json`** with schema: `{"valid_count": int, "invalid_instrument_count": int, "missing_cognitive_count": int, "total_count": int, "status": "OK" | "PARTIAL" | "BLOCKED"}`. **Dep**: T042d, T025a.
-- [ ] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Verification**: Ensure `data/quality/download_report.json` exists, is non-empty, and matches the schema (specifically the `status` field). **Note**: Execute `python code/data/download.py` (defaults to `data/raw/` if no args). **Dep**: T005.
+- [X] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Verification**: Ensure `data/quality/download_report.json` exists, is non-empty, and matches the schema (specifically the `status` field). **Note**: Execute `python code/data/download.py` (defaults to `data/raw/` if no args). **Dep**: T005.
 - [X] T042 [P] Implement chunked streaming in `code/data/download.py` using `mne.io.read_raw_edf` with offset/length parameters to handle large TUH corpus files without exceeding RAM limits. **Dep**: T005.
 - [X] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline. **Steps**:
  1. **Bandpass Filter**: Apply 1-40 Hz filter using `mne.filter.filter_data`.
@@ -78,7 +78,7 @@
 - [X] T008 [P] Implement `code/network/metrics.py` functions for Global Efficiency, Characteristic Path Length, Local Efficiency, Clustering Coefficient. **Formula Constraints**:
  - Calculate **Characteristic Path Length** as a distinct metric and output it.
  - Global Efficiency = 1.0 / Characteristic Path Length (Global).
- - Local Efficiency = 1.0 / mean_shortest_path(subgraph). **Critical**: This must be calculated via subgraph path lengths, NOT as the inverse of the global characteristic path length.
+ - Local Efficiency = 1.0 / mean_shortest_path(subgraph). **Critical**: This must be calculated via subgraph path lengths, NOT the global inverse.
  - Ensure Local Efficiency is calculated via subgraph path lengths, NOT the global inverse, to satisfy FR-003's requirement for distinct metrics. **Dep**: T007.
 - [ ] T008_run [P] **Execute** `code/network/metrics.py` to generate `data/results/network_metrics.csv`. **Implementation Note**: Must inject `trace_id` (SHA-256 of source + code hash) into the `trace_id` column during generation. **Update** `state/version_map.yaml` with the SHA-256 hash of the generated `network_metrics.csv` file. **Dep**: T008, T007_run.
 - [X] T009 [P] Implement `code/stats/correction.py` for Bonferroni/FDR multiple-comparison correction.
@@ -291,8 +291,7 @@ With multiple developers:
 - **Traceability**: All tasks now explicitly link to specific FR/SC requirements and output artifacts.
 - **Epoch Deviation**: 10s epochs are implemented as per `spec.md` v1.1 and `docs/decisions/epoch_length.md` (T014).
 - **Connectivity Deviation**: Imaginary Coherence is implemented as per ratified Design Decision T014b (overriding FR-003).
-- **Contingency**: If T005_run returns status 'PARTIAL', the pipeline continues with EEG-only analysis. Cognitive correlation tasks are skipped.
-- **Real Data Requirement**: T005 strictly enforces that the pipeline fails loudly on missing real data; no synthetic fallbacks are permitted.
+- **Data Filtering**: Invalid cognitive instruments are flagged in T005 and excluded in T023/T031, not rejected at the download stage.
 - **Data Streaming Implementation**: T042-T050 are integrated into Phase 2 and Phase N, with explicit dependencies on T005/T006 and downstream tasks.
 - **Power Analysis**: T027 uses Monte Carlo Simulation (1000 iterations, seed=42) to verify power for r=0.3, using actual N from `data/quality/download_report.json` (total N, not just cognitive N).
 - **Version Map**: T004 generates initial code hashes; T008_run and T023_run update the map with data artifact hashes.
