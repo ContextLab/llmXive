@@ -174,7 +174,7 @@
 
 - [X] T031 [US3] [Dep: T008, T005] **Conditional**: Implement `code/stats/regression.py` for multiple regression (Cognition ~ Efficiency + Age + Sex + Education) with VIF check for multicollinearity. **Note**: ONLY execute if T005_run status is 'OK' (cognitive data available). **Dep**: T008, T005.
 - [ ] T031_run [US3] [Dep: T031] **Execute** `code/stats/regression.py` to generate `data/results/regression_results.csv`.
-- [ ] T032 [US3] [Dep: T031_run, T027_run] Create `data/results/regression_summary.json` containing a `warnings` array; if `power_analysis.json` (T027_run) shows `is_sufficient == false`, append 'Low Power for Cognitive Analysis' to the array. **Dep**: T027_run.
+- [ ] T032 [US3] [Dep: T031_run] Create `data/results/regression_summary.json` containing a `warnings` array; if `power_analysis.json` (T027_run) shows `is_sufficient == false`, append 'Low Power for Cognitive Analysis' to the array. **Dep**: T027_run.
 - [X] T033 [US3] [Dep: T008_run] Implement `code/viz/plots.py` to generate age-stratified bar plots with % CI error bars. **Note**: Always executes (EEG-only viz).
 - [ ] T034 [US3] [Dep: T031_run, T032] **Conditional**: Generate regression table with coefficients, SE, and p-values; inject `trace_id`. **Note**: ONLY execute if T005_run status is 'OK' (cognitive data available). **Dep**: T031_run, T032.
 - [ ] T035 [US3] [Dep: T034] Validate output schema against expected columns (outcome, predictor, coef, std_err, t_value, p_value, trace_id) and data types. **Dep**: T034.
