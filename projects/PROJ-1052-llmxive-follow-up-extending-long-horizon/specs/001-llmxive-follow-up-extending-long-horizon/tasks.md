@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan in `projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/` by creating directories: `data/raw`, `data/processed`, `code`, `code/utils`, `code/tests`, `results`, `artifacts`, `specs/001-reward-fidelity-error-recovery/contracts`. Verify all directories exist via `ls`.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `datasets==2.14.0`, `llama-cpp-python==0.2.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `pandas==2.0.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `statsmodels==0.14.0`. Verify installation with `pip install -r requirements.txt --dry-run`.
+- [X] T002 {{claim:c_1e9ee7f6}} Verify installation with `pip install -r requirements.txt --dry-run`.
 - [X] T003 Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections. Verify setup by running `ruff check. --output-format=github` and `black --check.`.
 
 ---
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/download.py` to fetch the `lmz/agentbench` dataset (AgentBench) via `datasets.load_dataset` with cryptographic hash validation to `data/raw/`. Verify the checksum matches the expected value from the dataset documentation.
-- [X] T004a Implement `code/download.py` validation logic to verify required variables (observations, actions, rewards) exist in the downloaded dataset. If missing, raise `ERR_MISSING_VAR` and log the missing variable name. Document the substitution of 'Long-Horizon-Terminal-Bench' with 'AgentBench' in the log.
+- [X] T004 Implement `code/download.py` to fetch the `lmz/agentbench` dataset (AgentBench) via `datasets.load_dataset` with cryptographic hash validation to `data/raw/`. [UNRESOLVED-CLAIM: c_3ae3368a — status=not_enough_info] Verify the checksum matches the expected value from the dataset documentation.
+- [X] T004a Implement `code/download.py` validation logic to verify required variables (observations, actions, rewards) exist in the downloaded dataset. [UNRESOLVED-CLAIM: c_221f9b50 — status=not_enough_info] If missing, raise `ERR_MISSING_VAR` and log the missing variable name. Document the substitution of 'Long-Horizon-Terminal-Bench' with 'AgentBench' in the log.
 - [ ] T005 Create data schema contracts in `specs/001-reward-fidelity-error-recovery/contracts/execution_log.schema.yaml` and `analysis_result.schema.yaml`
 - [X] T006 Implement `code/utils/state_diff.py` for FR-007: Recovery segment identification using **cosine similarity of sentence embeddings** (proxy for attention-weighted overlap) to avoid circularity per Plan constraints. *Note: This is a staged deviation from FR-007's literal 'attention-weighted' requirement.*
 - [X] T007 Implement `code/utils/pruning.py` for FR-003/FR-004: Context manager with coarsening logic (dense -> binary/3-bin) and pruning execution
-- [X] T008 Implement `code/agent_runner.py`: Lightweight agent wrapper (llama-cpp-python) with CPU-only low-bit quantization fallback (Llama-3-8B -> Qwen-1.5-1.8B). Log the specific model used to quantify impact of the swap on ground truth.
+- [X] T008 Implement `code/agent_runner.py`: Lightweight agent wrapper (llama-cpp-python) with CPU-only low-bit quantization fallback (Llama-3-8B -> Qwen-1.5-1.8B). [UNRESOLVED-CLAIM: c_afedc44a — status=not_enough_info] Log the specific model used to quantify impact of the swap on ground truth.
 - [ ] T009 Setup environment configuration and logging infrastructure by creating `config.yaml` and a logging handler that captures `reward_fidelity_level` and `recovery_segment_id`. Verify `logs/run.log` contains a line with `reward_fidelity_level=dense`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -130,7 +130,7 @@
 ### Implementation for User Story 3
 
 - [ ] T026 [US3] Implement `code/analysis.py` for logistic regression modeling of success probability vs. fidelity and density
-- [ ] T027 [US3] Implement inflection point detection logic using `scipy.optimize.curve_fit` (logistic function) and `numpy.gradient` to find max curvature. If fit fails (flat curve), fallback to 95% CI non-overlap check AND verify the drop exceeds a defined delta threshold (e.g., 10%) as per SC-002.
+- [ ] T027 [US3] Implement inflection point detection logic using `scipy.optimize.curve_fit` (logistic function) and `numpy.gradient` [UNRESOLVED-CLAIM: c_1e558f3d — status=not_enough_info] to find max curvature. If fit fails (flat curve), fallback to 95% CI non-overlap check AND verify the drop exceeds a defined delta threshold (e.g., 10%) as per SC-002.
 - [ ] T028 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for p-values per FR-006
 - [ ] T029 [US3] Implement fallback Cochran-Armitage trend test logic: First, calculate statistical power using `statsmodels.stats.power.tt_solve_power` (runtime check). If power < 0.8, switch to Cochran-Armitage and append a warning to `results/statistical_analysis_report.md` with the calculated EPV value.
 - [ ] T030 [US3] Generate `results/statistical_analysis_report.md` containing inflection point, corrected p-values, and token savings metrics

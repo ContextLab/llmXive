@@ -1,17 +1,5 @@
 [tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
+line-length = 120
+target-version = ['py37']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+exclude = '/(\.venv|\.git|\.hg|\.mypy_cache|\.tox|\.pytest_cache)/'

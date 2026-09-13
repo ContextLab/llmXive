@@ -218,3 +218,110 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T23:43:03Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 0
+  canonical: 'python requirements: datasets==2.14.0, llama-cpp-python==0.2.0, scikit-learn==1.3.0,
+    scipy==1.11.0, pandas==2.0.0, pyyaml==6.0.1, pytest==7.4.0, statsmodels==0.14.0'
+  claim_id: c_1e9ee7f6
+  context: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `datasets==2.14.0`, `llama-cpp-python==0.2.0`, `scikit-learn==1.3.0`,
+    `scipy==1.11.0`, `pandas==2.0.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `statsmodels==0.14.0`.
+    Verify installation with `pip install -r requirements.txt --dry-run`.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `datasets==2.14.0`, `llama-cpp-python==0.2.0`, `scikit-learn==1.3.0`,
+    `scipy==1.11.0`, `pandas==2.0.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `statsmodels==0.14.0`.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T01:17:54Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: lmz/agentbench dataset download
+  claim_id: c_3ae3368a
+  context: Implement `code/download.py` to fetch the `lmz/agentbench` dataset (AgentBench)
+    via `datasets.load_dataset` with cryptographic hash validation to `data/raw/`.
+    Verify the checksum matches the expected value from the dataset documentation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lmz/agentbench_dataset_download
+  kind: entity_fact
+  raw_text: Implement `code/download.py` to fetch the `lmz/agentbench` dataset (AgentBench)
+    via `datasets.load_dataset` with cryptographic hash validation to `data/raw/`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T01:34:14Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: 'dataset validation: observations, actions, rewards'
+  claim_id: c_221f9b50
+  context: Implement `code/download.py` validation logic to verify required variables
+    (observations, actions, rewards) exist in the downloaded dataset. If missing,
+    raise `ERR_MISSING_VAR` and log the missing variable name.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_validation:_observations,_actions,_rewards
+  kind: entity_fact
+  raw_text: Implement `code/download.py` validation logic to verify required variables
+    (observations, actions, rewards) exist in the downloaded dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T01:51:34Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: 'agent quantization: Llama-3-8B to Qwen-1.5-1.8B'
+  claim_id: c_afedc44a
+  context: 'Implement `code/agent_runner.py`: Lightweight agent wrapper (llama-cpp-python)
+    with CPU-only low-bit quantization fallback (Llama-3-8B -> Qwen-1.5-1.8B). Log
+    the specific model used to quantify impact of the swap on ground truth.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/agent_runner.py`: Lightweight agent wrapper (llama-cpp-python)
+    with CPU-only low-bit quantization fallback (Llama-3-8B -> Qwen-1.5-1.8B).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T02:09:52Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: 'inflection point detection: scipy.optimize.curve_fit, numpy.gradient'
+  claim_id: c_1e558f3d
+  context: 'Implement `code/analysis.py` for logistic regression modeling of success
+    probability vs. fidelity and density
+
+    Implement inflection point detection logic using `scipy.optimize.curve_fit` (logistic
+    function) and `numpy.gradient` to find max curvature.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inflection_point_detection:_scipy.optimize.curve_fit,_numpy.
+  kind: entity_fact
+  raw_text: Implement inflection point detection logic using `scipy.optimize.curve_fit`
+    (logistic function) and `numpy.gradient`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T02:24:38Z'

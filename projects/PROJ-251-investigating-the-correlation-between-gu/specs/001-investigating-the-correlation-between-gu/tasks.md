@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Investigating the Correlation Between Gut Microbiome Composition and Immune Response to Influenza Vaccination
 
 **Input**: Design documents from `/specs/001-investigating-the-correlation-between-gu/`
@@ -41,10 +45,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project root directories explicitly: `code/`, `data/raw`, `data/processed`, `data/results`, `tests/`, `data/research`.
+- [X] T001 Create project root directories explicitly: `code/`, `data/raw`, `data/processed`, `data/results`, `tests/`, `data/research`.
  - *Verification*: Run `ls -R` and verify all directories exist.
  - *Note*: Paths are relative to the repository root.
-- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, pyyaml, requests, biom-format).
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, pyyaml, requests, biom-format).
  - *Note*: Removed `qiime2` and `sra-tools` to reduce bloat and installation risk. `biom-format` is sufficient for conversion.
 
 - [ ] T001a [P] Create the `contracts/` directory and generate `dataset.schema.yaml`.
@@ -120,8 +124,6 @@
 - T021 -> `data/processed/cleared_log.csv` (Log Titers only)
 - T020a -> `data/processed/cleared_final.csv` (Merges Shannon and Log, adds CLR)
 
-**Design Decision**: The Plan describes preprocessing as updating a single file `cleared_with_diversity.csv` in place. The tasks implement a distinct immutable file strategy (`cleared_shannon.csv`, etc.) to ensure reproducibility and prevent in-place modification errors. This deviation is documented here; a task (T032_plan_update) is added to eventually update the Plan artifact to reflect this correct architecture.
-
 **Independent Test**: The system can be tested by running the ingestion script against a known valid subset and verifying the output CSV contains exactly N rows (N ≥ 50) with no nulls in required columns.
 
 ### Strategy A: Primary Data Fetch (NCBI SRA)
@@ -177,7 +179,6 @@
  - **File Existence**: If N >= 50 (or synthetic), verify `data/processed/cleared.csv` exists.
  - **Error Path**: If N < 50 (real data), verify `data/results/sampling_error.json` and `data/results/error_log.txt` exist and exit code is 1.
  - **Row Count**: Verify `len(df) >= 50` OR `config.USE_SYNTHETIC_DATA` is True.
- - **Schema Check**: Verify columns `subject_id`, `titer_baseline`, `titer_post` exist.
  - *Note*: This task is the sole producer of the merged artifact.
 
 - [ ] T020c [US1] [FR-003] **Shannon Diversity Calculation**.
@@ -258,7 +259,7 @@
  - *Dependency*: T032 must complete first.
  - *Action*: 
  1. **Check Plan Consistency**: Verify if `plan.md`'s "Constitution Check VI" states "Permutation testing is the primary method" AND if "Phase 3/4" describes a single mutable file `cleared_with_diversity.csv`.
- 2. **If Inconsistent**: **HALT EXECUTION**. Write `data/results/plan_kickback_error.json` with `{"status": "kickback", "reason": "Plan artifact contradicts implemented Spearman/Immutable flow. Manual update of plan.md required."}`. **Exit with code 1**. **DO NOT proceed to Phase 5**.
+ 2. **If Inconsistent**: **HALT EXECUTION**: Write `data/results/plan_kickback_error.json` with `{"status": "kickback", "reason": "Plan artifact contradicts implemented Spearman/Immutable flow. Manual update of plan.md required."}`. **Exit with code 1**. **DO NOT proceed to Phase 5**.
  3. **If Consistent (Plan Updated)**: Edit `plan.md` to remove the contradictory claim in "Constitution Check VI" that "Permutation testing is the primary method". Replace it with "Spearman rank correlation with Benjamini-Hochberg correction is the primary method, as mandated by Spec FR-004". Also update "Phase 3/4" description to remove the reference to a single mutable file and reflect the immutable chain (`cleared_shannon.csv`, etc.).
  - *Output*: Updated `plan.md` (if consistent) OR `data/results/plan_kickback_error.json` (if inconsistent).
  - *Verification*: Run `grep -q "Spearman rank correlation" plan.md` and ensure "Permutation testing" is not listed as the primary method in Constitution Check VI. If kickback triggered, verify error file exists.
@@ -312,8 +313,8 @@
 - [ ] T025 [US2] [SC-004] **Measure & Log SC-004 Outcome (Hard Stop for Real Data)**.
  - *Input*: `data/results/correlation_results.json`.
  - *Dependency*: T032 must complete first.
- - *Action*: Count significant taxa (adj p < 0.05).
- - *Logic*: **If data is REAL** (config.USE_SYNTHETIC_DATA is False):
+ - *Logic*: Count significant taxa.
+ - **If data is REAL** (config.USE_SYNTHETIC_DATA is False):
  1. Count significant taxa.
  2. **If count is outside expected range (low single-digit to higher single-digit)**:
  - **HALT EXECUTION**: Write `data/results/sc004_error.json` with `{"status": "error", "count": N, "message": "Significant taxa count outside expected range for real data. Execution halted."}`.
@@ -324,7 +325,7 @@
  - **If synthetic data**:
  1. Write `data/results/sc004_status.json` with `{"status": "proceed", "count": N, "expected_range": "N/A (Synthetic)"}`.
  2. Continue to next task.
- - *Output*: `data/results/sc004_status.json` or `data/results/sc004_error.json`.
+ - *Output*: `data/results/sc004_status.json`.
  - *Dependency*: Must run BEFORE T034d.
  - *Note*: This task is a **hard stop gate** for real data.
 
@@ -357,7 +358,7 @@
  - *Logic*: Compare mean accuracy against a baseline threshold. Set `meets_accuracy_target` to `True` or `False` in the output JSON.
  - *Output*: Update `data/results/model_metrics.json`.
 
-- [ ] T037 [US3] [SC-003] Write model metrics to `data/results/model_metrics.json`.
+- [ ] T037 [US3] [FR-008] Write model metrics to `data/results/model_metrics.json`.
  - *Schema*: Includes accuracy, precision, recall, F1, `meets_accuracy_target`, `mean_accuracy`, `std_accuracy`, and significance p-value.
 
 - [ ] T038 [US3] [FR-008] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/model_metrics.schema.yaml`.
@@ -396,7 +397,7 @@
 - [ ] T041 [P] Run quickstart.md validation
 - [ ] T042 [P] Implement runtime & memory monitoring in `code/main.py`.
  - *Logic*: Integrate into `code/main.py` orchestration script.
- - **Memory Check**: Monitor RAM/Disk usage using `psutil.Process().memory_info().rss`. **If memory > 6 GB**: Trigger sampling fallback (call `code/utils/sampling.py` with `seed=42, retain_ratio=0.8`) to downsample. **Sampling Algorithm**: Perform **stratified random sampling by titer quartile** to preserve distribution. Write output to `data/processed/cleared_sampled.csv`. **Re-run pipeline**: Invoke `python code/main_pipeline.py --input data/processed/cleared_sampled.csv` to restart the pipeline on the new artifact. If memory > 7 GB, raise `RuntimeError`.
+ - **Memory Check**: Monitor RAM/Disk usage using `psutil.Process().memory_info().rss`. **If memory > 6 GB**: Trigger sampling fallback (call `code/utils/sampling.py` with `seed=42, retain_ratio=0.8`) to downsample. **Sampling Algorithm**: Perform **stratified random sampling by quartiles of titer** to preserve distribution. Write output to `data/processed/cleared_sampled.csv`. **Re-run pipeline**: Invoke `python code/main_pipeline.py --input data/processed/cleared_sampled.csv` to restart the pipeline on the new artifact. If memory > 7 GB, raise `RuntimeError`.
  - **Runtime Check**: If runtime > 7200 seconds (2 hours), **raise RuntimeError and exit with code 1** to satisfy SC-005. If runtime > 1.5 hours **AND** memory/disk limits were NOT exceeded, **log a warning** (do not raise RuntimeError) to avoid harsh failures on variable CI performance. Sampling is **only** authorized if RAM/Disk limits are exceeded per Spec Assumptions.
  - *Depends on*: Completion of Phase 3, 4, 5.
  - *Output*: `data/results/resource_usage.json` with keys `total_runtime_seconds` and `peak_memory_mb`.

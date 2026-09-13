@@ -1,0 +1,125 @@
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: 30 participants
+  claim_id: c_04203b80
+  context: Run blind pre-test simulation with N=30 mock participants (as defined in
+    Plan Phase 0) using `code/simulate_pretest.py` to rate AI vs Human images for
+    visual indistinguishability
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 mock participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T03:10:28Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: p-value > 0.05
+  claim_id: c_6a57b364
+  context: "Run blind pre-test simulation with N=30 mock participants (as defined\
+    \ in Plan Phase 0) using `code/simulate_pretest.py` to rate AI vs Human images\
+    \ for visual indistinguishability\n - *Output*: `data/pretest/results.json` containing\
+    \ the p-value for visual quality difference (must be > 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: p-value for visual quality difference (must be > 0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T03:10:28Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: ratings follow a normal distribution with mean 0 and standard deviation
+    1
+  claim_id: c_16234c7e
+  context: "Run blind pre-test simulation with N=30 mock participants (as defined\
+    \ in Plan Phase 0) using `code/simulate_pretest.py` to rate AI vs Human images\
+    \ for visual indistinguishability\n - *Input*: Seed=42, Ratings ~ Normal(0, 1)\
+    \ for mock participants"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ratings ~ Normal(0, 1) for mock participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T03:26:13Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: completeness >= 95%
+  claim_id: c_fb037830
+  context: "Implement `code/analysis.py` to load `data/processed/` and validate \u2265\
+    95% completeness (FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226595% completeness"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T03:26:13Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Z-score > 3.0
+  claim_id: c_bc7b1c1c
+  context: Implement Z-score based outlier detection (|Z| > 3.0) using `scipy.stats.zscore`
+    for extreme INCOM scores as per Spec Edge Cases; flag outliers for sensitivity
+    analysis in `data/analysis_results.json` (NO separate file)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Z-score based outlier detection (|Z| > 3.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T03:26:13Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: RAM usage < 7GB
+  claim_id: c_e1d0a5ed
+  context: Run `memory_profiler` on `code/analysis.py` to verify RAM usage < 7GB
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 76'
+      source_id: Q19823792
+      url: https://www.wikidata.org/wiki/Q19823792
+      value: '76'
+    filled: true
+  kind: entity_fact
+  raw_text: RAM usage < 7GB
+  resolved_value: '76'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T03:41:17Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: analysis completes within 3600 seconds
+  claim_id: c_d62a2d50
+  context: "Performance optimization to ensure analysis completes within \u22643600\
+    \ seconds"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "within \u22643600 seconds"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T03:41:17Z'

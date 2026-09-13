@@ -45,9 +45,9 @@
 
 **⚠️ CRITICAL DEPENDENCY**: This phase MUST complete successfully (producing valid results) before Phase 3 (Data Collection) can begin.
 
-- [X] T001 [P] Run blind pre-test simulation with N=30 mock participants (as defined in Plan Phase 0) using `code/simulate_pretest.py` to rate AI vs Human images for visual indistinguishability
- - *Input*: Seed=42, Ratings ~ Normal(0, 1) for mock participants
- - *Output*: `data/pretest/results.json` containing the p-value for visual quality difference (must be > 0.05)
+- [X] T001 [P] Run blind pre-test simulation with N=30 mock participants [UNRESOLVED-CLAIM: c_04203b80 — status=not_enough_info] (as defined in Plan Phase 0) using `code/simulate_pretest.py` to rate AI vs Human images for visual indistinguishability
+ - *Input*: Seed=42, Ratings ~ Normal(0, 1) for mock participants [UNRESOLVED-CLAIM: c_16234c7e — status=not_enough_info]
+ - *Output*: `data/pretest/results.json` containing the p-value for visual quality difference (must be > 0.05) [UNRESOLVED-CLAIM: c_6a57b364 — status=not_enough_info]
  - *Note*: N=30 is authorized by Plan Phase 0, not Spec Assumptions.
 
 **Checkpoint**: Pre-test data generated; `data/pretest/results.json` exists for Phase 7 verification.
@@ -135,12 +135,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `code/analysis.py` to load `data/processed/` and validate ≥95% completeness (FR-007)
+- [ ] T024 [P] [US3] Implement `code/analysis.py` to load `data/processed/` and validate ≥95% completeness [UNRESOLVED-CLAIM: c_fb037830 — status=not_enough_info] (FR-007)
 - [ ] T025 [US3] Implement LME model fitting using `statsmodels` with the exact formula: `BISS_score ~ Image_Type + INCOM + Usage_Frequency + (1 + Image_Type | Participant_ID)`
  - *Note*: Includes random slopes for Image_Type per Plan Complexity Tracking (Plan overrides Spec FR-004 intercept-only).
  - *Output*: Save model summary to `data/analysis_results.json`
 - [ ] T026 [US3] Implement Bonferroni correction for multiple hypothesis tests (main effects + interactions)
-- [ ] T028-impl [P] [US3] Implement Z-score based outlier detection (|Z| > 3.0) using `scipy.stats.zscore` for extreme INCOM scores as per Spec Edge Cases; flag outliers for sensitivity analysis in `data/analysis_results.json` (NO separate file)
+- [ ] T028-impl [P] [US3] Implement Z-score based outlier detection (|Z| > 3.0) [UNRESOLVED-CLAIM: c_bc7b1c1c — status=not_enough_info] using `scipy.stats.zscore` for extreme INCOM scores as per Spec Edge Cases; flag outliers for sensitivity analysis in `data/analysis_results.json` (NO separate file)
  - *Note*: Implements flagging for sensitivity analysis only; no separate robust analysis pipeline.
 - [ ] T028-exec [P] [US3] Execute sensitivity analysis: Run the outlier detection logic implemented in T028-impl on the loaded dataset and update `data/analysis_results.json` with the flagged outlier IDs
 - [ ] T029 [US3] Generate `data/analysis_results.json` containing `f_stat`, `p_value`, `eta_squared`, `n`, and corrected p-values
@@ -181,8 +181,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T039 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T040 [P] Run `memory_profiler` on `code/analysis.py` to verify RAM usage < 7GB
-- [ ] T041 [P] Performance optimization to ensure analysis completes within ≤3600 seconds
+- [ ] T040 [P] Run `memory_profiler` on `code/analysis.py` to verify {{claim:c_e1d0a5ed}} (Wikidata Q19823792, https://www.wikidata.org/wiki/Q19823792)
+- [ ] T041 [P] Performance optimization to ensure analysis completes within ≤3600 seconds [UNRESOLVED-CLAIM: c_d62a2d50 — status=not_enough_info]
 - [ ] T042 [P] Additional unit tests for edge cases (dropouts, missing data) in `tests/unit/`
 - [ ] T043 [P] Run `quickstart.md` validation to ensure all scripts run on `ubuntu-latest`
 
