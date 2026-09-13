@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "Audio Interaction Model"
 
 **Input**: Design documents from `/specs/001-audio-compression-robustness/`
@@ -126,7 +130,7 @@
 ### Implementation for User Story 2
 
 - [X] T022 [US2] Implement CPU inference runner in `code/inference/runner.py` (Batch processing to fit RAM, handle OOM gracefully). **Dependency**: T015.
-- [X] T023 [US2] Implement metrics calculation in `code/inference/metrics.py` (AUC, latency, peak RAM usage). **MUST**: 1) Calculate values, 2) **Verify** that the CI runner environment is constrained to exactly 2 cores during measurement (via `os.cpu_count()` or CI env vars), 3) Compare against GitHub Actions constraints (≤6h, ≤7GB), logging a pass/fail status per FR-004 and SC-002. 4) **Input**: Consume the combined dataset (Subtle + Control) from T020 to ensure binary discrimination. 5) **Assertion**: Assert process completed within 6h and RAM < 7GB. **Dependency**: T015.
+- [X] T023 [US2] Implement metrics calculation in `code/inference/metrics.py` (AUC, latency, peak RAM usage). **MUST**: 1) Calculate values, 2) **Verify** that the CI runner environment is constrained to exactly 2 cores during measurement (via `os.cpu_count()` or CI env vars), 3) Compare against GitHub Actions constraints (≤6h, ≤7GB), logging a pass/fail status per FR-004 and SC-002. 4) **Input**: Consume the combined dataset (Subtle + Control) from T020 to ensure binary discrimination. 5) **Assertion**: Assert process completed within 6h and RAM < 7GB. **Dependency**: Depends on T015.
 - [X] T024 [US2] Integrate inference and metrics to generate `data/processed/robustness_metrics.csv`. **MUST**: 1) Ensure schema: `model_id` (str), `auc` (float, 4 decimal places), `latency_ms` (float, 2 decimal places), `ram_gb` (float, 2 decimal places). 2) **Verify**: Assert CSV has correct columns and row count > 0. 3) **Input**: Consume the combined dataset (Subtle + Control) from T020. 4) **Assertion**: Assert total execution time < 6h. **Dependency**: Depends on T022, T023, T015.
 - [X] T026 [US2] Add logging for inference performance and resource usage
 
@@ -173,12 +177,12 @@
 
 - [X] T036 [P] [US4] Implement ablation configuration parser in `code/analysis/ablation.py` (Config for freeze attention, prune FFN).
 - [X] T036b [P] [US4] Implement model cloning utility in `code/models/student.py`: Create a function `clone_model(model)` that returns a deep copy of the model weights to ensure state isolation.
-- [X] T037 [US4] Implement component freezing logic in `code/models/student.py`. [Plan-Deviation-SoftPrune] **MUST**: **Soft Pruning (Structural Isolation)**: Set `requires_grad=False` on specific early attention head parameters AND **mask** those parameters (set weights to zero) in the computation graph to ensure no gradients flow, isolating their contribution while maintaining the original architecture's parameter count. **Verification**: Count parameters before and after masking to ensure invariance; log the count to `data/processed/param_counts.csv`. **Justification**: This "soft pruning" preserves the architecture for fair latency comparison (FR-006) while isolating the component's contribution (FR-007). **Depends on T036b**.
-- [X] T038 [US4] Implement component pruning logic in `code/models/student.py`. [Plan-Deviation-SoftPrune] **MUST**: **Soft Pruning (Structural Isolation)**: **Mask** specific late feed-forward layers (set weights to zero) in the model architecture (do NOT remove layers) to simulate pruning and isolate contribution while maintaining the original architecture's parameter count. **Verification**: Count parameters before and after masking to ensure invariance; log the count to `data/processed/param_counts.csv`. **Justification**: This "soft pruning" preserves the architecture for fair latency comparison (FR-006) while isolating the component's contribution (FR-007). **Depends on T036b**.
+- [X] T037 [US4] Implement component freezing logic in `code/models/student.py`. [Plan-Deviation-SoftPrune] **MUST**: **Soft Pruning (Structural Isolation)**: Set `requires_grad=False` on specific early attention head parameters AND **mask** those parameters (set weights to zero) in the computation graph to ensure no gradients flow, isolating their contribution while maintaining the original architecture's parameter count. **Verification**: Count parameters before and after masking to ensure invariance; log the count to `data/processed/param_counts.csv`. **Dependency**: T036b.
+- [X] T038 [US4] Implement component pruning logic in `code/models/student.py`. [Plan-Deviation-SoftPrune] **MUST**: **Soft Pruning (Structural Isolation)**: **Mask** specific late feed-forward layers (set weights to zero) in the model architecture (do NOT remove layers) to simulate pruning and isolate contribution while maintaining the original architecture's parameter count. **Verification**: Count parameters before and after masking to ensure invariance; log the count to `data/processed/param_counts.csv`. **Dependency**: T036b.
 - [X] T039a [US4] **NEW**: Implement re-execution of inference pipeline on ablated models in `code/analysis/ablation.py`. **MUST**: 1) Load ablated models from T037/T038, 2) Run inference on `data/processed/subtle_cue_subset.parquet` (T020 artifact), Output intermediate logits to `data/processed/ablation_logits.parquet`. **Schema**: `ablation_logits.parquet` MUST contain columns `model_id`, `config_id`, `logits_json` (JSON string of a D array of floats, 6 decimal places, where D is dynamically determined by `model.config.num_labels`), `label` (int). **Dependency**: Depends on T037, T038, T020.
 - [X] T039b [US4] **NEW**: Implement recalculation of metrics for ablated models in `code/inference/metrics.py`. **MUST**: 1) Consume `ablation_logits.parquet` from T039a, Evaluate AUC, latency, and peak RAM for each ablated configuration (re-measuring on a constrained CPU environment to satisfy Constitution Principle VI), 3) Output to `data/processed/ablation_metrics.csv`. **Schema**: `ablation_metrics.csv` MUST contain columns `config_id`, `auc`, `latency_ms`, `ram_gb`. **Dependency**: Depends on T039a.
 - [X] T040 [US4] Integrate ablation with inference runner in `code/analysis/ablation.py`. **MUST**: 1) Load ablation configs (T036), 2) Execute T037/T038 logic to create ablated models, 3) Call T039a/T039b to run inference and calculate metrics. **Dependency**: Depends on T036, T037, T038, T039a, T039b.
-- [X] T041 [US4] Generate ablation results in `data/processed/ablation_results.csv`. **MUST**: 1) Transform `ablation_metrics.csv` (T039b) by adding `model_id` and `config_type` columns. 2) Verify file exists and contains columns [config_id, auc, latency]. **Dependency**: Depends on T039b.
+- [X] T041 [US4] Generate ablation results in `data/processed/ablation_results.csv`. **MUST**: 1) Transform `ablation_metrics.csv` (T039b) by adding `model_id` and `config_type` columns. 2) **Verify**: Assert CSV has correct columns and row count > 0. **Dependency**: Depends on T039b.
 - [X] T042a [US4] Add validation to verify gradients are zeroed or layers masked as expected.
 - [X] T043 [US4] **NEW**: Implement comparative analysis in `code/analysis/ablation.py`. [SC-005] **MUST**: 1) Load `ablation_results.csv` (T041) and `robustness_metrics.csv` (T024). 2) Compare the "soft pruning" results (constant params) against the "hard pruning" results (variable params from T013/T024) to address the metric gap in SC-004 (compression intensity vs performance drop). Generate `data/processed/ablation_comparison_report.md` describing the joint relationships and isolating the contribution of architectural components to feature loss. **Schema**: Report must include sections: "Joint Relationships", "Component Contribution", "Comparison Summary". **Dependency**: Depends on T041, T024.
 
@@ -210,7 +214,7 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **Data Preparation (Phase 2.5)**: Depends on Foundational (Phase 2) - BLOCKS US1 and US2
 - **User Stories (Phase 3+)**: All depend on Data Preparation (Phase 2.5) completion
- - US1 (P1) must complete before US2 (P2) can fully utilize models (Data flow: T020 is prerequisite for T014a/T014b/T014c training)
+ - US1 (P1) must complete before US2 (P2) can fully utilize models (Data flow: T020 is prerequisite for T014a/b/c (US1 Training))
  - US2 (P2) must complete before US3 (P3) can analyze metrics
  - US4 (P4) can run in parallel with US3 once models are available, but depends on US1
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -287,35 +291,21 @@ With multiple developers:
 - **Data Hygiene**: All data loading MUST use `streaming=True` and fail loudly if real data is unavailable (no synthetic fallbacks).
 - **Resource Constraints**: All inference and training MUST be optimized for a constrained multi-core CPU environment with limited memory and a fixed time budget.
 - **Distillation**: T014a/T014b/T014c MUST use teacher logits for loss AND stream real audio data from T020; standard supervised loss is insufficient.
-- **Ablation**: T037/T038 must be executed with a fresh model instance per configuration (via T036b) to prevent state leakage between "freeze" and "mask" runs. T039a/T039b ensure results are generated. T043 ensures the comparative analysis required by SC-004 is performed.
+- **Ablation**: T037/T038 must be executed with a fresh model instance per configuration (via T036b) to prevent state leakage between "freeze" and "mask" runs.
 - **Metrics**: T019 MUST ensure no internal weights are accessed during AUC calculation. T023 MUST verify 2-core constraint.
 - **Overrides**: T011 (FR-001) and T021c (FR-002) explicitly acknowledge plan-driven scope extensions/substitutions.
 - **Revision Concerns (Data Flow)**: T021a, T021c, T020 now reside in Phase 2.5 (Data Prep) as prerequisites for US1 training.
 - **Revision Concerns (Ablation Isolation)**: T037/T038 now emphasize 'soft' modifications and state isolation via model cloning.
-- **Revision Concerns (Task Granularity)**: T001 split into atomic tasks for better executability. T021a added for feature computation. T021c added for Control Set. T039a/T039b added for ablation execution. T002 split into T002a/T002b. T032 split into T032a/T032b. T042a1/T042a2 consolidated.
+- **Revision Concerns (Task Granularity)**: T001 split into atomic tasks for better executability. T021a added for feature computation. T021c added for Control Set. T039a/T039b added for ablation execution. T002 split into T002a/T002b. T032 split into T032a/T032b.
 - **Revision Concerns (Causal Language)**: T033 removed as gold-plating.
 - **Revision Concerns (CI Status)**: T008a/T008b marked as Complete.
 - **Revision Concerns (Threshold Config)**: T030 now reads threshold from `config.py` and uses 0.5/0.5 weights for score.
-- **Revision Concerns (Model Copy)**: T037/T038 now explicitly state use of model copies to preserve base architecture.
-- **Revision Concerns (Ordering)**: T009/T010 moved after T016; T037/T038 dependencies clarified; T034/T035 swapped.
-- **Revision Concerns (Pruning Ratios)**: T013 now specifies 0.1, 0.2, 0.3 ratios.
 - **Revision Concerns (Breaking Point)**: T030 now uses unified compression intensity score for sorting, but breaking point defined by AUC drop.
-- **Revision Concerns (Formatting)**: T043a1-T043a4 consolidated into T043a.
-- **Revision Concerns (Batch Size)**: T044a1 now has specific search range and stopping condition.
-- **Revision Concerns (Logits Schema)**: T039a now specifies `logits_json` key and 1D array format.
-- **Revision Concerns (FP32 Baseline)**: T014c added to ensure baseline AUC for SC-001/SC-004.
-- **Revision Concerns (Control Set)**: T021c added to generate Control Set and explicitly override FR-002.
-- **Revision Concerns (Comparative Analysis)**: T043 added to compare soft vs hard pruning results.
-- **Revision Concerns (T035 Status)**: T035 status corrected to [ ] to match T034 [ ].
-- **Revision Concerns (Test-First)**: T009/T010 moved before implementation tasks to reflect TDD workflow.
-- **Revision Concerns (Version Pins)**: T002a now includes specific version pins.
-- **Revision Concerns (Algorithm Details)**: T021a, T021c, T014a/b/c now include specific algorithmic details.
-- **Revision Concerns (Error Handling)**: T014a/b/c now include explicit error handling for streaming.
-- **Revision Concerns (Schema Definitions)**: T024, T039a now include precise schema definitions.
-- **Revision Concerns (Dependency Clarity)**: T022/T023/T024, T041 now explicitly depend on T015/T039b.
-- **Revision Concerns (File Separation)**: T021a/T021c now write to separate files to avoid race conditions.
-- **Revision Concerns (Baseline Reference)**: T030 now explicitly references T014c as the baseline.
-- **Revision Concerns (Parameter Verification)**: T037/T038 now include parameter count verification.
+- **Revision Concerns (Pruning Ratios)**: T013 now specifies 0.1, 0.2, 0.3 ratios.
+- **Revision Concerns (Edge Cases)**: T020 explicitly addresses the "Dataset Variability" edge case by implementing error handling and logging.
+- **Revision Concerns (Resource Exhaustion)**: T023 explicitly addresses the "Resource Exhaustion" edge case by implementing memory error handling.
+- **Revision Concerns (Collinearity)**: T033 addresses the "Collinearity in Predictors" edge case by requiring descriptive reporting of joint relationships.
+- **Revision Concerns (Failing Loaders)**: Explicitly stated in T020 that loader must fail loudly.
 
 - [ ] T048 [P] **NEW**: Implement automated dataset integrity verification in `code/data/loader.py`. [Const-III] **MUST**: 1) Add a checksum validation step for `data/processed/subtle_cue_subset.parquet` against the manifest in `state/` before any training or inference begins. 2) If the checksum fails, raise a `DataIntegrityError` with a clear message indicating the file is corrupted or missing. 3) Log the verification result to `data/processed/integrity_log.txt`. **Rationale**: Addresses reviewer concern regarding "Data Hygiene" and ensures that downstream tasks (T014a/b/c, T022) do not proceed with corrupted or mismatched data artifacts. **Dependency**: Depends on T020.
 - [ ] T049 [P] **NEW**: Implement dynamic batch size adjustment logic in `code/inference/runner.py`. [FR-004] **MUST**: 1) Start with a default batch size (e.g., a standard value commonly used in similar architectures).. 2) Monitor peak RAM usage during inference. 3) If RAM usage exceeds a predefined threshold, halve the batch size and retry. the current batch. 4) If RAM usage remains >6GB after 3 reductions, log a warning and skip the batch. 5) Record the final batch size used for each run in `data/processed/inference_config.yaml`. **Rationale**: Addresses reviewer concern regarding "Resource Exhaustion" (Edge Case) and ensures robustness against unexpected memory spikes on the constrained CI runner. **Dependency**: Depends on T022.
