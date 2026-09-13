@@ -7,8 +7,6 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**Project Scope Contingency**: If T005 returns status 'PARTIAL' (missing cognitive data), the project scope is reduced to **EEG-only analysis** (metrics and age correlation). All cognitive correlation tasks (US2, US3) will be skipped or marked as 'N/A' in the final report. This aligns with the Plan's explicit contingency.
-
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -51,7 +49,7 @@
  - **Deliverable**: Verify file exists with this structure. **Dep**: T001.
 - [X] T014c [P] **Formal Ratification**: Update `docs/decisions/` and `spec.md` references to formally ratify the 'Imaginary Coherence' deviation as a Design Decision (T014b) to satisfy traceability requirements. **Deliverable**: Ensure T007 references T014b as the authoritative override for FR-003. **Dep**: T014b.
 - [X] T004 [P] Implement `code/config.py` to manage paths (raw, processed, results) and configuration parameters (thresholds, epoch length). **Config Note**: Set `epoch_length_sec = 10` as per `spec.md` v1.1 and `docs/decisions/epoch_length.md`. **Deliverable**: Generate the 'initial version map of all source code artifacts with SHA-256 hashes' required by FR-006 (code only). Output file path: `state/version_map.yaml`. **Dep**: T014, T014b, T014c.
-- [X] T025a [US2] [P] Create `data/config/cognitive_instrument_registry.yaml` with hardcoded list of valid instruments (MMSE, MoCA) and references as per FR-007. **Dep**: T004 (config paths). **Moved to Foundational Phase**.
+- [X] T025a [US2] [P] Create `data/config/cognitive_instrument_registry.yaml` with hardcoded list of valid instruments (MMSE, MoCA) and references as per FR-007. **Dep**: T004.
 - [X] T005 [P] Implement `code/data/download.py` for PhysioNet/TUH access (accession ID: `tuh_eeg`), checksumming, and metadata validation. **Validation Logic**:
  1. **Schema Check**: Verify the existence and validity of `contracts/dataset.schema.yaml` (T042d) before proceeding.
  2. **Age Check**: Filter for `age >= 18`.
@@ -126,10 +124,10 @@
  - `Local_Efficiency = 1.0 / mean_shortest_path(subgraph)` (calculated via subgraph path lengths, NOT the global inverse).
  - **Deliverable**: `data/results/efficiency_check.json` with `{"formula_verified": bool, "max_deviation": float}`. **Verification Criteria**: Check column names, data types, non-NaN values, and formula verification details. **Tolerance**: `max_deviation` must be < 1e-6. **Dep**: T008_run.
 - [X] T017 [US1] [Dep: T016] **Update** `data/results/network_metrics.csv` to include a `signal_quality_flag` column with values 'Low Signal Quality' for SNR < 10dB.
-- [X] T018a [US1] [Dep: T006_run, T007_run, T007, T008] Implement sensitivity analysis (FR-008) to **re-run** connectivity and metric computation for network density thresholds **sweeping a range from 0.1 to 0.9 in steps of 0.1** and **generate** `data/results/sensitivity_density_report.csv`. **Schema**: `threshold`, `metric_name` (one of: Global_Efficiency, Local_Efficiency, Clustering_Coeff, Modularity), `mean_value`, `std_dev`, `is_stable` (true if variation < 0.05).
+- [X] T018a [US1] [Dep: T008_run] Implement sensitivity analysis (FR-008) to **re-run** connectivity and metric computation for network density thresholds **sweeping a range from 0.1 to 0.9 in steps of 0.1** and **generate** `data/results/sensitivity_density_report.csv`. **Schema**: `threshold`, `metric_name` (one of: Global_Efficiency, Local_Efficiency, Clustering_Coeff, Modularity), `mean_value`, `std_dev`, `is_stable` (true if variation < 0.05).
 - [X] T018b [US1] [Dep: T006_run, T007_run] Implement sensitivity analysis (SC-003) to **re-run** preprocessing and metric computation for artifact rejection thresholds (e.g., varying epoch rejection rates) and **generate** `data/results/sensitivity_artifact_report.csv`. **Schema**: `rejection_threshold`, `metric_name`, `std_dev`, `is_stable`.
 - [ ] T018c [US1] [Dep: T018a, T018b] **Validate Sensitivity**: Aggregate results from T018a and T018b to generate `data/results/sensitivity_summary.json`. **Logic**: **Must wait for T018a and T018b to complete**. If T018a or T018b output files are missing (e.g., if they failed or were skipped), set `overall_stable` to false and `status` to 'PARTIAL'. If files exist, aggregate them. **Schema**: `{"density_stable": bool, "artifact_stable": bool, "overall_stable": bool, "status": str, "reason": str}`. **Dep**: T018a, T018b.
-- [ ] T019 [US1] [Dep: T008_run] **Validate** that `trace_id` column exists in `data/results/network_metrics.csv` and contains valid SHA-256 hex strings. **Note**: Injection is handled in T008_run. **Crucial**: If file is missing or empty (e.g., T008_run not executed), log warning and exit 0 (do not block). **Dep**: T008_run.
+- [ ] T019 [US1] [Dep: T018c] **Validate** that `trace_id` column exists in `data/results/network_metrics.csv` and contains valid SHA-256 hex strings. **Note**: Injection is handled in T008_run. **Crucial**: If file is missing or empty (e.g., T008_run not executed), log warning and exit 0 (do not block). **Dep**: T018c.
 - [ ] T020 [US1] [Dep: T019] Validate output schema against expected columns (participant_id, age, global_efficiency, local_efficiency, clustering_coeff, modularity, trace_id, signal_quality_flag) and data types. **Dep**: T019.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -153,7 +151,7 @@
 - [X] T025c [US2] [Dep: T005, T025a] Implement logic to propagate 'Invalid Cognitive Measure' flags from `download_report.json` to the final correlation analysis, ensuring participants with invalid instruments are excluded from cognitive correlation as per FR-007. **Deliverable**: Update `code/stats/correlation.py` to filter based on `download_report.json` flags.
 - [X] T023 [US2] [Dep: T025b, T025c, T008] **Full Implementation**: Implement `code/stats/correlation.py` to perform Spearman rank correlation between metrics and (Age, Cognitive Score). **Logic**: Use registry validation from T025b and exclusion logic from T025c. **Critical**: Explicitly account for the family of tests (multiple metrics vs. multiple outcomes) when calculating power and error rates (FR-004) using **Bonferroni or FDR** for multiple-comparison correction. **Output**: Generate `data/results/correlation_results.csv` with columns `metric_name`, `outcome`, `spearman_r`, `p_value`, `p_adjusted`, `n`, `trace_id`. **Dep**: T025b, T025c, T008.
 - [ ] T023_run [US2] [Dep: T023] **Execute** `code/stats/correlation.py` to generate `data/results/correlation_results.csv` (filtered to exclude null cognitive scores and invalid instruments). **Implementation Note**: Must inject `trace_id` (SHA-256 hex string) into the `trace_id` column during generation. **Update** `state/version_map.yaml` with the SHA-256 hash of the generated `correlation_results.csv` file. **Dep**: T023.
-- [ ] T027_run [US2] [Dep: T027] **Execute** `code/stats/power.py` (or integrated in T023) to generate `data/results/power_analysis.json`.
+- [ ] T027_run [US2] [Dep: T027] **Execute** `code/stats/power.py` to generate `data/results/power_analysis.json`.
 - [ ] T027b [US2] [Dep: T027_run] **Halt Check**: If `power_analysis.json` shows `is_sufficient == false` AND the cause is insufficient sample size (N < 85), **log warning** "Study underpowered for cognitive analysis; skipping cognitive visualization tasks" and **skip** all downstream US2/US3 tasks (T031, T031_run, T034, T035) while **continuing** to Phase 5 (Viz). **Note**: This check applies ONLY to the cognitive analysis path. If T005 returned 'PARTIAL' or 'BLOCKED' for cognitive data, this task is skipped entirely as T023_run would not have run for cognitive scores. **Dep**: T027_run.
 - [X] T028 [US2] [Dep: T023_run] **Validate** that `trace_id` column exists in `data/results/correlation_results.csv` and contains valid SHA-256 hex strings. **Note**: Injection is handled in T023_run. **Crucial**: If file is missing or empty (e.g., T023_run not executed), log warning and exit 0 (do not block). **Dep**: T023_run.
 - [ ] T029 [US2] [Dep: T028] Validate output schema against expected columns (metric_name, outcome, spearman_r, p_value, p_adjusted, n, trace_id) and data types. **Dep**: T028.
@@ -262,8 +260,8 @@ Task: "Implement Sensitivity Analysis (T018a, T018b)"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (if data available)
-4. Add User Story 3 → Test independently → Deploy/Demo (if data available)
+3. Add User Story 2 → Test independently → Deploy/Demo (if data is available)
+4. Add User Story 3 → Test independently → Deploy/Demo (if data is available)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -295,10 +293,14 @@ With multiple developers:
 - **Connectivity Deviation**: Imaginary Coherence is implemented as per ratified Design Decision T014b (overriding FR-003).
 - **Contingency**: If T005_run returns status 'PARTIAL', the pipeline continues with EEG-only analysis. Cognitive correlation tasks are skipped.
 - **Real Data Requirement**: T005 strictly enforces that the pipeline fails loudly on missing real data; no synthetic fallbacks are permitted.
-- **Streaming Strategy**: If TUH corpus size exceeds substantial RAM, `download.py` and `preprocess.py` MUST implement chunked streaming (via `mne.io.read_raw_edf` with offset/length or `datasets.load_dataset(..., streaming=True)`) to process the full real dataset without loading it entirely into memory.
-- **Sensitivity Analysis**: T018a covers network density (FR-008) with a configurable sweep (0.1 to 0.9), T018b covers artifact rejection (SC-003), T018c aggregates results (handling missing data gracefully).
 - **Data Streaming Implementation**: T042-T050 are integrated into Phase 2 and Phase N, with explicit dependencies on T005/T006 and downstream tasks.
 - **Power Analysis**: T027 uses Monte Carlo Simulation (1000 iterations, seed=42) to verify power for r=0.3, using actual N from `data/quality/download_report.json` (total N, not just cognitive N).
 - **Version Map**: T004 generates initial code hashes; T008_run and T023_run update the map with data artifact hashes.
-- **Connectivity Metric**: T007 implements Imaginary Coherence per ratified Design Decision T014b, overriding FR-003's generic Coherence requirement.
+- **Connectivity Metric**: T007 implements Imaginary Coherence per ratified Design Decision T014b, overriding FR-003.
 - **Data Filtering**: Invalid cognitive instruments are flagged in T005 and excluded in T023/T031, not rejected at the download stage.
+
+- [ ] T051 [P] [US1] Implement a data quality check to verify that the number of valid epochs per participant exceeds a minimum threshold (e.g., 5 epochs). If the threshold is not met, flag the participant and exclude them from further analysis.
+- [ ] T052 [US1] [P] Implement a script to generate a summary report of data quality metrics, including the number of valid participants, the number of participants with missing cognitive data, and the average number of valid epochs per participant.
+- [ ] T053 [US2] [P] Implement a sensitivity analysis to assess the impact of different multiple comparison correction methods (e.g., Bonferroni, FDR) on the results of the correlation analysis.
+- [ ] T054 [US2] [P] Implement a visualization to display the correlation coefficients between network metrics and age/cognitive score, with confidence intervals.
+- [ ] T055 [US3] [P] Implement a script to generate a report summarizing the results of the multiple regression analysis, including the coefficients, standard errors, and p-values for each predictor variable.
