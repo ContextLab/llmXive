@@ -196,3 +196,7 @@ Include exact file paths in descriptions.
 - [ ] T063 [P] Create a lightweight Dockerfile for reproducible local execution (CPU‑only) and publish to GitHub Container Registry.
 
 ---
+
+- [ ] T064 [US1] **Reviewer Concern: FR-002 Epoching**. Add a task to re-validate the epoching process in `code/data/preprocess.py` to ensure the SNR calculation is accurate and the epoch filtering criteria (SNR < 10dB) are correctly applied. Reference: # Prior research-stage reviews (Epoching SNR).
+- [ ] T065 [US2] **Reviewer Concern: Statistical Analysis**. Add a task to implement a sensitivity analysis to assess the robustness of the correlation results to different multiple comparison correction methods (Bonferroni vs. FDR). Reference: # Prior research-stage reviews (Statistical Correction).
+- [ ] T066 [US3] **Reviewer Concern: Visualization**. Add a task to explore alternative visualization techniques for network topology changes across age groups, such as using different color schemes or node sizes to represent the strength of connectivity. Reference: # Prior research-stage reviews (Network Visualization).
