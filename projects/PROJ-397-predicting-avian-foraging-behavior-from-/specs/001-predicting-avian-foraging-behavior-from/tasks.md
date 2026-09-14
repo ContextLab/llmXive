@@ -215,6 +215,7 @@ description: "Task list template for feature implementation"
 - All provenance metadata (source URLs, versions, extraction dates) must be recorded in `data/metadata.yaml` and carried forward into output files to satisfy Constitution Principle VI.
 
 ---
+
 - [ ] T050 [P] [US1] Add a task to verify the download of the EBD file by checking its size against a known expected value.
 - [ ] T051 [P] [US1] Implement a data quality check in `data/filter_and_log.py` to identify and log any missing or invalid coordinate values (latitude/longitude) in the EBD data.
 - [ ] T052 [US1] Implement a unit test for the `merge_and_buffer.py` script to verify that the land cover proportions sum to 1 for each observation.
