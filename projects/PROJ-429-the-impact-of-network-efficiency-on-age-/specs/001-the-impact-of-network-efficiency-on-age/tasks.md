@@ -27,7 +27,7 @@ Include exact file paths in descriptions.
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` (code/, data/, state/, tests/, docs/)
+- [ ] T001 Create project structure per `plan.md`
 - [X] T002 Initialize Python 3.11 project with virtualenv and `requirements.txt` (MNE, NetworkX, SciPy, Pandas, Statsmodels, PyWavelets)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting tools
 - [ ] T042d [P] Create `contracts/dataset.schema.yaml` defining the schema for input data validation (columns: participant_id, age, cognitive_instrument, cognitive_score, signal_quality). **Dep**: T001.
