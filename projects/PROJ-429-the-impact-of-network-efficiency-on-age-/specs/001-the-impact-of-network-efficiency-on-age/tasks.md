@@ -145,8 +145,8 @@ Include exact file paths in descriptions.
 - [X] T025b [US2] [Dep: T025a] Implement validation in `code/stats/correlation.py` to check instruments against the registry and flag invalid measures.
 - [X] T025c [US2] [Dep: T005, T025a] Propagate `Invalid Cognitive Measure` flags from `download_report.json` to correlation analysis; exclude those participants per FR‑007.
 - [X] T023 [US2] [Dep: T025b, T025c, T008] Full implementation of Spearman correlation (metrics ↔ Age & Cognitive Score) with Bonferroni/FDR correction. Output `correlation_results.csv` (`metric_name, outcome, spearman_r, p_value, p_adjusted, n, trace_id`). **Dep**: T025b, T025c, T008.
-- [ ] T023_run [US2] Execute `code/stats/correlation.py` → generate `correlation_results.csv` (inject `trace_id`). Update `state/version_map.yaml` with CSV hash. **Dep**: T023.
-- [ ] T027_run [US2] Execute `code/stats/power.py` → generate `power_analysis.json`. **Dep**: T027.
+- [ ] T023_run [US2] Execute `code/stats/correlation.py` → generate `correlation_results.csv`.
+- [ ] T027_run [US2] Execute `code/stats/power.py` → generate `power_analysis.json`.
 - [ ] T027b [US2] [Dep: T027_run] Halt check: if `is_sufficient == false` **AND** `actual_n < 85`, log warning *“Study underpowered for cognitive analysis; skipping cognitive visualization tasks”* and skip downstream US2/US3 tasks (T031, T031_run, T034, T035) while continuing to Phase 5. Skip entirely if `download_report.json` status is **PARTIAL** or **BLOCKED**. **Dep**: T027_run.
 - [ ] T028 [US2] [Dep: T023_run] Validate `trace_id` column exists in `correlation_results.csv` and contains valid SHA‑256 hex strings. Non-blocking warning if missing.
 - [ ] T029 [US2] [Dep: T028] Validate output schema (`metric_name, outcome, spearman_r, p_value, p_adjusted, n, trace_id`) and data types. **Dep**: T028.
