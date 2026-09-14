@@ -1,3 +1,8 @@
+---
+
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "Training Long-Context Vision-Language Models Effectively with Generali"
 
 **Input**: Design documents from `/specs/001-llmxive-follow-up-extending-training-lon/`
@@ -215,7 +220,9 @@
 
 ### Within Each User Story
 
-- Models/Entities before services/generators
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -225,7 +232,6 @@
 - All Foundational tasks marked [P] can run in parallel **ONLY if they do not share data schema dependencies** (e.g., T008 must complete before T011)
 - Once Foundational phase completes, US1 and US2 (setup parts) can start in parallel
 - US3 and US4 analysis scripts can be developed in parallel while US2 runs (but execute after)
-- All tests for a user story marked [P] can run in parallel
 
 ---
 
@@ -249,7 +255,7 @@ Task: "Implement validators.py in code/data_generation/validators.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data Generation)
+3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test data generation logic and variable isolation independently
 5. Deploy/demo if ready (data generation pipeline)
 
@@ -293,4 +299,3 @@ With multiple developers:
 - **NOTE**: T008 (Entities) must be completed before T011 (Generator) can be implemented.
 - **NOTE**: T042 includes integrated memory monitoring and graceful skip logic (NO abort).
 - **NOTE**: T061 does NOT update the project YAML timestamp (Constitution Principle V).
-- **NOTE**: T011, T041, and T015b have specific dependency constraints (sequential) that override the [P] tag if applicable.

@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory structure or the `logs/setup.log` file\
-    \ is provided; the claim lacks any artifact showing that `mkdir -p \u2026` was\
-    \ executed, that the directories exist, or that a timestamped success message\
-    \ was written. The implementer must supply the actual filesystem layout (e.g.,\
-    \ a directory listing) and the log file content."
 T004:
   c: false
   h: 279b47b8e5a8d8775611d97d9571dca9b03f6496d315db7bf32d89db3e6a9412
