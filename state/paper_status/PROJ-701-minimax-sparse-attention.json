@@ -11,12 +11,12 @@
         "page": 35
       }
     ],
-    "audited_at": "2026-09-14T11:52:39.717384+00:00"
+    "audited_at": "2026-09-14T12:22:26.064202+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-701-minimax-sparse-attention",
-  "updated_at": "2026-09-14T11:52:39.717397+00:00"
+  "updated_at": "2026-09-14T12:22:26.064218+00:00"
 }
