@@ -36,8 +36,8 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  **Deliverable**: Log confirmation `INFO: Spec state verified as per Plan requirements.`
 
 - [X] T001 Create project structure per implementation plan (`code/data`, `code/analysis`, `code/config`, `code/tests`)
-- [X] T002 Initialize Python project with pinned dependencies (`requirements.txt`: pandas, numpy, scikit-learn, statsmodels, scipy, pyyaml)
-- [X] T003 [P] Configure linting (ruff) and formatting tools
+- [X] T002 {{claim:c_2731d948}}
+- [X] T003 [P] {{claim:c_a53272b2}}
 
 ---
 
@@ -45,7 +45,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [X] T004 [P] Create `config/scales.yaml` defining standard scoring weights for CES‑D, GAD‑7, and PCL‑5.
+- [X] T004 [P] Create `config/scales.yaml` defining standard scoring weights for CES‑D, GAD‑7, and PCL‑5. [UNRESOLVED-CLAIM: c_0ba940c5 — status=not_enough_info]
  **Content outline** (example values):
  ```yaml
  CES-D:
@@ -93,17 +93,17 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - **Validation**: Verify file integrity (checksum) and log E‑MISSING‑ if required items are absent.
  - **GSS Exclusion**: Do NOT attempt to load GSS 2022. If GSS is found in `data/raw`, log a warning that it is being ignored per the Plan's 'Revised Approach'.
 - [X] T013 [US1] Implement `code/data/preprocessing.py` to perform the following steps in **strict order**:
- 1. **MICE Imputation**: Apply Multiple Imputation by Chained Equations (MICE) to missing values in the **predictor matrix** (`['age','gender','education','income','social_support','harassment_severity']`). Configure with `m=5`, `max_iter=10`, `random_state=42`.
- 2. **Imputation Strategy**: If `harassment_severity` has missing values, impute the continuous variable first. **Do not** impute the binary `harassment_exposure` directly.
+ 1. **MICE Imputation**: Apply Multiple Imputation by Chained Equations (MICE) to missing values in the **predictor matrix** (`['age','gender','education','income','social_support','harassment_severity']`). Configure with `m=5`, `max_iter=10`, `random_state=42`. [UNRESOLVED-CLAIM: c_a210226e — status=not_enough_info]
+ 2. **Imputation Strategy**: If `harassment_severity` has missing values, impute the continuous variable first. [UNRESOLVED-CLAIM: c_d58b2a82 — status=not_enough_info] **Do not** impute the binary `harassment_exposure` directly.
  3. **Derivation**: **After** MICE imputation is complete, derive the binary `harassment_exposure` variable from the imputed `harassment_severity` (e.g., `exposure = 1 if severity > 0 else 0`).
  4. **Scale Scoring**: Apply scoring algorithms defined in `config/scales.yaml` to raw item columns to generate `depression`, `anxiety`, and `ptsd` scores.
- 5. **PCL-5 Handling**: If PCL-5 items are missing from the dataset, log `E-MISSING-001` (PTSD) and set the `ptsd` column to `NaN`. **Verification**: Ensure the pipeline explicitly adapts the outcome set and FDR correction logic (FR-008) to handle a reduced set of outcomes (Depression, Anxiety only) without crashing.
+ 5. **PCL-5 Handling**: {{claim:c_73701e65}} **Verification**: Ensure the pipeline explicitly adapts the outcome set and FDR correction logic (FR-008) to handle a reduced set of outcomes (Depression, Anxiety only) without crashing.
  6. **Listwise Deletion for Outcomes**: Perform listwise deletion **only** on rows where critical outcome variables (`depression`, `anxiety`, `ptsd`) are missing after imputation and derivation. Do NOT perform listwise deletion on predictor variables before imputation.
  7. **Convergence Check**: Verify MICE convergence by checking the trace of imputed values. If convergence fails (trace does not stabilize), increase `max_iter` to 50 and re-run. Log status `W-MICE-NONCONV-001` if max_iter was increased.
  8. Output the processed DataFrame for downstream cohort construction.
 - [X] T014 [US1] Implement `code/data/cohort.py` to:
  1. Filter the dataset to remove rows with critical missing values (harassment_severity, social_support, or at least one mental health outcome).
- 2. Ensure `harassment_severity` has sufficient variance (SD > 0.5, N > 30). If not, log `E-LOW-VAR-001` and halt.
+ 2. Ensure `harassment_severity` has sufficient variance (SD > 0.5, N > 30). [UNRESOLVED-CLAIM: c_babaef02 — status=not_enough_info] If not, log `E-LOW-VAR-001` and halt.
  3. Output `data/results/analysis_cohort.csv`.
 - [X] T015 [US1] **Validate the analysis cohort**:
  - Check **variance of Harassment Exposure** (SD > 0.5, N > 30).
@@ -130,7 +130,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/analysis/models.py` to fit OLS models with heteroskedasticity‑consistent (HC3) standard errors for Depression, Anxiety, and PTSD (if PCL-5 present). Include interaction term `SocialSupport:HarassmentExposure`.
-- [X] T021 [P] [US2] Compute **bias‑corrected accelerated (BCa) bootstrap CIs** with **1,000 resamples** using `statsmodels.stats.bootstrap`. Seed the process with `random_seed` from `config/seeds.yaml`.
+- [X] T021 [P] [US2] {{claim:c_a61a624e}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) using `statsmodels.stats.bootstrap`. Seed the process with `random_seed` from `config/seeds.yaml`.
 - [X] T022 [P] [US2] Add fallback: if the robust model fails to converge, automatically refit a standard OLS model (no HCSE) and log status `E‑NONCONV‑001`.
 - [X] T023 [P] [US2] Implement Benjamini‑Hochberg FDR correction across the set of outcome tests (Depression, Anxiety, PTSD) and attach adjusted p‑values to the results.
 - [X] T024 [P] [US2] Save regression outputs (coefficients, SEs, p‑values, bootstrap CIs, adjusted p‑values) to `data/results/regression_results.csv`.

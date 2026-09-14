@@ -1259,3 +1259,265 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T02:08:51Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/research.md
+  attempts: 1
+  canonical: data source is Cyberbullying Survey 2021
+  claim_id: c_8e222044
+  context: The primary data source for this analysis is the Cyberbullying Survey 2021.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary data source for this analysis is the Cyberbullying Survey
+    2021.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T06:03:49Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: linting and formatting tools configured
+  claim_id: c_a53272b2
+  context: 'Initialize Python project with pinned dependencies (`requirements.txt`:
+    pandas, numpy, scikit-learn, statsmodels, scipy, pyyaml)
+
+    - [X] T003 [P] Configure linting (ruff) and formatting tools'
+  evidence:
+    entailment_evidence: Linting and formatting tools configured
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Linting_and_formatting_tools_configured
+  kind: entity_fact
+  raw_text: Configure linting (ruff) and formatting tools
+  resolved_value: linting and formatting tools configured
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T06:19:04Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Python project initialized with dependencies
+  claim_id: c_2731d948
+  context: 'Initialize Python project with pinned dependencies (`requirements.txt`:
+    pandas, numpy, scikit-learn, statsmodels, scipy, pyyaml)
+
+    - [X] T003 [P] Configure linting (ruff) and formatting tools'
+  evidence:
+    entailment_evidence: Python project initialized with dependencies
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Python_project_initialized_with_dependencies
+  kind: entity_fact
+  raw_text: 'Initialize Python project with pinned dependencies (`requirements.txt`:
+    pandas, numpy, scikit-learn, statsmodels, scipy, pyyaml)'
+  resolved_value: Python project initialized with dependencies
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T06:19:06Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: scales.yaml created with scoring weights
+  claim_id: c_0ba940c5
+  context: "- [X] T004 [P] Create `config/scales.yaml` defining standard scoring weights\
+    \ for CES\u2011D, GAD\u20117, and PCL\u20115.\n **Content outline** (example values):"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `config/scales.yaml` defining standard scoring weights for CES\u2011\
+    D, GAD\u20117, and PCL\u20115."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T06:33:40Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: CES-D scoring is -3 per item, total 0-60
+  claim_id: c_1b849562
+  context: "```yaml\n CES-D:\n items: [depressed1, depressed2, depressed3, depressed4,\
+    \ depressed5, depressed6, depressed7, depressed8, depressed9, depressed10, depressed11,\
+    \ depressed12, depressed13, depressed14, depressed15, depressed16, depressed17,\
+    \ depressed18, depressed19, depressed20]\n reverse_items: [depressed5, depressed9,\
+    \ depressed12, depressed16, depressed18]\n scoring: -3 per item, total 0\u2011\
+    60"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CES-D scoring: -3 per item, total 0\u201160"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T06:51:14Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: GAD-7 scoring is non-negative integer per item, total non-negative integer
+    sum
+  claim_id: c_f7a15d35
+  context: "GAD-7:\n items: [gad1, gad2, gad3, gad4, gad5, gad6, gad7]\n reverse_items:\
+    \ []\n scoring: non-negative integer per item, total non-negative integer sum"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'GAD-7 scoring: non-negative integer per item, total non-negative integer
+    sum'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T07:07:44Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: PCL-5 scoring is -4 per item, total 0-100
+  claim_id: c_9a4f1d88
+  context: "PCL-5:\n items: [pcl1, pcl2, pcl3, pcl4, pcl5, pcl6, pcl7, pcl8, pcl9,\
+    \ pcl10, pcl11, pcl12, pcl13, pcl14, pcl15, pcl16, pcl17, pcl18, pcl19, pcl20,\
+    \ pcl21, pcl22, pcl23, pcl24, pcl25]\n reverse_items: []\n scoring: \u20114 per\
+    \ item, total 0\u2011100"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "PCL-5 scoring: \u20114 per item, total 0\u2011100"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T07:24:12Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: MICE imputation configured with m=5, max_iter=10, random_state=42
+  claim_id: c_a210226e
+  context: '1. **MICE Imputation**: Apply Multiple Imputation by Chained Equations
+    (MICE) to missing values in the **predictor matrix** (`[''age'',''gender'',''education'',''income'',''social_support'',''harassment_severity'']`).
+    Configure with `m=5`, `max_iter=10`, `random_state=42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure with `m=5`, `max_iter=10`, `random_state=42`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T07:40:53Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: harassment_severity missing values imputed first
+  claim_id: c_d58b2a82
+  context: '2. **Imputation Strategy**: If `harassment_severity` has missing values,
+    impute the continuous variable first. **Do not** impute the binary `harassment_exposure`
+    directly.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Harassment_severity_missing_values_imputed_first
+  kind: entity_fact
+  raw_text: If `harassment_severity` has missing values, impute the continuous variable
+    first.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T07:58:36Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: missing PCL-5 items result in E-MISSING-001 log and NaN ptsd column
+  claim_id: c_73701e65
+  context: '5. **PCL-5 Handling**: If PCL-5 items are missing from the dataset, log
+    `E-MISSING-001` (PTSD) and set the `ptsd` column to `NaN`.'
+  evidence:
+    entailment_evidence: Missing PCL-5 items result in E-MISSING-001 log and NaN ptsd
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Missing_PCL-5_items_result_in_E-MISSING-001_log_and_NaN_ptsd
+  kind: causal
+  raw_text: If PCL-5 items are missing from the dataset, log `E-MISSING-001` (PTSD)
+    and set the `ptsd` column to `NaN`.
+  resolved_value: missing PCL-5 items result in E-MISSING-001 log and NaN ptsd column
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T07:58:40Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: 'harassment_severity variance check: SD > 0.5, N > 30'
+  claim_id: c_babaef02
+  context: "- Check **variance of Harassment Exposure** (SD > 0.5, N > 30).\n - Compute\
+    \ **VIF** for the model matrix (`social_support`, `harassment_exposure`, interaction,\
+    \ plus covariates) and ensure VIF < 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure `harassment_severity` has sufficient variance (SD > 0.5, N > 30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T07:58:40Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: BCa bootstrap CIs with 1000 resamples
+  claim_id: c_a61a624e
+  context: "- [X] T021 [P] Compute **bias\u2011corrected accelerated (BCa) bootstrap\
+    \ CIs** with **1,000 resamples** using `statsmodels.stats.bootstrap`."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: "Compute **bias\u2011corrected accelerated (BCa) bootstrap CIs** with\
+    \ **1,000 resamples**"
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T08:12:20Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: random_seed is 42
+  claim_id: c_f518510a
+  context: "```yaml\n random_seed:\n ```\n **Instruction**: Ensure the file contains\
+    \ valid YAML with the integer value `42` for `random_seed`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'random_seed: 42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T08:29:01Z'

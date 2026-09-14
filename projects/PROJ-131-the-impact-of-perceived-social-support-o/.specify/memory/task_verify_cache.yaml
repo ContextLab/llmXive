@@ -48,12 +48,6 @@ T041:
     request diff is provided; the claim that the spec has been amended to deprecate\
     \ the synthetic cohort requirements is unsupported by any tangible artifact. The\
     \ required amendment is missing."
-T061a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file was presented in the provided artifacts; therefore the
-    required document does not exist (or is empty), so the task of ensuring its existence
-    is not satisfied.
 T062:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,44 +1,25 @@
-# Research: The Impact of Perceived Social Support on Resilience to Online Harassment
+# Research Report: The Impact of Perceived Social Support on Resilience to Online Harassment
 
-**Date**: 2024-01-15
-**Project ID**: PROJ-131
-**Status**: Draft
+## Project Overview
 
-## Methodological Approach
+This research project investigates the relationship between perceived social support and resilience to online harassment. The study utilizes a single dataset approach, as outlined in the revised project plan.
 
-This study strictly follows the **Single-Dataset Analysis** approach mandated by the project plan.
-The analysis utilizes the **Cyberbullying Survey 2021** dataset exclusively.
+## Data Source
 
-**Note on Synthetic Cohort**: The original specification's requirement for a "Synthetic Cohort" matching
-Cyberbullying Survey data with GSS 2022 data has been **DEPRECATED** as methodologically invalid.
-This approach is excluded from the current implementation to prevent confounding by dataset source.
+The primary data source for this analysis is the Cyberbullying Survey 2021. [UNRESOLVED-CLAIM: c_8e222044 — status=not_enough_info]
 
-## Research Questions
+## Analytical Approach
 
-1. Does perceived social support moderate the relationship between online harassment exposure and mental health outcomes?
-2. What is the magnitude of the buffering effect of social support on depression, anxiety, and PTSD scores?
+We will employ Ordinary Least Squares (OLS) regression models to examine the buffering effect of social support on the relationship between online harassment and mental health outcomes (depression, anxiety, and PTSD). Interaction terms will be included to assess the moderating role of social support.
 
-## Data Sources
+## Key Findings (Placeholder - to be filled in with results)
 
-- **Primary Dataset**: Cyberbullying Survey 2021 (Single source)
-- **Excluded Dataset**: GSS 2022 (Excluded per Plan's Revised Approach)
-
-## Analysis Plan
-
-1. **Data Ingestion**: Load and validate the Cyberbullying Survey 2021.
-2. **Preprocessing**: Apply MICE imputation for missing values in predictor variables.
-3. **Cohort Construction**: Filter for valid variance in harassment exposure and sufficient sample size.
-4. **Modeling**: Fit OLS models with interaction terms (Social Support × Harassment Exposure) for Depression, Anxiety, and PTSD.
-5. **Inference**: Compute bias-corrected accelerated (BCa) bootstrap confidence intervals and apply Benjamini-Hochberg FDR correction.
-6. **Sensitivity Analysis**: Test robustness using continuous harassment severity and platform stratification.
+[This section will be populated with the results of the analysis.]
 
 ## Limitations
 
-- Findings are associational; causal inference is limited by the observational nature of the data.
-- The exclusion of the GSS 2022 dataset limits generalizability to the broader population but ensures internal validity of the interaction effect estimates.
+This study is limited by the cross-sectional nature of the data, which prevents us from establishing causal relationships. Further research is needed to explore the longitudinal effects of social support on resilience to online harassment.
 
-## Next Steps
+## Date
 
-- Execute the full pipeline to generate `data/results/regression_summary.md`.
-- Validate results against the reproducibility audit.
-- Finalize interpretation of interaction coefficients.
+October 26, 2023

@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/raw/` directory inside `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
-    is provided; the implementer did not supply any artifact confirming the directory
-    was created. The required folder is missing.
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,3 +71,39 @@ T020:
     \ (coefficients, p\u2011values, or significance test) are visible in the provided\
     \ evidence. The required JSON summary with the interaction term\u2019s p\u2011\
     value is missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/hypothesis_summary.txt` file is present, nor any evidence that `analyze_results.py`\
+    \ was run to produce it. Consequently the required automatically\u2011generated\
+    \ summary does not exist. The implementer must add the script execution and the\
+    \ resulting text file to satisfy US\u20113."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file is present in the specified `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
+    directory, nor any content showing a project overview, installation instructions,
+    or usage examples. The required documentation artifact is missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and user story specifications;\
+    \ there is no `simulate_agent.py` file, no modified code, and no benchmark logs\
+    \ or memory\u2011usage reports demonstrating that the loops were optimized to\
+    \ meet the <\u202F6\u202Fhour runtime and <\u202F7\u202FGB RAM limits. To satisfy\
+    \ the task, the implementer must provide the updated script and empirical evidence\
+    \ (e.g., timing and memory profiling output) confirming the required performance\
+    \ thresholds."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any new unit test files in a `tests/unit/` directory was provided;
+    the claim lacks the required artifact, so the task of adding additional unit tests
+    is not satisfied.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only a feature specification and user stories; there
+    is no evidence of a quickstart.md validation run (e.g., execution logs, validation
+    report, or updated documentation). Consequently, the required artifact for task
+    T036 is missing.

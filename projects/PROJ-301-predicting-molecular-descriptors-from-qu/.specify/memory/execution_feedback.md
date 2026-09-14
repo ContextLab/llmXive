@@ -64,19 +64,19 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/01_data_download.py` — IS a run-book command
   Make ONE of these WRITE `data/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/features_2d.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/03_model_training.py` — NOT invoked by the run-book
-    - `code/02_feature_extraction.py` — NOT invoked by the run-book
-    - `code/04_analysis.py` — NOT invoked by the run-book
     - `code/04_model_training.py` — NOT invoked by the run-book
     - `code/05_quickstart_validator.py` — NOT invoked by the run-book
+    - `code/02_feature_extraction.py` — NOT invoked by the run-book
+    - `code/03_model_training.py` — NOT invoked by the run-book
+    - `code/04_analysis.py` — NOT invoked by the run-book
     - `code/utils/models.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features_2d.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/features_3d.npy` is declared but was NOT written. Scripts referencing it:
-    - `code/03_model_training.py` — NOT invoked by the run-book
-    - `code/02_feature_extraction.py` — NOT invoked by the run-book
-    - `code/04_analysis.py` — NOT invoked by the run-book
     - `code/04_model_training.py` — NOT invoked by the run-book
     - `code/05_quickstart_validator.py` — NOT invoked by the run-book
+    - `code/02_feature_extraction.py` — NOT invoked by the run-book
+    - `code/03_model_training.py` — NOT invoked by the run-book
+    - `code/04_analysis.py` — NOT invoked by the run-book
     - `code/utils/models.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/features_3d.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/labels_test.csv` is declared but was NOT written. Scripts referencing it:
@@ -86,16 +86,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/02_feature_extraction.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/labels_train.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/molecules_cleaned.parquet` is declared but was NOT written. Scripts referencing it:
-    - `code/05_optimize_data_loading.py` — NOT invoked by the run-book
-    - `code/02_feature_extraction.py` — NOT invoked by the run-book
     - `code/03_feature_extraction.py` — NOT invoked by the run-book
-    - `code/02_clean.py` — NOT invoked by the run-book
     - `code/04_model_training.py` — NOT invoked by the run-book
     - `code/05_quickstart_validator.py` — NOT invoked by the run-book
+    - `code/02_clean.py` — NOT invoked by the run-book
+    - `code/05_optimize_data_loading.py` — NOT invoked by the run-book
+    - `code/02_feature_extraction.py` — NOT invoked by the run-book
     - `code/extract.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/molecules_cleaned.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/qm9_full.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/05_quickstart_validator.py` — NOT invoked by the run-book
     - `code/02_clean.py` — NOT invoked by the run-book
     - `code/01_data_download.py` — IS a run-book command
-    - `code/05_quickstart_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/qm9_full.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
