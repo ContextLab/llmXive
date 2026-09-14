@@ -4471,3 +4471,126 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T05:53:19Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: torch installation requires --index-url https://download.pytorch.org/whl/cpu
+  claim_id: c_82209ec8
+  context: Initialize Python project with `transformers`, `scikit-learn`, `scipy`,
+    `pandas`, `numpy`, `torch`, `bitsandbytes` dependencies. **Must explicitly install
+    `torch` with `--index-url https://download.pytorch.org/whl/cpu` and pin version
+    to enforce CPU-only build and prevent GPU wheel fallback.** (Arch-Constraint /
+    Constitution Principle VII)
+  evidence:
+    entailment_evidence: Torch installation requires --index-url https://download.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Torch_installation_requires_--index-url_https://download.pyt
+  kind: entity_fact
+  raw_text: Must explicitly install `torch` with `--index-url https://download.pytorch.org/whl/cpu`
+    and pin version to enforce CPU-only build and prevent GPU wheel fallback.
+  resolved_value: torch installation requires --index-url https://download.pytorch.org/whl/cpu
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T21:48:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: dataset contains human_verified_label field outputs to data/raw/aime_verified.jsonl
+  claim_id: c_a0aef28c
+  context: Implement `src/data/download_aime_verified.py` to **first fetch** `HuggingFaceH4/aime_2024`
+    from the HuggingFace Hub. **Check if the dataset contains a `human_verified_label`
+    field.** If the field exists, output to `data/raw/aime_verified.jsonl`.
+  evidence:
+    entailment_evidence: Dataset contains human verified label field outputs to data/
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_human_verified_label_field_outputs_to_data/
+  kind: entity_fact
+  raw_text: If the field exists, output to `data/raw/aime_verified.jsonl`.
+  resolved_value: dataset contains human_verified_label field outputs to data/raw/aime_verified.jsonl
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T21:48:27Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: stratify by hash(problem_id) % 2 ensures 50/50 split
+  claim_id: c_7f40da73
+  context: 'Implement `src/data/split_aime.py` to split the AIME dataset into training
+    and held-out sets. **Stratification Logic**: If the dataset contains a `difficulty`
+    or `reasoning_type` field, stratify by that field. **If these fields are missing
+    (as is common in raw AIME datasets), stratify deterministically by `hash(problem_id)
+    % 2`** to ensure a balanced 50/50 split of problem IDs between train and holdout
+    sets, preventing data leakage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If these fields are missing (as is common in raw AIME datasets), stratify
+    deterministically by `hash(problem_id) % 2` to ensure a balanced 50/50 split of
+    problem IDs between train and holdout sets, preventing data leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T22:08:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: problem IDs must be unique between train and holdout sets
+  claim_id: c_6621c390
+  context: 'Implement `src/data/validate_split.py` to confirm the held-out set contains
+    no problems with overlapping reasoning steps to the training set, preventing data
+    leakage in the small N=200 sample. **Also check that problem IDs are unique between
+    train and holdout sets.** **DEPENDENCY: This task requires the output files from
+    T006.1a.** (FR-009)'
+  evidence:
+    entailment_evidence: Problem IDs must be unique between train and holdout sets
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Problem_IDs_must_be_unique_between_train_and_holdout_sets
+  kind: entity_fact
+  raw_text: Also check that problem IDs are unique between train and holdout sets.
+  resolved_value: problem IDs must be unique between train and holdout sets
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T22:08:26Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFaceTB/SmolLM2-1.7B parameter count <= 2.0B and size < 7GB RAM
+  claim_id: c_ee1d5134
+  context: Implement `src/models/moe_student.py` to load a verified **HuggingFaceTB/SmolLM2-1.7B**
+    student model from HuggingFace using int8 quantization and CPU offloading to fit
+    within 7GB RAM (See US1). **Must include pre-load size verification** to confirm
+    model ID, parameter count <= 2.0B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must include pre-load size verification to confirm model ID, parameter
+    count <= 2.0B, and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T22:25:10Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-1.3b-hf parameter count in the billion-scale range
+  claim_id: c_56e6ffb3
+  context: Implement `src/models/ssm_student.py` to load the **state-spaces/mamba-1.3b-hf**
+    SSM student model in low-precision format with CPU offloading. **Must include
+    pre-load size verification** to confirm parameter count is in the billion-scale
+    range.. If loading fails due to memory, raise `MemoryError` (no fallback to smaller
+    synthetic models).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must include pre-load size verification to confirm parameter count is
+    in the billion-scale range..
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T22:25:11Z'

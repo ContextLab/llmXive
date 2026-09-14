@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T16:42:45.916003Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-321-predicting-molecular-viscosity-from-stru
-last_run_id: fc302454-726b-461a-9003-e3213017fec9
+last_run_id: 120dfa2b-9cac-43aa-ac57-bc80659fba6c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Molecular Viscosity from Structural Features with Machine Learning
-updated_at: '2026-06-16T15:30:03.785419Z'
+updated_at: '2026-09-13T23:56:23.333042Z'

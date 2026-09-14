@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.15502",
+  "judged_at": "2026-09-13T23:40:47Z",
+  "model": "google.gemma-3-27b-it",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular viscosity from structural features with machine learning chemistry",
+  "rationale": "This paper directly measures the same biological pathway (viscosity) the user is asking about (a). While the user is approaching the problem with machine learning, this paper establishes a physical model and empirical results for liquid viscosity – a foundational baseline for any predictive model.",
+  "relevant": true
+}
