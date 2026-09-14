@@ -1,3 +1,4 @@
 """
-Ingest module for loading and validating raw alloy data.
+Data ingestion module.
+Handles loading, filtering, and checksumming of raw alloy data.
 """

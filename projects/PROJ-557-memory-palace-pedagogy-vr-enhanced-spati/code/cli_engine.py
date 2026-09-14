@@ -7,132 +7,131 @@ from utils.logging import log_step, log_error
 
 
 def compute_moving_average_zscore(
-    df: pd.DataFrame,
-    column: str = "pupil_diameter",
-    window_size: int = 100
-) -> pd.DataFrame:
+    values: np.ndarray, window_size: int = 5
+) -> np.ndarray:
     """
-    Compute a moving average of the specified column and return its z-score.
+    Compute a moving average z-score for a time series of CLI values.
 
     Args:
-        df: Input DataFrame with time-series data.
-        column: Name of the column to process (default: 'pupil_diameter').
-        window_size: Size of the rolling window for the moving average.
+        values: 1D array of CLI values.
+        window_size: Size of the rolling window for mean/std calculation.
 
     Returns:
-        DataFrame with the original data and a new column '_zscore'.
+        Array of z-scores corresponding to each point (NaN where window is incomplete).
     """
-    log_step("cli_engine", "compute_moving_average_zscore", f"Computing z-scores with window={window_size}")
+    if len(values) < window_size:
+        log_step("cli_engine", "Window size exceeds data length, returning NaNs.")
+        return np.full_like(values, np.nan, dtype=float)
 
-    if column not in df.columns:
-        log_error("cli_engine", "compute_moving_average_zscore", f"Column '{column}' not found in DataFrame")
-        raise ValueError(f"Column '{column}' not found in DataFrame")
+    series = pd.Series(values)
+    rolling_mean = series.rolling(window=window_size, center=True).mean()
+    rolling_std = series.rolling(window=window_size, center=True).std()
 
-    # Compute rolling mean and std
-    rolling_mean = df[column].rolling(window=window_size, min_periods=1).mean()
-    rolling_std = df[column].rolling(window=window_size, min_periods=1).std()
+    # Avoid division by zero
+    rolling_std = rolling_std.replace(0, np.nan)
 
-    # Handle division by zero if std is 0
-    rolling_std = rolling_std.replace(0, np.nan).fillna(1.0)
-
-    # Compute z-score
-    df = df.copy()
-    df['_zscore'] = (df[column] - rolling_mean) / rolling_std
-
-    return df
+    z_scores = (series - rolling_mean) / rolling_std
+    return z_scores.values
 
 
 def identify_high_load_windows(
-    df: pd.DataFrame,
-    zscore_column: str = "_zscore",
-    threshold: Optional[float] = None
-) -> pd.DataFrame:
+    z_scores: np.ndarray,
+    threshold_std: Optional[float] = None
+) -> List[bool]:
     """
-    Identify windows where the CLI (z-score) exceeds a threshold.
+    Identify windows where the CLI z-score exceeds a threshold.
 
     Args:
-        df: Input DataFrame with z-score column.
-        zscore_column: Name of the z-score column (default: '_zscore').
-        threshold: CLI threshold (default: from config via get_cli_threshold()).
+        z_scores: Array of pre-computed z-scores.
+        threshold_std: Number of standard deviations above mean to flag as high load.
+                       Defaults to config value (0.5).
 
     Returns:
-        DataFrame with a new boolean column 'is_high_load'.
+        List of booleans indicating high-load status for each window.
     """
-    log_step("cli_engine", "identify_high_load_windows", f"Identifying high load windows with threshold={threshold}")
+    if threshold_std is None:
+        threshold_std = get_cli_threshold()
 
-    if threshold is None:
-        threshold = get_cli_threshold()
-
-    if zscore_column not in df.columns:
-        log_error("cli_engine", "identify_high_load_windows", f"Column '{zscore_column}' not found in DataFrame")
-        raise ValueError(f"Column '{zscore_column}' not found in DataFrame")
-
-    df = df.copy()
-    df['is_high_load'] = df[zscore_column] > threshold
-
-    return df
+    log_step("cli_engine", f"Identifying high load windows with threshold {threshold_std} SD.")
+    return [z > threshold_std for z in z_scores]
 
 
 def compute_outlier_flags(
-    df: pd.DataFrame,
-    zscore_column: str = "_zscore",
-    threshold: Optional[float] = None
-) -> pd.DataFrame:
+    z_scores: np.ndarray,
+    threshold_std: Optional[float] = None
+) -> List[bool]:
     """
-    Flag windows as outliers if their z-score is > 3 SD from the mean (absolute value).
+    Flag windows that are statistical outliers for exclusion.
+
+    Outliers are defined as windows where the absolute z-score exceeds a specified
+    number of standard deviations from the mean (typically 3.0).
 
     Args:
-        df: Input DataFrame with z-score column.
-        zscore_column: Name of the z-score column (default: '_zscore').
-        threshold: Outlier threshold in SD units (default: from config via get_outlier_threshold()).
+        z_scores: Array of pre-computed z-scores.
+        threshold_std: Number of standard deviations to consider an outlier.
+                       Defaults to config value (3.0).
 
     Returns:
-        DataFrame with a new boolean column 'is_outlier'.
+        List of booleans where True indicates the window should be excluded.
     """
-    log_step("cli_engine", "compute_outlier_flags", f"Computing outlier flags with threshold={threshold}")
+    if threshold_std is None:
+        threshold_std = get_outlier_threshold()
 
-    if threshold is None:
-        threshold = get_outlier_threshold()
-
-    if zscore_column not in df.columns:
-        log_error("cli_engine", "compute_outlier_flags", f"Column '{zscore_column}' not found in DataFrame")
-        raise ValueError(f"Column '{zscore_column}' not found in DataFrame")
-
-    df = df.copy()
-    # Flag absolute z-score > threshold
-    df['is_outlier'] = df[zscore_column].abs() > threshold
-
-    return df
+    log_step("cli_engine", f"Computing outlier flags with threshold {threshold_std} SD.")
+    try:
+        flags = [abs(z) > threshold_std for z in z_scores]
+        return flags
+    except Exception as e:
+        log_error("cli_engine", "Failed to compute outlier flags", e)
+        return [False] * len(z_scores)
 
 
 def process_window_data(
     df: pd.DataFrame,
-    window_size: int = 100,
-    cli_threshold: Optional[float] = None,
-    outlier_threshold: Optional[float] = None
+    cli_column: str = 'cli_value',
+    window_size: int = 5,
+    high_load_threshold: float = 0.5,
+    outlier_threshold: float = 3.0
 ) -> pd.DataFrame:
     """
-    Full pipeline: compute z-scores, identify high-load windows, and flag outliers.
+    Orchestrate the full CLI processing pipeline for a DataFrame of window data.
+
+    Steps:
+    1. Compute moving average z-scores.
+    2. Identify high-load windows.
+    3. Flag outliers for exclusion.
+    4. Append results to the DataFrame.
 
     Args:
-        df: Input DataFrame with time-series data.
+        df: Input DataFrame containing raw CLI values.
+        cli_column: Name of the column containing raw CLI values.
         window_size: Rolling window size for z-score calculation.
-        cli_threshold: Threshold for high-load identification.
-        outlier_threshold: Threshold for outlier flagging.
+        high_load_threshold: SD threshold for high-load detection.
+        outlier_threshold: SD threshold for outlier detection.
 
     Returns:
-        Processed DataFrame with '_zscore', 'is_high_load', and 'is_outlier' columns.
+        DataFrame with added columns: 'cli_zscore', 'is_high_load', 'is_outlier'.
     """
-    log_step("cli_engine", "process_window_data", "Starting full window processing pipeline")
+    log_step("cli_engine", "Starting window data processing.")
 
-    # Step 1: Compute z-scores
-    df = compute_moving_average_zscore(df, window_size=window_size)
+    if cli_column not in df.columns:
+        raise ValueError(f"Column '{cli_column}' not found in DataFrame.")
 
-    # Step 2: Identify high-load windows
-    df = identify_high_load_windows(df, threshold=cli_threshold)
+    values = df[cli_column].values.astype(float)
 
-    # Step 3: Flag outliers
-    df = compute_outlier_flags(df, threshold=outlier_threshold)
+    # Compute z-scores
+    z_scores = compute_moving_average_zscore(values, window_size)
 
-    log_step("cli_engine", "process_window_data", "Pipeline completed successfully")
-    return df
+    # Identify high load
+    is_high_load = identify_high_load_windows(z_scores, high_load_threshold)
+
+    # Flag outliers
+    is_outlier = compute_outlier_flags(z_scores, outlier_threshold)
+
+    result = df.copy()
+    result['cli_zscore'] = z_scores
+    result['is_high_load'] = is_high_load
+    result['is_outlier'] = is_outlier
+
+    log_step("cli_engine", "Window data processing complete.")
+    return result

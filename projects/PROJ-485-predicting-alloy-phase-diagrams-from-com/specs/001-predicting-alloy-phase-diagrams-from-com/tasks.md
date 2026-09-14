@@ -114,10 +114,10 @@
 
 ### Implementation for User Story 3
 
-- [~] T032 [US3] **Depends on T029**. Implement `code/viz/plot_phase_diagrams.py` to load model artifact from `data/artifacts/model.pkl` (produced by T029) and ground truth for specific systems (FR-005)
-- [~] T033 [US3] Implement logic to generate plots with X-axis (composition 0-100%) and Y-axis (temperature) (US-3)
-- [~] T034 [US3] Implement visual distinction (solid vs. dashed lines) for experimental vs. predicted boundaries (US-3)
-- [~] T035 [US3] Calculate Topological Consistency Score (TCS): implement partial match ratio logic (count matching sorted slices / total slices at fixed composition) and check if TCS ≥ 0.8 (Methodology Section 4, SC-004)
+- [ ] T032 [US3] **Depends on T029**. Implement `code/viz/plot_phase_diagrams.py` to load model artifact from `data/artifacts/model.pkl` (produced by T029) and ground truth for specific systems (FR-005)
+- [ ] T033 [US3] Implement logic to generate plots with X-axis (composition 0-100%) and Y-axis (temperature) (US-3)
+- [ ] T034 [US3] Implement visual distinction (solid vs. dashed lines) for experimental vs. predicted boundaries (US-3)
+- [ ] T035 [US3] Calculate Topological Consistency Score (TCS): implement partial match ratio logic (count matching sorted slices / total slices at fixed composition) and check if TCS ≥ 0.8 (Methodology Section 4, SC-004)
 - [ ] T036 [US3] Implement MAE check for visual fidelity; flag discrepancy if MAE > 50K. This is the primary pass/fail check for SC-004 (US-3, SC-004)
 - [ ] T037 [US3] Save generated plots to `data/artifacts/plots/` with system ID naming convention (FR-005)
 - [ ] T038 [US3] Exclude complex/metastable systems (e.g., Fe-C) from visualization (US-3, Assumptions)

@@ -91,7 +91,7 @@
 ### Implementation for User Story 2
 
 - [ ] T021a [US2] **Extract Passage Text Data**: Implement `code/simulation.py` function to ingest raw passage text (original) from `ds004041` and prepare it for joining with CLI data. Output `data/derived/passage_data.parquet`.
-- [~] T021b [US2] **Generate Counterfactual Text**: Implement `code/simulation.py` function to generate a "simplified" version of the original text for each passage using a CPU-tractable method (e.g., T5-small in 16-bit or rule-based simplification) to create the necessary "Adaptive" condition data. Output `data/derived/counterfactual_text.parquet`.
+- [ ] T021b [US2] **Generate Counterfactual Text**: Implement `code/simulation.py` function to generate a "simplified" version of the original text for each passage using a CPU-tractable method (e.g., T5-small in 16-bit or rule-based simplification) to create the necessary "Adaptive" condition data. Output `data/derived/counterfactual_text.parquet`.
 - [ ] T019 [US2] Implement `simulation.py` function: `select_text_version` (logic: if CLI > 0.5 SD -> use generated `counterfactual_text` from T021b, **else** -> use `original_text` from T021a; explicitly handle cases where generation fails by defaulting to original)
 - [ ] T020 [US2] Implement `simulation.py` function: `generate_adaptation_labels` to create binary `AdaptationLabel` per window (flagging "adaptive" vs "control" conditions)
 - [ ] T021 [US2] Create `code/us2_main.py` to join CLI data (from T015) with passage data (T021a) and counterfactual text (T021b), outputting `data/derived/adaptation_labels.parquet`

@@ -1,3 +1,4 @@
 """
-Models module for training and evaluating ML models.
+Machine learning models module.
+Handles training, evaluation, and artifact management.
 """

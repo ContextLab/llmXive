@@ -1,3 +1,4 @@
 """
-Features module for generating compositional descriptors.
+Feature engineering module.
+Handles descriptor generation and validation.
 """

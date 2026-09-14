@@ -1,3 +1,4 @@
 """
-Tests package for project unit and integration tests.
+Test suite package.
+Contains unit and integration tests for the project.
 """

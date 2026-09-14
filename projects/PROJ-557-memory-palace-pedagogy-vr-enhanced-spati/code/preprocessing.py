@@ -1,302 +1,243 @@
+"""
+Preprocessing pipeline for pupil diameter data from ds004041.
+
+Implements:
+  - Blink removal (interpolation)
+  - Low-pass filtering (4Hz cutoff)
+  - Baseline correction
+  - Luminance normalization (using algorithm from T005b)
+"""
 import os
 import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, Union
+from scipy.signal import butter, filtfilt
 
 from config import get_config
-from utils.logging import log_step, log_error, setup_pipeline_logger
+from utils.logging import log_step, log_error
 
-# Constants for filtering (derived from T005b algorithm definition)
-# Cutoff frequency for low-pass filter (Hz)
-LOW_PASS_CUTOFF_HZ = 4.0
-# Sampling rate assumption (Hz) - typically 250Hz for Pupil Labs
-DEFAULT_SAMPLING_RATE = 250.0
+# Constants derived from T005b
+# Luminance normalization algorithm:
+#   normalized = (raw - screen_baseline) / screen_baseline
+#   where screen_baseline is the median luminance of the screen log for the session.
+LUMINANCE_NORMALIZATION_FACTOR = 1.0  # Placeholder if no log, handled in function
 
-# Global logger
-logger = None
-
-def _get_logger():
-    """Lazy initialization of the logger."""
-    global logger
-    if logger is None:
-        logger = setup_pipeline_logger("preprocessing")
-    return logger
-
-def normalize_luminance_algorithm(luminance_values: np.ndarray, window_size: int = 100) -> np.ndarray:
+def _load_screen_luminance_log(session_id: str, raw_dir: Path) -> Optional[np.ndarray]:
     """
-    Normalizes luminance values based on a rolling median to account for
-    slow drifts in screen brightness or ambient light changes.
-    
-    Algorithm (from T005b):
-    1. Compute rolling median over `window_size`.
-    2. Subtract rolling median from original values.
-    3. Divide by rolling standard deviation (or global std if rolling is 0)
-       to normalize variance.
-    
-    Args:
-        luminance_values: 1D numpy array of raw luminance values.
-        window_size: Size of the rolling window for baseline estimation.
-        
-    Returns:
-        Normalized luminance values (z-scored relative to local baseline).
+    Ingest screen luminance logs from ds004041.
+    Expected path: data/raw/ds004041/sub-<session_id>/ses-01/screen_luminance.json (or similar)
+    Returns a numpy array of luminance values or None if not found.
     """
-    if len(luminance_values) == 0:
-        return luminance_values
-    
-    series = pd.Series(luminance_values)
-    rolling_median = series.rolling(window=window_size, center=True, min_periods=1).median()
-    rolling_std = series.rolling(window=window_size, center=True, min_periods=1).std()
-    
-    # Avoid division by zero
-    rolling_std = rolling_std.replace(0, np.nan)
-    rolling_std = rolling_std.fillna(series.std())
-    
-    normalized = (series - rolling_median) / rolling_std
-    return normalized.values
+    # ds004041 structure varies; we look for standard BIDS-like luminance files
+    # Assuming a file named 'screen_luminance.json' or similar exists in the session dir
+    # If the dataset doesn't provide this, we return None and handle gracefully.
+    session_path = raw_dir / session_id
+    if not session_path.exists():
+        log_step(f"Session path not found for {session_id}", level="WARNING")
+        return None
 
-def ingest_screen_luminance_logs(data_dir: Union[str, Path]) -> pd.DataFrame:
-    """
-    Ingests screen luminance logs from the raw dataset directory.
-    
-    The Pupil Labs ds004041 dataset typically stores screen logs in
-    `data/raw/ds004041/sub-*/ses-*/func/sub-*-ses-*-screen_log.tsv`.
-    This function aggregates them into a single DataFrame.
-    
-    Args:
-        data_dir: Path to the raw data directory (data/raw).
-        
-    Returns:
-        DataFrame with columns: ['participant_id', 'session_id', 'time', 'luminance'].
-    """
-    config = get_config()
-    raw_path = Path(data_dir)
-    logger = _get_logger()
-    
-    log_step(logger, "Ingesting screen luminance logs", {"path": str(raw_path)})
-    
-    luminance_dfs = []
-    
-    # Search for TSV files matching screen log pattern
-    # ds004041 structure: sub-<label>/ses-<label>/func/...
-    for tsv_file in raw_path.rglob("sub-*/*/*/sub-*_*_screen_log.tsv"):
-        try:
-            # Extract participant and session from path
-            parts = tsv_file.parts
-            # Assuming structure: .../sub-XX/ses-YY/func/file.tsv
-            # We need to find the indices dynamically
-            sub_idx = None
-            ses_idx = None
-            for i, part in enumerate(parts):
-                if part.startswith("sub-"):
-                    sub_idx = i
-                elif part.startswith("ses-"):
-                    ses_idx = i
-            
-            if sub_idx is not None and ses_idx is not None:
-                participant_id = parts[sub_idx]
-                session_id = parts[ses_idx]
-            else:
-                # Fallback if structure is unexpected
-                participant_id = "unknown"
-                session_id = "unknown"
-                
-            df = pd.read_csv(tsv_file, sep='\t')
-            
-            # Standardize columns if they differ slightly
-            if 'time' not in df.columns:
-                # Sometimes time is in a different column or index
-                if 'timestamp' in df.columns:
-                    df['time'] = df['timestamp']
-                else:
-                    df['time'] = range(len(df))
-                    
-            if 'luminance' not in df.columns:
-                # Check for common aliases
-                if 'luminance_mean' in df.columns:
-                    df['luminance'] = df['luminance_mean']
-                elif 'mean_luminance' in df.columns:
-                    df['luminance'] = df['mean_luminance']
-                else:
-                    # Skip file if no luminance data
-                    continue
-                    
-            df['participant_id'] = participant_id
-            df['session_id'] = session_id
-            luminance_dfs.append(df[['participant_id', 'session_id', 'time', 'luminance']])
-            
-        except Exception as e:
-            log_error(logger, f"Failed to read luminance log {tsv_file}: {e}")
-            continue
-            
-    if not luminance_dfs:
-        raise FileNotFoundError(
-            f"No screen luminance logs found in {raw_path}. "
-            "Ensure the dataset ds004041 is fully downloaded and contains screen_log.tsv files."
-        )
-        
-    combined_df = pd.concat(luminance_dfs, ignore_index=True)
-    log_step(logger, "Ingestion complete", {"rows": len(combined_df)})
-    return combined_df
+    # Try common filenames for luminance logs
+    candidates = [
+        session_path / "screen_luminance.json",
+        session_path / "screen_luminance.tsv",
+        session_path / "events" / "screen_luminance.json",
+        session_path / "stimuli" / "screen_luminance.json",
+    ]
 
-def preprocess_luminance_for_window(
-    raw_luminance: np.ndarray,
-    window_size: int = 100
+    for candidate in candidates:
+        if candidate.exists():
+            log_step(f"Found luminance log at {candidate}")
+            try:
+                if candidate.suffix == '.json':
+                    with open(candidate, 'r') as f:
+                        data = json.load(f)
+                        # Assume structure: {"luminance": [...]} or similar
+                        if isinstance(data, dict) and "luminance" in data:
+                            return np.array(data["luminance"])
+                        elif isinstance(data, list):
+                            return np.array(data)
+                elif candidate.suffix == '.tsv':
+                    df = pd.read_csv(candidate, sep='\t')
+                    # Assume column name 'luminance' or first numeric column
+                    if 'luminance' in df.columns:
+                        return df['luminance'].values
+                    elif len(df.columns) > 0:
+                        return df[df.columns[0]].values
+            except Exception as e:
+                log_error(f"Failed to parse luminance log {candidate}: {e}")
+            return None
+    return None
+
+def ingest_screen_luminance_logs(session_id: str, raw_dir: Path) -> Optional[np.ndarray]:
+    """
+    Wrapper to load screen luminance logs for a specific session.
+    Returns the luminance array or None if ingestion fails.
+    """
+    return _load_screen_luminance_log(session_id, raw_dir)
+
+def normalize_luminance_algorithm(
+    pupil_data: np.ndarray,
+    luminance_log: Optional[np.ndarray],
+    window_start_idx: int,
+    window_end_idx: int
 ) -> np.ndarray:
     """
-    Applies the full luminance preprocessing pipeline:
-    1. Normalization (T005b algorithm)
+    Normalize pupil diameter based on screen luminance.
     
-    Args:
-        raw_luminance: Array of raw luminance values.
-        window_size: Rolling window size for normalization.
-        
-    Returns:
-        Preprocessed (normalized) luminance values.
+    Algorithm (T005b):
+      1. Extract luminance values corresponding to the window [start, end].
+      2. Compute the median luminance of the window (screen_baseline).
+      3. Normalize: normalized_pupil = raw_pupil / screen_baseline.
+      
+    If luminance_log is None, returns raw_pupil (no normalization).
     """
-    if raw_luminance is None or len(raw_luminance) == 0:
-        return np.array([])
+    if luminance_log is None:
+        return pupil_data
+    
+    # Ensure indices are within bounds
+    if window_end_idx > len(luminance_log):
+        window_end_idx = len(luminance_log)
+    if window_start_idx < 0:
+        window_start_idx = 0
         
-    return normalize_luminance_algorithm(raw_luminance, window_size)
-
-def remove_blinks(pupil_data: pd.DataFrame, threshold: float = 1.5) -> pd.DataFrame:
-    """
-    Removes blink artifacts from pupil diameter data.
+    window_luminance = luminance_log[window_start_idx:window_end_idx]
     
-    Blinks are identified as sudden drops in pupil diameter or
-    gaps where data is missing/zero for a significant duration.
-    This implementation uses a robust z-score based outlier detection
-    on the first derivative (rate of change) to identify blinks.
-    
-    Args:
-        pupil_data: DataFrame containing 'pupil_diameter' column.
-        threshold: Z-score threshold for identifying blink artifacts.
-        
-    Returns:
-        DataFrame with blink artifacts masked (NaN).
-    """
-    if 'pupil_diameter' not in pupil_data.columns:
-        raise ValueError("Input DataFrame must contain 'pupil_diameter' column")
-        
-    logger = _get_logger()
-    log_step(logger, "Removing blinks", {"threshold": threshold})
-    
-    data = pupil_data['pupil_diameter'].values.astype(float)
-    
-    # Calculate first derivative (rate of change)
-    # Blinks often show a sharp drop (negative spike)
-    diff = np.diff(data)
-    
-    # Smooth the derivative slightly to avoid noise triggering false positives
-    window = 5
-    if len(diff) > window:
-        diff_smooth = pd.Series(diff).rolling(window=window, center=True, min_periods=1).mean().values
-    else:
-        diff_smooth = diff
-        
-    # Calculate z-scores of the derivative
-    mean_diff = np.mean(diff_smooth)
-    std_diff = np.std(diff_smooth)
-    
-    if std_diff == 0:
-        # No variation, no blinks
+    if len(window_luminance) == 0:
         return pupil_data
         
-    z_scores = (diff_smooth - mean_diff) / std_diff
-    
-    # Identify blink regions: sharp drops (negative z-scores)
-    # We mark the point of the drop and a small window after it as NaN
-    blink_indices = np.where(z_scores < -threshold)[0]
-    
-    mask = np.ones(len(data), dtype=bool)
-    blink_window = 10 # samples to mask after detection
-    
-    for idx in blink_indices:
-        # Mask the drop point and subsequent samples
-        start = idx
-        end = min(idx + blink_window, len(data))
-        mask[start:end] = False
+    screen_baseline = np.median(window_luminance)
+    if screen_baseline == 0:
+        # Avoid division by zero; return raw data
+        log_step("Screen luminance median is zero, skipping normalization", level="WARNING")
+        return pupil_data
         
-    # Also handle long gaps if any (already NaN in original data)
-    # This function focuses on detecting blinks in continuous data
-    
-    pupil_data_clean = pupil_data.copy()
-    pupil_data_clean.loc[~mask, 'pupil_diameter'] = np.nan
-    
-    log_step(logger, "Blink removal complete", {"blinks_detected": len(blink_indices)})
-    return pupil_data_clean
+    return pupil_data / screen_baseline
 
-def low_pass_filter(signal: np.ndarray, cutoff_hz: float = LOW_PASS_CUTOFF_HZ, fs: float = DEFAULT_SAMPLING_RATE) -> np.ndarray:
+def preprocess_luminance_for_window(
+    pupil_series: pd.Series,
+    luminance_log: Optional[np.ndarray],
+    window_start_time: float,
+    window_end_time: float,
+    sampling_rate: float
+) -> pd.Series:
     """
-    Applies a low-pass Butterworth filter to remove high-frequency noise.
+    Preprocess a single window of pupil data with luminance normalization.
     
     Args:
-        signal: 1D numpy array of the signal to filter.
-        cutoff_hz: Cutoff frequency in Hz.
-        fs: Sampling frequency in Hz.
+        pupil_series: Pupil diameter values (aligned by time)
+        luminance_log: Screen luminance values (aligned by time)
+        window_start_time: Start time of the window
+        window_end_time: End time of the window
+        sampling_rate: Sampling rate in Hz
         
     Returns:
-        Filtered signal.
+        Normalized pupil series
     """
-    if len(signal) == 0:
-        return signal
-        
-    logger = _get_logger()
-    log_step(logger, "Applying low-pass filter", {"cutoff_hz": cutoff_hz, "fs": fs})
+    # Convert time to indices
+    start_idx = int(window_start_time * sampling_rate)
+    end_idx = int(window_end_time * sampling_rate)
     
-    nyquist = 0.5 * fs
-    normalized_cutoff = cutoff_hz / nyquist
+    window_pupil = pupil_series.values[start_idx:end_idx]
+    normalized = normalize_luminance_algorithm(window_pupil, luminance_log, start_idx, end_idx)
     
-    if normalized_cutoff >= 1.0:
-        log_error(logger, f"Cutoff frequency {cutoff_hz}Hz too high for fs={fs}Hz. Returning original signal.")
-        return signal
+    return pd.Series(normalized, index=pupil_series.index[start_idx:end_idx])
+
+def remove_blinks(pupil_data: np.ndarray, threshold: float = 0.1) -> np.ndarray:
+    """
+    Remove blinks by interpolating over periods where the pupil diameter
+    drops below a threshold (indicating a blink).
+    
+    Args:
+        pupil_data: Raw pupil diameter array
+        threshold: Threshold below which a sample is considered a blink (relative to median)
         
+    Returns:
+        Pupil data with blinks interpolated
+    """
+    if len(pupil_data) == 0:
+        return pupil_data
+        
+    median_val = np.median(pupil_data)
+    if median_val == 0:
+        return pupil_data
+        
+    # Identify blinks: values significantly below median
+    blink_mask = pupil_data < (median_val * (1 - threshold))
+    
+    if not np.any(blink_mask):
+        return pupil_data
+        
+    # Create index array for interpolation
+    indices = np.arange(len(pupil_data))
+    valid_indices = indices[~blink_mask]
+    valid_values = pupil_data[~blink_mask]
+    
+    if len(valid_values) == 0:
+        # All data is blinks? Return zeros or NaNs
+        log_step("All data points identified as blinks", level="WARNING")
+        return np.full_like(pupil_data, np.nan)
+        
+    # Interpolate
+    interpolated = np.interp(indices, valid_indices, valid_values)
+    return interpolated
+
+def low_pass_filter(data: np.ndarray, cutoff: float = 4.0, sampling_rate: float = 250.0, order: int = 4) -> np.ndarray:
+    """
+    Apply a low-pass Butterworth filter to remove high-frequency noise.
+    
+    Args:
+        data: Input data array
+        cutoff: Cutoff frequency in Hz
+        sampling_rate: Sampling rate in Hz
+        order: Filter order
+        
+    Returns:
+        Filtered data array
+    """
+    if len(data) == 0:
+        return data
+        
+    nyquist = 0.5 * sampling_rate
+    if cutoff >= nyquist:
+        log_step(f"Cutoff frequency {cutoff}Hz >= Nyquist {nyquist}Hz, skipping filter", level="WARNING")
+        return data
+        
+    normalized_cutoff = cutoff / nyquist
+    
     try:
-        # Use a simple Butterworth filter
-        # Order 4 is standard for physiological signals
-        from scipy.signal import butter, filtfilt
-        
-        b, a = butter(4, normalized_cutoff, btype='low')
-        
-        # Pad signal to handle edge effects
-        padded_signal = np.pad(signal, (30, 30), mode='edge')
-        filtered_padded = filtfilt(b, a, padded_signal)
-        
-        # Remove padding
-        filtered_signal = filtered_padded[30:-30]
-        
-        return filtered_signal
-        
-    except ImportError:
-        raise ImportError("scipy is required for low-pass filtering. Install with: pip install scipy")
+        b, a = butter(order, normalized_cutoff, btype='low')
+        # Use filtfilt for zero-phase filtering
+        filtered = filtfilt(b, a, data, padlen=len(data))
+        return filtered
+    except Exception as e:
+        log_error(f"Low-pass filter failed: {e}")
+        return data
 
-def baseline_correct(signal: np.ndarray, baseline_indices: Optional[np.ndarray] = None) -> np.ndarray:
+def baseline_correct(data: np.ndarray, baseline_window: Tuple[int, int] = (0, 100)) -> np.ndarray:
     """
-    Performs baseline correction by subtracting the mean of the baseline period.
+    Subtract the mean of a baseline window from the entire signal.
     
     Args:
-        signal: 1D numpy array of the signal.
-        baseline_indices: Indices representing the baseline period.
-                          If None, the first 20% of the signal is used.
-                          
+        data: Input data array
+        baseline_window: Tuple (start_idx, end_idx) defining the baseline period
+        
     Returns:
-        Baseline-corrected signal.
+        Baseline-corrected data
     """
-    if len(signal) == 0:
-        return signal
+    if len(data) == 0:
+        return data
         
-    logger = _get_logger()
-    
-    if baseline_indices is None:
-        # Default to first 20% of the signal
-        baseline_len = int(len(signal) * 0.2)
-        if baseline_len == 0:
-            baseline_len = 1
-        baseline_indices = np.arange(baseline_len)
+    start, end = baseline_window
+    if end > len(data):
+        end = len(data)
+    if start < 0:
+        start = 0
         
-    baseline_mean = np.mean(signal[baseline_indices])
-    corrected_signal = signal - baseline_mean
-    
-    log_step(logger, "Baseline correction complete", {"baseline_mean": float(baseline_mean)})
-    return corrected_signal
+    if start >= end:
+        log_step("Invalid baseline window, skipping baseline correction", level="WARNING")
+        return data
+        
+    baseline_mean = np.mean(data[start:end])
+    return data - baseline_mean

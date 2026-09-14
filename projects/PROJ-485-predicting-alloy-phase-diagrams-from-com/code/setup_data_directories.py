@@ -2,47 +2,60 @@ import os
 import sys
 from typing import List
 
-# Define the required data directory structure relative to the project root
-DATA_DIRECTORIES = [
-    "data/raw",
-    "data/processed",
-    "data/artifacts"
-]
+from utils.logging import get_logger, log_info, log_error
 
-def create_directories(base_path: str = None) -> List[str]:
+logger = get_logger(__name__)
+
+def create_directories() -> List[str]:
     """
-    Creates the required data directories if they do not exist.
+    Create the required data directory structure for the project.
     
-    Args:
-        base_path: Optional base path. If None, uses the current working directory.
-        
+    Directories created:
+    - data/raw
+    - data/processed
+    - data/artifacts
+    
     Returns:
-        List of paths to the created directories.
+        List[str]: List of created directory paths.
     """
-    if base_path is None:
-        base_path = os.getcwd()
-        
-    created_paths = []
+    base_dir = "data"
+    directories = [
+        os.path.join(base_dir, "raw"),
+        os.path.join(base_dir, "processed"),
+        os.path.join(base_dir, "artifacts"),
+    ]
     
-    for dir_name in DATA_DIRECTORIES:
-        full_path = os.path.join(base_path, dir_name)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path, exist_ok=True)
-            created_paths.append(full_path)
+    created = []
+    for dir_path in directories:
+        if not os.path.exists(dir_path):
+            try:
+                os.makedirs(dir_path, exist_ok=True)
+                log_info(logger, f"Created directory: {dir_path}")
+                created.append(dir_path)
+            except OSError as e:
+                log_error(logger, f"Failed to create directory {dir_path}: {e}")
+                raise
         else:
-            created_paths.append(full_path)
-            
-    return created_paths
+            log_info(logger, f"Directory already exists: {dir_path}")
+            created.append(dir_path)
+    
+    return created
 
-def main():
+def main() -> int:
     """
-    Entry point for creating data directories.
+    Entry point for the data directory setup script.
+    
+    Returns:
+        int: Exit code (0 for success, 1 for failure).
     """
-    print("Creating data directories...")
-    paths = create_directories()
-    for p in paths:
-        print(f"  - {p}")
-    print("Data directory structure ready.")
+    try:
+        log_info(logger, "Starting data directory setup...")
+        created_dirs = create_directories()
+        log_info(logger, f"Successfully created/verified {len(created_dirs)} directories.")
+        return 0
+    except Exception as e:
+        log_error(logger, f"Data directory setup failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

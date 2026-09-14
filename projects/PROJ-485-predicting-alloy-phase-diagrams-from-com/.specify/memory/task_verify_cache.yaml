@@ -1,42 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file tree was provided showing the required folders (`code/`,
-    `code/ingest`, `code/features`, `code/models`, `code/viz`, `code/utils`, `tests/`).
-    Without concrete evidence that these directories exist, the task requirement is
-    not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw`, `data/processed`, `data/artifacts`)
-    is present; the implementer did not provide any file system artifact or screenshot
-    confirming the directory structure exists. The task remains undone.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `state/` directory (or any listing showing its existence) is\
-    \ provided; the implementer\u2019s claim cannot be verified. The required project\
-    \ directory structure is missing from the artifacts."
-T002a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files or directory listings were presented, so we cannot verify
-    that they exist in every `code/` and `tests/` subdirectory as required. The implementer
-    must supply the actual file structure showing the created `__init__.py` files.
-T002b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file was presented in the evidence, and thus we cannot verify
-    that it contains the required exclusion patterns (`data/raw/*`, `data/processed/*`,
-    `data/artifacts/*`, `*.pyc`, `__pycache__`, `state/*.yaml` except `state/PROJ-485/*.yaml`).
-    The required artifact is missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `.flake8` config) or related setup scripts are present
-    in the provided evidence. The only artifacts shown relate to alloy data processing,
-    not to configuring ruff/flake8/black, so the task requirement is unmet.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -83,3 +44,34 @@ T028:
     \ demonstrate that model training finishes within 4\u202Fhours and uses less than\
     \ 7\u202FGB RAM on a single CPU. The required artifact proving compliance with\
     \ the performance constraint is missing."
+T032:
+  c: false
+  h: 2c7fa7581bcd78f378ddaadcd90766316792479c55f144c34627983da0b84263
+  r: "The required model artifact `data/artifacts/model.pkl` is absent, and the provided\
+    \ `plot_phase_diagrams.py` does not demonstrably load that specific file or incorporate\
+    \ the FR\u2011005 ground\u2011truth data as stipulated. The script is incomplete\
+    \ (truncated) and lacks evidence of handling the required ground\u2011truth system\
+    \ data."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated plot files were provided; the claim lacks any\
+    \ tangible artifact showing logic that creates a composition\u2011vs\u2011temperature\
+    \ plot. The required output (a plot with X\u2011axis 0\u2011100\u202F% composition\
+    \ and Y\u2011axis temperature) is absent, so the task is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, plot, or documentation showing solid vs. dashed line styling for experimental\
+    \ versus predicted phase\u2011boundary curves was provided. The only artifacts\
+    \ described relate to data ingestion and model training, not to the required visual\
+    \ distinction, so the task remains unfulfilled."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, function, or test output implementing the partial\u2011match\u2011\
+    ratio TCS calculation (or the \u2265\u202F0.8 check) is present. The claim lacks\
+    \ any artifact demonstrating that the required logic was added or verified. The\
+    \ next implementer must provide the actual implementation (e.g., a Python function/module)\
+    \ and evidence (unit test or run output) showing the TCS is computed and the threshold\
+    \ condition is evaluated."

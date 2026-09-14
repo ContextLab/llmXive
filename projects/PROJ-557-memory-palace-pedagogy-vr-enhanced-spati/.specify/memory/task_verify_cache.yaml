@@ -35,11 +35,24 @@ T014:
     \ or documentation showing that windows exceeding 3\u202FSD from the mean are\
     \ flagged for exclusion. The required artifact is missing, so the task is not\
     \ satisfied."
+T015:
+  c: false
+  h: 82aabeaa895acea5c99ca984c08bce2af1b2e842f380e37cbdc10b946765f108
+  r: "The repository contains a non\u2011empty `code/us1_main.py`, but the required\
+    \ output file `data/derived/cli_time_series.parquet` is missing, so the orchestration\
+    \ script\u2019s end\u2011to\u2011end result is not present. The task is therefore\
+    \ not fully satisfied."
 T021a:
   c: false
-  h: 0c96e44ea6087bd5858cf9a14e1cfab1c663d098bec0a1b575a1accb43d71535
-  r: "The repository contains a partially\u2011implemented `code/simulation.py` with\
-    \ a stubbed `extract_passage_data` function that is truncated and does not actually\
-    \ read or write any data. Moreover, the required output file `data/derived/passage_data.parquet`\
-    \ is missing entirely. The task\u2019s core deliverable\u2014producing a real\
-    \ Parquet file of passage text\u2014is therefore not satisfied."
+  h: 34a72f6bf5fee8c8da289638513f5243b79f9d019be529c72fa563488d37f859
+  r: The repository contains `code/simulation.py` that writes a Parquet file, but
+    `data/derived/passage_data.parquet` is absent, so the required output artifact
+    does not exist. The task is therefore not fully satisfied.
+T021b:
+  c: false
+  h: acfc4e1631968ecee692504561836a1dab6e815f516e84b8031d2d05cf96aa08
+  r: The `generate_counterfactual_text` function is a placeholder that simply returns
+    the original text instead of performing any simplification, and the script writes
+    its results to `data/derived/passage_data.parquet` rather than the required `data/derived/counterfactual_text.parquet`,
+    which is missing entirely. Both the proper simplification logic and the expected
+    output file are absent.

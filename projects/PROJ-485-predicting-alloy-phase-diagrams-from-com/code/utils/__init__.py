@@ -1,3 +1,4 @@
 """
-Utils module for shared utilities (logging, checksum, config).
+Utility functions and classes.
+Includes logging, checksums, error codes, and configuration.
 """

@@ -1,4 +1,22 @@
-# Ruff configuration file
-# This file extends or overrides settings in pyproject.toml if needed.
-# Currently, all settings are in pyproject.toml.
-extend = "pyproject.toml"
+# Standalone Ruff configuration file
+# This file mirrors the settings in pyproject.toml for CLI compatibility
+line-length = 100
+target-version = "py39"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"tests/*" = ["S101"]

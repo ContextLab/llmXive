@@ -1,3 +1,4 @@
 """
-Viz module for generating phase diagram visualizations.
+Visualization module.
+Handles plotting of phase diagrams and consistency metrics.
 """
