@@ -1,74 +1,75 @@
 # Implementation Plan: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward"
 
-**Branch**: `001-llmxive-noise-scaling` | **Date**: 2026-07-19 | **Spec**: [https://github.com/your-org/llmxive-dvao/blob/main/specs/001-llmxive-noise-scaling/spec.md](https://github.com/your-org/llmxive-dvao/blob/main/specs/001-llmxive-noise-scaling/spec.md)
-**Input**: Feature specification from `/specs/[001-llmxive-noise-scaling]/spec.md`
+**Branch**: `001-llmxive-noise-scaling` | **Date**: 2026-07-12 | **Spec**: [https://github.com/your-org/llmxive/blob/main/specs/001-llmxive-noise-scaling/spec.md](https://github.com/your-org/llmxive/blob/main/specs/001-llmxive-noise-scaling/spec.md)
+**Input**: Feature specification from `/specs/001-llmxive-noise-scaling/spec.md`
 
 ## Summary
 
-This project aims to theoretically and empirically investigate the scaling of sample complexity with the number of reward objectives in multi-objective reinforcement learning (MORL) under independent noise. We will derive a theoretical lower bound on sample complexity, generate synthetic environments, implement a variance estimation heuristic, and perform statistical validation to confirm the robustness of the findings. The project will adhere to strict resource constraints for execution on the GitHub Actions free-tier.
+This project aims to theoretically derive the lower bound on sample complexity for Pareto optimality in multi-objective reinforcement learning (MORL) under independent noise, and empirically validate this bound using synthetic environments and a moving-window heuristic. The core will be a CPU-first implementation, leveraging the GitHub Actions free-tier resources.  A GPU escape hatch will be utilized for tasks requiring CUDA acceleration (if any are found necessary).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
 **Primary Dependencies**: NumPy, SciPy, Matplotlib, scikit-learn
-**Storage**: CSV files for data logging, JSON for configuration and results.
+**Storage**: Files (JSON, CSV)
 **Testing**: pytest
-**Target Platform**: Linux server (GitHub Actions runner)
+**Target Platform**: Linux server (GitHub Actions)
 **Project Type**: library
-**Performance Goals**:  ≤ 6h runtime per job on the GitHub Actions runner.
-**Constraints**: 2 CPU cores, ≤ 7 GB RAM, ≤ 14 GB disk.
+**Performance Goals**: Scalable to 50 objectives within 7GB RAM and 6-hour runtime limit.
+**Constraints**: 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h per job.
 
 ## Constitution Check
 
-* **Principle I (Reproducibility):** All code will be version-controlled, and dependencies pinned in `requirements.txt`. Data will be checksummed.
-* **Principle II (Verified Accuracy):** All external citations will be validated before inclusion.
-* **Principle III (Data Hygiene):** Data transformations will produce new files, and PII will be excluded.
-* **Principle IV (Single Source of Truth):** Figures and statistics will trace back to specific data and code artifacts.
-* **Principle V (Versioning Discipline):** All artifacts will be versioned, and the project state tracked.
-* **Principle VI (Theoretical Lower Bound Validation):** A formal mathematical derivation will be implemented and validated.
-* **Principle VII (Computational Resource Constraint Adherence):** Experiments will be designed to fit within the GitHub Actions free-tier limits.
+*   **Principle I (Reproducibility)**: Verified by pinned dependencies in `requirements.txt` and checksumming of data files.
+*   **Principle II (Verified Accuracy)**: Enforced by Reference-Validator Agent during citation review.
+*   **Principle III (Data Hygiene)**: Implemented through checksumming and versioning of data.
+*   **Principle IV (Single Source of Truth)**: Achieved by tracing figures and statistics back to `data/` and `code/`.
+*   **Principle V (Versioning Discipline)**: Maintained through artifact hashing and project state tracking.
+*   **Principle VI (Theoretical Lower Bound Validation)**: Addressed by a dedicated module for derivation and validation against empirical data.
+*   **Principle VII (Computational Resource Constraint Adherence)**: Ensured by CPU-first approach and resource monitoring.
 
 ## Project Structure
 
 ```text
 src/
 ├── derivation/
-│   ├── sample_complexity.py
-│   └── utils.py
+│   ├── sample_complexity.py  # Derivation of theoretical bound
+│   └── utils.py             # Helper functions
 ├── environment/
-│   ├── synthetic_mdp.py
-│   └── reward_functions.py
-├── heuristics/
-│   └── moving_window.py
+│   └── synthetic_mdp.py   # Synthetic environment generation
 ├── analysis/
-│   ├── statistical_tests.py
-│   └── plotting.py
-└── main.py
-
+│   ├── heuristic.py        # Moving-window variance estimation
+│   └── statistics.py       # Statistical tests and analysis
+└── utils/
+    └── config.py           # Project configuration
 tests/
 ├── derivation/
 │   └── test_sample_complexity.py
 ├── environment/
 │   └── test_synthetic_mdp.py
-└── heuristics/
-    └── test_moving_window.py
+├── analysis/
+│   └── test_heuristic.py
+└── contract/
+    └── dataset_schema.yaml      # Dataset schema for synthetic data
 ```
 
-**Structure Decision**: A standard Python project structure is chosen, separating derivation, environment generation, heuristic implementation, and analysis into dedicated modules. This allows for modularity and testability.
+**Structure Decision**: The structure is organized by functional areas (derivation, environment, analysis) to promote modularity and testability.
 
 ## Complexity Tracking
 
-No complexity violations are anticipated at this stage.
+(This section will be populated if there are constitution violations requiring justification, but currently is not.)
 
 ## Unresolved panel concerns
 
-- **T052c:** A new task, **T086 - Run Correlation Sweep and Prepare for KS Test**, is added in Phase 5 to aggregate results from T036 and T052b, providing input for T052c. This addresses the fragmentation concern.
-- **T015d:** Confirmed as valid. It is a function producing a value, and the dependency structure is correct.
-- **T034:** Valid dependency structure. The task is appropriately positioned to depend on the outputs of earlier tasks.
-- **T026b:** The description of T026b is updated to explicitly state the creation of a script `src/derivation/verify_symbolic.py` to generate a JSON file containing verification results.
-- **T034c, T034e, T034g:** These tasks will be consolidated into a single task, **T034a - Implement Reward Generation Functions**, to improve executability and reduce the risk of missing a distribution.
+Addressing concerns from previous review rounds:
+
+*   **T052c (KS test ordering)**: A new task, `T090: Run Correlation Sweep and Prepare Data for KS Test`, is added to Phase 4 to aggregate results from T036 and T052b, providing input to T052c in Phase 7. This addresses the fragmentation concern.
+*   **T015d (parallel safety)**: The description of T015d is clarified to emphasize it is a function call, and the dependency chain is verified to be correct.
+*   **T034 (N>50 handling)**: T034c, T034e, and T034g are merged into a single task, `T040: Implement Reward Generation Functions`, to streamline the implementation and reduce the risk of missing a distribution.
+*   **T026b (verification command)**: The task description for T026b is updated to specify `src/derivation/verify_symbolic.py` as the script for verification and to explicitly require its creation.
+*   **T034c/e/g (fine-grained tasks)**: T034c, T034e, and T034g are merged into T040.
 
 ## Tasks an independent verifier REJECTED (redo these)
 
-- **T087:** The script `scripts/validate_construct_validity.py` will be created and will log the achieved correlation matrix and write a summary to `data/processed/noise_properties.json`.
-- **T089:**  The scripts `scripts/validate_construct_validity.py` and `src/analysis/empirical_results.py` will be created to generate the required JSON files.
+*   **T087**: The `synthetic_mdp.py` will be updated to log the achieved correlation matrix and write it to `data/processed/noise_properties.json` as part of the T036 implementation.
+*   **T089**: The missing `scripts/validate_construct_validity.py`, `data/processed/construct_validity_results.json`, and `data/processed/empirical_results.json` files will be generated as part of the completion of Phase 4 and Phase 5.

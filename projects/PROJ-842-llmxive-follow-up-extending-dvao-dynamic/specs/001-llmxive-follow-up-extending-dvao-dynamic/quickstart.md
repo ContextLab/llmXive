@@ -3,41 +3,48 @@
 ## Prerequisites
 
 *   Python 3.11
-*   pip
-*   Git
+*   NumPy, SciPy, Matplotlib, scikit-learn (install with `pip install -r requirements.txt`)
 
-## Installation
+## Running the Analysis
 
-1.  Clone the repository:
+1.  **Clone the repository:**
+
     ```bash
-    git clone https://github.com/your-org/llmxive-dvao.git
-    cd llmxive-dvao
+    git clone https://github.com/your-org/llmxive.git
+    cd llmxive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic
     ```
 
-2.  Install the dependencies:
+2.  **Install dependencies:**
+
     ```bash
-    pip install -r projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/requirements.txt
+    pip install -r code/requirements.txt
     ```
 
-## Running the Experiment
+3.  **Run the analysis:**
 
-1.  Run the main script:
     ```bash
-    python projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/main.py
+    python code/run_analysis.py
     ```
 
-    This will execute the entire experiment, including theoretical derivation, synthetic environment generation, heuristic implementation, and statistical validation.
+    This script will:
 
-2.  The results will be stored in the `data/processed` directory.
+    *   Derive the theoretical lower bound on sample complexity.
+    *   Generate synthetic environments.
+    *   Implement the moving-window heuristic.
+    *   Perform statistical validation and sensitivity analysis.
+    *   Generate reports and visualizations.
 
-## Reproducibility
+## Output
 
-To ensure reproducibility, use the following command to run the experiments with a fixed random seed:
+The results will be stored in the `data/processed/` directory. Key files include:
 
-```bash
-python projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/main.py --seed 42
-```
+*   `noise_properties.json`:  Noise properties used in the synthetic environments.
+*   `heuristic_results.json`: Results of the heuristic evaluation.
+*   `statistical_analysis.json`: Statistical analysis results (p-values, deviations).
+*   `scaling_law_plot.png`: Plot of the scaling law comparison.
 
 ## Troubleshooting
 
-If you encounter any issues, please refer to the project documentation or contact the developers.
+*   If you encounter resource issues, reduce the number of objectives ($N$) or the window size ($k$).
+*   Ensure that all dependencies are installed correctly.
+*   Check the logs for error messages.

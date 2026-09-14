@@ -1,27 +1,46 @@
 # Data Model: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward"
 
-This project primarily generates data programmatically. The key data structures are outlined below.
+This document defines the data models used in this project.  All data is generated programmatically and stored in files.
 
-## Synthetic Environment
+## Synthetic Environment Data
 
-*   **State Space:** Discrete, represented as integers. Size is variable, but capped to ensure feasibility within resource constraints.
-*   **Action Space:** Discrete, represented as integers.
-*   **Reward Functions:** A vector of $N$ reward functions, each mapping state-action pairs to scalar rewards. Each reward function is a linear combination of state features.
-*   **Transition Dynamics:** Deterministic, based on a simple tabular model.
+*   **`state`**: Integer representing the state of the environment.
+*   **`action`**: Integer representing the action taken in the environment.
+*   **`reward[i]`**: Float representing the reward received for objective $i$.
+*   **`N`**: Integer representing the number of objectives.
+*   **`transition_probability[state, action, next_state]`**: Float representing the probability of transitioning from `state` to `next_state` given `action`.
+*   **`noise_std`**: Float representing the standard deviation of the noise in each reward objective.
 
-## Empirical Results
+**Storage**: These values will be stored in NumPy arrays and written to CSV files for analysis.  The format will be:
 
-*   **Objective Count (N):** Integer representing the number of reward objectives.
-*   **Window Size (k):** Integer representing the size of the moving window for variance estimation.
-*   **Empirical Variance:** Float representing the variance of the advantage function.
-*   **Theoretical Bound:** Float representing the theoretical lower bound on sample complexity.
-*   **Deviation:** Float representing the difference between empirical variance and the theoretical bound.
-*   **p-value:** Float representing the p-value from the one-sample t-test.
+```csv
+state,action,reward_1,reward_2,...,reward_N
+0,0,0.1,0.2,...,0.5
+0,1,0.3,0.4,...,0.6
+...
+```
 
-## Noise Properties
+## Heuristic Variance Estimation Data
 
-*   **Noise Distribution:** String describing the noise distribution (e.g., Gaussian, heavy-tailed).
-*   **Noise Parameters:** Dictionary containing the parameters of the noise distribution (e.g., mean, standard deviation).
-*   **Actual Correlation:** Float representing the achieved correlation between reward objectives.
+*   **`window_size`**: Integer representing the size of the moving window.
+*   **`advantage_estimate`**: Float representing the estimated advantage.
+*   **`empirical_variance`**: Float representing the estimated variance of the advantage.
+*   **`theoretical_variance`**: Float representing the theoretical variance (calculated from the derivation).
 
-These data structures will be represented in CSV and JSON files for storage and analysis.
+**Storage**: These values will be stored in NumPy arrays and written to CSV files for analysis.
+
+## Statistical Analysis Data
+
+*   **`p_value`**: Float representing the p-value from the t-test.
+*   **`deviation`**: Float representing the deviation of the heuristic's variance from the theoretical bound.
+*   **`correlation`**: Float representing the correlation between reward objectives.
+
+**Storage**: These values will be stored in JSON files for reporting.
+
+```json
+{
+  "p_value": 0.02,
+  "deviation": 0.05,
+  "correlation": 0.1
+}
+```
