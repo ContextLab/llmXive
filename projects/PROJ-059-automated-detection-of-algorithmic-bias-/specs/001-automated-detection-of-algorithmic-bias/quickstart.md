@@ -2,75 +2,53 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `git` installed and configured
--   GitHub account (for rate-limited API access)
--   Sufficient disk space (~5-10 GB for 500 repos)
+*   Python 3.11
+*   `pip` package manager
 
 ## Installation
 
-1.  **Clone the Project**
+1.  Clone the repository:
+
     ```bash
-    git clone https://github.com/your-org/PROJ-059-automated-detection-of-algorithmic-bias-.git
-    cd PROJ-059-automated-detection-of-algorithmic-bias-
+    git clone [repository URL]
+    cd [repository directory]
     ```
 
-2.  **Create Virtual Environment**
+2.  Install dependencies:
+
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
     ```
 
-3.  **Install Dependencies**
+## Usage
+
+1.  Run the main script:
+
     ```bash
-    pip install -r code/requirements.txt
+    python src/cli/main.py --repo-list [list of repository URLs] --output-dir [output directory]
     ```
 
-4.  **Download NLTK Data**
-    ```bash
-    python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('punkt')"
-    ```
+    Replace `[list of repository URLs]` with a text file containing a list of repository URLs, one per line. Replace `[output directory]` with the desired output directory.
 
-## Running the Pipeline
+2.  Analyze the results:
 
-### 1. Setup Validation Dataset (One-time)
-Generate the manual validation set of 200 comments (or load the curated one).
+    The output directory will contain the following files:
+
+    *   `repositories.csv`: A CSV file containing information about the analyzed repositories.
+    *   `textual_artifacts.csv`: A CSV file containing the extracted textual artifacts and their bias scores.
+    *   `correlation_results.csv`: A CSV file containing the correlation results.
+
+## Configuration
+
+The script can be configured using command-line arguments:
+
+*   `--repo-list`: Path to a text file containing a list of repository URLs.
+*   `--output-dir`: Path to the output directory.
+*   `--num-repositories`: Number of repositories to analyze.
+*   `--injected-skew-magnitude`: Magnitude of bias to inject in the synthetic data.
+
+## Example
+
 ```bash
-python code/validation.py --setup-only
+python src/cli/main.py --repo-list repo_list.txt --output-dir results --num-repositories 10 --injected-skew-magnitude 0.1
 ```
-*Output*: `data/curated/validation_comments.csv`
-
-### 2. Run Full Analysis
-Execute the main pipeline. This will:
--   Clone 500 repositories (or the configured list).
--   Extract textual features.
--   Validate VADER thresholds.
--   Run simulations.
--   Compute correlations.
-
-```bash
-python code/main.py --repos 500 --seed 42
-```
-
-**Note**: Ensure you have a stable internet connection. The script includes retry logic for GitHub API rate limits.
-
-### 3. Inspect Results
-
--   **Textual Bias Scores**: `data/derived/repo_scores.csv`
--   **Simulation Metrics**: `data/derived/simulation_results.csv`
--   **Correlation Results**: `data/derived/correlation_results.csv`
--   **Validation Report**: `data/derived/validation_metrics.json`
-
-### 4. Reproducibility Check
-To verify reproducibility, delete the `data/derived/` folder and re-run:
-```bash
-rm -rf data/derived/
-python code/main.py --repos 500 --seed 42
-```
-The output should be identical (up to floating-point precision) due to pinned seeds.
-
-## Troubleshooting
-
--   **GitHub Rate Limit**: If you hit `403 Forbidden`, wait 1 hour or use a GitHub token. Set `GITHUB_TOKEN` env var.
--   **Memory Error**: If RAM > 7 GB, reduce `--repos` count to 100 or enable `--streaming` mode (if implemented).
--   **Syntax Errors in Repo**: The pipeline logs these but continues. Check `data/derived/execution_errors.log`.

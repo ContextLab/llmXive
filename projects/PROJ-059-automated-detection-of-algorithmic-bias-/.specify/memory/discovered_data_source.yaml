@@ -1,15 +1,16 @@
 status: none
-intent: download GitHub Python repository dataset for static code analysis python
+intent: Gendered Pronoun Lexicon Stereotype Lexicon VADER Sentiment Lexicon python
   package dataset
 required_fields:
-- repo_full_name
-- repo_url
 - file_path
 - line_number
-- code_element_type
-- code_element_name
-- string_literal
-- comment_text
-cache_key: 6598805eed4a94171cd20836afb9cad82d731ca5ebda577cc51c0edd257d13c9
-searched_at: '2026-09-08T18:29:27.511029+00:00'
+- entity_type
+- original_name
+- normalized_token
+- lexicon_match
+- bias_label
+- bias_score
+- sentiment_score
+cache_key: c46e0524980062666bf7ade955c16859a4806cd12bb96dbbdef45d07df888c38
+searched_at: '2026-09-14T18:24:25.205724+00:00'
 retry_count: 1

@@ -1,0 +1,17 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+title: Repository Data Model
+description: Schema for the repository data model.
+type: object
+properties:
+  repo_id:
+    type: string
+    description: Unique identifier for the repository.
+  repo_name:
+    type: string
+    description: Name of the repository.
+  repo_url:
+    type: string
+    description: URL of the repository.
+  file_count:
+    type: integer
+    description: Number of Python files in the repository.
