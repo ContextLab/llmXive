@@ -84,7 +84,7 @@ Include exact file paths in descriptions.
   - `Global_Efficiency = 1.0 / Path_Length`.  
   - `Local_Efficiency = 1.0 / mean_shortest_path(subgraph)` (subgraph‑based).  
   **Dep**: T007.
-- [ ] T008_run [P] **Execute** `code/network/metrics.py` to generate `data/results/network_metrics.csv`. **Implementation Note**: Inject `trace_id` (SHA‑256 of source + code hash) into a `trace_id` column. Update `state/version_map.yaml` with the SHA‑256 hash of the generated CSV. **Dep**: T008, T007_run.
+- [ ] T008_run [P] **Execute** `code/network/metrics.py` to generate `data/results/network_metrics.csv`. **Implementation Note**: Inject `trace_id` (SHA-256 of source + code hash) into a `trace_id` column. Update `state/version_map.yaml` with the SHA‑256 hash of the generated CSV. **Dep**: T008, T007_run.
 - [X] T009 [P] Implement `code/stats/correction.py` for Bonferroni/FDR multiple‑comparison correction.
 - [X] T010 [P] Implement `code/state/version_map.py` to manage SHA‑256 hashes and `updated_at` timestamps (Constitution Principle V).
 - [X] T044 [P] Implement online statistics accumulation in `code/stats/correlation.py` to compute Spearman correlations incrementally if the dataset exceeds memory, ensuring statistical validity without full data load. **Dep**: T023.
