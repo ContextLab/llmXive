@@ -1,0 +1,19 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only supplied a feature specification and user stories; no evidence\
+    \ of the required directories (`code/`, `data/`, `results/`, `tests/`) was provided,\
+    \ nor any file listings showing that the project structure from `plan.md` exists.\
+    \ The core artifact\u2014the project folder hierarchy\u2014is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No mock API response fixture files for OpenAlex, Semantic Scholar, or arXiv are
+    present in the `tests/unit/` directory (or any other location). The required fixture
+    artifacts are missing, so the task is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No synthetic data generator file or code was found under `tests/unit/`, and\
+    \ there is no evidence of any test data or functions that produce effect\u2011\
+    size verification data. The required artifact is missing, so the task is not satisfied."

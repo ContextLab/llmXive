@@ -6,13 +6,6 @@ T011:
     \ the exclusion count to `data/metadata/exclusion_log.txt`. Moreover, the required\
     \ `exclusion_log.txt` file is absent. These missing pieces mean the task\u2019\
     s core requirement is not fulfilled."
-T015:
-  c: false
-  h: 3ac84589cfcd7ff1f0cb9c49bc5650585529a3d4ffaf9a1784c1c2e34ec9124c
-  r: "The repository contains `code/preprocessing/metadata.py`, but the required output\
-    \ file `data/metadata/subject_labels.csv` is absent, and the provided code snippet\
-    \ is truncated before any function that writes the CSV. Without the generated\
-    \ CSV, the task\u2019s core requirement is not satisfied."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

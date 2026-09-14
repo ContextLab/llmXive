@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`, `pypdf`, `pdfplumber`)
-- [ ] T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages <!-- ATOMIZE: requested -->
+- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`, `pypdf`, `pdfplumber`) [UNRESOLVED-CLAIM: c_5bf40573 — status=not_enough_info]
+- [ ] T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages [UNRESOLVED-CLAIM: c_c9c5b04a — status=not_enough_info] <!-- ATOMIZE: requested -->
 - [ ] T004 [P] Configure `pytest` and create `tests/unit/` and `tests/integration/` directories
 
 ---
@@ -58,8 +58,8 @@
 
 - [ ] T005 Create `data/search_results/`, `data/screening/`, `data/harmonized/`, and `results/` directories
 - [X] T006 [P] Implement `code/utils.py` with logging, config loading, checksum generation logic, AND a utility function to parse `data/screening/inclusion_criteria.yaml`. **Note**: This task depends on T017 completing first; do not execute T006 until T017 has generated the YAML file. <!-- FAILED: unspecified -->
-- [~] T008 Implement mock API response fixtures for OpenAlex, Semantic Scholar, and arXiv in `tests/unit/`
-- [~] T009 Implement synthetic data generator for effect size math verification in `tests/unit/`
+- [ ] T008 Implement mock API response fixtures for OpenAlex, Semantic Scholar, and arXiv in `tests/unit/`
+- [ ] T009 Implement synthetic data generator for effect size math verification in `tests/unit/`
 - [ ] T017 [P] Generate `data/screening/inclusion_criteria.yaml` programmatically. The YAML MUST contain keys for exclusion codes: `NO_TRUST_METRIC`, `NO_CONTROL_CONDITION`, `NO_MODERATOR_DATA`, and `NOT_PEER_REVIEWED`, mapping to the specific logic defined in `plan.md` Phase 1.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -90,7 +90,7 @@ expected alphabetic or numeric character, but found '*'
  ^) -->
 - [ ] T014 [US1] Implement export of raw results to `data/search_results/raw_studies.csv` with fields: title, year, source, abstract, DOI
 - [ ] T015 [US1] Implement dual-reviewer simulation logic in `code/01_search_and_screen.py` applying `data/screening/inclusion_criteria.yaml`
-- [ ] T016 [US1] Implement Cohen's Kappa calculation; if Kappa < 0.6, log exactly "Human Adjudication Required (Kappa < 0.6)", generate `data/screening/adjudication_request.csv` listing disputed studies, and exit with code 1 (HALT) to wait for human input.
+- [ ] T016 [US1] Implement Cohen's Kappa calculation; if Kappa < 0.6, log exactly "Human Adjudication Required (Kappa < 0.6)", generate `data/screening/adjudication_request.csv` listing disputed studies, and exit with code 1 [UNRESOLVED-CLAIM: c_4b513f7e — status=not_enough_info] (HALT) to wait for human input.
 - [ ] T016.5 [US1] **Adjudication Workflow**: Implement logic to detect the `adjudication_request.csv` flag. If present, the system must pause and wait for a human operator to manually edit `screening_log.csv` (resolving disputes) and clear the flag. Upon detection of resolved flags, re-run the screening logic (T015) and proceed to T018.
 - [ ] T018 [US1] **Deferred**: Removed. PRISMA generation moved to Phase N (T042) to ensure it uses final harmonized data.
 

@@ -37,7 +37,7 @@
 - [X] T004 Implement seed management module in `code/seeds.py` with documented seed value **42** for `numpy`, `random`, and (optional) `torch`.
 - [X] T005 Implement checksum utilities in `code/checksum.py` to compute SHA‑256 for downloaded datasets and write `data/checksums.json`.
 - [X] T006 Implement state‑tracking utilities in `code/state_tracker.py` to compute artifact hashes and update `state/projects/PROJ-488-evaluating-the-impact-of-code-generation.yaml` with `updated_at` timestamps.
-- [X] T007 Setup logging infrastructure in `code/logging_config.py` with snippet‑ID aware logger (INFO level, console + file).
+- [ ] T007 Setup logging infrastructure in `code/logging_config.py` with snippet‑ID aware logger (INFO level, console + file).
 - [X] T008 Create data model definitions in `code/data_model.py`:
  - `CodeSnippet` (id, source, code, length, language)
  - `MetricScore` (snippet_id, metric_type, score, timestamp)
@@ -53,7 +53,7 @@
 
 **Goal**: Download and preprocess human‑written (CodeSearchNet) and LLM‑generated (CodeParrot/CodeGen) code datasets, filter to Python functions with comparable sizes.
 
-- [X] T012 [US1] Implement HuggingFace download for **CodeSearchNet** in `code/data_ingestion.py` using `datasets.load_dataset('code_search_net',...)`, with exponential backoff (≥3 retries, 60 s intervals) and robust error handling. <!-- FAILED: unspecified -->
+- [ ] T012 [US1] Implement HuggingFace download for **CodeSearchNet** in `code/data_ingestion.py` using `datasets.load_dataset('code_search_net',...)`, with exponential backoff (≥3 retries, 60 s intervals) and robust error handling. <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement HuggingFace download for **CodeParrot/CodeGen** in the same module using `datasets.load_dataset('codeparrot/codegen',...)`, recording SHA‑256 checksums to `data/checksums.json`.
 - [X] T014 [US1] Implement dataset verification workflow: confirm that both datasets are listed in `data/verified_sources.json`; abort with **error 101** if a dataset is not verified.
 - [X] T015 [US1] Implement streaming and sampling to ensure total snippets ≤ 10,000 to comply with 14 GB disk limit; use `datasets.load_dataset(..., streaming=True)` with [deferred] sample fraction.
@@ -68,7 +68,7 @@
 
 **Goal**: Run radon for complexity and pylint for bug indicators on each code snippet, aggregate into metric distributions per dataset group.
 
-- [X] T020 [US2] Implement radon complexity extraction (cyclomatic complexity, LOC, maintainability index) in `code/metric_extraction.py`.
+- [ ] T020 [US2] Implement radon complexity extraction (cyclomatic complexity, LOC, maintainability index) in `code/metric_extraction.py`.
 - [X] T021 [US2] Implement pylint bug‑indicator extraction (potential bugs, style issues) in the same file.
 - [X] T022 [US2] Validate extracted scores: detect NaN or out‑of‑range values; if ≥5% of snippets fail, abort with **error 102** and generate diagnostic report.
 - [X] T023 [US2] Aggregate metrics per group and write CSV files to `data/metrics/` (one file per metric type) including mean, median, variance.

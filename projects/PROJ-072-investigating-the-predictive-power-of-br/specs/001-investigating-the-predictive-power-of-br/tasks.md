@@ -53,7 +53,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: nibabel, numpy, pandas, scikit-learn, networkx, bctpy, scipy, huggingface_hub, nilearn, pydantic, joblib)
+- [X] T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: nibabel, numpy, pandas, scikit-learn, networkx, bctpy, scipy, huggingface_hub, nilearn, pydantic, joblib) [UNRESOLVED-CLAIM: c_dd2804b9 — status=not_enough_info]
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T005 Implement `scripts/hash_artifacts.sh` to generate SHA-256 hashes for `data/` and `code/` and update `state/` YAML (Constitution V)
 - [X] T006 Create `code/__init__.py` and configure logging infrastructure
@@ -68,21 +68,21 @@
 
 **Goal**: Ingest raw rs-fMRI data from OpenNeuro ds000030, preprocess (motion correction, normalization, bandpass low-frequency range), and generate subject-level connectivity matrices.
 
-**Independent Test**: Run on a cohort of subjects.; verify output is square correlation matrices of appropriate dimension (CSV/NumPy) with valid dimensions, no NaNs, and values within the valid range for correlation coefficients..
+**Independent Test**: Run on a cohort of subjects.; verify output is square correlation matrices of appropriate dimension (CSV/NumPy) with valid dimensions, no NaNs, and values within the valid range for correlation coefficients. [UNRESOLVED-CLAIM: c_9875d2c4 — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for data download validation in `tests/unit/test_preprocessing.py`: Implement `test_download_url_exists` which asserts `pipeline.download_url_exists('https://openneuro.org/datasets/ds000030')` returns `True`. Implement `test_download_checksum` which asserts `pipeline.verify_checksum('data/raw/ds000030.zip', 'expected_sha256')` returns `True`.
-- [X] T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject in `tests/integration/test_preprocessing.py`: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')` and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
+- [X] T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject in `tests/integration/test_preprocessing.py`: {{claim:c_1cf4fdbd}}
 
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/preprocessing/download.py`: Download logic for OpenNeuro dataset ds000030. The research question and method remain unchanged as per the planning document guidelines, with specific empirical identifiers generalized to reflect the dataset source without asserting precise low-level values. References: OpenNeuro (); handle missing diagnostic labels by excluding subjects and logging the count to `data/metadata/exclusion_log.txt`.
 - [X] T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction, normalization, and bandpass filtering (low-frequency range) using nilearn's FSL-compatible wrappers; verify output headers match FSL standard logs to ensure Constitution Principle VI compliance. <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to generate connectivity matrices.
-- [X] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
+- [X] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation [UNRESOLVED-CLAIM: c_11c7b26c — status=not_enough_info]; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
 - [ ] T015 [US1] Implement `code/preprocessing/metadata.py`: metadata generation (Subject ID -> Label mapping) and save to `data/metadata/subject_labels.csv`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T015.5 [US1] Implement metadata parsing in `code/preprocessing/metadata.py` to detect presence of `medication_status` field in OpenNeuro JSON sidecars; save result as `analysis_config.json` with key `medication_status_available: true/false`.
 - [ ] T016 [US1] Add validation for positive semi-definite matrices (apply regularization if needed) and log anomalies.
@@ -95,11 +95,11 @@
 
 **Goal**: Compute graph metrics (efficiency, modularity, centrality) and extract a feature vector per subject, highlighting prefrontal/hippocampal regions.
 
-**Independent Test**: Run on synthetic matrix with known properties; verify efficiency=1.0 for fully connected graph; verify output dimensions.
+**Independent Test**: Run on synthetic matrix with known properties; verify efficiency=1.0 for fully connected graph; verify output dimensions. [UNRESOLVED-CLAIM: c_ae514804 — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Unit test for graph metric calculator in `tests/unit/test_graph_metrics.py`: Implement `test_efficiency_full_graph` which creates a x10 matrix of all 1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`. Implement `test_modularity_output` which asserts `calculator.modularity(matrix)` returns a value within the expected normalized range.
+- [X] T017 [P] [US2] Unit test for graph metric calculator in `tests/unit/test_graph_metrics.py`: Implement `test_efficiency_full_graph` which creates a x10 matrix of all 1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`. [UNRESOLVED-CLAIM: c_2e03a521 — status=not_enough_info] Implement `test_modularity_output` which asserts `calculator.modularity(matrix)` returns a value within the expected normalized range.
 - [X] T018 [P] [US2] Integration test for feature extraction in `tests/integration/test_graph_metrics.py`: Implement `test_feature_extraction` which runs `calculator.extract_features(all_matrices)` and asserts the output `data/processed/features.csv` has a shape consistent with the number of subjects and the expected feature dimensionality., contains no NaNs, and includes columns for 'global_efficiency', 'local_efficiency', 'modularity', 'prefrontal_centrality', 'hippocampal_centrality'. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2

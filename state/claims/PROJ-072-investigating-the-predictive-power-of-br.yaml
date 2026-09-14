@@ -1338,3 +1338,120 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T18:31:26Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project dependencies
+  claim_id: c_dd2804b9
+  context: 'Initialize Python 3.11 project with dependencies (`requirements.txt`:
+    nibabel, numpy, pandas, scikit-learn, networkx, bctpy, scipy, huggingface_hub,
+    nilearn, pydantic, joblib)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with dependencies (`requirements.txt`:
+    nibabel, numpy, pandas, scikit-learn, networkx, bctpy, scipy, huggingface_hub,
+    nilearn, pydantic, joblib)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T09:26:29Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Motion exclusion threshold
+  claim_id: c_11c7b26c
+  context: 'Implement motion flagging logic: exclude subjects with >2mm translation;
+    update `data/metadata/subject_status.csv` with exclusion flags and reasons.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_threshold
+  kind: entity_fact
+  raw_text: exclude subjects with >2mm translation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T09:41:51Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Correlation matrix validation criteria
+  claim_id: c_9875d2c4
+  context: 'Independent Test: Run on a cohort of subjects.; verify output is square
+    correlation matrices of appropriate dimension (CSV/NumPy) with valid dimensions,
+    no NaNs, and values within the valid range for correlation coefficients..'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_matrix_validation_criteria
+  kind: entity_fact
+  raw_text: Run on a cohort of subjects.; verify output is square correlation matrices
+    of appropriate dimension (CSV/NumPy) with valid dimensions, no NaNs, and values
+    within the valid range for correlation coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T09:57:09Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Preprocessing output matrix dimensions
+  claim_id: c_1cf4fdbd
+  context: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')`
+    and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape
+    `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
+  evidence:
+    asserted: '90.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')`
+    and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape
+    `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T09:57:09Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Global efficiency of fully connected graph
+  claim_id: c_2e03a521
+  context: Implement `test_efficiency_full_graph` which creates a x10 matrix of all
+    1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `test_efficiency_full_graph` which creates a x10 matrix of all
+    1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T10:22:27Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Synthetic matrix test criteria
+  claim_id: c_ae514804
+  context: 'Independent Test: Run on synthetic matrix with known properties; verify
+    efficiency=1.0 for fully connected graph; verify output dimensions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on synthetic matrix with known properties; verify efficiency=1.0 for
+    fully connected graph; verify output dimensions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T10:38:49Z'

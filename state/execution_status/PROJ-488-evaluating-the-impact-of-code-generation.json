@@ -6,14 +6,14 @@
     "data/metrics/statistical_analysis_results.json"
   ],
   "failures": [
-    "python code/data_ingestion.py -> rc=1\n    port Dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/.venv/lib/python3.11/site-packages/datasets/arrow_dataset.py\", line 67, in <module>\n    from .arrow_writer import ArrowWriter, OptimizedTypedSequence\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/.venv/lib/python3.11/site-packages/datasets/arrow_writer.py\", line 27, in <module>\n    from .features import Features, Image, Value\n  File \"/home/runner/work/llmXive/llmXive/projects/",
+    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/data_ingestion.py\", line 42, in <module>\n    logger = setup_logger(\"data_ingestion\", log_file=\"data/ingestion.log\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logger() got an unexpected keyword argument 'log_file'",
     "python code/metric_extraction.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 25, in <module>\n    from radon.mi import mi_visit\nModuleNotFoundError: No module named 'radon.mi'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-488-evaluating-the-impact-of-code-generation/code/metric_extraction.py\", line 27, in <module>\n    raise ImportError(\nImportErro"
   ],
-  "fix_rounds": 10,
+  "fix_rounds": 11,
   "model_tier": 0,
-  "total_attempts": 10,
+  "total_attempts": 11,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T13:09:34Z",
   "failure_class": "fabrication",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-09-14T08:38:19Z"
 }

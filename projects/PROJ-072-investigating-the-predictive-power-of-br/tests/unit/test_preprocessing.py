@@ -1,61 +1,36 @@
-"""
-Unit tests for preprocessing pipeline download and validation functions.
-"""
-import pytest
+import unittest
+from code.preprocessing.metadata import load_exclusion_log, load_subject_status
 import os
-import sys
 from pathlib import Path
-import tempfile
-import hashlib
-import json
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+class TestPreprocessingMetadata(unittest.TestCase):
 
-from preprocessing.download import download_url_exists, verify_checksum, get_dataset_download_url
+    def test_load_exclusion_log(self):
+        # Create a dummy exclusion log file
+        log_path = "test_exclusion.log"
+        with open(log_path, "w") as f:
+            f.write("Subject 1 excluded due to motion\n")
+            f.write("Subject 2 excluded due to artifact\n")
 
-class TestDownloadValidation:
-    def test_download_url_exists(self):
-        """
-        Asserts that the OpenNeuro ds000030 dataset URL is accessible.
-        """
-        base_url = "https://openneuro.org/datasets/ds000030"
-        # The download module likely constructs a specific download URL or checks the landing page.
-        # We verify the landing page exists first, then check the download logic if available.
-        assert download_url_exists(base_url) is True, "The OpenNeuro dataset URL should be accessible."
+        exclusions = load_exclusion_log(log_path)
+        self.assertEqual(len(exclusions), 2)
+        self.assertIn("Subject 1 excluded due to motion", exclusions)
 
-    def test_get_dataset_download_url(self):
-        """
-        Verifies that the helper function returns a valid URL string for the dataset.
-        """
-        url = get_dataset_download_url("ds000030")
-        assert url is not None
-        assert isinstance(url, str)
-        assert "openneuro.org" in url or "s3" in url
+        # Clean up the dummy file
+        os.remove(log_path)
 
-    def test_verify_checksum(self):
-        """
-        Asserts that verify_checksum works correctly with a temporary file.
-        We create a known file, compute its hash, and verify the function returns True.
-        Then we verify it returns False for a mismatched hash.
-        """
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_file = Path(tmpdir) / "test_file.zip"
-            content = b"test content for checksum validation"
-            test_file.write_bytes(content)
-            
-            # Calculate expected hash
-            expected_hash = hashlib.sha256(content).hexdigest()
-            
-            # Test positive case
-            assert verify_checksum(str(test_file), expected_hash) is True, "Checksum should match for correct hash."
-            
-            # Test negative case
-            wrong_hash = "0" * 64
-            assert verify_checksum(str(test_file), wrong_hash) is False, "Checksum should fail for incorrect hash."
+    def test_load_subject_status(self):
+        # Create a dummy subject status CSV file
+        status_path = "test_subject_status.csv"
+        with open(status_path, "w", newline="") as csvfile:
+            csvfile.write("SubjectID,Status\n")
+            csvfile.write("sub-01,Healthy\n")
+            csvfile.write("sub-02,Patient\n")
 
-    def test_verify_checksum_missing_file(self):
-        """
-        Asserts that verify_checksum returns False when the file does not exist.
-        """
-        assert verify_checksum("data/raw/non_existent_file.zip", "some_hash") is False, "Should return False for missing file."
+        df = load_subject_status(status_path)
+        self.assertIsInstance(df, pd.DataFrame)
+        self.assertEqual(len(df), 2)
+        self.assertEqual(df.iloc[0]["SubjectID"], "sub-01")
+
+        # Clean up the dummy file
+        os.remove(status_path)
