@@ -3,13 +3,12 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required directory structure for the project:
+    Create the required data directory structure:
     - data/raw/
     - data/intermediate/
     - data/results/
     
-    Each directory is created with a .gitkeep file to ensure they are
-    tracked by Git even when empty.
+    Each directory will contain a .gitkeep file to ensure they are tracked by git.
     """
     base_dir = Path("data")
     directories = [
@@ -17,7 +16,7 @@ def create_directories():
         base_dir / "intermediate",
         base_dir / "results"
     ]
-
+    
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
         gitkeep_path = directory / ".gitkeep"
@@ -26,10 +25,11 @@ def create_directories():
             print(f"Created directory: {directory} with .gitkeep")
         else:
             print(f"Directory already exists: {directory}")
+    
+    print("Data directory structure setup complete.")
 
 def main():
     create_directories()
-    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

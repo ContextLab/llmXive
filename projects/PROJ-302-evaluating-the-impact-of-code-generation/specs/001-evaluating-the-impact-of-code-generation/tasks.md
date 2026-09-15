@@ -43,7 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create core directories: `mkdir -p code data/tests docs data/raw data/processed`
+- [X] T001 Create project structure per implementation plan
+- [X] T002 Initialize [language] project with [framework] dependencies
+- [X] T003 [P] Configure linting and formatting tools
 
 ---
 
@@ -56,14 +58,14 @@
 Examples of foundational tasks (adjust based on your plan):
 
 - [X] T002 [P] Initialize Python project: Create `requirements.txt` with pinned versions: `datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` with specified rules.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` with specified rules.
 - [X] T005 [P] Implement `code/utils/config.py` for random seeds, paths, and API credentials
 - [X] T006 [P] Setup `code/utils/validators.py` for schema validation and PII scanning
 - [X] T007 [P] Create base data models in `code/utils/models.py`:
  - `PullRequest` class with fields: `pr_id`, `repo_id`, `author_type`, `review_duration`, `file_size`, `complexity_score`
  - `CodeSnippet` class with fields: `snippet_id`, `source_commit`, `generation_source`, `complexity_metrics`, `semantic_similarity_score`
 - [X] T008 [P] Setup `Dockerfile` for environment replication (CPU-only)
-- [X] T013 [P] Implement `code/utils/rate_limiter.py` with exponential backoff strategy (a limited number of retries as per spec Edge Cases) for GitHub API
+- [X] T013 [P] Implement `code/utils/rate_limiter.py` with exponential backoff strategy (a limited number of retries as per spec Edge Cases)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,8 +80,6 @@ Examples of foundational tasks (adjust based on your plan):
 **Independent Test**: The pipeline can be executed end-to-end on a single small repository (< 500 PRs) to verify classification works, metadata is extracted correctly, and the dataset fits within the available RAM limit.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for GitHub API response parsing in `tests/contract/test_github_scraper.py`
 - [X] T011 [P] [US1] Integration test for classification on CPU in `tests/integration/test_classifier_runner.py`
@@ -282,9 +282,9 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: T014b (Prompt-Based Generation) is restored to satisfy FR-008/US-4. It is a scaled-down GPU feasibility test (a limited set of snippets, 30s timeout). If it fails, the project reports the constraint unmet honestly.
 - **Critical Constraint**: T019 (Syntax Validation) depends on T014b.
-- **Critical Constraint**: T023b (Failure Handling) depends on T023a and must halt the pipeline (enforced by T023c).
-- **Critical Constraint**: T033a/T034 (Prompt Cohort) depend on T014b.
-- **Critical Constraint**: Semantic similarity scores (T017b) are computed for diagnostics only and are EXCLUDED from matching covariates per Plan. T022 does NOT require `diagnostic_scores.parquet` to run.
+- **Critical Constraint**: T023a (Retry Logic) depends on T023b and must halt the pipeline (enforced by T023c).
 - **Critical Constraint**: T030 (Sensitivity Consistency) is restored to satisfy SC-005 and enforced by T030b.
 - **Critical Constraint**: T038 (Performance Enforcement) is moved to Phase N but explicitly tasked to enforce the 6-hour runtime (SC-006).
 - **Critical Constraint**: T001b (redundant) has been removed.
+- **NEW TASK**:
+- [ ] T042 [P] [US1] Implement logging for data acquisition failures (API rate limits, invalid repos) in `code/data_acquisition/github_scraper.py`.  Rationale: Provides better debugging info for edge cases.

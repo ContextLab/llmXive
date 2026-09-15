@@ -1,3 +1,1 @@
-"""
-Test suite for PROJ-062
-"""
+# Tests package

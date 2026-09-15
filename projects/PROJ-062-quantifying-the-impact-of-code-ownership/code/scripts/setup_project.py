@@ -4,86 +4,120 @@ from pathlib import Path
 
 def create_structure():
     """
-    Creates the project directory structure for PROJ-062.
-    This script implements T001: Create project structure per implementation plan.
+    Create the project directory structure for PROJ-062.
+    This implements T001: Create project structure per implementation plan.
     
-    It creates:
-    1. The main project root: projects/PROJ-062-quantifying-the-impact-of-code-ownership/
-    2. Standard source directories: code/, code/utils/, tests/, data/, etc.
-    3. Configuration and documentation directories.
+    Structure created:
+    - projects/PROJ-062-quantifying-the-impact-of-code-ownership/
+      - code/
+        - utils/
+        - scripts/
+      - data/
+        - raw/
+        - intermediate/
+        - results/
+      - specs/
+      - tests/
+        - unit/
+        - integration/
+      - figures/
+      - state/
+      - requirements.txt
+      - .gitignore
     """
-    # Define the project root relative to the current working directory
-    # Assuming this script is run from the repository root
-    project_root = Path("projects/PROJ-062-quantifying-the-impact-of-code-ownership")
+    base_dir = Path("projects/PROJ-062-quantifying-the-impact-of-code-ownership")
     
-    # Define the directory structure to create
+    # Define all directories to create
     directories = [
-        # Project root itself is created by the first entry if it doesn't exist
-        project_root,
-        
-        # Source code structure
-        project_root / "code",
-        project_root / "code" / "utils",
-        project_root / "code" / "scripts",
-        
-        # Test structure
-        project_root / "tests",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "contract",
-        
-        # Data structure (as per T004 requirements, though T004 is a separate task)
-        # We create the container here, T004 will add .gitkeep files
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "intermediate",
-        project_root / "data" / "results",
-        project_root / "data" / "ownership_metrics",
-        
-        # State and configuration
-        project_root / "state",
-        project_root / "specs",
-        project_root / "docs",
-        
-        # Figures output
-        project_root / "figures"
+        base_dir / "code" / "utils",
+        base_dir / "code" / "scripts",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "intermediate",
+        base_dir / "data" / "results",
+        base_dir / "specs",
+        base_dir / "tests" / "unit",
+        base_dir / "tests" / "integration",
+        base_dir / "figures",
+        base_dir / "state",
     ]
     
-    created_count = 0
+    # Create directories
     for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        # Add .gitkeep to data directories to ensure they are tracked
+        if dir_path.parts[0] == "data":
+            gitkeep = dir_path / ".gitkeep"
+            if not gitkeep.exists():
+                gitkeep.touch()
     
-    print(f"\nProject structure creation complete. {created_count} new directories created.")
-    print(f"Project root: {project_root.absolute()}")
+    # Create requirements.txt
+    req_file = base_dir / "requirements.txt"
+    if not req_file.exists():
+        req_content = """GitPython
+scikit-learn
+scipy
+pandas
+numpy
+radon
+matplotlib
+pyyaml
+requests
+pytest
+"""
+        req_file.write_text(req_content)
     
-    # Create __init__.py files to make directories Python packages where appropriate
+    # Create .gitignore
+    gitignore_file = base_dir / ".gitignore"
+    if not gitignore_file.exists():
+        gitignore_content = """# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Data
+data/raw/*
+data/intermediate/*
+!data/raw/.gitkeep
+!data/intermediate/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+"""
+        gitignore_file.write_text(gitignore_content)
+    
+    # Create __init__.py files to make directories packages
     init_files = [
-        project_root / "code" / "__init__.py",
-        project_root / "code" / "utils" / "__init__.py",
-        project_root / "code" / "scripts" / "__init__.py",
-        project_root / "tests" / "__init__.py",
-        project_root / "tests" / "unit" / "__init__.py",
-        project_root / "tests" / "integration" / "__init__.py",
-        project_root / "tests" / "contract" / "__init__.py",
+        base_dir / "code" / "__init__.py",
+        base_dir / "code" / "utils" / "__init__.py",
+        base_dir / "code" / "scripts" / "__init__.py",
+        base_dir / "tests" / "__init__.py",
+        base_dir / "tests" / "unit" / "__init__.py",
+        base_dir / "tests" / "integration" / "__init__.py",
     ]
     
     for init_file in init_files:
         if not init_file.exists():
             init_file.touch()
-            print(f"Created init file: {init_file}")
     
-    return True
+    print(f"Project structure created at: {base_dir}")
+    return base_dir
 
 def main():
-    """Entry point for the script."""
-    success = create_structure()
-    if not success:
-        sys.exit(1)
+    create_structure()
 
 if __name__ == "__main__":
     main()

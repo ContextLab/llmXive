@@ -1,4 +1,4 @@
-- artifact_hash: 0f3988ad55c9593873392d4b60f7a5269604da10938c3967420adf335182f27a
+- artifact_hash: d27b5bf4ed45094f68afcdce02d53b66c0f503d4990a5b5f1506e678cf363ef3
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,21 +8,10 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-09-08T12:43:31.900280Z'
-- artifact_hash: 0f3988ad55c9593873392d4b60f7a5269604da10938c3967420adf335182f27a
+  verified_at: '2026-09-15T19:33:30.762260Z'
+- artifact_hash: d27b5bf4ed45094f68afcdce02d53b66c0f503d4990a5b5f1506e678cf363ef3
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.7964353
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7964353
-  verified_at: '2026-09-08T12:43:31.900280Z'
-- artifact_hash: 0f3988ad55c9593873392d4b60f7a5269604da10938c3967420adf335182f27a
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: "Fluoride\u2010mediately solvothermal synthesis and tunable photocatalytic\
@@ -32,4 +21,4 @@
   value: 10.1111/jace.18342
   verification_status: pending
   verified_against_url: https://doi.org/10.1111/jace.18342
-  verified_at: '2026-09-08T12:43:31.900280Z'
+  verified_at: '2026-09-15T19:33:30.762260Z'

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:48:43.480442Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-822-llmxive-follow-up-extending-sana-wm-effi
-last_run_id: a499bb10-1417-4370-9fc6-e0e18b438d7b
+last_run_id: a09d823e-d5fc-4de8-bc5a-a8b9c48c1d39
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-822-llmxive-follow-up-extending-sana-wm-effi/specs/001-llmxive-follow-up-extending-sana-wm-effi
 title: 'llmXive follow-up: extending "SANA-WM: Efficient Minute-Scale World Modeling
   with Hybrid Linear Diff"'
-updated_at: '2026-07-11T19:38:53.231998Z'
+updated_at: '2026-09-15T18:22:14.422906Z'

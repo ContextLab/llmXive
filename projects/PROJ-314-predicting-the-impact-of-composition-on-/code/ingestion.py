@@ -5,177 +5,222 @@ import logging
 import re
 import time
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import Dict, Any, List, Optional, Tuple
 
-from config import initialize_config, get_config_value
+import pandas as pd
+import requests
+from chemparse import parse_formula
+
+# Project imports
+from config import get_config_value, initialize_config
 from logger import setup_citation_logger
 from contracts.schemas import CeramicEntry
 
-# Ensure project root is in path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Ensure logs directory exists
+LOGS_DIR = Path("logs")
+LOGS_DIR.mkdir(exist_ok=True)
 
-logger = logging.getLogger(__name__)
+# Setup specific logger for URL verification
+def setup_url_verification_logger():
+    logger = logging.getLogger("url_verification")
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(LOGS_DIR / "url_verification.log")
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
+    return logger
+
+url_verification_logger = setup_url_verification_logger()
 
 def ensure_output_dirs():
     """Ensure all required output directories exist."""
     dirs = [
-        "data/raw", "data/processed", "data/artifacts",
-        "data/models", "data/results", "data/reports", "logs"
+        "data/raw",
+        "data/processed",
+        "data/artifacts",
+        "data/models",
+        "data/results",
+        "data/reports",
+        "logs",
     ]
     for d in dirs:
         Path(d).mkdir(parents=True, exist_ok=True)
 
-def validate_url_reachability(url: str, timeout: int = 10) -> bool:
-    """Check if a URL is reachable."""
-    try:
-        import requests
-        response = requests.head(url, timeout=timeout, allow_redirects=True)
-        return response.status_code == 200
-    except Exception as e:
-        logger.warning(f"URL reachability check failed for {url}: {e}")
-        return False
-
-def validate_source_citations(urls: List[str]) -> Dict[str, str]:
+def validate_url_reachability(url: str, timeout: int = 10) -> Tuple[bool, str]:
     """
-    Validate source URLs/DOIs against primary sources.
-    Checks title overlap >= 0.7 and reachability.
+    Check if a URL is reachable and returns a 200 OK status.
+    Returns (is_reachable, status_message).
+    """
+    try:
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
+        if response.status_code == 200:
+            return True, f"URL reachable: {response.status_code}"
+        else:
+            return False, f"URL returned status: {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return False, f"Request failed: {str(e)}"
+
+def validate_source_citations(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Validate source citations (URLs/DOIs) against primary sources.
     Logs failures to logs/citation_validation.log.
     """
-    results = {}
-    # Ensure logs directory exists
-    Path("logs").mkdir(parents=True, exist_ok=True)
+    logger = setup_citation_logger()
+    valid_citations = []
+    for citation in citations:
+        url = citation.get("url") or citation.get("doi")
+        if not url:
+            logger.warning(f"Citation missing URL/DOI: {citation}")
+            continue
+
+        is_reachable, message = validate_url_reachability(url)
+        if is_reachable:
+            logger.info(f"Citation validation for {url}: {message}")
+            valid_citations.append(citation)
+        else:
+            logger.warning(f"Citation validation for {url}: {message}")
+    return valid_citations
+
+def verify_nist_url(url: str = None) -> bool:
+    """
+    Verify the reachability of the NIST Ceramic Data repository URL.
+    Uses requests to check status code 200.
+    Logs result to logs/url_verification.log.
+    Returns True if reachable, False otherwise.
+    """
+    if url is None:
+        # Default NIST Materials Data API endpoint or landing page
+        url = "https://materialsdata.nist.gov/bitstream/handle/11115/209/CeramicReliabilityData.csv"
     
-    # Setup specific logger for citation validation
-    citation_logger = setup_citation_logger()
+    is_reachable, message = validate_url_reachability(url)
     
-    for url in urls:
-        status = "UNKNOWN"
-        try:
-            # 1. Check reachability
-            if not validate_url_reachability(url):
-                status = "UNREACHABLE"
-            else:
-                # 2. Check title overlap (simulated for dummy URLs, real logic would fetch metadata)
-                # For real implementation, this would fetch DOI metadata or HTML title
-                # and compare with expected title overlap.
-                # Since we are validating dummy URLs in T010b, we assume reachability implies valid structure for this test.
-                status = "VALID"
-        
-        except Exception as e:
-            status = f"ERROR: {str(e)}"
-        
-        results[url] = status
-        # Log exactly as required by T010b: INFO: Citation validation for {url}: {status}
-        citation_logger.info(f"Citation validation for {url}: {status}")
+    if is_reachable:
+        url_verification_logger.info(f"NIST URL verification for {url}: SUCCESS - {message}")
+    else:
+        url_verification_logger.warning(f"NIST URL verification for {url}: FAILED - {message}")
     
-    return results
+    return is_reachable
 
 def derive_primary_anion_cation_group(composition: str) -> str:
     """
     Parse composition string to identify primary anion and cation groups.
-    Example: 'Al2O3' -> 'O-Al'
+    Example: 'Al2O3' -> 'O-Al' (Anion-Cation order)
     """
     try:
-        from chemparse import parse_formula
-        from periodictable import elements
-        
-        formula = parse_formula(composition)
-        if not formula:
+        parsed = parse_formula(composition)
+        elements = list(parsed.keys())
+        if len(elements) < 2:
             return "Unknown"
         
-        # Simple heuristic: identify cations and anions based on position or known lists
-        # This is a placeholder for the full logic required in T018a
-        # For now, return a generic group string based on the first element
-        first_elem = list(formula.keys())[0]
-        return f"Group-{first_elem}"
+        # Simple heuristic: assume last element is anion (common for oxides/nitrides)
+        # In reality, this needs a more robust chemistry parser, but for now:
+        anion = elements[-1]
+        cation = elements[0]
+        
+        # Map element symbols to group names (simplified)
+        # This is a placeholder; a full implementation would use periodictable
+        return f"{anion}-{cation}"
     except Exception as e:
-        logger.warning(f"Could not derive group for {composition}: {e}")
+        logging.warning(f"Failed to parse composition {composition}: {e}")
         return "Unknown"
 
 def validate_entry(entry: Dict[str, Any]) -> bool:
-    """Validate a single ceramic entry against the schema."""
+    """Validate a single ceramic entry against the CeramicEntry schema."""
     try:
-        # Basic validation
-        required_fields = ['composition', 'weibull_modulus', 'sample_count']
-        for field in required_fields:
-            if field not in entry:
-                return False
-        
-        # Schema validation if needed
-        # CeramicEntry.model_validate(entry)
+        CeramicEntry(**entry)
         return True
     except Exception as e:
-        logger.warning(f"Entry validation failed: {e}")
+        logging.warning(f"Invalid entry: {e}")
         return False
 
-def validate_no_missing_primary_predictors(df) -> bool:
-    """Ensure essential descriptors have no missing values."""
-    # Placeholder for T020 logic
+def validate_no_missing_primary_predictors(df: pd.DataFrame) -> bool:
+    """
+    Validate that essential descriptors have no missing values.
+    Returns True if all primary predictors are present.
+    """
+    primary_predictors = [
+        "mean_atomic_radius",
+        "electronegativity_std",
+        "valence_electron_concentration",
+        "cation_size_variance",
+    ]
+    for col in primary_predictors:
+        if col not in df.columns:
+            logging.error(f"Missing primary predictor column: {col}")
+            return False
+        if df[col].isnull().any():
+            logging.error(f"Missing values in primary predictor: {col}")
+            return False
     return True
 
-def flag_high_variance_ranges(df, threshold: float = 0.5):
-    """Exclude entries where range width > threshold * midpoint."""
-    # Placeholder for T059a logic
-    return df
+def flag_high_variance_ranges(df: pd.DataFrame, threshold: float = 0.5) -> pd.DataFrame:
+    """
+    Exclude entries where range width exceeds threshold (e.g., > 50% of midpoint).
+    Assumes 'range_original' and 'weibull_modulus' (midpoint) exist.
+    """
+    if "range_original" not in df.columns or "weibull_modulus" not in df.columns:
+        logging.warning("Range columns not found; skipping high-variance filtering.")
+        return df
+
+    # Extract range width if stored as a tuple or string
+    # Placeholder logic: assumes 'range_original' is a string like "10-20"
+    def get_range_width(val):
+        if pd.isna(val):
+            return 0
+        if isinstance(val, str) and "-" in val:
+            try:
+                parts = val.split("-")
+                return float(parts[1]) - float(parts[0])
+            except:
+                return 0
+        return 0
+
+    df["range_width"] = df["range_original"].apply(get_range_width)
+    df["midpoint"] = df["weibull_modulus"]
+    
+    # Filter out rows where width > threshold * midpoint
+    mask = df["range_width"] <= (threshold * df["midpoint"])
+    return df[mask].copy()
 
 def generate_data_availability_report(count: int, path: str = "data/reports/data_availability_report.json"):
-    """Generate a report on data availability."""
+    """
+    Generate a JSON report on data availability.
+    """
     report = {
         "total_entries": count,
-        "status": "sufficient" if count >= 30 else "insufficient",
-        "timestamp": time.time()
+        "status": "insufficient" if count < 30 else "sufficient",
+        "message": f"Total entries: {count}. {'Insufficient for power analysis (N < 30).' if count < 30 else 'Sufficient for analysis.'}"
     }
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Data availability report generated at {path}")
+    return path
 
 def validate_data_gap(count: int):
     """
-    Check if data count is sufficient.
-    If < 30, generate report and exit with code 1.
-    If 30 <= N < 50, log warning.
+    Validate data gap: if count < 30, generate report and exit.
+    If 30 <= count < 50, log warning.
     """
     if count < 30:
-        generate_data_availability_report(count)
-        logger.error("Power Limitation: Insufficient data (N < 30)")
+        report_path = generate_data_availability_report(count)
+        print(f"Power Limitation: Insufficient data (N < 30). Report: {report_path}", file=sys.stderr)
         sys.exit(1)
     elif count < 50:
-        logger.warning("Warning: Small dataset (30 <= N < 50). Hold-out validation will be used.")
+        logging.warning(f"Small dataset (30 <= N < 50). Hold-out validation will be used.")
 
 def main():
-    """Main entry point for ingestion module."""
+    """Main entry point for ingestion script."""
     initialize_config()
     ensure_output_dirs()
 
-    # Parse arguments for dummy validation
-    if "--validate-dummy" in sys.argv:
-        dummy_urls = ['https://example.com']
-        # Check if specific dummy urls provided
-        if len(sys.argv) > 2:
-            # Simple parsing for --urls=url1,url2
-            for arg in sys.argv[2:]:
-                if arg.startswith('--urls='):
-                    dummy_urls = arg.split('=')[1].split(',')
-        
-        logger.info("Running dummy citation validation...")
-        results = validate_source_citations(dummy_urls)
-        logger.info(f"Validation results: {results}")
-        
-        # Verify log creation
-        log_path = Path("logs/citation_validation.log")
-        if log_path.exists():
-            logger.info("Citation validation log created successfully.")
-            with open(log_path, 'r') as f:
-                content = f.read()
-                if "Citation validation for" in content:
-                    logger.info("Log contains expected entries.")
-        else:
-            logger.error("Citation validation log NOT created.")
-            sys.exit(1)
+    # Example: Verify NIST URL
+    nist_url = "https://materialsdata.nist.gov/bitstream/handle/11115/209/CeramicReliabilityData.csv"
+    is_ok = verify_nist_url(nist_url)
+    if not is_ok:
+        logging.error("NIST URL verification failed. Cannot proceed with data fetch.")
+        sys.exit(1)
+
+    # Additional ingestion logic would go here...
+    print("Ingestion pipeline initialized successfully.")
 
 if __name__ == "__main__":
     main()
