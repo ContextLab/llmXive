@@ -115,7 +115,7 @@ A timeout mechanism is implemented to terminate operations that exceed a predefi
 
 **Goal**: Train a Logistic Regression classifier to predict RL failure based on semantic divergence metrics.
 
-**Independent Test**: The model achieves accuracy > 60% and AUC-ROC ≥ 0.65 on a held-out test set. [UNRESOLVED-CLAIM: c_a830ede6 — status=not_enough_info]
+**Independent Test**: The model achieves accuracy > 60% and AUC-ROC ≥ 0.65 on a held-out test set.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -144,7 +144,7 @@ A timeout mechanism is implemented to terminate operations that exceed a predefi
 
 - [ ] T035 [P] (Removed: Logic moved to T004-ext/T005) Memory limit enforcement and downsampling logic are now handled in Foundational phase
 - [ ] T036 [P] (Removed: Logic moved to T004-ext/T005) Dynamic downsampling logic is now handled in Foundational phase
-- [ ] T037 [P] Generate content hashes for raw data and derived artifacts using SHA-256. [UNRESOLVED-CLAIM: c_ef626cb9 — status=not_enough_info] Update `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml` under the key `artifact_hashes` with the exact file paths and format: `filename: <sha256_hash>`. Files to hash: `data/raw/*.json`, `data/cached_axpo_results.json`, `results/*.json`. (Constitution Principle V)
+- [ ] T037 [P] Generate content hashes for raw data and derived artifacts using SHA-256. Update `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml` under the key `artifact_hashes` with the exact file paths and format: `filename: <sha256_hash>`. Files to hash: `data/raw/*.json`, `data/cached_axpo_results.json`, `results/*.json`. (Constitution Principle V)
 - [ ] T038 [P] Documentation updates in `docs/` and `quickstart.md`
 - [ ] T039 Code cleanup and refactoring
 - [ ] T040 Run `run_diagnostic.py` validation on a small subset to verify end-to-end flow

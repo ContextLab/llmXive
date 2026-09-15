@@ -4,78 +4,44 @@ import re
 from pathlib import Path
 from typing import List
 
-def log_setup(level: int = logging.INFO, destination: str = 'stdout') -> logging.Logger:
+def log_setup(level=logging.INFO):
     """
-    Configure and return a logger with the specified level and destination.
-    
-    Args:
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-        destination: 'stdout' or 'file' (if file, writes to logs/app.log)
-    
-    Returns:
-        Configured logger instance
+    Configure and return a logger with the specified format:
+    [%(asctime)s] %(levelname)s: %(message)s
+    Destination: stdout
     """
-    logger = logging.getLogger('llmXive_pipeline')
+    logger = logging.getLogger("llmXive")
     logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates in interactive environments
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Create formatter
-    # Format: [%(asctime)s] %(levelname)s: %(message)s
-    formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
-    
-    # Create handler
-    if destination == 'stdout':
+
+    # Avoid adding duplicate handlers if called multiple times
+    if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-    elif destination == 'file':
-        logs_dir = Path('logs')
-        logs_dir.mkdir(exist_ok=True)
-        handler = logging.FileHandler(logs_dir / 'app.log')
-    else:
-        raise ValueError(f"Invalid destination: {destination}. Must be 'stdout' or 'file'.")
-    
-    handler.setLevel(level)
-    handler.setFormatter(formatter)
-    
-    logger.addHandler(handler)
-    
+        handler.setLevel(level)
+        formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
     return logger
 
-def checksum_file(path: str) -> str:
+def checksum_file(path):
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def causal_language_scanner(text: str, forbidden_words: List[str]) -> List[str]:
+def causal_language_scanner(text, forbidden_words):
     """
-    Scan text for forbidden causal language terms.
-    
-    Args:
-        text: The text to scan
-        forbidden_words: List of forbidden words/phrases (case-insensitive)
-    
-    Returns:
-        List of matches found in the text
+    Scan text for forbidden causal terms.
+    Returns a list of matches found.
     """
-    if not text:
-        return []
-    
-    text_lower = text.lower()
     matches = []
-    
+    text_lower = text.lower()
     for word in forbidden_words:
         if word.lower() in text_lower:
             matches.append(word)
-    
     return matches
 
-# Re-export for convenience if imported directly
-__all__ = ['log_setup', 'checksum_file', 'causal_language_scanner']
+# Import sys for StreamHandler usage in log_setup
+import sys

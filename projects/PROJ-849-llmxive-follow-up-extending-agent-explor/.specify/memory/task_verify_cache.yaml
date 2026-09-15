@@ -6,14 +6,6 @@ T001:
     \ project\u2011structure artifacts. The implementer must create the specified\
     \ folder hierarchy and populate it with the initial codebase as outlined in the\
     \ implementation plan."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only a feature specification for semantic divergence
-    diagnostics and no linting or formatting configuration files (e.g., `pyproject.toml`,
-    `.ruff.toml`, or Black settings). There is no evidence that ruff and black have
-    been installed, configured, or integrated into the project, so the task requirement
-    is unmet.
 T006:
   c: false
   h: b45288d8fec59fa6581253c11f9289eaf489f19941d7e1261f0a619e10b2b939

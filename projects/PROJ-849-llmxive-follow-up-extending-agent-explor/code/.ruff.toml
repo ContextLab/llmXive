@@ -1,13 +1,5 @@
-# Explicit ruff configuration file for redundancy and IDE support
+# Ruff configuration file
+# This file extends or overrides settings from pyproject.toml if needed.
+# Currently, all settings are defined in pyproject.toml for centralization.
+# This file exists to allow explicit ruff invocation: ruff check .
 extend = "pyproject.toml"
-line-length = 88
-target-version = "py311"
-
-[lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "N", "SIM"]
-ignore = ["E501"]
-
-[lint.isort]
-known-first-party = ["lib", "models", "services", "cli", "tests"]
-force-single-line = false
-lines-after-imports = 2

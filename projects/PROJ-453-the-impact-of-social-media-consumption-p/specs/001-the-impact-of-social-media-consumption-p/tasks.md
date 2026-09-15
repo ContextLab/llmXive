@@ -37,7 +37,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T005a [P] Create project directories: `data/raw`, `data/processed`, `code`, `results/models`, `results/figures`, `tests`, `contracts` in `projects/PROJ-453-.../`. <!-- FAILED: unspecified -->
+- [ ] T005a [P] Create project directories: `data/raw`, `data/processed`, `code`, `results/models`, `results/figures`, `tests`, `contracts` in `projects/PROJ-453-.../`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T005b [P] Create `code/__init__.py` and `data/.gitkeep`.
 - [X] T005c [P] Create `data/raw/.gitkeep`.
 - [X] T006a [P] Create `code/requirements.txt` with specific dependencies: pandas, numpy, statsmodels, scikit-learn, pyyaml, requests, datasets, pytest.
@@ -87,7 +87,7 @@
 - [ ] T016b [US1] Implement `code/02_engineer.py`: Parse raw files and validate against `contracts/dataset.schema.yaml`.
 - [X] T017 [US1] Implement `code/02_engineer.py`: Compute `switching_index = num_platforms * self_reported_switching_frequency`. Store as derived variable.
 - [X] T018 [US1] Implement `code/02_engineer.py`: Handle missing outcomes by excluding rows and logging exclusion count (e.g., "Excluded N rows due to missing WCST data").
-- [ ] T019 [US1] Implement `code/02_engineer.py`: Output `data/processed/participants_cleaned.csv`.
+- [ ] T019 [US1] Implement `code/02_engineer.py`: Output `data/processed/participants_cleaned.csv`. <!-- ATOMIZE: requested -->
 - [ ] T020 [US1] Add logging for data ingestion and variable engineering operations (level=INFO, destination=stdout, format: `[%(asctime)s] %(levelname)s: %(message)s`).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

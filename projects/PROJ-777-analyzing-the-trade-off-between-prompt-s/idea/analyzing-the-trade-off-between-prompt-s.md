@@ -21,8 +21,8 @@ While prompt engineering is critical for LLM performance, the assumption that "m
 We queried Semantic Scholar and arXiv for terms including "prompt length impact on code synthesis quality," "effect of token count in prompts on program generation performance," "information density in code generation prompts," and "model capacity versus prompt verbosity." The search targeted studies that explicitly vary prompt length while holding task semantics constant, specifically looking for comparisons across models of different sizes.
 
 ### What is known
-- [DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation (2025)](https://arxiv.org/abs/2509.25716) — Proposes techniques for expanding code context and indexing for API prediction, highlighting that standard retrieval methods are limited, but does not isolate the specific impact of prompt *length* or *density* on functional correctness across model scales.
 - [JaCoText: A Pretrained Model for Java Code-Text Generation (2023)](https://arxiv.org/abs/2303.12869) — Demonstrates that transformer-based models can achieve high performance in code-text generation tasks, establishing the baseline capability for mapping natural language to code, but does not analyze the diminishing returns of prompt verbosity or the effect of model size on prompt sensitivity.
+- [Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code (2025)](https://arxiv.org/abs/2508.08322) — Discusses context limitations in multi-file projects and the challenges of managing long contexts, highlighting that standard retrieval methods are limited, but does not isolate the specific impact of prompt *length* or *density* on functional correctness across model scales.
 
 ### What is NOT known
 There is no published work that empirically maps the "information density vs. pass@k" curve while systematically varying model capacity (e.g., 350M vs. 1.5B vs. 6B parameters) on the same benchmark. Existing studies treat prompt length as a fixed constraint or a secondary variable, leaving a gap in understanding whether smaller models are more susceptible to "noise" from verbose prompts compared to larger models that may better filter irrelevant tokens.
@@ -39,30 +39,29 @@ We anticipate a divergence in performance curves: smaller models will show a sha
 
 ## Methodology sketch
 
-- **Dataset selection**: Download the HumanEval benchmark (164 Python programming problems) from the HuggingFace repository (`openai/human-eval`). We will use the full set (N=164) unless runtime constraints force a fallback to a stratified random sample of 100 problems (stratified by problem difficulty proxies like number of test cases).
+- **Dataset selection**: Download the HumanEval benchmark (164 Python programming problems) from the HuggingFace repository (`openai/human-eval`). We will use the full set (N=164) unless runtime constraints force a fallback to a stratified random sample of 100 problems. Stratification will be based on the number of test cases per problem (proxy for difficulty), ensuring the sample maintains the original distribution of test-case counts.
 - **Prompt construction & Validation**:
     - Create a "Minimal" prompt (signature + docstring) for each problem.
-    - Generate 5 variants by adding semantically neutral elaborations to target token bins: 50, 100, 200, 300, 400 tokens.
+    - Generate 5 variants by adding semantically neutral elaborations to target token bins: **50, 100, 200, 300, and 400 tokens**.
     - **Semantic Equivalence Check**: Compute cosine similarity between the original minimal prompt and each variant using `sentence-transformers/all-MiniLM-L6-v2`. Variants with similarity < 0.95 are discarded and regenerated. If a problem cannot yield 5 valid variants after 3 attempts, it is excluded from the analysis (documenting the unbalanced design).
-    - **Token Count Verification**: Measure exact token counts using the specific model's tokenizer. If the count deviates > ±10 tokens from the target (and is not truncated due to context limits), the variant is regenerated. Truncated prompts are logged with details but included.
+    - **Token Count Verification**: Measure exact token counts using the specific model's tokenizer **after** elaboration but **before** inference. If the count deviates > ±10 tokens from the target (and is not truncated due to context limits), the variant is regenerated. Truncated prompts are logged with details but included; their actual post-truncation length is recorded as the token count for analysis.
 - **Model Selection & Inference**:
-    - Select 3 models: `Salesforce/codegen-350M-multi`, `Salesforce/codegen-2B-multi`, and `bigcode/starcoderbase` (4-bit quantized to fit 7GB RAM).
-    - **Sampling Strategy**: For every (Problem, Model, Prompt-Variant) triplet, generate **n=10 independent samples** using distinct random seeds (0-9) and a fixed temperature (0.8) to ensure independence.
+    - Select 3 models: `Salesforce/codegen-350M-multi`, `Salesforce/codegen-2B-multi`, and `bigcode/starcoderbase` (loaded in full precision or 8-bit if necessary, **no 4-bit quantization** to comply with NFR-002 constraints on quantization; if memory exceeds 7GB, the largest model will be replaced by `Salesforce/codegen-6B-multi` in 8-bit mode or a smaller equivalent like `starcoderbase-1b` if available). *Correction*: Given the 7GB RAM limit on GHA, `starcoderbase` (even 8-bit) may be too large. We will substitute `starcoderbase` with `Salesforce/codegen-6B-multi` (8-bit quantized) or `bigcode/starcoder-1b` (full precision) to ensure the pipeline runs within the 7GB RAM constraint without violating the "no 4-bit" rule.
+    - **Sampling Strategy**: For every (Problem, Model, Prompt-Variant) triplet, generate **n=10 independent samples** using **distinct random seeds (0-9)** and a fixed temperature (0.8) to ensure stochastic independence.
     - **Execution**: Run inference on GitHub Actions free-tier. If the total runtime exceeds 5 hours, the pipeline switches to the stratified 100-problem subset.
 - **Correctness Evaluation**:
     - Execute each of the 10 generated code samples against the HumanEval unit tests.
     - Compute **pass@1** (binary: 1 if the sample passes all tests, 0 otherwise) for each of the 10 samples.
     - Compute **pass@10** (binary: 1 if *at least one* of the 10 samples passes, 0 otherwise) for the triplet.
-    - *Note*: These metrics are derived from the 10 binary outcomes per triplet; pass@10 is a deterministic function of the pass@1 outcomes, not an independent variable.
+    - **Data Structure**: The unit of analysis is the (Problem, Model, Variant) triplet. The dependent variable is the *proportion* of successful samples (k/10) for pass@1. **pass@10 is computed as a descriptive secondary metric only and is NOT used as a dependent variable in the ANOVA to avoid circular validation.**
 - **Statistical Analysis**:
-    - **Data Structure**: The unit of analysis is the (Problem, Model, Variant) triplet. The dependent variable is the *proportion* of successful samples (k/10) for pass@1.
-    - **Transformation**: Apply the **arcsine square-root transformation** to the proportions to stabilize variance, as recommended for binomial data in ANOVA contexts (Zar, 1999).
-    - **Model**: Perform a **Repeated-Measures ANOVA** (or Linear Mixed Model with Problem as random effect) with factors: `Model Size` (between-subjects) and `Prompt Token Count` (within-subjects), including the interaction term.
+    - **Transformation**: Apply the **arcsine square-root transformation** to the pass@1 proportions: `transformed_score = arcsin(sqrt(pass_rate))` using `scipy.stats` or equivalent, to stabilize variance for ANOVA on binomial data.
+    - **Model**: Perform a **Linear Mixed Model (LMM)** with `Problem` as a random effect and fixed effects: `Model Size` (between-subjects) and `Prompt Token Count` (within-subjects), including the interaction term. This replaces the Repeated-Measures ANOVA to better handle the binary nature of the underlying data and missing data points if any.
     - **Hypothesis Test**: Test the significance of the `Model Size * Prompt Token Count` interaction term (α = 0.05). A significant interaction confirms that the effect of prompt length depends on model size.
-    - **Optimal Bin Identification**: Identify the token bin with the highest mean transformed pass rate for each model. Perform a post-hoc stability check by re-binning with ±5% variation in token counts to ensure the optimal bin location remains stable within a ±10 token window.
+    - **Optimal Bin Identification**: Identify the token bin with the highest mean transformed pass rate for each model. Perform a **sensitivity analysis** by re-binning with ±5% variation in token counts (e.g., 100±5 tokens) to ensure the optimal bin location remains stable within a **±10 token window**.
     - **Causal Scope**: Explicitly frame findings as **associational** (correlational) regarding the relationship between prompt length and correctness, as model architecture is not randomized.
-- **Visualization**: Plot interaction curves showing the mean transformed pass rate (y-axis) vs. prompt token count (x-axis), with separate lines for each model size, including 95% confidence intervals.
-- **Resource Management**: The pipeline will monitor execution time. If the full N=164, 5-variant, 3-model, 10-sample design exceeds 5 hours, it will automatically trigger the fallback to the N=100 stratified subset to ensure completion within the 6-hour limit.
+- **Visualization**: Plot interaction curves showing the mean transformed pass rate (y-axis) vs. prompt token count (x-axis), with separate lines for each model size, including **95% confidence intervals** derived from the LMM model predictions.
+- **Resource Management**: The pipeline will monitor execution time. If the estimated runtime (based on first 10 problems) × 16.4 exceeds 5.5 hours, it will automatically trigger the fallback to the N=100 stratified subset to ensure completion within the 6-hour limit.
 
 ## Duplicate-check
 
@@ -73,7 +72,7 @@ We anticipate a divergence in performance curves: smaller models will show a sha
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-29T14:27:49Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-15T21:50:37Z
 **Outcome**: exhausted
 **Original term**: Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science
 **Verified citation count**: 2
@@ -83,28 +82,28 @@ We anticipate a divergence in performance curves: smaller models will show a sha
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science | 0 |
-| 1 | prompt length impact on code generation accuracy | 4 |
-| 2 | relationship between context window size and LLM coding performance | 0 |
-| 3 | optimal prompt size for automated code synthesis | 0 |
-| 4 | diminishing returns in large language model code generation | 0 |
-| 5 | effect of input token count on code correctness | 0 |
-| 6 | trade-off between prompt verbosity and code quality | 0 |
-| 7 | few-shot prompting vs zero-shot prompting for code generation | 0 |
-| 8 | scaling laws for code generation models with varying prompt lengths | 0 |
-| 9 | influence of demonstration quantity on LLM code output | 0 |
-| 10 | prompt engineering strategies for efficient code generation | 0 |
-| 11 | cost-accuracy trade-offs in LLM-based programming assistants | 0 |
-| 12 | maximum effective prompt length for code completion tasks | 0 |
-| 13 | correlation between context complexity and generated code bugs | 0 |
-| 14 | in-context learning limits for software development tasks | 0 |
-| 15 | token budget optimization for code generation models | 0 |
-| 16 | impact of long-context retrieval on code synthesis quality | 0 |
-| 17 | prompt compression techniques for code generation | 0 |
-| 18 | variance in code quality across different prompt sizes | 0 |
-| 19 | efficiency of large context windows in code generation | 0 |
-| 20 | balancing prompt detail and model inference cost | 0 |
+| 1 | impact of prompt length on code generation accuracy | 4 |
+| 2 | relationship between context window size and LLM code quality | 2 |
+| 3 | prompt engineering trade-offs for code synthesis | 0 |
+| 4 | effect of instruction complexity on generated code correctness | 0 |
+| 5 | scalability of code generation with large prompts | 0 |
+| 6 | optimal prompt size for automated programming tasks | 0 |
+| 7 | diminishing returns in prompt expansion for code generation | 0 |
+| 8 | prompt verbosity versus code generation performance | 0 |
+| 9 | influence of few-shot examples count on code quality | 0 |
+| 10 | context length constraints in large language model coding | 0 |
+| 11 | trade-off between prompt detail and code efficiency | 0 |
+| 12 | sensitivity of code generation models to input token count | 0 |
+| 13 | prompt compression effects on code generation fidelity | 0 |
+| 14 | balancing prompt specificity and model hallucination in coding | 0 |
+| 15 | correlation between prompt token budget and bug rate in generated code | 0 |
+| 16 | large context window utilization for code completion | 0 |
+| 17 | prompt engineering strategies for maximizing code quality | 0 |
+| 18 | impact of in-context learning examples on code generation | 0 |
+| 19 | trade-offs in prompt design for software development assistance | 0 |
+| 20 | limits of prompt size for reliable code synthesis | 0 |
 
 ### Verified citations
 
-1. **DeepCodeSeek: Real-Time API Retrieval for Context-Aware Code Generation** (2025). Esakkivel Esakkiraja, Denis Akhiyarov, Aditya Shanmugham, Chitra Ganapathy. arXiv. [2509.25716](https://arxiv.org/abs/2509.25716). PDF-sampled: No.
-2. **JaCoText: A Pretrained Model for Java Code-Text Generation** (2023). Jessica López Espejel, Mahaman Sanoussi Yahaya Alassan, Walid Dahhane, El Hassane Ettifouri. arXiv. [2303.12869](https://arxiv.org/abs/2303.12869). PDF-sampled: No.
+1. **JaCoText: A Pretrained Model for Java Code-Text Generation** (2023). Jessica López Espejel, Mahaman Sanoussi Yahaya Alassan, Walid Dahhane, El Hassane Ettifouri. arXiv. [2303.12869](https://arxiv.org/abs/2303.12869). PDF-sampled: No.
+2. **Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code** (2025). Muhammad Haseeb. arXiv. [2508.08322](https://arxiv.org/abs/2508.08322). PDF-sampled: No.

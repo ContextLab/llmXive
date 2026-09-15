@@ -1,8 +1,65 @@
 [lint]
-select = ["E", "F", "W", "I"]
-ignore = []
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
+select = ["E", "F", "I", "W", "UP", "N", "B", "C4"]
+ignore = [
+  "E501", # Line too long (handled by Black)
+  "E731", # Do not assign a lambda expression, use a def
+  "B008", # Do not perform function calls in argument defaults (common in data pipelines)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+  "data", # Exclude generated data files
+]
+
+# Per-file ignores
+per-file-ignores = {}
+
+# Same as Black's default line length
+line-length = 88
+
+# Allow unused variables in function definitions (often used for API compatibility)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Target Python version
+target-version = "py39"
+
+[lint.isort]
+# Configuration to match Black's expectations
+known-first-party = ["code"]
+force-sort-within-sections = false
+lines-after-imports = 2
+combine-as-imports = true
 
 [format]
+# Enable preview style formatting
+preview = false
 quote-style = "double"
 indent-style = "space"
-line-ending = "lf"
+skip-magic-trailing-comma = false
+line-ending = "auto"

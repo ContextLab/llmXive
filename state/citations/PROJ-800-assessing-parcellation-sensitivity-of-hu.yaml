@@ -32,7 +32,7 @@
   verification_status: pending
   verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
   verified_at: '2026-07-27T03:21:39.800823Z'
-- artifact_hash: d2091b688bef9c1f6b9dd6b347f27e59b50c967481e0e8ce5b3f2e1f17e594a0
+- artifact_hash: 4ba7811f91a13abe1e8ec8f69baf5d9accafa302325fdb19dbac8a1d720808f4
   artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://en.wikipedia.org/wiki/Type_I_and_type_II_errors
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Type_I_and_type_II_errors
-  verified_at: '2026-08-11T01:08:49.965305Z'
+  verified_at: '2026-09-15T21:37:45.435889Z'

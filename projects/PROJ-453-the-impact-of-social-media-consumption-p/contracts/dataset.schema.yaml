@@ -1,18 +1,42 @@
+# Dataset Schema Contract for Social Media Cognitive Flexibility Study
+# Generated for PROJ-453
+# This contract defines the required structure and data types for the input dataset.
+
 required_columns:
   - switching_index
   - cognitive_flexibility_score
   - age
   - total_screen_time
   - num_platforms
-  - switching_frequency
+  - self_reported_switching_frequency
+  - participant_id
 
-type_mapping:
-  switching_index: numeric
-  cognitive_flexibility_score: numeric
+column_types:
+  switching_index: float
+  cognitive_flexibility_score: float
   age: integer
-  total_screen_time: numeric
+  total_screen_time: float
   num_platforms: integer
-  switching_frequency: numeric
+  self_reported_switching_frequency: float
+  participant_id: string
 
-description: "Schema contract for the raw dataset ingestion and engineering phase."
-version: "1.0"
+constraints:
+  cognitive_flexibility_score:
+    min: 0
+    max: 100
+  age:
+    min: 18
+    max: 90
+  total_screen_time:
+    min: 0
+  num_platforms:
+    min: 1
+    max: 20
+  self_reported_switching_frequency:
+    min: 0
+    max: 100
+
+description: |
+  This schema validates the raw data ingested from public surveys (HILDA, ESS, AddHealth).
+  It ensures that all necessary variables for the switching index calculation and
+  cognitive flexibility analysis are present and within expected ranges.
