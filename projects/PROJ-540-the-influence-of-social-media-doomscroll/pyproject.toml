@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-doomscrolling"
 version = "0.1.0"
 description = "Analysis of Social Media Doomscrolling on Anticipatory Anxiety"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.3",
@@ -16,42 +15,36 @@ dependencies = [
     "seaborn==0.13.0",
     "requests==2.31.0",
     "pyyaml==6.0.1",
-    "numpy>=1.24.0",
     "scipy>=1.11.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8==6.1.0",
-    "black==23.12.1",
-    "isort==5.13.2",
-    "pytest==7.4.3"
+    "flake8>=6.1.0",
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    "pytest>=7.4.0"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
-skip_glob = [
-    "*/__pycache__/*",
-    "*/build/*",
-    "*/dist/*"
-]
+known_first_party = ["config", "clean", "ingest", "model", "validity", "exceptions", "models", "logging_config", "robustness", "viz", "report_generator", "save_cleaned_data", "save_results", "save_robustness_results", "setup_dirs"]

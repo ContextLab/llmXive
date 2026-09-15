@@ -10,105 +10,101 @@ from exceptions import PowerLimitationError
 logger = logging.getLogger(__name__)
 
 def load_cleaned_data(input_path: Path) -> pd.DataFrame:
-    """Load data from a CSV file."""
-    logger.info(f"Loading data from {input_path}")
+    """Loads the cleaned data from the processed directory."""
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Cleaned data file not found at {input_path}")
     return pd.read_csv(input_path)
 
 def validate_cleaned_data(df: pd.DataFrame) -> bool:
     """
-    Validate that the cleaned data meets minimum requirements.
-    Specifically, checks for the presence of required columns and
-    logs missing value statistics again if needed.
+    Validates the cleaned data.
+    Checks for sufficient sample size (Power Limitation).
     """
-    required_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety', 'age', 'gender']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        logger.error(f"Missing required columns in cleaned data: {missing}")
-        return False
+    n = len(df)
+    logger.info(f"Validating cleaned data: N = {n}")
     
-    # Log missing value statistics for the cleaned data
-    for col in required_cols:
-        missing_count = df[col].isna().sum()
-        if missing_count > 0:
-            logger.warning(f"Cleaned data still has {missing_count} missing values in '{col}'.")
+    # Spec FR-002: HALT if N < 30
+    if n < 30:
+        msg = f"Power limitation: Sample size N={n} is below the minimum threshold of 30."
+        logger.error(msg)
+        raise PowerLimitationError(msg)
     
-    logger.info("Cleaned data validation passed.")
+    # Log warning if 30 <= N < 100 (as per task description)
+    if 30 <= n < 100:
+        logger.warning(f"Low Power Warning: Sample size N={n} is between 30 and 100.")
+    
+    # Log Plan's stricter guideline (N < 130) as a comment/log
+    if n < 130:
+        logger.info("Note: Sample size N={n} is below the stricter guideline of 130 suggested in the plan.")
+
     return True
 
 def save_cleaned_data(df: pd.DataFrame, output_path: Path) -> None:
-    """Save the cleaned dataframe to a CSV file."""
-    logger.info(f"Saving cleaned data to {output_path}")
+    """Saves the cleaned dataframe to the specified path."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info("Data saved successfully.")
+    logger.info(f"Cleaned data saved to {output_path}")
 
 def main():
     """
     Main entry point for the cleaning pipeline.
-    This function performs listwise deletion and enforces power checks.
+    Orchestrates loading, validation, and saving.
     """
     config = load_config()
     ensure_directories(config)
-    set_seed(config.get('random_seed', 42))
     
-    input_path = Path(config.get('paths', {}).get('processed_data', 'data/processed')) / 'analysis_data.csv'
-    output_path = input_path # Overwrite or save to a new file? T013 says save to analysis_data.csv.
-    # Assuming the input here is the raw data after initial schema check, 
-    # and we are saving the final cleaned version.
-    # However, T010-T013 flow suggests ingest.py does the download and initial clean.
-    # If clean.py is a separate step, it might take raw and output processed.
-    # Let's assume it takes the raw data (if ingest didn't save) or the intermediate.
-    # To be safe and align with T012 (listwise deletion), we read raw, clean, save processed.
+    input_path = Path(config['paths']['processed_data']) / "analysis_data.csv"
+    output_path = Path(config['paths']['processed_data']) / "analysis_data.csv" 
+    # Note: In a multi-step pipeline, this might load from raw_cleaned and save to processed_final
+    # But for this task, we assume the ingest.py already did the cleaning and saved it,
+    # and this script validates the result and logs power stats.
+    # Alternatively, if ingest.py just downloads, this script loads raw, cleans, validates, saves.
+    # Given T012 says "Implement listwise deletion in code/clean.py", we assume this script does the work.
     
-    # Re-adjusting for T012 context: T010 downloads, T011 validates schema, T012 cleans.
-    # If ingest.py handles T010-T013, then clean.py might be redundant or a refinement.
-    # But T012 explicitly says "Implement listwise deletion in code/clean.py".
-    # So, we assume ingest.py downloads and validates, and clean.py loads, cleans, saves.
+    # Re-reading T012/T013: 
+    # T012: Implement listwise deletion in code/clean.py
+    # T013: Save cleaned dataset to data/processed/analysis_data.csv
+    # So clean.py should load raw, clean, validate, save.
     
-    raw_data_path = Path(config.get('paths', {}).get('raw_data', 'data/raw')) / 'raw_survey_data.csv'
-    processed_data_path = Path(config.get('paths', {}).get('processed_data', 'data/processed')) / 'analysis_data.csv'
+    raw_path = Path(config['paths']['raw_data']) / "survey_data.csv"
     
-    # If raw_data_path doesn't exist, try to load from the expected processed path if it's a re-run
-    if not raw_data_path.exists():
-        logger.warning(f"Raw data not found at {raw_data_path}. Trying processed path as source.")
-        if not processed_data_path.exists():
-            logger.error("No data source found.")
-            sys.exit(1)
-        df = pd.read_csv(processed_data_path)
-    else:
-        df = pd.read_csv(raw_data_path)
-        
-    logger.info(f"Loaded data with shape: {df.shape}")
+    if not raw_path.exists():
+        logger.error(f"Raw data not found at {raw_path}. Run ingest.py first.")
+        sys.exit(1)
     
-    # T012: Listwise deletion for missing predictor/outcome
-    primary_cols = ['news_exposure_freq', 'anxiety_score']
-    initial_rows = len(df)
-    df_clean = df.dropna(subset=primary_cols)
-    final_rows = len(df_clean)
+    df = pd.read_csv(raw_path)
+    original_n = len(df)
+    logger.info(f"Loaded raw data: {original_n} rows.")
     
-    # Log row counts and missing stats (T014 requirement)
-    logger.info(f"Listwise deletion: Removed {initial_rows - final_rows} rows.")
-    logger.info(f"Final row count: {final_rows}")
+    # Perform listwise deletion
+    # Columns to check for missing values (predictors and outcome)
+    required_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety']
     
-    for col in primary_cols:
-        missing = df_clean[col].isna().sum()
-        if missing > 0:
-            logger.warning(f"Still {missing} missing values in '{col}' after deletion.")
+    # Log missing stats
+    missing_counts = df[required_cols].isnull().sum()
+    logger.info("Missing value statistics in raw data:")
+    for col, count in missing_counts.items():
+        logger.info(f"  {col}: {count}")
     
-    # T012: Power Check
-    if final_rows < 30:
-        logger.error(f"Power Limitation Error: N={final_rows} < 30. Halting.")
-        raise PowerLimitationError(f"Insufficient sample size: N={final_rows} < 30")
-    elif 30 <= final_rows < 100:
-        logger.warning(f"Low Power Warning: N={final_rows} is between 30 and 100.")
-    else:
-        logger.info(f"Power Check OK: N={final_rows} >= 100.")
+    # Drop rows with missing values in required columns
+    df_clean = df.dropna(subset=required_cols)
+    cleaned_n = len(df_clean)
+    dropped_n = original_n - cleaned_n
+    
+    logger.info(f"Listwise deletion: Dropped {dropped_n} rows.")
+    logger.info(f"Remaining rows: {cleaned_n}")
+    
+    # Validate power (T012 requirement)
+    try:
+        validate_cleaned_data(df_clean)
+    except PowerLimitationError as e:
+        logger.critical(str(e))
+        sys.exit(1)
     
     # Save
-    save_cleaned_data(df_clean, processed_data_path)
-    
-    logger.info("Cleaning pipeline completed.")
+    save_cleaned_data(df_clean, output_path)
 
 if __name__ == "__main__":
+    from logging_config import setup_logging
+    setup_logging()
     main()

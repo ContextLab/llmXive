@@ -58,7 +58,7 @@
 - [ ] T004 Implement `download_data.py` to fetch CodeXGLUE Python code-generation subset via HuggingFace `datasets` library
 - [ ] T005 [P] Implement fallback logic in `download_data.py`: If CodeXGLUE fetch fails or is unverified, **DO NOT** switch to HumanEval/MBPP as no human baseline exists for those prompts per Verified Fallback Protocol. Instead, proceed with the available sample size (N < 200) or fail gracefully with a clear error message. **MUST** log the specific reason for sample size reduction.
 - [ ] T005.1 [P] Define exclusion criteria for unmatched prompts: Create logic to exclude any prompt from `human_baseline_times.json` that does not have a corresponding entry in the downloaded CodeXGLUE dataset. **MUST** explicitly state that no mapping logic for alternative datasets (HumanEval/MBPP) is required or permitted. **T005.1 must be completed before T005 implementation begins.**
-- [ ] T006 [P] Implement `validate_baseline.py` to synthesize local human baseline data: **MUST validate that hardcoded time values from the 2025 comparative analysis paper (Table X, Section Y) represent raw developer time (minutes/hours), not pre-calculated CO₂**. If the 2025 paper data is missing, **execute the Synthesized Baseline Protocol** using specific literature values (e.g., average 30-60 minutes per prompt from IEEE/ACM software engineering literature) with explicit citation. **The task MUST fail ONLY if the Synthesized Baseline Protocol cannot identify a valid literature source.** Load into `data/raw/human_baseline_times.json` with exact structure `{"prompt_id": <string>, "time_minutes": <float>}`. **Depends on T004** to ensure the downloaded prompt IDs exist for matching. **Includes a verification step that fails if the data does not match the raw time schema.**
+- [X] T006 [P] Implement `validate_baseline.py` to synthesize local human baseline data: **MUST validate that hardcoded time values from the 2025 comparative analysis paper (Table X, Section Y) represent raw developer time (minutes/hours), not pre-calculated CO₂**. If the 2025 paper data is missing, **execute the Synthesized Baseline Protocol** using specific literature values (e.g., average 30-60 minutes per prompt from IEEE/ACM software engineering literature) with explicit citation. **The task MUST fail ONLY if the Synthesized Baseline Protocol cannot identify a valid literature source.** Load into `data/raw/human_baseline_times.json` with exact structure `{"prompt_id": <string>, "time_minutes": <float>}`. **Depends on T004** to ensure the downloaded prompt IDs exist for matching. **Includes a verification step that fails if the data does not match the raw time schema.**
 - [X] T007 [P] Setup environment configuration for regional CO2 conversion factors and power model constants in `config.yaml`
 - [ ] T008 [P] Implement checksum validation for downloaded raw data in `download_data.py`
 
@@ -82,11 +82,11 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `run_inference.py` to load **GPT-2-medium** (not GPT-medium) in default precision (no reduced-bit quantization) on CPU. **MUST output the generated code string in the result JSON to allow LOC counting.**
-- [~] T012 [US1] Wrap inference loop in `run_inference.py` with `codecarbon.EmissionsTracker` configured for CPU
-- [~] T013 [US1] Implement error handling in `run_inference.py`: log CodeCarbon failures, skip specific prompt, and continue to next
-- [~] T014 [US1] Implement batch processing loop (targeting a scalable number of prompts) in `run_inference.py` with progress logging
+- [ ] T012 [US1] Wrap inference loop in `run_inference.py` with `codecarbon.EmissionsTracker` configured for CPU
+- [ ] T013 [US1] Implement error handling in `run_inference.py`: log CodeCarbon failures, skip specific prompt, and continue to next
+- [ ] T014 [US1] Implement batch processing loop (targeting a scalable number of prompts) in `run_inference.py` with progress logging
 - [ ] T015 [US1] Generate `data/processed/llm_inference_results.json` containing `prompt_id`, `model_used`, `energy_kWh`, `co2_kg`, and **calculated `loc_count`** (count lines of the generated code string immediately after generation, do not use placeholders like 0 or -1).
-- [~] T016 [US1] Add validation to exclude prompts that failed to generate code or resulted in empty strings from the output file
+- [ ] T016 [US1] Add validation to exclude prompts that failed to generate code or resulted in empty strings from the output file
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,8 +106,8 @@
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement logic in `calculate_emissions.py` to join `llm_inference_results.json` with `data/raw/human_baseline_times.json`. **Depends on T006 and T016.**
-- [~] T020 [US2] Implement LOC counting for LLM-generated code in `calculate_emissions.py`. **Depends on T006, T016, and T011 (to access raw code strings).**
-- [~] T021 [US2] Implement human baseline CO2 calculation using mean of reported time range and standard laptop power model in `calculate_emissions.py`
+- [ ] T020 [US2] Implement LOC counting for LLM-generated code in `calculate_emissions.py`. **Depends on T006, T016, and T011 (to access raw code strings).**
+- [ ] T021 [US2] Implement human baseline CO2 calculation using mean of reported time range and standard laptop power model in `calculate_emissions.py`
 - [~] T022 [US2] Implement normalization logic to calculate `co2_per_loc` for both LLM and human baselines
 - [ ] T023 [US2] Implement exclusion logic in `calculate_emissions.py` to drop any record where LLM LOC or Human LOC is 0
 - [ ] T024 [US2] Generate `data/processed/paired_emissions.csv` with columns: `prompt_id`, `loc_count`, `llm_co2_per_loc`, `human_co2_per_loc`
@@ -155,9 +155,9 @@
 - [ ] T039a [P] Documentation updates: Update `README.md` with CLI usage examples and project structure.
 - [ ] T039b [P] Documentation updates: Add docstrings to all functions in `code/`.
 - [ ] T040 Code cleanup and refactoring across all scripts
-- [ ] T041a [P] Performance optimization: Implement batch size throttling logic in `run_inference.py` to ensure runtime ≤ 6 hours.
+- [ ] T041a [P] Performance optimization: Implement batch size throttling logic in `run_inference.py` to ensure {{claim:c_2e535bcf}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar).
 - [ ] T041b [P] Performance optimization: Add memory profiling hooks to `utils.py` to ensure RAM ≤ 7 GB.
-- [ ] T042 [P] Additional unit tests for edge cases (empty code, missing data) in `tests/unit/`
+- [ ] T042 [P] Additional unit testsfor edge cases (empty code, missing data) in `tests/unit/`
 - [ ] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T044 Final review of `output/report.md` for clarity and scientific rigor
 

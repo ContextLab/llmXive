@@ -56,3 +56,69 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T13:06:41Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average human coding time 30-60 minutes per prompt
+  claim_id: c_bbfad73f
+  context: execute the Synthesized Baseline Protocol using specific literature values
+    (e.g., average 30-60 minutes per prompt from IEEE/ACM software engineering literature)
+    with explicit citation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T05:27:52Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: project runtime less than or equal to 6 hours
+  claim_id: c_2e535bcf
+  context: "Implement batch size throttling logic in `run_inference.py` to ensure\
+    \ runtime \u2264 6 hours."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: "runtime \u2264 6 hours"
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-15T05:28:01Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: project RAM usage less than or equal to 7 GB
+  claim_id: c_a827245b
+  context: "Add memory profiling hooks to `utils.py` to ensure RAM \u2264 7 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Project_RAM_usage_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "RAM \u2264 7 GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T05:28:15Z'

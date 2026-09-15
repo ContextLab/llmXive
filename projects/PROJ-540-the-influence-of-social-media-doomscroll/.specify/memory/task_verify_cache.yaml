@@ -1,24 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure evidence (e.g., listings or screenshots of `data/raw/`,
-    `data/processed/`, `code/`, `outputs/`, `tests/`) was provided, so we cannot confirm
-    the required folders exist. The implementer must supply proof that these directories
-    have been created.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-540-the-influence-of-social-media-doomscroll/`
-    or any `__init__.py` files was provided; the claim lacks any artifact showing
-    the source structure exists. The implementer must create the folder and include
-    the `__init__.py` files.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g.,\u202F`.flake8`, `pyproject.toml`\
-    \ with Black settings, or equivalent) are present in the provided evidence, and\
-    \ the only artifacts shown relate to a different research feature. Consequently\
-    \ the requirement to configure flake8/black is not satisfied."
 T004b:
   c: true
   h: e01eeb02f09ada50be7cb0465009f98bf48352d07bfff57013c716f7cddc5b87
@@ -26,20 +5,6 @@ T004b:
     \ which check for a seed, apply it, log an info message, and emit warnings when\
     \ the seed is missing or not set, fulfilling the task\u2019s requirement. The\
     \ artifact is present, non\u2011empty, and implements the requested behavior."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were provided that demonstrate logging\
-    \ of row counts, missing\u2011value statistics, or power\u2011check results. The\
-    \ claim lacks any tangible artifact showing the required logging functionality\
-    \ was added."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output files were supplied; there is no evidence of a data\u2011\
-    ingestion script, variable extraction, regression model, diagnostics, or visualization\
-    \ required by the user stories. Consequently the required artifacts are missing,\
-    \ so the task is not genuinely completed."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

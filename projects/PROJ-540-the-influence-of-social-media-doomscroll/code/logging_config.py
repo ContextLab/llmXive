@@ -5,33 +5,35 @@ from config import ensure_directories, load_config
 
 def setup_logging(log_file: str = "outputs/analysis.log", level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the logging infrastructure to write to a specific file and stdout.
-    
+    Configure the project logging infrastructure.
+
+    This function ensures the output directory exists, creates a file handler
+    pointing to the specified log file, and attaches it to the root logger.
+    It also configures a console handler for immediate feedback during execution.
+
     Args:
-        log_file: Relative path to the log file from project root.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-    
+        log_file: Relative path to the log file (default: 'outputs/analysis.log').
+        level: Logging level (default: logging.INFO).
+
     Returns:
-        The root logger instance configured with the file and console handlers.
+        The root logger instance with configured handlers.
     """
-    # Load config to ensure directories exist before logging starts
-    try:
-        config = load_config()
-        ensure_directories(config)
-    except Exception as e:
-        # Fallback if config loading fails, try to ensure basic structure
-        Path("outputs").mkdir(parents=True, exist_ok=True)
-    
+    # Load config to ensure base directories exist
+    config = load_config()
+    ensure_directories(config)
+
     log_path = Path(log_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
 
-    # Configure the root logger
-    logger = logging.getLogger()
-    logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates in interactive sessions
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    # Avoid adding duplicate handlers if called multiple times
+    if root_logger.handlers:
+        # Check if file handler already exists to avoid duplicates
+        has_file_handler = any(isinstance(h, logging.FileHandler) for h in root_logger.handlers)
+        if has_file_handler:
+            return root_logger
 
     # Create formatter
     formatter = logging.Formatter(
@@ -41,18 +43,21 @@ def setup_logging(log_file: str = "outputs/analysis.log", level: int = logging.I
 
     # File Handler
     try:
-        file_handler = logging.FileHandler(log_path, mode='a', encoding='utf-8')
+        file_handler = logging.FileHandler(log_path)
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        root_logger.addHandler(file_handler)
     except Exception as e:
-        print(f"Warning: Could not create file handler for {log_path}: {e}", file=sys.stderr)
+        # Fallback to stderr if file cannot be created
+        sys.stderr.write(f"Warning: Could not create log file {log_path}: {e}\n")
 
-    # Console Handler (always output to stdout for visibility)
+    # Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    root_logger.addHandler(console_handler)
 
-    logger.info(f"Logging initialized. Output file: {log_path.absolute()}")
-    return logger
+    logger = logging.getLogger(__name__)
+    logger.info(f"Logging infrastructure initialized. Log file: {log_path.resolve()}")
+    
+    return root_logger

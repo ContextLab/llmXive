@@ -43,3 +43,47 @@ T011:
     \ generated code string. The required artifact (a CPU\u2011only inference script\
     \ loading GPT\u20112\u2011medium and emitting the code string for LOC counting)\
     \ is missing entirely."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `run_inference.py` file or diff showing the inference loop wrapped in a `codecarbon.EmissionsTracker`
+    configured for CPU is provided; without the actual code artifact we cannot confirm
+    the required change was made. The implementer must supply the updated script (or
+    a patch) demonstrating the tracker integration.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `run_inference.py` was provided\u2014there is no file\
+    \ content showing logging of CodeCarbon failures, skipping of the problematic\
+    \ prompt, or continuation of the loop. Without the actual script changes, the\
+    \ task\u2019s requirement cannot be confirmed."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_inference.py` file or code showing a batch\u2011processing loop with\
+    \ scalable prompt handling and progress logging was provided; without such artifact\
+    \ the requirement cannot be verified as met."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test artifact was provided that shows validation logic was
+    added to filter out prompts with failed code generation or empty strings before
+    writing to the output file. Without such evidence, we cannot confirm the requirement
+    was implemented. The implementer must supply the modified pipeline code (or a
+    diff) and/or test results demonstrating that invalid prompts are excluded.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes or new functions in `calculate_emissions.py` are provided, nor\
+    \ any evidence (e.g., diff, snippet, test results) showing that line\u2011of\u2011\
+    code counting for LLM\u2011generated code was added or integrated with the raw\
+    \ code strings from T006/T016/T011. The required artifact is missing, so the task\
+    \ is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `calculate_emissions.py` file or any code implementing the human baseline\
+    \ CO\u2082 calculation is present; therefore the required artifact does not exist,\
+    \ and the task\u2019s specification (using the mean of the reported time range\
+    \ and a standard laptop power model) cannot be verified. The implementer must\
+    \ add a functional script that performs this calculation."

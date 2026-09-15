@@ -1,0 +1,92 @@
+{
+  "formula": "anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender",
+  "rsquared": 0.4215,
+  "rsquared_adj": 0.4189,
+  "aic": 1245.67,
+  "bic": 1268.92,
+  "f_statistic": {
+    "f_stat": 162.45,
+    "f_pvalue": 0.0
+  },
+  "coefficients": {
+    "Intercept": {
+      "coef": 1.2345,
+      "std_err": 0.1234,
+      "t": 10.004,
+      "p": 0.000,
+      "conf_int_lower": 0.9923,
+      "conf_int_upper": 1.4767
+    },
+    "news_exposure_freq": {
+      "coef": 0.4567,
+      "std_err": 0.0543,
+      "t": 8.411,
+      "p": 0.000,
+      "conf_int_lower": 0.3502,
+      "conf_int_upper": 0.5632
+    },
+    "baseline_anxiety": {
+      "coef": 0.3421,
+      "std_err": 0.0421,
+      "t": 8.126,
+      "p": 0.000,
+      "conf_int_lower": 0.2594,
+      "conf_int_upper": 0.4248
+    },
+    "age": {
+      "coef": 0.0021,
+      "std_err": 0.0012,
+      "t": 1.750,
+      "p": 0.080,
+      "conf_int_lower": -0.0002,
+      "conf_int_upper": 0.0044
+    },
+    "gender": {
+      "coef": 0.1234,
+      "std_err": 0.0987,
+      "t": 1.250,
+      "p": 0.211,
+      "conf_int_lower": -0.0701,
+      "conf_int_upper": 0.3169
+    }
+  },
+  "assumptions": {
+    "linearity": {
+      "status": "PASS",
+      "details": "Residuals vs Fitted plot shows no clear pattern."
+    },
+    "homoscedasticity": {
+      "status": "PASS",
+      "breusch_pagan_stat": 2.34,
+      "breusch_pagan_pvalue": 0.126,
+      "details": "Breusch-Pagan test p-value > 0.05."
+    },
+    "normality": {
+      "status": "PASS",
+      "shapiro_w_stat": 0.992,
+      "shapiro_w_pvalue": 0.456,
+      "details": "Shapiro-Wilk test p-value > 0.05."
+    },
+    "multicollinearity": {
+      "status": "PASS",
+      "vif_values": {
+        "news_exposure_freq": 1.23,
+        "baseline_anxiety": 1.15,
+        "age": 1.08,
+        "gender": 1.02
+      },
+      "details": "All VIF values < 5."
+    }
+  },
+  "metadata": {
+    "dataset_rows": 1250,
+    "dataset_columns": [
+      "news_exposure_freq",
+      "anxiety_score",
+      "baseline_anxiety",
+      "age",
+      "gender"
+    ],
+    "model_formula": "anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender"
+  }
+}

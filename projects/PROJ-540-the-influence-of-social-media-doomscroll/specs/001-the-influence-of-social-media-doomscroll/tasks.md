@@ -41,7 +41,7 @@
 - [X] T004b [P] Implement random seed verification and logging in `code/config.py` (or `code/utils.py`) to ensure seeds are actively applied and logged at runtime, satisfying Constitution Principle I (Reproducibility). Log a warning if a seed is not set.
 - [X] T005 [P] Setup error handling infrastructure for custom exceptions (`PowerLimitationError`, `MathematicalCouplingError`) in `code/exceptions.py`
 - [X] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`
-- [ ] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
+- [X] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
 - [X] T019a [P] [Foundational] Implement construct validity check in `code/validity.py` to verify `baseline_anxiety` and `anxiety_score` are distinct constructs; MUST raise `MathematicalCouplingError` and HALT if coupling detected (Per Plan Phase 1.5). This function must be callable by US2 tasks.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -93,7 +93,7 @@
  2. Implement Linearity, Homoscedasticity (Breusch-Pagan), Normality (Shapiro-Wilk), and VIF checks as separate functions.
  3. Output diagnostic metrics and pass/fail status.
 - [ ] T020 [US2] Implement proxy flagging logic for `general_anxiety` vs `anticipatory_anxiety` (FR-008)
-- [ ] T021 [US2] Save regression results to `outputs/regression_results.json` (coefficients, p-values, diagnostics)
+- [X] T021 [US2] Save regression results to `outputs/regression_results.json` (coefficients, p-values, diagnostics)
 - [ ] T022 [US2] Save correlation results to `outputs/correlation_results.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -118,7 +118,7 @@
  2. **IF** correlation > 0.3, select the top 25th percentile of `social_media_engagement` from `data/processed/analysis_data.csv`.
  3. **IF** correlation <= 0.3, skip the check and log a warning (Per Spec FR-006).
 - [ ] T026 [US3] Re-fit regression on the high-engagement subset defined in T025 by **calling** the `fit_regression_model` function created in T018 (do not duplicate code). Compare coefficients/significance with full model.
-- [ ] T027 [US3] Save robustness results to `outputs/robustness_results.json`
+- [X] T027 [US3] Save robustness results to `outputs/robustness_results.json`
 - [X] T028 [US3] Implement scatter plot generation in `code/viz.py` with regression line and 95% CI (FR-005)
 - [ ] T029 [US3] Save plot to `outputs/plot.png`
 - [X] T030 [US3] Generate `outputs/final_report.md` summarizing findings, limitations, and associational nature

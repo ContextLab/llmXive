@@ -1,87 +1,100 @@
 """
-Script to create the required data directory structure for the project.
-Creates data/raw/ and data/processed/ directories as specified in T004a.
+Module to create and verify the project's data directory structure.
+Implements Task T004a: Create data/raw/ and data/processed/ directories.
 """
 import os
 import sys
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import List, Tuple
 
-# Configure basic logging for this script
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Add the parent directory to sys.path to allow imports from 'code'
+# This is necessary when running this script directly or via a runner
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+CODE_DIR = ROOT_DIR / "code"
+DATA_DIR = ROOT_DIR / "data"
+STATE_DIR = ROOT_DIR / "state"
+OUTPUT_DIR = ROOT_DIR / "output"
+TESTS_DIR = ROOT_DIR / "tests"
+DOCS_DIR = ROOT_DIR / "docs"
+LOGS_DIR = ROOT_DIR / "logs"
 
-
-def create_data_directories(base_path: Optional[Path] = None) -> bool:
+def create_data_directories() -> Tuple[List[str], List[str]]:
     """
-    Create the required data directory structure.
-
-    Args:
-        base_path: Base path for the project. If None, uses current working directory.
-
+    Creates the required directory structure for the project.
+    
+    Specifically addresses Task T004a by ensuring data/raw/ and data/processed/ exist.
+    Also ensures other foundational directories exist for the pipeline to run.
+    
     Returns:
-        True if all directories were created successfully, False otherwise.
+        Tuple[List[str], List[str]]: (created_paths, failed_paths)
     """
-    if base_path is None:
-        base_path = Path.cwd()
-
-    # Define required directories relative to project root
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/config",
-        "state",
-        "output",
-        "logs",
-        "docs/paper",
-        "docs/reports",
+    directories_to_create = [
+        DATA_DIR / "raw",
+        DATA_DIR / "processed",
+        DATA_DIR / "config",
+        STATE_DIR,
+        OUTPUT_DIR,
+        LOGS_DIR,
+        # Ensure base data dir exists first
+        DATA_DIR,
+        # Ensure state and output base dirs exist
+        STATE_DIR,
+        OUTPUT_DIR,
     ]
-
-    success = True
-    for dir_path in required_dirs:
-        full_path = base_path / dir_path
+    
+    created = []
+    failed = []
+    
+    for dir_path in directories_to_create:
         try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
+            # exist_ok=True ensures we don't error if it already exists
+            dir_path.mkdir(parents=True, exist_ok=True)
+            
+            # Verify writability by attempting to create a temp file
+            test_file = dir_path / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            
+            created.append(str(dir_path))
+            logging.info(f"Verified directory: {dir_path}")
         except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            success = False
+            logging.error(f"Failed to create or verify {dir_path}: {e}")
+            failed.append(str(dir_path))
+        except Exception as e:
+            logging.error(f"Unexpected error verifying {dir_path}: {e}")
+            failed.append(str(dir_path))
+    
+    return created, failed
 
-    # Verify the specific directories for T004a
-    raw_dir = base_path / "data" / "raw"
-    processed_dir = base_path / "data" / "processed"
-
-    if not raw_dir.exists() or not processed_dir.exists():
-        logger.error("Critical: data/raw or data/processed directories missing")
-        return False
-
-    logger.info("Data directory structure created successfully.")
-    return True
-
-
-def main() -> int:
-    """Main entry point for the script."""
-    logger.info("Starting directory creation for T004a...")
-
-    # Determine project root (assuming script is in code/utils/)
-    # We look for the 'code' directory to find the root
-    current_path = Path(__file__).resolve()
-    project_root = current_path.parent.parent
-
-    logger.info(f"Project root detected at: {project_root}")
-
-    success = create_data_directories(project_root)
-
-    if success:
-        logger.info("T004a verification passed: data/raw and data/processed exist.")
-        return 0
+def main():
+    """
+    Entry point for the script.
+    Creates directories and prints verification results.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger("setup_data_dirs")
+    
+    logger.info("Starting directory structure creation (Task T004a)...")
+    
+    created, failed = create_data_directories()
+    
+    if created:
+        logger.info(f"Successfully created/verified {len(created)} directories:")
+        for d in created:
+            logger.info(f"  - {d}")
+    
+    if failed:
+        logger.error(f"Failed to create/verify {len(failed)} directories:")
+        for d in failed:
+            logger.error(f"  - {d}")
+        sys.exit(1)
     else:
-        logger.error("T004a verification failed: directories could not be created.")
-        return 1
-
+        logger.info("All required directories are ready.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

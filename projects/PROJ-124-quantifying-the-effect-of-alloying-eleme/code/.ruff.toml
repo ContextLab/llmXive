@@ -1,0 +1,54 @@
+# Ruff Configuration for PROJ-124
+# Linting rules to enforce code quality and consistency
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = [
+  "E501",  # Line too long (handled by Black)
+  "B008",  # Do not perform function call in argument (common in tests/pytest fixtures)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few directories
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ARG"]  # Allow assert in tests, unused arguments in fixtures
+"code/utils/novelty.py" = ["F821"] # Allow stub imports if necessary during dev
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "utils", "setup_linting", "setup_project_structure"]
+force-single-line = true
+lines-after-imports = 2

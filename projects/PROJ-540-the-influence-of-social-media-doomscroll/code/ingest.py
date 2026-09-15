@@ -8,7 +8,6 @@ from typing import Optional, Dict, Any
 from config import load_config, ensure_directories, get_dataset_url
 from exceptions import DataValidationError
 
-# Configure logger for this module
 logger = logging.getLogger(__name__)
 
 REQUIRED_COLUMNS = [
@@ -19,17 +18,25 @@ REQUIRED_COLUMNS = [
     'gender'
 ]
 
-def download_data(url: str, output_path: Path) -> Path:
+def download_data(output_path: Path) -> Path:
     """
-    Download data from the provided URL.
+    Downloads the dataset from the configured URL.
+    Raises an error if the download fails.
     """
-    logger.info(f"Downloading data from {url} to {output_path}")
+    config = load_config()
+    url = get_dataset_url(config)
+    
+    logger.info(f"Downloading data from: {url}")
     try:
-        response = requests.get(url, timeout=60)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
+        
+        # Assume CSV format for this implementation
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'wb') as f:
             f.write(response.content)
-        logger.info("Data download successful.")
+        
+        logger.info(f"Data downloaded successfully to {output_path}")
         return output_path
     except requests.RequestException as e:
         logger.error(f"Failed to download data: {e}")
@@ -37,7 +44,8 @@ def download_data(url: str, output_path: Path) -> Path:
 
 def validate_schema(df: pd.DataFrame) -> bool:
     """
-    Validate that the dataframe contains all required columns.
+    Validates that the dataframe contains all required columns.
+    Raises DataValidationError if columns are missing.
     """
     missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing_cols:
@@ -45,102 +53,87 @@ def validate_schema(df: pd.DataFrame) -> bool:
         logger.error(error_msg)
         raise DataValidationError(error_msg)
     
-    # Log schema validation success
-    logger.info("Schema validation passed. All required columns present.")
+    logger.info("Schema validation passed.")
     return True
 
-def clean_data(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform basic cleaning: listwise deletion for missing predictor/outcome values.
-    Logs row counts, missing value statistics, and power check results.
-    
-    Note: This function assumes the power check logic (HALT on N < 30) 
-    is handled by the caller (e.g., main or a dedicated clean.py module) 
-    or implemented here if not already done elsewhere. 
-    Per T012, the power check is in clean.py. We focus on logging here.
+    Performs basic cleaning: listwise deletion for missing predictor/outcome values.
+    Logs row counts and missing value statistics.
     """
-    logger.info(f"Starting data cleaning. Initial shape: {df.shape}")
+    original_count = len(df)
+    logger.info(f"Starting with {original_count} rows.")
     
-    # Log missing value statistics for key columns
-    missing_stats = {}
-    for col in REQUIRED_COLUMNS:
-        if col in df.columns:
-            missing_count = df[col].isna().sum()
-            missing_pct = (missing_count / len(df)) * 100
-            missing_stats[col] = {'count': missing_count, 'pct': missing_pct}
-            logger.info(f"Column '{col}': {missing_count} missing values ({missing_pct:.2f}%)")
+    # Log missing value statistics per column
+    missing_stats = df[REQUIRED_COLUMNS].isnull().sum()
+    logger.info("Missing value statistics before cleaning:")
+    for col, count in missing_stats.items():
+        logger.info(f"  {col}: {count} missing")
     
-    # Perform listwise deletion for predictor/outcome
-    # Assuming 'news_exposure_freq' and 'anxiety_score' are the primary predictor/outcome
-    primary_cols = ['news_exposure_freq', 'anxiety_score']
-    initial_rows = len(df)
-    df_clean = df.dropna(subset=primary_cols)
-    final_rows = len(df_clean)
-    deleted_rows = initial_rows - final_rows
+    # Listwise deletion for the key predictor and outcome variables
+    # Spec FR-002: HALT if resulting N < 30 (handled in clean.py main logic usually, 
+    # but we log the result here as per T014)
+    subset_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety']
+    df_clean = df.dropna(subset=subset_cols)
     
-    logger.info(f"Listwise deletion removed {deleted_rows} rows due to missing primary variables.")
-    logger.info(f"Row count after cleaning: {final_rows} (from {initial_rows})")
+    cleaned_count = len(df_clean)
+    dropped_count = original_count - cleaned_count
     
-    # Log power check result (Spec: N < 30 HALT, 30 <= N < 100 warning)
-    # This is a logging implementation of the power check. 
-    # The actual HALT logic might be in clean.py as per T012, 
-    # but we log the status here as requested by T014.
-    if final_rows < 30:
-        logger.error(f"Power Limitation: Final N ({final_rows}) is less than 30. Analysis cannot proceed.")
-        # Note: The actual raising of PowerLimitationError is typically in clean.py T012.
-        # We log the condition here for T014 requirements.
-    elif 30 <= final_rows < 100:
-        logger.warning(f"Low Power Warning: Final N ({final_rows}) is between 30 and 100.")
-    else:
-        logger.info(f"Power Check Passed: Final N ({final_rows}) is sufficient (>= 100).")
-        
+    logger.info(f"Listwise deletion removed {dropped_count} rows due to missing values.")
+    logger.info(f"Remaining rows after cleaning: {cleaned_count}")
+    
+    if cleaned_count < 30:
+        logger.error(f"Power limitation: Remaining N ({cleaned_count}) is below the minimum threshold of 30.")
+        # Note: The actual exception raising is typically done in the clean.py orchestration logic
+        # as per T012, but we log the condition here.
+    
     return df_clean
 
 def main():
     """
-    Main entry point for data ingestion and cleaning with logging.
+    Main entry point for data ingestion, validation, and cleaning.
+    Orchestrates the flow and logs all critical statistics.
     """
-    # Load configuration
     config = load_config()
     ensure_directories(config)
     
-    # Setup logging (assuming it's already configured globally or here)
-    # If not, setup_logging() from logging_config would be called here.
-    
-    dataset_url = get_dataset_url(config)
-    raw_path = Path(config.get('paths', {}).get('raw_data', 'data/raw')) / 'raw_survey_data.csv'
-    processed_path = Path(config.get('paths', {}).get('processed_data', 'data/processed')) / 'analysis_data.csv'
+    raw_path = config['paths']['raw_data']
+    processed_path = config['paths']['processed_data']
     
     # 1. Download
+    raw_file_path = Path(raw_path) / "survey_data.csv"
     try:
-        download_data(dataset_url, raw_path)
+        download_data(raw_file_path)
     except Exception as e:
-        logger.critical(f"Data download failed: {e}")
+        logger.critical(f"Ingestion failed: {e}")
         sys.exit(1)
-        
-    # 2. Load
+    
+    # 2. Load and Validate
     try:
-        df = pd.read_csv(raw_path)
-        logger.info(f"Loaded data with shape: {df.shape}")
-    except Exception as e:
-        logger.critical(f"Failed to load data: {e}")
-        sys.exit(1)
-        
-    # 3. Validate Schema
-    try:
+        df = pd.read_csv(raw_file_path)
         validate_schema(df)
-    except DataValidationError as e:
-        logger.critical(f"Schema validation failed: {e}")
+    except Exception as e:
+        logger.critical(f"Validation failed: {e}")
         sys.exit(1)
-        
-    # 4. Clean and Log
-    df_clean = clean_data(df, config)
     
-    # 5. Save
-    df_clean.to_csv(processed_path, index=False)
-    logger.info(f"Cleaned data saved to {processed_path}")
+    # 3. Clean and Log Stats (T014 requirement)
+    try:
+        df_clean = clean_data(df)
+    except Exception as e:
+        logger.critical(f"Cleaning failed: {e}")
+        sys.exit(1)
     
-    logger.info("Ingestion pipeline completed successfully.")
+    # 4. Save
+    try:
+        output_file = Path(processed_path) / "analysis_data.csv"
+        df_clean.to_csv(output_file, index=False)
+        logger.info(f"Cleaned data saved to {output_file}")
+    except Exception as e:
+        logger.critical(f"Failed to save cleaned data: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
+    # Ensure logging is configured before running
+    from logging_config import setup_logging
+    setup_logging()
     main()

@@ -1,74 +1,65 @@
 """
-Tests for the directory structure initialization module (setup_dirs.py).
+Tests for directory setup functionality.
 """
-import pytest
 import os
-import tempfile
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-# Import the function to test
-from setup_dirs import create_directories
+from code.setup_dirs import create_directories
 
 class TestSetupDirs:
-    """Test cases for directory creation functionality."""
+    """Test cases for directory creation logic."""
 
-    def test_creates_required_directories(self, tmp_path):
+    def test_required_directories_exist(self, tmp_path):
         """Verify that all required directories are created."""
-        # Define expected relative paths
-        expected_dirs = [
+        required_dirs = [
             "data/raw",
             "data/processed",
             "code",
             "outputs",
-            "tests"
+            "tests",
+            "projects/PROJ-540-the-influence-of-social-media-doomscroll"
         ]
-
-        # Call the function with a temporary directory
-        create_directories(tmp_path)
-
-        # Verify each directory was created
-        for rel_dir in expected_dirs:
-            full_path = tmp_path / rel_dir
+        
+        create_directories(str(tmp_path))
+        
+        for dir_path in required_dirs:
+            full_path = tmp_path / dir_path
             assert full_path.exists(), f"Directory {full_path} was not created"
             assert full_path.is_dir(), f"{full_path} exists but is not a directory"
 
-    def test_handles_existing_directories(self, tmp_path):
-        """Verify that the function doesn't fail if directories already exist."""
-        # Pre-create one of the required directories
-        pre_created = tmp_path / "code"
-        pre_created.mkdir(parents=True)
+    def test_init_files_created(self, tmp_path):
+        """Verify that __init__.py files are created in package directories."""
+        package_dirs = [
+            "code",
+            "tests",
+            "projects/PROJ-540-the-influence-of-social-media-doomscroll"
+        ]
+        
+        create_directories(str(tmp_path))
+        
+        for pkg_dir in package_dirs:
+            init_file = tmp_path / pkg_dir / "__init__.py"
+            assert init_file.exists(), f"__init__.py not found in {pkg_dir}"
+            assert init_file.is_file(), f"{init_file} exists but is not a file"
 
-        # The function should not raise an error
-        create_directories(tmp_path)
+    def test_gitkeep_files_created(self, tmp_path):
+        """Verify that .gitkeep files are created in data directories."""
+        data_dirs = ["data/raw", "data/processed"]
+        
+        create_directories(str(tmp_path))
+        
+        for data_dir in data_dirs:
+            keep_file = tmp_path / data_dir / ".gitkeep"
+            assert keep_file.exists(), f".gitkeep not found in {data_dir}"
+            assert keep_file.is_file(), f"{keep_file} exists but is not a file"
 
-        # Verify the directory still exists
-        assert pre_created.exists()
-
-    def test_creates_parent_directories(self, tmp_path):
-        """Verify that parent directories are created if they don't exist."""
-        # Don't pre-create 'data' or 'raw'
-        create_directories(tmp_path)
-
-        # Verify the nested structure exists
-        assert (tmp_path / "data").exists()
-        assert (tmp_path / "data" / "raw").exists()
-        assert (tmp_path / "data" / "processed").exists()
-
-    def test_uses_cwd_when_no_base_path_provided(self):
-        """Verify behavior when called without arguments (uses current working directory)."""
-        # This test is harder to verify without side effects,
-        # so we primarily ensure it doesn't crash in a controlled environment.
-        # In a real scenario, we might mock Path.cwd() and check calls.
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmp_dir)
-                # Mock Path.cwd to return our temp dir to avoid polluting real cwd
-                with patch('setup_dirs.Path.cwd', return_value=Path(tmp_dir)):
-                    create_directories()
-                
-                # Verify directories were created in temp dir
-                assert (Path(tmp_dir) / "code").exists()
-            finally:
-                os.chdir(original_cwd)
+    def test_idempotency(self, tmp_path):
+        """Verify that running create_directories twice does not cause errors."""
+        create_directories(str(tmp_path))
+        # Running again should not raise
+        create_directories(str(tmp_path))
+        
+        # Verify directories still exist
+        assert (tmp_path / "code").exists()
+        assert (tmp_path / "data/raw").exists()
+        assert (tmp_path / "outputs").exists()

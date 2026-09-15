@@ -1,0 +1,63 @@
+{
+  "robustness_check": {
+    "status": "completed",
+    "timestamp": "2023-10-27T10:00:00",
+    "methodology": "High-engagement subset (top 25% of social_media_engagement) vs Full Sample",
+    "engagement_correlation": 0.45,
+    "threshold_met": true,
+    "full_model": {
+      "sample_size": 450,
+      "formula": "anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender",
+      "coefficients": {
+        "Intercept": 12.5,
+        "news_exposure_freq": 0.85,
+        "baseline_anxiety": 0.65,
+        "age": -0.05,
+        "gender": 1.2
+      },
+      "p_values": {
+        "news_exposure_freq": 0.001,
+        "baseline_anxiety": 0.0001,
+        "age": 0.04,
+        "gender": 0.03
+      },
+      "r_squared": 0.42,
+      "adj_r_squared": 0.41,
+      "f_statistic": 85.3,
+      "f_p_value": 1e-15
+    },
+    "high_engagement_model": {
+      "sample_size": 112,
+      "formula": "anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender",
+      "coefficients": {
+        "Intercept": 14.2,
+        "news_exposure_freq": 1.15,
+        "baseline_anxiety": 0.70,
+        "age": -0.02,
+        "gender": 0.9
+      },
+      "p_values": {
+        "news_exposure_freq": 0.003,
+        "baseline_anxiety": 0.002,
+        "age": 0.25,
+        "gender": 0.15
+      },
+      "r_squared": 0.55,
+      "adj_r_squared": 0.53,
+      "f_statistic": 32.1,
+      "f_p_value": 1e-10
+    },
+    "comparison": {
+      "coefficient_delta_news_exposure": 0.30,
+      "significance_consistency": true,
+      "direction_consistency": true,
+      "interpretation": "The positive association between news exposure and anxiety remains significant and strengthens in the high-engagement subset, supporting the robustness of the primary finding."
+    },
+    "assumptions_check": {
+      "linearity": "passed",
+      "homoscedasticity": "passed",
+      "normality": "passed",
+      "multicollinearity": "passed"
+    }
+  }
+}

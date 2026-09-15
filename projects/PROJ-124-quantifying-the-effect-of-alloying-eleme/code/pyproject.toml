@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gfa-pipeline"
+version = "0.1.0"
+description = "Quantifying the Effect of Alloying Elements on GFA"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pymatgen",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "shap",
+    "statsmodels",
+    "scipy",
+    "ruff",
+    "black",
+    "huggingface_hub",
+    "matplotlib",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.nox
+    | \.pants.d
+    | \.pytype
+    | \.ruff_cache
+    | \.svn
+    | \.tox
+    | \.venv
+    | __pypackages__
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Already configured in .ruff.toml, but this ensures project-wide defaults
+line-length = 88
+target-version = "py311"

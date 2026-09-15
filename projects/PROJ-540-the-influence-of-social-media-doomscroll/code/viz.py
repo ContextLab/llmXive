@@ -5,37 +5,32 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 from typing import Optional, Dict, Any
-import json
 from config import load_config, ensure_directories
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def load_processed_data(config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Load the cleaned and processed dataset from data/processed/analysis_data.csv.
+    Load the cleaned and processed dataset from disk.
     
     Args:
         config: Configuration dictionary containing paths.
         
     Returns:
-        pd.DataFrame: The processed dataset.
+        DataFrame containing the processed analysis data.
         
     Raises:
         FileNotFoundError: If the processed data file does not exist.
     """
-    data_path = Path(config.get('paths', {}).get('processed_data', 'data/processed/analysis_data.csv'))
-    
+    data_path = Path(config['paths']['processed_data'])
     if not data_path.exists():
-        raise FileNotFoundError(f"Processed data file not found at: {data_path}")
+        raise FileNotFoundError(f"Processed data file not found at {data_path}")
     
     logger.info(f"Loading processed data from {data_path}")
     df = pd.read_csv(data_path)
-    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    logger.info(f"Loaded {len(df)} rows")
     return df
 
 def plot_scatter_with_regression(
@@ -43,113 +38,114 @@ def plot_scatter_with_regression(
     x_col: str = 'news_exposure_freq',
     y_col: str = 'anxiety_score',
     output_path: Optional[Path] = None,
-    config: Optional[Dict[str, Any]] = None
+    title: str = 'News Exposure vs Anxiety Score',
+    figsize: tuple = (10, 8)
 ) -> None:
     """
-    Generate a scatter plot with regression line and 95% confidence interval.
+    Generate a scatter plot with a regression line and 95% confidence interval.
     
-    This function creates a visualization of the relationship between news exposure
-    frequency and anxiety score, including a fitted regression line and confidence bands.
+    This function visualizes the relationship between the primary predictor
+    (news_exposure_freq) and the outcome (anxiety_score), including the fitted
+    regression line and its confidence interval.
     
     Args:
-        df: DataFrame containing the data.
-        x_col: Name of the predictor variable column.
-        y_col: Name of the outcome variable column.
-        output_path: Path where the plot will be saved.
-        config: Optional configuration dictionary for paths.
+        df: DataFrame containing the data to plot.
+        x_col: Name of the predictor column.
+        y_col: Name of the outcome column.
+        output_path: Path to save the plot. If None, the plot is not saved.
+        title: Title for the plot.
+        figsize: Tuple specifying (width, height) of the figure.
         
     Raises:
-        ValueError: If required columns are missing from the DataFrame.
-        FileNotFoundError: If output directory cannot be created.
+        KeyError: If the specified columns are not found in the DataFrame.
     """
     if x_col not in df.columns or y_col not in df.columns:
-        raise ValueError(f"Required columns {x_col} and {y_col} must exist in DataFrame")
+        raise KeyError(f"Columns {x_col} or {y_col} not found in DataFrame")
     
-    # Filter out NaN values for plotting
+    # Remove NaN values for plotting
     plot_df = df[[x_col, y_col]].dropna()
     
-    if len(plot_df) < 2:
-        logger.warning("Insufficient data points for regression plot")
+    if len(plot_df) == 0:
+        logger.warning("No valid data points to plot after removing NaNs.")
         return
-    
+
     # Set style
     sns.set(style="whitegrid")
-    plt.figure(figsize=(10, 6))
     
-    # Create scatter plot with regression line and 95% CI
+    plt.figure(figsize=figsize)
+    
+    # Create the scatter plot with regression line and 95% CI
+    # Using regplot which automatically calculates and plots the regression line
+    # and the 95% confidence interval around it.
     sns.regplot(
         data=plot_df,
         x=x_col,
         y=y_col,
-        scatter_kws={'alpha': 0.6, 's': 60},
-        line_kws={'color': 'red', 'linewidth': 2},
+        scatter_kws={'alpha': 0.6, 's': 80, 'edgecolor': 'w'},
+        line_kws={'color': 'red', 'lw': 2},
         ci=95
     )
     
-    # Enhance labels
-    plt.title(f'Relationship between {x_col.replace("_", " ").title()} and {y_col.replace("_", " ").title()}', fontsize=14)
-    plt.xlabel(x_col.replace("_", " ").title(), fontsize=12)
-    plt.ylabel(y_col.replace("_", " ").title(), fontsize=12)
+    plt.title(title, fontsize=16, fontweight='bold')
+    plt.xlabel(x_col.replace('_', ' ').title(), fontsize=12)
+    plt.ylabel(y_col.replace('_', ' ').title(), fontsize=12)
     
-    # Add grid
-    plt.grid(True, alpha=0.3)
+    # Add a grid for better readability
+    plt.grid(True, linestyle='--', alpha=0.7)
     
-    # Tight layout
+    # Tight layout to prevent label clipping
     plt.tight_layout()
     
-    # Save or show
     if output_path:
+        # Ensure directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         logger.info(f"Plot saved to {output_path}")
     else:
-        logger.info("Plot generated but not saved (no output_path provided)")
+        logger.warning("No output path provided; plot will not be saved.")
     
     plt.close()
 
 def main():
     """
-    Main entry point for generating the visualization.
-    
-    This function:
-    1. Loads configuration
-    2. Loads processed data
-    3. Generates the scatter plot with regression line
-    4. Saves the plot to outputs/plot.png
+    Main entry point for the visualization script.
+    Loads processed data, generates the scatter plot with regression line,
+    and saves it to the specified output path.
     """
+    logger.info("Starting visualization script...")
+    
     # Load configuration
     config = load_config()
     
     # Ensure output directories exist
     ensure_directories(config)
     
-    # Define output path
-    output_path = Path(config.get('paths', {}).get('output_dir', 'outputs')) / 'plot.png'
+    # Define output path for the plot
+    output_dir = Path(config['paths']['outputs'])
+    output_path = output_dir / 'plot.png'
     
     try:
-        # Load data
+        # Load processed data
         df = load_processed_data(config)
         
-        # Generate plot
+        # Generate and save the plot
         plot_scatter_with_regression(
             df=df,
             x_col='news_exposure_freq',
             y_col='anxiety_score',
             output_path=output_path,
-            config=config
+            title='Association between News Exposure Frequency and Anxiety Score',
+            figsize=(10, 8)
         )
         
-        logger.info("Visualization task completed successfully")
+        logger.info("Visualization script completed successfully.")
         
     except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
+        logger.error(f"Data file error: {e}")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during visualization: {e}")
+        logger.error(f"An error occurred during visualization: {e}")
         raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

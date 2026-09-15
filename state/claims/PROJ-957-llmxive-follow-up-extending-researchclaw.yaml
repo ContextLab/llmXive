@@ -5551,3 +5551,59 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-12T21:47:20Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2603.28823
+  claim_id: c_00a93e7e
+  context: This loop MUST import Config from src/config.py (T006) to enforce the budget
+    (86400s / 24 hours (2603.28823, https://arxiv.org/abs/2603.28823)).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2603.28823, https://arxiv.org/abs/2603.28823
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-15T04:15:53Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: 'list of 7 agents from original study: Agent-Alpha, Agent-Beta, Agent-Gamma,
+    Agent-Delta, Agent-Epsilon, Agent-Zeta, Agent-Eta'
+  claim_id: c_f531dbc9
+  context: 'The list MUST be explicitly defined as the agents from the original study:
+    Agent-Alpha (Llama-8B, 4096, 0.7, General reasoning), Agent-Beta (Mistral-7B,
+    4096, 0.7, Code generation)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Agent-Alpha (Llama-8B, 4096, 0.7, General reasoning), Agent-Beta (Mistral-7B,
+    4096, 0.7, Code generation), Agent-Gamma (Gemma-7B, 4096, 0.7, Scientific text),
+    Agent-Delta (CodeLlama-7B, 4096, 0.7, Code execution), Agent-Epsilon (Zephyr-7B,
+    4096, 0.7, Instruction following), Agent-Zeta (OpenChat-7B, 4096, 0.7, Multi-turn
+    dialogue), Agent-Eta (WizardLM-7B, 4096, 0.7, Complex reasoning)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T04:21:53Z'
+- artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
+  attempts: 1
+  canonical: expected baseline of 140 runs calculated as 7 agents times 2 conditions
+    times 10 tasks
+  claim_id: c_1aad72be
+  context: The task MUST explicitly calculate the expected baseline as 7 agents *
+    2 conditions * 10 tasks = 140 and verify the denominator against this formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 7 agents * 2 conditions * 10 tasks = 140
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T04:25:34Z'

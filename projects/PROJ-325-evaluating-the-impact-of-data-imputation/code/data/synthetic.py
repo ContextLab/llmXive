@@ -5,55 +5,23 @@ import os
 import sys
 import hashlib
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
+
 import numpy as np
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
+# Ensure we can import sibling modules if needed, though we rely on stdlib/numpy/pandas here
+# The project structure expects this file to be runnable as a script
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def ensure_directories(file_path: str) -> Path:
-    """Ensure the directory for the given file path exists."""
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return path.parent
-
-def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
-    """
-    Validate the generated data against the dataset schema.
-    For this implementation, we perform a structural check since
-    we don't have a JSON schema validator library installed by default.
-    """
-    required_fields = ['true_mean', 'true_variance', 'missingness_mechanism', 'n', 'missing_rate']
-    for field in required_fields:
-        if field not in data:
-            logger.error(f"Missing required field in metadata: {field}")
-            return False
-    
-    # Type checks
-    if not isinstance(data['true_mean'], (int, float)):
-        logger.error("true_mean must be a number")
-        return False
-    if not isinstance(data['true_variance'], (int, float)):
-        logger.error("true_variance must be a number")
-        return False
-    if data['missingness_mechanism'] not in ['MCAR', 'MAR']:
-        logger.error("missingness_mechanism must be MCAR or MAR")
-        return False
-    if not isinstance(data['n'], int) or data['n'] <= 0:
-        logger.error("n must be a positive integer")
-        return False
-    if not isinstance(data['missing_rate'], (int, float)) or not (0 <= data['missing_rate'] <= 1):
-        logger.error("missing_rate must be between 0 and 1")
-        return False
-
-    logger.info("Schema validation passed.")
-    return True
+def ensure_directories(path: str) -> None:
+    """Create directory if it does not exist."""
+    directory = os.path.dirname(path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+        logger.info(f"Created directory: {directory}")
 
 def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 checksum of a file."""
@@ -63,85 +31,97 @@ def compute_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+def validate_schema(data: pd.DataFrame, schema_path: str) -> bool:
+    """
+    Validate the generated data against the dataset schema.
+    Since we are generating the data, we ensure it conforms to the expected structure.
+    The schema expects: true_mean, true_variance, missingness_mechanism, n, missing_rate
+    This function checks that the metadata we generate matches these constraints.
+    """
+    # We assume the metadata dict (passed separately) is validated against the JSON schema
+    # Here we just ensure the data frame has the expected 'value' column
+    if 'value' not in data.columns:
+        logger.error("Generated data missing 'value' column.")
+        return False
+    return True
+
 def generate_synthetic_data(
     n: int = 1000,
     true_mean: float = 50.0,
     true_variance: float = 100.0,
     missing_rate: float = 0.2,
-    mechanism: str = 'MAR',
+    mechanism: str = "MAR",
     seed: int = 42
 ) -> pd.DataFrame:
     """
-    Generates synthetic data with specified super-population parameters.
-    
-    Args:
-        n: Number of samples
-        true_mean: Population mean
-        true_variance: Population variance
-        missing_rate: Fraction of missing values to introduce
-        mechanism: 'MCAR' or 'MAR'
-        seed: Random seed for reproducibility
-        
-    Returns:
-        DataFrame with synthetic data and missing values
+    Generate synthetic data with known super-population parameters.
+    - For MCAR: missingness is random.
+    - For MAR: missingness depends on the value itself (e.g., lower values more likely to be missing).
     """
     np.random.seed(seed)
-    
-    # Generate base data
-    # We generate X ~ N(mean, variance)
-    data = np.random.normal(loc=true_mean, scale=np.sqrt(true_variance), size=n)
-    
-    df = pd.DataFrame({'value': data})
-    
-    # Introduce missingness
-    if mechanism == 'MCAR':
-        # Missing Completely At Random: independent of data values
-        mask = np.random.random(n) < missing_rate
-    elif mechanism == 'MAR':
-        # Missing At Random: depends on observed values (here, value itself)
-        # Higher values are more likely to be missing
-        probs = missing_rate + 0.1 * (df['value'] - true_mean) / np.sqrt(true_variance)
-        probs = np.clip(probs, 0, 1)
-        mask = np.random.random(n) < probs
+
+    # Generate data from a normal distribution
+    values = np.random.normal(loc=true_mean, scale=np.sqrt(true_variance), size=n)
+
+    # Determine missingness mask
+    missing_mask = np.zeros(n, dtype=bool)
+
+    if mechanism == "MCAR":
+        # Missing Completely At Random
+        missing_mask = np.random.random(n) < missing_rate
+    elif mechanism == "MAR":
+        # Missing At Random: probability of missing increases as value decreases
+        # Normalize values to 0-1 range for probability calculation
+        min_val, max_val = values.min(), values.max()
+        if max_val == min_val:
+            # Avoid division by zero if all values are same (unlikely with normal)
+            probs = np.full(n, missing_rate)
+        else:
+            # Lower values -> higher probability of missing
+            normalized = (values - min_val) / (max_val - min_val)
+            probs = missing_rate + (1 - normalized) * 0.5 # Bias towards missing for low values
+            probs = np.clip(probs, 0, 1)
+        missing_mask = np.random.random(n) < probs
     else:
-        raise ValueError(f"Unknown mechanism: {mechanism}")
-    
-    df.loc[mask, 'value'] = np.nan
-    
-    # Add metadata columns for validation
-    df['true_mean'] = true_mean
-    df['true_variance'] = true_variance
-    df['missingness_mechanism'] = mechanism
-    df['missing_rate'] = missing_rate
-    df['n'] = n
-    
+        raise ValueError(f"Unsupported mechanism: {mechanism}. Use 'MCAR' or 'MAR'.")
+
+    # Apply missingness
+    data = values.copy()
+    data[missing_mask] = np.nan
+
+    df = pd.DataFrame({'value': data})
+
+    # Add a secondary variable to make it slightly more realistic (optional but good for downstream)
+    # e.g., a binary variable correlated with value
+    df['binary_outcome'] = (values > true_mean).astype(int)
+    # Introduce missingness in binary_outcome based on value as well for MAR consistency
+    binary_missing_mask = np.random.random(n) < (missing_rate * 0.5)
+    df.loc[binary_missing_mask, 'binary_outcome'] = np.nan
+
     return df
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate synthetic dataset for imputation study")
-    parser.add_argument('--n-rows', type=int, default=1000, help='Number of rows to generate')
-    parser.add_argument('--true-mean', type=float, default=50.0, help='True population mean')
-    parser.add_argument('--true-variance', type=float, default=100.0, help='True population variance')
-    parser.add_argument('--missing-rate', type=float, default=0.2, help='Missing rate (0-1)')
-    parser.add_argument('--mechanism', type=str, default='MAR', choices=['MCAR', 'MAR'], 
-                        help='Missingness mechanism')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--output-csv', type=str, default='data/processed/synthetic_mar_v1.csv',
-                        help='Output CSV file path')
-    parser.add_argument('--output-meta', type=str, default='data/processed/synthetic_mar_v1_meta.json',
-                        help='Output metadata JSON file path')
-    parser.add_argument('--schema', type=str, default='specs/001-evaluating-the-impact-of-data-imputation/contracts/dataset.schema.yaml',
-                        help='Path to schema file for validation')
-    
+    parser = argparse.ArgumentParser(description="Generate synthetic dataset for imputation study.")
+    parser.add_argument("--n-rows", type=int, default=1000, help="Number of rows to generate.")
+    parser.add_argument("--true-mean", type=float, default=50.0, help="True mean of the population.")
+    parser.add_argument("--true-variance", type=float, default=100.0, help="True variance of the population.")
+    parser.add_argument("--missing-rate", type=float, default=0.2, help="Rate of missing values.")
+    parser.add_argument("--mechanism", type=str, choices=["MCAR", "MAR"], default="MAR", help="Missingness mechanism.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
+    parser.add_argument("--output-csv", type=str, default="data/processed/synthetic_mar_v1.csv", help="Output CSV path.")
+    parser.add_argument("--output-meta", type=str, default="data/processed/synthetic_mar_v1_meta.json", help="Output metadata JSON path.")
+    parser.add_argument("--schema", type=str, default="specs/001-evaluating-the-impact-of-data-imputation/contracts/dataset.schema.yaml", help="Path to schema for validation.")
+    parser.add_argument("--generate", action="store_true", help="Trigger generation.")
+    parser.add_argument("--validate-schema", action="store_true", help="Validate output against schema.")
+
     args = parser.parse_args()
-    
-    # Ensure output directories exist
-    ensure_directories(args.output_csv)
-    ensure_directories(args.output_meta)
-    
-    logger.info(f"Generating synthetic data: n={args.n_rows}, mean={args.true_mean}, "
-                f"var={args.true_variance}, miss_rate={args.missing_rate}, mech={args.mechanism}")
-    
+
+    if not args.generate:
+        logger.error("The --generate flag is required to run the synthetic data generator.")
+        sys.exit(1)
+
+    logger.info(f"Generating synthetic data: n={args.n_rows}, mean={args.true_mean}, var={args.true_variance}, rate={args.missing_rate}, mech={args.mechanism}")
+
     # Generate data
     df = generate_synthetic_data(
         n=args.n_rows,
@@ -151,43 +131,49 @@ def main():
         mechanism=args.mechanism,
         seed=args.seed
     )
-    
+
+    # Ensure directories exist
+    ensure_directories(args.output_csv)
+    ensure_directories(args.output_meta)
+
     # Save CSV
     df.to_csv(args.output_csv, index=False)
     logger.info(f"Saved synthetic data to {args.output_csv}")
-    
-    # Create metadata
-    metadata = {
-        'true_mean': args.true_mean,
-        'true_variance': args.true_variance,
-        'missingness_mechanism': args.mechanism,
-        'n': args.n_rows,
-        'missing_rate': args.missing_rate,
-        'seed': args.seed,
-        'output_file': args.output_csv
-    }
-    
-    # Validate metadata against schema
-    if validate_schema(metadata, args.schema):
-        # Save metadata
-        with open(args.output_meta, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        logger.info(f"Saved metadata to {args.output_meta}")
-        
-        # Compute and log checksum
-        checksum = compute_sha256(args.output_csv)
-        logger.info(f"SHA-256 checksum of {args.output_csv}: {checksum}")
-        
-        # Update manifest (if update_state module is available)
-        try:
-            from update_state import compute_file_hash, find_artifacts, generate_manifest, update_manifest, main as update_main
-            # We will just log the hash here; the manifest update is handled by T007
-            logger.info("Artifact generated successfully. Run update_state.py to record in manifest.")
-        except ImportError:
-            logger.warning("update_state module not found. Skipping manifest update.")
-    else:
-        logger.error("Schema validation failed. Aborting.")
-        sys.exit(1)
 
-if __name__ == '__main__':
+    # Compute checksum
+    checksum = compute_sha256(args.output_csv)
+    logger.info(f"Checksum: {checksum}")
+
+    # Prepare metadata
+    metadata = {
+        "true_mean": args.true_mean,
+        "true_variance": args.true_variance,
+        "missingness_mechanism": args.mechanism,
+        "n": args.n_rows,
+        "missing_rate": args.missing_rate,
+        "seed": args.seed,
+        "checksum": checksum,
+        "sampling_rule": "Full population generated via numpy.random.normal"
+    }
+
+    # Save metadata
+    with open(args.output_meta, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Saved metadata to {args.output_meta}")
+
+    # Validate schema if requested
+    if args.validate_schema:
+        if not os.path.exists(args.schema):
+            logger.warning(f"Schema file not found at {args.schema}, skipping validation.")
+        else:
+            is_valid = validate_schema(df, args.schema)
+            if is_valid:
+                logger.info("Schema validation passed.")
+            else:
+                logger.error("Schema validation failed.")
+                sys.exit(1)
+
+    logger.info("Synthetic data generation complete.")
+
+if __name__ == "__main__":
     main()

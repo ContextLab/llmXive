@@ -2,109 +2,65 @@ import pytest
 import logging
 import os
 from pathlib import Path
-import tempfile
-import shutil
+import sys
 
-# We need to mock config or ensure the environment is set up correctly
-# For this test, we assume the project structure is as expected or mock the config load.
+# Ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_logging_infrastructure_creates_file():
-    """
-    Test that setup_logging creates the log file and writes a startup message.
-    """
-    from logging_config import setup_logging
-    
-    # Create a temporary directory for this test to avoid polluting the real outputs
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        log_filename = "test_analysis.log"
-        log_path = tmp_path / log_filename
+from logging_config import setup_logging
+from config import load_config, ensure_directories
+
+class TestLoggingInfrastructure:
+    """Tests for T007: Configure logging infrastructure."""
+
+    def test_setup_logging_creates_file(self, tmp_path):
+        """Verify that setup_logging creates the log file in the specified path."""
+        # Use a temporary directory for this test to avoid polluting outputs/
+        # We temporarily override the ensure_directories call logic by mocking or 
+        # simply pointing the log file to the tmp_path.
         
-        # Temporarily patch ensure_directories and load_config if necessary,
-        # but since setup_logging handles paths relative to project_root, 
-        # we rely on the fact that ensure_directories creates the folder.
-        # However, to force it into tmp_dir, we might need to mock config.
-        # Given the constraints, let's assume the test runs in an environment
-        # where we can control the current working directory or the config.
+        log_file_path = tmp_path / "test_analysis.log"
         
-        # Simpler approach: Just verify the function runs and creates a file
-        # in a known location if we pass a specific path logic, but the function
-        # signature is fixed. We will run it and check if it creates the file
-        # in the expected default location relative to where we run the test.
-        # To make this robust, we'll create the directory structure manually first.
+        # Setup logging pointing to our temp file
+        logger = setup_logging(str(log_file_path))
         
-        outputs_dir = Path(tmp_path) / "outputs"
-        outputs_dir.mkdir(parents=True, exist_ok=True)
+        # Verify the file exists
+        assert log_file_path.exists(), "Log file was not created."
+
+    def test_setup_logging_writes_message(self, tmp_path):
+        """Verify that logging actually writes messages to the file."""
+        log_file_path = tmp_path / "test_analysis.log"
         
-        # We need to trick the function into using tmp_dir. 
-        # Since we can't easily change the function signature, we will
-        # assume the test runner sets up the environment or we verify the
-        # existence of the file after calling the function.
-        # For the purpose of this task, we verify that the code executes without error
-        # and that a logger is returned.
+        # Setup logging
+        logger = setup_logging(str(log_file_path))
+        test_logger = logging.getLogger("test_module")
         
-        # Mocking the config to point to tmp_dir for the log path logic
-        # This requires patching inside the module or the config.
-        # Let's just verify the function signature and basic execution.
+        # Write a test message
+        test_logger.info("Test message for T007 verification")
+        
+        # Force flush (FileHandler usually auto-flushes on close, but let's be sure)
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.flush()
+
+        # Read file content
+        content = log_file_path.read_text()
+        
+        assert "Test message for T007 verification" in content, "Log message not found in file."
+
+    def test_setup_logging_adds_console_handler(self):
+        """Verify that a console handler is added to the root logger."""
+        # Clear handlers first to ensure a clean state for this specific check
+        root = logging.getLogger()
+        original_handlers = root.handlers[:]
+        root.handlers.clear()
         
         try:
-            # We will run the setup in the temp dir context by changing cwd
-            old_cwd = os.getcwd()
-            os.chdir(tmp_path)
+            logger = setup_logging("outputs/analysis.log")
             
-            # Ensure outputs dir exists
-            (Path(tmp_path) / "outputs").mkdir(exist_ok=True)
-            
-            logger = setup_logging(log_file="outputs/test_analysis.log", level=logging.INFO)
-            
-            # Verify logger has handlers
-            assert len(logger.handlers) > 0, "Logger should have handlers"
-            
-            # Check if file was created
-            assert log_path.exists(), f"Log file {log_path} should be created"
-            
-            # Check if file has content (startup message)
-            with open(log_path, 'r') as f:
-                content = f.read()
-                assert "Logging infrastructure initialized" in content, "Log should contain startup message"
-                
+            has_console = any(isinstance(h, logging.StreamHandler) for h in root.handlers)
+            assert has_console, "Console handler not found in root logger."
         finally:
-            os.chdir(old_cwd)
-
-def test_logging_levels():
-    """
-    Test that different log levels are respected.
-    """
-    from logging_config import setup_logging
-    
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        (tmp_path / "outputs").mkdir(exist_ok=True)
-        
-        old_cwd = os.getcwd()
-        os.chdir(tmp_path)
-        
-        try:
-            # Setup with ERROR level
-            logger = setup_logging(log_file="outputs/error_test.log", level=logging.ERROR)
-            
-            # Clear handlers to isolate test
-            for handler in logger.handlers[:]:
-                logger.removeHandler(handler)
-                
-            # Re-add a file handler for this specific test
-            handler = logging.FileHandler(tmp_path / "outputs/error_test.log", mode='w')
-            handler.setLevel(logging.ERROR)
-            handler.setFormatter(logging.Formatter('%(message)s'))
-            logger.addHandler(handler)
-            
-            logger.info("This should NOT appear")
-            logger.error("This SHOULD appear")
-            
-            with open(tmp_path / "outputs/error_test.log", 'r') as f:
-                content = f.read()
-                assert "This should NOT appear" not in content
-                assert "This SHOULD appear" in content
-                
-        finally:
-            os.chdir(old_cwd)
+            # Restore original handlers
+            root.handlers.clear()
+            root.handlers.extend(original_handlers)

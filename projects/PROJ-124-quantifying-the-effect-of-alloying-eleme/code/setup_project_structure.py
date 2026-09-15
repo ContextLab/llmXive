@@ -1,15 +1,28 @@
+"""
+Project structure initialization script.
+Creates the required directory tree for the llmXive automated science pipeline.
+"""
 import os
 import sys
+import subprocess
 from pathlib import Path
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def create_project_structure():
     """
-    Initialize the project directory structure as defined in T001.
-    Creates directories for code, data, state, output, tests, and docs.
+    Creates the required directory structure for the project.
+    Directories are created relative to the project root.
     """
-    # Define the directory structure relative to the project root
-    # The script assumes it is run from the project root or the project root is passed as an argument
-    base_path = Path(".")
+    # Define the directories to create based on tasks.md T001
+    # Note: We assume this script runs from the project root
+    project_root = Path(__file__).resolve().parent.parent
     
     directories = [
         "code/data",
@@ -18,55 +31,43 @@ def create_project_structure():
         "code/config",
         "data/raw",
         "data/processed",
-        "data/config", # Added for elements.yaml as referenced in T008b/T030
         "state",
         "output",
         "tests/contract",
         "tests/integration",
         "tests/unit",
         "docs/paper",
-        "docs/reports",
-        "logs", # Added for logger output as referenced in T006a
-        "figures" # Added for potential plot outputs
+        "docs/reports"
     ]
-
-    created_dirs = []
-    skipped_dirs = []
-
+    
+    created_count = 0
     for dir_path in directories:
-        full_path = base_path / dir_path
+        full_path = project_root / dir_path
         try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            # Verify writability by attempting a touch (create empty file)
-            test_file = full_path / ".gitkeep"
-            test_file.touch(exist_ok=True)
-        except OSError as e:
-            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-            skipped_dirs.append(str(full_path))
+            # Verify writability
+            if os.access(full_path, os.W_OK):
+                logger.info(f"Created/Verified: {full_path}")
+                created_count += 1
+            else:
+                logger.error(f"Directory created but not writable: {full_path}")
+        except Exception as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
 
-    # Verification step as per T001
-    required_roots = ["code", "data", "state", "output", "tests", "docs"]
-    missing_roots = []
-    
-    for root in required_roots:
-        if not (base_path / root).exists():
-            missing_roots.append(root)
-
-    if missing_roots:
-        print(f"CRITICAL: Missing required root directories: {missing_roots}", file=sys.stderr)
-        return False
-
-    print("Project structure initialized successfully.")
-    print(f"Created {len(created_dirs)} directories.")
-    if skipped_dirs:
-        print(f"Skipped/Failed {len(skipped_dirs)} directories: {skipped_dirs}")
-    
+    logger.info(f"Successfully created/verified {created_count} directories.")
     return True
 
 def main():
-    success = create_project_structure()
-    sys.exit(0 if success else 1)
+    """Entry point for the script."""
+    logger.info("Starting project structure initialization...")
+    try:
+        create_project_structure()
+        logger.info("Project structure initialization complete.")
+        return 0
+    except Exception as e:
+        logger.error(f"Initialization failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

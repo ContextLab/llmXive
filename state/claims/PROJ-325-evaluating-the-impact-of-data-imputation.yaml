@@ -637,3 +637,318 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T04:52:33Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier runner time limit is 6 hours
+  claim_id: c_e2969725
+  context: "Implement a runtime monitoring script in code/monitor_runtime.py that\
+    \ asserts runtime \u2264 6 hours (the standard time limit of the GitHub Actions\
+    \ free-tier runner as per SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GitHub Actions free-tier runner has a standard time limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:46:25Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE runs 4 independent instances with max_iter=1000
+  claim_id: c_af751f03
+  context: Task T025a requires implementing run_mice_chains() to explicitly run 4
+    independent instances of miceforest.ImputedDataSet with max_iter=1000 each, deriving
+    distinct seeds from T008 for each instance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must explicitly run 4 independent instances of miceforest.ImputedDataSet
+    with max_iter=1000 each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:06Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Discard first 500 iterations of each MICE chain
+  claim_id: c_664bcdc5
+  context: Task T025a and T025b specify that the function must explicitly discard
+    the first 500 iterations of EACH chain before pooling the remaining 500 iterations
+    per chain, resulting in a total of 2000 samples via Rubin's Rules.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The first 500 iterations of EACH chain are explicitly discarded before
+    pooling the remaining 500 iterations per chain.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:10Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Total pooled MICE samples is 2000
+  claim_id: c_ecff91b2
+  context: Task T025a and T025b state that after discarding the first 500 iterations
+    of each of the 4 chains, the remaining 500 iterations per chain are pooled for
+    a total of 2000 samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total number of samples pooled from the MICE chains is 2000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:17Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE bias <= 80% of Single Imputation bias
+  claim_id: c_41ee8f84
+  context: Task T027 requires calculating the ratio of |MICE_bias| to |Single_bias|
+    and setting a pass flag based on whether MICE bias magnitude is <= 80% of Single
+    Imputation bias magnitude.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MICE_bias_%3C=_80%25_of_Single_Imputation_bias
+  kind: magnitude
+  raw_text: MICE bias magnitude must be less than or equal to 80% of Single Imputation
+    bias magnitude.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:26Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Test asserts abs(mice_bias) <= 0.8 * abs(single_bias)
+  claim_id: c_fff5a86e
+  context: Task T023 describes an integration test that runs MICE and Single Mean,
+    calculates bias against ground truth, and asserts abs(mice_bias) <= 0.8 * abs(single_bias).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test asserts that abs(mice_bias) <= 0.8 * abs(single_bias).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:34Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep m values are 5, 10, 20
+  claim_id: c_209435ae
+  context: Task T033a defines the parameter loop for m over a set of representative
+    values {5, 10, 20} for the sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep parameter loop for m uses the representative values
+    5, 10, and 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:42Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Bias variation threshold is less than 5%
+  claim_id: c_a124cde2
+  context: Task T035 requires verifying the condition 'variation in bias < 5%' as
+    per SC-003, where bias_rates are expressed as percentages and the threshold is
+    5.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bias_variation_threshold_is_less_than_5%25
+  kind: magnitude
+  raw_text: The stability analysis verifies that the variation in bias is less than
+    5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:56:51Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Standard deviation of bias rates < 5% for sweep values 5, 10, 20
+  claim_id: c_5af45bdb
+  context: Task T031 specifies an integration test that asserts the standard deviation
+    of bias rates across {5, 10, 20} is < 5%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_deviation_of_bias_rates_%3C_5%25_for_sweep_values_5,_10
+  kind: magnitude
+  raw_text: The standard deviation of bias rates across the sweep values {5, 10, 20}
+    must be less than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:57:00Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Retry up to 3 times on convergence failure
+  claim_id: c_57880bf4
+  context: Task T026 implements retry logic where, on convergence failure (R-hat >=
+    1.05), the system retries up to 3 times with a new seed (base_seed + 100*attempt).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system retries up to 3 times on convergence failure with a new seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:57:03Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Skip variables with >30% missingness
+  claim_id: c_b00f3fab
+  context: Task T017 implements a shared missingness detection utility to skip variables
+    with >30% missingness and log a warning.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_variables_with_%3E30%25_missingness
+  kind: magnitude
+  raw_text: The system skips variables with greater than 30% missingness.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:58:40Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Dataset subset limit is 50000 rows
+  claim_id: c_7deb231b
+  context: Task T041 requires updating the data loader to explicitly enforce the subset
+    limit of <= 50,000 rows as per Plan.md Technical Context.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The subset limit for the dataset is 50,000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:58:50Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Default synthetic sample size is 1000
+  claim_id: c_22dad828
+  context: Task T005 specifies default values for the synthetic data generator including
+    n=1000, true_mean=50, true_variance=100, and missing_rate=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default sample size for the synthetic data generator is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:58:58Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Default synthetic true mean is 50
+  claim_id: c_2e0f2058
+  context: Task T005 specifies default values for the synthetic data generator including
+    n=1000, true_mean=50, true_variance=100, and missing_rate=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default true mean for the synthetic data generator is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:59:07Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Default synthetic true variance is 100
+  claim_id: c_5e56aec9
+  context: Task T005 specifies default values for the synthetic data generator including
+    n=1000, true_mean=50, true_variance=100, and missing_rate=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default true variance for the synthetic data generator is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:59:16Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Default synthetic missing rate is 0.2
+  claim_id: c_b5000797
+  context: Task T005 specifies default values for the synthetic data generator including
+    n=1000, true_mean=50, true_variance=100, and missing_rate=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default missing rate for the synthetic data generator is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:59:24Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Runtime limit is 6 hours
+  claim_id: c_c00c9729
+  context: Task T046 implements a runtime monitoring script that asserts runtime <=
+    6 hours, which is the standard time limit of the GitHub Actions free-tier runner
+    as per SC-004.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_limit_is_6_hours
+  kind: magnitude
+  raw_text: The runtime monitoring script asserts that runtime is less than or equal
+    to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T03:59:32Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Convergence failure threshold is R-hat >= 1.05
+  claim_id: c_47817cb5
+  context: Task T026 states that retry logic is triggered on convergence failure defined
+    as R-hat >= 1.05.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_failure_threshold_is_R-hat_%3E=_1.05
+  kind: magnitude
+  raw_text: Convergence failure is defined as an R-hat value greater than or equal
+    to 1.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T04:00:42Z'
