@@ -396,22 +396,6 @@
   status: not_enough_info
   updated_at: '2026-07-04T03:46:18Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 2
-  canonical: 5000 permutation tests complete within 3 hours
-  claim_id: c_9b56765e
-  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
-    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify 5,000 permutation tests complete within 3 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-06T15:34:14Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
   canonical: total pipeline runtime is less than or equal to 6 hours
   claim_id: c_6532f67b
@@ -464,3 +448,55 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T15:35:22Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: pipeline outputs normalized dataset with at least 80 percent retention
+  claim_id: c_22a20b01
+  context: "Independent Test: Verify pipeline downloads CSVs, filters missing ACE/poor\
+    \ MRI quality, and outputs normalized dataset with \u226580% retention."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_normalized_dataset_with_at_least_80_percent
+  kind: magnitude
+  raw_text: "The independent test for User Story 1 verifies the pipeline outputs a\
+    \ normalized dataset with \u226580% retention."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T06:33:43Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: three separate models complete within 45 minutes
+  claim_id: c_99ff6a91
+  context: "Independent Test: Verify three separate models output standardized \u03B2\
+    , 95% CI, p-values (corrected and uncorrected) and complete within 45 mins."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 verifies that three separate models
+    complete within 45 mins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T06:33:52Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 4
+  canonical: 5000 permutation tests complete within 3 hours
+  claim_id: c_9b56765e
+  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
+    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5,000 permutation tests complete within 3 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T06:33:55Z'

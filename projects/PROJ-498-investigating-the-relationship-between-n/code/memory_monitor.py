@@ -4,144 +4,154 @@ import resource
 import time
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Callable, Any
 
-# Project root detection (assumes running from project root or code/ subdir)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-METRICS_DIR = DATA_DIR / "metrics"
-LOGS_DIR = PROJECT_ROOT / "logs"
+from logging_setup import get_logger
 
-MEMORY_LIMIT_MB = 6500  # 6.5 GB
+# Constants
+MEMORY_LIMIT_GB = 6.5
+MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
+CHECK_INTERVAL_SECONDS = 0.1
+
+logger = get_logger(__name__)
 
 class MemoryTracker:
     """
     Tracks memory usage over time and ensures it does not exceed the limit.
     """
-    def __init__(self):
-        self.start_time = None
-        self.max_rss_mb = 0.0
-        self.history = [] # List of (timestamp, rss_mb)
+    def __init__(self, limit_mb: float = MEMORY_LIMIT_MB):
+        self.limit_mb = limit_mb
+        self.peak_rss_mb = 0.0
+        self.history: List[float] = []
+        self.start_time: Optional[float] = None
+        self.logger = get_logger(__name__)
 
     def start(self):
-        """Start tracking."""
+        """Start tracking memory."""
         self.start_time = time.time()
-        self.max_rss_mb = 0.0
+        self.peak_rss_mb = 0.0
         self.history = []
-        self._record()
+        self.logger.info("Memory tracking started.")
 
-    def _record(self):
-        """Record current memory usage."""
+    def check(self) -> float:
+        """
+        Check current RSS memory usage in MB.
+        Updates peak if current is higher.
+        """
         try:
-            # resource.getrusage(resource.RUSAGE_SELF).ru_maxrss is in KB on Linux, MB on macOS
-            # To be safe across platforms, we calculate KB and convert to MB
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            rss_kb = usage.ru_maxrss
-            rss_mb = rss_kb / 1024.0
-            
-            if rss_mb > self.max_rss_mb:
-                self.max_rss_mb = rss_mb
-            
-            self.history.append((time.time(), rss_mb))
+            # resource.getrusage(resource.RUSAGE_SELF) returns ru_maxrss in KB on Linux/macOS
+            # On some systems it might be in MB, but standard Linux is KB.
+            # We assume KB as per standard Unix behavior.
+            usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            current_mb = usage / 1024.0
+
+            if current_mb > self.peak_rss_mb:
+                self.peak_rss_mb = current_mb
+
+            self.history.append(current_mb)
+            return current_mb
         except Exception as e:
-            # Fallback if resource module is unavailable (e.g., Windows)
-            # Note: Windows resource.ru_maxrss is not standard, might need psutil
-            # For this implementation, we assume Linux/macOS environment as per typical EEG pipelines
-            pass
+            self.logger.error(f"Error reading memory usage: {e}")
+            return 0.0
 
-    def check_limit(self) -> bool:
-        """
-        Check if current memory usage exceeds the limit.
-        Returns True if within limit, False if exceeded.
-        """
-        self._record()
-        if self.max_rss_mb > MEMORY_LIMIT_MB:
-            return False
-        return True
+    def is_safe(self) -> bool:
+        """Check if current memory usage is within limits."""
+        current = self.check()
+        return current < self.limit_mb
 
-    def get_max_rss_mb(self) -> float:
-        """Return the peak RSS observed since start."""
-        return self.max_rss_mb
+    def get_peak(self) -> float:
+        """Return the peak memory usage observed so far."""
+        return self.peak_rss_mb
 
-    def save_report(self, filepath: Optional[Path] = None):
-        """Save the memory report to a JSON file."""
-        if filepath is None:
-            METRICS_DIR.mkdir(parents=True, exist_ok=True)
-            filepath = METRICS_DIR / "memory_report.json"
-        
-        report = {
-            "start_time": self.start_time,
-            "peak_rss_mb": self.max_rss_mb,
-            "limit_mb": MEMORY_LIMIT_MB,
-            "status": "ok" if self.max_rss_mb <= MEMORY_LIMIT_MB else "exceeded",
-            "history": self.history
+    def report(self) -> dict:
+        """Return a summary report of memory usage."""
+        return {
+            "peak_rss_mb": self.peak_rss_mb,
+            "limit_mb": self.limit_mb,
+            "is_within_limit": self.peak_rss_mb <= self.limit_mb,
+            "duration_seconds": time.time() - self.start_time if self.start_time else 0,
+            "sample_count": len(self.history)
         }
-        
-        with open(filepath, 'w') as f:
-            json.dump(report, f, indent=2)
 
 def get_current_rss_mb() -> float:
-    """Get current RSS in MB."""
+    """
+    Get the current RSS memory usage of the process in MB.
+    """
     try:
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        rss_kb = usage.ru_maxrss
-        return rss_kb / 1024.0
+        usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return usage / 1024.0
     except Exception:
         return 0.0
 
-def check_memory_limit() -> bool:
+def check_memory_limit(limit_mb: float = MEMORY_LIMIT_MB) -> bool:
     """
-    Check if current memory usage is within the limit.
-    Returns True if OK, False if exceeded.
+    Check if the current process memory usage is below the limit.
+    Returns True if safe, False if exceeded.
     """
     current = get_current_rss_mb()
-    return current <= MEMORY_LIMIT_MB
+    if current >= limit_mb:
+        logger.error(f"Memory limit exceeded: {current:.2f} MB >= {limit_mb:.2f} MB")
+        return False
+    return True
 
-def monitor_and_ensure_limit(tracker: MemoryTracker) -> None:
+def monitor_and_ensure_limit(
+    func: Callable[..., Any],
+    args: tuple = (),
+    kwargs: dict = None,
+    limit_mb: float = MEMORY_LIMIT_MB
+) -> Any:
     """
-    Check memory limit and raise an error if exceeded.
+    Decorator-like wrapper to monitor memory during function execution.
+    If memory exceeds limit, raises a MemoryError.
     """
-    if not tracker.check_limit():
-        raise MemoryError(
-            f"Memory limit exceeded: Peak RSS {tracker.get_max_rss_mb():.2f} MB > {MEMORY_LIMIT_MB} MB"
-        )
+    if kwargs is None:
+        kwargs = {}
+
+    tracker = MemoryTracker(limit_mb)
+    tracker.start()
+
+    logger.info(f"Starting monitored execution with limit {limit_mb:.2f} MB")
+
+    try:
+        result = func(*args, **kwargs)
+        final_report = tracker.report()
+        logger.info(f"Execution completed. Peak RSS: {final_report['peak_rss_mb']:.2f} MB")
+        return result
+    except MemoryError:
+        logger.critical("Memory limit exceeded during execution. Halting.")
+        raise
+    except Exception as e:
+        logger.error(f"Execution failed with exception: {e}")
+        raise
+    finally:
+        # Ensure we log the final state even on error
+        report = tracker.report()
+        logger.info(f"Final memory report: {json.dumps(report)}")
 
 def main():
     """
-    Standalone test to demonstrate memory monitoring.
-    Simulates processing and checks limits.
+    Main entry point for memory monitoring script.
+    Can be run to test memory tracking or used as a module.
     """
-    print("Starting Memory Monitor Test...")
+    logger.info("Memory Monitor Module initialized.")
+    
+    # Example usage: Track memory over a simulated loop
     tracker = MemoryTracker()
     tracker.start()
-
-    # Simulate some processing load
-    import numpy as np
-    print("Simulating data processing load...")
-    for i in range(5):
-        # Allocate some memory
-        arr = np.random.rand(1000, 1000) # ~8MB per array
-        del arr
-        time.sleep(0.1)
-        tracker._record()
-        if not tracker.check_limit():
-            print(f"Memory limit exceeded at step {i}")
+    
+    logger.info("Simulating processing loop...")
+    for i in range(100):
+        # Simulate some work
+        _ = [j * j for j in range(10000)]
+        current = tracker.check()
+        if not tracker.is_safe():
+            logger.critical(f"Memory limit breached at iteration {i}: {current:.2f} MB")
             break
+        time.sleep(0.01)
     
-    print(f"Peak RSS: {tracker.get_max_rss_mb():.2f} MB")
-    print(f"Limit: {MEMORY_LIMIT_MB} MB")
-    
-    # Save report
-    report_path = METRICS_DIR / "memory_report.json"
-    tracker.save_report(report_path)
-    print(f"Memory report saved to {report_path}")
-
-    if tracker.get_max_rss_mb() <= MEMORY_LIMIT_MB:
-        print("SUCCESS: Memory usage within limits.")
-        return 0
-    else:
-        print("FAILURE: Memory usage exceeded limits.")
-        return 1
+    report = tracker.report()
+    logger.info(f"Simulation complete. Report: {json.dumps(report)}")
+    print(f"Peak RSS: {report['peak_rss_mb']:.2f} MB (Limit: {report['limit_mb']:.2f} MB)")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

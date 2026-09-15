@@ -46,7 +46,7 @@
 - [X] T001a Verify root project directory structure defined in `plan.md` exists at `projects/PROJ-160-investigating-the-impact-of-early-life-s/`; create if missing.
 - [X] T001b [P] Create subdirectories `code/`, `data/raw/`, `data/processed/`, `tests/`, `contracts/` INSIDE the `projects/PROJ-160-investigating-the-impact-of-early-life-s/` directory created in T001a
 - [X] T002a [P] Create `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` with dependencies: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `joblib`, `pytest`
-- [ ] T002b [P] Install dependencies from `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` in an isolated virtualenv at `.venv`; verify success by running `python -m pip list` and confirming all packages are present. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T002b [P] Install dependencies from `projects/PROJ-160-investigating-the-impact-of-early-life-s/requirements.txt` in an isolated virtualenv at `.venv`; verify success by running `python -m pip list` and confirming all packages are present. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools in `.pre-commit-config.yaml`
 
 ---
@@ -108,7 +108,7 @@ expected <block end>, but found '<scalar>'
 
 **Goal**: Fit linear mixed-effects models for CA3, DG, subiculum and CA3:DG ratio, apply Bonferroni correction.
 
-**Independent Test**: Verify three separate models output standardized β, 95% CI, p-values (corrected and uncorrected) and complete within 45 mins. [UNRESOLVED-CLAIM: c_4bcbcf74 — status=not_enough_info]
+**Independent Test**: Verify three separate models output standardized β, 95% CI, p-values (corrected and uncorrected) and complete within 45 mins.
 
 ### Implementation for User Story 2
 
@@ -143,7 +143,7 @@ expected <block end>, but found '<scalar>'
 - [X] T036 [US3] Implement `code/analysis/robustness.py` to parallelize permutations using `joblib` with `n_jobs=2` to meet 3-hour runtime constraint (SC-003, Edge Case: Timeout)
 - [ ] T037 [US3] Implement `code/analysis/robustness.py` to generate a sensitivity analysis summary table in `data/processed/sensitivity_report.csv`. The table must list counts of significant findings for thresholds read from `code/config.py` (default: `{0.01, 0.05, 0.1}` to allow configurability per FR-008) AND calculate the variation metric (standard deviation of counts) to quantify dependency (SC-005). (FR-008, FR-009, SC-005)
 - [X] T038 [US3] Implement `code/analysis/robustness.py` to subset data for ICV within 1 SD of mean and re-run primary analysis to calculate % change in effect size (FR-009)
-- [~] T039 [US3] Aggregate all robustness metrics (parametric vs permutation p-values, threshold sensitivity, effect stability) into `data/processed/robustness_report.json`
+- [ ] T039 [US3] Aggregate all robustness metrics (parametric vs permutation p-values, threshold sensitivity, effect stability) into `data/processed/robustness_report.json`
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -160,11 +160,11 @@ expected <block end>, but found '<scalar>'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T040a [P] Update `README.md` with installation instructions and usage examples
-- [~] T040b [P] Update `specs/001-gene-regulation/quickstart.md` with project overview and data requirements
-- [~] T041 Code cleanup and refactoring in `code/analysis/` and `code/data/`: Remove unused imports, enforce line length < 88, add docstrings to all public functions.
-- [~] T042 Performance optimization: Ensure data loading streams only necessary columns to fit in GB RAM (Plan: Computational Feasibility)
-- [~] T043 [P] Run full test suite `pytest` and verify all contract tests pass <!-- FAILED: unspecified -->
+- [ ] T040a [P] Update `README.md` with installation instructions and usage examples
+- [ ] T040b [P] Update `specs/001-gene-regulation/quickstart.md` with project overview and data requirements
+- [ ] T041 Code cleanup and refactoring in `code/analysis/` and `code/data/`: Remove unused imports, enforce line length < 88, add docstrings to all public functions.
+- [ ] T042 Performance optimization: Ensure data loading streams only necessary columns to fit in GB RAM (Plan: Computational Feasibility)
+- [ ] T043 [P] Run full test suite `pytest` and verify all contract tests pass <!-- FAILED: unspecified -->
 - [~] T044 Run `quickstart.md` validation if generated
 - [~] T045 Verify total pipeline runtime (Acquisition → Robustness) is ≤ 6 hours (SC-006)
 

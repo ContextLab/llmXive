@@ -40,3 +40,42 @@ T037:
     \ and the provided `code/analysis/robustness.py` (truncated) contains no logic\
     \ for counting significant findings per threshold or writing a summary table with\
     \ a variation metric. Consequently the task\u2019s core requirement is unmet."
+T039:
+  c: false
+  h: 7743664c2121d88a4bfbefe509f63abb6ada6c7b220b74a8740b474ca13172e8
+  r: The required artifact `data/processed/robustness_report.json` does not exist
+    in the repository, so the robustness metrics have not been aggregated as specified.
+    The implementer must create this JSON file containing the requested metrics.
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` file or its contents were supplied; therefore we cannot confirm
+    that installation instructions and usage examples were added. The required artifact
+    is missing.
+T040b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `specs/001-gene-regulation/quickstart.md` file being present
+    or containing the required project overview and data requirements was provided.
+    The implementer must supply the updated markdown file with the specified content.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files from `code/analysis/` or `code/data/` were provided, so we cannot
+    verify that unused imports were removed, line length limits were enforced, or
+    docstrings were added to all public functions. The required artifacts are missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or benchmark was provided showing that the data\
+    \ loading step has been modified to stream only the required columns and stay\
+    \ within GB\u2011scale RAM usage. The claim lacks any tangible artifact (e.g.,\
+    \ a revised data\u2011loader implementation, memory\u2011usage logs, or performance\
+    \ test results) to verify the optimization. Consequently, the task requirement\
+    \ is not satisfied."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution logs, result files, or any evidence that a test suite was
+    run and all contract tests passed are present. Without such artifacts, we cannot
+    confirm the task was actually completed.

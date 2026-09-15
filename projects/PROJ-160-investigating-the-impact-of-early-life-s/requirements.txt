@@ -7,3 +7,4 @@ pyyaml
 requests
 joblib
 pytest
+python-dotenv
