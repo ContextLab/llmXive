@@ -1,47 +1,42 @@
-# Quickstart: Normalized Gaps Between Consecutive Squarefree Numbers
+# Quickstart: Normalized Squarefree Gaps
 
 ## Prerequisites
 
-*   Python 3.11 or later
-*   NumPy, SciPy, Matplotlib (installed via `pip install -r requirements.txt`)
+*   Python 3.11
+*   NumPy, SciPy, Matplotlib (install with `pip install numpy scipy matplotlib`)
 
-## Installation
+## Running the Analysis
 
-1.  Clone the repository: `git clone <repository_url>`
-2.  Navigate to the project directory: `cd <project_directory>`
-3.  Install dependencies: `pip install -r requirements.txt`
+1.  Clone the repository: `git clone [repository URL]`
+2.  Navigate to the project directory: `cd [project directory]`
+3.  Run the main script: `python src/main.py`
 
-## Usage
+This will generate squarefree numbers up to a default limit of $10^6$, calculate normalized gaps, perform the Lilliefors test, and generate the necessary plots.
 
-The main script is `src/main.py`.  Run the analysis with the following command:
+## Configuration
 
-```bash
-python src/main.py --max_n 10000
+The maximum limit for squarefree number generation can be configured by modifying the `N` parameter in the `src/main.py` file.
+
+```python
+if __name__ == "__main__":
+    n = 10**6  # Set the maximum limit here
+    # ... rest of the code ...
 ```
-
-This will:
-
-1.  Generate squarefree numbers up to 10,000.
-2.  Calculate normalized gaps.
-3.  Perform the Lilliefors goodness-of-fit test.
-4.  Generate visualizations (CDF plots, QQ-plot, convergence chart).
-5.  Output the results to the console and save the visualizations to the `output/` directory.
-
-You can adjust the `--max_n` parameter to change the upper limit of the squarefree sequence. For example:
-
-```bash
-python src/main.py --max_n 10000000
-```
-
-This will run the analysis for N = 10,000,000.
 
 ## Output
 
-The output will include:
+The script will generate the following outputs:
 
-*   A summary of the Lilliefors test results (KS statistic and p-value).
-*   A convergence analysis chart showing the KS statistic as a function of log(N).
-*   Empirical CDF and Exponential CDF plots.
-*   A QQ-plot of the normalized gaps.
+*   A text file containing the normalized gaps.
+*   A plot showing the Empirical CDF vs. Exponential CDF.
+*   A QQ-plot.
+*   A convergence analysis plot showing the KS statistic and p-value as a function of $\log N$.
 
-All visualizations will be saved in the `output/` directory.
+## Testing
+
+Unit tests can be run using pytest:
+
+1.  Navigate to the project directory: `cd [project directory]`
+2.  Run the tests: `pytest tests/`
+
+---
