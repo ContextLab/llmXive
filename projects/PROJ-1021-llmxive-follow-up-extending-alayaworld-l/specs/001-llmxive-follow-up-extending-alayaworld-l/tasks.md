@@ -1,3 +1,8 @@
+---
+
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "AlayaWorld" (Hybrid Logic Integration)
 
 **Input**: Design documents from `/specs/001-llmxive-alayaworld-extend/`
@@ -55,7 +60,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T002 [P] Initialize Python 3.11 project with dependencies (`requirements.txt`: `opencv-python-headless`, `numpy`, `pandas`, `scikit-learn`, `torch`, `av`, `pytest`, `pyyaml`, `psutil`, `scipy`, `bitsandbytes`, `transformers`, `diffusers`, `accelerate`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff) and formatting tools
 - [ ] T004 [P] Implement deterministic logging and resource metering utility (`code/utils/resource_logger.py`) to track RAM and wall-clock time for FR-005
 - [ ] T005 [P] Create base configuration for random seed management to ensure reproducibility per Principle I
 - [ ] T006 [P] Setup directory structure for `data/` with checksum generation scripts for synthetic artifacts
@@ -109,7 +114,7 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] **Implement Hybrid Controller Logic**: Implement `code/hybrid_controller.py` containing all edge-case handling logic. **This task is NOT parallel-safe**.
-    1. **Rendering Failure**: Detect symbolic state (e.g., teleportation) that cannot be rendered. Output `{"error_code": "RENDER_FAILURE", "object_id": "...", "timestamp": ...}` and generate a "reset/fade" correction token.
+    1. **Rendering Failure**: Detect symbolic state (e.g., teleportation) that cannot be rendered. Output `{"error_code": "RENDER_FAILURE", "object_id": "...", "timestamp": ...}` and generate a "reset" token.
     2. **Phantom Object**: Detect objects in video not in symbolic log. Increment drift score and generate a "remove" correction token.
     3. **Occlusion**: Implement fallback logic (assume state persists if occlusion detected) and flag frame as "low-confidence".
 - [ ] T021 [US2] **Implement Hybrid Generator**: Implement `code/hybrid_generator.py`. **Logic**: Wrapper that integrates `hybrid_controller` (T020) with the generator (T012). **Correction Mechanism**: When `hybrid_controller` detects a discrepancy, modify the **text prompt string** passed to the model's tokenizer (dynamic prompt re-conditioning) to inject the correction token (e.g., append " [OBJECT_DEAD]") before the next frame generation step. **Dependency**: Requires T020 completion.
@@ -179,7 +184,6 @@
 - Services before orchestration (Main)
 - Core implementation before integration
 - Story complete before moving to next priority
-- **US1 Specific**: T015 (Validation) is a hard gate for T016 (Drift Score).
 
 ### Specific Data Flow Dependencies
 
@@ -260,3 +264,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+- [ ] T032 **Address Review Concern #1**: FR-003 requires 85% CV accuracy. Add a task to manually annotate at least 50 frames for ground truth validation and integrate the validation step into the pipeline *before* calculating drift scores.  File: `code/data/gt_validator.py`. Status: Pending.
+- [ ] T033 **Address Review Concern #2**: The plan lacks a clear strategy for handling missing AlayaWorld data. Create a "mock data generator" in `code/data/mock_generator.py` to provide dummy data for unit testing and a clear "fail fast" mechanism if real data is unavailable. Status: Pending.
+- [ ] T034 **Address Review Concern #3**: Implement a more robust statistical comparison. Replace the paired t-test with a non-parametric Wilcoxon signed-rank test to account for potential non-normality in the drift scores. Status: Pending.
+- [ ] T035 **Address Review Concern #4**: Add a task to verify the reproducibility of the results by running the pipeline with multiple random seeds and comparing the outputs. Status: Pending.
