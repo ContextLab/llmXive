@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-09-16T10:52:59.662967+00:00"
+    "audited_at": "2026-09-16T11:20:19.454069+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-686-on-the-geometry-of-on-policy-distillatio",
-  "updated_at": "2026-09-16T10:52:59.662979+00:00"
+  "updated_at": "2026-09-16T11:20:19.454090+00:00"
 }
