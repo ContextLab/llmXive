@@ -20,12 +20,6 @@ T011:
     \ were cloned and per\u2011file commit/line\u2011change data were extracted as\
     \ required. The implementer must supply the script and the resulting raw git\u2011\
     history files."
-T013c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `spec.md` file or its contents was provided, so we cannot verify
-    that the required text was replaced as specified. The implementer must supply
-    the updated `spec.md` showing the exact change.
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

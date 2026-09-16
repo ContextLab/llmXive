@@ -1836,3 +1836,359 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T18:50:53Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 0
+  canonical: Python 3.11 project initialized with specific pinned dependencies
+  claim_id: c_513eb63d
+  context: 'Phase 2: Foundational - T003 [P] Initialize Python 3.11 project.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned dependencies in requirements.txt
+    (pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pydriller,
+    radon, semgrep, tqdm, requests).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-16T13:06:49Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: validation study verification replaced with presence check of GitHub
+    star count > 5000 or citation existence
+  claim_id: c_758ee7c5
+  context: 'Phase 0: Spec Alignment - T013c [US1] Spec Update: Edit spec.md (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace the text 'verified against a documented validation study (Kitchenham
+    et al. 2009, Meneely et al. 2009) or have >5,000 GitHub stars' with 'presence
+    check of GitHub star count > 5,000 or existence of a citation in the literature'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:06:54Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: sonar-scanner CLI version 10.4 LTS replaced with semgrep version 1.30.0
+  claim_id: c_d9108aad
+  context: 'Phase 0: Spec Alignment - T014b [US1] Spec Update: Edit spec.md (FR-002,
+    SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace 'sonar-scanner CLI version 10.4 LTS' with 'semgrep version 1.30.0'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:07:13Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction replaced with meta-analysis of Fisher-transformed
+    r coefficients
+  claim_id: c_ab3eb870
+  context: 'Phase 0: Spec Alignment - T021b [US2] Spec Update: Edit spec.md (FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_replaced_with_meta-analysis_of_Fisher-
+  kind: entity_fact
+  raw_text: Replace 'Bonferroni correction' with 'Meta-analysis of Fisher-transformed
+    r coefficients'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:08:30Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: varying average LOC replaced with thresholds of 5, 10, and 20
+  claim_id: c_12d5ab94
+  context: 'Phase 0: Spec Alignment - T022b [US2] Spec Update: Edit spec.md (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace 'varying average LOC' with 'thresholds of 5, 10, and 20'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:09:20Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: GitHub API query filters for repos with >500 stars and age >2 years
+  claim_id: c_9dd94ae8
+  context: 'Phase 3: User Story 1 - T010 [P] [US1] Implement data_extraction.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query GitHub API for >500-star repos, filter by age (>2 years) and language.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:09:21Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Tool validation logs PASS if stars > 5000, otherwise checks citation
+    existence
+  claim_id: c_8f9a4aa2
+  context: 'Phase 3: User Story 1 - T013b [US1] Tool Validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If stars > 5000, log 'PASS'. Else, check for citation existence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:09:21Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: radon version 2.4.0 run on Python files for CC and MI
+  claim_id: c_31d6cf36
+  context: 'Phase 3: User Story 1 - T014 [US1] Static Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run radon==2.4.0 on Python files (CC, MI).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:09:45Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: semgrep version 1.30.0 run on Java, JS, TS, Go, Rust files with specific
+    configs
+  claim_id: c_352842ab
+  context: 'Phase 3: User Story 1 - T014 [US1] Static Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run semgrep==1.30.0 on Java, JS, TS, Go, Rust files with --config=p/security-audit
+    and --config=auto.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:10:09Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Files with avg_loc < 10 excluded
+  claim_id: c_40ba8dcc
+  context: 'Phase 3: User Story 1 - T015 [US1] Preprocessing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude files with avg_loc < 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:10:09Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Parameterized datasets generated for sensitivity analysis with thresholds
+    5, 10, 20
+  claim_id: c_21cfcbb1
+  context: 'Phase 3: User Story 1 - T015 [US1] Preprocessing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate parameterized datasets for sensitivity analysis with thresholds
+    5, 10, 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:10:39Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: VIF > 5 triggers warning and flag for Ridge regression
+  claim_id: c_a3d14201
+  context: 'Phase 4: User Story 2 - T018 [US2] VIF Check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If any VIF > 5, log warning and flag for Ridge regression.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:10:40Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Mixed-effects model formula uses debt_score, total_lines_changed, avg_loc,
+    project_age, language, contributor_count
+  claim_id: c_40326f13
+  context: 'Phase 4: User Story 2 - T019 [US2] Mixed-Effects Model.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_uses_debt_score,_total_lines_cha
+  kind: entity_fact
+  raw_text: 'Formula String: ''debt_score ~ total_lines_changed + avg_loc + C(project_age)
+    + C(language) + contributor_count''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:10:57Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Mixed-effects model random effects group by repo_id
+  claim_id: c_bf8294c5
+  context: 'Phase 4: User Story 2 - T019 [US2] Mixed-Effects Model.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_random_effects_group_by_repo_id
+  kind: entity_fact
+  raw_text: 'Random Effects: groups=''repo_id''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:12:06Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Pearson and Spearman correlation calculated on raw total_lines_changed
+    vs debt_score
+  claim_id: c_76d9bfc1
+  context: 'Phase 4: User Story 2 - T020 [US2] Correlation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_and_Spearman_correlation_calculated_on_raw_total_lin
+  kind: entity_fact
+  raw_text: Calculate Pearson and Spearman correlation coefficients on raw total_lines_changed
+    vs debt_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:12:41Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Fisher's Z transformation calculated manually using specific formula
+  claim_id: c_a02869dc
+  context: 'Phase 4: User Story 2 - T021 [US2] Meta-Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute Fisher''s Z transformation manually: z = 0.5 * np.log((1 + r)
+    / (1 - r)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:14:45Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Standard error computed as 1 divided by square root of n minus 3
+  claim_id: c_82f761ef
+  context: 'Phase 4: User Story 2 - T021 [US2] Meta-Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute standard error: se = 1 / np.sqrt(n - 3).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:15:57Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Inverse-variance weighted meta-analysis calculated using specific formula
+  claim_id: c_802c6a54
+  context: 'Phase 4: User Story 2 - T021 [US2] Meta-Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Perform inverse-variance weighted meta-analysis: z_combined = np.sum(z
+    / se**2) / np.sum(1 / se**2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:17:54Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Combined r converted from z_combined using specific formula
+  claim_id: c_700ca185
+  context: 'Phase 4: User Story 2 - T021 [US2] Meta-Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Convert back to r: r_combined = (np.exp(2 * z_combined) - 1) / (np.exp(2
+    * z_combined) + 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:19:36Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Model re-run with datasets filtered by avg_loc thresholds 5, 10, 20
+  claim_id: c_03378a74
+  context: 'Phase 4: User Story 2 - T022 [US2] Sensitivity Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-run the model with datasets filtered by avg_loc thresholds 5, 10, 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:20:11Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Correlation coefficient |r| >= 0.3 flagged as moderate
+  claim_id: c_12e6a235
+  context: 'Phase 5: User Story 3 - T028 [US3] Report.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3 flagged as moderate'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Correlation_coefficient_r_%3E=_0.3_flagged_as_moderate
+    source_value: https://en.wikipedia.org/wiki/Correlation_coefficient_r_>=_0.3_flagged_as_moderate
+    subject: Correlation coefficient
+  kind: relational
+  raw_text: "Flag |r| \u2265 0.3 as 'moderate'."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T13:20:46Z'

@@ -68,7 +68,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `src/data/download.py` function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic. **Verification**: Downloaded files must exist in `data/raw/` with valid checksums.
+- [ ] T013 [P] [US1] Implement `src/data/download.py` function to fetch GWTC-1 (DOI) AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic. **Verification**: Downloaded files must exist in `data/raw/` with valid checksums.
 - [ ] T015 [US1] Implement `src/data/preprocess.py` to parse posterior samples, extract mass_ratio, effective_spin, component_mass, and filter NaNs.
 - [ ] T016 [US1] Implement validation in `src/data/preprocess.py` to ensure ≥100 valid events remain; fail with explicit error if not.
 - [ ] T017 [US1] Implement **Event-Level Bootstrapping** in `src/data/preprocess.py` to create the primary observational artifact. **Specific Mechanism**: For each bootstrap iteration (N=1000), sample a **new median** for **every single event** from its respective posterior distribution. Compute the final point estimate as the **median of these bootstrapped medians** for each parameter. Compute uncertainty as the **standard deviation** of the bootstrapped medians. **Output**: Save to `data/processed/obs_catalog.csv` with columns: `event_id`, `mass_ratio_median`, `mass_ratio_std`, `effective_spin_median`, `effective_spin_std`, `component_mass_1_median`, `component_mass_1_std`, `component_mass_2_median`, `component_mass_2_std`. This satisfies FR-014 by encoding the bootstrapped uncertainty distribution into the single point-estimate CSV. **Dependency**: Requires T013, T015, T016.
@@ -92,7 +92,7 @@
 
 - [ ] T020 [P] [US1b] Implement `src/data/download.py` function to attempt fetching a dedicated BBH population synthesis catalog (e.g., from Zenodo/Community Repo).
 - [ ] T021 [US1b] Implement fallback logic in `src/data/download.py` to generate synthetic catalog if external source fails.
-- [ ] T022 [US1b] Implement `src/data/generate_synthetic.py` to create a catalog based on a "Power-law mass with independent spin" hypothesis. **Citation**: Must cite "Abbott et al. (2021), ApJL, 913, L7" (or similar LVC population paper). **Parameters**: Use `alpha=2.3` (mass power-law index), `m_min=5`, `m_max=100` for component masses, and a flat spin distribution for effective spin. **Output**: `data/processed/sim_catalog.csv` with ≥100 events.
+- [ ] T022 [US1b] Implement `src/data/generate_synthetic.py` to create a catalog based on a "Power-law mass with independent spin" hypothesis. **Citation**: Must cite "Abbott et al. (2021), ApJL, 913, L7" (or similar LVC population paper). **Parameters**: {{claim:c_d8be0b8b}} **Output**: `data/processed/sim_catalog.csv` with ≥100 events.
 - [ ] T023 [US1b] Ensure synthetic generator produces ≥100 events with `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`.
 - [ ] T024 [US1b] Add validation in `src/data/preprocess.py` to confirm simulation data schema matches observational data schema.
 

@@ -2,45 +2,47 @@ import os
 import sys
 from pathlib import Path
 
-def create_directories(root_path: str = ".") -> None:
+def create_directories():
     """
-    Create the tests directory structure at the repository root.
+    Create the tests/ directory structure at the repository root.
+    Creates subdirectories: unit, integration, contract
+    Creates a .gitkeep file in tests/ to ensure the directory is tracked by git.
     
-    Creates:
-      - tests/
-      - tests/unit/
-      - tests/integration/
-      - tests/contract/
-      - tests/.gitkeep
-    
-    Args:
-        root_path: Base path for the project (defaults to current directory).
+    Returns:
+        bool: True if successful, False otherwise
     """
-    base = Path(root_path)
-    tests_dir = base / "tests"
-    
-    # Define subdirectories required by T001b
-    subdirs = ["unit", "integration", "contract"]
-    
-    # Create main tests directory
-    tests_dir.mkdir(parents=True, exist_ok=True)
+    # Determine project root (assumed to be where this script is run from or parent of code/)
+    # We'll assume the script is run from the project root
+    project_root = Path.cwd()
+    tests_dir = project_root / "tests"
     
     # Create subdirectories
+    subdirs = ["unit", "integration", "contract"]
     for subdir in subdirs:
-        (tests_dir / subdir).mkdir(parents=True, exist_ok=True)
+        subdir_path = tests_dir / subdir
+        subdir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {subdir_path}")
     
-    # Create .gitkeep to ensure directory is tracked by git
+    # Create .gitkeep in tests/
     gitkeep_path = tests_dir / ".gitkeep"
     gitkeep_path.touch()
+    print(f"Created .gitkeep: {gitkeep_path}")
     
-    print(f"Created directory structure under {tests_dir}")
-    for subdir in subdirs:
-        print(f"  - tests/{subdir}/")
-    print(f"  - tests/.gitkeep")
+    # Verify creation
+    if tests_dir.exists() and gitkeep_path.exists():
+        print("Verification: tests/ directory and .gitkeep exist.")
+        # List contents of tests/
+        contents = list(tests_dir.iterdir())
+        print(f"Contents of tests/: {[item.name for item in contents]}")
+        return True
+    else:
+        print("Error: Verification failed. tests/ directory or .gitkeep missing.")
+        return False
 
-def main() -> None:
-    """Entry point for directory creation script."""
-    create_directories(".")
+def main():
+    """Main entry point for the script."""
+    success = create_directories()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

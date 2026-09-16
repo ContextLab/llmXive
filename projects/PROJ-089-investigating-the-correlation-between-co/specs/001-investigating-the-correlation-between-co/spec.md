@@ -1,75 +1,70 @@
 # Specification: Investigating the Correlation Between Code Churn and Technical Debt
 
-## 1. Introduction
-This project investigates the correlation between code churn (activity) and technical debt (quality) in software repositories. The goal is to determine if high-churn files accumulate more debt, controlling for project size and complexity.
+## Overview
+This project investigates the statistical correlation between code churn (lines changed) and technical debt scores (static analysis metrics) across a diverse set of open-source repositories.
 
-## 2. Requirements
+## Methodological Correction (Plan Alignment)
+To avoid spurious correlations driven by file size, this study calculates **raw metrics** (`total_lines_changed`, `debt_score`) rather than density metrics. File size (`avg_loc`) is included as a covariate in the statistical model.
 
-### 2.1 Functional Requirements (FR)
+## Scope & Constraints
 
-**FR-001: Data Collection**
-The system shall automatically select repositories based on GitHub criteria (stars > 5,000 or citation presence) and clone them.
+### SC-001: Feasibility
+The pipeline must run within a 6-hour timeout on standard CI infrastructure. Heavy tools like SonarQube are excluded in favor of lighter alternatives.
 
-**FR-002: Static Analysis**
-The system shall run static analysis tools to calculate debt scores.
-- **Tool**: semgrep version 1.30.0.
-- **Metric**: Sum of Code Smells + Cyclomatic Complexity (as reported by Semgrep).
-- **Languages**: Python (Radon for CC/MI), Java, JS, TS, Go, Rust (Semgrep).
+### SC-002: Language Support
+Primary focus on Python, Java, JavaScript/TypeScript. Support for Go and Rust where tooling permits.
 
-**FR-003: Git History Analysis**
-The system shall calculate `total_lines_changed` for files over a defined period using `pydriller`.
+### SC-003: Time Limit
+Total pipeline execution must not exceed 6 hours.
 
-**FR-004: Preprocessing**
-The system shall filter non-source files and exclude files with `avg_loc` < 10.
+### SC-004: Data Sources
+Repositories must be public on GitHub.
 
-**FR-005: Correlation Analysis**
-The system shall calculate Pearson and Spearman correlations between `total_lines_changed` and `debt_score`, controlling for `avg_loc`.
+### SC-005: Tool Validation Criteria
+Tools used for static analysis must be **verified** by a **presence check of GitHub star count > 5,000 or existence of a citation in the literature**. Independent verification of study quality is not feasible per project constraints.
 
-**FR-006: Meta-Analysis**
-The system shall perform a meta-analysis of Fisher-transformed r coefficients across repositories to determine the aggregate correlation, replacing Bonferroni correction.
+## Functional Requirements
 
-**FR-007: Reporting**
-The system shall generate a summary report including correlation coefficients, p-values, and meta-analysis results.
+### FR-001: Raw Metric Calculation
+The system must calculate `total_lines_changed` (raw churn) and `debt_score` (raw debt). Density metrics (divided by LOC) are replaced by raw metrics with `avg_loc` as a covariate.
 
-**FR-008: Sensitivity Analysis**
-The system shall perform sensitivity analysis using **thresholds of 5, 10, and 20** for `avg_loc` to verify result stability.
+### FR-002: Static Analysis Tooling
+The system must use **semgrep version 1.30.0** for multi-language analysis.
+**Debt Score Calculation**:
+- Python: Sum(Cyclomatic Complexity) + (100 - Maintainability Index)
+- Others: Sum(Code Smells + Cyclomatic Complexity) **as reported by Semgrep**.
 
-### 2.2 System Constraints (SC)
+### FR-006: Statistical Methodology
+The system must perform a **Meta-analysis of Fisher-transformed r coefficients** to aggregate results across repositories, replacing Bonferroni correction for better control of family-wise error rate.
 
-**SC-001: Raw Metrics**
-The system must report `total_lines_changed` and `debt_score` as raw metrics, not densities. `avg_loc` must be used as a covariate control.
+### FR-008: Sensitivity Analysis
+The system must run sensitivity analysis using fixed **thresholds of 5, 10, and 20** for `avg_loc`, rather than varying average LOC continuously.
 
-**SC-002: Tool Validation**
-Tool validity is confirmed by presence check of GitHub star count > 5,000 or existence of a citation in the literature.
+## Data Model
 
-**SC-003: Execution Time**
-The pipeline must complete within 6 hours.
+### Unified Metrics Schema
+- `repo_id`: string
+- `file_path`: string
+- `total_lines_changed`: integer (Raw Churn)
+- `debt_score`: float (Raw Debt)
+- `avg_loc`: float (Covariate)
+- `contributor_count`: integer
+- `language`: string
 
-**SC-004: Data Integrity**
-All outputs must be reproducible with pinned random seeds.
+### Output Schema
+- `metric_type`: string (pearson/spearman/meta)
+- `r_value`: float
+- `p_value`: float
+- `n`: integer
+- `threshold`: integer (for sensitivity analysis)
 
-## 3. Data Model
+## User Stories
 
-- **Input**: GitHub Repositories (Git History, Source Code)
-- **Intermediate**: `unified_metrics.csv` (Raw metrics + covariates)
-- **Output**: `correlation_results.csv`, `sensitivity_analysis.csv`, `meta_analysis_results.csv`
+### US1: Data Acquisition and Preprocessing
+Automatically select repositories, clone them, extract git history and static analysis metrics, and produce a unified CSV with raw metrics and `avg_loc` as a covariate.
 
-## 4. Methodology
+### US2: Statistical Correlation Analysis
+Calculate correlation between raw churn and raw debt, controlling for `avg_loc` and other confounders, and perform meta-analysis.
 
-1. **Selection**: Filter repos by stars > 5,000 or citation presence.
-2. **Extraction**: Clone, extract git churn, run static analysis.
-3. **Preprocessing**: Aggregate per-file metrics. Apply `avg_loc` thresholds (5, 10, 20).
-4. **Analysis**:
- - Check VIF for covariates.
- - Fit Mixed-Effects Model: `debt_score ~ total_lines_changed + avg_loc + C(project_age) + C(language) + contributor_count`.
- - Calculate Pearson/Spearman correlations (partial).
- - Meta-analysis: Fisher-transformed r coefficients.
-5. **Sensitivity**: Re-run analysis for `avg_loc` thresholds 5, 10, 20.
-
-## 5. Output Artifacts
-
-- `data/processed/unified_metrics_loc{5,10,20}.csv`
-- `data/results/correlation_results.csv`
-- `data/results/sensitivity_analysis.csv`
-- `data/results/meta_analysis_results.csv`
-- `summary_report.txt`
+### US3: Visualization and Reporting
+Generate scatter plots with regression lines and a summary report including meta-analysis results.

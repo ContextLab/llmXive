@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T14:20:54.990507Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-728-autocorrelation-of-the-m-bius-function-i
-last_run_id: b650fcdd-2bc2-488f-9c85-5499bd6ee997
+last_run_id: ea0755e3-3166-47da-8e90-b6449e6693bc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: "Autocorrelation of the M\xF6bius Function in Short Intervals"
-updated_at: '2026-06-17T16:03:41.560125Z'
+updated_at: '2026-09-16T12:40:30.025385Z'

@@ -4,40 +4,47 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required directory structure for the project.
+    Creates the data/ and output/ directory structures required for the project.
     
-    Creates:
-    - data/raw/
-    - data/processed/
-    - output/results/
-    - output/figures/
-    
-    Also creates .gitkeep files in each directory to ensure they are tracked by git.
-    """
-    # Define the base directories relative to the project root
-    base_dirs = {
-        "data/raw",
-        "data/processed",
-        "output/results",
-        "output/figures",
-    }
-
-    for dir_path in base_dirs:
-        full_path = Path(dir_path)
-        full_path.mkdir(parents=True, exist_ok=True)
+    Structure:
+    data/
+        raw/
+        processed/
+    output/
+        results/
+        figures/
         
-        # Create .gitkeep file to ensure directory is tracked by git
-        gitkeep_path = full_path / ".gitkeep"
-        gitkeep_path.touch()
-        print(f"Created directory: {full_path}")
-        print(f"Created .gitkeep: {gitkeep_path}")
+    Creates .gitkeep files in each subdirectory to ensure they are tracked by git.
+    """
+    base_path = Path("data")
+    output_path = Path("output")
+
+    # Define subdirectories
+    data_dirs = [
+        base_path / "raw",
+        base_path / "processed",
+    ]
+
+    output_dirs = [
+        output_path / "results",
+        output_path / "figures",
+    ]
+
+    all_dirs = data_dirs + output_dirs
+
+    # Create directories and .gitkeep files
+    for dir_path in all_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        gitkeep_path = dir_path / ".gitkeep"
+        gitkeep_path.touch(exist_ok=True)
+        print(f"Created: {dir_path}")
+        print(f"Created: {gitkeep_path}")
+
+    print("Directory structure creation complete.")
 
 
 def main():
-    """Entry point for the script."""
-    print("Creating data and output directory structure...")
     create_directories()
-    print("Directory structure created successfully.")
 
 
 if __name__ == "__main__":

@@ -96,7 +96,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [P] [US1] Implement `data_extraction.py`: Query GitHub API for >500-star repos, filter by age (>2 years) and language. [UNRESOLVED-CLAIM: c_b1c3f540 — status=not_enough_info] **Deliverable**: `data/raw/repos_metadata.csv`.
+- [X] T010 [P] [US1] Implement `data_extraction.py`: Query GitHub API for >500-star repos, filter by age (>2 years) and language. [UNRESOLVED-CLAIM: c_9dd94ae8 — status=not_enough_info] **Deliverable**: `data/raw/repos_metadata.csv`.
 - [ ] T011 [P] [US1] Implement `data_extraction.py`: Clone repos and extract per-file commit counts & lines changed (recent period) using `pydriller`. **Deliverable**: `data/raw/git_history/` directory.
 - [X] T012 [P] [US1] Implement `data_extraction.py`: Generate `data/raw/repos_metadata.csv`
 - [X] T013a [P] [US1] Implement `utils.py`: Validate tool availability (Radon, Semgrep) and log star counts/citation presence in `data/logs/tool_validation_log.csv` (Depends on T005)
@@ -121,7 +121,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] **VIF Check**: Implement `analysis.py`. **Action**: Load `unified_metrics.csv`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the design matrix of covariates (`project_age`, `language`, `contributor_count`). If any VIF > 5, log warning and flag for Ridge regression. **Output Columns**: `covariate_name`, `vif_value`, `status`. **Deliverable**: `data/results/vif_report.csv`.
+- [ ] T018 [US2] **VIF Check**: Implement `analysis.py`. **Action**: Load `unified_metrics.csv`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the design matrix of covariates (`project_age`, `language`, `contributor_count`). If any VIF > 5, log warning and flag for Ridge regression. [UNRESOLVED-CLAIM: c_a3d14201 — status=not_enough_info] **Output Columns**: `covariate_name`, `vif_value`, `status`. **Deliverable**: `data/results/vif_report.csv`.
 - [ ] T019 [US2] **Mixed-Effects Model**: Implement `analysis.py`. **Action**: Fit mixed-effects model using `statsmodels.regression.mixed_linear_model.MixedLM`. **Formula String**: `'debt_score ~ total_lines_changed + avg_loc + C(project_age) + C(language) + contributor_count'`. **Random Effects**: `groups='repo_id'`. **Deliverable**: `statsmodels` model object and summary.
 - [ ] T020 [US2] **Correlation**: Implement `analysis.py`. **Action**: Calculate Pearson and Spearman correlation coefficients on **raw** `total_lines_changed` vs `debt_score` using `scipy.stats.pearsonr` and `scipy.stats.spearmanr`. Control for `avg_loc` by calculating partial correlation using `pingouin.partial_corr` (or manual residualization: regress both X and Y on `avg_loc` and correlate residuals). **Output Columns**: `metric_type` (pearson/spearman), `r_value`, `p_value`, `n`. **Deliverable**: `data/results/correlation_results.csv`.
 - [ ] T021 [US2] **Meta-Analysis**: Implement `analysis.py`. **Action**:

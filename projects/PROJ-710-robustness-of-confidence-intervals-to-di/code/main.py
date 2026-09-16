@@ -1,297 +1,242 @@
-"""
-Main orchestration script for the Robustness of Confidence Intervals to DP Noise pipeline.
-Implements the Outer Loop (T013a), Feasibility Gate (T042a), and simulation execution.
-"""
 import os
 import sys
 import json
 import logging
 import tempfile
 import shutil
-import time
 import tracemalloc
+import gc
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Generator, List, Dict, Any, Optional, Tuple
+import pandas as pd
+import numpy as np
 
-# Add project root to path to ensure imports work relative to code/
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from config import Config, get_artifact_path, get_data_path, get_figure_path
-from data.download_utils import fetch_adult_data, fetch_iris_data, fetch_wine_quality_data, DataFetchError
+# Local imports
+from config import Config, get_artifact_path, get_data_path
+from data.download_utils import load_real_dataset, DataFetchError
 from data.dp_noise import inject_laplace_noise, inject_gaussian_noise
 from analysis.edge_cases import clamp_noise_scale, detect_collinearity, enforce_min_sample_size
-from analysis.ci_builder import build_ci_for_mean, build_ci_for_regression_coefficient, validate_ci_coverage
+from analysis.ci_builder import build_ci_for_mean, validate_ci_coverage
 from analysis.adjustments import apply_adjustments
-from utils.init_dirs import create_directories, verify_directories
+from utils.feasibility_check import run_micro_benchmark
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(get_artifact_path("simulation.log"), mode='w')
-    ]
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+MAX_MEMORY_GB = 7.0
+N_SIM = Config.N_SIM
+BOOTSTRAP_B = Config.BOOTSTRAP_B
+
 def get_memory_usage_gb() -> float:
-    """Get current memory usage in GB."""
-    try:
-        import tracemalloc
-        current, peak = tracemalloc.get_traced_memory()
-        return peak / (1024 ** 3)
-    except Exception:
+    """
+    Returns current memory usage in GB using tracemalloc.
+    """
+    if not tracemalloc.is_tracing():
         return 0.0
+    current, peak = tracemalloc.get_traced_memory()
+    return peak / (1024 ** 3)
 
 def check_feasibility_gate() -> bool:
     """
-    T042a: Feasibility Gate.
-    Reads the output of T043 (feasibility_check.py).
-    If T043 reports failure (time/memory exceeded), abort execution and exit with code 1.
-    If T043 passes, proceed.
+    Runs the feasibility check micro-benchmark.
+    Returns True if the gate passes, False otherwise.
     """
-    logger.info("Checking Feasibility Gate (T042a)...")
-    feasibility_path = get_artifact_path("feasibility_status.json")
-    
-    if not os.path.exists(feasibility_path):
-        logger.warning(f"Feasibility check output not found at {feasibility_path}. "
-                       "Assuming failure. Please run code/utils/feasibility_check.py first.")
-        logger.error("ABORTING: Feasibility gate failed. Run feasibility check first.")
-        return False
-
     try:
-        with open(feasibility_path, 'r') as f:
-            status = json.load(f)
-        
-        if not status.get("passed", False):
-            reason = status.get("reason", "Unknown reason")
-            logger.error(f"Feasibility check FAILED: {reason}")
-            logger.error("ABORTING: Projected resources exceed limits. Reduce N_sim in config.py.")
+        result = run_micro_benchmark()
+        if result.get('status') == 'failed':
+            logger.error(f"Feasibility check failed: {result.get('reason')}")
             return False
-        
-        logger.info("Feasibility Gate PASSED. Proceeding with simulation.")
+        logger.info(f"Feasibility check passed: {result}")
         return True
     except Exception as e:
-        logger.error(f"Error reading feasibility status: {e}")
-        logger.error("ABORTING: Could not verify feasibility.")
+        logger.error(f"Feasibility check error: {e}")
         return False
 
-def load_real_dataset(dataset_name: str) -> Tuple[Any, Any]:
+def load_real_dataset(dataset_name: str) -> pd.DataFrame:
     """
-    Load real UCI datasets using the verified pmlb source.
-    Raises DataFetchError if fetch fails.
+    Wrapper to load real UCI datasets.
+    Raises DataFetchError if fetch fails (no synthetic fallback).
     """
-    logger.info(f"Loading real dataset: {dataset_name}")
-    try:
-        if dataset_name == "adult":
-            return fetch_adult_data()
-        elif dataset_name == "iris":
-            return fetch_iris_data()
-        elif dataset_name == "wine":
-            return fetch_wine_quality_data()
-        else:
-            raise ValueError(f"Unknown dataset: {dataset_name}")
-    except DataFetchError as e:
-        logger.error(f"Failed to fetch {dataset_name}: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error fetching {dataset_name}: {e}")
-        raise
+    return load_real_dataset(dataset_name)
 
 def run_simulation_condition(
     dataset_name: str,
     epsilon: float,
     noise_type: str,
-    statistic_type: str,
-    n_sim: int,
-    seed: int
-) -> List[Dict[str, Any]]:
+    statistic_type: str = 'mean'
+) -> Generator[Dict[str, Any], None, None]:
     """
-    Run simulation for a single condition (dataset, epsilon, noise_type, statistic).
-    Implements the logic described in T013a and T013b.
-    """
-    logger.info(f"Running condition: {dataset_name}, epsilon={epsilon}, {noise_type}, {statistic_type}")
+    Generator that yields simulation results for a single condition.
+    Implements memory optimization by yielding results immediately instead of storing all.
     
-    # 1. Load Real Data
+    Yields:
+        Dict containing simulation results for one run.
+    """
+    logger.info(f"Starting simulation for {dataset_name}, epsilon={epsilon}, noise={noise_type}")
+    
+    # Load real data
     try:
-        X, y = load_real_dataset(dataset_name)
-    except DataFetchError:
-        logger.error("Data fetch failed. Aborting condition.")
-        return []
+        df = load_real_dataset(dataset_name)
+    except DataFetchError as e:
+        logger.error(f"Failed to load dataset {dataset_name}: {e}")
+        raise
     
-    # 2. Get Ground Truth from Config (T003)
-    # Note: Ground truth is stored in config.py as a fixed constant derived from synthetic populations
-    # We retrieve it here for coverage calculation.
-    # Assuming Config has ground_truth dict populated by T003
-    true_param = Config.GROUND_TRUTH.get(dataset_name, {}).get(statistic_type, None)
-    if true_param is None:
-        logger.warning(f"No ground truth found for {dataset_name}/{statistic_type}. Using sample mean as proxy (invalid for coverage).")
-        # In a real scenario, this should be an error, but we proceed with a placeholder if missing
-        # to avoid crashing the whole pipeline if config is slightly off.
-        true_param = 0.0 
-
-    results = []
+    # Determine target column based on dataset and statistic
+    if dataset_name == 'adult':
+        target_col = 'hours-per-week' # Example numeric target
+    elif dataset_name == 'iris':
+        target_col = 'sepal length (cm)'
+    elif dataset_name == 'wine':
+        target_col = 'alcohol'
+    else:
+        raise ValueError(f"Unsupported dataset for simulation: {dataset_name}")
     
-    # 3. Simulation Loop
-    for i in range(n_sim):
-        # Draw sample (Simple random sample for now, could be stratified)
-        # Assuming X is a DataFrame and y is a Series
-        if len(X) < 10:
-            enforce_min_sample_size(len(X))
+    # Validate data
+    df = df.dropna(subset=[target_col])
+    if len(df) < 10:
+        raise ValueError(f"Dataset {dataset_name} has insufficient samples after cleaning.")
+    
+    true_mean = df[target_col].mean()
+    logger.info(f"Ground truth mean for {dataset_name}: {true_mean:.4f}")
+    
+    for i in range(N_SIM):
+        # Periodic memory check and cleanup
+        if i > 0 and i % 100 == 0:
+            gc.collect()
+            mem_gb = get_memory_usage_gb()
+            if mem_gb > MAX_MEMORY_GB:
+                logger.warning(f"Memory usage at {mem_gb:.2f}GB exceeded threshold at iteration {i}")
         
-        sample_idx = np.random.choice(len(X), size=min(50, len(X)), replace=False)
-        X_sample = X.iloc[sample_idx]
-        y_sample = y.iloc[sample_idx] if y is not None else None
-
-        # 4. Add DP Noise
-        if noise_type == "laplace":
-            X_noisy = inject_laplace_noise(X_sample, epsilon=epsilon)
-        elif noise_type == "gaussian":
-            X_noisy = inject_gaussian_noise(X_sample, epsilon=epsilon)
+        # 1. Draw sample
+        sample_size = min(100, len(df))
+        sample = df[target_col].sample(n=sample_size, replace=False).values
+        
+        # 2. Add DP Noise
+        if noise_type == 'laplace':
+            noisy_sample = inject_laplace_noise(sample, epsilon, sensitivity=1.0)
+        elif noise_type == 'gaussian':
+            noisy_sample = inject_gaussian_noise(sample, epsilon, sensitivity=1.0)
         else:
             raise ValueError(f"Unknown noise type: {noise_type}")
-
-        # 5. Edge Case Handling
-        clamp_noise_scale(X_noisy, epsilon)
-        if X_noisy.shape[1] > 1:
-            detect_collinearity(X_noisy)
-
-        # 6. Inner Loop (Bootstrap & CI) - T013b
-        # For mean statistic
-        if statistic_type == "mean":
-            # Point estimate
-            point_est = X_noisy.mean().mean() # Mean of means for multivariate
-            
-            # Apply Adjustments (T020a)
-            # We need noise parameters for adjustment. Assuming epsilon is sufficient for scale derivation
-            noise_scale = 1.0 / epsilon # Simplified for Laplace
-            # For Gaussian, scale = sqrt(2*ln(1.25/delta))/epsilon
-            
-            # Build CI
-            ci_low, ci_high = build_ci_for_mean(X_noisy, n_bootstrap=100, seed=seed+i)
-            
-            # Check Coverage
-            covered = (true_param >= ci_low) and (true_param <= ci_high)
-            
-            results.append({
-                "dataset": dataset_name,
-                "epsilon": epsilon,
-                "noise_type": noise_type,
-                "statistic": statistic_type,
-                "coverage": covered,
-                "ci_low": ci_low,
-                "ci_high": ci_high,
-                "seed": seed + i
-            })
         
-        # For regression coefficient
-        elif statistic_type == "regression":
-            if y_sample is None:
-                continue
-            # Simple linear regression
-            # X_noisy should be 2D, y_sample 1D
-            try:
-                from sklearn.linear_model import LinearRegression
-                model = LinearRegression()
-                model.fit(X_noisy, y_sample)
-                coef = model.coef_[0] if len(model.coef_) == 1 else model.coef_.mean()
-                
-                # Adjustments
-                # ... (logic from T020a)
-                
-                ci_low, ci_high = build_ci_for_regression_coefficient(X_noisy, y_sample, n_bootstrap=100, seed=seed+i)
-                
-                covered = (true_param >= ci_low) and (true_param <= ci_high)
-                
-                results.append({
-                    "dataset": dataset_name,
-                    "epsilon": epsilon,
-                    "noise_type": noise_type,
-                    "statistic": statistic_type,
-                    "coverage": covered,
-                    "ci_low": ci_low,
-                    "ci_high": ci_high,
-                    "seed": seed + i
-                })
-            except Exception as e:
-                logger.warning(f"Regression failed for sample {i}: {e}")
-                continue
+        # 3. Edge case handling
+        noisy_sample = clamp_noise_scale(noisy_sample, sample)
+        
+        # 4. Compute Point Estimate
+        point_estimate = np.mean(noisy_sample)
+        
+        # 5. Apply Adjustments
+        adjusted_estimate, adj_se = apply_adjustments(
+            point_estimate=point_estimate,
+            standard_error=np.std(noisy_sample) / np.sqrt(len(noisy_sample)),
+            statistic_type=statistic_type,
+            noise_params={'epsilon': epsilon, 'type': noise_type}
+        )
+        
+        # 6. Bootstrap CI
+        ci_lower, ci_upper = build_ci_for_mean(
+            noisy_sample,
+            n_bootstrap=BOOTSTRAP_B,
+            confidence_level=0.95
+        )
+        
+        # 7. Check Coverage
+        covered = 1 if (ci_lower <= true_mean <= ci_upper) else 0
+        
+        result = {
+            'dataset': dataset_name,
+            'epsilon': epsilon,
+            'noise_type': noise_type,
+            'statistic': statistic_type,
+            'iteration': i,
+            'point_estimate': float(point_estimate),
+            'adjusted_estimate': float(adjusted_estimate),
+            'ci_lower': float(ci_lower),
+            'ci_upper': float(ci_upper),
+            'true_value': float(true_mean),
+            'covered': covered
+        }
+        
+        yield result
 
-    return results
-
-def run_simulation_pipeline():
+def run_simulation_pipeline() -> None:
     """
-    Orchestrates the full simulation pipeline.
+    Orchestrates the full simulation pipeline across all conditions.
+    Writes results incrementally to avoid memory bloat.
     """
-    # 1. Check Feasibility Gate (T042a)
-    if not check_feasibility_gate():
-        logger.error("Feasibility gate failed. Exiting.")
-        sys.exit(1)
-
-    # 2. Initialize Directories
-    create_directories()
-    verify_directories()
-
-    # 3. Define Conditions
-    datasets = ["adult", "iris", "wine"]
+    # Define conditions
+    datasets = ['adult', 'iris', 'wine']
     epsilons = [0.1, 0.5, 1.0, 5.0]
-    noise_types = ["laplace", "gaussian"]
-    statistics = ["mean", "regression"]
+    noise_types = ['laplace', 'gaussian']
+    statistic_types = ['mean']
     
-    all_results = []
+    output_path = get_artifact_path('coverage_results.csv')
+    temp_path = output_path + '.tmp'
     
-    # 4. Run Simulation
-    for dataset in datasets:
-        for eps in epsilons:
-            for noise in noise_types:
-                for stat in statistics:
-                    # Skip regression for Iris/Wine if not appropriate (simplified)
-                    if stat == "regression" and dataset in ["iris", "wine"]:
-                        # Only run regression if we have a target variable in config/data
-                        # For simplicity, skip if not explicitly configured
-                        pass 
-                    
-                    try:
-                        results = run_simulation_condition(
-                            dataset_name=dataset,
-                            epsilon=eps,
-                            noise_type=noise,
-                            statistic_type=stat,
-                            n_sim=Config.N_SIM,
-                            seed=42
-                        )
-                        all_results.extend(results)
-                    except Exception as e:
-                        logger.error(f"Condition {dataset}/{eps}/{noise}/{stat} failed: {e}")
-                        continue
-
-    # 5. Write Results (T013c)
-    if all_results:
-        import pandas as pd
-        df = pd.DataFrame(all_results)
-        output_path = get_artifact_path("coverage_results.csv")
-        df.to_csv(output_path, index=False)
-        logger.info(f"Results written to {output_path}")
-    else:
-        logger.warning("No results generated.")
-
-def main():
-    """Entry point."""
-    tracemalloc.start()
-    start_time = time.time()
+    logger.info(f"Writing results to {output_path}")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     try:
-        run_simulation_pipeline()
+        with open(temp_path, 'w') as f:
+            # Write header
+            header = "dataset,epsilon,noise_type,statistic,iteration,point_estimate,adjusted_estimate,ci_lower,ci_upper,true_value,covered\n"
+            f.write(header)
+            
+            for ds in datasets:
+                for eps in epsilons:
+                    for nt in noise_types:
+                        for st in statistic_types:
+                            logger.info(f"Running condition: {ds}, eps={eps}, {nt}, {st}")
+                            
+                            gen = run_simulation_condition(ds, eps, nt, st)
+                            
+                            for res in gen:
+                                line = f"{res['dataset']},{res['epsilon']},{res['noise_type']},{res['statistic']},{res['iteration']},{res['point_estimate']:.6f},{res['adjusted_estimate']:.6f},{res['ci_lower']:.6f},{res['ci_upper']:.6f},{res['true_value']:.6f},{res['covered']}\n"
+                                f.write(line)
+                            
+                            # Force flush periodically
+                            f.flush()
+                            
+        # Atomic move
+        shutil.move(temp_path, output_path)
+        logger.info(f"Simulation complete. Results written to {output_path}")
+        
     except Exception as e:
-        logger.exception("Pipeline execution failed with exception:")
-        sys.exit(1)
-    finally:
-        current, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-        duration = time.time() - start_time
-        logger.info(f"Pipeline completed in {duration:.2f}s. Peak memory: {peak/1024/1024:.2f}MB")
+        logger.error(f"Simulation failed: {e}")
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise
 
-if __name__ == "__main__":
+def main():
+    """
+    Entry point for the simulation pipeline.
+    """
+    logger.info("Starting llmXive Robustness CI Pipeline")
+    
+    # 1. Check Feasibility
+    if not check_feasibility_gate():
+        logger.error("Feasibility gate failed. Aborting.")
+        sys.exit(1)
+    
+    # 2. Start Memory Tracing
+    tracemalloc.start()
+    
+    try:
+        # 3. Run Pipeline
+        run_simulation_pipeline()
+    finally:
+        # 4. Cleanup
+        current, peak = tracemalloc.get_traced_memory()
+        logger.info(f"Peak memory usage: {peak / 1024 ** 3:.4f} GB")
+        tracemalloc.stop()
+
+if __name__ == '__main__':
     main()

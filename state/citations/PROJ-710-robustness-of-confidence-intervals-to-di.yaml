@@ -1,4 +1,4 @@
-- artifact_hash: e8d7715b32dd7c50ad53eee22d2e1724a48552f35e89daf6a606de3acf5c9505
+- artifact_hash: 57a348e2021cadcafe58ce2e342cbfcaf3aa32d64b10609462091ec6fd8dab00
   artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q2086117
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q2086117
-  verified_at: '2026-09-06T00:55:38.981344Z'
+  verified_at: '2026-09-16T13:06:05.284514Z'

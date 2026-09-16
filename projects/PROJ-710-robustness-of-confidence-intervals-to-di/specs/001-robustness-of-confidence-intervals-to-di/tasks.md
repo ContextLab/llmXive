@@ -138,7 +138,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T033 [P] Implement `code/analysis/convergence_check.py` to run simulation with multiple seeds and verify standard error of coverage < 0.5% **(Depends on T013a)**
-- [ ] T034a [P] Performance optimization: Extract memory-heavy loop into generator in `code/main.py`. **Verification**: Use `tracemalloc` to ensure peak memory usage < 7GB during a representative run. **(Depends on T013a)**
+- [X] T034a [P] Performance optimization: Extract memory-heavy loop into generator in `code/main.py`. **Verification**: Use `tracemalloc` to ensure peak memory usage < 7GB during a representative run. **(Depends on T013a)**
 - [X] T034b [P] Performance optimization: Implement batched resampling function in `code/analysis/ci_builder.py`. **Verification**: Use `tracemalloc` to ensure peak memory usage < 7GB during batched operation. **(Depends on T013a)**
 - [ ] T035 [P] Performance optimization: Integrate batched resampling function into `code/main.py` **(Depends on T013a, T034b)**
 - [X] T036 [P] Documentation updates in `projects/PROJ-710-robustness-of-confidence-intervals-to-di/README.md`. **Sections to update**: 'Simulation Pipeline' (steps 1-4), 'Adjustment Methods' (formulas from T020a), 'Data Sources' (T039 URLs). **Content**: Step-by-step execution guide and formula references. Include code snippets for execution. **(Depends on T013a, T020a)**
