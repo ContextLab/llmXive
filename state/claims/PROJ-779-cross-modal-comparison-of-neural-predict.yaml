@@ -5176,3 +5176,473 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-10T01:05:32Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Data must originate from OpenNeuro datasets with no synthetic generation
+  claim_id: c_693982f4
+  context: Task T011 explicitly stating the 'Real Data' assumption in docs/README.md
+    and code/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_must_originate_from_OpenNeuro_datasets_with_no_syntheti
+  kind: entity_fact
+  raw_text: All data must originate from OpenNeuro datasets and no synthetic data
+    generation is permitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:26:29Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: OpenNeuro datasets ds000246 and ds000117 used for auditory and visual
+    modalities
+  claim_id: c_7cabdaf2
+  context: Task T016a references checksums for downloaded raw datasets ds000246 and
+    ds000117.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_datasets_ds000246_and_ds000117_used_for_auditory_a
+  kind: entity_fact
+  raw_text: OpenNeuro datasets ds000246 and ds000117 are used for auditory and visual
+    modalities respectively.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:26:42Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Visual modality mean amplitude computed within 150-350 ms window
+  claim_id: c_b29160fc
+  context: "Task T030 specifies extracting mean amplitude for the visual modality\
+    \ within the 150\u2013350 ms window."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Visual modality mean amplitude is computed within the 150\u2013350 ms\
+    \ window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:26:51Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps spatial smoothing kernel sigma over 5, 10,
+    and 15 mm
+  claim_id: c_e1dbfa9a
+  context: Task T039 defines the sensitivity analysis to sweep spatial smoothing kernel
+    sigma over {5, 10, 15} mm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps spatial smoothing kernel sigma over 5, 10,
+    and 15 mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:27:02Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Latency classification checks if absolute difference is less than 50
+    ms
+  claim_id: c_11624771
+  context: "Task T046 implements latency classification to check |\u0394t| < 50ms."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_classification_checks_if_absolute_difference_is_less
+  kind: magnitude
+  raw_text: Latency classification checks if the absolute difference in latency is
+    less than 50 ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:27:21Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to p-values for latency, amplitude,
+    and source strength
+  claim_id: c_daf95e34
+  context: Task T043b implements Benjamini-Hochberg correction for multiple comparisons
+    on latency, amplitude, and source strength differences.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_p-values_for_latenc
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg correction is applied to p-values for latency, amplitude,
+    and source strength differences.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:27:34Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if sampling rate is less than 500 Hz
+  claim_id: c_ebf9deea
+  context: "Task T017 and T018 specify validation logic to check sampling rate (\u2265\
+    500 Hz) and halt execution if <500 Hz."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_sampling_rate_is_less_than_500_Hz
+  kind: magnitude
+  raw_text: The pipeline must halt if the sampling rate is less than 500 Hz.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:27:48Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Trial count validation requires at least 100 oddball and 300 standard
+    trials
+  claim_id: c_a405439f
+  context: "Task T005 and T017/T018 define trial thresholds as \u2265100 oddball and\
+    \ \u2265300 standard."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trial_count_validation_requires_at_least_100_oddball_and_300
+  kind: magnitude
+  raw_text: Trial count validation requires at least 100 oddball trials and 300 standard
+    trials.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:28:04Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Split-half reliability used as proxy for Validation Independence in passive
+    oddball paradigms
+  claim_id: c_748f071f
+  context: Task T055a documents the substitution of behavioral measures with split-half
+    reliability for passive oddball paradigms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split-half_reliability_used_as_proxy_for_Validation_Independ
+  kind: entity_fact
+  raw_text: Split-half reliability is used as a proxy for Validation Independence
+    (Principle VII) in passive oddball paradigms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:28:18Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: CI pipeline runs on ubuntu-latest with Python 3.11
+  claim_id: c_8179eda6
+  context: 'Task T036a specifies the CI environment as runs-on: ubuntu-latest and
+    python-version: ''3.11''.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The CI pipeline runs on ubuntu-latest with Python version 3.11.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-16T03:28:19Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: All data originates from OpenNeuro datasets; no synthetic data permitted
+  claim_id: c_b8251455
+  context: Task T011 explicitly stating that all data must originate from OpenNeuro
+    datasets and that no synthetic data generation is permitted.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_data_originates_from_OpenNeuro_datasets;_no_synthetic_da
+  kind: entity_fact
+  raw_text: All data must originate from OpenNeuro datasets and no synthetic data
+    generation is permitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:32:36Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if Constitution Amendment on split-half reliability is
+    unratified
+  claim_id: c_ef1e15e6
+  context: Task T055b and T056 state that if the PR is not yet merged/ratified, the
+    pipeline MUST HALT and report a Constitution Violation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_Constitution_Amendment_on_split-half_relia
+  kind: entity_fact
+  raw_text: The pipeline must halt if the Constitution Amendment regarding split-half
+    reliability is not ratified.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:32:57Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Datasets ds000246 and ds000117 used
+  claim_id: c_79d01236
+  context: Task T016a specifies computing SHA256 checksums for downloaded raw datasets
+    ds000246 and ds000117.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_ds000246_and_ds000117_used
+  kind: entity_fact
+  raw_text: Datasets ds000246 and ds000117 are used for the analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:33:12Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Visual modality mean amplitude extracted in 150-350 ms window
+  claim_id: c_8204de2b
+  context: "Task T030 specifies computing mean amplitude for the visual modality within\
+    \ the 150\u2013350 ms window."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The visual modality mean amplitude is extracted within the 150\u2013\
+    350 ms time window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:33:22Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps sigma over 5, 10, 15 mm
+  claim_id: c_971f89a0
+  context: Task T039 specifies implementing a sensitivity analysis to sweep spatial
+    smoothing kernel sigma over {5, 10, 15} mm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the spatial smoothing kernel sigma over
+    5, 10, and 15 mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:33:23Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Source overlap requires TOST p < 0.05 and Dice > 0.6 for equivalence
+  claim_id: c_f4f62210
+  context: Task T047 states that if TOST p < 0.05 AND Dice > 0.6, report 'Equivalence
+    Supported'.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Source_overlap_requires_TOST_p_%3C_0.05_and_Dice_%3E_0.6_for_equ
+  kind: magnitude
+  raw_text: Source overlap logic requires a TOST p-value less than 0.05 and a Dice
+    coefficient greater than 0.6 to report equivalence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:33:36Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Latency classification checks |Delta t| < 50 ms
+  claim_id: c_909fe46a
+  context: "Task T046 specifies checking |\u0394t| < 50ms for latency classification."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_classification_checks_%7CDelta_t%7C_%3C_50_ms
+  kind: magnitude
+  raw_text: Latency classification checks if the absolute difference in latency is
+    less than 50 ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:33:37Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: CI pipeline runs on Ubuntu latest
+  claim_id: c_9a888a2a
+  context: 'Task T036a defines the CI workflow with runs-on: ubuntu-latest.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_pipeline_runs_on_Ubuntu_latest
+  kind: magnitude
+  raw_text: The CI pipeline is configured to run on Ubuntu latest.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:33:55Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_5ada5beb
+  context: 'Task T036a specifies python-version: ''3.11'' in the CI workflow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:34:08Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sampling rate threshold is 500 Hz
+  claim_id: c_1146aba3
+  context: "Task T005 defines a sampling rate threshold of \u2265500 Hz, and T017/T018\
+    \ enforce halting if <500 Hz."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling rate threshold for data validation is 500 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:34:21Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Trial threshold is 100 oddball and 300 standard
+  claim_id: c_02b4cb25
+  context: "Task T005 defines trial thresholds of \u2265100 oddball and \u2265300\
+    \ standard."
+  evidence:
+    candidates:
+    - - Trial threshold is 100 oddball and
+      - 300.0
+    - - Create account Log in Trial threshold is
+      - 100.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Trial_threshold_is_100_oddball_and_300_standard
+  kind: magnitude
+  raw_text: The trial threshold requires at least 100 oddball and 300 standard trials.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-16T03:34:37Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to latency, amplitude, source strength
+    p-values
+  claim_id: c_6cd2f485
+  context: Task T043b specifies calculating Benjamini-Hochberg corrected p-values
+    for latency, amplitude, and source strength differences.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_latency,_amplitude,
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg correction is applied to p-values for latency, amplitude,
+    and source strength differences.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:34:40Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: ICBM standard model used for head model
+  claim_id: c_4bfd4c87
+  context: Task T033 objective mentions verifying lead field matrix shape for the
+    ICBM standard model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ICBM_standard_model_used_for_head_model
+  kind: entity_fact
+  raw_text: The project assumes the use of the ICBM standard model for the head model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:34:59Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: MNE used for source localization
+  claim_id: c_1e7863b5
+  context: Phase 5 goal states to apply MNE for source localization.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P298: MNE'
+      source_id: Q236
+      url: https://www.wikidata.org/wiki/Q236
+      value: MNE
+    filled: true
+  kind: entity_fact
+  raw_text: The project uses MNE for source localization.
+  resolved_value: MNE
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-16T03:35:10Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Split-half reliability and Cronbach alpha used for validation
+  claim_id: c_33ef7949
+  context: "Task T044 specifies implementing split-half reliability (Odd/Even trials)\
+    \ and Cronbach's \u03B1 calculation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split-half_reliability_and_Cronbach_alpha_used_for_validatio
+  kind: entity_fact
+  raw_text: "The project uses split-half reliability (Odd/Even trials) and Cronbach's\
+    \ \u03B1 for validation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T03:35:26Z'

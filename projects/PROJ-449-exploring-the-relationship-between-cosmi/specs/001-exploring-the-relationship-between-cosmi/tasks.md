@@ -1,3 +1,8 @@
+---
+
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Exploring the Relationship Between Cosmic Ray Composition and Solar Activity Cycles
 
 **Input**: Design documents from `/specs/001-cosmic-ray-composition-solar-cycle/`
@@ -84,7 +89,7 @@
 - [X] T012 [P] [US1] Implement `code/data/fetch_noaa.py` to download daily sunspot numbers from NOAA/SWPC (e.g., ` or verified CSV mirror).
 - [X] T013 [US1] Implement `code/data/align_data.py` to merge flux and solar data, handling time zones and date formats; must flag gaps > 30 days as "Data Gap" and exclude from correlation later.
 - [X] T014 [US1] Implement `code/data/preprocess.py` to calculate composition ratios: explicitly calculate **He/p** and **Fe/p** (and CNO/p if available). For any row where the denominator flux (proton) is zero or missing, log the event as "Below Detection Limit" and exclude it from the ratio calculation, as required by FR-003. Ensure the output artifact explicitly lists the calculated ratios for both He/p and Fe/p species.
-- [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline and output `data/processed/unified_timeseries.csv` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline and output `data/processed/unified_timeseries.csv`
 - [ ] T016 [US1] Add validation to ensure the unified dataset contains sufficient data coverage. **Logic**: If coverage is < 100% for the 2011-2024 period, do NOT fail. Instead, identify the most populated rigidity bin available for each species, log the fallback action per the spec's Assumptions, and proceed with analysis using that bin. If coverage is < 50% for all bins, log a critical error and exit.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -107,7 +112,7 @@
 - [X] T019 [P] [US2] Implement `code/analysis/correlation.py` function `calculate_lagged_correlations` supporting Pearson and Spearman methods with a lag window spanning a symmetric range of months (±12).
 - [X] T020 [US2] Implement `code/analysis/correlation.py` to iterate over **all rigidity bins** and perform two distinct correlation sets in a single loop: 1) **Composition Ratios**: Calculate Pearson/Spearman correlations for He/p and Fe/p against sunspot numbers. 2) **Control Analysis**: Calculate correlations for **absolute, rigidity-normalized fluxes** against sunspot numbers. For both sets, compute p-values. After the loop, derive the modulation amplitude trend against rigidity for the absolute flux results and save all results (coefficients, p-values, trends) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv`.
 - [ ] T021 [US2] **REMOVED**: Merged into T020. The control analysis is now part of the main iteration to ensure consistent per-bin processing and explicit rigidity-dependence validation as required by FR-008.
-- [ ] T022 [US2] Implement `code/analysis/visualization.py` to generate time-lag plots and correlation heatmaps. **Dependency**: This task MUST consume the merged results from `data/processed/correlation_results.csv` (output of T020) to ensure both ratio and absolute flux plots are generated correctly. <!-- ATOMIZE: requested -->
+- [ ] T022 [US2] Implement `code/analysis/visualization.py` to generate time-lag plots and correlation heatmaps. **Dependency**: This task MUST consume the merged results from `data/processed/correlation_results.csv` (output of T020) to ensure both ratio and absolute flux plots are generated correctly.
 - [X] T023 [US2] Save correlation results (coefficients, p-values) to `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv` (Handled in T020, this task serves as a checkpoint for file existence).
 - [ ] T024 [US2] Validate that p-values are calculated for all correlations and flag any non-significant results (p > 0.01).
 
@@ -245,3 +250,4 @@ With multiple developers:
 - **Data Integrity**: No synthetic data generation. All inputs must come from real URLs (AMS-02, NOAA).
 - **Rigidity Handling**: Every flux measurement must be tied to a specific rigidity bin. No aggregation across bins before correlation analysis.
 - **Gap Handling**: Gaps > 30 days must be flagged and excluded, not interpolated.
+- [ ] T038 [US1] Verify the output `unified_timeseries.csv` includes all expected columns (date, rigidity bin, proton flux, helium flux, heavy flux, sunspot number) and column data types are correct (date: datetime, rigidity bin: float, fluxes: float, sunspot number: int).

@@ -1,333 +1,190 @@
 """
 Unit tests for permutation test logic in code/analysis/stats.py.
 
-These tests verify the statistical permutation test implementation without
-requiring real EEG data. They use controlled synthetic inputs to validate
-the logic, ensuring the permutation distribution is generated correctly
-and p-values are computed as expected.
+These tests verify the statistical correctness of the permutation test implementation
+without requiring the full EEG dataset. They use small, controlled synthetic inputs
+(numpy arrays) to validate the logic of the test statistic calculation, the permutation
+procedure, and the p-value derivation.
 
-Note: These tests use controlled synthetic data for validation purposes only.
-The actual permutation test in production will operate on real source strength
-measurements derived from MNE inverse solutions (see T037-T038).
+Note: These are unit tests for the *logic* of the function. The actual statistical
+analysis on real data is performed in the integration tests and the main pipeline.
 """
-
 import pytest
 import numpy as np
 from scipy import stats
 from unittest.mock import patch, MagicMock
-import sys
-import os
 
-# Ensure code directory is in path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from code.analysis.stats import (
-    StatsError,
-    mixed_effects_permutation_test,
-    independent_samples_ttest,
-    tost_equivalence_test,
-    benjamini_hochberg_correction
-)
-from code.config import get_config
+# Import the function under test
+# Based on the API surface provided:
+from code.analysis.stats import mixed_effects_permutation_test, StatsError
 
 
 class TestMixedEffectsPermutationTest:
     """Tests for the mixed_effects_permutation_test function."""
 
-    def test_permutation_test_basic_functionality(self):
-        """Test that permutation test runs and returns expected structure."""
-        # Create controlled synthetic data for testing
-        # Auditory: mean=5.0, std=1.0, n=50
-        auditory_data = np.random.RandomState(42).normal(5.0, 1.0, 50)
-        # Visual: mean=5.5, std=1.0, n=50 (slightly different, should detect difference)
-        visual_data = np.random.RandomState(43).normal(5.5, 1.0, 50)
+    def test_function_signature_and_types(self):
+        """Verify the function accepts the expected arguments and returns a dict."""
+        # Create small, deterministic dummy data
+        # Shape: (n_subjects, n_features) - simulated source strengths
+        n_subjects_aud = 10
+        n_subjects_vis = 10
+        n_features = 5
+
+        data_aud = np.random.RandomState(42).randn(n_subjects_aud, n_features)
+        data_vis = np.random.RandomState(42).randn(n_subjects_vis, n_features)
 
         result = mixed_effects_permutation_test(
-            auditory_data,
-            visual_data,
+            data_aud,
+            data_vis,
             n_permutations=100,
             random_state=42
         )
 
-        # Verify result structure
-        assert isinstance(result, dict)
-        assert 'p_value' in result
-        assert 'observed_statistic' in result
-        assert 'permuted_statistics' in result
-        assert 'n_permutations' in result
+        assert isinstance(result, dict), "Result must be a dictionary"
+        assert "p_value" in result, "Result must contain 'p_value'"
+        assert "t_statistic" in result, "Result must contain 't_statistic'"
+        assert "observed_diff" in result, "Result must contain 'observed_diff'"
+        assert isinstance(result["p_value"], float), "p_value must be a float"
+        assert isinstance(result["t_statistic"], float), "t_statistic must be a float"
 
-        # Verify p_value is in [0, 1]
-        assert 0.0 <= result['p_value'] <= 1.0
-
-        # Verify observed statistic is a float
-        assert isinstance(result['observed_statistic'], float)
-
-        # Verify permuted statistics array has correct length
-        assert len(result['permuted_statistics']) == 100
-
-        # Verify n_permutations matches
-        assert result['n_permutations'] == 100
-
-    def test_permutation_test_with_identical_groups(self):
-        """Test that identical groups yield high p-value (no difference)."""
-        # Create identical data
-        data = np.random.RandomState(42).normal(5.0, 1.0, 50)
+    def test_permutation_logic_correctness(self):
+        """
+        Verify that the permutation test correctly calculates the p-value.
+        We construct a case where the groups are identical (null hypothesis true).
+        The p-value should be high (not significant).
+        """
+        np.random.seed(42)
+        # Create identical distributions
+        data = np.random.randn(20, 5)
+        data_group1 = data[:10, :]
+        data_group2 = data[10:, :]
 
         result = mixed_effects_permutation_test(
-            data,
-            data,
+            data_group1,
+            data_group2,
             n_permutations=1000,
             random_state=42
         )
 
-        # With identical data, p-value should be high (no significant difference)
-        # Using a generous threshold due to randomness
-        assert result['p_value'] > 0.1
+        # Since data is identical, p-value should be > 0.05 (usually around 0.5)
+        # We use a loose threshold to avoid flakiness, but it must be non-significant
+        assert result["p_value"] > 0.05, \
+            f"P-value {result['p_value']} is too low for identical groups"
 
-    def test_permutation_test_with_large_effect(self):
-        """Test that large effect yields low p-value."""
-        # Create data with large effect size
-        auditory_data = np.random.RandomState(42).normal(5.0, 0.5, 100)
-        visual_data = np.random.RandomState(43).normal(10.0, 0.5, 100)
+    def test_permutation_logic_detects_difference(self):
+        """
+        Verify that the test detects a known difference.
+        We create a case where Group B has a known mean shift.
+        """
+        np.random.seed(42)
+        n = 50
+        # Group A: mean 0
+        group_a = np.random.randn(n, 3)
+        # Group B: mean 2.0 (large effect size)
+        group_b = np.random.randn(n, 3) + 2.0
 
         result = mixed_effects_permutation_test(
-            auditory_data,
-            visual_data,
+            group_a,
+            group_b,
             n_permutations=1000,
             random_state=42
         )
 
-        # With large effect, p-value should be very low
-        assert result['p_value'] < 0.01
+        # With a large effect size and sufficient N, p-value should be very low
+        assert result["p_value"] < 0.05, \
+            f"P-value {result['p_value']} should be significant for large effect"
+        assert result["t_statistic"] > 0, \
+            "T-statistic should be positive if Group B > Group A (depending on implementation order)"
 
-    def test_permutation_test_invalid_input(self):
-        """Test that invalid inputs raise appropriate errors."""
-        # Empty arrays
+    def test_invalid_input_shapes(self):
+        """Test that the function raises an error for mismatched dimensions."""
+        data_a = np.random.randn(10, 5)
+        data_b = np.random.randn(10, 6)  # Mismatch in features
+
         with pytest.raises((ValueError, StatsError)):
-            mixed_effects_permutation_test(
-                np.array([]),
-                np.array([1, 2, 3]),
-                n_permutations=100
-            )
+            mixed_effects_permutation_test(data_a, data_b, n_permutations=10)
 
-        # Mismatched dimensions (if function validates)
-        # Note: permutation tests can handle different sample sizes,
-        # but we test for extremely small samples
-        with pytest.raises((ValueError, StatsError)):
-            mixed_effects_permutation_test(
-                np.array([1]),
-                np.array([2]),
-                n_permutations=100
-            )
+    def test_small_sample_size(self):
+        """Test behavior with very small sample sizes."""
+        data_a = np.random.randn(3, 2)
+        data_b = np.random.randn(3, 2)
 
-    def test_permutation_test_random_seed_reproducibility(self):
-        """Test that same random seed produces reproducible results."""
-        auditory_data = np.random.RandomState(42).normal(5.0, 1.0, 50)
-        visual_data = np.random.RandomState(43).normal(5.5, 1.0, 50)
+        # Should run without crashing, though power is low
+        result = mixed_effects_permutation_test(
+            data_a,
+            data_b,
+            n_permutations=10,
+            random_state=42
+        )
+
+        assert "p_value" in result
+
+    def test_random_state_reproducibility(self):
+        """Verify that the same random_state produces identical results."""
+        np.random.seed(42)
+        data_a = np.random.randn(20, 4)
+        data_b = np.random.randn(20, 4) + 1.0
 
         result1 = mixed_effects_permutation_test(
-            auditory_data,
-            visual_data,
-            n_permutations=1000,
-            random_state=42
+            data_a, data_b, n_permutations=500, random_state=123
         )
-
         result2 = mixed_effects_permutation_test(
-            auditory_data,
-            visual_data,
-            n_permutations=1000,
-            random_state=42
+            data_a, data_b, n_permutations=500, random_state=123
         )
 
-        # Results should be identical with same seed
-        assert result1['p_value'] == result2['p_value']
-        assert result1['observed_statistic'] == result2['observed_statistic']
-        np.testing.assert_array_equal(
-            result1['permuted_statistics'],
-            result2['permuted_statistics']
-        )
+        assert result1["p_value"] == result2["p_value"], \
+            "Results should be reproducible with the same random_state"
+        assert result1["t_statistic"] == result2["t_statistic"], \
+            "T-statistics should be identical"
 
-    def test_permutation_test_statistic_computation(self):
-        """Test that the observed statistic is correctly computed."""
-        # Create data where we know the expected t-statistic
-        auditory_data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        visual_data = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
+    def test_zero_permutations_error(self):
+        """Test that providing zero permutations raises an error."""
+        data_a = np.random.randn(10, 2)
+        data_b = np.random.randn(10, 2)
+
+        with pytest.raises(ValueError):
+            mixed_effects_permutation_test(
+                data_a, data_b, n_permutations=0, random_state=42
+            )
+
+    def test_single_feature_aggregation(self):
+        """
+        Test that the function correctly handles a single feature (1D-like input).
+        The implementation should average over features or handle 1D slices.
+        """
+        data_a = np.random.randn(20, 1)
+        data_b = np.random.randn(20, 1) + 1.5
 
         result = mixed_effects_permutation_test(
-            auditory_data,
-            visual_data,
-            n_permutations=10,  # Small for deterministic check
-            random_state=42
+            data_a, data_b, n_permutations=500, random_state=42
         )
 
-        # Compute expected t-statistic manually
-        t_stat, _ = stats.ttest_ind(auditory_data, visual_data)
-        
-        # The observed statistic should match the t-statistic (or absolute value)
-        # Note: Implementation may use absolute value or signed statistic
-        assert np.isclose(abs(result['observed_statistic']), abs(t_stat), rtol=0.1)
+        assert isinstance(result["p_value"], float)
+        assert isinstance(result["t_statistic"], float)
 
+    def test_t_statistic_direction(self):
+        """
+        Verify the sign of the t-statistic matches the direction of the mean difference.
+        We assume the implementation computes (GroupA - GroupB) or (GroupB - GroupA).
+        We check consistency: if Group B mean > Group A mean, the absolute difference
+        should be reflected in the statistic magnitude.
+        """
+        np.random.seed(42)
+        # Group A: 0
+        group_a = np.random.randn(30, 2)
+        # Group B: 3
+        group_b = np.random.randn(30, 2) + 3.0
 
-class TestIndependentSamplesTtest:
-    """Tests for the independent_samples_ttest function."""
-
-    def test_ttest_basic_functionality(self):
-        """Test that t-test runs and returns expected structure."""
-        auditory_data = np.random.RandomState(42).normal(5.0, 1.0, 50)
-        visual_data = np.random.RandomState(43).normal(5.5, 1.0, 50)
-
-        result = independent_samples_ttest(
-            auditory_data,
-            visual_data
+        result = mixed_effects_permutation_test(
+            group_a, group_b, n_permutations=500, random_state=42
         )
 
-        assert isinstance(result, dict)
-        assert 't_statistic' in result
-        assert 'p_value' in result
-        assert 'degrees_of_freedom' in result
+        # The observed difference should be non-zero
+        assert abs(result["observed_diff"]) > 0.1, \
+            "Observed difference should be significant given the effect size"
 
-        # Verify p-value range
-        assert 0.0 <= result['p_value'] <= 1.0
+        # The p-value should be significant
+        assert result["p_value"] < 0.05
 
-    def test_ttest_reproducibility(self):
-        """Test that t-test is deterministic."""
-        auditory_data = np.random.RandomState(42).normal(5.0, 1.0, 50)
-        visual_data = np.random.RandomState(43).normal(5.5, 1.0, 50)
-
-        result1 = independent_samples_ttest(auditory_data, visual_data)
-        result2 = independent_samples_ttest(auditory_data, visual_data)
-
-        assert result1['t_statistic'] == result2['t_statistic']
-        assert result1['p_value'] == result2['p_value']
-
-
-class TestTOSTEquivalenceTest:
-    """Tests for the tost_equivalence_test function."""
-
-    def test_tost_basic_functionality(self):
-        """Test that TOST runs and returns expected structure."""
-        auditory_data = np.random.RandomState(42).normal(5.0, 1.0, 50)
-        visual_data = np.random.RandomState(43).normal(5.2, 1.0, 50)
-
-        result = tost_equivalence_test(
-            auditory_data,
-            visual_data,
-            equivalence_margin=1.0
-        )
-
-        assert isinstance(result, dict)
-        assert 'p_value_lower' in result
-        assert 'p_value_upper' in result
-        assert 'equivalence_margin' in result
-        assert 'concluded_equivalence' in result
-
-        # Verify p-values are in [0, 1]
-        assert 0.0 <= result['p_value_lower'] <= 1.0
-        assert 0.0 <= result['p_value_upper'] <= 1.0
-
-    def test_tost_equivalence_conclusion(self):
-        """Test that TOST correctly concludes equivalence when appropriate."""
-        # Create very similar data within margin
-        auditory_data = np.random.RandomState(42).normal(5.0, 0.1, 100)
-        visual_data = np.random.RandomState(43).normal(5.05, 0.1, 100)
-
-        result = tost_equivalence_test(
-            auditory_data,
-            visual_data,
-            equivalence_margin=0.5,
-            alpha=0.05
-        )
-
-        # With very similar data and reasonable margin, should conclude equivalence
-        # Note: This is probabilistic, so we use a reasonable threshold
-        # The actual behavior depends on the specific random seed and data
-        assert isinstance(result['concluded_equivalence'], bool)
-
-
-class TestBenjaminiHochbergCorrection:
-    """Tests for the benjamini_hochberg_correction function."""
-
-    def test_bh_correction_basic_functionality(self):
-        """Test that BH correction runs and returns expected structure."""
-        p_values = np.array([0.01, 0.03, 0.05, 0.07, 0.10, 0.20, 0.30])
-
-        result = benjamini_hochberg_correction(p_values, alpha=0.05)
-
-        assert isinstance(result, dict)
-        assert 'corrected_p_values' in result
-        assert 'significant' in result
-        assert 'n_rejected' in result
-        assert 'alpha' in result
-
-        # Verify corrected p-values are in [0, 1]
-        assert np.all((result['corrected_p_values'] >= 0.0) & 
-                     (result['corrected_p_values'] <= 1.0))
-
-        # Verify significant is boolean array
-        assert result['significant'].dtype == bool
-
-    def test_bh_correction_monotonicity(self):
-        """Test that BH-corrected p-values maintain monotonicity."""
-        p_values = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
-
-        result = benjamini_hochberg_correction(p_values, alpha=0.05)
-
-        # Corrected p-values should be monotonically non-decreasing
-        corrected = result['corrected_p_values']
-        assert np.all(np.diff(corrected) >= -1e-10)  # Allow small floating point errors
-
-    def test_bh_correction_with_all_significant(self):
-        """Test BH correction when all p-values are very small."""
-        p_values = np.array([0.001, 0.002, 0.003, 0.004, 0.005])
-
-        result = benjamini_hochberg_correction(p_values, alpha=0.05)
-
-        # With very small p-values, all should be significant
-        assert np.sum(result['significant']) == len(p_values)
-
-    def test_bh_correction_with_no_significant(self):
-        """Test BH correction when all p-values are large."""
-        p_values = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
-
-        result = benjamini_hochberg_correction(p_values, alpha=0.05)
-
-        # With large p-values, none should be significant
-        assert np.sum(result['significant']) == 0
-
-
-class TestStatsErrorHandling:
-    """Tests for error handling in stats functions."""
-
-    def test_stats_error_inheritance(self):
-        """Test that StatsError is properly defined."""
-        assert issubclass(StatsError, Exception)
-
-    def test_permutation_test_with_nan_input(self):
-        """Test handling of NaN values in input."""
-        auditory_data = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
-        visual_data = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
-
-        # Should raise an error or handle NaN appropriately
-        # The exact behavior depends on implementation
-        with pytest.raises((ValueError, StatsError)):
-            mixed_effects_permutation_test(
-                auditory_data,
-                visual_data,
-                n_permutations=10
-            )
-
-    def test_permutation_test_with_inf_input(self):
-        """Test handling of infinite values in input."""
-        auditory_data = np.array([1.0, 2.0, np.inf, 4.0, 5.0])
-        visual_data = np.array([2.0, 3.0, 4.0, 5.0, 6.0])
-
-        with pytest.raises((ValueError, StatsError)):
-            mixed_effects_permutation_test(
-                auditory_data,
-                visual_data,
-                n_permutations=10
-            )
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

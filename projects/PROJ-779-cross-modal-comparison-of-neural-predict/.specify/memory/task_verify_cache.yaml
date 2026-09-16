@@ -12,6 +12,22 @@ T030:
     \ showing no implementation that writes `data/results/metrics_summary.json`. Moreover,\
     \ the required JSON output file does not exist. The task\u2019s extraction logic\
     \ and output generation are therefore not satisfied."
+T032:
+  c: false
+  h: aafe82a490cf078f72b134819e93abae99949d9a20b7c3caf22c0b729ce77859
+  r: The repository lacks the required `data/processed/cleaned_data.fif` input file
+    and the expected `data/results/metrics_summary.json` output file, so the pipeline
+    cannot be verified. Moreover, the shown portion of `code/main.py` does not demonstrate
+    that it calls the extraction step after preprocessing (no invocation of `run_metrics_extraction`
+    or `extract_mean_amplitude` is visible). These missing artifacts and absent logic
+    mean the task requirements are not met.
+T036b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, runtime measurements, or exit\u2011code evidence for `main.py`\
+    \ are present, and the required artifact (a CI\u2011style run confirming exit\
+    \ code\u202F0 and <\u202F6\u202Fh runtime) is missing. The implementer has not\
+    \ provided any proof that the verification was performed."
 T039:
   c: false
   h: ed71639131a713959a0e65f5bca3fa0a64c05a1f22b617bd62e389ab4afb0402

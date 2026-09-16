@@ -93,9 +93,9 @@
 - [X] T016a [US1] **Generate Checksums**: Implement `code/data/checksums.py` to compute SHA256 checksums for downloaded raw datasets (ds000246, ds000117) and **write them immediately** to `state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml` under `artifact_hashes`. **Schema**: `artifact_hashes: { ds000246: "sha256...", ds000117: "sha256..." }`. **Logic**: Read existing YAML, update keys, write back. **Verification**: Verify `state/...yaml` contains valid checksums for both datasets. **Depends on**: Completion of T015 and T016 (download tasks).
 - [X] T017 [US1] Implement `code/data/download_auditory.py` validation logic for Auditory: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); **if validation fails, HALT the pipeline immediately** and raise a `DataValidationError` with specific error codes (FR-008, FR-009, FR-011). **Crucially, this HALT mechanism must prevent any downstream tasks (T019-T022) from executing on invalid data.** **Depends on T015.**
 - [X] T018 [US1] Implement `code/data/download_visual.py` validation logic for Visual: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard) for ds000117; **if validation fails, HALT the pipeline immediately** and raise a `DataValidationError` with specific error codes (FR-008, FR-009, FR-011). **Crucially, this HALT mechanism must prevent any downstream tasks (T019-T022) from executing on invalid data.** **Depends on T016.**
-- [ ] T019a [US1] **Define Filter Parameters**: Define bandpass filter parameters (FIR/IIR, order, low-frequency cutoff) in `code/config.py` as `BANDPASS_FILTER_PARAMS`. **Verification**: Verify `code/config.py` contains the dict.
+- [X] T019a [US1] **Define Filter Parameters**: Define bandpass filter parameters (FIR/IIR, order, low-frequency cutoff) in `code/config.py` as `BANDPASS_FILTER_PARAMS`. **Verification**: Verify `code/config.py` contains the dict.
 - [X] T019b [US1] **Implement Bandpass Filter**: Implement `code/data/preprocess.py` bandpass filter using defined parameters from T019a. **Depends on T019a.**
-- [ ] T020a [US1] **Define ICA Criteria**: Define ICA component rejection criteria (e.g., correlation with EOG) in `code/config.py` as `ICA_REJECTION_CRITERIA`. **Verification**: Verify `code/config.py` contains the dict.
+- [X] T020a [US1] **Define ICA Criteria**: Define ICA component rejection criteria (e.g., correlation with EOG) in `code/config.py` as `ICA_REJECTION_CRITERIA`. **Verification**: Verify `code/config.py` contains the dict.
 - [X] T020b [US1] **Implement ICA**: Implement `code/data/preprocess.py` ICA artifact removal using defined criteria from T020a. **Depends on T020a.**
 - [X] T021 [US1] Implement `code/data/preprocess.py` common average re-referencing. **Depends on T020b.**
 - [X] T022 [US1] **Save Cleaned Data**: Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logs. **Logic**: Re-validate sampling rate (≥500 Hz) **immediately before saving**; if <500 Hz, **raise `DataFetchError` and HALT**. **Verification**: Verify file `data/processed/cleaned_data.fif` exists and is >0 bytes; verify log file contains rejection count. **Depends on T021.**
@@ -121,9 +121,9 @@
 - [X] T027 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves (Oddball - Standard) at fronto-central electrodes (Auditory). **Depends on T022 (Cleaned Data Artifact).**
 - [X] T028 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves at occipito-parietal electrodes (Visual). **Depends on T022 (Cleaned Data Artifact).**
 - [X] T029 [P] [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities). **Depends on T022.**
-- [ ] T030 [US2] **Extract Mean Amplitude**: Implement `code/analysis/metrics.py::extract_mean_amplitude` to compute mean amplitude for the **visual modality** within the **150–350 ms** window (FR-004). **Output**: Write to `data/results/metrics_summary.json`. **Schema**: `{"auditory": {"peak_latency_ms": float, "mean_amplitude_uV": float}, "visual": {"peak_latency_ms": float, "mean_amplitude_uV": float}}`. **Verification**: Verify file exists, contains valid JSON with required keys, and that the extraction logic explicitly uses the 150–350 ms window. **Depends on T022.**
+- [ ] T030 [US2] **Extract Mean Amplitude**: Implement `code/analysis/metrics.py::extract_mean_amplitude` to compute mean amplitude for the **visual modality** within the **150–350 ms** window (FR-004). **Output**: Write to `data/results/metrics_summary.json`. **Schema**: `{"auditory": {"peak_latency_ms": float, "mean_amplitude_uV": float}, "visual": {"peak_latency_ms": float, "mean_amplitude_uV": float}}`. **Verification**: Verify file exists, contains valid JSON with required keys, and that the extraction logic explicitly uses the 150–350 ms window. **Depends on T022.** <!-- ATOMIZE: requested -->
 - [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels. **Depends on T030.**
-- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing. **Input**: `data/processed/cleaned_data.fif`. **Output**: `data/results/metrics_summary.json`. **Logic**: Wire functions from T027-T031 into the pipeline. **Specifically, call `extract_mean_amplitude` with a defined time window for auditory data and a corresponding time window for visual data.** **Verification**: Run `main.py` and verify `metrics_summary.json` exists with valid data (or script halts with error if data missing). **Depends on Implementation of T027-T031.**
+- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing. **Input**: `data/processed/cleaned_data.fif`. **Output**: `data/results/metrics_summary.json`. **Logic**: Wire functions from T027-T031 into the pipeline. **Specifically, call `extract_mean_amplitude` with a defined time window for auditory data and a corresponding time window for visual data.** **Verification**: Run `main.py` and verify `metrics_summary.json` exists with valid data (or script halts with error if data missing). **Depends on Implementation of T027-T031.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -131,14 +131,14 @@
 
 ## Phase 5: User Story 3 - Source Localization, Statistical Comparison, and Infrastructure Validation (Priority: P3)
 
-**Goal**: Apply MNE for source localization, perform statistical comparison (permutation tests, TOST, t-test), validate reliability (split-half), and ensure end-to-end CI feasibility.
+**Goal**: Apply MNE (Wikidata Q236, https://www.wikidata.org/wiki/Q236) for source localization, perform statistical comparison (permutation tests, TOST, t-test), validate reliability (split-half), and ensure end-to-end CI feasibility.
 
 **Independent Test**: Run full pipeline on GitHub Actions free-tier (limited CPU, GB RAM); verify exit code 0 within 6 hours, source maps generated, and statistical decisions reported.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T033 [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py`. **Objective**: Verify lead field matrix shape and non-zero values for the ICBM standard model.
-- [ ] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
+- [X] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
 - [X] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
 - [X] T036a [US3] CI Integration: Create `.github/workflows/ci.yml` from scratch. **Workflow Definition**:
  ```yaml
@@ -162,7 +162,7 @@
  CI: true
  ```
  **Depends on**: T035.
-- [ ] T036b [US3] CI Verification: Run `main.py` locally or in a simulated CI environment to verify exit code 0 and runtime < 6h. **Verification**: Check logs for resource usage and exit code. **Depends on T036a.**
+- [ ] T036b [US3] CI Verification: Run `main.py` locally or in a simulated CI environment to verify exit code 0 and runtime < 6h. **Verification**: Check logs for resource usage and exit code. **Depends on T036a.** <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 3
 

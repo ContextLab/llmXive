@@ -38,6 +38,7 @@ AUDITORY_TIME_WINDOW = (0.050, 0.250)  # 50-250ms for MMN
 VISUAL_TIME_WINDOW = (0.150, 0.350)    # 150-350ms for VMM
 
 # Filter Parameters
+# Defined for T019a: Bandpass filter parameters for preprocessing
 BANDPASS_FILTER_PARAMS = {
     "low_cut": 0.1,
     "high_cut": 40.0,
@@ -46,10 +47,12 @@ BANDPASS_FILTER_PARAMS = {
 }
 
 # ICA Parameters
+# Defined for T020a: ICA component rejection criteria
 ICA_REJECTION_CRITERIA = {
     "method": "correlation",
     "eog_channels": ["EOG061", "EOG062"],
-    "threshold": 0.95
+    "threshold": 0.95,
+    "description": "Reject components with correlation > threshold with EOG channels"
 }
 
 # Random Seed for reproducibility

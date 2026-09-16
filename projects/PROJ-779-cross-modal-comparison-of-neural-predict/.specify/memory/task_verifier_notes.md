@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T030** — The provided `metrics.py` defines an incorrect visual time window (‑400 ms to ‑300 ms instead of 150–350 ms) and the file is truncated, showing no implementation that writes `data/results/metrics_summary.json`. Moreover, the required JSON output file does not exist. The task’s extraction logic and output generation are therefore not satisfied.
+- **T032** — The repository lacks the required `data/processed/cleaned_data.fif` input file and the expected `data/results/metrics_summary.json` output file, so the pipeline cannot be verified. Moreover, the shown portion of `code/main.py` does not demonstrate that it calls the extraction step after preprocessing (no invocation of `run_metrics_extraction` or `extract_mean_amplitude` is visible). These missing artifacts and absent logic mean the task requirements are not met.
+- **T036b** — No execution logs, runtime measurements, or exit‑code evidence for `main.py` are present, and the required artifact (a CI‑style run confirming exit code 0 and < 6 h runtime) is missing. The implementer has not provided any proof that the verification was performed.
