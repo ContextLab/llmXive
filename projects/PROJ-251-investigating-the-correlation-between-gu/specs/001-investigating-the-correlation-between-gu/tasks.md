@@ -31,7 +31,7 @@ description: "Task list template for feature implementation"
 - [ ] T010 [US1] [SC-001] **NCBI SRA Search & Verification**.
  - *Input*: Research question.
  - *Action*: Search for open-access SRA studies with paired 16S and Influenza serology using the NCBI E-utilities API. Use the specific search query: `"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"`. Verify the dataset contains all required variables (baseline taxa, post-vaccination titers).
- - *Output*:
+ - *Output*: 
  - **If Found**: Set `config.SRA_ACCESSION` and write `data/research/sra_search_results.json` with the accession ID and URL. Write `data/research/sra_status.json` with `{"status": "real_data_found", "use_synthetic": false, "accession": "..."}`.
  - **If Not Found**: Set `config.USE_SYNTHETIC_DATA = True`, write `data/research/sra_search_results.json` with status "No Real Data Found", **AND write `data/research/sra_status.json` with `{"status": "no_real_data", "use_synthetic": true}`**. **This is a blocking gate for biological claims**.
  - *Verification*:
@@ -172,7 +172,7 @@ description: "Task list template for feature implementation"
  - **Exit with code 1**. **NO DOWNSTREAM TASKS RUN**.
  - **If N >= 50**: Proceed.
  - **If N < 50 AND `config.USE_SYNTHETIC_DATA` is True**: Proceed (Synthetic data is valid for code validation).
- 6. **Output**: Write the final filtered dataset to `data/processed/cleared.csv` (initial state: only merged data, no transformations yet).
+ 6. **Output**: Write the final filtered dataset to `data/processed/cleared.csv`.
  - **Documentation**: **Immediately write** a section to `data/results/assumptions.md` documenting the LOD handling choice (impute as 0.5 * LOD) and the sample size outcome.
  - *Output*: `data/processed/cleared.csv`.
  - *Verification*:
@@ -305,7 +305,7 @@ description: "Task list template for feature implementation"
  1. Calculates **Spearman Rank Correlation** between each taxon in `train_X` and `train_y` **strictly within the training fold**.
  2. Applies **BH correction** to these training-fold p-values.
  3. Selects taxa with $p_{adj} < 0.05$.
- 4. **Fallback**: If no taxa are significant, use the **variance-filtered set** from `data/results/variance_filtered_taxa.json` (intersected with `train_X` columns).
+ 4. **Fallback**: If no taxa are significant, use the **entire variance-filtered set** (from T032a).
  5. **Isolation**: Explicitly ensure that this function does NOT read `data/results/correlation_results.json` (global results) to prevent data leakage.
  - *Output*: `code/04_modeling.py` (updated with `select_features_inner_loop` function).
  - *Note*: This ensures feature selection is isolated and prevents data leakage. **MUST use Spearman as primary method**. This function is called dynamically inside the T034d loop for each new label set.
