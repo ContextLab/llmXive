@@ -702,3 +702,112 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-10T07:37:46Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: Mean Absolute Error is 0.5 kcal/mol
+  claim_id: c_ba5ec77c
+  context: MAE Confidence Interval (95%) section reporting error metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAE: 0.5 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:30:16Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% confidence interval lower bound for MAE is 0.3 kcal/mol
+  claim_id: c_1f6a0852
+  context: MAE Confidence Interval (95%) section reporting error metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lower Bound: 0.3 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:30:32Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/benchmark_report.md
+  attempts: 1
+  canonical: 95% confidence interval upper bound for MAE is 0.7 kcal/mol
+  claim_id: c_47bbfa59
+  context: MAE Confidence Interval (95%) section reporting error metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Upper Bound: 0.7 kcal/mol'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:30:49Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation coefficient between D3 dispersion and bulk density
+    is 0.6
+  claim_id: c_62e9cc48
+  context: Correlation between D3 Dispersion and Bulk Density
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation Coefficient: 0.6'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:31:18Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval for Pearson correlation between D3 dispersion
+    and bulk density is [0.4, 0.8]
+  claim_id: c_8efa97b8
+  context: Correlation between D3 Dispersion and Bulk Density
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [0.4, 0.8]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:31:18Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: Pearson correlation coefficient between D3 dispersion and viscosity is
+    0.2
+  claim_id: c_d8aaed3a
+  context: Correlation between D3 Dispersion and Viscosity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson Correlation Coefficient: 0.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:31:18Z'
+- artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/docs/correlation_report.md
+  attempts: 1
+  canonical: 95% confidence interval for Pearson correlation between D3 dispersion
+    and viscosity is [-0.1, 0.5]
+  claim_id: c_fe8fd995
+  context: Correlation between D3 Dispersion and Viscosity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '95% Confidence Interval: [-0.1, 0.5]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T07:31:18Z'

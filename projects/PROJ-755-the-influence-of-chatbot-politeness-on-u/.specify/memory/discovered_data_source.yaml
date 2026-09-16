@@ -1,13 +1,13 @@
 status: none
-intent: ParlAI Persona-Chat EmpatheticDialogues official download python package dataset
+intent: download Persona-Chat and EmpatheticDialogues datasets python package dataset
 required_fields:
-- conversation_id
-- utterance_index
-- speaker_id
-- utterance_text
+- dialogue_id
+- utterance_id
+- speaker
+- text
 - persona_profile
 - emotion_label
-- metadata_complete
-cache_key: 4c0de8e8fbf4ffec4db7b11f2cea2c1a5847ea7e8fa7e199ab030b08b535d664
-searched_at: '2026-09-04T21:31:28.047310+00:00'
+- conversation_history
+cache_key: 8c9ccc2599f2657df3e07351acf4d81b225e8a60db08e3f5b9c50ce3b4a9312a
+searched_at: '2026-09-16T07:45:09.562487+00:00'
 retry_count: 1

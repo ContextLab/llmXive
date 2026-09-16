@@ -1,0 +1,24 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+description: Schema for the results of the Cumulative Link Mixed-Effects Model (CLMM).
+properties:
+  politeness_coefficient:
+    type: number
+    format: float
+    description: Fixed-effect coefficient for politeness.
+  politeness_p_value:
+    type: number
+    format: float
+    description: P-value for the politeness coefficient.
+  conversation_length_coefficient:
+    type: number
+    format: float
+    description: Fixed-effect coefficient for conversation length.
+  conversation_length_p_value:
+    type: number
+    format: float
+    description: P-value for the conversation length coefficient.
+  user_id_variance:
+    type: number
+    format: float
+    description: Variance component for user-level random effects.

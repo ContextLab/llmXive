@@ -1,35 +1,38 @@
 import os
 from pathlib import Path
+from logger import get_logger, info, error
+
+logger = get_logger(__name__)
 
 def main():
     """
-    Create required project directories: data/raw/, data/derived/, code/, tests/.
-    This script ensures the directory structure exists for the llmXive pipeline.
+    Create the required directory structure for the project.
+    This is a foundational task to ensure data/raw, data/derived, docs, and figures exist.
     """
-    # Define relative paths based on project root
-    directories = [
-        "data/raw",
-        "data/derived",
-        "code",
-        "tests"
+    project_root = Path(__file__).parent.parent
+    
+    required_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "derived",
+        project_root / "figures",
+        project_root / "docs",
+        project_root / "code",
+        project_root / "tests",
     ]
-
-    for dir_path in directories:
-        path = Path(dir_path)
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {path}")
-        else:
-            print(f"Directory already exists: {path}")
-
-    # Verify creation by listing contents
-    print("\nVerification of created directories:")
-    for dir_path in directories:
-        path = Path(dir_path)
-        if path.exists():
-            print(f"  [OK] {path}")
-        else:
-            print(f"  [FAIL] {path} was not created")
+    
+    created_count = 0
+    for dir_path in required_dirs:
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            info(f"Directory ensured: {dir_path}")
+            created_count += 1
+        except Exception as e:
+            error(f"Failed to create directory {dir_path}: {e}")
+    
+    if created_count == len(required_dirs):
+        info(f"Successfully ensured {created_count} directories.")
+    else:
+        error(f"Only {created_count}/{len(required_dirs)} directories created successfully.")
 
 if __name__ == "__main__":
     main()

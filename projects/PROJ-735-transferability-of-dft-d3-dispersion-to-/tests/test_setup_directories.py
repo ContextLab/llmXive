@@ -1,51 +1,65 @@
 import os
-import pytest
-from pathlib import Path
 import shutil
+import tempfile
+from pathlib import Path
+import pytest
 
-# Import the function to test
+# We need to import the function from the code module
+# Since we are running tests, we adjust the path to include the code directory
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from code.setup_directories import main
+from pathlib import Path
 
-def test_directories_created(tmp_path):
-    """
-    Verify that setup_directories creates the required directories.
-    We run the script in a temporary directory context to avoid polluting
-    the real project root during unit testing, but we assert the logic works.
-    
-    Note: Since the script uses relative paths from the current working directory,
-    we change to tmp_path to simulate the project root.
-    """
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(str(tmp_path))
-        
-        # Run the setup logic directly to avoid subprocess complexity in tests
-        # We replicate the logic here to test the directory creation behavior
-        directories = [
-            "data/raw",
-            "data/derived",
-            "code",
-            "tests"
-        ]
-        
-        for dir_path in directories:
-            path = Path(dir_path)
-            assert not path.exists(), f"Directory {path} should not exist before run"
-            path.mkdir(parents=True, exist_ok=True)
-            assert path.exists(), f"Directory {path} should exist after creation"
-            assert path.is_dir(), f"{path} should be a directory"
-        
-        # Verify structure
-        assert (tmp_path / "data" / "raw").exists()
-        assert (tmp_path / "data" / "derived").exists()
-        assert (tmp_path / "code").exists()
-        assert (tmp_path / "tests").exists()
-        
-    finally:
-        os.chdir(original_cwd)
+# Add parent of code to path if running from tests directory
+code_dir = Path(__file__).resolve().parent.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-def test_main_function_exists():
-    """Ensure the main function is callable."""
-    assert callable(main)
+from setup_directories import main
+
+def test_directories_created():
+    """Test that setup_directories creates the required directories."""
+    # Create a temporary directory to simulate project root
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Mock the project root by changing current working directory
+        original_cwd = os.getcwd()
+        os.chdir(tmpdir)
+        
+        try:
+            # Run the setup
+            main()
+            
+            # Verify directories exist
+            data_raw = Path(tmpdir) / "data" / "raw"
+            data_derived = Path(tmpdir) / "data" / "derived"
+            
+            assert data_raw.exists(), "data/raw directory was not created"
+            assert data_raw.is_dir(), "data/raw is not a directory"
+            
+            assert data_derived.exists(), "data/derived directory was not created"
+            assert data_derived.is_dir(), "data/derived is not a directory"
+            
+        finally:
+            os.chdir(original_cwd)
+
+def test_directories_already_exist():
+    """Test that setup_directories handles existing directories gracefully."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        original_cwd = os.getcwd()
+        os.chdir(tmpdir)
+        
+        try:
+            # Pre-create the directories
+            data_raw = Path(tmpdir) / "data" / "raw"
+            data_derived = Path(tmpdir) / "data" / "derived"
+            data_raw.mkdir(parents=True)
+            data_derived.mkdir(parents=True)
+            
+            # Run the setup - should not raise
+            main()
+            
+            # Verify they still exist
+            assert data_raw.exists()
+            assert data_derived.exists()
+            
+        finally:
+            os.chdir(original_cwd)
