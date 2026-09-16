@@ -41,7 +41,7 @@
 - [X] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
 - [X] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
 - [X] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
-- [ ] T008 Implement local file caching mechanism to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI)
+- [ ] T008 Implement local file caching mechanism to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

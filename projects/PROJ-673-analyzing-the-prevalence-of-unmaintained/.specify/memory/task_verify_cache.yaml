@@ -1,9 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or data files were presented that create a local cache
-    in `data/raw/`, nor any implementation that computes and stores immutable checksums
-    for raw API responses. The required artifact (caching mechanism) is missing entirely.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
