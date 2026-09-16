@@ -38,3 +38,46 @@ T016:
     \ that single\u2011threaded validation logic was added to ensure atomic increments\
     \ aren\u2019t optimized away. The required artifact (the modified source file)\
     \ is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `build.sh` script or diff showing added logging for compilation warnings/errors\
+    \ and an exit\u2011code\u20111 on failure is provided. Without the actual script\
+    \ (or a clear excerpt) we cannot verify that the required logging and error\u2011\
+    handling behavior was implemented. The task remains undone."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.cpp` (or any source file) containing the required multi\u2011threaded\
+    \ worker logic was provided; the evidence contains no code, build scripts, or\
+    \ compiled binaries to demonstrate that `std::thread` and `std::atomic<long>`\
+    \ are used as specified. The implementer\u2019s claim cannot be verified without\
+    \ the actual artifact."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_benchmarks.sh` script was presented in the evidence, and there is no\
+    \ content showing it iterates over thread counts 2,\u202F4,\u202F8 and the two\
+    \ configurations. Without the actual file, we cannot confirm the required functionality\
+    \ is implemented."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.cpp` file or diff showing the addition of `std::chrono::high_resolution_clock`\
+    \ timing logic and CSV output is provided. Without the actual source code or generated\
+    \ CSV, we cannot confirm that the required wall\u2011clock timing and CSV export\
+    \ were implemented. The task therefore remains incomplete."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes or scripts were provided showing a CSV writer added to `main.cpp`
+    or `run_benchmarks.sh`, and there is no generated CSV file or evidence that rows
+    with the required fields are being appended. The required artifact is missing,
+    so the task is not satisfied.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_benchmarks.sh` script or diff showing added CPU pinning and governor\u2011\
+    setting logic was provided; there is no evidence of `cpupower` commands or sysfs\
+    \ fallback code, nor any test output confirming the changes work. The required\
+    \ artifact is missing."

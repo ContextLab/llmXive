@@ -2,101 +2,73 @@ name: Benchmark Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
-
-# Timeout to prevent runaway jobs, matching task requirement of 6h
-timeout-minutes: 360
+    branches: [ main ]
 
 jobs:
-  benchmark:
+  run-benchmarks:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 360
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip'
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r code/analysis/requirements.txt || pip install -r requirements.txt
-      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/requirements.txt
+          pip install -r projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/requirements.txt || true
 
-    - name: Install C++ build tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake
-        # Install cpupower for governor management (often requires linux-tools-generic)
-        sudo apt-get install -y linux-tools-common linux-tools-generic
-        # Ensure python headers for potential C-extensions if needed
-        sudo apt-get install -y python3-dev
+      - name: Install C++ build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ make
 
-    - name: Configure CPU Governor
-      run: |
-        # Attempt to set performance governor. 
-        # Note: On GitHub Actions runners, this often requires root or specific permissions.
-        # We attempt the script which handles fallbacks or errors gracefully.
-        sudo python code/analysis/hardware_detect.py
-      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
-      continue-on-error: true
+      - name: Set CPU Governor (Performance Mode)
+        run: |
+          if command -v sudo &> /dev/null; then
+            sudo cpupower frequency-set -g performance || true
+            echo "Performance mode set (or skipped if not supported)"
+          else
+            echo "Warning: sudo not available, skipping CPU governor change"
+          fi
 
-    - name: Build Benchmark
-      run: |
-        if [ -f "code/scripts/build.sh" ]; then
-          bash code/scripts/build.sh
-        else
-          # Fallback to CMake if build script missing
-          mkdir -p build
-          cd build
-          cmake ..
-          make
-        fi
-      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark
+      - name: Build Benchmark Binaries
+        run: |
+          cd projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts
+          chmod +x build.sh
+          ./build.sh
 
-    - name: Run Benchmarks
-      run: |
-        # Ensure output directory exists
-        mkdir -p data/raw
-        # Run the experiment script if available
-        if [ -f "code/scripts/run_benchmarks.sh" ]; then
-          bash code/scripts/run_benchmarks.sh
-        else
-          # Fallback: Run main binary directly for a sanity check
-          ./benchmark_main --threads 2 --config packed --iterations 1000000
-          ./benchmark_main --threads 2 --config padded --iterations 1000000
-        fi
-      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
-      env:
-        # Allow scripts to run without interactive prompts
-        CI: "true"
+      - name: Run Benchmarks
+        run: |
+          cd projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts
+          chmod +x run_benchmarks.sh
+          ./run_benchmarks.sh
 
-    - name: Run Analysis
-      run: |
-        python code/analysis/run_analysis.py
-      working-directory: ${{ github.workspace }}/projects/PROJ-677-impact-of-cache-line-padding-false-sh
+      - name: Run Analysis
+        run: |
+          cd projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis
+          python run_analysis.py
 
-    - name: Upload Benchmark Results
-      uses: actions/upload-artifact@v4
-      with:
-        name: benchmark-results
-        path: |
-          projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/raw/*.csv
-          projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/processed/*.csv
-          projects/PROJ-677-impact-of-cache-line-padding-false-sh/figures/*.png
-        retention-days: 7
+      - name: Verify Results
+        run: |
+          cd projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis
+          python verify_results.py
 
-    - name: Upload Logs
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: benchmark-logs
-        path: |
-          projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/raw/*.log
-        retention-days: 7
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/
+            projects/PROJ-677-impact-of-cache-line-padding-false-sh/state/
+            projects/PROJ-677-impact-of-cache-line-padding-false-sh/figures/
+          if-no-files-found: warn

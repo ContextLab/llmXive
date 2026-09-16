@@ -1,48 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files, directories, or any structural artifacts were presented; the\
-    \ claim provides only a feature specification and user stories, but no evidence\
-    \ of a created repository layout, configuration files, or code scaffolding required\
-    \ by \u201CCreate project structure per implementation plan.\u201D The required\
-    \ artifact is missing."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, or a virtual environment\
-    \ setup) are present to demonstrate that a Python\u202F3.11 project was created\
-    \ and that the listed dependencies (`networkx`, `numpy`, `pandas`, `scipy`, `pytest`)\
-    \ are declared. The implementer must provide the actual project scaffold with\
-    \ those dependencies specified."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, or any setup scripts) are present in the
-    provided evidence, nor is there any documentation showing that Ruff and Black
-    have been installed and integrated into the project workflow. The required artifacts
-    to demonstrate that linting and formatting tools are configured are missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or documentation was provided that shows random
-    seed initialization being set up for reproducibility. The claim lacks any tangible
-    artifact (e.g., a `seed.py` module, a settings entry, or test runs demonstrating
-    deterministic behavior), so the requirement is not satisfied.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory structure (`data/raw/synthetic_graphs/`
-    and `data/processed/`) or any logging infrastructure (e.g., config files, logger
-    initialization code) was provided. The implementer must create the specified folders
-    and add functional logging setup to satisfy the task.
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, or example output was provided that actually generates a\
-    \ Tier\u202F1 graph with a single deterministic path of 5\u201110 nodes and zero\
-    \ stochastic branching. The required artifact (environment generator implementation)\
-    \ is missing, so the task is not satisfied."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -87,3 +42,50 @@ T019:
     \ injection logic (or any of the three user stories) was provided; the claim lacks\
     \ any tangible artifact to verify that the routing\u2011based injection behavior\
     \ exists. The required implementation and validation artifacts are missing."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or test artifacts were provided to demonstrate that the
+    OPID agent now suppresses hindsight skill injection when the routing threshold
+    is set to 1.0 (or any value that should block injection). Without any files, functions,
+    or logs showing this behavior, the requirement is not satisfied.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log output files were provided that implement the\
+    \ required logging of log\u2011probability shifts and action selections relative\
+    \ to the routing threshold. The evidence consists only of the feature specification;\
+    \ the actual artifact (e.g., updated source files, logging statements, or sample\
+    \ logs) is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data implementing a threshold sweep from 0.0 to 1.0 in 0.1
+    increments was provided; the evidence section contains no artifacts to inspect,
+    so the required sweep logic cannot be verified. The implementer must supply the
+    actual implementation (e.g., a function, loop, or experiment runner) and any resulting
+    logs or outputs demonstrating the iteration over the specified thresholds.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only the high\u2011level user stories and specifications;\
+    \ there is no code, script, log file, or dataset demonstrating an episode loop\
+    \ that actually runs exactly 1,000 simulated episodes for each (Tier, Threshold)\
+    \ pair. Consequently, the required artifact (the implemented loop and its execution\
+    \ evidence) is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing a sequential processing pipeline that\
+    \ discards intermediate data and guarantees a memory footprint under 7\u202FGB\
+    \ is present. The only artifacts described relate to synthetic environment generation\
+    \ and OPID routing, not to the required memory\u2011optimisation logic. Consequently\
+    \ the task\u2019s core requirement is unmet."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, function, script, or data file implementing the \u201Csuccess rate\u201D\
+    \ metric is present; the provided description contains only high\u2011level user\
+    \ stories and no concrete artifact that computes or records the percentage of\
+    \ episodes that follow the ground\u2011truth path. Consequently the required implementation\
+    \ is missing."

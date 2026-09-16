@@ -4,79 +4,70 @@ import sys
 from datetime import datetime
 from typing import Optional
 
+LOG_DIR = "logs"
+
 def setup_logging(
     log_level: int = logging.INFO,
-    log_dir: str = "data/logs",
-    log_file_prefix: str = "opid_experiment"
+    log_file: Optional[str] = None,
+    log_format: Optional[str] = None
 ) -> None:
     """
     Configures the root logger for the project.
     
-    Sets up:
-    - Console output (stdout) with color codes if available (simplified here to standard format)
-    - File output rotating log file in data/logs/
-    
     Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO)
-        log_dir: Directory where log files will be stored
-        log_file_prefix: Prefix for the log filename
+        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Optional filename to write logs to. If None, logs to console.
+        log_format: Optional format string for log messages.
     """
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"{log_file_prefix}_{timestamp}.log"
-    log_filepath = os.path.join(log_dir, log_filename)
-    
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # File handler
-    file_handler = logging.FileHandler(log_filepath, mode='a', encoding='utf-8')
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
+    if log_format is None:
+        log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    # Ensure log directory exists if file logging is requested
+    if log_file:
+        os.makedirs(LOG_DIR, exist_ok=True)
+        full_log_path = os.path.join(LOG_DIR, log_file)
+    else:
+        full_log_path = None
+
+    # Configure handlers
+    handlers = []
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
-    
+    console_handler.setFormatter(logging.Formatter(log_format))
+    handlers.append(console_handler)
+
+    # File handler (if specified)
+    if full_log_path:
+        file_handler = logging.FileHandler(full_log_path)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(logging.Formatter(log_format))
+        handlers.append(file_handler)
+
     # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
     
     # Clear existing handlers to avoid duplicates
-    if root_logger.handlers:
-        root_logger.handlers.clear()
+    root_logger.handlers = []
     
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(console_handler)
-    
-    # Log the setup completion
-    logging.info(f"Logging initialized. Log file: {log_filepath}")
+    for handler in handlers:
+        root_logger.addHandler(handler)
 
-def get_experiment_logger(
-    name: Optional[str] = None,
-    log_level: int = logging.INFO
-) -> logging.Logger:
+def get_experiment_logger(name: str = "experiment") -> logging.Logger:
     """
-    Retrieves or creates a named logger for specific experiment components.
+    Retrieves or creates a named logger for experiment-specific logging.
+    Assumes setup_logging() has been called previously.
     
     Args:
-        name: Optional name for the logger (e.g., 'GraphGenerator', 'OPIDRouter')
-             If None, returns the root logger.
-        log_level: Optional log level override for this specific logger.
-    
+        name: The name of the logger.
+        
     Returns:
-        A configured logging.Logger instance.
+        A configured Logger instance.
     """
-    if name is None:
-        logger = logging.getLogger()
-    else:
-        logger = logging.getLogger(name)
-    
-    logger.setLevel(log_level)
+    logger = logging.getLogger(name)
+    # Ensure the logger inherits the level from root if not explicitly set
+    if logger.level == logging.NOTSET:
+        logger.setLevel(logging.INFO)
     return logger

@@ -2,46 +2,37 @@ import os
 import sys
 from typing import List
 
-def create_directories() -> None:
+# Directories required for the project data pipeline
+DATA_DIRS: List[str] = [
+    "data/raw/synthetic_graphs",
+    "data/processed",
+    "data/interim",
+    "figures",
+    "logs",
+]
+
+def create_directories(base_path: str = ".") -> None:
     """
-    Creates the required data directory structure for the OPID project.
+    Creates the required directory structure for the project.
     
-    Directories created:
-    - data/raw/synthetic_graphs/
-    - data/processed/
-    - data/figures/
-    - data/logs/
-    
-    This function ensures that all necessary directories exist before
-    any data generation or experiment execution begins.
+    Args:
+        base_path: The root directory where data/ will be created.
     """
-    base_dirs = [
-        "data",
-        "data/raw",
-        "data/raw/synthetic_graphs",
-        "data/processed",
-        "data/figures",
-        "data/logs",
-    ]
-    
-    created_count = 0
-    for dir_path in base_dirs:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            created_count += 1
-        elif not os.path.isdir(dir_path):
-            raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
-    
-    print(f"Data directory setup complete. Created {created_count} new directories.")
+    for dir_name in DATA_DIRS:
+        full_path = os.path.join(base_path, dir_name)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
+            print(f"Created directory: {full_path}")
+        else:
+            # Ensure it is actually a directory, not a file
+            if not os.path.isdir(full_path):
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
 
 def main() -> None:
-    """Entry point for running the data directory setup script."""
-    try:
-        create_directories()
-        print("SUCCESS: All required data directories are now in place.")
-    except Exception as e:
-        print(f"ERROR: Failed to create data directories: {e}")
-        sys.exit(1)
+    """Entry point for script execution."""
+    print("Initializing data directory structure...")
+    create_directories(".")
+    print("Data directory structure ready.")
 
 if __name__ == "__main__":
     main()

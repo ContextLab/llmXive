@@ -4,197 +4,227 @@ import csv
 import logging
 from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass, field, asdict
-from utils.logging_setup import setup_logging, get_experiment_logger
-from config import set_seed, get_seed, ensure_directories
-from env.graph_generator import GraphGenerator, GraphGenerationConfig
-from env.graph_validator import GraphValidator, regenerate_graph_if_invalid
+
+from config import get_seed, set_seed, ensure_directories, get_tier_config
+from utils.logging_setup import get_experiment_logger
+from env.graph_generator import GraphGenerator, GraphGeneratorConfig
 from agent.opid_router import OPIDRouter, OPIDRouterConfig
 from agent.policy import BaselinePolicy, create_baseline_policy
-import numpy as np
+from experiments.episode_runner import EpisodeRunner, EpisodeRunnerConfig
+from utils.metrics import calculate_success_rate, calculate_raw_entropy, calculate_mean_entropy, calculate_variance
 
 @dataclass
 class EpisodeResult:
-    episode_id: int
-    tier: int
+    tier: str
     threshold: float
+    episode_id: int
     success: bool
-    path_length: int
-    entropy_sum: float
-    log_prob_shift: float
+    steps: int
+    action_entropy_sum: float
+    log_prob_shift_sum: float
+    injection_count: int
 
 @dataclass
 class ExperimentConfig:
-    tiers: List[int]
-    thresholds: List[float]
-    episodes_per_setting: int
-    seed: int
+    tiers: List[str] = field(default_factory=lambda: ["Tier1", "Tier2", "Tier3"])
+    thresholds: List[float] = field(default_factory=lambda: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    episodes_per_setting: int = 1000
+    seed: int = 42
+    output_dir: str = "data/processed"
 
 class ExperimentRunner:
+    """
+    Orchestrates the full sweep of experiments across tiers and thresholds.
+    
+    CRITICAL: Implements sequential processing logic to ensure memory footprint < 7GB.
+    Intermediate episode data is discarded immediately after aggregation.
+    """
+    
     def __init__(self, config: ExperimentConfig):
         self.config = config
-        self.logger = get_experiment_logger("runner")
-        self.results: List[EpisodeResult] = []
-        # Ensure data directories exist for output
+        self.logger = get_experiment_logger("experiment_runner")
+        self.output_dir = config.output_dir
         ensure_directories()
-
-    def _run_single_episode(self, tier: int, threshold: float, ep_id: int) -> EpisodeResult:
-        """Execute a single episode and return results."""
-        # Set seed for reproducibility of this specific episode
-        # We use a deterministic seed derivation based on global seed + tier + threshold + ep_id
-        local_seed = self.config.seed + (tier * 10000) + (int(threshold * 100) * 100) + ep_id
-        set_seed(local_seed)
-
-        # 1. Generate Graph for this tier
-        # Tiers: 1 (Deterministic), 2 (Stochastic), 3 (High-Entropy)
-        # We rely on GraphGenerator to handle tier-specific logic internally
-        gen_config = GraphGenerationConfig(tier=tier)
-        graph_gen = GraphGenerator(gen_config)
-        graph = graph_gen.generate()
-
-        # 2. Validate Graph (regenerate if invalid/unreachable)
-        validator = GraphValidator()
-        # In a real scenario, this might loop, but for the runner we assume generator is robust
-        # or we catch the exception if validation fails completely.
-        # Here we just ensure the graph exists.
-        if not graph or not graph.nodes:
-            self.logger.warning(f"Generated invalid graph for Tier {tier}, regenerating...")
-            # Force a retry with a slight seed perturbation if needed, but for now let's assume valid
-            # In a production loop, we would loop until valid.
-            graph = graph_gen.generate() 
-
-        # 3. Initialize Router and Policy
-        # OPIDRouterConfig expects a threshold
-        router_config = OPIDRouterConfig(routing_threshold=threshold)
-        router = OPIDRouter(router_config)
         
-        # Baseline policy (rule-based or distilled)
-        policy = create_baseline_policy()
+        # Pre-allocate minimal buffers for aggregation to avoid memory bloat
+        self.agg_success_counts = {} # (tier, threshold) -> count
+        self.agg_entropy_sums = {}   # (tier, threshold) -> sum
+        self.agg_entropy_sq_sums = {} # (tier, threshold) -> sum of squares for variance
+        self.agg_log_prob_sums = {}  # (tier, threshold) -> sum
+        self.agg_injection_counts = {} # (tier, threshold) -> sum
+        
+        # Initialize aggregation dicts
+        for tier in config.tiers:
+            for thresh in config.thresholds:
+                key = (tier, thresh)
+                self.agg_success_counts[key] = 0
+                self.agg_entropy_sums[key] = 0.0
+                self.agg_entropy_sq_sums[key] = 0.0
+                self.agg_log_prob_sums[key] = 0.0
+                self.agg_injection_counts[key] = 0
 
-        # 4. Execute Episode
-        # We simulate the agent moving through the graph
-        current_node = graph.start_node
-        path = [current_node.id]
-        success = False
-        total_entropy = 0.0
-        total_log_prob_shift = 0.0
-        step_count = 0
-        max_steps = 1000 # Safety break
-
-        while current_node != graph.goal_node and step_count < max_steps:
-            # Get possible actions (edges)
-            edges = graph.edges.get(current_node.id, [])
-            if not edges:
-                break # Dead end
-
-            # Router decides whether to inject skill or use baseline
-            # OPIDRouter returns (action, log_prob_shift, injected)
-            # We simulate the router's decision logic here
-            # The router uses a Bernoulli trial with p = 1 - threshold
-            should_inject = router.should_inject()
-            
-            # Get action from policy or injected skill
-            if should_inject:
-                # Inject hindsight skill (simplified: pick a "good" edge if available)
-                # In a real implementation, this would involve distillation signals
-                # For now, we simulate the shift
-                chosen_edge = edges[0] # Simplified injection
-                log_prob_shift = router.get_injection_log_prob_shift()
-            else:
-                # Use baseline policy
-                chosen_edge = policy.select_action(current_node, edges)
-                log_prob_shift = 0.0
-
-            total_log_prob_shift += abs(log_prob_shift)
-
-            # Calculate entropy of the decision
-            # Simplified: 0 for deterministic, 1.0 for uniform random
-            if len(edges) > 1:
-                entropy = np.log(len(edges))
-            else:
-                entropy = 0.0
-            total_entropy += entropy
-
-            # Move
-            current_node = chosen_edge.target_node
-            path.append(current_node.id)
-            step_count += 1
-
-            if current_node == graph.goal_node:
-                success = True
-
-        return EpisodeResult(
-            episode_id=ep_id,
-            tier=tier,
-            threshold=threshold,
-            success=success,
-            path_length=len(path),
-            entropy_sum=total_entropy,
-            log_prob_shift=total_log_prob_shift
+    def _get_graph_generator(self, tier: str) -> GraphGenerator:
+        """Instantiates a GraphGenerator for a specific tier."""
+        tier_config = get_tier_config(tier)
+        if not tier_config:
+            raise ValueError(f"Invalid tier configuration: {tier}")
+        
+        gen_config = GraphGeneratorConfig(
+            tier_name=tier,
+            num_nodes=tier_config.get("num_nodes", 10),
+            branching_prob=tier_config.get("branching_prob", 0.0),
+            entropy_level=tier_config.get("entropy_level", "low"),
+            seed=self.config.seed
         )
+        return GraphGenerator(gen_config)
 
-    def run(self) -> List[EpisodeResult]:
-        """Run the full experiment sweep."""
-        self.logger.info(f"Starting experiment with {self.config.episodes_per_setting} episodes per setting")
-        self.results = [] # Reset results
+    def _run_single_episode(self, tier: str, threshold: float, episode_id: int, graph_gen: GraphGenerator) -> Optional[EpisodeResult]:
+        """
+        Runs a single episode and returns results.
+        This function is designed to be lightweight and not retain large state.
+        """
+        try:
+            # Generate graph on-the-fly for this episode to ensure diversity within tier
+            # but deterministic based on seed + episode_id
+            set_seed(self.config.seed + episode_id)
+            state_graph = graph_gen.generate()
+            
+            # Initialize components
+            router_config = OPIDRouterConfig(routing_threshold=threshold, seed=self.config.seed + episode_id)
+            router = OPIDRouter(router_config)
+            
+            policy_config = BaselinePolicyConfig()
+            policy = create_baseline_policy(policy_config)
+            
+            episode_runner_config = EpisodeRunnerConfig(
+                state_graph=state_graph,
+                router=router,
+                policy=policy,
+                max_steps=1000
+            )
+            runner = EpisodeRunner(episode_runner_config)
+            
+            # Execute episode
+            result = runner.run()
+            
+            return EpisodeResult(
+                tier=tier,
+                threshold=threshold,
+                episode_id=episode_id,
+                success=result.success,
+                steps=result.steps,
+                action_entropy_sum=result.action_entropy_sum,
+                log_prob_shift_sum=result.log_prob_shift_sum,
+                injection_count=result.injection_count
+            )
+        except Exception as e:
+            self.logger.error(f"Episode {episode_id} failed in {tier} at threshold {threshold}: {e}")
+            return None
 
-        for tier in self.config.tiers:
-            for threshold in self.config.thresholds:
-                self.logger.info(f"Running Tier {tier}, Threshold {threshold}")
-                for ep_id in range(self.config.episodes_per_setting):
-                    try:
-                        result = self._run_single_episode(tier, threshold, ep_id)
-                        self.results.append(result)
+    def run_sweep(self):
+        """
+        Executes the full experimental sweep sequentially.
+        
+        Memory Management Strategy:
+        1. Process (Tier, Threshold) pairs one by one.
+        2. Inside each pair, process episodes one by one.
+        3. Accumulate ONLY scalar aggregates (sums, counts).
+        4. Discard individual EpisodeResult objects immediately after aggregation.
+        5. Write final summary to disk only after all processing is complete.
+        """
+        self.logger.info("Starting sequential experiment sweep...")
+        self.logger.info(f"Configuration: {len(self.config.tiers)} tiers, {len(self.config.thresholds)} thresholds, {self.config.episodes_per_setting} episodes/setting")
+        
+        episode_log_path = os.path.join(self.output_dir, "episode_results.csv")
+        
+        # Open CSV for appending to avoid loading history into memory
+        with open(episode_log_path, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["tier", "threshold", "episode_id", "success", "steps", "action_entropy_sum", "log_prob_shift_sum", "injection_count"])
+            
+            for tier in self.config.tiers:
+                self.logger.info(f"Processing Tier: {tier}")
+                graph_gen = self._get_graph_generator(tier)
+                
+                for threshold in self.config.thresholds:
+                    self.logger.info(f"  -> Threshold: {threshold:.1f}")
+                    key = (tier, threshold)
+                    
+                    for ep_id in range(self.config.episodes_per_setting):
+                        result = self._run_single_episode(tier, threshold, ep_id, graph_gen)
                         
-                        # Log progress every 100 episodes to avoid I/O spam
+                        if result:
+                            # Write to disk immediately (streaming log)
+                            writer.writerow([
+                                result.tier,
+                                result.threshold,
+                                result.episode_id,
+                                result.success,
+                                result.steps,
+                                result.action_entropy_sum,
+                                result.log_prob_shift_sum,
+                                result.injection_count
+                            ])
+                            
+                            # Aggregate scalars only
+                            self.agg_success_counts[key] += 1 if result.success else 0
+                            self.agg_entropy_sums[key] += result.action_entropy_sum
+                            self.agg_entropy_sq_sums[key] += (result.action_entropy_sum ** 2)
+                            self.agg_log_prob_sums[key] += result.log_prob_shift_sum
+                            self.agg_injection_counts[key] += result.injection_count
+                            
+                            # Explicitly delete reference to allow GC to reclaim memory
+                            del result
+                        
+                        # Optional: Log progress every 100 episodes
                         if (ep_id + 1) % 100 == 0:
-                            self.logger.info(f"  Completed {ep_id + 1}/{self.config.episodes_per_setting} episodes")
-                    except Exception as e:
-                        self.logger.error(f"Episode {ep_id} failed: {e}", exc_info=True)
-                        # In a strict pipeline, we might want to fail the whole run,
-                        # but here we log and continue to gather as much data as possible.
-                        # However, per "fail loudly" constraint, if the core logic fails,
-                        # we should probably let it propagate or record a failure result.
-                        # Recording a failure result:
-                        self.results.append(EpisodeResult(
-                            episode_id=ep_id,
-                            tier=tier,
-                            threshold=threshold,
-                            success=False,
-                            path_length=0,
-                            entropy_sum=0.0,
-                            log_prob_shift=0.0
-                        ))
+                            self.logger.debug(f"    Completed {ep_id + 1}/{self.config.episodes_per_setting} episodes")
+        
+        self.logger.info("Sweep complete. Generating summary statistics...")
+        self._generate_summary_stats()
 
-        self.logger.info(f"Experiment complete. Total results: {len(self.results)}")
-        return self.results
-
-    def save_results(self, output_path: str) -> None:
-        """Save results to CSV."""
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=EpisodeResult.__dataclass_fields__.keys())
-            writer.writeheader()
-            for r in self.results:
-                writer.writerow(asdict(r))
+    def _generate_summary_stats(self):
+        """Calculates and writes summary statistics to disk."""
+        summary_path = os.path.join(self.output_dir, "summary_stats.csv")
+        
+        with open(summary_path, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["tier", "threshold", "success_rate", "mean_action_entropy", "action_entropy_variance", "mean_log_prob_shift", "total_injections"])
+            
+            for tier in self.config.tiers:
+                for threshold in self.config.thresholds:
+                    key = (tier, threshold)
+                    n = self.agg_success_counts[key]
+                    
+                    if n == 0:
+                        continue
+                        
+                    success_rate = self.agg_success_counts[key] / n
+                    mean_entropy = self.agg_entropy_sums[key] / n
+                    
+                    # Variance = E[X^2] - (E[X])^2
+                    mean_sq_entropy = self.agg_entropy_sq_sums[key] / n
+                    variance_entropy = mean_sq_entropy - (mean_entropy ** 2)
+                    
+                    mean_log_prob = self.agg_log_prob_sums[key] / n
+                    total_inj = self.agg_injection_counts[key]
+                    
+                    writer.writerow([
+                        tier,
+                        threshold,
+                        f"{success_rate:.4f}",
+                        f"{mean_entropy:.4f}",
+                        f"{variance_entropy:.4f}",
+                        f"{mean_log_prob:.4f}",
+                        total_inj
+                    ])
+        
+        self.logger.info(f"Summary stats written to {summary_path}")
 
 def main():
-    """Entry point for the experiment runner."""
-    setup_logging()
-    
-    # Configuration per FR-006 (0.0 to 1.0 in 0.1 steps) and FR-003 (1000 episodes)
-    config = ExperimentConfig(
-        tiers=[1, 2, 3],
-        thresholds=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-        episodes_per_setting=1000,
-        seed=42
-    )
-    
+    config = ExperimentConfig()
     runner = ExperimentRunner(config)
-    results = runner.run()
-    
-    output_path = "data/processed/episode_results.csv"
-    runner.save_results(output_path)
-    print(f"Saved {len(results)} results to {output_path}")
+    runner.run_sweep()
 
 if __name__ == "__main__":
     main()

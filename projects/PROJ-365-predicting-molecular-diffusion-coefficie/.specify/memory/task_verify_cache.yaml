@@ -34,9 +34,46 @@ T007b:
     result metrics) are missing, so the task is not satisfied.
 T012:
   c: false
-  h: 3ac85a2bb056dab7f607c35a58e08e09be487d68a07badbc385f05ed4608479f
-  r: "The provided `code/ingestion/ingest.py` is cut off mid\u2011function (the `record`\
-    \ dict is unfinished and the file ends abruptly), so the script does not actually\
-    \ implement the full pipeline or write any output. Moreover, the required output\
-    \ file `data/processed/featurized.jsonl` is absent. Both the implementation and\
-    \ the expected artifact are missing/incomplete."
+  h: 86eec3910f97d7d03ad3cfbf8e52c668691782ca8f74accdfe71d98dab1826f2
+  r: "The `code/ingestion/ingest.py` file exists and contains validation and featurization\
+    \ logic, but the provided excerpt ends before any JSON\u2011L line is written,\
+    \ and the required output file `data/processed/featurized.jsonl` is missing, so\
+    \ we cannot confirm that the script fulfills the \u201Cwrite featurized.jsonl\u201D\
+    \ requirement. The implementation must include the code that writes each record\
+    \ to the JSONL file (and optionally produce the file when run)."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `ingest.py` file or code changes were presented, and there is no log output
+    or demonstration showing that records with missing data are excluded and logged
+    with the tag `[MISSING_DATA_EXCLUDED]`. Without concrete artifacts, the requirement
+    cannot be verified as satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes, log output, or test results were presented to demonstrate that
+    `ingest.py` now catches invalid SMILES, skips those entries, and records an `[ERROR_SMILES]`
+    message. Without the modified script or evidence of its behavior, the requirement
+    cannot be confirmed. The implementer must provide the updated `ingest.py` (or
+    a diff) and a sample run showing the error handling in action.
+T015:
+  c: false
+  h: 8af3772f8dc7532381c86246a57b980e07c3c2f6c03befc8c649785f7438894b
+  r: The test file `tests/contract/test_featurization.py` is present, but the referenced
+    schema `specs/001-predicting-molecular-diffusion-coefficie/contracts/dataset.schema.yaml`
+    does not exist, so the contract test cannot actually perform validation. Add the
+    missing `dataset.schema.yaml` (or correct the path) to satisfy the requirement.
+T025a:
+  c: false
+  h: d4e23c28255f7dacb43f005cd1f35f73f6afa8f2e0a7c8143c716dca444dd14e
+  r: The required file `code/training/ablation_pipeline.py` does not exist, so the
+    requested `remove_solvent` flag cannot be present or functional. The implementer
+    must add the missing script with the appropriate flag implementation for both
+    MPNN and Linear Regression pipelines.
+T043:
+  c: false
+  h: faf3615db8c353bd3a2a5490436f11d981090cbe92c5cd830a6b5e07555c568a
+  r: The repository contains `code/training/sensitivity.py`, but it only defines a
+    hyperparameter grid and a stub that simulates training with placeholder results;
+    it does not produce real metrics. Moreover, the required output file `artifacts/reports/sensitivity_report.json`
+    is absent. Consequently, the sweep report generation task is not fulfilled.

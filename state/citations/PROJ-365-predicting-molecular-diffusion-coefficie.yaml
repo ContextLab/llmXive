@@ -77,14 +77,14 @@
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/8224376/files/diffusion_dataset.csv
   verified_at: '2026-07-08T01:01:43.474437Z'
-- artifact_hash: d64b7699169943edfc083a122952356f468ee1855ac33b083288d8cf19d06ddc
+- artifact_hash: 5ca75548b86a5c3e288b33481f9a5185b7b93e8bbde2dfc1a61408a7b7349d1f
   artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: hydrodynamic radius - Wikidata
+  fetched_title: WikiProject Medicine - Wikidata
   kind: url
-  value: https://www.wikidata.org/wiki/Q3274587
+  value: https://www.wikidata.org/wiki/Q4099686
   verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q3274587
-  verified_at: '2026-08-21T03:33:42.677455Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q4099686
+  verified_at: '2026-09-16T15:54:09.337927Z'

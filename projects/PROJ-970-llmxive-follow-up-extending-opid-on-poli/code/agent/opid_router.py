@@ -7,125 +7,123 @@ from config import get_seed, set_seed
 
 @dataclass
 class OPIDRouterConfig:
+    """Configuration for the OPID Router."""
     routing_threshold: float = 0.5
-    seed: int = 42
-    log_file: str = "data/processed/opid_router_logs.jsonl"
+    seed: Optional[int] = None
+    log_level: str = "INFO"
 
 class OPIDRouter:
     """
-    OPID Router with critical-first routing logic.
-    Injects hindsight skill distillation signals based on a Bernoulli trial
-    determined by the routing_threshold.
+    OPID Router implementing critical-first routing logic.
+    
+    Uses a Bernoulli trial with p = 1 - threshold to decide whether to
+    inject hindsight skill distillation signals.
     """
+    
     def __init__(self, config: OPIDRouterConfig):
         self.config = config
-        self.logger = logging.getLogger("OPIDRouter")
-        self.log_file = config.log_file
+        self.logger = logging.getLogger(__name__)
         
-        # Ensure directory exists
-        import os
-        os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
+        # Set seed for reproducibility if provided
+        if config.seed is not None:
+            set_seed(config.seed)
+            self.logger.info(f"OPIDRouter initialized with seed: {config.seed}")
+        
+        self.logger.info(f"OPIDRouter initialized with routing_threshold: {config.routing_threshold}")
 
-        set_seed(config.seed)
-        self.rng = random.Random(config.seed)
-
-    def _log_event(self, event_type: str, data: Dict[str, Any]) -> None:
-        """Append a log entry to the JSONL file."""
-        import json
-        with open(self.log_file, 'a') as f:
-            record = {
-                "event": event_type,
-                "data": data
-            }
-            f.write(json.dumps(record) + '\n')
-
-    def route(self, state: Any, baseline_action_probs: Dict[str, float], 
-              skill_action_probs: Dict[str, float]) -> Tuple[str, Dict[str, float], Dict[str, float]]:
+    def should_inject_skill(self) -> bool:
         """
-        Determines whether to inject a skill signal based on the routing threshold.
+        Perform Bernoulli trial to decide if skill injection should occur.
         
-        Args:
-            state: Current environment state.
-            baseline_action_probs: Log-probabilities or probs from baseline policy.
-            skill_action_probs: Log-probabilities or probs from skill policy.
+        Probability of injection p = 1 - routing_threshold.
+        - If threshold is 0.0, p=1.0 (always inject)
+        - If threshold is 1.0, p=0.0 (never inject)
         
         Returns:
-            Tuple of (selected_action, final_probs, log_shift_info)
+            bool: True if skill injection should occur, False otherwise.
         """
-        # Bernoulli trial: p = 1 - threshold for injection
-        inject_prob = 1.0 - self.config.routing_threshold
-        should_inject = self.rng.random() < inject_prob
-
-        final_probs = {}
-        log_shift = 0.0
+        injection_prob = 1.0 - self.config.routing_threshold
         
-        if should_inject:
-            # Inject skill signal (weighted combination or override)
-            # For this implementation, we assume a simple mixture or override
-            # Let's assume skill_action_probs are the target distribution if injected
-            final_probs = skill_action_probs
-            log_shift = self._calculate_log_prob_shift(baseline_action_probs, skill_action_probs)
-            
-            self._log_event("skill_injection", {
-                "threshold": self.config.routing_threshold,
-                "inject_prob": inject_prob,
-                "log_shift": log_shift,
-                "action_selected": max(skill_action_probs, key=skill_action_probs.get)
-            })
+        # Use numpy for consistent random number generation with seed
+        # Ensure we handle edge cases where probability is exactly 0 or 1
+        if injection_prob <= 0.0:
+            result = False
+        elif injection_prob >= 1.0:
+            result = True
         else:
-            # Suppress skill signal, use baseline
-            final_probs = baseline_action_probs
-            log_shift = 0.0
+            result = np.random.random() < injection_prob
+        
+        self.logger.debug(
+            f"Routing decision: threshold={self.config.routing_threshold}, "
+            f"injection_prob={injection_prob:.4f}, result={result}"
+        )
+        
+        return result
+
+    def route(self, state: Dict[str, Any], action_space: List[Any]) -> Dict[str, Any]:
+        """
+        Route action selection based on critical-first logic.
+        
+        Args:
+            state: Current state dictionary
+            action_space: List of available actions
             
-            self._log_event("skill_suppression", {
-                "threshold": self.config.routing_threshold,
-                "inject_prob": inject_prob,
-                "log_shift": log_shift,
-                "action_selected": max(baseline_action_probs, key=baseline_action_probs.get)
-            })
-
-        # Calculate selected action
-        selected_action = max(final_probs, key=final_probs.get)
-        
-        return selected_action, final_probs, {"log_shift": log_shift, "injected": should_inject}
-
-    def _calculate_log_prob_shift(self, baseline: Dict[str, float], skill: Dict[str, float]) -> float:
+        Returns:
+            Dict containing routing decision and metadata
         """
-        Calculates the log-probability shift between baseline and skill distributions.
-        Uses KL-divergence approximation or simple log-prob difference for the selected action.
-        Here we use the difference in log-prob of the selected action (max prob) for simplicity.
-        """
-        import math
-        selected = max(baseline, key=baseline.get)
+        inject_skill = self.should_inject_skill()
         
-        p_baseline = baseline.get(selected, 1e-9)
-        p_skill = skill.get(selected, 1e-9)
+        result = {
+            "inject_skill": inject_skill,
+            "routing_threshold": self.config.routing_threshold,
+            "state_hash": hash(str(state)) % 1000000,  # For logging purposes
+            "action_space_size": len(action_space)
+        }
         
-        # Avoid log(0)
-        p_baseline = max(p_baseline, 1e-9)
-        p_skill = max(p_skill, 1e-9)
+        if inject_skill:
+            self.logger.info(
+                f"Skill injection triggered (threshold={self.config.routing_threshold})"
+            )
+        else:
+            self.logger.debug(
+                f"Skill injection suppressed (threshold={self.config.routing_threshold})"
+            )
         
-        shift = math.log(p_skill) - math.log(p_baseline)
-        return shift
+        return result
 
 def main():
-    """
-    Entry point for standalone testing of the router.
-    Simulates a few routing decisions to demonstrate logging.
-    """
-    config = OPIDRouterConfig(routing_threshold=0.5, seed=42)
-    router = OPIDRouter(config)
-
-    # Mock data for demonstration
-    baseline_probs = {"action_a": 0.8, "action_b": 0.2}
-    skill_probs = {"action_a": 0.2, "action_b": 0.8}
-
-    print("Running OPID Router Demo...")
-    for i in range(10):
-        action, probs, info = router.route(None, baseline_probs, skill_probs)
-        print(f"Step {i}: Action={action}, Injected={info['injected']}, LogShift={info['log_shift']:.4f}")
-
-    print(f"Logs written to {config.log_file}")
+    """Main entry point for testing the OPIDRouter."""
+    logging.basicConfig(level=logging.INFO)
+    
+    # Test with different thresholds
+    test_cases = [
+        OPIDRouterConfig(routing_threshold=0.0, seed=42),  # Always inject
+        OPIDRouterConfig(routing_threshold=0.5, seed=42),  # 50% chance
+        OPIDRouterConfig(routing_threshold=1.0, seed=42),  # Never inject
+    ]
+    
+    for config in test_cases:
+        print(f"\nTesting with threshold={config.routing_threshold}")
+        router = OPIDRouter(config)
+        
+        # Run multiple trials to verify probability distribution
+        trials = 1000
+        inject_count = 0
+        for _ in range(trials):
+            if router.should_inject_skill():
+                inject_count += 1
+        
+        actual_prob = inject_count / trials
+        expected_prob = 1.0 - config.routing_threshold
+        
+        print(f"  Expected injection probability: {expected_prob:.2f}")
+        print(f"  Actual injection rate: {actual_prob:.2f} ({inject_count}/{trials})")
+        
+        # Verify logic matches specification
+        assert abs(actual_prob - expected_prob) < 0.05, \
+            f"Probability mismatch: expected {expected_prob}, got {actual_prob}"
+    
+    print("\nAll tests passed!")
 
 if __name__ == "__main__":
     main()

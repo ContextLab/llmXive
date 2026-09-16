@@ -1,89 +1,138 @@
+"""
+Seed Manager Module for llmXive Reproducibility
+
+This module centralizes all random seed initialization logic to ensure
+reproducibility across runs for numpy, python random, and any other
+relevant libraries used in the project.
+"""
 import random
 import os
 import sys
 import numpy as np
 from typing import Optional, Dict, Any
-from config import set_seed, get_seed, get_version_hash, get_config_summary
 
-def initialize_reproducibility(seed: Optional[int] = None) -> Dict[str, Any]:
+# Import existing config functions to ensure consistency
+# These are defined in code/config.py
+try:
+    from config import set_seed as config_set_seed, get_seed as config_get_seed, get_version_hash
+except ImportError:
+    # Fallback for standalone execution during testing if config isn't in path
+    # In the actual project, config.py is in the root code/ directory
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from config import set_seed as config_set_seed, get_seed as config_get_seed, get_version_hash
+
+
+def initialize_reproducibility(seed: Optional[int] = None) -> int:
     """
-    Initialize all random number generators to ensure deterministic execution.
+    Initialize all random number generators with the specified seed.
     
-    This function sets the seed for:
-    - Python's built-in random module
-    - NumPy's random number generator
-    - The project's internal configuration seed
-    
-    If no seed is provided, it attempts to read one from the environment 
-    variable `PYTHON_SEED` or generates a new one based on the current 
-    time and process ID for the first run, then saves it.
+    This function ensures that:
+    1. Python's built-in random module is seeded
+    2. NumPy's random number generator is seeded
+    3. The project's central seed configuration is updated
     
     Args:
-        seed: Optional integer seed. If None, reads from env or generates one.
-        
+        seed (Optional[int]): The seed value to use. If None, retrieves 
+                              the seed from the project configuration.
+                              
     Returns:
-        Dict containing the seed used, version hash, and config summary.
+        int: The seed value that was used for initialization.
+            
+    Raises:
+        ValueError: If the seed is negative or if configuration retrieval fails.
     """
     if seed is None:
-        env_seed = os.getenv("PYTHON_SEED")
-        if env_seed:
-            try:
-                seed = int(env_seed)
-            except ValueError:
-                raise ValueError(f"Invalid PYTHON_SEED value in environment: {env_seed}")
-        else:
-            # If no seed provided or in env, we must raise an error to force 
-            # explicit seed configuration for reproducibility in research pipelines.
-            # Fabricating a seed here violates the reproducibility requirement.
-            raise ValueError(
-                "No random seed provided. "
-                "Please set the 'PYTHON_SEED' environment variable or pass a seed argument "
-                "to ensure reproducible results. "
-                "Example: export PYTHON_SEED=42"
-            )
+        seed = config_get_seed()
+        
+    if seed is None:
+        raise ValueError("No seed provided and no default seed found in configuration. "
+                       "Please set a seed in config.py or pass one to this function.")
     
-    # Set seed for Python standard library
+    if not isinstance(seed, int) or seed < 0:
+        raise ValueError(f"Seed must be a non-negative integer, got: {seed}")
+    
+    # Set seed for Python's random module
     random.seed(seed)
     
     # Set seed for NumPy
     np.random.seed(seed)
     
-    # Set seed in project config
-    set_seed(seed)
+    # Update the project's central seed configuration
+    config_set_seed(seed)
     
-    # Return metadata for logging
-    return {
-        "seed": seed,
-        "version_hash": get_version_hash(),
-        "config_summary": get_config_summary()
-    }
+    # Log the initialization (using standard logging to avoid circular imports)
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Reproducibility initialized with seed: {seed}")
+    
+    return seed
+
 
 def get_current_seed() -> int:
     """
-    Retrieve the currently active seed from the configuration.
+    Retrieve the currently active seed from the project configuration.
     
     Returns:
-        The integer seed currently set.
+        int: The current seed value.
         
     Raises:
-        ValueError: If no seed has been initialized yet.
+        ValueError: If no seed is configured.
     """
-    seed = get_seed()
+    seed = config_get_seed()
     if seed is None:
-        raise ValueError(
-            "No seed initialized. Call initialize_reproducibility() or set PYTHON_SEED first."
-        )
+        raise ValueError("No seed is currently configured. "
+                       "Call initialize_reproducibility() first.")
     return seed
+
 
 def get_version_info() -> Dict[str, Any]:
     """
-    Retrieve version and reproducibility metadata.
+    Get version and reproducibility information for logging and tracking.
     
     Returns:
-        Dictionary containing seed, version hash, and config summary.
+        Dict containing seed, version hash, and environment info.
     """
+    try:
+        version_hash = get_version_hash()
+    except Exception:
+        version_hash = "unknown"
+        
     return {
         "seed": get_current_seed(),
-        "version_hash": get_version_hash(),
-        "config_summary": get_config_summary()
+        "version_hash": version_hash,
+        "python_version": sys.version,
+        "numpy_version": np.__version__
     }
+
+
+def main():
+    """
+    CLI entry point for testing seed initialization.
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Test seed initialization")
+    parser.add_argument("--seed", type=int, default=None, help="Seed value to use")
+    args = parser.parse_args()
+    
+    try:
+        seed = initialize_reproducibility(args.seed)
+        print(f"Successfully initialized reproducibility with seed: {seed}")
+        
+        # Verify initialization by generating some random numbers
+        print("Verification samples:")
+        print(f"  random.random(): {random.random():.6f}")
+        print(f"  np.random.rand(): {np.random.rand():.6f}")
+        
+        version_info = get_version_info()
+        print(f"Version info: {version_info}")
+        
+    except Exception as e:
+        print(f"Error initializing reproducibility: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

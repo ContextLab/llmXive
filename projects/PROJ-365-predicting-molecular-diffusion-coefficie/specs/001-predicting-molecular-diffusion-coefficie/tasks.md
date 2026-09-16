@@ -52,7 +52,7 @@
 - [X] T006f [P] Add pytest test `tests/unit/test_monitor_memory.py` that simulates memory over‑use and verifies the limit exception (executability)
 - [X] T006b [P] Implement `code/utils/graph_safety.py` to detect high molecular weight molecules and implement **sampling or truncation logic during featurization** (before memory allocation) to prevent memory crashes (Spec Edge Case, SC-005)
 - [X] T007 [P] {{claim:c_6b57f8d9}}; on failure, invoke T007b (Phase 0)
-- [ ] T007b [P] {{claim:c_916bfffc}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587) or random structures **strictly for pipeline validation** (Phase 0)
+- [ ] T007b [P] {{claim:c_916bfffc}} ({{claim:c_124a2ae3}} (Wikidata Q4099686, https://www.wikidata.org/wiki/Q4099686)) or random structures **strictly for pipeline validation** (Phase 0)
 - [X] T007c [P] Implement `code/ingestion/flag_source.py` to generate a `data_source_flag.json` artifact in `data/` recording `{"source": "real" | "synthetic"}` based on which download/generation task succeeded. This artifact serves as the synchronization point for downstream tasks. (Phase 0)
 - [X] T008 [P] Implement `code/ingestion/validate.py` to define SMILES validation logic and exclusion logic for missing solvent variables (FR-001, FR-007)
 
@@ -71,8 +71,8 @@
 - [X] T008b [US1] Implement `code/ingestion/run_validation.py` to execute the validation logic from T008 on fetched/generated data. **Depends on T007c** to ensure data source is resolved. (Depends on T007c, T008)
 - [X] T010 [P] [US1] Implement `code/ingestion/featurize.py`: Convert SMILES to `MoleculeGraph` (RDKit) with atom nodes and bond edges **AND** compute `SolventDescriptor` (viscosity, dielectric constant) from CSV input (US1, FR-002)
 - [ ] T012 [US1] Implement `code/ingestion/ingest.py`: Main pipeline to read CSV, validate (T008b), featurize, and write `data/processed/featurized.jsonl` (Depends on T008b, T010)
-- [~] T013 [US1] Implement error handling in `ingest.py` to exclude records with missing data and log with `[MISSING_DATA_EXCLUDED]`
-- [~] T014 [US1] Implement error handling in `ingest.py` to skip invalid SMILES and log with `[ERROR_SMILES]` without crashing
+- [ ] T013 [US1] Implement error handling in `ingest.py` to exclude records with missing data and log with `[MISSING_DATA_EXCLUDED]`
+- [ ] T014 [US1] Implement error handling in `ingest.py` to skip invalid SMILES and log with `[ERROR_SMILES]` without crashing
 - [ ] T015 [US1] Add contract test in `tests/contract/test_featurization.py` to validate JSONL schema against `specs/001-predicting-molecular-diffusion-coefficie/contracts/dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -115,14 +115,14 @@
 
 - [X] T024 [P] [US3] Implement `code/training/sensitivity.py` (Part 1): Define hyperparameter grid (Message Passing Steps **{1, 2, 3}**, Learning Rates: small values will be employed to promote stable convergence during training.)
 - [X] T042 [P] [US3] Implement `code/training/sensitivity.py` (Part 2): Sweep loop to retrain/evaluate models across the grid (Depends on T024, T041)
-- [~] T043 [US3] Implement `code/training/sensitivity.py` (Part 3): Generate sweep report `artifacts/reports/sensitivity_report.json` with table of metrics (Depends on T042)
-- [~] T025a [P] [US3] Implement `code/training/ablation_pipeline.py`: Add `remove_solvent` flag to the training input pipeline for both MPNN and Linear Regression (FR‑006, SC‑004)
+- [ ] T043 [US3] Implement `code/training/sensitivity.py` (Part 3): Generate sweep report `artifacts/reports/sensitivity_report.json` with table of metrics (Depends on T042)
+- [ ] T025a [P] [US3] Implement `code/training/ablation_pipeline.py`: Add `remove_solvent` flag to the training input pipeline for both MPNN and Linear Regression (FR‑006, SC‑004)
 - [ ] T025a_test [P] Add unit test `tests/unit/test_ablation_flag.py` that runs the pipeline with `remove_solvent=True` and asserts solvent descriptors are absent from the model input
 - [~] T025b [US3] Implement `code/training/ablation_study.py`: Orchestrate re‑training using the pipeline from T025a with `remove_solvent=True` for BOTH GNN and Baseline. **Explicitly calculate `variation_delta` as (full_model_r - ablated_model_r) for both models.** Generate `artifacts/reports/ablation_report.json` containing `gnn_variation_delta`, `baseline_variation_delta`, and the raw correlation values. (Depends on T041, T019a, T019b, T025a)
 - [ ] T025b_test [P] Add contract test `tests/contract/test_ablation_report.py` verifying the JSON contains fields `gnn_variation_delta`, `baseline_variation_delta` and that values are numeric
 - [~] T026 [US3] Implement `code/training/robustness.py`: Detect dataset size (using T019a logic) and switch CV strategy if < 50 molecules; calculate Pearson r on full dataset and on dataset excluding the top portion of residuals; write `artifacts/reports/outlier_analysis.json` (Depends on T019a, T041)
 - [ ] T027 [US3] Generate final report `artifacts/reports/sensitivity_summary.md` summarizing stability of Pearson r > 0.7 across variations **and explicitly include a `stability` field (`stable`/`unstable`) based on whether all r values meet the threshold**. **Must depend on T043 AND T025b** to ensure both sweep and ablation results are available. (Depends on T043, T025b)
-- [ ] T027b [P] Add verification test `tests/contract/test_sensitivity_stability.py` that checks the summary report contains a stability statement and that all r values are recorded
+- [X] T027b [P] Add verification test `tests/contract/test_sensitivity_stability.py` that checks the summary report contains a stability statement and that all r values are recorded
 - [X] T028 [US3] Add unit test `tests/unit/test_outlier_analysis.py` confirming the JSON includes both full‑set and trimmed‑set r values
 - [X] T028a [P] Add test `tests/unit/test_sensitivity_logic.py` verifying the hyperparameter sweep logic correctly iterates over the defined grid
 
@@ -141,6 +141,6 @@
 - [~] T033a [P] Add verification step that diffs `plan.md` to ensure a dataset source URL line is present; fail the task if missing (executability)
 - [~] T034 Update `plan.md` with the actual dataset source found (NIST/Zenodo) or confirm "Simulation Study" status (requires manual edit but task ensures it is recorded)
 - [ ] T035 [P] Aggregate runtime and memory usage into a unified `artifacts/reports/resource_summary.json` after the full pipeline completes, copying `total_seconds` and `peak_memory_mb` from `runtime_memory.json` (addresses SC‑005)
-- [ ] T036 [P] Add pytest contract test `tests/contract/test_resource_report.py` verifying that `resource_summary.json` contains both `total_seconds` and `peak_memory_mb` fields with numeric values
+- [X] T036 [P] Add pytest contract test `tests/contract/test_resource_report.py` verifying that `resource_summary.json` contains both `total_seconds` and `peak_memory_mb` fields with numeric values
 - [~] T037 [P] Add pytest unit test `tests/unit/test_pearson_threshold.py` that loads `artifacts/reports/evaluation.json` and asserts the `hypothesis_status` field correctly reflects whether `pearson_r > 0.7` (positive), `< 0.3` (null), or between (inconclusive) (addresses SC‑001)
 - [~] T039 [P] Add pytest contract test `tests/contract/test_sensitivity_stability_report.py` that checks `artifacts/reports/sensitivity_summary.md` includes a clear stability statement and that all reported `r` values are present (addresses SC‑004)

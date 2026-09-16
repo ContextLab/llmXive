@@ -25,6 +25,7 @@ from utils.logging import (
 )
 from ingestion.featurize import featurize_row
 
+
 def _is_valid_smiles(smiles: str) -> bool:
     """
     Return ``True`` if ``smiles`` can be parsed by RDKit, otherwise ``False``.
@@ -34,14 +35,15 @@ def _is_valid_smiles(smiles: str) -> bool:
     mol = Chem.MolFromSmiles(smiles)
     return mol is not None
 
+
 def ingest(input_csv: Path, output_jsonl: Path) -> None:
     """
     Process ``input_csv`` and write featurized records to ``output_jsonl``.
 
     - Rows with missing critical fields are excluded and logged
-      via ``log_missing_data_excluded`` (implemented in T013).
+      via ``log_missing_data_excluded``.
     - Rows with an invalid SMILES string are excluded and logged
-      via ``log_invalid_smiles`` (the focus of T014).
+      via ``log_invalid_smiles``.
 
     The output format is a JSON Lines file where each line contains a
     dictionary with the original SMILES and a string representation of the
@@ -55,7 +57,7 @@ def ingest(input_csv: Path, output_jsonl: Path) -> None:
 
         reader = csv.DictReader(csv_file)
         for row_number, row in enumerate(reader, start=1):
-            # Basic missing‑data guard (already part of T013)
+            # Guard against missing critical fields
             if any(value == "" or value is None for value in row.values()):
                 log_missing_data_excluded(logger, row)
                 continue
@@ -82,6 +84,7 @@ def ingest(input_csv: Path, output_jsonl: Path) -> None:
                 "data_repr": str(data_obj),
             }
             out_file.write(json.dumps(record) + "\n")
+
 
 def main() -> None:
     """
@@ -112,6 +115,7 @@ def main() -> None:
     args = parser.parse_args()
 
     ingest(args.input, args.output)
+
 
 if __name__ == "__main__":
     main()

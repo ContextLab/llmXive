@@ -389,3 +389,203 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T17:01:57Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Protein-protein interaction network source is STRING Database version
+    12.0
+  claim_id: c_ae453e4b
+  context: '1.1 Protein-Protein Interaction (PPI) Networks - Source: STRING Database
+    (v12.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: STRING Database (v12.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:36:33Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Protein-protein interaction network confidence threshold is 700
+  claim_id: c_901899bc
+  context: '1.1 Protein-Protein Interaction (PPI) Networks - Confidence Threshold:
+    Default 700 (High Confidence).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Confidence Threshold: Default 700 (High Confidence).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:37:02Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Gene essentiality labels source is Database of Essential Genes
+  claim_id: c_5365e35b
+  context: '1.2 Gene Essentiality Labels - Source: Database of Essential Genes (DEG).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gene_essentiality_labels_source_is_Database_of_Essential_Gen
+  kind: entity_fact
+  raw_text: 'Source: Database of Essential Genes (DEG).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:37:35Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Database of Essential Genes endpoint is ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/deg_essential_genes.csv
+  claim_id: c_721933c0
+  context: '1.2 Gene Essentiality Labels - Endpoint: ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/deg_essential_genes.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Database_of_Essential_Genes_endpoint_is_ftp://ftp.ncbi.nlm.n
+  kind: entity_fact
+  raw_text: 'Endpoint: ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/deg_essential_genes.csv.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:37:58Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Phylogenetic tree source is OpenTree of Life
+  claim_id: c_da3529b3
+  context: '1.3 Phylogenetic Tree - Source: OpenTree of Life.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q22661281
+        url: https://www.wikidata.org/wiki/Q22661281
+        value: Open Tree of Life
+      quote: 'OpenTree: A Python Package for Accessing and Analyzing Data from the
+        Open Tree of Life'
+      source_id: Q111149904
+      url: https://www.wikidata.org/wiki/Q111149904
+      value: 'OpenTree: A Python Package for Accessing and Analyzing Data from the
+        Open Tree of Life'
+    filled: true
+  kind: entity_fact
+  raw_text: 'Source: OpenTree of Life.'
+  resolved_value: 'OpenTree: A Python Package for Accessing and Analyzing Data from
+    the Open Tree of Life'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-16T15:38:10Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Supertree construction used taxonomic IDs 9606, 10090, 7955, 6239, 7227,
+    8355, 9615
+  claim_id: c_263960e9
+  context: '1.3 Phylogenetic Tree - Method: Supertree construction for taxonomic IDs:
+    9606, 10090, 7955, 6239, 7227, 8355, 9615.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Method: Supertree construction for taxonomic IDs: 9606, 10090, 7955,
+    6239, 7227, 8355, 9615.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:38:44Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Null model A used 1,000 permutations of essentiality labels
+  claim_id: c_9fcb6a77
+  context: '2.2 Statistical Analysis - Null Model A (Label Permutation): 1,000 permutations
+    of essentiality labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 permutations of essentiality labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:39:08Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Empirical p-value formula for label permutation is (count(perm_corr >=
+    obs_corr) + 1) / 1001
+  claim_id: c_5ef58611
+  context: '2.2 Statistical Analysis - Null Model A (Label Permutation): Empirical
+    p-value calculated as (count(perm_corr >= obs_corr) + 1) / (1000 + 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Empirical p-value calculated as (count(perm_corr >= obs_corr) + 1) / (1000
+    + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:41:07Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Maslov-Sneppen algorithm used for degree-preserving random graph generation
+  claim_id: c_b79bfe24
+  context: '2.2 Statistical Analysis - Null Model B (Graph Rewiring): Maslov-Sneppen
+    algorithm used to generate degree-preserving random graphs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maslov-Sneppen_algorithm_used_for_degree-preserving_random_g
+  kind: entity_fact
+  raw_text: Maslov-Sneppen algorithm used to generate degree-preserving random graphs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:41:32Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: 100 rewired graphs generated per organism for Null Model B
+  claim_id: c_b07aa4dc
+  context: '2.2 Statistical Analysis - Null Model B (Graph Rewiring): 100 rewired
+    graphs generated per organism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100 rewired graphs generated per organism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:41:51Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Gene ID mapping relies on Ensembl BioMart
+  claim_id: c_ce2b97e9
+  context: '5. Known Limitations - Missing Orthologs: ID mapping relies on Ensembl
+    BioMart; genes without a match are excluded.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gene_ID_mapping_relies_on_Ensembl_BioMart
+  kind: entity_fact
+  raw_text: ID mapping relies on Ensembl BioMart.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:42:31Z'

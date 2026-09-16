@@ -81,7 +81,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T012 [US1] Implement Tier 2 logic: Generate multiple branching paths, a moderate number of nodes, stochastic transition probabilities
 - [ ] T013 [US1] Implement Tier 3 logic: Generate a sufficient number of nodes, sparse reward signals, high-entropy state transitions
 - [ ] T014 [US1] Implement graph validation step to ensure valid path exists (regenerate if unreachable goal)
-- [ ] T015 [US1] Implement seed-based deterministic regeneration logic: Generate graphs on-the-fly using the seed and code version hash; validate checksums against expected values to ensure reproducibility without static caching of artifacts
+- [ ] T015 [US1] Implement seed-based deterministic regeneration logic: Generate graphs on-the-fly using the seed and code version hash; validate checksums against expected values to ensure reproducibility without static caching of artifacts <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,8 +99,8 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T017 [US2] Implement `OPIDRouter` class in `code/agent/opid_router.py` with configurable `routing_threshold` parameter
 - [ ] T018 [US2] Implement critical-first routing logic: Bernoulli trial with p = 1 - threshold for skill injection
 - [ ] T019 [US2] Implement logic to inject hindsight skill distillation signals based on routing outcome
-- [~] T020 [US2] Implement suppression of skill signals when threshold prevents injection
-- [~] T021 [US2] Add logging for log-probability shifts and action selections relative to threshold settings
+- [ ] T020 [US2] Implement suppression of skill signals when threshold prevents injection
+- [ ] T021 [US2] Add logging for log-probability shifts and action selections relative to threshold settings
 - [X] T021b [US2] Implement aggregation logic in `code/utils/metrics.py` to calculate the **mean log-probability shift** per (Tier, Threshold) setting from the logs generated in T021, required for the distillation cost-benefit ratio
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -116,8 +116,8 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [X] T022 [P] [US3] Implement `ExperimentRunner` in `code/experiments/runner.py` to orchestrate the full sweep
-- [~] T023 [US3] Implement sweep logic: Iterate thresholds from **0.0 to 1.0** in **steps of 0.1** to satisfy FR-006 sensitivity analysis
-- [~] T024 [US3] Implement episode loop: Execute **exactly 1,000 simulated episodes** per (Tier, Threshold) combination to satisfy FR-003 statistical power requirements
+- [ ] T023 [US3] Implement sweep logic: Iterate thresholds from **0.0 to 1.0** in **steps of 0.1** to satisfy FR-006 sensitivity analysis
+- [ ] T024 [US3] Implement episode loop: Execute **exactly 1,000 simulated episodes** per (Tier, Threshold) combination to satisfy FR-003 statistical power requirements
 - [ ] T025 [US3] Implement sequential processing logic to ensure memory footprint < 7GB (discard intermediate data)
 - [ ] T026 [US3] Implement "success rate" calculation: % of episodes traversing ground-truth path
 - [ ] T028 [US3] Implement regression logic (Quadratic) in `code/experiments/analyzer.py` to isolate threshold effect, **and implement ANOVA** to measure statistical significance (p < 0.05) of the interaction term as required by SC-001 and SC-004

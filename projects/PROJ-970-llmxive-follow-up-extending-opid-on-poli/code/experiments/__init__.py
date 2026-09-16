@@ -1,1 +1,1 @@
-# Experiments module
+# Experiments package

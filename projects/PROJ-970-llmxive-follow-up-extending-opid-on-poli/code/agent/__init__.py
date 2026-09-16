@@ -1,3 +1,1 @@
-"""
-Agent and Policy logic.
-"""
+# Agent package

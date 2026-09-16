@@ -1,21 +1,44 @@
-# Ruff configuration for OPID Routing Complexity
+[lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "RUF"]
+ignore = ["E501", "B008"]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
 line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
 target-version = "py311"
 
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "F",  # Pyflakes
-    "W",  # pycodestyle warnings
-    "I",  # isort
-    "N",  # pep8-naming
-    "UP", # pyupgrade
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "SIM" # flake8-simplify
-]
-ignore = []
-
-[format]
-quote-style = "double"
-indent-style = "space"
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]

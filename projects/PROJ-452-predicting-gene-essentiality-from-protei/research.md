@@ -1,123 +1,65 @@
-# Research Report: Predicting Gene Essentiality from Protein Interaction Network Topology
+# Research Implementation Notes: Predicting Gene Essentiality from Protein Interaction Network Topology
 
-## Executive Summary
+This document details the implementation decisions, algorithmic choices, and validation strategies used in this project.
 
-This research investigates the relationship between gene essentiality and topological properties of protein-protein interaction (PPI) networks across multiple model organisms. We analyze whether highly central genes (high degree, betweenness, or eigenvector centrality) are more likely to be essential for organism survival.
+## 1. Data Sources and Integrity
 
-## Methodology
+### 1.1 Protein-Protein Interaction (PPI) Networks
+- **Source**: STRING Database (v12.0).
+- **Endpoint**: `.
+- **Confidence Threshold**: Default 700 (High Confidence).
+- **Handling**: Networks are fetched per organism. If the API returns fewer than 2 nodes, the network is considered disconnected, and centrality metrics are set to 0 (see `code/network_analysis.py`).
 
-### Data Sources
+### 1.2 Gene Essentiality Labels
+- **Source**: Database of Essential Genes (DEG).
+- **Endpoint**: `ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/deg_essential_genes.csv`.
+- **Format**: CSV with gene ID and binary essentiality label.
+- **Integrity**: The loader (`code/data_loader.py`) strictly validates the CSV format. No synthetic fallback is implemented; a failed fetch halts the pipeline.
 
-1. **Protein-Protein Interaction Networks**: Retrieved from STRING database (confidence score ≥ 700) for 7 model organisms:
- - Homo sapiens (9606)
- - Mus musculus (10090)
- - Danio rerio (7955)
- - Caenorhabditis elegans (6239)
- - Drosophila melanogaster (7227)
- - Xenopus tropicalis (8355)
- - Canis lupus familiaris (9615)
+### 1.3 Phylogenetic Tree
+- **Source**: OpenTree of Life.
+- **Method**: Supertree construction for taxonomic IDs: 9606, 10090, 7955, 6239, 7227, 8355, 9615.
+- **Validation**: The tree is fetched in `code/fetch_phylogeny.py`. If the Newick string is empty or malformed, the script exits with `PhylogenyFetchError`.
 
-2. **Gene Essentiality Labels**: Binary essentiality labels obtained from the Database of Essential Genes (DEG) via FTP.
+## 2. Algorithmic Implementation
 
-3. **Phylogenetic Tree**: Supertree fetched from OpenTree of Life for comparative analysis.
+### 2.1 Centrality Metrics
+- **Degree Centrality**: Calculated using `networkx.degree_centrality`.
+- **Betweenness Centrality**:
+ - For networks < 5,000 nodes: Exact calculation via `networkx.betweenness_centrality`.
+ - For networks >= 5,000 nodes: Approximate calculation using k-sampling (k=100) to ensure runtime < 30 minutes (FR-004).
+- **Eigenvector Centrality**: Calculated via `networkx.eigenvector_centrality` with a maximum of 1000 iterations.
 
-### Analysis Pipeline
+### 2.2 Statistical Analysis
+- **Correlation**: Spearman's rank correlation coefficient (`scipy.stats.spearmanr`).
+- **Null Model A (Label Permutation)**:
+ - 1,000 permutations of essentiality labels. [UNRESOLVED-CLAIM: c_9fcb6a77 — status=not_enough_info]
+ - Empirical p-value calculated as `(count(perm_corr >= obs_corr) + 1) / (1000 + 1)`.
+- **Null Model B (Graph Rewiring)**:
+ - Maslov-Sneppen algorithm used to generate degree-preserving random graphs. [UNRESOLVED-CLAIM: c_b79bfe24 — status=not_enough_info]
+ - 100 rewired graphs generated per organism. [UNRESOLVED-CLAIM: c_b07aa4dc — status=not_enough_info]
+ - Z-score computed to compare observed centrality distribution against rewired mean.
 
-1. **ID Mapping**: Gene identifiers from STRING and DEG are aligned using Ensembl BioMart API.
+### 2.3 Comparative Statistics (PGLS)
+- **Transformation**: Fisher's z-transformation applied to correlation coefficients before regression.
+- **Model**: Phylogenetic Generalized Least Squares (PGLS) using `statsmodels`.
+- **Multiple Testing**: Benjamini-Hochberg procedure applied to correct p-values across organisms (FR-008).
+- **Power Check**: If effective sample size (n) < 10, PGLS is skipped, and a warning is logged.
 
-2. **Centrality Computation**:
- - Degree Centrality
- - Betweenness Centrality (k-sampling for networks > 5,000 nodes)
- - Eigenvector Centrality
+## 3. Sensitivity Analysis
 
-3. **Correlation Analysis**: Spearman's rank correlation between each centrality metric and essentiality labels.
+- **Method**: Re-runs the correlation pipeline across confidence thresholds [400, 700, 900].
+- **Stability Metric**: Absolute difference (|Δρ|) in correlation coefficients between adjacent thresholds.
+- **Threshold**: A |Δρ| > 0.1 flags the result as unstable (SC-002).
 
-4. **Null Models**:
- - **Label Permutation**: 1,000 shuffles of essentiality labels to generate null distribution.
- - **Graph Rewiring**: Maslov-Sneppen algorithm to generate degree-preserving random graphs.
+## 4. Validation and Testing
 
-5. **Statistical Testing**:
- - Empirical p-values from permutation null distributions.
- - Fisher's z-transformation for cross-species comparison.
- - Phylogenetic Generalized Least Squares (PGLS) to account for evolutionary relationships.
- - Benjamini-Hochberg correction for multiple comparisons.
+- **Contract Tests**: JSON outputs are validated against schemas defined in `contracts/`.
+- **Integration Tests**: Mock data is used to verify pipeline logic without external API calls.
+- **Hash Verification**: `code/hash_checker.py` ensures data provenance and reproducibility.
 
-6. **Sensitivity Analysis**: Correlation robustness assessed across STRING confidence thresholds [500, 700, 900].
+## 5. Known Limitations
 
-## Results
-
-### Cross-Species Correlation Analysis
-
-For each organism, we computed Spearman's ρ between centrality metrics and essentiality labels. Results are stored in `results/correlations.json`.
-
-**Key Findings**:
-- Degree centrality shows a consistent positive correlation with essentiality across all organisms.
-- Betweenness centrality exhibits variable correlation strength, with some organisms showing weak or no correlation.
-- Eigenvector centrality generally shows moderate positive correlation.
-
-**Empirical P-values**: All observed correlations were tested against null distributions generated by label permutation. Significant correlations (p < 0.05) were observed for degree centrality in most organisms.
-
-### Rewired Null Model Validation
-
-The Maslov-Sneppen rewiring algorithm generated degree-preserving random graphs. Correlations on rewired graphs were significantly lower than observed correlations, validating that the observed signal is not an artifact of network structure alone.
-
-### Phylogenetic Comparative Analysis
-
-PGLS analysis with Fisher's z-transformation revealed:
-- Significant differences in correlation strength across species after accounting for phylogeny.
-- Benjamini-Hochberg corrected p-values indicate that the relationship between centrality and essentiality is evolutionarily conserved but varies in magnitude.
-
-### Sensitivity Analysis
-
-Correlation coefficients were stable across confidence thresholds [500, 700, 900], with |Δρ| < 0.1 for most organisms. [UNRESOLVED-CLAIM: c_9ece2339 — status=not_enough_info] This confirms the robustness of findings to network sparsity.
-
-## Discussion
-
-### Biological Implications
-
-The consistent positive correlation between degree centrality and gene essentiality supports the "centrality-lethality" rule in network biology. Highly connected hub genes are more likely to be essential, suggesting that network topology can predict functional importance.
-
-The variability in betweenness centrality correlation suggests that bridge genes (high betweenness) may not be universally essential, possibly due to redundant pathways or alternative routes in the network.
-
-### Methodological Strengths
-
-1. **Multi-species analysis**: Cross-species comparison increases generalizability of findings.
-2. **Robust null models**: Both label permutation and graph rewiring provide complementary validation.
-3. **Phylogenetic correction**: PGLS accounts for evolutionary non-independence of species data.
-4. **Sensitivity analysis**: Confirms results are not artifacts of arbitrary parameter choices.
-
-### Limitations
-
-1. **Data quality**: STRING networks are predicted/curated interactions with varying confidence levels.
-2. **Binary essentiality**: Essentiality is treated as binary, ignoring conditional essentiality or tissue-specific effects.
-3. **Static networks**: PPI networks are static snapshots, not capturing dynamic or context-specific interactions.
-4. **Sample size**: Limited number of organisms (7) constrains statistical power for PGLS.
-
-## Conclusion
-
-This study provides robust evidence that topological centrality in PPI networks is predictive of gene essentiality across diverse model organisms. The centrality-lethality rule holds, particularly for degree centrality, and is robust to network confidence thresholds. Phylogenetic analysis confirms that this relationship is evolutionarily conserved, though with species-specific variations.
-
-Future work should explore:
-- Dynamic PPI networks capturing temporal or condition-specific interactions.
-- Integration of additional omics data (e.g., expression, epigenetics).
-- Expansion to more organisms and non-model species.
-- Investigation of mechanistic links between topology and essentiality.
-
-## Reproducibility
-
-All analysis is reproducible via the `quickstart.md` guide. Key artifacts:
-- `results/correlations.json`: Primary correlation results.
-- `results/pgls_results.json`: Comparative statistics.
-- `results/sensitivity_report.md`: Robustness analysis.
-- `state/hashes.yaml`: SHA256 hashes for data and results verification.
-
-The pipeline is fully automated and can be re-run to regenerate all results from raw data.
-
-## References
-
-1. STRING Database: https://string-db.org/
-2. Database of Essential Genes (DEG): http://tubic.org/deg/
-3. OpenTree of Life: https://tree.opentreeoflife.org/
-4. Maslov, S., & Sneppen, K. (2002). Specificity and stability in topology of protein networks. Science.
-5. Pagel, M. (1999). Inferring the historical patterns of biological evolution. Nature.
-6. Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery rate. Journal of the Royal Statistical Society.
+- **STRING API Rate Limits**: The current implementation does not include exponential backoff for batch fetching; parallel requests should be limited.
+- **Large Networks**: Betweenness centrality approximation may introduce small errors for very large graphs.
+- **Missing Orthologs**: ID mapping relies on Ensembl BioMart; genes without a match are excluded, potentially biasing results in non-model organisms.

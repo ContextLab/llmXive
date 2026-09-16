@@ -216,3 +216,62 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T03:32:58Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: use wikidata Q3274587 as data source
+  claim_id: c_89d6c2a9
+  context: T007b [P] {{claim:c_916bfffc}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587)
+    or random structures strictly for pipeline validation
+  evidence:
+    entailment_evidence: Use wikidata Q3274587 as data source
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Use_wikidata_Q3274587_as_data_source
+  kind: entity_fact
+  raw_text: Use Wikidata Q3274587 as a data source for pipeline validation
+  resolved_value: use wikidata Q3274587 as data source
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-16T15:50:35Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: Wikidata Q3274587 used as synthetic dataset for pipeline validation
+  claim_id: c_366ee7f5
+  context: T007b [P] {{claim:c_916bfffc}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587)
+    or random structures strictly for pipeline validation (Phase 0)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q3274587_used_as_synthetic_dataset_for_pipeline_val
+  kind: entity_fact
+  raw_text: Wikidata Q3274587 is used as a synthetic dataset for pipeline validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:52:11Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: dataset referenced by Wikidata Q3274587
+  claim_id: c_124a2ae3
+  context: T007b [P] {{claim:c_916bfffc}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587)
+    or random structures strictly for pipeline validation (Phase 0)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P373: Wikipedia WikiProject Medicine'
+      source_id: Q4099686
+      url: https://www.wikidata.org/wiki/Q4099686
+      value: Wikipedia WikiProject Medicine
+    filled: true
+  kind: entity_fact
+  raw_text: Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587
+  resolved_value: Wikipedia WikiProject Medicine
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-16T15:54:03Z'

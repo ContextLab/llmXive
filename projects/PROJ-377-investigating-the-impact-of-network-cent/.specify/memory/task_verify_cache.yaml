@@ -1,57 +1,18 @@
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, configuration, or output files were provided that demonstrate\
-    \ a validation step enforcing \u2265\u202F80\u202F% subject retention or handling\
-    \ missing behavioral data gracefully. The claim lacks any concrete artifact (e.g.,\
-    \ a Python module, unit test, log output, or documentation) showing the required\
-    \ checks and error handling, so the task is not satisfied."
-T019:
-  c: false
-  h: 95c063f63710f90fd24fd8952a6fef37d8602cb37fc96ec96ba9d8793a688b33
-  r: The `extract_connectivity_matrix_for_subject` function in `code/analysis/centrality.py`
-    contains only a placeholder that raises `NotImplementedError`, so no functional
-    connectivity extraction using `nilearn.connectome.ConnectivityMeasure` is implemented.
-    Moreover, the required output file `data/processed/connectivity/subject_id_matrix.npy`
-    does not exist. Both the core implementation and the saved matrix artifact are
-    missing.
-T020:
-  c: false
-  h: 4aaa79df57628a1fb7a97d25da2c9c5be621e88e90cf08256c1870d120598511
-  r: The repository contains `code/analysis/centrality.py`, but it never writes the
-    computed metrics to `data/processed/centrality/subject_id_metrics.csv`, and that
-    CSV file is absent. Consequently the required persistence step is missing, so
-    the task is not fully satisfied.
-T021:
-  c: false
-  h: a735dae39a54f8ea5d2b43051e132416f9490b4fbb5c03db475aeaa996a5c654
-  r: "The required output file `data/processed/behavioral/fd_mean.csv` does not exist,\
-    \ and the provided `code/analysis/centrality.py` contains only centrality\u2011\
-    related functions (with a placeholder for connectivity extraction) and no implementation\
-    \ for reading fMRIPrep confounds, computing mean framewise displacement, or writing\
-    \ the CSV. The task\u2019s FD calculation and aggregation are therefore missing."
-T022:
-  c: false
-  h: 505f016b5ff3c2ae5ba7ff8d1718c2d3d605e29fca3c64ce9669c6af3f5656ad
-  r: "The repository lacks the required `data/processed/centrality/subject_id_metrics.csv`\
-    \ and the resulting `model_predictors.csv`. The `centrality.py` script is incomplete:\
-    \ the VIF calculation function is truncated, the extraction logic raises `NotImplementedError`,\
-    \ and no code writes the final predictors file. Consequently the task\u2019s specifications\
-    \ are not met."
-T024:
-  c: false
-  h: 8f9cd85c12036083a00039d9da69a6eed8f8fd2adb82e4bb6ae22377f4093822
-  r: "The required output file `data/processed/regression/linear_model_summary.csv`\
-    \ does not exist, and the provided `regression.py` snippet is truncated before\
-    \ any regression fitting or CSV\u2011writing logic, so the task\u2019s core requirement\
-    \ (run the model and save its summary) is not satisfied. The next implementer\
-    \ must ensure the script performs the conditional regression and writes the summary\
-    \ to the specified path."
 T030:
   c: false
-  h: 8ad9e955e43e482f4a2f192e8c489ef82a7d1d9c183350d8833d3459791698f3
-  r: "The `validation.py` file shown only contains data\u2011loading helpers and does\
-    \ not include any Freedman\u2011Lane permutation logic, nor does it demonstrate\
-    \ using a fixed seed or performing exactly 1\u202F000 shuffles. Moreover, the\
-    \ required output file `data/processed/validation/permutation_results.json` is\
-    \ absent. The task therefore remains unfinished."
+  h: 2e2647791477755b0416194f7d078db0ee103c19ebf9aa77ab80a874d88758f7
+  r: "The claimed output file `data/processed/validation/permutation_results.json`\
+    \ does not exist, so the required artifact is missing. Moreover, the permutation\
+    \ function uses the first residual as the \u201Cobserved statistic\u201D rather\
+    \ than the primary regression coefficient, which does not meet the specification\
+    \ of calculating an empirical p\u2011value for the primary coefficient. The next\
+    \ implementer must generate the JSON results file and correctly compute the statistic\
+    \ from the primary model coefficient."
+T031:
+  c: false
+  h: a17edd999bf60e195cd1f1776fd03a2f6c1b0be2aabd25e7519b30fdc1f9a740
+  r: "The provided `validation.py` only implements a Freedman\u2011Lane permutation\
+    \ test and saves a p\u2011value; it contains no k\u2011fold cross\u2011validation\
+    \ logic, no calculation of out\u2011of\u2011sample R\xB2 or RMSE, and no comparison\
+    \ to the intercept\u2011only baseline. Moreover, the required output file `data/processed/validation/cv_results.json`\
+    \ is missing. The task requirements are therefore not met."

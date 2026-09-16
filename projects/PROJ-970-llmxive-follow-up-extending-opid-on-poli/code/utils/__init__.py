@@ -1,1 +1,1 @@
-# Utilities module
+# Utils package

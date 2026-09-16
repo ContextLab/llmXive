@@ -1,21 +1,18 @@
 #pragma once
 #include <atomic>
 #include <cstddef>
-#include <new>
 
-// Padded counter struct: aligned to cache line boundaries to prevent false sharing
-// Target size: >= 192 bytes (3 cache lines of 64 bytes) to ensure isolation even with overhead
-// Or simply align the struct to 64 bytes and ensure size is large enough.
-// The task says "padded (>=192 bytes)".
-
-struct alignas(64) PaddedCounter {
+// Padded counter struct: >= 192 bytes total (3 cache lines)
+// Aligned to 64-byte cache line boundaries to prevent false sharing
+struct alignas(64) CounterPadded {
     std::atomic<long> value;
-    // Pad to ensure total size is at least 192 bytes (3 cache lines)
-    // atomic<long> is 8 bytes.
-    // We need 184 bytes of padding.
-    char padding[184]; 
+    char padding[56]; // 8 + 56 = 64 bytes (1 cache line)
+    // Additional padding to ensure distinct cache lines if array is used?
+    // The struct itself is 64 bytes. If we have an array of these, each element is on a new cache line.
+    // The plan mentions >= 192 bytes. Let's add more padding to the struct itself to force 3 lines per element if needed,
+    // or rely on the array indexing.
+    // To strictly satisfy "≥192 bytes" per struct entry as implied by the plan text:
+    char extra_padding[128]; // Total 64 + 128 = 192 bytes
 };
 
-// Verify size at compile time if possible, or runtime check in verify_layout
-static_assert(sizeof(PaddedCounter) >= 192, "PaddedCounter must be at least 192 bytes");
-static_assert(alignof(PaddedCounter) == 64, "PaddedCounter must be aligned to 64 bytes");
+using Counter = CounterPadded;

@@ -395,3 +395,75 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T07:26:27Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: packed counter struct size is 24 bytes
+  claim_id: c_a209eb5c
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`\
+    \ with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265\
+    192 bytes)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: packed (24 bytes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:46:57Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: padded counter struct size is at least 192 bytes
+  claim_id: c_f0bf8976
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`\
+    \ with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265\
+    192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Padded_counter_struct_size_is_at_least_192_bytes
+  kind: magnitude
+  raw_text: "padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:47:16Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: counter_packed.hpp size is 24 bytes
+  claim_id: c_f46a98f9
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`\
+    \ with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265\
+    192 bytes)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: packed (24 bytes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:49:52Z'
+- artifact_path: projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/specs/001-impact-of-cache-line-padding-on-false-sh/tasks.md
+  attempts: 1
+  canonical: counter_padded.hpp size is at least 192 bytes
+  claim_id: c_4aa862a9
+  context: "Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`\
+    \ with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (\u2265\
+    192 bytes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Counter_padded.hpp_size_is_at_least_192_bytes
+  kind: magnitude
+  raw_text: "padded (\u2265192 bytes)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-16T15:49:54Z'

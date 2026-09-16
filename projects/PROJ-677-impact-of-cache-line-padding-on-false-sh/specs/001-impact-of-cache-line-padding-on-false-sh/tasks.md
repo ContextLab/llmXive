@@ -61,7 +61,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T005 [US1] Implement memory layout verification utility `verify_layout.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` to {{claim:c_97e99955}}
  - **DEPENDS_ON**: T007
 - [X] T006 [P] Create Pydantic schemas in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/analysis/contracts/` for `BenchmarkRun` and `AggregatedResult`
-- [ ] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) and `alignas(64) ` for padded (≥192 bytes)
+- [ ] T007 [P] [FR-002] Create `counter_packed.hpp` and `counter_padded.hpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with `#pragma pack(1)` for packed (24 bytes) [UNRESOLVED-CLAIM: c_f46a98f9 — status=not_enough_info] and `alignas(64) ` for padded (≥192 bytes) [UNRESOLVED-CLAIM: c_4aa862a9 — status=not_enough_info]
 - [ ] T008 [P] Configure GitHub Actions workflow `.github/workflows/benchmark.yml` with `ubuntu-latest`, timeout 6h, and steps for build, run, and analysis
 - [ ] T009 [P] Setup environment configuration for `run_benchmarks.sh` to handle core pinning via `taskset` and output directory creation
 
@@ -89,7 +89,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T014 [P] [US1] Implement `main.cpp` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/` with argument parsing for thread count and configuration (packed/padded)
 - [ ] T015 [US1] Implement `build.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to compile `main.cpp` with `-O3 -march=native` and `verify_layout.cpp`
 - [ ] T016 [US1] Add single-threaded validation logic in `main.cpp` to ensure atomic increments are not optimized away (FR-004)
-- [~] T017 [US1] Add logging for compilation warnings and errors in `build.sh` and exit with code 1 on failure
+- [ ] T017 [US1] Add logging for compilation warnings and errors in `build.sh` and exit with code 1 on failure
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,11 +108,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement multi-threaded worker logic in `main.cpp` using `std::thread` and `std::atomic<long>` for a large number of increments per thread, allocating a shared array of structs where each thread writes to a distinct element (FR-004, FR-010)
-- [~] T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to iterate thread counts {2, 4, 8} and configs {packed, padded}
-- [~] T023 [US2] Implement wall-clock timing logic in `main.cpp` using `std::chrono::high_resolution_clock` and output to CSV (FR-006)
-- [~] T024 [US2] Implement CSV writer in `main.cpp` or `run_benchmarks.sh` to append rows with `thread_count, configuration, iteration_count, wall_clock_time_ms`
-- [~] T025 [US2] Implement CPU pinning and governor setting in `run_benchmarks.sh` using `cpupower` first, then fallback to direct sysfs writes (Plan: Hardware Configuration Transparency)
+- [ ] T021 [P] [US2] Implement multi-threaded worker logic in `main.cpp` using `std::thread` and `std::atomic<long>` for a large number of increments per thread, allocating a shared array of structs where each thread writes to a distinct element (FR-004, FR-010)
+- [ ] T022 [US2] Implement `run_benchmarks.sh` in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/` to iterate thread counts {2, 4, 8} and configs {packed, padded}
+- [ ] T023 [US2] Implement wall-clock timing logic in `main.cpp` using `std::chrono::high_resolution_clock` and output to CSV (FR-006)
+- [ ] T024 [US2] Implement CSV writer in `main.cpp` or `run_benchmarks.sh` to append rows with `thread_count, configuration, iteration_count, wall_clock_time_ms`
+- [ ] T025 [US2] Implement CPU pinning and governor setting in `run_benchmarks.sh` using `cpupower` first, then fallback to direct sysfs writes (Plan: Hardware Configuration Transparency)
 - [~] T026 [US2] Add logic to `run_benchmarks.sh` to repeat each config multiple times (≥5 runs) to ensure statistical independence via temporal separation, handling timeout/early termination (Edge Case: time limit)
 - [~] T027 [US2] Implement timeout handling logic to flag incomplete data by adding a 'status' column to the CSV with value 'TIMEOUT' and excluding these rows from analysis
 
@@ -154,10 +154,10 @@ Examples of foundational tasks (adjust based on your project):
 - [~] T039 [P] Generate API documentation for Python analysis scripts
 - [~] T040 [P] Code cleanup and refactoring of C++ and Python scripts <!-- ATOMIZE: requested -->
 - [~] T041 [P] Apply clang-format to all C++ source files
-- [ ] T042 [P] Remove unused headers and dependencies from C++ files
-- [ ] T043 [P] Additional unit tests for edge cases (e.g., fewer than 8 cores) in `tests/unit/`
-- [ ] T044 [P] Security hardening of build scripts
-- [ ] T045 [P] Run `quickstart.md` validation
+- [~] T042 [P] Remove unused headers and dependencies from C++ files <!-- ATOMIZE: requested -->
+- [~] T043 [P] Additional unit tests for edge cases (e.g., fewer than 8 cores) in `tests/unit/`
+- [~] T044 [P] Security hardening of build scripts
+- [~] T045 [P] Run `quickstart.md` validation
 
 ---
 
