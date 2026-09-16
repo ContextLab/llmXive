@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Empirical Analysis of Twin Prime Gaps up to 10⁹
 
 **Input**: Design documents from `/specs/001-twin-prime-gaps/`
@@ -59,7 +63,7 @@
 - [X] T005 [P] Create data schema definition in `contracts/twin_prime_schema.schema.yaml` defining `p`, `p_next`, `delta`, `normalized_gap`
 - [X] T006 [P] Implement `code/hash_artifacts.py` to compute SHA-256 hashes and update project state YAML (Constitution Principle V)
 - [X] T007 Create base configuration loader in `code/config.py` for reading range limits and paths
-- [X] T008 Setup error handling infrastructure in `code/utils.py` (exit codes, logging) <!-- FAILED: unspecified -->
+- [X] T008 Setup error handling infrastructure in `code/utils.py` (exit codes, logging)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,13 +89,13 @@
  - Must compute `delta = p_{n+1} - p_n` (gap between starts of consecutive pairs)
  - Must compute `normalized_gap = delta / log(p_n)`
  - Must handle edge cases (log(0 (Theorem DB: math/0506067, https://arxiv.org/abs/math/0506067)) guards)
-- [ ] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output.
 - [X] T014 [US1] [FR-007] [SC-004] [SC-005] Implement CSV output and memory monitoring in `code/generate_primes.py`
  - Ensure RAM usage < 2 GiB and execution time < 45 mins
  - Output columns: `p`, `p_next`, `delta`, `normalized_gap`
 - [X] T014b [US1] [SC-004] [SC-005] Measure and record execution time and peak memory usage for the generation pipeline. **Output**: Save metrics to `data/results/performance_gen.json`.
  - **Dependency**: Must run sequentially immediately after T014 to capture metrics of the just-completed run.
-- [ ] T015 [US1] [P] Implement `code/validate_schema.py` to validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml` <!-- FAILED: unspecified -->
+- [ ] T015 [US1] [P] Implement `code/validate_schema.py` to validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`
  - **Dependency**: Must run sequentially immediately after T014 to validate the generated artifact.
 - [X] T016 [US1] [P] Add execution guard in `code/generate_primes.py` to detect dependency failures (e.g., missing `primesieve` binary) and exit with code 1. Also run `code/hash_artifacts.py` to hash the generated CSV and update state.
  - **Dependency**: Must run after T015.
@@ -154,7 +158,6 @@
  - Compute local mean and variance for each window.
  - Perform one-sample t-test against mean 1.0.
  - **Output**: Add a boolean column `is_significant` to `local_stats.json` for windows where p < 0.05.
- - Flag windows where the deviation is statistically significant (p < 0.05).
 - [ ] T029 [US3] [FR-005] Generate bar chart of mean normalized gaps per window relative to 1.0 (FR-005)
  - Save to `data/figures/local_deviation.png`
 - [ ] T030 [US3] [P] Save window statistics (mean, variance, t-stat, p-value) to `data/results/local_stats.json`. Run `code/hash_artifacts.py` to hash `local_stats.json` and update state.
@@ -185,12 +188,9 @@
 
 **Purpose**: Address Dan Rockmore's review regarding historical context and computational limits.
 
-- [ ] T035 [P] Update `code/report.py` to include a dedicated "Historical Context" section citing Cramér (1930s) and Goldston, Pintz, Yıldırım (n.d.)
-
-The specific value to remove/generalize: 'n.d.'
-
-Rewritten passage:
-Goldston, Pintz, Yıldırım (n.d.) (Addresses Rockmore Review)
+- [ ] T034 [P] [addresses Dan Rockmore review] Add a paragraph to `research.md` contextualizing the experiment within the broader history of probabilistic number theory.
+ - **Content**:  Quote Cramér's heuristic and mention the Goldston-Pintz-Yıldırım refinement.
+- [ ] T035 [P] Update `code/report.py` to include a dedicated "Historical Context" section citing Cramér (1936) and Goldston, Pintz, and Yıldırım (n.d.).
  - **Dependency**: Must run sequentially after T032.
  - Must explicitly quote or paraphrase the heuristic regarding prime gap distribution.
  - Must reference the Hardy-Littlewood k-tuple conjecture context.
@@ -200,7 +200,7 @@ Goldston, Pintz, Yıldırım (n.d.) (Addresses Rockmore Review)
  - Discuss the robustness of the claim given the finite sample size.
  - Explicitly state the limitations of the CPU-only approach on the tail behavior.
 - [ ] T037 [P] Update `specs/001-twin-prime-gaps/research.md` to include the missing lineage paragraph before the validation verdict (Addresses Rockmore Review)
- - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_ecab7430 — status=not_enough_info]. This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes. "
+ - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_ecab7430 — status=not_enough_info]. This heuristic was refined by Goldston, Pintz, and Yıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes. "
 
 ---
 

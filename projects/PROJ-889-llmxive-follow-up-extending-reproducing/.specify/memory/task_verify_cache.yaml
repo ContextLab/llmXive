@@ -44,11 +44,19 @@ T025c:
     \ artifact is missing."
 T032a:
   c: false
-  h: 9eedbf484c5d00d9ffdfec38b6a04c5bc675f374fc23455a44c7ba7de5572566
-  r: "The `code/ground_truth.py` does not raise `SystemExit(1)` on a failed J_unbiased\u2011\
-    J_gold correlation check (it only returns a boolean), and there is no logic that\
-    \ writes `data/processed/independence_check_status.json` on success (the file\
-    \ is missing). Consequently the required behavior and deliverable are not present."
+  h: 949d5b9ee0c737b41c1b9bfc4224644eea212afcfb7a11fe8ed4365c6ba5e7e8
+  r: "The provided `code/ground_truth.py` only defines a helper function that returns\
+    \ a boolean and correlation value; it never raises `SystemExit(1)`, logs the required\
+    \ error message, or writes `data/processed/independence_check_status.json`. Moreover,\
+    \ the status JSON file is absent from the repository. The task\u2019s core behavior\
+    \ and deliverable are therefore not satisfied."
+T032b:
+  c: false
+  h: 90005e0711eacd63473002ea1b3e33c6306716d050bef57b81f188d20ba30893
+  r: "The provided `code/ground_truth.py` only defines helper functions and never\
+    \ performs the required runtime check (no `SystemExit(1)`, no error log, no status\u2011\
+    file write). Moreover, the expected output file `data/processed/independence_check_status.json`\
+    \ is absent. The implementation does not meet the task\u2019s specification."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

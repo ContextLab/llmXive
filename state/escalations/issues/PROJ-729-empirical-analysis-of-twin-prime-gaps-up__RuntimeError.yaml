@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-16T23:29:41.299259+00:00'
+issue_number: 1390
+project_id: PROJ-729-empirical-analysis-of-twin-prime-gaps-up

@@ -1,11 +1,3 @@
-"""
-Download CHERRL logs from the verified HuggingFace dataset repository.
-
-This script fetches real trajectory data required for the llmXive pipeline.
-It implements a 'fail loud' strategy: if the data source is unreachable or
-the dataset ID does not match the verified source, it logs an error and
-exits with code 2. No mock mode or synthetic data generation is supported.
-"""
 import os
 import sys
 import hashlib
@@ -13,141 +5,123 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
-# Attempt to import datasets; if missing, the user must install it per requirements.txt
+# Ensure we can import from the code directory
+sys.path.insert(0, str(Path(__file__).parent))
+
 try:
     from datasets import load_dataset
 except ImportError:
-    print("ERROR: The 'datasets' library is not installed. Please install it via 'pip install datasets'")
-    sys.exit(2)
+    print("ERROR: The 'datasets' package is required. Install it with: pip install datasets")
+    sys.exit(1)
 
-# Import project utilities
-from config import get_project_root, ensure_paths_exist
-from utils.validator import validate_cherrl_source
 from utils.io_utils import ensure_dir
+from config import get_project_root
 
-
-# Verified Data Source Configuration
-# This matches the verified real data source provided in the project specification.
-VERIFIED_DATASET_ID = "cherrl-repo/logs"
+# Verified source constants
+VERIFIED_DATASET_NAME = "cherrl-repo/logs"
 VERIFIED_SPLIT = "train"
-OUTPUT_DIR_NAME = "cherrl_logs"
-EXIT_CODE_DATA_MISSING = 2
-
+EXPECTED_CHECKSUM = None  # Optional: Define if a specific checksum is known for the artifact
 
 def verify_arxiv_source() -> bool:
     """
-    Validates that the data source matches the verified CHERRL repository.
+    Validates that the CHERRL repository source is accessible and matches expectations.
+    Currently, this checks if the dataset can be loaded from the verified HuggingFace source.
     
     Returns:
-        bool: True if the source is valid, False otherwise.
-    
-    Raises:
-        SystemExit: If the source is invalid or unreachable.
+        bool: True if source is valid, False otherwise.
     """
     try:
-        # The validator checks against the known good source
-        is_valid = validate_cherrl_source(VERIFIED_DATASET_ID)
-        if not is_valid:
-            print(f"ERROR: Data source '{VERIFIED_DATASET_ID}' is unreachable or mismatch.")
-            return False
+        # Attempt a lightweight load to verify connectivity and source validity
+        # We use streaming=False to force an immediate check if the dataset exists
+        # However, for a quick validation, we might just try to get the info
+        ds_info = load_dataset(VERIFIED_DATASET_NAME, split=VERIFIED_SPLIT, streaming=True)
+        # If we can iterate even one item, the source is likely valid
+        iterator = iter(ds_info)
+        next(iterator)
         return True
     except Exception as e:
         print(f"ERROR: Data source unreachable or mismatch: {e}")
         return False
 
-
-def download_from_huggingface(output_path: Path) -> bool:
+def download_from_huggingface(output_dir: Path) -> bool:
     """
-    Downloads the CHERRL logs dataset from HuggingFace Hub.
+    Fetches real data from the verified CHERRL repository using HuggingFace datasets.
+    Saves extracted logs to the specified output directory.
     
     Args:
-        output_path: The directory where the extracted logs will be saved.
+        output_dir: Path to the directory where logs will be saved.
         
     Returns:
-        bool: True if download and extraction succeed, False otherwise.
+        bool: True if download and save were successful, False otherwise.
     """
-    print(f"Fetching dataset: {VERIFIED_DATASET_ID} (split: {VERIFIED_SPLIT})...")
-    
     try:
-        # Load the dataset using streaming=False to ensure we get the full data
-        # as required for the analysis pipeline.
-        dataset = load_dataset(
-            VERIFIED_DATASET_ID,
-            split=VERIFIED_SPLIT,
-            trust_remote_code=True
-        )
+        print(f"Fetching data from HuggingFace: {VERIFIED_DATASET_NAME} (split={VERIFIED_SPLIT})...")
         
-        if dataset is None or len(dataset) == 0:
-            print("ERROR: Downloaded dataset is empty.")
+        # Load the dataset
+        # Note: Using streaming=False to ensure we get the full data if feasible, 
+        # or we can iterate if it's massive. For this implementation, we assume 
+        # we need to process it into files.
+        dataset = load_dataset(VERIFIED_DATASET_NAME, split=VERIFIED_SPLIT)
+        
+        if not dataset:
+            print("ERROR: Dataset is empty.")
             return False
+
+        print(f"Dataset loaded with {len(dataset)} examples.")
+
+        # Ensure output directory exists
+        ensure_dir(output_dir)
+
+        # Save the dataset to Parquet or CSV files in the output directory
+        # The task requires saving to `data/raw/cherrl_logs/`
+        # We will save as parquet for efficiency, or csv if preferred. 
+        # Given the schema, parquet is robust.
+        output_file = output_dir / "cherrl_logs.parquet"
         
-        print(f"Successfully loaded {len(dataset)} records from HuggingFace.")
+        # Save to parquet
+        dataset.to_parquet(str(output_file))
         
-        # Ensure the output directory exists
-        ensure_dir(output_path)
-        
-        # Save the dataset to parquet or CSV format for downstream processing.
-        # We will save as parquet for efficiency, but the ingestion module
-        # can handle various formats. Let's save as a single parquet file per seed
-        # if possible, or a single file if the dataset is small enough.
-        # For simplicity and robustness, we save the full split as a Parquet file.
-        output_file = output_path / "cherrl_logs.parquet"
-        
-        # Convert to pandas and save (or use dataset.to_parquet if available)
-        # Using to_pandas() ensures compatibility with standard pandas I/O
-        df = dataset.to_pandas()
-        df.to_parquet(output_file, index=False)
-        
-        print(f"Data saved to: {output_file}")
-        
-        # Verify the file was created and is not empty
+        # Verify the file was created
         if not output_file.exists():
-            print("ERROR: Output file was not created.")
+            print("ERROR: Failed to write output file.")
             return False
         
-        if output_file.stat().st_size == 0:
-            print("ERROR: Output file is empty.")
-            return False
-            
+        # Optional: Calculate checksum for verification if EXPECTED_CHECKSUM is set
+        if EXPECTED_CHECKSUM:
+            file_hash = hashlib.sha256(output_file.read_bytes()).hexdigest()
+            if file_hash != EXPECTED_CHECKSUM:
+                print(f"ERROR: Checksum mismatch. Expected {EXPECTED_CHECKSUM}, got {file_hash}")
+                return False
+
+        print(f"Successfully saved logs to {output_file}")
         return True
 
     except Exception as e:
-        print(f"ERROR: Failed to download or process dataset: {e}")
+        print(f"ERROR: Data source unreachable or mismatch: {e}")
         return False
 
-
-def main() -> int:
+def main():
     """
-    Main entry point for the download script.
-    
-    Returns:
-        int: Exit code (0 for success, 2 for data missing/failure).
+    Main entry point for downloading CHERRL logs.
+    1. Verifies the source.
+    2. Downloads data to data/raw/cherrl_logs/.
+    3. Exits with code 2 if any step fails.
     """
-    # 1. Setup paths
     project_root = get_project_root()
-    raw_data_dir = project_root / "data" / "raw"
-    output_dir = raw_data_dir / OUTPUT_DIR_NAME
+    output_dir = project_root / "data" / "raw" / "cherrl_logs"
     
-    ensure_paths_exist() # Ensure data directories exist
-    
-    print(f"Project root: {project_root}")
-    print(f"Target output directory: {output_dir}")
-    
-    # 2. Verify Source
+    # Step 1: Verify Source
     if not verify_arxiv_source():
-        print(f"ERROR: Data source unreachable or mismatch")
-        return EXIT_CODE_DATA_MISSING
+        print("ERROR: Data source unreachable or mismatch")
+        sys.exit(2)
     
-    # 3. Download Data
-    success = download_from_huggingface(output_dir)
-    
-    if not success:
-        print(f"ERROR: Data source unreachable or mismatch")
-        return EXIT_CODE_DATA_MISSING
-    
+    # Step 2: Download
+    if not download_from_huggingface(output_dir):
+        print("ERROR: Data source unreachable or mismatch")
+        sys.exit(2)
+        
     print("Download completed successfully.")
-    return 0
-
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
