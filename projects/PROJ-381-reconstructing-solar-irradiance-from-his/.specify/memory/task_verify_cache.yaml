@@ -1,3 +1,38 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or file listings were provided; the required folders (`code/`,\
+    \ `tests/`, `data/raw/`, `data/processed/`, `code/models/`, `code/analysis/`)\
+    \ are not shown to exist or contain any content. The implementer\u2019s claim\
+    \ lacks concrete evidence of the requested project structure."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `__init__.py` files in any `code/` subdirectory or in the `tests/`
+    directory is provided; the artifact list is empty, so the requirement to create
+    those files is not satisfied. The implementer must add the missing `__init__.py`
+    files in every relevant subfolder.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitkeep` files were presented for either `data/raw/` or `data/processed/`;
+    the implementer provided no artifact evidence confirming the files exist. The
+    required files must be added to those directories.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files, scripts, or documentation for managing environment variables\
+    \ (e.g., `.env` templates, `dotenv` setup, path\u2011resolution utilities, or\
+    \ README instructions) were provided. The evidence only contains a feature specification\
+    \ unrelated to environment variable management, so the required artifact is missing."
+T014c:
+  c: false
+  h: e6a04cf5878fc2274902166cf1dffafac46b3f1910fce298f64a92ab6f22d44f
+  r: The repository contains `code/data/preprocessing.py`, but the required output
+    file `data/processed/preprocessed_data.parquet` is absent. Without the final parquet
+    artifact, the task of ingesting, preprocessing both data periods, and writing
+    the atomic result is not satisfied. The missing output must be generated for the
+    task to be considered complete.
 T024:
   c: false
   h: baa7b0bde8138d5fe0fb948423589c848475851e36342994ecf4e95b69cd744b

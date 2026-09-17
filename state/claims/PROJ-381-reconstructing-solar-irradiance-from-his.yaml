@@ -340,24 +340,6 @@
   updated_at: '2026-08-14T06:56:58Z'
 - artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
   attempts: 1
-  canonical: Cycle-Agnostic fallback model trained on satellite-era dataset from 2003
-    to present
-  claim_id: c_903c7967
-  context: "Train a single Cycle-Agnostic fallback model (GSN-only, no Cycle ID features)\
-    \ on the full satellite-era dataset (2003\u2013present)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Train a single Cycle-Agnostic fallback model on the full satellite-era\
-    \ dataset (2003\u2013present)."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-14T06:57:11Z'
-- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
-  attempts: 1
   canonical: TSI reconstruction generated for pre-satellite GSN record from 1610 to
     2002
   claim_id: c_b4dd1048
@@ -731,3 +713,284 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T18:35:22Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: "TSI proxy value 1360.5 W/m\xB2 used for gaps greater than or equal to\
+    \ 1 year"
+  claim_id: c_dcdc5655
+  context: "Write unit test for gap filling logic in tests/test_preprocessing.py::test_gap_filling_tsi_proxy\
+    \ (verify \u22651yr gaps use TSI proxy 1360.5 W/m\xB2, NOT GSN=0)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TSI_proxy_value_1360.5_W/m%C2%B2_used_for_gaps_greater_than_or_eq
+  kind: magnitude
+  raw_text: "verify \u22651yr gaps use TSI proxy 1360.5 W/m\xB2, NOT GSN=0"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:48:29Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Random Forest model configured with max_depth 10 and n_estimators 100
+  claim_id: c_ab891cf3
+  context: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:49:00Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 2
+  canonical: Cycle-Agnostic fallback model trained on satellite-era dataset from 2003
+    to present
+  claim_id: c_903c7967
+  context: "Train a single Cycle-Agnostic fallback model (GSN-only, no Cycle ID features)\
+    \ on the full satellite-era dataset (2003\u2013present)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train a single Cycle-Agnostic fallback model on the full satellite-era\
+    \ dataset (2003\u2013present)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:49:28Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Computational resource usage limited to less than 7 GB RAM and 6 hours
+    runtime
+  claim_id: c_dba218cc
+  context: Verify computational resource usage (RAM < 7 GB, Runtime < 6h) by writing
+    tests/test_performance.py::test_ram_limit with explicit pass criteria (assert
+    max_memory < 7GB).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computational_resource_usage_limited_to_less_than_7_GB_RAM_a
+  kind: magnitude
+  raw_text: Verify computational resource usage (RAM < 7 GB, Runtime < 6h)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:50:02Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling performed with at least 1000 iterations
+  claim_id: c_6b6ed575
+  context: Bootstrap resampling with at least 1000 iterations for variance comparison
+    across Maunder, Dalton, and Modern minima (FR-005, Constitution Principle VII).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_performed_with_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Bootstrap resampling with at least 1000 iterations for variance comparison
+    across Maunder, Dalton, and Modern minima
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:50:54Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Pre-satellite GSN data from 1610 to 2002 loaded
+  claim_id: c_92f6465a
+  context: "Load pre-satellite GSN (1610\u20132002) from data/processed/preprocessed_data.parquet."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Load pre-satellite GSN (1610\u20132002) from data/processed/preprocessed_data.parquet"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:51:10Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: "TSI proxy value 1360.5 W/m\xB2 used for gaps greater than or equal to\
+    \ 1 year"
+  claim_id: c_e145050c
+  context: "Part 2: Apply TSI proxy value 1360.5 W/m\xB2 (per FR-002) for gaps \u2265\
+    \ 1 year. Do NOT use GSN=0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TSI_proxy_value_1360.5_W/m%C2%B2_used_for_gaps_greater_than_or_eq
+  kind: magnitude
+  raw_text: "Apply TSI proxy value 1360.5 W/m\xB2 for gaps \u2265 1 year."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:55:27Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Random Forest model trained with max depth 10 and 100 estimators
+  claim_id: c_be387016
+  context: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with max_depth=10 and n_estimators=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:56:06Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling performed with 1000 iterations
+  claim_id: c_9a7a8e6a
+  context: Bootstrap resampling with at least 1000 iterations for variance comparison
+    across Maunder, Dalton, and Modern minima.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_performed_with_1000_iterations
+  kind: magnitude
+  raw_text: Bootstrap resampling uses at least 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:56:53Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps inconsistency tolerance threshold over 0.01,
+    0.05, and 0.1
+  claim_id: c_46e6a4e2
+  context: Sweep inconsistency tolerance threshold over absolute differences {0.01,
+    0.05, 0.1}, per FR-009.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inconsistency tolerance threshold swept over values {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:57:20Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Computational resource usage constrained to less than 7 GB RAM and 6
+    hours runtime
+  claim_id: c_4fbb78fb
+  context: Verify computational resource usage (RAM < 7 GB, Runtime < 6h) by writing
+    tests with explicit pass criteria.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computational_resource_usage_constrained_to_less_than_7_GB_R
+  kind: magnitude
+  raw_text: Computational resource usage verified with RAM < 7 GB and Runtime < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:58:22Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Cycle ID features derived from official SILSO historical cycle list
+  claim_id: c_8807e980
+  context: Use Cycle ID (from official SILSO historical cycle list, mapped as categorical
+    integer) as a feature, per FR-003.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cycle_ID_features_derived_from_official_SILSO_historical_cyc
+  kind: entity_fact
+  raw_text: Cycle ID features are derived from official SILSO historical cycle list.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:59:26Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Pre-satellite GSN data covers years 1610 to 2002
+  claim_id: c_b87d38a8
+  context: "Load pre-satellite GSN (1610\u20132002) from data/processed/preprocessed_data.parquet."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pre-satellite GSN data covers the period 1610\u20132002."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:59:56Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Satellite-era data covers years 2003 to present
+  claim_id: c_d01e5980
+  context: "Train a single Cycle-Agnostic fallback model (GSN-only, no Cycle ID features)\
+    \ on the full satellite-era dataset (2003\u2013present)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Satellite-era data covers the period 2003\u2013present."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:00:33Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Model validation performed using Leave-One-Cycle-Out cross-validation
+  claim_id: c_342300da
+  context: 'Execute Leave-One-Cycle-Out (LOCO) Cross-Validation: Train on all cycles
+    except one, validate on the held-out cycle.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_validation_performed_using_Leave-One-Cycle-Out_cross-v
+  kind: entity_fact
+  raw_text: Validation uses Leave-One-Cycle-Out (LOCO) Cross-Validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:01:37Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Error reduction calculated against 2007 baseline over satellite era
+  claim_id: c_681fa340
+  context: Calculate RMSE over the overlapping satellite era (recent period), per
+    SC-001. Compute percentage error reduction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Error reduction is calculated against the 2007 Baseline over the satellite
+    era.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:02:26Z'

@@ -2,40 +2,47 @@ import os
 from pathlib import Path
 from typing import List
 
-def create_structure(base_path: Path) -> None:
+def create_structure() -> List[str]:
     """
-    Create the project directory structure for the Solar Irradiance Reconstruction project.
-    
-    Creates the following directories relative to base_path:
+    Creates the required project directory structure:
     - code/
-    - code/models/
-    - code/analysis/
-    - code/data/
     - tests/
     - data/raw/
     - data/processed/
+    - code/models/
+    - code/analysis/
+    
+    Returns a list of created directory paths.
     """
-    # Define all required directories
-    directories: List[Path] = [
-        base_path / "code",
-        base_path / "code" / "models",
-        base_path / "code" / "analysis",
-        base_path / "code" / "data",
-        base_path / "tests",
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
+    root = Path.cwd()
+    directories = [
+        "code",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "code/models",
+        "code/analysis",
     ]
     
-    # Create each directory (parents=True ensures intermediate dirs are created)
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+    created_paths = []
+    for dir_name in directories:
+        dir_path = root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(str(dir_path))
+        else:
+            created_paths.append(str(dir_path))
+            
+    return created_paths
 
 def main() -> None:
-    """Main entry point to create the project structure."""
-    base_path = Path(__file__).parent.parent
-    create_structure(base_path)
-    print("Project structure created successfully.")
+    """Entry point for script execution."""
+    print("Creating project directory structure...")
+    paths = create_structure()
+    print("Directories created:")
+    for p in paths:
+        print(f"  - {p}")
+    print("Done.")
 
 if __name__ == "__main__":
     main()

@@ -1,149 +1,143 @@
 """
-Tests for the environment variable management module (env_manager.py).
-
-These tests verify that:
-1. Environment variables are loaded correctly from .env files
-2. Default paths are constructed correctly
-3. Path validation works as expected
-4. Fallback mechanisms function properly
+Tests for environment variable management.
 """
 
 import os
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
+from unittest.mock import patch, MagicMock
 
 # Import the module under test
-from code import env_manager
+# Note: In a real run, ensure code/ is in sys.path
+from code.env_manager import (
+    load_env_vars,
+    get_env_var,
+    get_data_path,
+    validate_data_paths,
+    get_silso_url,
+    get_sorce_url,
+    get_model_artifacts_path,
+    setup_environment
+)
 
 @pytest.fixture
-def temp_project_dir():
-    """Create a temporary directory structure simulating a project."""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create a minimal project structure
-    code_dir = Path(temp_dir) / "code"
-    code_dir.mkdir()
-    data_dir = Path(temp_dir) / "data"
-    data_dir.mkdir()
-    (data_dir / "raw").mkdir()
-    (data_dir / "processed").mkdir()
-    (code_dir / "models").mkdir()
-    (code_dir / "analysis").mkdir()
-    
-    # Create a dummy .env file
-    env_content = """
-    DATA_ROOT_PATH=/custom/data/root
-    DATA_RAW_PATH=/custom/data/raw
-    DATA_PROCESSED_PATH=/custom/data/processed
-    MODEL_ARTIFACTS_PATH=/custom/code/models/artifacts
-    DATA_FIGURES_PATH=/custom/data/figures
-    """
-    env_file = code_dir / ".env"
-    env_file.write_text(env_content)
-    
-    # Create a dummy __init__.py
-    (code_dir / "__init__.py").write_text("")
-    
-    yield temp_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+def mock_env_file(tmp_path):
+    """Create a temporary .env file for testing."""
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "DATA_ROOT=/tmp/test_data\n"
+        "DATA_RAW_DIR=/tmp/test_data/raw\n"
+        "DATA_PROCESSED_DIR=/tmp/test_data/processed\n"
+        "MODEL_ARTIFACTS_DIR=/tmp/test_models\n"
+        "SILSO_URL=http://test.com/silso\n"
+        "SORCE_URL=http://test.com/sorce\n"
+        "VALIDATE_PATHS=true\n"
+        "LOG_LEVEL=DEBUG\n"
+    )
+    return env_file
 
-def test_get_project_root(temp_project_dir):
-    """Test that project root is correctly identified."""
-    # Change to the temp directory
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(temp_project_dir)
-        # Reset the cached project root
-        env_manager._PROJECT_ROOT = None
-        
-        root = env_manager._get_project_root()
-        assert root == Path(temp_project_dir)
-    finally:
-        os.chdir(original_cwd)
+def test_load_env_vars_creates_cache(mock_env_file):
+    """Test that load_env_vars populates the internal cache."""
+    # Reset state
+    import code.env_manager as em
+    em._IS_LOADED = False
+    em._ENV_VARS = {}
 
-def test_load_env_vars_from_file(temp_project_dir):
-    """Test loading environment variables from a .env file."""
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(temp_project_dir)
-        
-        # Load env vars
-        env_vars = env_manager.load_env_vars()
-        
-        assert "DATA_ROOT_PATH" in env_vars
-        assert env_vars["DATA_ROOT_PATH"] == "/custom/data/root"
-        assert env_vars["DATA_RAW_PATH"] == "/custom/data/raw"
-    finally:
-        os.chdir(original_cwd)
+    result = load_env_vars(mock_env_file)
+    
+    assert em._IS_LOADED is True
+    assert "DATA_ROOT" in result
+    assert result["DATA_ROOT"] == "/tmp/test_data"
 
-def test_get_env_var_fallback():
-    """Test the fallback chain for getting environment variables."""
-    # Set a real env var
-    os.environ["TEST_VAR"] = "from_os_environ"
+def test_get_env_var_with_default():
+    """Test getting an env var with a default value."""
+    # Ensure loaded
+    import code.env_manager as em
+    if not em._IS_LOADED:
+        em.load_env_vars()
     
-    # Test priority: passed dict > os.environ > default
-    result = env_manager.get_env_var("TEST_VAR", default="default_value", env_vars={"TEST_VAR": "from_dict"})
-    assert result == "from_dict"
-    
-    result = env_manager.get_env_var("TEST_VAR", default="default_value")
-    assert result == "from_os_environ"
-    
-    result = env_manager.get_env_var("NON_EXISTENT_VAR", default="default_value")
-    assert result == "default_value"
-    
-    # Cleanup
-    del os.environ["TEST_VAR"]
+    # Test existing var
+    val = get_env_var("NONEXISTENT_VAR", default="fallback")
+    assert val == "fallback"
 
-def test_get_data_path_defaults(temp_project_dir):
-    """Test that data paths default correctly when env vars are not set."""
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(temp_project_dir)
-        env_manager._PROJECT_ROOT = None  # Reset cache
-        
-        # Clear any existing env vars for these keys
-        for key in [env_manager.ENV_DATA_ROOT, env_manager.ENV_DATA_RAW, env_manager.ENV_DATA_PROCESSED]:
-            if key in os.environ:
-                del os.environ[key]
-        
-        # Test default paths
-        root = env_manager.get_data_path(env_var_name=env_manager.ENV_DATA_ROOT, default=env_manager.DEFAULT_DATA_ROOT)
-        assert root == Path(temp_project_dir) / "data"
-        
-        raw = env_manager.get_data_path(env_var_name=env_manager.ENV_DATA_RAW, default=env_manager.DEFAULT_DATA_RAW)
-        assert raw == Path(temp_project_dir) / "data" / "raw"
-    finally:
-        os.chdir(original_cwd)
+def test_get_env_var_required_missing():
+    """Test that required=True raises ValueError if missing."""
+    import code.env_manager as em
+    em._IS_LOADED = True # Pretend loaded
+    em._ENV_VARS = {} # Empty cache
 
-def test_validate_data_paths(temp_project_dir):
-    """Test path validation."""
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(temp_project_dir)
-        env_manager._PROJECT_ROOT = None  # Reset cache
-        
-        # The temp directory has the required structure
-        results = env_manager.validate_data_paths()
-        
-        # All paths should exist in the temp setup
-        assert results["data_root"] is True
-        assert results["data_raw"] is True
-        assert results["data_processed"] is True
-    finally:
-        os.chdir(original_cwd)
+    with pytest.raises(ValueError, match="Required environment variable"):
+        get_env_var("MISSING_REQUIRED_VAR", required=True)
+
+def test_get_data_path():
+    """Test constructing data paths."""
+    import code.env_manager as em
+    em._IS_LOADED = True
+    em._ENV_VARS = {"DATA_ROOT": "/my/data"}
+    
+    root = get_data_path()
+    assert str(root) == "/my/data"
+    
+    sub = get_data_path("raw")
+    assert str(sub) == "/my/data/raw"
+
+def test_validate_data_paths_creates_dirs(tmp_path):
+    """Test that validate_data_paths creates missing directories."""
+    import code.env_manager as em
+    
+    # Setup mock env
+    em._IS_LOADED = True
+    em._ENV_VARS = {
+        "DATA_RAW_DIR": str(tmp_path / "raw"),
+        "DATA_PROCESSED_DIR": str(tmp_path / "processed"),
+        "MODEL_ARTIFACTS_DIR": str(tmp_path / "models"),
+        "VALIDATE_PATHS": "true"
+    }
+    
+    assert not (tmp_path / "raw").exists()
+    assert not (tmp_path / "processed").exists()
+    
+    result = validate_data_paths()
+    
+    assert result is True
+    assert (tmp_path / "raw").exists()
+    assert (tmp_path / "processed").exists()
 
 def test_get_silso_url():
-    """Test getting the SILSO URL."""
-    url = env_manager.get_silso_url()
-    assert url is not None
-    assert "sidc.be" in url
+    """Test retrieving SILSO URL."""
+    import code.env_manager as em
+    em._IS_LOADED = True
+    em._ENV_VARS = {"SILSO_URL": "http://example.com/silso"}
+    
+    url = get_silso_url()
+    assert url == "http://example.com/silso"
 
 def test_get_sorce_url():
-    """Test getting the SORCE URL."""
-    url = env_manager.get_sorce_url()
-    assert url is not None
-    assert "colorado.edu" in url or "lasp" in url
+    """Test retrieving SORCE URL."""
+    import code.env_manager as em
+    em._IS_LOADED = True
+    em._ENV_VARS = {"SORCE_URL": "http://example.com/sorce"}
+    
+    url = get_sorce_url()
+    assert url == "http://example.com/sorce"
+
+def test_get_model_artifacts_path():
+    """Test retrieving model artifacts path."""
+    import code.env_manager as em
+    em._IS_LOADED = True
+    em._ENV_VARS = {"MODEL_ARTIFACTS_DIR": "/custom/models"}
+    
+    path = get_model_artifacts_path()
+    assert str(path) == "/custom/models"
+
+def test_setup_environment():
+    """Test the main setup function."""
+    import code.env_manager as em
+    em._IS_LOADED = False
+    em._ENV_VARS = {}
+    
+    # Mock validate_data_paths to avoid filesystem checks in test
+    with patch.object(em, 'validate_data_paths', return_value=True):
+        setup_environment()
+    
+    assert em._IS_LOADED is True

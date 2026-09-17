@@ -62,7 +62,7 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest Group Sunspot Number (GSN) data from SILSO and modern TSI satellite data (SORCE/TIM) for the period 2003–present to establish the training correlation. (See US-1)
+- **FR-001**: System MUST ingest Group Sunspot Number (GSN) data from SILSO and modern TSI satellite data (SORCE/TIM) for the modern satellite era to establish the training correlation. (See US-1)
 - **FR-002**: System MUST preprocess sunspot data by filling missing values via linear interpolation for gaps < 1 year, and applying a low-activity proxy (fixed value of 1360.5 W/m², derived from the mean TSI of the 2008–2019 minimum) for gaps ≥ 1 year. The system MUST compute cycle-averaged sunspot numbers using standard smoothed sunspot number peak detection (SILSO method) to detect cycle boundaries, ensuring boundaries align with known SILSO cycle maxima within ±6 months. (See US-1)
 - **FR-003**: System MUST fit non-linear regression models (Random Forest and Gaussian Process) mapping sunspot numbers to TSI, utilizing Cycle ID (from SILSO definitions) as a categorical feature. The system MUST also train a Cycle-Agnostic fallback model (GSN-only) to handle pre-satellite cycles with no analog in the training set. (See US-1)
 - **FR-004**: System MUST apply the calibrated model to the pre-satellite GSN record (early 17th century–2002) to generate an updated TSI reconstruction with uncertainty bands derived from the model's prediction intervals. For any cycle ID not present in the training set, the system MUST use the Cycle-Agnostic fallback model. (See US-2)

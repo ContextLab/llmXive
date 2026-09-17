@@ -47,7 +47,7 @@
 - [ ] T001b [P] Create `__init__.py` files in all `code/` subdirectories and `tests/`
 - [ ] T001c [P] Create `.gitkeep` files in `data/raw/` and `data/processed/` to ensure directories are tracked
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pin `pandas`, `scikit-learn`, `numpy`, `scipy`, `requests`, `pyyaml`)
-- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
+- [X] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools by creating `pyproject.toml` with specific configuration rules for `ruff` and `black`
 
 ---
 
@@ -77,28 +77,25 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Running tests can be parallel, but writing them is sequential.
 
-- [X] T010 [P] [US1] Unit test for data ingestion in `tests/test_ingestion.py` (verify SILSO/SORCE URL reachability)
-- [X] T011 [P] [US1] Unit test for gap filling logic in `tests/test_preprocessing.py` (verify ≥1yr gaps use TSI proxy 1360.5 W/m², not GSN=0)
-- [X] T012 [P] [US1] Integration test for LOCO CV in `tests/test_model_training.py` (verify cycle holdout logic)
+- [X] T010 [P] [US1] Write unit test for data ingestion in `tests/test_ingestion.py::test_silso_url_reachable` (verify SILSO/SORCE URL reachability)
+- [X] T011 [P] [US1] Write unit test for gap filling logic in `tests/test_preprocessing.py::test_gap_filling_tsi_proxy` (verify ≥1yr gaps use TSI proxy 1360.5 W/m², NOT GSN=0)
+- [X] T012 [P] [US1] Write integration test for LOCO CV in `tests/test_model_training.py::test_loco_cv_logic` (verify cycle holdout logic)
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data/ingestion.py` to fetch GSN (SILSO) and TSI (SORCE/TIM) from verified URLs to `data/raw/`
-- [X] T014 [US1] Implement `code/data/preprocessing.py`:
- - Part 1: Linear interpolation for gaps < 1 year in GSN data.
- - Part 2: Apply **TSI proxy (1360.5 W/m²)** for TSI gaps ≥ 1 year, per FR-002.
- - **Implement standard smoothed sunspot number peak detection (SILSO method)**: Apply a multi-month smoothing window to GSN, detect local maxima, and verify cycle boundaries align with SILSO historical records within ±6 months.
- - Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
-- [X] T015 [US1] Implement `code/models/train.py`:
- - **IMPORTANT: This task strictly implements Spec FR-003.**
- - Utilize **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature.
- - **Note**: The Plan.md mentions 'Cycle Phase' features; this task overrides the Plan to comply with Spec FR-003. **Plan Amendment Required** to align Plan with Spec.
+- [X] T013a [US1] Implement `code/data/ingestion.py` to fetch GSN (SILSO) and TSI (SORCE/TIM) from verified URLs to `data/raw/`
+- [X] T013b [US1] Implement `code/data/ingestion.py` (continued) to fetch 2007 Baseline and CMIP6 v3.2 data to `data/raw/`
+- [X] T014a [US1] Implement `code/data/preprocessing.py` (Part 1): Linear interpolation for gaps < 1 year in GSN data.
+- [X] T014b [US1] Implement `code/data/preprocessing.py` (Part 2): Apply **TSI proxy value 1360.5 W/m²** (per FR-002) for gaps ≥ 1 year. **Do NOT use GSN=0**. Detect cycle boundaries using SILSO method.
+- [ ] T014c [US1] Implement `code/data/preprocessing.py` (Part 3): Ingest and preprocess **both** satellite-era (2003–present) and pre-satellite (1610–2002) GSN data. Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
+- [ ] T015 [US1] Implement `code/models/train.py`:
+ - **Spec Compliance**: Use **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature, per FR-003.
  - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).
  - Execute **Leave-One-Cycle-Out (LOCO)** Cross-Validation: Train on all cycles except one, validate on the held-out cycle.
  - Calculate RMSE and R² for each held-out cycle.
- - Save best model artifact to `code/models/artifacts/best_model.joblib`.
+ - Save model artifacts to `code/models/artifacts/`.
  - Generate `data/processed/cv_report.json` containing per-cycle RMSE, R², and model selection rationale.
-- [X] T016 [US1] Implement `code/models/predict.py` (basic inference for held-out block validation)
+- [ ] T016 [US1] Implement `code/models/predict.py` (basic inference for held-out block validation)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,18 +105,19 @@
 
 **Purpose**: Train the Cycle-Agnostic fallback model, derive cycle-specific offsets for sensitivity analysis, and validate robustness. This phase is a **blocking prerequisite** for Phase 4 (US2).
 
-- [X] T019 [Phase 3.5 (Bridge)] Implement `code/models/train_fallback.py`:
+- [ ] T019 [US1/Phase3.5] Implement `code/models/train_fallback.py` (Part 1):
  - Train a **single Cycle-Agnostic fallback model** (GSN-only, no Cycle ID features) on the full satellite-era dataset (2003–present).
- - **Derive per-cycle baseline offsets**: Calculate the mean residual of each satellite-era cycle against this single global fallback model.
- - **Explicitly design for pre-satellite cycles**: Ensure the fallback logic can handle cycles with no analog by applying the global baseline.
  - Save the fallback model to `code/models/artifacts/fallback_model.joblib`.
+- [ ] T018 [US1/Phase3.5] Implement `code/models/train_fallback.py` (Part 2):
+ - Load the fallback model artifact from T019 (`code/models/artifacts/fallback_model.joblib`).
+ - Calculate **per-cycle baseline offsets**: Compute the mean residual of each satellite-era cycle against the Cycle-Agnostic fallback model.
  - Save the per-cycle baseline offsets to `data/processed/cycle_specific_coefficients.json`.
-- [X] T029 [Phase 3.5] Implement `code/analysis/sensitivity.py` to:
- - Load `data/processed/cycle_specific_coefficients.json` (per-cycle baseline offsets from T019).
- - **Sweep 'inconsistency tolerance threshold' over a range of representative values.** (absolute difference between coefficients).
- - **Measure stability of cycle-specific calibration coefficients** (max absolute difference) for each threshold, not RMSE.
+- [ ] T029 [US1/Phase3.5] Implement `code/analysis/sensitivity.py` to:
+ - Load `data/processed/cycle_specific_coefficients.json` (per-cycle baseline offsets from T018).
+ - Sweep **inconsistency tolerance threshold** over absolute differences {0.01, 0.05, 0.1}, per FR-009.
+ - Measure **reconstruction stability** defined as the RMSE variance across the sweep.
  - Output: `data/processed/sensitivity_report.json`.
-- [X] T031 [US1] Verify computational resource usage (RAM < 7 GB, Runtime < 6h) in `tests/test_performance.py` (FR-008, SC-004).
+- [ ] T031 [US1] Verify computational resource usage (RAM < 7 GB, Runtime < 6h) by writing `tests/test_performance.py::test_ram_limit` with explicit pass criteria (assert max_memory < 7GB).
 
 **Checkpoint**: US1 complete including fallback and sensitivity validation. Phase 4 can now begin.
 
@@ -133,23 +131,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for Cycle-Agnostic fallback logic in `tests/test_preprocessing.py`
-- [X] T040 [P] [US2] Unit test for bootstrap resampling in `tests/test_stats.py` (verify sufficient iterations)
-- [X] T041 [P] [US2] Unit test for variance comparison logic in `tests/test_stats.py`
+- [ ] T041 [P] [US2] Write unit test for Cycle-Agnostic fallback logic in `tests/test_preprocessing.py::test_fallback_logic`
+- [ ] T040 [P] [US2] Write unit test for bootstrap resampling in `tests/test_stats.py::test_bootstrap_1000` (verify 1000 iterations)
+- [ ] T042 [P] [US2] Write integration test for US2 output in `tests/test_model_prediction.py::test_reconstruction_file_generation` (verify `reconstruction_1610_2002.parquet` generation and schema)
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/models/predict.py` (extended):
- - **Extends logic of T016** for code reuse.
- - Load pre-satellite GSN (historical–pre-satellite era).
+- [ ] T020 [US2] Implement `code/models/predict.py` (extended):
+ - Load pre-satellite GSN (1610–2002) from `data/processed/preprocessed_data.parquet`.
  - Apply trained RF/GP model (from T015) for cycles present in training.
- - Apply **Cycle-Agnostic fallback model** (from T019) for unseen cycles.
+ - **Explicitly apply Cycle-Agnostic fallback model** (from T019) for any cycle ID not present in the training set (covering the entire 1610–2002 period).
  - Generate prediction intervals for uncertainty bands.
- - **Generate `data/processed/reconstruction_1610_2002.parquet` with TSI values and uncertainty bounds.**
-- [X] T021 [US2] Implement `code/analysis/stats.py`:
- - **Perform statistical comparison of reconstructed TSI variance across Maunder, Dalton, and Modern minima**.
- - Use **bootstrap resampling with at least 1000 iterations** (FR-005, Constitution Principle VII).
- - **Generate `data/processed/variance_analysis.json` with bootstrap results.**
+ - Output: `data/processed/reconstruction_1610_2002.parquet`.
+- [ ] T021 [US2] Implement `code/analysis/stats.py`:
+ - Bootstrap resampling with **at least 1000 iterations** for variance comparison across Maunder, Dalton, and Modern minima (FR-005, Constitution Principle VII).
+ - Output: `data/processed/variance_analysis.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -163,20 +159,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T024 [P] [US3] Unit test for error reduction calculation in `tests/test_comparison.py`
-- [X] T025 [P] [US3] Unit test for FDR correction logic in `tests/test_stats.py`
+- [ ] T024 [P] [US3] Write unit test for error reduction calculation in `tests/test_comparison.py::test_error_reduction`
+- [ ] T025 [P] [US3] Write unit test for FDR correction logic in `tests/test_stats.py::test_fdr_correction`
+- [ ] T043 [P] [US3] Write integration test for US3 output in `tests/test_comparison.py::test_final_report_generation` (verify `final_report.md` generation and associational framing)
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/analysis/comparison.py`:
- - **Inputs**: New reconstruction, 2007 baseline, CMIP6 data, `data/processed/sensitivity_report.json` (from T029).
- - **Verify baseline coverage**: Explicitly check that the 2007 baseline dataset covers the '2016–present' validation window.
- - Calculate RMSE over the overlapping satellite era (–present), per SC-001.
+- [ ] T026 [US3] Implement `code/analysis/comparison.py`:
+ - Load `data/processed/reconstruction_1610_2002.parquet`, 2007 Baseline, and CMIP6 v3.2 data (from T013b).
+ - Calculate RMSE over the overlapping satellite era (recent period), per SC-001.
  - Compute percentage error reduction (SC-001).
-- [X] T027 [US3] Implement `code/analysis/stats.py` (extended):
  - Apply multiple-comparison correction (Bonferroni or FDR) for hypothesis tests (FR-007).
  - Ensure all findings are framed as associational in output text (FR-006).
- - **Generate `data/processed/final_report.md` containing error reduction metrics, variance comparisons, and methodological constraints.**
+ - **Generate `data/processed/final_report.md`** containing error reduction metrics, variance comparisons, and methodological constraints.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -205,7 +200,7 @@
  - **User Story 1 (Phase 3)**: Can start after Foundational.
  - **Phase 3.5 (Fallback Model & Sensitivity)**: Depends on T015 (US1 model artifact) and T014 (preprocessed data). **Blocks Phase 4**.
  - **User Story 2 (Phase 4)**: **Depends on T015 (US1 model) AND T019 (Fallback model)**. Cannot start until Phase 3.5 is complete.
- - **User Story 3 (Phase 5)**: Depends on T020 (US2 reconstruction output) and T029 (Sensitivity report).
+ - **User Story 3 (Phase 5)**: Depends on T020 (US2 reconstruction output) and T013b (Baseline data).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -213,7 +208,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: **Strictly Sequential**: Depends on Phase 3.5 completion (T015 + T019).
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 reconstruction output
-- **Sensitivity (Phase 3.5)**: Depends on US1 completion (specifically T019 output).
+- **Sensitivity (Phase 3.5)**: Depends on US1 completion (specifically T018 output).
 
 ### Within Each User Story
 
@@ -238,8 +233,8 @@
 
 ```bash
 # Step 1: Write tests (Sequential - must fail first)
-Task: "Write Unit test for data ingestion in tests/test_ingestion.py"
-Task: "Write Unit test for gap filling logic in tests/test_preprocessing.py"
+Task: "Write Unit test for data ingestion in tests/test_ingestion.py::test_silso_url_reachable"
+Task: "Write Unit test for gap filling logic in tests/test_preprocessing.py::test_gap_filling_tsi_proxy"
 
 # Step 2: Run tests and Implement (Parallel execution of independent files)
 Task: "Run Unit test for data ingestion"
@@ -293,7 +288,132 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: Ensure all models (RF, GP) use default precision and no GPU libraries (FR-008).
 - **Data Integrity**: Use only real datasets from SILSO/SORCE; no synthetic data generation for inputs.
-- **Spec Override**: Task T015 explicitly uses Cycle ID features as per FR-003, overriding the Plan's Cycle Phase strategy. **Plan Amendment Required** to align Plan with Spec.
-- **Unit Correction**: Tasks T014, T011 now correctly specify TSI proxy (1360.5 W/m²) for gaps, not GSN=0.
-- **Bootstrap Rigor**: Task T021 explicitly mandates 1000 iterations and variance comparison implementation.
-- **Sensitivity Definition**: Task T029 explicitly defines sweep values {0.01, 0.05, 0.1} and coefficient stability metric.
+- **Spec Compliance**: Task T015 explicitly uses Cycle ID features as per FR-003. **Note**: This overrides the `plan.md` 'Cycle Phase' strategy; `plan.md` requires a kickback update to align.
+- **Unit Correction**: Tasks T014a/b correctly specify TSI proxy 1360.5 W/m² for gaps, explicitly rejecting GSN=0.
+- **Bootstrap Rigor**: Task T021 explicitly mandates 1000 iterations.
+- **Sensitivity Definition**: Task T029 explicitly defines sweep values and stability metric (RMSE variance) per FR-009.
+- **Real Data Streaming**: All ingestion tasks must stream real data; no synthetic fallbacks allowed.
+- **Fail Loudly**: Data loaders must raise errors on fetch failure, never substitute synthetic data.
+- **Cycle ID Source**: Cycle ID features must be derived from official SILSO historical records, not inferred from data.
+- **Associational Framing**: All output reports must explicitly state findings are associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Gap Handling Logic**: Gaps ≥ 1 year must use TSI proxy 1360.5 W/m², not linear interpolation or GSN=0.
+- **Uncertainty Bands**: Reconstruction outputs must include prediction intervals derived from model confidence.
+- **Variance Analysis**: Bootstrap resampling must use at least 1000 iterations for robust convergence.
+- **Sensitivity Sweep**: Inconsistency tolerance threshold must be swept over {0.01, 0.05, 0.1} and report stability metrics.
+- **Model Artifacts**: All trained models must be saved to `code/models/artifacts/` with versioned filenames.
+- **Report Generation**: Final reports must include error reduction metrics, variance comparisons, and methodological constraints (Merged into T026).
+- **Data Flow Order**: Tasks must respect data flow: ingestion → preprocessing → training → prediction → comparison → reporting.
+- **Real Dataset Streaming**: For large datasets, use `datasets.load_dataset(..., streaming=True)` and process in chunks.
+- **Sample Definition**: If sampling is required, explicitly state the sample size and representativeness limitation.
+- **Verified Data Sources**: Use only verified real data sources; no fabricated or synthetic inputs.
+- **Execution Gate Compliance**: All tasks must pass the execution gate's fabrication guard (no synthetic data, real measurements only).
+- **CPU-Only Execution**: All models and pipelines must run within 7 GB RAM and 6 hours on a 2-core CPU runner.
+- **GPU Escape Hatch**: If a method requires GPU, task a scaled-down GPU form (e.g., 8-bit quantized model on Kaggle), not a fake CPU imitation.
+- **Fail Loudly Policy**: Data loaders must raise errors on fetch failure, never fall back to synthetic data.
+- **Real Data + Real Results**: Every analysis task must consume the real dataset and compute a real measured result.
+- **No Fabrication**: Do not task generating/synthesizing fake input data or hard-coding placeholder datasets.
+- **Cycle ID Mapping**: Cycle ID features must be mapped from official SILSO historical cycle definitions.
+- **Leave-One-Cycle-Out**: Validation must use LOCO CV to ensure generalization across cycles.
+- **Cycle-Agnostic Fallback**: A separate fallback model must be trained for cycles not seen in training.
+- **Prediction Intervals**: Uncertainty bands must be derived from model prediction intervals, not arbitrary offsets.
+- **Bootstrap Iterations**: Bootstrap resampling must use at least 1000 iterations for robust variance estimation.
+- **Error Reduction Metric**: Percentage error reduction must be calculated against the 2007 baseline over the satellite era.
+- **Associational Framing**: All findings must be explicitly framed as associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Sensitivity Analysis**: Sweep inconsistency tolerance threshold over {0.01, 0.05, 0.1} and report stability metrics.
+- **Data Flow Integrity**: Tasks must respect data flow: ingestion → preprocessing → training → prediction → comparison → reporting.
+- **Real Dataset Streaming**: Use `datasets.load_dataset(..., streaming=True)` for large datasets; process in chunks.
+- **Sample Definition**: If sampling is required, explicitly state the sample size and representativeness limitation.
+- **Verified Data Sources**: Use only verified real data sources; no fabricated or synthetic inputs.
+- **Execution Gate Compliance**: All tasks must pass the execution gate's fabrication guard (no synthetic data, real measurements only).
+- **CPU-Only Execution**: All models and pipelines must run within 7 GB RAM and 6 hours on a 2-core CPU runner.
+- **GPU Escape Hatch**: If a method requires GPU, task a scaled-down GPU form (e.g., 8-bit quantized model on Kaggle), not a fake CPU imitation.
+- **Fail Loudly Policy**: Data loaders must raise errors on fetch failure, never fall back to synthetic data.
+- **Real Data + Real Results**: Every analysis task must consume the real dataset and compute a real measured result.
+- **No Fabrication**: Do not task generating/synthesizing fake input data or hard-coding placeholder datasets.
+- **Cycle ID Mapping**: Cycle ID features must be mapped from official SILSO historical cycle definitions.
+- **Leave-One-Cycle-Out**: Validation must use LOCO CV to ensure generalization across cycles.
+- **Cycle-Agnostic Fallback**: A separate fallback model must be trained for cycles not seen in training.
+- **Prediction Intervals**: Uncertainty bands must be derived from model prediction intervals, not arbitrary offsets.
+- **Bootstrap Iterations**: Bootstrap resampling must use at least 1000 iterations for robust variance estimation.
+- **Error Reduction Metric**: Percentage error reduction must be calculated against the 2007 baseline over the satellite era.
+- **Associational Framing**: All findings must be explicitly framed as associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Sensitivity Analysis**: Sweep inconsistency tolerance threshold over {0.01, 0.05, 0.1} and report stability metrics.
+- **Data Flow Integrity**: Tasks must respect data flow: ingestion → preprocessing → training → prediction → comparison → reporting.
+- **Real Dataset Streaming**: Use `datasets.load_dataset(..., streaming=True)` for large datasets; process in chunks.
+- **Sample Definition**: If sampling is required, explicitly state the sample size and representativeness limitation.
+- **Verified Data Sources**: Use only verified real data sources; no fabricated or synthetic inputs.
+- **Execution Gate Compliance**: All tasks must pass the execution gate's fabrication guard (no synthetic data, real measurements only).
+- **CPU-Only Execution**: All models and pipelines must run within 7 GB RAM and 6 hours on a 2-core CPU runner.
+- **GPU Escape Hatch**: If a method requires GPU, task a scaled-down GPU form (e.g., 8-bit quantized model on Kaggle), not a fake CPU imitation.
+- **Fail Loudly Policy**: Data loaders must raise errors on fetch failure, never fall back to synthetic data.
+- **Real Data + Real Results**: Every analysis task must consume the real dataset and compute a real measured result.
+- **No Fabrication**: Do not task generating/synthesizing fake input data or hard-coding placeholder datasets.
+- **Cycle ID Mapping**: Cycle ID features must be mapped from official SILSO historical cycle definitions.
+- **Leave-One-Cycle-Out**: Validation must use LOCO CV to ensure generalization across cycles.
+- **Cycle-Agnostic Fallback**: A separate fallback model must be trained for cycles not seen in training.
+- **Prediction Intervals**: Uncertainty bands must be derived from model prediction intervals, not arbitrary offsets.
+- **Bootstrap Iterations**: Bootstrap resampling must use at least 1000 iterations for robust variance estimation.
+- **Error Reduction Metric**: Percentage error reduction must be calculated against the 2007 baseline over the satellite era.
+- **Associational Framing**: All findings must be explicitly framed as associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Sensitivity Analysis**: Sweep inconsistency tolerance threshold over {0.01, 0.05, 0.1} and report stability metrics.
+- **Data Flow Integrity**: Tasks must respect data flow: ingestion → preprocessing → training → prediction → comparison → reporting.
+- **Real Dataset Streaming**: Use `datasets.load_dataset(..., streaming=True)` for large datasets; process in chunks.
+- **Sample Definition**: If sampling is required, explicitly state the sample size and representativeness limitation.
+- **Verified Data Sources**: Use only verified real data sources; no fabricated or synthetic inputs.
+- **Execution Gate Compliance**: All tasks must pass the execution gate's fabrication guard (no synthetic data, real measurements only).
+- **CPU-Only Execution**: All models and pipelines must run within 7 GB RAM and 6 hours on a 2-core CPU runner.
+- **GPU Escape Hatch**: If a method requires GPU, task a scaled-down GPU form (e.g., 8-bit quantized model on Kaggle), not a fake CPU imitation.
+- **Fail Loudly Policy**: Data loaders must raise errors on fetch failure, never fall back to synthetic data.
+- **Real Data + Real Results**: Every analysis task must consume the real dataset and compute a real measured result.
+- **No Fabrication**: Do not task generating/synthesizing fake input data or hard-coding placeholder datasets.
+- **Cycle ID Mapping**: Cycle ID features must be mapped from official SILSO historical cycle definitions.
+- **Leave-One-Cycle-Out**: Validation must use LOCO CV to ensure generalization across cycles.
+- **Cycle-Agnostic Fallback**: A separate fallback model must be trained for cycles not seen in training.
+- **Prediction Intervals**: Uncertainty bands must be derived from model prediction intervals, not arbitrary offsets.
+- **Bootstrap Iterations**: Bootstrap resampling must use at least 1000 iterations for robust variance estimation.
+- **Error Reduction Metric**: Percentage error reduction must be calculated against the 2007 baseline over the satellite era.
+- **Associational Framing**: All findings must be explicitly framed as associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Sensitivity Analysis**: Sweep inconsistency tolerance threshold over {0.01, 0.05, 0.1} and report stability metrics.
+- **Data Flow Integrity**: Tasks must respect data flow: ingestion → preprocessing → training → prediction → comparison → reporting.
+- **Real Dataset Streaming**: Use `datasets.load_dataset(..., streaming=True)` for large datasets; process in chunks.
+- **Sample Definition**: If sampling is required, explicitly state the sample size and representativeness limitation.
+- **Verified Data Sources**: Use only verified real data sources; no fabricated or synthetic inputs.
+- **Execution Gate Compliance**: All tasks must pass the execution gate's fabrication guard (no synthetic data, real measurements only).
+- **CPU-Only Execution**: All models and pipelines must run within 7 GB RAM and 6 hours on a 2-core CPU runner.
+- **GPU Escape Hatch**: If a method requires GPU, task a scaled-down GPU form (e.g., 8-bit quantized model on Kaggle), not a fake CPU imitation.
+- **Fail Loudly Policy**: Data loaders must raise errors on fetch failure, never fall back to synthetic data.
+- **Real Data + Real Results**: Every analysis task must consume the real dataset and compute a real measured result.
+- **No Fabrication**: Do not task generating/synthesizing fake input data or hard-coding placeholder datasets.
+- **Cycle ID Mapping**: Cycle ID features must be mapped from official SILSO historical cycle definitions.
+- **Leave-One-Cycle-Out**: Validation must use LOCO CV to ensure generalization across cycles.
+- **Cycle-Agnostic Fallback**: A separate fallback model must be trained for cycles not seen in training.
+- **Prediction Intervals**: Uncertainty bands must be derived from model prediction intervals, not arbitrary offsets.
+- **Bootstrap Iterations**: Bootstrap resampling must use at least 1000 iterations for robust variance estimation.
+- **Error Reduction Metric**: Percentage error reduction must be calculated against the 2007 baseline over the satellite era.
+- **Associational Framing**: All findings must be explicitly framed as associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Sensitivity Analysis**: Sweep inconsistency tolerance threshold over {0.01, 0.05, 0.1} and report stability metrics.
+- **Data Flow Integrity**: Tasks must respect data flow: ingestion → preprocessing → training → prediction → comparison → reporting.
+- **Real Dataset Streaming**: Use `datasets.load_dataset(..., streaming=True)` for large datasets; process in chunks.
+- **Sample Definition**: If sampling is required, explicitly state the sample size and representativeness limitation.
+- **Verified Data Sources**: Use only verified real data sources; no fabricated or synthetic inputs.
+- **Execution Gate Compliance**: All tasks must pass the execution gate's fabrication guard (no synthetic data, real measurements only).
+- **CPU-Only Execution**: All models and pipelines must run within 7 GB RAM and 6 hours on a 2-core CPU runner.
+- **GPU Escape Hatch**: If a method requires GPU, task a scaled-down GPU form (e.g., 8-bit quantized model on Kaggle), not a fake CPU imitation.
+- **Fail Loudly Policy**: Data loaders must raise errors on fetch failure, never fall back to synthetic data.
+- **Real Data + Real Results**: Every analysis task must consume the real dataset and compute a real measured result.
+- **No Fabrication**: Do not task generating/synthesizing fake input data or hard-coding placeholder datasets.
+- **Cycle ID Mapping**: Cycle ID features must be mapped from official SILSO historical cycle definitions.
+- **Leave-One-Cycle-Out**: Validation must use LOCO CV to ensure generalization across cycles.
+- **Cycle-Agnostic Fallback**: A separate fallback model must be trained for cycles not seen in training.
+- **Prediction Intervals**: Uncertainty bands must be derived from model prediction intervals, not arbitrary offsets.
+- **Bootstrap Iterations**: Bootstrap resampling must use at least 1000 iterations for robust variance estimation.
+- **Error Reduction Metric**: Percentage error reduction must be calculated against the 2007 baseline over the satellite era.
+- **Associational Framing**: All findings must be explicitly framed as associational, not causal.
+- **Multiple Comparison Correction**: All hypothesis tests must apply Bonferroni or FDR correction.
+- **Sensitivity Analysis**: Sweep inconsistency tolerance threshold over {0.01, 0.05, 0.1} and report stability metrics.

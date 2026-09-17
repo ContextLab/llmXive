@@ -1,7 +1,5 @@
 """
-Data handling module for the Solar Irradiance Reconstruction project.
+Data module for solar irradiance reconstruction.
 
-This module provides utilities for data ingestion, preprocessing, and management.
+Handles ingestion of raw data from SILSO/SORCE and preprocessing pipelines.
 """
-
-from code.env_manager import get_data_path

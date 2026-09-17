@@ -1,141 +1,121 @@
 # Reconstructing Solar Irradiance from Historical Sunspot Records
 
-This project implements a pipeline to reconstruct Total Solar Irradiance (TSI) using historical sunspot numbers (GSN) and satellite-era TSI measurements. It employs machine learning models (Random Forest, Gaussian Process) with cycle-specific features and a fallback mechanism for pre-satellite eras.
-
-## Prerequisites
-
-- Python 3.11 or higher
-- pip (Python package installer)
-- Virtual environment tool (venv, conda, or similar)
+Automated pipeline for reconstructing Total Solar Irradiance (TSI) using historical sunspot records.
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
+1. **Clone the repository**:
  ```bash
  git clone <repository-url>
- cd PROJ-381-reconstructing-solar-irradiance-from-his
+ cd <project-directory>
  ```
 
-2. **Create and activate a virtual environment**:
+2. **Create a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
 3. **Install dependencies**:
- Ensure you are in the project root directory and run:
  ```bash
  pip install -r requirements.txt
  ```
 
- *Note: `requirements.txt` includes pinned versions for `pandas`, `scikit-learn`, `numpy`, `scipy`, `requests`, `pyyaml`, and `joblib`.*
-
-4. **Configure Environment Variables**:
- The project relies on environment variables for data paths and API endpoints.
- - Copy the example environment file if available:
+4. **Configure environment variables**:
+ - Copy the example environment file:
  ```bash
- cp.env.example.env
+ cp code/.env.example code/.env
  ```
- - Edit `.env` to set the following variables (or set them directly in your shell):
- - `DATA_PATH`: Path to the `data/` directory.
- - `SILSO_URL`: URL for the SILSO sunspot number data.
- - `SORCE_URL`: URL for the SORCE/TIM TSI data.
- - Alternatively, run the environment setup script provided in `code/env_manager.py` logic by ensuring these variables are exported in your shell session before running the pipeline.
-
-5. **Verify Installation**:
- Run the setup verification script to ensure all directories and dependencies are correctly configured:
- ```bash
- python code/setup_structure.py
- ```
+ - Edit `code/.env` to set your specific configuration (e.g., data paths, API keys if needed).
 
 ## Usage
 
-The pipeline is executed in stages. Ensure the virtual environment is activated.
+### Running the Pipeline
 
-1. **Data Ingestion**:
- Fetch raw GSN and TSI data from SILSO and SORCE.
+The pipeline is executed through a series of scripts in the `code/` directory.
+
+1. **Setup Environment**:
+ ```bash
+ python code/env_manager.py
+ ```
+
+2. **Data Ingestion**:
  ```bash
  python code/data/ingestion.py
  ```
- *Output: `data/raw/silso_gsn.csv`, `data/raw/sorce_tsi.csv`*
 
-2. **Preprocessing**:
- Merge datasets, fill gaps (using GSN=0 proxy for long gaps), and detect cycle boundaries.
+3. **Preprocessing**:
  ```bash
  python code/data/preprocessing.py
  ```
- *Output: `data/processed/preprocessed_data.parquet`*
 
-3. **Model Training**:
- Train Random Forest and Gaussian Process models using Leave-One-Cycle-Out (LOCO) cross-validation.
+4. **Model Training**:
  ```bash
  python code/models/train.py
  ```
- *Outputs: `code/models/artifacts/best_model.joblib`, `data/processed/cv_report.json`*
 
-4. **Fallback Model Training**:
- Train the Cycle-Agnostic fallback model and derive cycle-specific offsets.
+5. **Prediction/Reconstruction**:
  ```bash
- python code/models/train_fallback.py
+ python code/models/predict.py
  ```
- *Outputs: `code/models/artifacts/fallback_model.joblib`, `data/processed/cycle_specific_coefficients.json`*
 
-5. **Sensitivity Analysis**:
- Evaluate model stability against inconsistency tolerance thresholds.
- ```bash
- python code/analysis/sensitivity.py
- ```
- *Output: `data/processed/sensitivity_report.json`*
-
-6. **Reconstruction Generation**:
- Apply models to the pre-satellite GSN record (1610–2002).
- ```bash
- python code/analysis/generate_reconstruction.py
- ```
- *Output: `data/processed/reconstruction_1610_2002.parquet`*
-
-7. **Variance Analysis**:
- Perform bootstrap resampling to compare variance across historical minima.
- ```bash
- python code/analysis/generate_variance_analysis.py
- ```
- *Output: `data/processed/variance_analysis.json`*
-
-8. **Baseline Comparison**:
- Compare the new reconstruction against the 2007 baseline and CMIP6 data.
+6. **Analysis & Reporting**:
  ```bash
  python code/analysis/comparison.py
  ```
- *Output: `data/processed/final_report.md`*
 
-## Testing
+### Running Tests
 
-Run the test suite to verify functionality:
 ```bash
-pytest tests/
+pytest tests/ -v
 ```
 
 ## Project Structure
 
-```text
+```
 .
 ├── code/
-│ ├── analysis/
+│ ├──.env # Local environment configuration (not committed)
+│ ├──.env.example # Template for environment configuration
+│ ├── env_manager.py # Environment variable management
+│ ├── config.py # Project configuration constants
 │ ├── data/
+│ │ ├── ingestion.py # Data fetching from external sources
+│ │ └── preprocessing.py # Data cleaning and transformation
 │ ├── models/
-│ ├── config.py
-│ ├── env_manager.py
-│ └──...
+│ │ ├── train.py # Model training pipeline
+│ │ ├── predict.py # Model inference and reconstruction
+│ │ └── train_fallback.py# Fallback model training
+│ └── analysis/
+│ ├── comparison.py # Baseline and CMIP6 comparison
+│ ├── stats.py # Statistical analysis
+│ └── sensitivity.py # Sensitivity analysis
 ├── data/
-│ ├── raw/
-│ └── processed/
-├── tests/
-├── contracts/
-├── docs/
-├── requirements.txt
-└── README.md
+│ ├── raw/ # Raw downloaded data
+│ └── processed/ # Processed data artifacts
+├── tests/ # Test suite
+└── requirements.txt # Python dependencies
 ```
+
+## Environment Variables
+
+The project uses environment variables for configuration. See `code/.env.example` for available options:
+
+- `DATA_ROOT_DIR`: Root directory for data artifacts.
+- `DATA_RAW_DIR`: Subdirectory for raw data.
+- `DATA_PROCESSED_DIR`: Subdirectory for processed data.
+- `SILSO_BASE_URL`: Base URL for SILSO sunspot data.
+- `SORCE_BASE_URL`: Base URL for SORCE TSI data.
+- `MODEL_ARTIFACTS_DIR`: Directory for saved models.
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes.
+4. Run tests: `pytest tests/ -v`
+5. Submit a pull request.
 
 ## License
 
-[Insert License Information Here]
+[License Information]

@@ -1,121 +1,101 @@
-%YAML 1.2
----
-title: Solar Irradiance Reconstruction Dataset Schemas
-description: |
-  Defines the schema for SunspotRecord (input from SILSO) and TSIRecord (input from SORCE/TIM)
-  entities used in the reconstruction pipeline.
-version: 1.0.0
+# Dataset Schema Definition for Solar Irradiance Reconstruction Pipeline
+# Defines the structure for SunspotRecord and TSIRecord entities
+# Used for validation of data ingestion and preprocessing stages
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solar Irradiance Reconstruction Dataset Schema"
+description: "Schema for sunspot number and Total Solar Irradiance records"
+type: "object"
 
 definitions:
   SunspotRecord:
-    description: |
-      Represents a single sunspot number observation from the SILSO (Royal Observatory of Belgium)
-      database. This entity serves as the primary input feature for the reconstruction model.
-    type: object
-    properties:
-      date:
-        type: string
-        format: date
-        description: The observation date in YYYY-MM-DD format.
-      sunspot_number:
-        type: number
-        format: float
-        description: |
-          The International Sunspot Number (Ri). Can be a daily, monthly, or yearly value
-          depending on the aggregation level. Values are non-negative.
-      cycle_number:
-        type: integer
-        description: |
-          The solar cycle number (1-25+) associated with this observation.
-          Derived from SILSO historical cycle boundaries.
-          Null for dates prior to the start of recorded cycle numbering (approx. 1755).
-      source:
-        type: string
-        enum: [SILSO_DAILY, SILSO_MONTHLY, SILSO_YEARLY]
-        description: The source granularity of the sunspot data.
-      quality_flag:
-        type: integer
-        description: |
-          Quality flag from source. 0 = provisional, 1 = final, 2 = interpolated/filled.
-          Used to distinguish real observations from gap-filled values.
+    description: "Record representing a sunspot number observation"
+    type: "object"
     required:
       - date
-      - sunspot_number
+      - gsn
       - source
-
+      - cycle_id
+    properties:
+      date:
+        type: "string"
+        format: "date"
+        description: "Observation date in YYYY-MM-DD format"
+      gsn:
+        type: "number"
+        minimum: 0
+        description: "Group Sunspot Number (GSN) value"
+      uncertainty:
+        type: "number"
+        minimum: 0
+        description: "Uncertainty estimate for GSN measurement"
+      source:
+        type: "string"
+        enum:
+          - "SILSO"
+          - "Historical"
+        description: "Data source identifier"
+      cycle_id:
+        type: ["integer", "null"]
+        description: "Solar cycle identifier (1-25+), null if unknown"
+      is_gap_filled:
+        type: "boolean"
+        description: "Flag indicating if this value was gap-filled"
+      gap_fill_method:
+        type: ["string", "null"]
+        enum:
+          - "linear_interpolation"
+          - "tsi_proxy"
+          - null
+        description: "Method used for gap filling if applicable"
+    
   TSIRecord:
-    description: |
-      Represents a Total Solar Irradiance (TSI) measurement from satellite-era instruments
-      (e.g., SORCE/TIM, ACRIM, VIRGO). This entity serves as the ground truth label for
-      training the reconstruction model.
-    type: object
-    properties:
-      date:
-        type: string
-        format: date
-        description: The observation date in YYYY-MM-DD format.
-      tsi_value:
-        type: number
-        format: float
-        description: |
-          The Total Solar Irradiance value in Watts per square meter (W/m²).
-          Typical range: 1360.0 to 1362.0.
-      uncertainty:
-        type: number
-        format: float
-        description: |
-          The measurement uncertainty (1-sigma) in W/m².
-          Used for weighting in regression or uncertainty propagation.
-      instrument:
-        type: string
-        enum: [SORCE_TIM, ACRIM3, VIRGO, TSIS_1, OTHER]
-        description: The specific instrument that recorded the TSI value.
-      source:
-        type: string
-        enum: [SORCE, ACRIM, PMOD, NASA]
-        description: The primary data repository or composite source.
-      quality_flag:
-        type: integer
-        description: |
-          Quality flag. 0 = valid, 1 = flagged for review, 2 = invalid/dropped.
+    description: "Record representing a Total Solar Irradiance observation"
+    type: "object"
     required:
       - date
-      - tsi_value
-      - instrument
+      - tsi
       - source
-
-schemas:
-  merged_training_data:
-    description: |
-      The merged dataset used for model training, joining SunspotRecord and TSIRecord
-      on the `date` field. Only records with overlapping dates are included.
-    type: object
     properties:
       date:
-        type: string
-        format: date
-      sunspot_number:
-        type: number
-      cycle_number:
-        type: integer
-      tsi_value:
-        type: number
+        type: "string"
+        format: "date"
+        description: "Observation date in YYYY-MM-DD format"
+      tsi:
+        type: "number"
+        minimum: 1360
+        maximum: 1370
+        description: "Total Solar Irradiance in W/m²"
       uncertainty:
-        type: number
+        type: "number"
+        minimum: 0
+        description: "Uncertainty estimate for TSI measurement"
+      source:
+        type: "string"
+        enum:
+          - "SORCE"
+          - "TIM"
+          - "SORCE_TIM"
+          - "CMIP6"
+          - "Baseline_2007"
+        description: "Data source identifier"
       instrument:
-        type: string
-      source_gsn:
-        type: string
-      source_tsi:
-        type: string
-    required:
-      - date
-      - sunspot_number
-      - tsi_value
+        type: ["string", "null"]
+        description: "Instrument name if applicable"
+      is_gap_filled:
+        type: "boolean"
+        description: "Flag indicating if this value was gap-filled"
+      gap_fill_method:
+        type: ["string", "null"]
+        enum:
+          - "linear_interpolation"
+          - "tsi_proxy"
+          - null
+        description: "Method used for gap filling if applicable"
+      cycle_id:
+        type: ["integer", "null"]
+        description: "Solar cycle identifier (1-25+), null if unknown"
 
-notes:
-  - "SunspotNumber is the primary predictor variable."
-  - "TSIValue is the primary target variable for the reconstruction model."
-  - "CycleNumber is a categorical feature used to capture cycle-specific variability (FR-003)."
-  - "Gap-filled values (quality_flag >= 2) are handled separately in preprocessing (T014)."
-  - "All timestamps are assumed to be in UTC."
+oneOf:
+  - $ref: "#/definitions/SunspotRecord"
+  - $ref: "#/definitions/TSIRecord"
