@@ -17,7 +17,7 @@ This project implements a reproducible pipeline to predict gene expression level
 **Project Type**: Data science pipeline / Research tool  
 **Performance Goals**: <7GB RAM peak, <6h total runtime, LOOCV per cell line  
 **Constraints**: CPU-only execution; no GPU; strict memory limits; reproducible random seeds ()  
-**Scale/Scope**: 5 cell lines (subject to N>=4 gate); ~20k genes per line; **200 binned features per gene**; ~4000 total binned features (200 bins * 20 genes sampled) for CI; real data uses streaming.
+**Scale/Scope**: 5 cell lines (subject to N>=4 gate); thousands of genes per line; **A fixed number of binned features per gene**; A set of binned features (200 bins * 20 genes sampled) for CI; real data uses streaming.
 
 > Note: The feature space is reduced from ~1M raw peaks to **200 bins per gene window** to ensure P (features) is manageable relative to N (samples). The "10k total features" figure in prior drafts was ambiguous; the correct metric is **200 features per gene model**.
 
@@ -25,7 +25,7 @@ This project implements a reproducible pipeline to predict gene expression level
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan includes explicit random seed pinning (42) in all stochastic steps (CV splits, data sampling). All external data sources are canonical (ENCODE) with checksum verification.
+- **I. Reproducibility**: Plan includes explicit random seed pinning in all stochastic steps (CV splits, data sampling). All external data sources are canonical (ENCODE) with checksum verification.
 - **II. Verified Accuracy**: All citations (ENCODE, Elastic Net, Bonferroni, CV methodology) are verified against primary sources via the **Reference-Validator Agent**. No speculative values will be introduced.
 - **III. Data Hygiene**: Raw data will be downloaded once, checksummed, and stored in `data/raw`. Derived files (`data/processed`) will carry derivation logs. No in-place modifications. **Data Hygiene Gate**: Pipeline fails if `data/raw` is missing or checksums mismatch.
 - **IV. Single Source of Truth**: All figures and statistics will be generated programmatically from `data/processed` artifacts. No hand-typed numbers.
@@ -95,8 +95,8 @@ The following concerns from the previous iteration have been resolved in this pl
     -   Per-cell-line model saving (`elastic_net_{cell_line}.pkl`).
     -   Output of `cv_scores.json` with Pearson R² and p-values (Bonferroni corrected for m=5 cell lines).
     -   **Promoter Exclusion**: TSS ± 2kb excluded from features to avoid circularity.
-6.  **Runtime & Parallelization**: The plan removes the parallelization strategy. Models are trained **serially** on the 2-CPU runner. To meet the 6-hour limit, a **Sample Size Gate** skips cell lines with N < 4, reducing the total lines to 3-4, ensuring total runtime < 6h.
-7.  **Feature Binning & Dimensionality**: The plan explicitly defines **200 fixed-width bins** per gene window (±50kb) as the feature space. This reduces P from ~100k to ~200 per gene model, making the regression tractable. The "10k total features" claim was corrected to "200 features per gene model".
+6.  **Runtime & Parallelization**: The plan removes the parallelization strategy. Models are trained **serially** on the 2-CPU runner. To meet the 6-hour limit, a **Sample Size Gate** skips cell lines with N < 4, reducing the total lines to -4, ensuring total runtime < 6h.
+7.  **Feature Binning & Dimensionality**: The plan explicitly defines **200 fixed-width bins** per gene window (±50kb) as the feature space. This reduces P from a high baseline to a significantly lower level per gene model, making the regression tractable. The "10k total features" claim was corrected to "200 features per gene model".
 8. **Statistical Validity**: The plan acknowledges that with N=3-5, the model is underdetermined. R² is reported with large confidence intervals (via bootstrapping if N>=4) or as descriptive statistics. Bonferroni correction is applied to m=5 (cell lines), not [deferred] genes.
 
 ## Execution Workflow

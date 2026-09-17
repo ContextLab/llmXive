@@ -85,12 +85,11 @@
 - [ ] T010 [US1] **Conditional Execution**: Implement ENCODE data download logic in `code/download_encode.py`.
   - **Logic**:
     1. Attempt real data fetch from ENCODE.
-    2. **If successful**: Save to `data/raw/encode_counts.csv` and `data/raw/encode_peaks.bed`. **Skip T011**.
+    2. **If successful**: Save to `data/raw/encode_counts.csv` and `data/raw/encode_peaks.bed`. Record checksums in `state/...yaml`. **Skip T011**.
     3. **If failed AND CI_MODE=1**: Log "Real data fetch failed in CI mode. Switching to synthetic fallback." and exit successfully (allowing T011 to run).
-    4. **If failed AND CI_MODE=0**: Raise a hard `SystemExit` with message "Real data fetch failed and CI_MODE=0. Pipeline halted. No synthetic fallback allowed." **Do not run T011**.
+    4. **If failed AND CI_MODE=0**: Raise a hard `SystemExit` with message "Real data fetch failed and CI_MODE=0. Pipeline halted. No synthetic fallback allowed." **Do not run T011**. Do not record checksums (failure state).
   - **Deliverable**: `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (if successful) OR exit code 1 (if failed in non-CI).
-  - **Checksum**: Run `utils.checksum_file()` on outputs if successful.
-  - **Constraint**: Synthetic data is NEVER used for research output unless `CI_MODE=1` and real fetch fails.
+  - **Checksum**: Run `utils.checksum_file()` on outputs if successful and record in `state/...yaml`.
 
 - [ ] T011 [US1] **Conditional Fallback**: Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.
   - **Condition**: Run ONLY if `CI_MODE=1` AND T010 failed to fetch real data.
@@ -101,15 +100,16 @@
 
 - [ ] T012.1 [P] [US1] Implement unit tests in `tests/unit/test_preprocess.py` to validate Python windowing logic against synthetic in-memory coordinates. **Input**: Synthetic coordinates. **Deliverable**: `tests/unit/test_preprocess.py`. **Dependency**: Must pass before T012.0 is considered production-ready.
 
-- [ ] T012.0 [US1] Implement Python windowing logic in `code/preprocess.py` to aggregate accessibility signal within ±50kb of TSS.
+- [ ] T012.0 [US1] Implement Python windowing logic in `code/preprocess.py` to aggregate accessibility signal within ±50kb of TSS into **200 fixed-width bins**.
   - **Input**: `data/raw/encode_peaks.bed` (if T010 success) OR `data/raw/synthetic_peaks.bed` (if T011 executed).
-  - **Deliverable**: `data/processed/tss_aggregated_features.csv`.
-  - **Checkpoint**: Verify `tss_aggregated_features.csv` exists and is non-empty. If input is missing, raise `DependencyError`.
+  - **Logic**: Bin the ±50kb window into exactly 200 fixed-width bins per gene. Aggregate signal (sum/mean) into these bins. Exclude TSS ± 2kb from features.
+  - **Deliverable**: `data/processed/tss_binned_features.csv` (Matrix: Rows=Genes, Columns=200 Bins).
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
 - [ ] T013 [US1] **Staged Acceptance**: Implement gene filtering in `code/preprocess.py`.
-  - **Input**: `data/processed/tss_aggregated_features.csv`.
+  - **Input**: `data/processed/tss_binned_features.csv`.
   - **Logic**: Filter genes with zero expression in all samples. Apply log pseudocount transformation.
-  - **Staged Acceptance**: If input is missing, write `data/processed/filtered_expression.csv.blocked` with content "BLOCKED: Input tss_aggregated_features.csv missing" and raise `DependencyError`. Do not attempt to generate output.
+  - **Staged Acceptance**: If input is missing, write `data/processed/filtered_expression.csv.blocked` with content "BLOCKED: Input tss_binned_features.csv missing" and raise `DependencyError`. Do not attempt to generate output.
   - **Deliverable**: `data/processed/filtered_expression.csv` (if input present) OR `.blocked` marker (if input missing).
   - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
@@ -120,8 +120,9 @@
   - **Deliverable**: `data/processed/imputed_expression.csv` (if input present) OR `.blocked` marker.
   - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
-- [ ] T015 [US1] Merge aggregated peak features with gene expression counts to form the joint matrix.
-  - **Input**: `data/processed/tss_aggregated_features.csv`, `data/processed/filtered_expression.csv`.
+- [ ] T015 [US1] **Staged Acceptance**: Merge aggregated peak features with gene expression counts to form the joint matrix.
+  - **Input**: `data/processed/tss_binned_features.csv`, `data/processed/imputed_expression.csv`.
+  - **Staged Acceptance**: If either input is missing or `.blocked`, write `data/processed/merged_matrix.csv.blocked` and raise `DependencyError`.
   - **Deliverable**: `data/processed/merged_matrix.csv`.
   - **Checksum**: Run `utils.checksum_file()` on output.
 
@@ -138,10 +139,11 @@
   - **Deliverable**: `data/processed/cell_type_specific_genes.csv`.
   - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T016c [US1] Filter the feature matrix and target vector to only housekeeping genes.
-  - **Input**: `data/processed/imputed_expression.csv`, `data/processed/housekeeping_genes.csv`.
+- [ ] T016c [US1] **Staged Acceptance**: Filter the **binned** feature matrix (`data/processed/tss_binned_features.csv`) and target vector to only housekeeping genes.
+  - **Input**: `data/processed/tss_binned_features.csv`, `data/processed/housekeeping_genes.csv`, `data/processed/imputed_expression.csv`.
+  - **Staged Acceptance**: If any input is missing or `.blocked`, write `data/processed/housekeeping_matrix.csv.blocked` and raise `DependencyError`.
   - **Deliverable**: `data/processed/housekeeping_matrix.csv`.
-  - **Checksum**: Run `utils.checksum_file()` on output.
+  - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Requirement**: All Phase 3 tasks must complete successfully before Phase 4 can begin. All artifacts must exist and be checksummed.
 
@@ -155,24 +157,35 @@
 
 ### Tests for User Story 2 (OPTIONAL)
 
-- [X] T019 [P] [US2] Contract test for model output schema in `tests/contract/test_model_schema.py`
-- [X] T020 [P] [US2] Integration test for training and cross-validation loop in `tests/integration/test_training_loop.py`
+- [X] T019 [P] [US2] Contract test for model output schema in `tests/contract/test_model_schema.py`. **Deliverable**: `tests/contract/test_model_schema.py`. **Checksum**: Run `utils.checksum_file()` on output.
+- [X] T020 [P] [US2] Integration test for training and cross-validation loop in `tests/integration/test_training_loop.py`. **Deliverable**: `tests/integration/test_training_loop.py`. **Checksum**: Run `utils.checksum_file()` on output.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement Elastic Net training in `code/train.py` (α=0.5, λ via internal k-fold cross-validation) for each cell line. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/models/elastic_net_{cell_line}.pkl`, `data/processed/cv_scores.json`.
+- [ ] T021 [US2] Implement Elastic Net training in `code/train.py` (α=0.5, λ via **Leave-One-Out Cross-Validation (LOOCV)**) for each cell line.
+  - **Input**: `data/processed/imputed_expression.csv`, `data/processed/tss_binned_features.csv`.
+  - **Logic**: Train one model per gene using LOOCV (N samples for training, 1 for testing). Exclude TSS ± 2kb features.
+  - **Deliverable**: `data/models/elastic_net_{cell_line}.pkl`, `data/processed/cv_scores.json`.
+  - **Checksum**: Run `utils.checksum_file()` on outputs.
 
-- [ ] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
+- [ ] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T024 [US2] Apply Bonferroni correction to p-values in `code/evaluate.py` (FR-006) using `scipy.stats`. **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
+- [ ] T024 [US2] Apply Bonferroni correction to p-values in `code/evaluate.py` (FR-006) using `scipy.stats`. **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T025 [US2] Calculate and report R² for housekeeping genes per cell line in `code/evaluate.py` (FR-009, SC-001) using the gene list from `data/processed/housekeeping_matrix.csv`. **Deliverable**: `data/processed/housekeeping_r2.csv`.
+- [ ] T025 [US2] Calculate and report R² for housekeeping genes per cell line in `code/evaluate.py` (FR-009, SC-001).
+  - **Input**: `data/processed/housekeeping_matrix.csv` (Output of T016c), `data/models/elastic_net_{cell_line}.pkl`.
+  - **Logic**: Filter model predictions to housekeeping genes only.
+  - **Deliverable**: `data/processed/housekeeping_r2.csv`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T025b [US2] Calculate and report R² for cell-type-specific genes per cell line in `code/evaluate.py`. **Input**: `data/processed/cell_type_specific_genes.csv`. **Deliverable**: `data/processed/cell_type_specific_r2.csv`.
+- [ ] T025b [US2] Calculate and report R² for cell-type-specific genes per cell line in `code/evaluate.py`.
+  - **Input**: `data/processed/cell_type_specific_genes.csv`, `data/models/elastic_net_{cell_line}.pkl`.
+  - **Deliverable**: `data/processed/cell_type_specific_r2.csv`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T026 [US2] Implement external validation in `code/evaluate.py` (SC-006) by training on multiple cell lines (e.g., GM, K562, HMEC, IMR90) and testing on a held-out cell line (e.g., HepG2). **Inputs**: Full model, held-out cell line data. **Deliverable**: Report the R² for the held-out line in `data/processed/external_validation_r2.csv`.
+- [ ] T026 [US2] Implement external validation in `code/evaluate.py` (SC-006) by training on multiple cell lines (e.g., GM, K562, HMEC, IMR90) and testing on a held-out cell line (e.g., HepG2). **Inputs**: Full model, held-out cell line data. **Deliverable**: Report the R² for the held-out line in `data/processed/external_validation_r2.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T027 [US2] Log memory usage and runtime to `logs/` to verify CPU/RAM constraints (SC-005). **Deliverable**: `logs/profiling.log`. **Success Criterion**: Verify runtime ≤ 2 hours per cell line and RAM ≤ 7GB.
+- [ ] T027 [US2] Log memory usage and runtime to `logs/` to verify CPU/RAM constraints (SC-005). **Deliverable**: `logs/profiling.log`. **Success Criterion**: Verify runtime ≤ 2 hours per cell line and RAM ≤ 7GB. **Checksum**: Run `utils.checksum_file()` on output.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -186,20 +199,28 @@
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [X] T028 [P] [US3] Contract test for interpretation output schema in `tests/contract/test_interpretation_schema.py`
-- [X] T029 [P] [US3] Integration test for feature importance and TSS mapping in `tests/integration/test_interpretation.py`
+- [X] T028 [P] [US3] Contract test for interpretation output schema in `tests/contract/test_interpretation_schema.py`. **Deliverable**: `tests/contract/test_interpretation_schema.py`. **Checksum**: Run `utils.checksum_file()` on output.
+- [X] T029 [P] [US3] Integration test for feature importance and TSS mapping in `tests/integration/test_interpretation.py`. **Deliverable**: `tests/integration/test_interpretation.py`. **Checksum**: Run `utils.checksum_file()` on output.
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Extract non-zero coefficient features and rank by absolute magnitude in `code/interpret.py` (FR-007). **Input**: `data/models/elastic_net_{cell_line}.pkl`. **Deliverable**: `data/processed/feature_importance.csv` (Peak IDs).
+- [ ] T030 [US3] Extract non-zero coefficient features and rank by absolute magnitude in `code/interpret.py` (FR-007). **Input**: `data/models/elastic_net_{cell_line}.pkl`. **Deliverable**: `data/processed/feature_importance.csv` (Peak IDs). **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T031 [US3] Map peak coordinates to genomic location relative to nearest TSS in `code/interpret.py` (FR-008). **Input**: `data/processed/feature_importance.csv` (Peak IDs), `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/peak_annotations.csv`.
+- [ ] T031 [US3] Map peak coordinates to genomic location relative to nearest TSS in `code/interpret.py` (FR-008). **Input**: `data/processed/feature_importance.csv` (Peak IDs), `data/processed/tss_binned_features.csv`. **Deliverable**: `data/processed/peak_annotations.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS in `code/interpret.py` (SC-003). **Input**: `data/processed/peak_annotations.csv`. **Deliverable**: `data/processed/tss_proximity_stats.json`.
+- [ ] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS in `code/interpret.py` (SC-003).
+  - **Input**: `data/processed/peak_annotations.csv`.
+  - **Logic**: Calculate percentage. **Validation Gate**: If percentage < 80%, write `data/processed/tss_proximity_stats.json.blocked` with content "SC003_FAILURE: Percentage < 80%" and exit non-zero.
+  - **Deliverable**: `data/processed/tss_proximity_stats.json` (if pass) OR `.blocked` marker (if fail).
+  - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
-- [ ] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004). **Inputs**: R² values from T025 (`housekeeping_r2.csv`) and T025b (`cell_type_specific_r2.csv`). **Deliverable**: `data/processed/performance_gap.json`.
+- [ ] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004).
+  - **Input**: `data/processed/housekeeping_r2.csv` (Output of T025), `data/processed/cell_type_specific_r2.csv` (Output of T025b).
+  - **Logic**: Calculate ΔR² = R²(housekeeping) - R²(cell-type-specific).
+  - **Deliverable**: `data/processed/performance_gap.json`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T034 [US3] Generate summary report comparing model performance across cell types and gene categories in `code/interpret.py`. **Deliverable**: `docs/regulatory_insights_report.md`.
+- [ ] T034 [US3] Generate summary report comparing model performance across cell types and gene categories in `code/interpret.py`. **Deliverable**: `docs/regulatory_insights_report.md`. **Checksum**: Run `utils.checksum_file()` on output.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -215,24 +236,41 @@
   - **Content**: Consolidate all limitations including "First-Order Approximation", "Dappled Models", "Correlation vs. Causation", and "Bulk Averaging Artifact".
   - **Action**: Write the definitive text for these limitations here. Update `spec.md` Section 1.3 to reference this file.
   - **Deliverable**: `docs/LIMITATIONS_MASTER.md`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T061 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md`.
-  - **Action**: Remove duplicated text about "Dappled Models" and "Correlation vs. Causation". Instead, include a section "See `docs/LIMITATIONS_MASTER.md` for detailed limitations" and a brief summary.
+- [ ] T061 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md` for all limitations.
+  - **Action**: Remove duplicated text about "Dappled Models", "Correlation vs. Causation", and "Bulk Averaging Artifact". Instead, include a section "See `docs/LIMITATIONS_MASTER.md` for detailed limitations" and a brief summary.
   - **Deliverable**: Updated `docs/regulatory_context.md`.
-
-- [ ] T062 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md` for "Correlation vs. Causation".
-  - **Action**: Remove duplicated text. Reference the master file.
-  - **Deliverable**: Updated `docs/regulatory_context.md`.
-
-- [ ] T063 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md` for "Bulk Averaging Artifact".
-  - **Action**: Remove duplicated text. Reference the master file.
-  - **Deliverable**: Updated `docs/regulatory_context.md`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
 - [ ] T064 [US3] Modify the final summary report generation in `code/interpret.py` to load and prepend the content from `docs/LIMITATIONS_MASTER.md` to any output file containing correlation metrics.
   - **Deliverable**: Updated `code/interpret.py` and example output in `docs/regulatory_insights_report.md`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
 - [ ] T065 [US3] Add a validation task to `tests/integration/test_interpretation.py` that asserts the presence of the "first-order approximation" caveat (from `docs/LIMITATIONS_MASTER.md`) in all generated report headers.
   - **Deliverable**: Updated `tests/integration/test_interpretation.py`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
+
+- [ ] T070 [US3] **Review Response**: Explicitly document the "First-Order Approximation" caveat in `docs/LIMITATIONS_MASTER.md` and `spec.md` Section 1.3, citing the Freeman Dyson review.
+  - **Content**: State clearly that bulk profiles smooth over single-cell heterogeneity (the true engine of differentiation) and that prediction here is a statistical approximation, not a biological law. Reference ENCODE findings on the "dappled" nature of the genome.
+  - **Action**: Ensure the text "first-order approximation" appears prominently in the limitations section.
+  - **Deliverable**: Updated `docs/LIMITATIONS_MASTER.md` and `spec.md`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
+
+- [ ] T071 [US3] **Review Response**: Add a specific "Dappled Models" subsection to `docs/LIMITATIONS_MASTER.md` explaining that regulatory relationships are context-dependent and not universal laws.
+  - **Content**: Discuss how the model's predictive power varies by cell type and gene category, reflecting the "dappled" nature of genomic regulation.
+  - **Deliverable**: Updated `docs/LIMITATIONS_MASTER.md`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
+
+- [ ] T072 [US3] **Review Response**: Ensure the "Correlation vs. Causation" limitation is explicitly linked to the "First-Order Approximation" concept in `docs/LIMITATIONS_MASTER.md`.
+  - **Content**: Clarify that the identified statistical associations do not imply causal regulatory links, especially given the bulk averaging artifact.
+  - **Deliverable**: Updated `docs/LIMITATIONS_MASTER.md`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
+
+- [ ] T073 [US3] **Verified Accuracy Gate**: Run the Reference-Validator Agent on `docs/LIMITATIONS_MASTER.md` to validate all citations (ENCODE, Dyson, Bonferroni) against primary sources.
+  - **Logic**: If any citation fails validation, write `docs/LIMITATIONS_MASTER.md.blocked` with content "VALIDATION_FAILURE: Citation mismatch" and exit non-zero.
+  - **Deliverable**: Validated `docs/LIMITATIONS_MASTER.md` OR `.blocked` marker.
+  - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
 ---
 
@@ -306,7 +344,7 @@ Task: "Contract test for data schema validation in tests/contract/test_data_sche
 Task: "Integration test for data download and filtering pipeline in tests/integration/test_data_pipeline.py"
 
 # Launch all models for User Story 1 together:
-Task: "Execute Python windowing to aggregate signal in data/processed/tss_aggregated_features.csv"
+Task: "Execute Python windowing to aggregate signal in data/processed/tss_binned_features.csv"
 Task: "Implement gene filtering in code/preprocess.py"
 ```
 
@@ -360,3 +398,5 @@ With multiple developers:
 - **Revision Note**: Phase 7 tasks (T048-T059) have been removed to eliminate duplication with Phase 6.
 - **Revision Note**: T013, T014, T016 now include explicit "Staged Acceptance" criteria to handle missing inputs without silent failure.
 - **Revision Note**: T060-T064 now reference `docs/LIMITATIONS_MASTER.md` as the single source of truth for limitations, eliminating text duplication.
+- **Revision Note**: T070-T072 explicitly address the Freeman Dyson review by documenting the "First-Order Approximation", "Dappled Models", and "Correlation vs. Causation" limitations in `docs/LIMITATIONS_MASTER.md` and `spec.md`.
+- **Revision Note**: T012.0 explicitly implements the 200-bin strategy. T021 explicitly mandates LOOCV. T032 enforces the 80% threshold. T073 validates citations.
