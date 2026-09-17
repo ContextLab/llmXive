@@ -78,7 +78,7 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. Running tests can be parallel, but writing them is sequential.
 
 - [X] T010 [P] [US1] Unit test for data ingestion in `tests/test_ingestion.py` (verify SILSO/SORCE URL reachability)
-- [X] T011 [P] [US1] Unit test for gap filling logic in `tests/test_preprocessing.py` (verify ≥1yr gaps use GSN=0 proxy, not TSI units)
+- [X] T011 [P] [US1] Unit test for gap filling logic in `tests/test_preprocessing.py` (verify ≥1yr gaps use TSI proxy 1360.5 W/m², not GSN=0)
 - [X] T012 [P] [US1] Integration test for LOCO CV in `tests/test_model_training.py` (verify cycle holdout logic)
 
 ### Implementation for User Story 1
@@ -86,11 +86,13 @@
 - [X] T013 [US1] Implement `code/data/ingestion.py` to fetch GSN (SILSO) and TSI (SORCE/TIM) from verified URLs to `data/raw/`
 - [X] T014 [US1] Implement `code/data/preprocessing.py`:
  - Part 1: Linear interpolation for gaps < 1 year in GSN data.
- - Part 2: Apply **GSN=0 proxy** (not TSI units) for gaps ≥ 1 year, per FR-002.
- - Detect cycle boundaries using SILSO method.
+ - Part 2: Apply **TSI proxy (1360.5 W/m²)** for TSI gaps ≥ 1 year, per FR-002.
+ - **Implement standard smoothed sunspot number peak detection (SILSO method)**: Apply a multi-month smoothing window to GSN, detect local maxima, and verify cycle boundaries align with SILSO historical records within ±6 months.
  - Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
 - [X] T015 [US1] Implement `code/models/train.py`:
- - Utilize **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature, per FR-003 and Constitution Principle VI.
+ - **IMPORTANT: This task strictly implements Spec FR-003.**
+ - Utilize **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature.
+ - **Note**: The Plan.md mentions 'Cycle Phase' features; this task overrides the Plan to comply with Spec FR-003. **Plan Amendment Required** to align Plan with Spec.
  - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).
  - Execute **Leave-One-Cycle-Out (LOCO)** Cross-Validation: Train on all cycles except one, validate on the held-out cycle.
  - Calculate RMSE and R² for each held-out cycle.
@@ -106,15 +108,16 @@
 
 **Purpose**: Train the Cycle-Agnostic fallback model, derive cycle-specific offsets for sensitivity analysis, and validate robustness. This phase is a **blocking prerequisite** for Phase 4 (US2).
 
-- [X] T019 [US1/Phase3.5] Implement `code/models/train_fallback.py`:
+- [X] T019 [Phase 3.5 (Bridge)] Implement `code/models/train_fallback.py`:
  - Train a **single Cycle-Agnostic fallback model** (GSN-only, no Cycle ID features) on the full satellite-era dataset (2003–present).
  - **Derive per-cycle baseline offsets**: Calculate the mean residual of each satellite-era cycle against this single global fallback model.
+ - **Explicitly design for pre-satellite cycles**: Ensure the fallback logic can handle cycles with no analog by applying the global baseline.
  - Save the fallback model to `code/models/artifacts/fallback_model.joblib`.
  - Save the per-cycle baseline offsets to `data/processed/cycle_specific_coefficients.json`.
-- [X] T029 [US1/Phase3.5] Implement `code/analysis/sensitivity.py` to:
+- [X] T029 [Phase 3.5] Implement `code/analysis/sensitivity.py` to:
  - Load `data/processed/cycle_specific_coefficients.json` (per-cycle baseline offsets from T019).
- - Sweep **inconsistency tolerance threshold** over absolute differences {0.01, 0.05, 0.1}, per FR-009.
- - Measure **reconstruction stability** defined as the standard deviation of RMSE across the sweep, comparing against the Cycle-Agnostic baseline.
+ - **Sweep 'inconsistency tolerance threshold' over a range of representative values.** (absolute difference between coefficients).
+ - **Measure stability of cycle-specific calibration coefficients** (max absolute difference) for each threshold, not RMSE.
  - Output: `data/processed/sensitivity_report.json`.
 - [X] T031 [US1] Verify computational resource usage (RAM < 7 GB, Runtime < 6h) in `tests/test_performance.py` (FR-008, SC-004).
 
@@ -131,20 +134,22 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for Cycle-Agnostic fallback logic in `tests/test_preprocessing.py`
-- [X] T040 [P] [US2] Unit test for bootstrap resampling in `tests/test_stats.py` (verify 1000 iterations)
+- [X] T040 [P] [US2] Unit test for bootstrap resampling in `tests/test_stats.py` (verify sufficient iterations)
+- [X] T041 [P] [US2] Unit test for variance comparison logic in `tests/test_stats.py`
 
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/models/predict.py` (extended):
+ - **Extends logic of T016** for code reuse.
  - Load pre-satellite GSN (historical–pre-satellite era).
  - Apply trained RF/GP model (from T015) for cycles present in training.
  - Apply **Cycle-Agnostic fallback model** (from T019) for unseen cycles.
  - Generate prediction intervals for uncertainty bands.
- - Output: `data/processed/reconstruction_1610_2002.parquet`.
+ - **Generate `data/processed/reconstruction_1610_2002.parquet` with TSI values and uncertainty bounds.**
 - [X] T021 [US2] Implement `code/analysis/stats.py`:
- - Bootstrap resampling with **at least 1000 iterations** for variance comparison across Maunder, Dalton, and Modern minima (FR-005, Constitution Principle VII).
-- [ ] T022 [US2] Generate `data/processed/reconstruction_1610_2002.parquet` with TSI values and uncertainty bounds (if not already done in T020).
-- [ ] T023 [US2] Generate `data/processed/variance_analysis.json` with bootstrap results.
+ - **Perform statistical comparison of reconstructed TSI variance across Maunder, Dalton, and Modern minima**.
+ - Use **bootstrap resampling with at least 1000 iterations** (FR-005, Constitution Principle VII).
+ - **Generate `data/processed/variance_analysis.json` with bootstrap results.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -164,13 +169,14 @@
 ### Implementation for User Story 3
 
 - [X] T026 [US3] Implement `code/analysis/comparison.py`:
- - Load a baseline year and CMIP v3.2 data.
- - Calculate RMSE over the overlapping satellite era (2016–present), per SC-001.
+ - **Inputs**: New reconstruction, 2007 baseline, CMIP6 data, `data/processed/sensitivity_report.json` (from T029).
+ - **Verify baseline coverage**: Explicitly check that the 2007 baseline dataset covers the '2016–present' validation window.
+ - Calculate RMSE over the overlapping satellite era (–present), per SC-001.
  - Compute percentage error reduction (SC-001).
 - [X] T027 [US3] Implement `code/analysis/stats.py` (extended):
  - Apply multiple-comparison correction (Bonferroni or FDR) for hypothesis tests (FR-007).
  - Ensure all findings are framed as associational in output text (FR-006).
-- [ ] T028 [US3] Generate `data/processed/final_report.md` containing error reduction metrics, variance comparisons, and methodological constraints.
+ - **Generate `data/processed/final_report.md` containing error reduction metrics, variance comparisons, and methodological constraints.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -199,7 +205,7 @@
  - **User Story 1 (Phase 3)**: Can start after Foundational.
  - **Phase 3.5 (Fallback Model & Sensitivity)**: Depends on T015 (US1 model artifact) and T014 (preprocessed data). **Blocks Phase 4**.
  - **User Story 2 (Phase 4)**: **Depends on T015 (US1 model) AND T019 (Fallback model)**. Cannot start until Phase 3.5 is complete.
- - **User Story 3 (Phase 5)**: Depends on T020 (US2 reconstruction output).
+ - **User Story 3 (Phase 5)**: Depends on T020 (US2 reconstruction output) and T029 (Sensitivity report).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -287,7 +293,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: Ensure all models (RF, GP) use default precision and no GPU libraries (FR-008).
 - **Data Integrity**: Use only real datasets from SILSO/SORCE; no synthetic data generation for inputs.
-- **Spec Override**: Task T015 explicitly uses Cycle ID features as per FR-003, overriding the Plan's Cycle Phase strategy (Plan updated to align).
-- **Unit Correction**: Tasks T014, T011 now correctly specify GSN=0 proxy for gaps, not TSI units.
-- **Bootstrap Rigor**: Task T021 explicitly mandates 1000 iterations.
-- **Sensitivity Definition**: Task T029 explicitly defines sweep values and stability metric.
+- **Spec Override**: Task T015 explicitly uses Cycle ID features as per FR-003, overriding the Plan's Cycle Phase strategy. **Plan Amendment Required** to align Plan with Spec.
+- **Unit Correction**: Tasks T014, T011 now correctly specify TSI proxy (1360.5 W/m²) for gaps, not GSN=0.
+- **Bootstrap Rigor**: Task T021 explicitly mandates 1000 iterations and variance comparison implementation.
+- **Sensitivity Definition**: Task T029 explicitly defines sweep values {0.01, 0.05, 0.1} and coefficient stability metric.
