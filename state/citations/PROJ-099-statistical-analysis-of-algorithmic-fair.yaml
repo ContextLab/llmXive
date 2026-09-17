@@ -53,9 +53,64 @@
   verification_status: mismatch
   verified_against_url: https://www2.stat.duke.edu/~cr173/Sta112_Fa14/validation.html
   verified_at: '2026-06-29T03:49:51.478608Z'
-- artifact_hash: 5b059300d0ca2450340851cca0130d4c4f4e480bfaaf7c16ff0ee8ee6c7d7e33
+- artifact_hash: cc92ed14f6ea85f84f752782f2b74c0ed8c506a9ebec5fcb6c8980d28aaecfab
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: adult.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
+  verified_at: '2026-09-17T19:27:49.335604Z'
+- artifact_hash: cc92ed14f6ea85f84f752782f2b74c0ed8c506a9ebec5fcb6c8980d28aaecfab
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: compas-scores-two-years.csv
+  kind: url
+  value: https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv`
+  verification_status: pending
+  verified_against_url: https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv
+  verified_at: '2026-09-17T19:27:49.335604Z'
+- artifact_hash: cc92ed14f6ea85f84f752782f2b74c0ed8c506a9ebec5fcb6c8980d28aaecfab
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-full.csv`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-full.csv
+  verified_at: '2026-09-17T19:27:49.335604Z'
+- artifact_hash: cc92ed14f6ea85f84f752782f2b74c0ed8c506a9ebec5fcb6c8980d28aaecfab
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: german.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data
+  verified_at: '2026-09-17T19:27:49.335604Z'
+- artifact_hash: cc92ed14f6ea85f84f752782f2b74c0ed8c506a9ebec5fcb6c8980d28aaecfab
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/datasets/datasets/master/data/law-school-admission.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/datasets/datasets/master/data/law-school-admission.csv
+  verified_at: '2026-09-17T19:27:49.335604Z'
+- artifact_hash: cc92ed14f6ea85f84f752782f2b74c0ed8c506a9ebec5fcb6c8980d28aaecfab
+  artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  cite_id: c-006
   cited_authors: []
   cited_title: null
   fetched_title: Power - Wikipedia
@@ -63,4 +118,4 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-09-07T12:06:46.418326Z'
+  verified_at: '2026-09-17T19:27:49.335604Z'
