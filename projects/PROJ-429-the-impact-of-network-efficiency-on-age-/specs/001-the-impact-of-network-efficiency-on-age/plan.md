@@ -13,7 +13,7 @@ This project implements a reproducible neuroinformatics pipeline to quantify the
 **Primary Dependencies**: MNE-Python, NetworkX, SciPy, Pandas, Statsmodels, Matplotlib, Seaborn, PyWavelets
 **Storage**: Local filesystem (`data/`), HDF5/NumPy for intermediate matrices, CSV for results.
 **Testing**: `pytest` with `pytest-cov` for coverage; `ruff` for linting; `black` for formatting.
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk).
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM, 14GB Disk).
 **Project Type**: Data Science / Computational Neuroscience Pipeline.
 **Performance Goals**: Complete full pipeline (download -> preprocess -> analyze) within 6 hours on CPU.
 **Constraints**: CPU-only execution (SC-001); No GPU usage; Memory < 7GB (requires streaming or chunked processing); Strict adherence to 10s epoch length (FR-002).
@@ -129,7 +129,7 @@ No violations of the Constitution found. The complexity is driven by the need to
 ### Phase 1: Preprocessing & Epoching (FR-002)
 - **Goal**: Clean signal, create 10s epochs.
 - **Steps**:
-  1. Bandpass filter low-frequency components below 40 Hz.
+  1. Bandpass filter low-frequency components below a low-frequency threshold.
   2. Run ICA for artifact removal.
   3. Epoch into 10s segments.
   4. Reject epochs with >50% artifacts; **calculate SNR per epoch and set `snr_flag` boolean (True if SNR < 10dB)**.
