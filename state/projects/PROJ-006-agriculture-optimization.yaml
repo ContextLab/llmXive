@@ -6,7 +6,7 @@ failed_stage: null
 field: agriculture
 human_escalation_reason: null
 id: PROJ-006-agriculture-optimization
-last_run_id: 233fdcd0-1180-4328-9bc4-4a42be19e946
+last_run_id: b8a2608b-dd1a-4beb-a7c7-8199bbfed13c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization
 title: Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security
-updated_at: '2026-09-17T18:56:03.506344Z'
+updated_at: '2026-09-17T18:51:07.577941Z'

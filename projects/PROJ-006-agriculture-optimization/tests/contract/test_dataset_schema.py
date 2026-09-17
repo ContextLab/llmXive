@@ -83,3 +83,38 @@ def test_data_passes_schema_validation():
         for field in schema['required']:
             if field in df.columns:
                 assert not df[field].isnull().any(), f"Field '{field}' contains nulls"
+
+@pytest.mark.contract
+def test_column_types_match_schema():
+    """Assert that column types in the dataframe match the schema definitions."""
+    schema = load_schema()
+    df = load_data()
+    
+    # Define expected type mapping based on common schema patterns
+    type_map = {
+        'int': (int, np.integer),
+        'float': (float, np.floating),
+        'str': (str,),
+        'bool': (bool,),
+        'object': (object,)
+    }
+    
+    if 'columns' in schema:
+        for col_def in schema['columns']:
+            col_name = col_def['name']
+            col_type = col_def.get('type', 'object')
+            
+            if col_name in df.columns:
+                expected_types = type_map.get(col_type, (object,))
+                actual_dtype = df[col_name].dtype
+                
+                # Check if actual dtype is compatible with expected type
+                if not any(np.issubdtype(actual_dtype, t) or isinstance(actual_dtype.type, type) and issubclass(actual_dtype.type, expected_types[0]) for t in expected_types):
+                    # Allow pandas nullable types
+                    if col_type == 'bool' and str(actual_dtype) in ['boolean', 'bool']:
+                        continue
+                    if col_type == 'int' and str(actual_dtype) in ['Int64', 'int64']:
+                        continue
+                    if col_type == 'float' and str(actual_dtype) in ['float64', 'Float64']:
+                        continue
+                    pytest.fail(f"Column '{col_name}' has type {actual_dtype}, expected {col_type}")

@@ -22,6 +22,36 @@ T010b:
   r: The required `.github/workflows/ci.yml` file is missing, so the CI workflow has
     not been created or configured as specified. Without this file, the verification
     step cannot be performed.
+T015:
+  c: false
+  h: 3fd17618883e526c34365d2a81e67b8eaf7021945c980febe3113b55c754ccf5
+  r: "The repository contains a partially\u2011implemented `src/data/collectors/survey_collector.py`,\
+    \ but the required fallback module `src/data/generators/structural_validation_generator.py`\
+    \ is absent, and the expected output files `data/raw/survey_raw.csv` and `data/raw/filtered_survey.csv`\
+    \ were not generated. Consequently the task\u2019s full specifications are not\
+    \ satisfied."
+T016:
+  c: false
+  h: 08d7113a1e72960854526cb7ae89d3f329d5480bf440cf9ccf60253c69e9572d
+  r: "The provided `remote_sensing_collector.py` does not implement Sentinel\u2011\
+    2 download, cloud\u2011cover filtering, caching to `data/raw/sentinel2/`, nor\
+    \ does it invoke the missing `structural_validation_generator.py` for synthetic\
+    \ NDVI generation. Additionally, the required generator file is absent entirely."
+T017:
+  c: false
+  h: 0ad344425affed513085630a37913ff5412928cc2fa51648f74de05c021fd8d5
+  r: The provided `src/data/processing/spatial_join.py` is only a partial stub and
+    never reads `buffer_size_km` from `src/config/constants.py`, performs a geodesic
+    buffer, extracts mean NDVI, or writes the required `data/processed/spatial_joined_data.csv`
+    and `data/logs/linkage_validation.json`. Both mandatory output files are missing
+    from the repository.
+T018c:
+  c: false
+  h: a9b5c8b7fb4098c3e9621b081eb3523242072d517a5fd1d50c9bd7ae79a3de9a
+  r: The required `data/logs/linkage_validation.json` file does not exist, and the
+    provided `constants.py` excerpt does not show the `buffer_size_km` or `grid_resolution_km`
+    definitions needed to generate the mandatory sentence. Consequently, the documentation
+    and JSON artifacts cannot contain the required geospatial fuzzing parameters.
 T022:
   c: false
   h: 9ca1aab9656f857a0364d7f7065c6b06e6029c5f11092a7d48ac177ee4165670
