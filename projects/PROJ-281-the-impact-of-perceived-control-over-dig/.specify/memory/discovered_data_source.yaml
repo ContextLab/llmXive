@@ -1,0 +1,13 @@
+status: none
+intent: HuggingFace Datasets tweet interaction metadata python package dataset
+required_fields:
+- text
+- timestamp
+- user_id
+- like_count
+- retweet_count
+- reply_count
+- language
+cache_key: 470e6a058d15da7c04fd11df4764a4f8302044af7276f314e2da5647d0905822
+searched_at: '2026-09-17T23:48:58.715698+00:00'
+retry_count: 1

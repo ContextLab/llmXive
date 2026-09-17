@@ -1,0 +1,70 @@
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: anxiety scores generated for 95% of non-null rows with no null values
+    and matching expected distribution
+  claim_id: c_9970167f
+  context: "Independent Test for User Story 1: The system can be fully tested by running\
+    \ the ingestion pipeline on a small, fixed sample of known posts and verifying\
+    \ that anxiety scores are generated for \u226595% of non-null rows, with no null\
+    \ values, and that the distribution of scores matches the expected range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be fully tested by running the ingestion pipeline on a\
+    \ small, fixed sample of known posts and verifying that anxiety scores are generated\
+    \ for \u226595% of non-null rows, with no null values, and that the distribution\
+    \ of scores matches the expected range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:46:50Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: control proxy extraction ensures 95% match on test set of representative
+    items
+  claim_id: c_681b4754
+  context: "Independent Test for User Story 2: The system can be tested by processing\
+    \ a subset of posts where the presence of control-related metadata flags (e.g.,\
+    \ filter_applied=true) and timestamp patterns are manually verified against the\
+    \ extracted proxy values, ensuring a \u226595% match on a test set of a representative\
+    \ number of items."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by processing a subset of posts where the presence\
+    \ of control-related metadata flags (e.g., filter_applied=true) and timestamp\
+    \ patterns are manually verified against the extracted proxy values, ensuring\
+    \ a \u226595% match on a test set of a representative number of items."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:46:50Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: regression coefficient negative and p-value less than 0.05 on synthetic
+    dataset with known negative correlation
+  claim_id: c_7bb121ed
+  context: 'Independent Test for User Story 3: The system can be tested by running
+    the analysis on a synthetic dataset with a known negative correlation and verifying
+    that the output regression coefficient is negative and the p-value is < 0.05,
+    or that the fallback Spearman correlation is used if normality assumptions are
+    violated.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_coefficient_negative_and_p-value_less_than_0.05_o
+  kind: magnitude
+  raw_text: The system can be tested by running the analysis on a synthetic dataset
+    with a known negative correlation and verifying that the output regression coefficient
+    is negative and the p-value is < 0.05, or that the fallback Spearman correlation
+    is used if normality assumptions are violated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:47:53Z'

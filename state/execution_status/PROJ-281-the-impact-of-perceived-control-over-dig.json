@@ -1,0 +1,24 @@
+{
+  "project_id": "PROJ-281-the-impact-of-perceived-control-over-dig",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/services/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026, preventing fallback to synthetic data.\"\"\"     pass  def _calcu\u2026\u201d; 9 command(s) failed: python code/main.py (rc=1); python code/services/data_ingestion.py (rc=1); python code/services/anxiety_scoring.py (rc=1); 7 declared deliverable(s) absent: data/processed/correlation_plot.png; data/processed/coverage_report.json; data/processed/final_analysis.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/main.py\", line 18, in <module>\n    from code.config import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/config.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/services/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/data_ingestion.py\", line 8, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/services/anxiety_scoring.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/anxiety_scoring.py\", line 6, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/services/proxy_extractor.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/services/proxy_extractor.py\", line 12, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/analysis/statistical_test.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/analysis/statistical_test.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/viz/plot_results.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/viz/plot_results.py\", line 5, in <module>\n    import matplotlib.pyplot as plt\nModuleNotFoundError: No module named 'matplotlib'",
+    "python code/profiling.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/profiling.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/profiling.py --check-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/profiling.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/profiling.py --output data/processed/custom_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-281-the-impact-of-perceived-control-over-dig/code/profiling.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-17T23:48:01Z"
+}
