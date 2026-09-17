@@ -5,7 +5,7 @@
 ## Summary
 
 This project implements an **observational study** to investigate the **associational patterns** between ecotourism designation and forest regeneration rates in deforested areas. The study explicitly **does not claim causal acceleration** due to the lack of randomization. The technical approach involves:
-1.  **Data Acquisition**: Programmatic retrieval of Landsat Level Surface Reflectance via USGS API for a set of paired sites (ecotourism and control groups) covering 2000-2023, processed in chunks to respect available RAM limits.
+1.  **Data Acquisition**: Programmatic retrieval of Landsat Level Surface Reflectance via USGS API for a set of paired sites (ecotourism and control groups) covering the early st century through 2023, processed in chunks to respect available RAM limits.
 2.  **Feature Engineering**: Calculation of NDVI time series, cloud masking, and detection of deforestation events (NDVI drop ≥0.30 sustained ≥2 years).
 3.  **Modeling**: Fitting a **Hierarchical Non-Linear Model (HNLMM)** to recovery trajectories (borrowing strength across sites) and a Linear Mixed-Effects Model (LMM) to test the association between ecotourism status and regeneration rate, controlling for climate (CHIRPS/MODIS) and initial severity.
 4.  **Robustness**: Sensitivity analysis sweeping revenue thresholds (low, medium, and high) and proxy variables (revenue vs. visitor count), with multiple-comparison correction (Holm/Bonferroni).

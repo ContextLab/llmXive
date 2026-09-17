@@ -1,51 +1,69 @@
 """
-Script to create the data directory structure and .gitkeep files.
-This ensures the directory hierarchy exists for raw, processed, and ecotourism data.
+Script to create the required data directory structure and .gitkeep files.
+
+This task (T008) ensures the following directories exist:
+- data/raw/landsat
+- data/processed
+- data/ecotourism
+
+It creates .gitkeep files in each directory to ensure they are tracked by git.
 """
 import os
+import logging
 from pathlib import Path
 from config import ensure_directories
 from logging_config import setup_logging, get_logger
 
+# Define the required directories relative to the project root
+DATA_DIRS = [
+    "data/raw/landsat",
+    "data/processed",
+    "data/ecotourism"
+]
+
+def create_gitkeep(directory_path: Path) -> None:
+    """
+    Create a .gitkeep file in the specified directory.
+    
+    Args:
+        directory_path: Path to the directory where .gitkeep should be created.
+    """
+    gitkeep_path = directory_path / ".gitkeep"
+    try:
+        with open(gitkeep_path, 'w') as f:
+            f.write("# This file ensures the directory is tracked by git.\n")
+        logging.info(f"Created .gitkeep at: {gitkeep_path}")
+    except Exception as e:
+        logging.error(f"Failed to create .gitkeep at {gitkeep_path}: {e}")
+        raise
+
 def main():
     """
-    Creates the required data directory structure:
-    - data/raw/landsat
-    - data/processed
-    - data/ecotourism
-
-    Also creates .gitkeep files in each directory to ensure they are tracked by git.
+    Main entry point to create data directories and .gitkeep files.
     """
+    # Setup logging
     setup_logging()
     logger = get_logger(__name__)
-
-    # Define the required directories relative to the project root
-    # We assume the script is run from the project root or code/
-    project_root = Path(__file__).resolve().parent.parent
-    data_root = project_root / "data"
-
-    directories = [
-        data_root / "raw" / "landsat",
-        data_root / "processed",
-        data_root / "ecotourism"
-    ]
-
-    logger.info(f"Ensuring data directories exist at: {data_root}")
     
-    # Use the existing utility to ensure directories exist
-    ensure_directories([str(d) for d in directories])
-
-    # Create .gitkeep files in each directory to preserve them in git
-    for directory in directories:
-        gitkeep_path = directory / ".gitkeep"
-        if not gitkeep_path.exists():
-            try:
-                gitkeep_path.touch()
-                logger.info(f"Created .gitkeep file at: {gitkeep_path}")
-            except OSError as e:
-                logger.error(f"Failed to create .gitkeep at {gitkeep_path}: {e}")
-        else:
-            logger.debug(f".gitkeep already exists at: {gitkeep_path}")
+    logger.info("Starting data directory setup (T008)...")
+    
+    # Ensure the base 'data' directory exists
+    data_root = Path("data")
+    ensure_directories([str(data_root)])
+    
+    # Create subdirectories and .gitkeep files
+    for dir_str in DATA_DIRS:
+        dir_path = data_root / dir_str
+        try:
+            # Create the directory (parents=True to create intermediate dirs if needed)
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Ensured directory exists: {dir_path}")
+            
+            # Create .gitkeep
+            create_gitkeep(dir_path)
+        except Exception as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            raise
 
     logger.info("Data directory structure setup complete.")
 

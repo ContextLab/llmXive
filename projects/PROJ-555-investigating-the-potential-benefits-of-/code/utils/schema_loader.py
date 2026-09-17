@@ -1,3 +1,9 @@
+"""
+Schema loading utilities for the ecotourism regeneration pipeline.
+
+Provides functions to load YAML schema definitions from the contracts directory
+and convert them into Pydantic models for runtime validation.
+"""
 import os
 import yaml
 from typing import Optional, Any, Dict, Type
@@ -5,147 +11,110 @@ from datetime import date
 from pydantic import BaseModel, create_model, Field
 from pathlib import Path
 
-# Import existing schemas if they exist (T006a, T006b)
-# We assume they are defined in the same module or imported from elsewhere
-# For this task, we focus on the output schema which is the new requirement.
+# Define the base directory for contracts
+CONTRACTS_DIR = Path(__file__).parent.parent.parent / "specs" / "001-ecotourism-regeneration" / "contracts"
 
-def load_schema_to_pydantic(schema_path: str) -> Type[BaseModel]:
+def load_schema_to_pydantic(schema_name: str, schema_file: Path) -> Type[BaseModel]:
     """
-    Load a YAML schema definition and convert it to a Pydantic model.
+    Load a YAML schema definition and convert it into a Pydantic model.
     
     Args:
-        schema_path: Path to the YAML schema file
+        schema_name: The name of the model to create (e.g., 'FinalReport').
+        schema_file: Path to the YAML file containing the schema definition.
         
     Returns:
-        A Pydantic model class
+        A Pydantic model class.
+        
+    Raises:
+        FileNotFoundError: If the schema file does not exist.
+        ValueError: If the schema definition is invalid.
     """
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
+    if not schema_file.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_file}")
     
-    # This is a simplified loader that handles basic nested structures.
-    # For complex recursive schemas, a more robust parser would be needed.
-    # For this project, we assume the schemas are relatively flat or have known structures.
+    with open(schema_file, 'r') as f:
+        schema_def = yaml.safe_load(f)
     
-    def build_model(name: str, props: Dict[str, Any], required: Optional[list] = None) -> Type[BaseModel]:
+    if schema_name not in schema_def:
+        raise ValueError(f"Model '{schema_name}' not found in {schema_file}")
+    
+    model_config = schema_def[schema_name]
+    
+    # Helper to map YAML types to Python types
+    def get_python_type(type_str: str, format_str: Optional[str] = None) -> Any:
+        if type_str == 'string':
+            if format_str == 'date-time':
+                return str # Pydantic handles ISO format automatically
+            return str
+        elif type_str == 'number':
+            return float
+        elif type_str == 'integer':
+            return int
+        elif type_str == 'boolean':
+            return bool
+        elif type_str == 'array':
+            return list
+        elif type_str == 'object':
+            return dict
+        else:
+            return Any # Fallback for unknown types
+    
+    # Recursive function to build field definitions
+    def build_fields(config: Dict[str, Any]) -> Dict[str, tuple]:
         fields = {}
-        req_set = set(required) if required else set()
+        if 'properties' not in config:
+            return fields
         
-        for prop_name, prop_def in props.items():
-            field_type = Any
-            field_info = {}
+        for prop_name, prop_config in config['properties'].items():
+            prop_type = get_python_type(prop_config.get('type', 'any'))
             
-            if 'type' in prop_def:
-                ptype = prop_def['type']
-                if ptype == 'string':
-                    if prop_def.get('format') == 'date-time':
-                        field_type = str # Pydantic handles ISO strings
-                    elif prop_def.get('format') == 'date':
-                        field_type = str # Pydantic handles date strings
-                    else:
-                        field_type = str
-                elif ptype == 'number':
-                    field_type = float
-                elif ptype == 'integer':
-                    field_type = int
-                elif ptype == 'boolean':
-                    field_type = bool
-                elif ptype == 'object':
-                    # Recursively build nested model
-                    nested_name = f"{name}_{prop_name.title()}"
-                    if 'properties' in prop_def:
-                        field_type = build_model(nested_name, prop_def['properties'], prop_def.get('required'))
-                    else:
-                        field_type = Dict[str, Any]
-                elif ptype == 'array':
-                    if 'items' in prop_def:
-                        items = prop_def['items']
-                        if items.get('type') == 'object' and 'properties' in items:
-                            nested_name = f"{name}_{prop_name.title()}Item"
-                            field_type = list[build_model(nested_name, items['properties'], items.get('required'))]
-                        elif items.get('type') == 'string':
-                            field_type = list[str]
-                        elif items.get('type') == 'number':
-                            field_type = list[float]
-                        elif items.get('type') == 'integer':
-                            field_type = list[int]
-                        else:
-                            field_type = list[Any]
-                    else:
-                        field_type = list[Any]
-                else:
-                    field_type = Any
-            
-            # Handle nullable
-            if prop_def.get('nullable', False):
-                from typing import Union
-                field_type = Union[field_type, None]
-            
-            # Handle const
-            if 'const' in prop_def:
-                field_type = type(prop_def['const'])
-                field_info['const'] = prop_def['const']
-            
-            # Handle enum
-            if 'enum' in prop_def:
-                from enum import Enum
-                enum_name = f"{name}_{prop_name.title()}Enum"
-                # Create a dynamic Enum if needed, but for simplicity we often just use str/int
-                # Pydantic will validate against the enum values if we pass them as a Literal
-                # For now, we'll just let it be the base type and rely on validation later if needed.
-                pass
-            
-            # Handle default
-            if 'default' in prop_def:
-                field_info['default'] = prop_def['default']
+            # Handle nested objects recursively
+            if prop_config.get('type') == 'object' and 'properties' in prop_config:
+                # For nested objects, we create a dynamic model or just use dict for simplicity
+                # depending on strictness requirements. Here we use dict for nested structures
+                # unless a specific nested model is defined in the same file.
+                fields[prop_name] = (prop_type, ...) if prop_name in config.get('required', []) else (Optional[prop_type], None)
+            elif prop_config.get('type') == 'array':
+                fields[prop_name] = (prop_type, ...) if prop_name in config.get('required', []) else (Optional[prop_type], None)
             else:
-                field_info['default'] = ... # Required field
-            
-            # Description
-            if 'description' in prop_def:
-                field_info['description'] = prop_def['description']
-            
-            # Min/Max constraints
-            if 'minimum' in prop_def:
-                field_info['ge'] = prop_def['minimum']
-            if 'maximum' in prop_def:
-                field_info['le'] = prop_def['maximum']
-            if 'minLength' in prop_def:
-                field_info['min_length'] = prop_def['minLength']
-            if 'maxLength' in prop_def:
-                field_info['max_length'] = prop_def['maxLength']
-            
-            fields[prop_name] = (field_type, Field(**field_info))
+                # Simple fields
+                fields[prop_name] = (prop_type, ...) if prop_name in config.get('required', []) else (Optional[prop_type], None)
+                
+                # Add description if available
+                if 'description' in prop_config:
+                    # We can't easily set description in create_model fields without a custom Field,
+                    # but we can store it if needed. For now, basic creation.
+                    pass
         
-        return create_model(name, **fields)
+        return fields
     
-    return build_model(schema.get('title', 'DynamicModel'), schema['properties'], schema.get('required'))
+    # Build the top-level fields
+    fields = build_fields(model_config)
+    
+    # Create the model
+    try:
+        model = create_model(schema_name, **fields)
+        return model
+    except Exception as e:
+        raise ValueError(f"Failed to create model {schema_name}: {e}")
 
 def get_site_schema() -> Type[BaseModel]:
-    """
-    Load and return the Site schema.
-    Assumes the file exists at the expected path.
-    """
-    schema_path = Path(__file__).parent.parent.parent / "specs" / "001-ecotourism-regeneration" / "contracts" / "site.schema.yaml"
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Site schema not found at {schema_path}")
-    return load_schema_to_pydantic(str(schema_path))
+    """Load the Site schema from site.schema.yaml."""
+    return load_schema_to_pydantic("Site", CONTRACTS_DIR / "site.schema.yaml")
 
 def get_timeseries_schema() -> Type[BaseModel]:
-    """
-    Load and return the Timeseries schema.
-    Assumes the file exists at the expected path.
-    """
-    schema_path = Path(__file__).parent.parent.parent / "specs" / "001-ecotourism-regeneration" / "contracts" / "timeseries.schema.yaml"
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Timeseries schema not found at {schema_path}")
-    return load_schema_to_pydantic(str(schema_path))
+    """Load the TimeSeries schema from timeseries.schema.yaml."""
+    return load_schema_to_pydantic("TimeSeries", CONTRACTS_DIR / "timeseries.schema.yaml")
 
-def get_output_schema() -> Type[BaseModel]:
+def get_output_schema() -> Dict[str, Type[BaseModel]]:
     """
-    Load and return the Output schema defined in output.schema.yaml.
-    This schema defines the structure of the final analysis outputs.
+    Load both FinalReport and SensitivityArtifact schemas from output.schema.yaml.
+    
+    Returns:
+        A dictionary mapping schema names to their Pydantic model classes.
     """
-    schema_path = Path(__file__).parent.parent.parent / "specs" / "001-ecotourism-regeneration" / "contracts" / "output.schema.yaml"
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Output schema not found at {schema_path}")
-    return load_schema_to_pydantic(str(schema_path))
+    schema_file = CONTRACTS_DIR / "output.schema.yaml"
+    return {
+        "FinalReport": load_schema_to_pydantic("FinalReport", schema_file),
+        "SensitivityArtifact": load_schema_to_pydantic("SensitivityArtifact", schema_file)
+    }

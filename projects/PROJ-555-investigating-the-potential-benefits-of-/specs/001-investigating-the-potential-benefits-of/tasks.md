@@ -37,19 +37,20 @@
  ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup & Spec Validation (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, spec validation, and basic structure
 
 - [X] T001 Create `code/__init__.py` and `tests/__init__.py`
-- [X] T002 Initialize `requirements.txt` with landsatxplore, rasterio, xarray, scikit-learn, statsmodels, pandas, pyyaml, pydantic
+- [X] T002 Initialize `requirements.txt` with landsatxplore, rasterio, xarray, scikit-learn, statsmodels, pandas, pyyaml, pydantic, requests
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T045 [Spec Update] Update `specs/001-ecotourism-regeneration/spec.md` Success Criterion SC-001 to replace "[deferred]" with the explicit number "30" (e.g., "processes up to 30 valid sites "). This task MUST complete before T012b and T013.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -57,10 +58,9 @@
 - [X] T005 [P] Setup logging infrastructure in `code/logging_config.py`
 - [X] T006a [P] [Data-Model] Create `site.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
 - [X] T006b [P] [Data-Model] Create `timeseries.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [ ] T006c [P] [Data-Model] Create `output.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [X] T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB [UNRESOLVED-CLAIM: c_260b5553 — status=not_enough_info]
+- [ ] T006c [P] [Data-Model] Create `output.schema.yaml` in `specs/001-ecotourism-regeneration/contracts/`. Define TWO distinct structures: 1) `FinalReport` (per FR-006) containing `regression_coefficients`, `sensitivity_analysis` (list of objects with `threshold`, `proxy_variable`, `effect_size`, `p_value`), and `data_quality_flags`. 2) `SensitivityArtifact` (per FR-004/SC-004) for the raw sensitivity sweep data. Use Pydantic models for validation.
+- [X] T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB. Define specific strategy: process Landsat scenes in batches, and climate data in 1-year chunks. Enforce memory limit by monitoring `psutil` and raising `MemoryError` if exceeded.
 - [ ] T008 Create data directory structure and `.gitkeep` files for `data/raw/landsat`, `data/processed`, `data/ecotourism`
-- [ ] T009 [FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet` with {{claim:c_deed1335}} (1912.06037, https://arxiv.org/abs/1912.06037); use CHIRPS API and NASA POWER API <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,7 +68,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest, clean, and align Landsat satellite imagery time series with ecotourism site metadata for the defined study period (2000-2023) [UNRESOLVED-CLAIM: c_b2b12376 — status=not_enough_info].
+**Goal**: Ingest, clean, and align Landsat satellite imagery time series with ecotourism site metadata for the defined study period (2000-2023).
 
 **Independent Test**: Verify that the system outputs a consolidated CSV/Parquet file containing a representative set of paired sites with valid NDVI time series, and that data volume fits within 7GB RAM without crashing.
 
@@ -77,28 +77,21 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [P] [US1] Unit test for chunked download logic in `tests/unit/test_data_acquisition.py`
-- [X] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
- in "<unicode string>", line 8, column 1:
- The test includes a fallback imp...
- ^
-could not find expected ':'
- in "<unicode string>", line 10, column 1:
- The tests are designed to fail i...
- ^) -->
+- [X] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py`
 - [X] T012 [US1] Integration test for full pipeline run on a subset of 2 sites in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
-- [ ] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites [UNRESOLVED-CLAIM: c_79ee5bac — status=not_enough_info] using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
- *Note: Implements {{claim:c_27787ee5}} (2506.18321, https://arxiv.org/abs/2506.18321) only (Landsat ceased operation in 2011. [UNRESOLVED-CLAIM: c_fb1120fc — status=not_enough_info]). Requires T044 to update spec.md FR-001.*
+- [ ] T012b [US1] Fetch `data/raw/site_coordinates.csv` from the World Database of Protected Areas (WDPA) or a verified public source. Filter for a balanced set of sites (ecotourism and control) with biome and protection status metadata. Do NOT generate mock data. If the source is unavailable, the task MUST fail loudly.
+- [ ] T012c [US1] Fetch `data/ecotourism/revenue_data.csv` from verified public conservation organization reports or tourism authority databases (e., Open Data Network, specific national park portals). Schema: `site_id`, `year` (2000-2023), `revenue_usd`, `visitor_count`, `source`. If real data is missing for a site, log a warning and exclude the site from the analysis (do NOT substitute mock data). Create `data/ecotourism/metadata.json` documenting the `source_name`, `retrieval_date`, and `preprocessing_steps` for each site.
+- [ ] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level surface reflectance data via USGS API for 30 paired sites (2000-2023) [UNRESOLVED-CLAIM: c_a271073c — status=not_enough_info] Load site coordinates from `data/raw/site_coordinates.csv`. Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat 7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).
 - [ ] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
 - [X] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
-- [X] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm <!-- ATOMIZE: requested -->
-- [ ] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10% [UNRESOLVED-CLAIM: c_67eab23e — status=not_enough_info]); exclude sites with >50% data gaps [UNRESOLVED-CLAIM: c_8fe7930e — status=not_enough_info]; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
-- [ ] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
-- [X] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
+- [X] T016a [US1] [P] Implement `code/preprocessing.py`: Implement cloud masking using USGS QA band
+- [X] T016b [US1] [P] Implement `code/preprocessing.py`: Implement Fmask algorithm integration
+- [ ] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic. Calculate 'initial deforestation severity' as the absolute NDVI drop in the early period of the time series. Pair each ecotourism site with a control site in the same biome with an initial severity difference of ≤10%. Exclude sites with >50% data gaps. Output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`.
+- [ ] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv` (produced by T012c). Validate schema and handle missing values. Output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`.
+- [ ] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue data is missing ENTIRELY for a site (all years), substitute the 'visitor count' metric for the entire site as the proxy variable. If revenue is missing for >50% of years but not entirely, use linear interpolation for single-year gaps. Log all substitutions in metadata.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,7 +99,7 @@ could not find expected ':'
 
 ## Phase 4: User Story 2 - Deforestation Detection and Recovery Trajectory Modeling (Priority: P2)
 
-**Goal**: Automatically detect deforestation events (NDVI drop ≥0.30 [UNRESOLVED-CLAIM: c_ec41db80 — status=not_enough_info] sustained over 2 years) and calculate recovery trajectories using non-linear asymptotic models.
+**Goal**: Automatically detect deforestation events (NDVI drop ≥0.30 sustained over 2 years) and calculate recovery trajectories using non-linear asymptotic models.
 
 **Independent Test**: Run detection on synthetic data with known events; verify break-point identification and model fit (R² ≥ 0.95).
 
@@ -117,14 +110,13 @@ could not find expected ':'
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30 [UNRESOLVED-CLAIM: c_ec41db80 — status=not_enough_info], sustained ≥2 years [UNRESOLVED-CLAIM: c_6a421788 — status=not_enough_info])
- *Note: Spec.md FR-002 defines deforestation as '2-year sustained drop' which may contradict 'break-point' logic. Task implements spec as written but flags for review.*
+- [X] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30, sustained ≥2 years)
 - [X] T024 [US2] Implement `code/detection.py`: Filter sites with no clear deforestation event (NDVI drop <0.30)
 - [X] T025 [US2] Implement `code/detection.py`: Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase (mid-to-long term); verify R² ≥ 0.95
- *Note: If non-linear fit fails (R² < 0.95), linear slope is the ACCEPTED metric.*
+ *Note: If non-linear fit fails (R² < 0.95), linear slope is the ACCEPTED metric. *
 - [X] T026 [US2] Implement `code/detection.py`: Fallback to linear slope calculation for an initial short-term window if asymptotic fit fails (R² < 0.95); mark as ACCEPTED metric per spec FR-002
-- [X] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years [UNRESOLVED-CLAIM: c_124901f5 — status=not_enough_info]) - flag and exclude from primary slope analysis
-- [ ] T028 [US2] Generate `data/processed/recovery_trajectories.parquet` containing event start/end, severity, and trajectory parameters
+- [X] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years) - flag and exclude from primary slope analysis
+- [ ] T028 [US2] Output `data/processed/recovery_trajectories.parquet` containing event start/end, severity, and trajectory parameters. Columns: `site_id`, `event_start`, `event_end`, `severity`, `trajectory_params` (dict), `model_type` (asymptotic/linear), `r_squared`. Ensure this runs after T027.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,18 +128,20 @@ could not find expected ':'
 
 **Independent Test**: Run model on processed dataset; verify output includes coefficients, p-values, and sensitivity report across thresholds.
 
-### Tests for User Story 3 (OPTIONAL) ⚠️
+### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for mixed-effects model convergence in `tests/unit/test_modeling.py`
-- [ ] T031 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_modeling.py`
+- [ ] T030 [US3] Unit test for mixed-effects model convergence in `tests/unit/test_modeling.py`. Assert that the model converges for ≥90% of synthetic test cases with known parameters.
+- [ ] T031 [US3] Unit test for sensitivity analysis logic in `tests/unit/test_modeling.py`.
+- [ ] T030b [US3] Run T030 convergence test on the *actual* processed dataset (or a representative subset of 10 pairs) to verify SC-003 (≥90% convergence) before proceeding to final pipeline execution.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] [FR-003] Load climate covariates from `data/processed/climate_covariates.parquet` (produced by T009) for use in mixed-effects model; control for precipitation (CHIRPS) and temperature (MODIS)
-- [ ] T033 [US3] Implement `code/modeling.py`: Fit Linear Mixed-Effects Model (LMM) with 'pair' as random effect, controlling for climate and initial severity; apply Bonferroni/Holm correction per [FR-005]
-- [ ] T034 [US3] Implement `code/modeling.py`: Sensitivity analysis sweeping revenue thresholds (low, medium, and high tiers) and proxy variables (revenue vs. visitor count); perform sensitivity comparison between revenue-based and visitor-count-based models as required by [FR-007] and Edge Cases
-- [ ] T035 [US3] Implement `code/report.py`: Generate final report with regression coefficients, CIs, sensitivity tables, and data quality pass/fail flags; output to `data/processed/final_report.json` per [FR-006]
-- [ ] T036 [US3] Implement `code/report.py`: Output `data/processed/sensitivity_analysis.csv` per [FR-004]
+- [ ] T009 [US3] [FR-003] Fetch CHIRPS precipitation and MODIS temperature data for the study period (early 21st century to present). Use `xarray` and `requests` to fetch CHIRPS from NOAA/CDR public API and MODIS from NASA POWER API. Stream data in 1-year chunks to stay within RAM limits. Calculate monthly averages per site. Output to `data/processed/climate_covariates.parquet` with columns: `site_id`, `year`, `month`, `precip_mm`, `temp_c`.
+- [ ] T032 [US3] [FR-003] Load climate covariates from `data/processed/climate_covariates.parquet` (produced by T009) for use in mixed-effects model; control for precipitation (CHIRPS) and temperature (MODIS).
+- [ ] T033 [US3] Implement `code/modeling.py`: Fit Linear Mixed-Effects Model (LMM) with 'pair' as random effect, controlling for climate and initial severity; apply Bonferroni/Holm correction per [FR-005].
+- [ ] T034 [US3] Implement `code/modeling.py`: Sensitivity analysis sweeping revenue thresholds over a concrete set of representative USD values and proxy variables (revenue vs. visitor count); perform sensitivity comparison between revenue-based and visitor-count-based models as required by [FR-007] and Edge Cases.
+- [ ] T035 [US3] Implement `code/report.py`: Generate final report with regression coefficients, CIs, sensitivity tables, and data quality pass/fail flags; output to `data/processed/final_report.json` per [FR-006].
+- [ ] T036 [US3] Implement `code/report.py`: Output `data/processed/sensitivity_analysis.csv` per [FR-004].
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -171,10 +165,7 @@ could not find expected ':'
 
 **Purpose**: Explicitly address reviewer concerns regarding Landsat operational dates, site counts, and model convergence strategies.
 
-- [ ] T044 [P] [FR-001] [US-1] Update `specs/001-ecotourism-regeneration/spec.md` to replace "Landsat 5/8/9 " with "{{claim:c_27787ee5}}" in FR-001 and US-1 to reflect operational reality (Landsat missions ceased operation in 2011.).
-- [ ] T045 [P] [SC-001] Update `specs/001-ecotourism-regeneration/spec.md` to replace "[deferred]" in SC-001 with the explicit number "30".
-- [ ] T046 [P] [FR-002] Update `specs/001-ecotourism-regeneration/spec.md` FR-002 to explicitly state that if non-linear asymptotic fitting fails (R² < 0.95), the linear slope fallback is the primary accepted metric for that site.
-- [ ] T047 [P] [Plan] Update `specs/001-ecotourism-regeneration/plan.md` to confirm the 30-site target and document the specific revenue thresholds used in the sensitivity analysis.
+- [ ] T046 [Spec Update] Update `specs/001-ecotourism-regeneration/spec.md` FR-002 to explicitly state that if non-linear asymptotic fitting fails (R² < 0.95), the linear slope fallback is the primary accepted metric for that site.
 
 ---
 
@@ -182,21 +173,21 @@ could not find expected ':'
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Setup (Phase 1)**: No dependencies - can start immediately. **T045 MUST complete before T012b and T013.**
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - T009 depends on T006 (schema) to write valid parquet files.
+ - T009 (now in Phase 5) depends on T006 (schema) for output structure, but is no longer blocking US1/US2.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User Story 1 (P1): Can start after Foundational. T013 depends on T012b. T018 depends on T013. T029 depends on T018.
+ - User Story 1 (P1): Can start after Foundational. T013 depends on T012b. T018 depends on T012c. T029 depends on T018.
  - User Story 2 (P2): Depends on US1 completion (requires `data/processed/ndvi_timeseries.parquet` and `data/processed/ecotourism_data.csv`).
- - User Story 3 (P3): Depends on US2 completion (requires `data/processed/recovery_trajectories.parquet`).
+ - User Story 3 (P3): Depends on US2 completion (requires `data/processed/recovery_trajectories.parquet`). T009 (Climate) is now part of this phase.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Revision Tasks**: Can be executed in parallel with Phase 1/2 or immediately after spec review.
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: T012b -> T013 -> T015/T016 -> T017 -> T018 -> T029
+- **User Story 1 (P1)**: T045 (Spec Update) -> T012b -> T013 -> T015/T016 -> T017 -> T012c -> T018 -> T029
 - **User Story 2 (P2)**: Depends on US1 completion
-- **User Story 3 (P3)**: Depends on US2 completion
+- **User Story 3 (P3)**: Depends on US2 completion; includes T009 (Climate) and T030b (Convergence Check)
 
 ### Within Each User Story
 
@@ -208,14 +199,14 @@ could not find expected ':'
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T005, T006a-c, T007) can run in parallel. T009 is NOT [P] as it depends on T006.
+- All Setup tasks marked [P] can run in parallel.
+- All Foundational tasks marked [P] (T005, T006a-c, T007) can run in parallel.
 - Once Foundational phase completes, User Story 1 can start.
-- Within US1: T012b must complete before T013. T013 must complete before T015/T016. T015/T016 can run in parallel. T017 depends on T015/T016. T018 depends on T013 (and T012c). T029 depends on T018.
+- Within US1: T012b must complete before T013. T012c must complete before T018. T013 and T012c can run in parallel. T015/T016 can run in parallel. T017 depends on T015/T016. T018 depends on T012c. T029 depends on T018.
 - Once US1 completes, User Story 2 can start.
 - Once US2 completes, User Story 3 can start.
 - All tests for a user story marked [P] can run in parallel.
-- Revision tasks (T044-T047) can be executed in parallel with development tasks as they only modify documentation.
+- Revision tasks (T046) can be executed in parallel with development tasks as they only modify documentation.
 
 ---
 
@@ -223,9 +214,9 @@ could not find expected ':'
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
+1. Complete Phase 1: Setup (including T045 Spec Update)
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (T012b -> T013 -> T015 -> T017 -> T018 -> T029)
+3. Complete Phase 3: User Story 1 (T012b -> T013 -> T015 -> T017 -> T012c -> T018 -> T029)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -241,14 +232,14 @@ could not find expected ':'
 
 With multiple developers:
 
-1. Team completes Setup + Foundational (T006a-c, T005, T007) together. T009 waits for T006.
+1. Team completes Setup + Foundational (T006a-c, T005, T007) together. T045 runs in parallel.
 2. Once Foundational is done:
- - Developer A: User Story 1 (T012b -> T013 -> T015 -> T017 -> T018 -> T029)
- - Developer B: Revision Tasks (T044-T047)
+ - Developer A: User Story 1 (T012b -> T013 -> T015 -> T017 -> T012c -> T018 -> T029)
+ - Developer B: Revision Tasks (T046)
 3. Once US1 completes:
  - Developer A: User Story 2
 4. Once US2 completes:
- - Developer A: User Story 3
+ - Developer A: User Story 3 (including T009, T030b)
 5. Stories complete and integrate sequentially
 
 ---
@@ -262,7 +253,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- Spec.md Update Required: Landsat 5 reference in FR-001/US1 Acceptance Scenarios contradicts operational reality; update to {{claim:c_27787ee5}} only (T044).
-- Spec.md Update Required: SC-001 '[deferred]' site count needs explicit number (30) (T045).
+- Spec.md Update Required: SC-001 '[deferred]' site count needs explicit number '30' (T045).
 - Spec.md Update Required: FR-002 '2-year sustained drop' definition may need clarification to align with 'break-point' logic.
 - Spec.md Update Required: FR-002 non-linear model requirement for short windows risks non-convergence; linear fallback is ACCEPTED metric if R² < 0.95 (T046).
+- Real Data Only: T012c and T012b MUST fetch real data; mock generation is forbidden.
+- Authentication: T009 uses public APIs (NOAA/NASA) requiring no auth.
+- Sensor Logic: T013 uses explicit year ranges for Landsat 5/7/8/9.

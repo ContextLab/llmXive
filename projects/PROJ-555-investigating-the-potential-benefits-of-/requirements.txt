@@ -7,7 +7,8 @@ pandas
 pyyaml
 pydantic
 requests
-pytest
-numpy
-scipy
-tables
+geopandas
+pyogrio
+fiona
+shapely
+psutil

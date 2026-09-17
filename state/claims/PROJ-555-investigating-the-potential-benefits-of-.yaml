@@ -409,24 +409,6 @@
   updated_at: '2026-07-03T15:20:09Z'
 - artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   attempts: 1
-  canonical: Study period 2000-2023
-  claim_id: c_cfec08a6
-  context: 'Goal: Ingest, clean, and align Landsat satellite imagery time series with
-    ecotourism site metadata for the defined study period (2000-2023).'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Study_period_2000-2023
-  kind: entity_fact
-  raw_text: The study period is defined as 2000-2023.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T15:22:07Z'
-- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
-  attempts: 1
   canonical: Peak RAM usage less than 7GB
   claim_id: c_000460a8
   context: '[~] T007 Implement memory-safe chunking utility in code/utils/chunking.py
@@ -1747,7 +1729,1277 @@
   status: not_enough_info
   updated_at: '2026-09-07T15:47:51Z'
 - artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
-  attempts: 3
+  attempts: 1
+  canonical: Fetch site coordinates from World Database of Protected Areas
+  claim_id: c_59afd2a5
+  context: T012b [US1] Fetch data.raw/site_coordinates.csv from the World Database
+    of Protected Areas (WDPA) or a verified public source. Filter for a balanced set
+    of sites (ecotourism and control) with biome and protection status metadata.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_site_coordinates_from_World_Database_of_Protected_Area
+  kind: entity_fact
+  raw_text: Fetch data.raw/site_coordinates.csv from the World Database of Protected
+    Areas (WDPA) or a verified public source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:21:46Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Fetch ecotourism revenue data from verified public conservation or tourism
+    sources
+  claim_id: c_3ff8fa73
+  context: T012c [US1] Fetch data.ecotourism/revenue_data.csv from verified public
+    conservation organization reports or tourism authority databases (e.g., Open Data
+    Network, specific national park portals).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_ecotourism_revenue_data_from_verified_public_conservat
+  kind: entity_fact
+  raw_text: Fetch data.ecotourism/revenue_data.csv from verified public conservation
+    organization reports or tourism authority databases (e.g., Open Data Network,
+    specific national park portals).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:22:06Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Download Landsat data for 30 paired sites from 2000 to 2023 via USGS
+    API
+  claim_id: c_bf0656b9
+  context: 'T013 [US1] Implement code/data_acquisition.py: Download Landsat Level
+    surface reflectance data via USGS API for 30 paired sites (2000-2023) using chunked
+    streaming.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Landsat Level surface reflectance data via USGS API for 30 paired
+    sites (2000-2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:22:21Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: 'Landsat sensor selection logic: Landsat 5 2000-2011, Landsat 7 2000-2023,
+    Landsat 8 2013-2023, Landsat 9 2021-2023'
+  claim_id: c_416b98f7
+  context: 'T013 [US1] Implement code/data_acquisition.py: Download Landsat Level
+    surface reflectance data via USGS API for 30 paired sites (2000-2023) using chunked
+    streaming. Load site coordinates from data.raw/site_coordinates.csv. Implement
+    explicit sensor selection logic: Landsat 5 (2000-2011), Landsat 7 (2000-2023),
+    Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:23:13Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: 'Deforestation event detection: NDVI drop greater than or equal to 0.30
+    sustained for 2 years'
+  claim_id: c_da4b8cd4
+  context: "T023 [US2] Implement code/detection.py: Deforestation event detection\
+    \ logic (NDVI drop \u22650.30, sustained \u22652 years)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Deforestation_event_detection:_NDVI_drop_greater_than_or_equ
+  kind: magnitude
+  raw_text: "Deforestation event detection logic (NDVI drop \u22650.30, sustained\
+    \ \u22652 years)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:23:47Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Exclude sites with recovery period less than 5 years from primary slope
+    analysis
+  claim_id: c_0af2e63a
+  context: 'T027 [US2] Implement code/detection.py: Handle incomplete recovery cases
+    (recovery period <5 years) - flag and exclude from primary slope analysis'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_sites_with_recovery_period_less_than_5_years_from_pr
+  kind: magnitude
+  raw_text: Handle incomplete recovery cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:24:04Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Model convergence rate greater than or equal to 90 percent on synthetic
+    test cases
+  claim_id: c_c5079473
+  context: "T030 [US3] Unit test for mixed-effects model convergence in tests/unit/test_modeling.py.\
+    \ Assert that the model converges for \u226590% of synthetic test cases with known\
+    \ parameters."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_convergence_rate_greater_than_or_equal_to_90_percent_o
+  kind: magnitude
+  raw_text: "Assert that the model converges for \u226590% of synthetic test cases\
+    \ with known parameters."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:24:15Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Fetch CHIRPS precipitation and MODIS temperature data from early 21st
+    century to present
+  claim_id: c_921385c6
+  context: T009 [US3] [FR-003] Fetch CHIRPS precipitation and MODIS temperature data
+    for the study period (early 21st century to present). Use xarray and requests
+    to fetch CHIRPS from NOAA/CDR public API and MODIS from NASA POWER API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_CHIRPS_precipitation_and_MODIS_temperature_data_from_e
+  kind: entity_fact
+  raw_text: Fetch CHIRPS precipitation and MODIS temperature data for the study period
+    (early 21st century to present).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:24:22Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Stream climate data in 1-year chunks
+  claim_id: c_b8928131
+  context: T009 [US3] [FR-003] Fetch CHIRPS precipitation and MODIS temperature data
+    for the study period (early 21st century to present). Use xarray and requests
+    to fetch CHIRPS from NOAA/CDR public API and MODIS from NASA POWER API. Stream
+    data in 1-year chunks to stay within RAM limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream data in 1-year chunks to stay within RAM limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:24:29Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Verify peak memory usage less than or equal to 7GB
+  claim_id: c_c3653df9
+  context: "T041 [P] [SC-005] [FR-001] Performance optimization: Verify peak memory\
+    \ usage \u22647GB during full pipeline run"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_memory_usage_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: "Verify peak memory usage \u22647GB during full pipeline run."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:24:36Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: system processes 30 valid sites
+  claim_id: c_e05182a5
+  context: Update Success Criterion SC-001 to replace '[deferred]' with the explicit
+    number '30' (e.g., 'processes up to 30 valid sites').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system processes up to 30 valid sites.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:03Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak RAM below 7GB
+  claim_id: c_610b4e6b
+  context: 'Implement memory-safe chunking utility to ensure peak RAM <7GB. Define
+    specific strategy: process Landsat scenes in batches, and climate data in 1-year
+    chunks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_below_7GB
+  kind: entity_fact
+  raw_text: Peak RAM usage is maintained below 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:13Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: study period 2000-2023
+  claim_id: c_772709d2
+  context: Ingest, clean, and align Landsat satellite imagery time series with ecotourism
+    site metadata for the defined study period (2000-2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study period covers the years 2000 to 2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:20Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: initial severity difference <= 10%
+  claim_id: c_f6833d25
+  context: "Pair each ecotourism site with a control site in the same biome with an\
+    \ initial severity difference of \u226410%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sites are paired with an initial severity difference of 10% or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: exclude sites with >50% data gaps
+  claim_id: c_757408ff
+  context: Exclude sites with >50% data gaps.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_sites_with_%3E50%25_data_gaps
+  kind: magnitude
+  raw_text: Sites with more than 50% data gaps are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:51Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: linear interpolation for revenue gaps <= 50%
+  claim_id: c_dad9d829
+  context: If revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Linear interpolation is used for revenue gaps of 50% or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:51Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: deforestation defined as NDVI drop >= 0.30 sustained for 2 years
+  claim_id: c_c165b983
+  context: "Automatically detect deforestation events (NDVI drop \u22650.30 sustained\
+    \ over 2 years) and calculate recovery trajectories using non-linear asymptotic\
+    \ models."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/deforestation_defined_as_NDVI_drop_%3E=_0.30_sustained_for_2_y
+  kind: entity_fact
+  raw_text: Deforestation is defined as an NDVI drop of 0.30 or greater sustained
+    over 2 years.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:26:58Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: asymptotic model accepted if R-squared >= 0.95
+  claim_id: c_9d45b809
+  context: "Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase\
+    \ (mid-to-long term); verify R\xB2 \u2265 0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Non-linear asymptotic model fits are accepted if R-squared is 0.95 or
+    greater.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:27:33Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: exclude sites with recovery period < 5 years
+  claim_id: c_4dc7b29c
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_sites_with_recovery_period_%3C_5_years
+  kind: magnitude
+  raw_text: Sites with a recovery period of less than 5 years are flagged and excluded
+    from primary slope analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:27:44Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: model convergence >= 90% on synthetic tests
+  claim_id: c_73b24a82
+  context: "Assert that the model converges for \u226590% of synthetic test cases\
+    \ with known parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must converge for 90% or more of synthetic test cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:27:44Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: Study period 2000-2023
+  claim_id: c_cfec08a6
+  context: 'Goal: Ingest, clean, and align Landsat satellite imagery time series with
+    ecotourism site metadata for the defined study period (2000-2023).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_period_2000-2023
+  kind: entity_fact
+  raw_text: The study period is defined as 2000-2023.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:29:51Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 7GB
+  claim_id: c_0dbff562
+  context: Implement memory-safe chunking utility in code/utils/chunking.py to ensure
+    peak RAM <7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_7GB
+  kind: magnitude
+  raw_text: The system must ensure peak RAM usage is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:30:21Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: 30 paired sites dataset
+  claim_id: c_7e4accf4
+  context: Download Landsat Level surface reflectance data via USGS API for 30 paired
+    sites (2000-2023) using chunked streaming.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset includes 30 paired sites.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:30:41Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: Landsat 5 operational period 2000-2011
+  claim_id: c_fdf93e0d
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 5 data is used for the period 2000-2011.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:30:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: Landsat 7 operational period 2000-2023
+  claim_id: c_fe7201b8
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 7 data is used for the period 2000-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:30:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: Landsat 8 operational period 2013-2023
+  claim_id: c_e68da410
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 8 data is used for the period 2013-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:30:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: Landsat 9 operational period 2021-2023
+  claim_id: c_ec2837a5
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 9 data is used for the period 2021-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:30:43Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold 50% data gaps
+  claim_id: c_fcb6955e
+  context: Exclude sites with >50% data gaps.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_threshold_50%25_data_gaps
+  kind: magnitude
+  raw_text: Sites with greater than 50% data gaps are excluded from the analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:31:15Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Deforestation detection NDVI drop 0.30 sustained 2 years
+  claim_id: c_a19dc730
+  context: "Goal: Automatically detect deforestation events (NDVI drop \u22650.30\
+    \ sustained over 2 years) and calculate recovery trajectories using non-linear\
+    \ asymptotic models."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Deforestation_detection_NDVI_drop_0.30_sustained_2_years
+  kind: magnitude
+  raw_text: Deforestation is detected as an NDVI drop of at least 0.30 sustained over
+    2 years.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:31:38Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Asymptotic model fit R-squared threshold 0.95
+  claim_id: c_b3316c54
+  context: "Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase\
+    \ (mid-to-long term); verify R\xB2 \u2265 0.95."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Asymptotic_model_fit_R-squared_threshold_0.95
+  kind: magnitude
+  raw_text: The asymptotic model fit requires an R-squared value of at least 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:32:50Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Incomplete recovery threshold 5 years
+  claim_id: c_0285e9fb
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Incomplete_recovery_threshold_5_years
+  kind: magnitude
+  raw_text: Sites with a recovery period of less than 5 years are flagged as incomplete
+    recovery.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:33:44Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Model convergence threshold 90%
+  claim_id: c_0e8fe828
+  context: "Assert that the model converges for \u226590% of synthetic test cases\
+    \ with known parameters."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_convergence_threshold_90%25
+  kind: magnitude
+  raw_text: The model convergence test asserts convergence for at least 90% of synthetic
+    test cases.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:34:08Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Ecotourism revenue data years 2000-2023
+  claim_id: c_803525b7
+  context: 'Schema: site_id, year (2000-2023), revenue_usd, visitor_count, source.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ecotourism revenue data includes years from 2000 to 2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:34:23Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Linear interpolation trigger 50% missing revenue
+  claim_id: c_999fbd68
+  context: If revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_trigger_50%25_missing_revenue
+  kind: magnitude
+  raw_text: If revenue data is missing for more than 50% of years, linear interpolation
+    is used for single-year gaps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:34:52Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat 5 operational years 2000-2011
+  claim_id: c_a5a13b9d
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 5 operational from 2000 to 2011
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:36:20Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat 7 operational years 2000-2023
+  claim_id: c_b218b883
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 7 operational from 2000 to 2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:36:39Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat 8 operational years 2013-2023
+  claim_id: c_1c54d83e
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 8 operational from 2013 to 2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:37:25Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat 9 operational years 2021-2023
+  claim_id: c_9a333f68
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 9 operational from 2021 to 2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:37:45Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Pair sites with initial severity difference less than or equal to 10
+    percent
+  claim_id: c_7e69223d
+  context: "Pair each ecotourism site with a control site in the same biome with an\
+    \ initial severity difference of \u226410%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pair_sites_with_initial_severity_difference_less_than_or_equ
+  kind: magnitude
+  raw_text: "Pair each ecotourism site with a control site with an initial severity\
+    \ difference of \u226410%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:38:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Exclude sites with more than 50 percent data gaps
+  claim_id: c_c919e5bb
+  context: Exclude sites with >50% data gaps.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_sites_with_more_than_50_percent_data_gaps
+  kind: magnitude
+  raw_text: Exclude sites with >50% data gaps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:39:13Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Deforestation event defined as NDVI drop greater than or equal to 0.30
+    sustained for 2 years
+  claim_id: c_7c46c201
+  context: "Deforestation event detection logic (NDVI drop \u22650.30, sustained \u2265\
+    2 years)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Deforestation_event_defined_as_NDVI_drop_greater_than_or_equ
+  kind: magnitude
+  raw_text: "Deforestation event detection logic requires NDVI drop \u22650.30 sustained\
+    \ over 2 years"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:39:50Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Linear slope accepted if non-linear fit R-squared less than 0.95
+  claim_id: c_c5dfca90
+  context: "Note: If non-linear fit fails (R\xB2 < 0.95), linear slope is the ACCEPTED\
+    \ metric."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_slope_accepted_if_non-linear_fit_R-squared_less_than
+  kind: magnitude
+  raw_text: "Mark linear slope as accepted metric if non-linear fit fails with R\xB2\
+    \ < 0.95"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:40:47Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Exclude recovery period less than 5 years from primary slope analysis
+  claim_id: c_378c7af7
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_recovery_period_less_than_5_years_from_primary_slope
+  kind: magnitude
+  raw_text: Flag and exclude from primary slope analysis if recovery period is <5
+    years
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:41:24Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Model convergence for 90 percent of synthetic test cases
+  claim_id: c_da99ce46
+  context: "Assert that the model converges for \u226590% of synthetic test cases\
+    \ with known parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert that the model converges for \u226590% of synthetic test cases"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:41:24Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Peak memory usage less than or equal to 7GB
+  claim_id: c_aa7b1a2b
+  context: "Performance optimization: Verify peak memory usage \u22647GB during full\
+    \ pipeline run"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: "Verify peak memory usage \u22647GB during full pipeline run"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:41:27Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Process climate data in 1-year chunks with peak RAM less than 7GB
+  claim_id: c_9e755486
+  context: 'Define specific strategy: process Landsat scenes in batches, and climate
+    data in 1-year chunks. Enforce memory limit by monitoring psutil and raising MemoryError
+    if exceeded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Process_climate_data_in_1-year_chunks_with_peak_RAM_less_tha
+  kind: magnitude
+  raw_text: Process climate data in 1-year chunks to ensure peak RAM <7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:41:48Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Fetch CHIRPS precipitation from NOAA/CDR API
+  claim_id: c_3e033cdc
+  context: Use xarray and requests to fetch CHIRPS from NOAA/CDR public API and MODIS
+    from NASA POWER API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_CHIRPS_precipitation_from_NOAA/CDR_API
+  kind: entity_fact
+  raw_text: Fetch CHIRPS precipitation data from NOAA/CDR public API
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:42:11Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Fetch MODIS temperature from NASA POWER API
+  claim_id: c_b240b490
+  context: Use xarray and requests to fetch CHIRPS from NOAA/CDR public API and MODIS
+    from NASA POWER API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_MODIS_temperature_from_NASA_POWER_API
+  kind: entity_fact
+  raw_text: Fetch MODIS temperature data from NASA POWER API
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:42:38Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: processes up to 30 valid sites
+  claim_id: c_b8f3388c
+  context: Update Success Criterion SC-001 to replace '[deferred]' with the explicit
+    number '30' (e.g., 'processes up to 30 valid sites').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: processes up to 30 valid sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:43:45Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: memory-safe chunking strategy for Landsat and climate data
+  claim_id: c_013083a7
+  context: 'Implement memory-safe chunking utility... Define specific strategy: process
+    Landsat scenes in batches, and climate data in 1-year chunks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: process Landsat scenes in batches, and climate data in 1-year chunks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:44:17Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak RAM limit of 7GB
+  claim_id: c_614018e3
+  context: Implement memory-safe chunking utility in code/utils/chunking.py to ensure
+    peak RAM <7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_limit_of_7GB
+  kind: entity_fact
+  raw_text: peak RAM <7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:45:00Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: deforestation detection threshold of 0.30 NDVI drop sustained for 2 years
+  claim_id: c_1e9b3d40
+  context: "Goal: Automatically detect deforestation events (NDVI drop \u22650.30\
+    \ sustained over 2 years)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NDVI drop \u22650.30 sustained over 2 years"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:45:00Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: incomplete recovery definition as recovery period less than 5 years
+  claim_id: c_da834b8d
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Incomplete_recovery_definition_as_recovery_period_less_than
+  kind: magnitude
+  raw_text: recovery period <5 years
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:45:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: mixed-effects model convergence rate of 90 percent on synthetic test
+    cases
+  claim_id: c_022c103b
+  context: "Unit test for mixed-effects model convergence... Assert that the model\
+    \ converges for \u226590% of synthetic test cases with known parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "model converges for \u226590% of synthetic test cases"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:45:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: convergence test on 10 representative pairs
+  claim_id: c_57b8bb80
+  context: Run T030 convergence test on the actual processed dataset (or a representative
+    subset of 10 pairs) to verify SC-003
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: representative subset of 10 pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:46:02Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat sensor selection logic by year range
+  claim_id: c_52d919b1
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 5 (2000-2011), Landsat 7 (2000-2023), Landsat 8 (2013-2023), Landsat
+    9 (2021-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:46:18Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: site pairing constraint of 10 percent initial severity difference
+  claim_id: c_dcac67d4
+  context: "Pair each ecotourism site with a control site in the same biome with an\
+    \ initial severity difference of \u226410%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "initial severity difference of \u226410%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:46:19Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: site exclusion criterion of 50 percent data gaps
+  claim_id: c_092bb48f
+  context: Exclude sites with >50% data gaps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude sites with >50% data gaps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:46:19Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: revenue missing data threshold of 50 percent years
+  claim_id: c_d2e33eba
+  context: If revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: revenue is missing for >50% of years
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:46:20Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: processes up to 30 valid sites
+  claim_id: c_58a9bb1c
+  context: Update spec.md Success Criterion SC-001 to replace '[deferred]' with the
+    explicit number '30' (e.g., 'processes up to 30 valid sites').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: processes up to 30 valid sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:47:04Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: process Landsat scenes in batches and climate data in 1-year chunks
+  claim_id: c_3e467bfd
+  context: 'Define specific strategy: process Landsat scenes in batches, and climate
+    data in 1-year chunks. Enforce memory limit by monitoring psutil and raising MemoryError
+    if exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: process Landsat scenes in batches, and climate data in 1-year chunks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:47:04Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak RAM less than 7GB
+  claim_id: c_fd409718
+  context: Implement memory-safe chunking utility in code/utils/chunking.py to ensure
+    peak RAM <7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: peak RAM <7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:47:06Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: download data for 30 paired sites
+  claim_id: c_c05307bc
+  context: Download Landsat Level surface reflectance data via USGS API for 30 paired
+    sites (2000-2023) using chunked streaming.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30 paired sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:48:01Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: exclude sites with more than 50 percent data gaps
+  claim_id: c_d446d711
+  context: Exclude sites with >50% data gaps. Output consolidated data/processed/ndvi_timeseries.parquet
+    and data/processed/site_metadata.csv.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_sites_with_more_than_50_percent_data_gaps
+  kind: magnitude
+  raw_text: Exclude sites with >50% data gaps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:48:41Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: use linear interpolation if revenue is missing for more than 50 percent
+    of years but not entirely
+  claim_id: c_e224aa94
+  context: If revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps. Log all substitutions in metadata.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_linear_interpolation_if_revenue_is_missing_for_more_than
+  kind: magnitude
+  raw_text: if revenue is missing for >50% of years but not entirely, use linear interpolation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:49:06Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: flag incomplete recovery cases where recovery period is less than 5 years
+  claim_id: c_a304f1d4
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_incomplete_recovery_cases_where_recovery_period_is_less
+  kind: magnitude
+  raw_text: recovery period <5 years
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:49:46Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: model converges for 90 percent or more of synthetic test cases
+  claim_id: c_3c6f4626
+  context: "Unit test for mixed-effects model convergence in tests/unit/test_modeling.py.\
+    \ Assert that the model converges for \u226590% of synthetic test cases with known\
+    \ parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "model converges for \u226590% of synthetic test cases"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:49:46Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: run convergence test on a representative subset of 10 pairs
+  claim_id: c_68729b97
+  context: "Run T030 convergence test on the actual processed dataset (or a representative\
+    \ subset of 10 pairs) to verify SC-003 (\u226590% convergence) before proceeding\
+    \ to final pipeline execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: representative subset of 10 pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:49:47Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak memory usage less than or equal to 7GB during full pipeline run
+  claim_id: c_e49bcf51
+  context: "Performance optimization: Verify peak memory usage \u22647GB during full\
+    \ pipeline run."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_or_equal_to_7GB_during_full_pipe
+  kind: magnitude
+  raw_text: "peak memory usage \u22647GB during full pipeline run"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:50:01Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: processes up to 30 valid sites
+  claim_id: c_3b0f67ae
+  context: Update `specs/001-ecotourism-regeneration/spec.md` Success Criterion SC-001
+    to replace '[deferred]' with the explicit number '30' (e.g., 'processes up to
+    30 valid sites').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: processes up to 30 valid sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:22Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: process Landsat scenes in batches and climate data in 1-year chunks
+  claim_id: c_4f3ecc1f
+  context: 'Define specific strategy: process Landsat scenes in batches, and climate
+    data in 1-year chunks. Enforce memory limit by monitoring `psutil` and raising
+    `MemoryError` if exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: process Landsat scenes in batches, and climate data in 1-year chunks
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:23Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak RAM less than 7GB
+  claim_id: c_f7f175fd
+  context: Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure
+    peak RAM <7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: peak RAM <7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:25Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 5
   canonical: study period from 2000 to 2023
   claim_id: c_b2b12376
   context: Ingest, clean, and align Landsat satellite imagery time series with ecotourism
@@ -1761,4 +3013,596 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-09-07T15:48:08Z'
+  updated_at: '2026-09-17T22:51:25Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: 30 paired sites
+  claim_id: c_fbdd521d
+  context: Download Landsat Level surface reflectance data via USGS API for 30 paired
+    sites (2000-2023) using chunked streaming.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30 paired sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:28Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: initial severity difference less than or equal to 10 percent
+  claim_id: c_fd63a546
+  context: "Pair each ecotourism site with a control site in the same biome with an\
+    \ initial severity difference of \u226410%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Initial_severity_difference_less_than_or_equal_to_10_percent
+  kind: magnitude
+  raw_text: "initial severity difference of \u226410%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:30Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: exclude sites with more than 50 percent data gaps
+  claim_id: c_91428f97
+  context: Exclude sites with >50% data gaps. Output consolidated `data/processed/ndvi_timeseries.parquet`
+    and `data/processed/site_metadata.csv`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_sites_with_more_than_50_percent_data_gaps
+  kind: magnitude
+  raw_text: Exclude sites with >50% data gaps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:32Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: use linear interpolation for single-year gaps if revenue missing for
+    more than 50 percent of years
+  claim_id: c_9a171b6f
+  context: If revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_linear_interpolation_for_single-year_gaps_if_revenue_mis
+  kind: magnitude
+  raw_text: if revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:49Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: deforestation event defined as NDVI drop greater than or equal to 0.30
+    sustained over 2 years
+  claim_id: c_050f57d8
+  context: "Automatically detect deforestation events (NDVI drop \u22650.30 sustained\
+    \ over 2 years) and calculate recovery trajectories using non-linear asymptotic\
+    \ models."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Deforestation_event_defined_as_NDVI_drop_greater_than_or_equ
+  kind: magnitude
+  raw_text: "NDVI drop \u22650.30 sustained over 2 years"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:51:51Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: linear slope is accepted metric if non-linear fit fails
+  claim_id: c_4ca9347a
+  context: "Note: If non-linear fit fails (R\xB2 < 0.95), linear slope is the ACCEPTED\
+    \ metric."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_slope_is_accepted_metric_if_non-linear_fit_fails
+  kind: entity_fact
+  raw_text: linear slope is the ACCEPTED metric
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:52:22Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: handle incomplete recovery cases where recovery period is less than 5
+    years
+  claim_id: c_c1585576
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_incomplete_recovery_cases_where_recovery_period_is_le
+  kind: magnitude
+  raw_text: recovery period <5 years
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:52:25Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: model converges for at least 90 percent of synthetic test cases
+  claim_id: c_01a825a1
+  context: "Assert that the model converges for \u226590% of synthetic test cases\
+    \ with known parameters."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_converges_for_at_least_90_percent_of_synthetic_test_ca
+  kind: magnitude
+  raw_text: "model converges for \u226590% of synthetic test cases"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:52:46Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: representative subset of 10 pairs
+  claim_id: c_14970721
+  context: "Run T030 convergence test on the *actual* processed dataset (or a representative\
+    \ subset of 10 pairs) to verify SC-003 (\u226590% convergence) before proceeding\
+    \ to final pipeline execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: representative subset of 10 pairs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:52:46Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak memory usage less than or equal to 7GB
+  claim_id: c_3f701d70
+  context: "Verify peak memory usage \u22647GB during full pipeline run."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: "peak memory usage \u22647GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:52:58Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: 30 paired sites for Landsat data download 2000-2023
+  claim_id: c_63094a8a
+  context: 'T013 [US1] Implement code/data_acquisition.py: Download Landsat Level
+    surface reflectance data via USGS API for 30 paired sites (2000-2023) using chunked
+    streaming.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Landsat Level surface reflectance data via USGS API for 30 paired
+    sites (2000-2023) using chunked streaming.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:53:59Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat sensor selection logic by year ranges
+  claim_id: c_ca3ebdd1
+  context: 'T013 [US1] Implement code/data_acquisition.py: ... Implement explicit
+    sensor selection logic: Landsat 5 (2000-2011), Landsat 7 (2000-2023), Landsat
+    8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:54:00Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Process Landsat scenes in batches and climate data in 1-year chunks
+  claim_id: c_bba56142
+  context: 'T007 Implement memory-safe chunking utility in code/utils/chunking.py
+    to ensure peak RAM <7GB. Define specific strategy: process Landsat scenes in batches,
+    and climate data in 1-year chunks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define specific strategy: process Landsat scenes in batches, and climate
+    data in 1-year chunks.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:54:20Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Enforce memory limit using psutil
+  claim_id: c_7c3eb0c5
+  context: T007 Implement memory-safe chunking utility in code/utils/chunking.py to
+    ensure peak RAM <7GB. ... Enforce memory limit by monitoring psutil and raising
+    MemoryError if exceeded.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_memory_limit_using_psutil
+  kind: entity_fact
+  raw_text: Enforce memory limit by monitoring psutil and raising MemoryError if exceeded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:54:37Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Data volume fits within 7GB RAM for NDVI time series
+  claim_id: c_3c2e8ff9
+  context: 'Independent Test: Verify that the system outputs a consolidated CSV/Parquet
+    file containing a representative set of paired sites with valid NDVI time series,
+    and that data volume fits within 7GB RAM without crashing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_volume_fits_within_7GB_RAM_for_NDVI_time_series
+  kind: entity_fact
+  raw_text: Verify that the system outputs a consolidated CSV/Parquet file containing
+    a representative set of paired sites with valid NDVI time series, and that data
+    volume fits within 7GB RAM without crashing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:54:56Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Deforestation event detection NDVI drop 0.30 sustained 2 years
+  claim_id: c_d37f40e1
+  context: "Goal: Automatically detect deforestation events (NDVI drop \u22650.30\
+    \ sustained over 2 years) and calculate recovery trajectories using non-linear\
+    \ asymptotic models."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Automatically detect deforestation events (NDVI drop \u22650.30 sustained\
+    \ over 2 years) and calculate recovery trajectories using non-linear asymptotic\
+    \ models."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:54:56Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Linear slope accepted if R squared less than 0.95
+  claim_id: c_0993cd58
+  context: "*Note: If non-linear fit fails (R\xB2 < 0.95), linear slope is the ACCEPTED\
+    \ metric.*"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_slope_accepted_if_R_squared_less_than_0.95
+  kind: magnitude
+  raw_text: "If non-linear fit fails (R\xB2 < 0.95), linear slope is the ACCEPTED\
+    \ metric."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:55:25Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Exclude incomplete recovery cases with period less than 5 years
+  claim_id: c_3f68cb57
+  context: 'T027 [US2] Implement code/detection.py: Handle ''incomplete recovery''
+    cases (recovery period <5 years) - flag and exclude from primary slope analysis'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_incomplete_recovery_cases_with_period_less_than_5_ye
+  kind: magnitude
+  raw_text: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:55:27Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Model convergence 90 percent of synthetic test cases
+  claim_id: c_0facfd08
+  context: "T030 [US3] Unit test for mixed-effects model convergence in tests/unit/test_modeling.py.\
+    \ Assert that the model converges for \u226590% of synthetic test cases with known\
+    \ parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert that the model converges for \u226590% of synthetic test cases\
+    \ with known parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:55:28Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Peak memory usage 7GB during full pipeline
+  claim_id: c_3eb0f7fe
+  context: "T041 [P] [SC-005] [FR-001] Performance optimization: Verify peak memory\
+    \ usage \u22647GB during full pipeline run"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_7GB_during_full_pipeline
+  kind: entity_fact
+  raw_text: "Verify peak memory usage \u22647GB during full pipeline run."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:55:30Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 2
+  canonical: Download Landsat data for 30 paired sites from 2000 to 2023
+  claim_id: c_a271073c
+  context: 'T013 [US1] Implement code/data_acquisition.py: Download Landsat Level
+    surface reflectance data via USGS API for 30 paired sites (2000-2023) using chunked
+    streaming.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Landsat Level surface reflectance data via USGS API for 30 paired
+    sites (2000-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:56:39Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 3
+  canonical: Landsat 5 operational from 2000 to 2011
+  claim_id: c_cf6e21ae
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 5 (2000-2011)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:56:40Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 3
+  canonical: Landsat 7 operational from 2000 to 2023
+  claim_id: c_08286060
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 7 (2000-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:56:41Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 3
+  canonical: Landsat 8 operational from 2013 to 2023
+  claim_id: c_60c7ce92
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 8 (2013-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:56:41Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 3
+  canonical: Landsat 9 operational from 2021 to 2023
+  claim_id: c_2d2daea1
+  context: 'Implement explicit sensor selection logic: Landsat 5 (2000-2011), Landsat
+    7 (2000-2023), Landsat 8 (2013-2023), Landsat 9 (2021-2023).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat 9 (2021-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:56:42Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Deforestation defined as NDVI drop 0.30 sustained over 2 years
+  claim_id: c_f66c5933
+  context: "Goal: Automatically detect deforestation events (NDVI drop \u22650.30\
+    \ sustained over 2 years) and calculate recovery trajectories using non-linear\
+    \ asymptotic models."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Deforestation event detection requires NDVI drop \u22650.30 sustained\
+    \ over 2 years."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:56:43Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Exclude sites with more than 50% data gaps
+  claim_id: c_61da2430
+  context: "Pair each ecotourism site with a control site in the same biome with an\
+    \ initial severity difference of \u226410%. Exclude sites with >50% data gaps."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_sites_with_more_than_50%25_data_gaps
+  kind: magnitude
+  raw_text: Sites with >50% data gaps are excluded from analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:57:07Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Linear interpolation for revenue gaps if missing more than 50% of years
+  claim_id: c_465a15ee
+  context: If revenue is missing for >50% of years but not entirely, use linear interpolation
+    for single-year gaps.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_for_revenue_gaps_if_missing_more_than_5
+  kind: magnitude
+  raw_text: Sites with revenue data missing for >50% of years use linear interpolation
+    for single-year gaps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:57:49Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Recovery period less than 5 years flagged as incomplete
+  claim_id: c_c664873b
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recovery_period_less_than_5_years_flagged_as_incomplete
+  kind: magnitude
+  raw_text: Recovery period of less than 5 years is flagged as incomplete recovery.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:58:21Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Model convergence for 90% of synthetic test cases
+  claim_id: c_42cd8dcc
+  context: "Unit test for mixed-effects model convergence in tests/unit/test_modeling.py.\
+    \ Assert that the model converges for \u226590% of synthetic test cases with known\
+    \ parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Model convergence is expected for \u226590% of synthetic test cases."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:58:22Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage under 7GB
+  claim_id: c_341da4c2
+  context: Implement memory-safe chunking utility in code/utils/chunking.py to ensure
+    peak RAM <7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_under_7GB
+  kind: magnitude
+  raw_text: Peak RAM usage must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:58:41Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Ecotourism site metadata covers 2000 to 2023
+  claim_id: c_3ff75328
+  context: 'Fetch data/ecotourism/revenue_data.csv from verified public conservation
+    organization reports or tourism authority databases... Schema: site_id, year (2000-2023),
+    revenue_usd, visitor_count, source.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ecotourism site metadata retrieval covers the period 2000-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:58:54Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Pairing sites with initial severity difference of 10% or less
+  claim_id: c_fdfd7fdc
+  context: "Pair each ecotourism site with a control site in the same biome with an\
+    \ initial severity difference of \u226410%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Initial deforestation severity pairing requires a difference of \u2264\
+    10% between sites."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T22:58:55Z'

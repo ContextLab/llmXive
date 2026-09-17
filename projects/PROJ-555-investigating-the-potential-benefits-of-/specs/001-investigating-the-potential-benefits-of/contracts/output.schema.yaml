@@ -1,190 +1,226 @@
-# Output Schema Definition for Ecotourism Regeneration Analysis
-# This schema defines the structure for the final analysis outputs,
-# including recovery trajectories, statistical model results, and sensitivity analysis.
-# Used by code/utils/schema_loader.py to generate Pydantic models.
+title: Output Schemas for Ecotourism Regeneration Analysis
+description: >
+  Defines the validation schemas for the final analysis report and
+  sensitivity analysis artifacts as required by FR-006 and FR-004/SC-004.
 
-output:
-  title: "EcotourismRegenerationOutput"
-  description: "Consolidated output schema for the final analysis report and intermediate artifacts."
+# FinalReport: The primary output of the statistical inference pipeline.
+# Contains the regression results, sensitivity analysis summary, and data quality flags.
+FinalReport:
   type: object
+  required:
+    - report_metadata
+    - regression_coefficients
+    - sensitivity_analysis
+    - data_quality_flags
   properties:
-    metadata:
+    report_metadata:
       type: object
-      description: "Run metadata and provenance"
+      description: Metadata about the report generation.
+      required:
+        - generated_at
+        - model_version
+        - data_source_version
       properties:
-        run_id:
-          type: string
-          description: "Unique identifier for the analysis run"
-        timestamp:
+        generated_at:
           type: string
           format: date-time
-          description: "ISO 8601 timestamp of the analysis execution"
-        version:
+          description: ISO 8601 timestamp of report generation.
+        model_version:
           type: string
-          description: "Pipeline version used for this run"
-        data_sources:
+          description: Version string of the modeling pipeline used.
+        data_source_version:
+          type: string
+          description: Identifier for the specific dataset version used.
+    
+    regression_coefficients:
+      type: object
+      description: >
+        Results from the Linear Mixed-Effects Model (LMM).
+        Maps variable names to their coefficient details.
+      additionalProperties:
+        type: object
+        required:
+          - estimate
+          - std_error
+          - confidence_interval
+          - p_value
+          - significance_flag
+        properties:
+          estimate:
+            type: number
+            format: float
+            description: The estimated coefficient value.
+          std_error:
+            type: number
+            format: float
+            description: Standard error of the estimate.
+          confidence_interval:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+            description: [lower_bound, upper_bound] of the 95% CI.
+          p_value:
+            type: number
+            format: float
+            description: Raw p-value from the model.
+          significance_flag:
+            type: string
+            enum: ["ns", "*", "**", "***"]
+            description: Significance stars based on Bonferroni/Holm corrected p-value.
+
+    sensitivity_analysis:
+      type: array
+      description: >
+        Summary of sensitivity analysis results across different thresholds
+        and proxy variables.
+      items:
+        type: object
+        required:
+          - threshold
+          - proxy_variable
+          - effect_size
+          - p_value
+          - significance_flag
+        properties:
+          threshold:
+            type: number
+            format: float
+            description: The specific threshold value tested (e.g., revenue cutoff).
+          proxy_variable:
+            type: string
+            description: The variable used as proxy (e.g., 'revenue_usd', 'visitor_count').
+          effect_size:
+            type: number
+            format: float
+            description: The magnitude of the effect observed at this configuration.
+          p_value:
+            type: number
+            format: float
+            description: P-value for the effect at this configuration.
+          significance_flag:
+            type: string
+            enum: ["ns", "*", "**", "***"]
+            description: Significance flag after correction.
+
+    data_quality_flags:
+      type: object
+      description: >
+        Flags indicating the quality and completeness of the data used.
+        Used for pass/fail validation of the report.
+      required:
+        - ndvi_coverage_flag
+        - climate_data_flag
+        - revenue_data_flag
+        - model_convergence_flag
+      properties:
+        ndvi_coverage_flag:
+          type: boolean
+          description: True if NDVI coverage meets minimum threshold (>90% valid points).
+        climate_data_flag:
+          type: boolean
+          description: True if climate covariates are available for all sites.
+        revenue_data_flag:
+          type: boolean
+          description: True if revenue/visitor data is present for all sites.
+        model_convergence_flag:
+          type: boolean
+          description: True if the LMM converged for >90% of bootstrap samples.
+
+# SensitivityArtifact: The raw data output of the sensitivity sweep.
+# Used for detailed inspection and plotting of the sensitivity analysis.
+SensitivityArtifact:
+  type: object
+  required:
+    - sweep_parameters
+    - raw_results
+  properties:
+    sweep_parameters:
+      type: object
+      description: Configuration of the sensitivity sweep.
+      required:
+        - threshold_range
+        - proxy_variables
+        - model_type
+      properties:
+        threshold_range:
+          type: object
+          required:
+            - start
+            - end
+            - step
+          properties:
+            start:
+              type: number
+              format: float
+            end:
+              type: number
+              format: float
+            step:
+              type: number
+              format: float
+        proxy_variables:
           type: array
           items:
             type: string
-          description: "List of data sources used (e.g., Landsat, CHIRPS)"
-        parameters:
-          type: object
-          description: "Key parameters used in the analysis (thresholds, model choices)"
-          additionalProperties: true
-
-    recovery_trajectories:
+          description: List of proxy variable names tested (e.g., ['revenue_usd', 'visitor_count']).
+        model_type:
+          type: string
+          description: Type of model used for the sweep (e.g., 'lmm').
+    
+    raw_results:
       type: array
-      description: "List of recovery trajectory results for each site pair"
+      description: List of results for every configuration tested in the sweep.
       items:
         type: object
+        required:
+          - run_id
+          - threshold
+          - proxy_variable
+          - model_fit
+          - coefficient_summary
+          - convergence_status
         properties:
-          site_id:
+          run_id:
             type: string
-            description: "Unique identifier for the site"
-          pair_id:
+            description: Unique identifier for this sweep run.
+          threshold:
+            type: number
+            format: float
+            description: Threshold value applied.
+          proxy_variable:
             type: string
-            description: "Identifier for the paired site group"
-          deforestation_event:
+            description: Proxy variable used.
+          model_fit:
             type: object
-            description: "Details of the detected deforestation event"
-            properties:
-              start_date:
-                type: string
-                format: date
-              end_date:
-                type: string
-                format: date
-              severity:
-                type: number
-                format: float
-                description: "Magnitude of NDVI drop"
-          trajectory_model:
-            type: string
-            description: "Model type used (e.g., 'logistic', 'gompertz', 'linear_fallback')"
-          parameters:
-            type: object
-            description: "Fitted model parameters"
-            additionalProperties: true
-          fit_metrics:
-            type: object
-            description: "Goodness of fit metrics"
+            required:
+              - r_squared
+              - log_likelihood
             properties:
               r_squared:
                 type: number
                 format: float
-              rmse:
+              log_likelihood:
                 type: number
                 format: float
-          recovery_rate:
-            type: number
-            format: float
-            description: "Calculated slope or rate of recovery"
-          status:
-            type: string
-            enum: ["complete", "incomplete", "excluded"]
-            description: "Recovery status classification"
-
-    statistical_model_results:
-      type: object
-      description: "Results from the Linear Mixed-Effects Model (LMM)"
-      properties:
-        model_formula:
-          type: string
-          description: "R-style formula used for the model"
-        fixed_effects:
-          type: array
-          description: "Fixed effect coefficients and statistics"
-          items:
+          coefficient_summary:
             type: object
+            description: Summary of coefficients for the main predictor.
+            required:
+              - estimate
+              - std_error
+              - p_value
             properties:
-              term:
-                type: string
               estimate:
                 type: number
                 format: float
               std_error:
                 type: number
                 format: float
-              statistic:
-                type: number
-                format: float
               p_value:
                 type: number
                 format: float
-              p_value_adjusted:
-                type: number
-                format: float
-                description: "Bonferroni or Holm corrected p-value"
-        random_effects:
-          type: object
-          description: "Random effect variance components"
-          properties:
-            group:
-              type: string
-            variance:
-              type: number
-            std_dev:
-              type: number
-        model_fit:
-          type: object
-          properties:
-            aic:
-              type: number
-            bic:
-              type: number
-            log_likelihood:
-              type: number
-
-    sensitivity_analysis:
-      type: array
-      description: "Results from sensitivity analysis across different thresholds and proxies"
-      items:
-        type: object
-        properties:
-          scenario_id:
-            type: string
-            description: "Identifier for the scenario (e.g., 'high_revenue', 'visitor_proxy')"
-          threshold_value:
-            type: number
-            format: float
-            description: "The specific threshold value tested"
-          metric:
-            type: string
-            description: "Metric being compared (e.g., 'revenue', 'visitor_count')"
-          coefficient:
-            type: number
-            format: float
-            description: "Main effect coefficient for this scenario"
-          p_value:
-            type: number
-            format: float
-          sensitivity_flag:
+          convergence_status:
             type: boolean
-            description: "True if result is sensitive to this parameter change"
-
-    data_quality_report:
-      type: object
-      description: "Summary of data quality checks and flags"
-      properties:
-        total_sites:
-          type: integer
-        sites_with_deforestation:
-          type: integer
-        sites_with_recovery_data:
-          type: integer
-        missing_data_flags:
-          type: array
-          items:
-            type: string
-          description: "List of specific data gaps or issues encountered"
-        pass_fail_status:
-          type: string
-          enum: ["PASS", "FAIL", "WARNING"]
-          description: "Overall data quality status"
-
-  required:
-    - metadata
-    - recovery_trajectories
-    - statistical_model_results
-    - sensitivity_analysis
-    - data_quality_report
+            description: Whether the model optimization converged.

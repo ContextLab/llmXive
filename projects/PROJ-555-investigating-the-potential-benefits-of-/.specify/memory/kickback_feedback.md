@@ -4,9 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
+- `T045` (rejected 1x): No evidence of the `specs/001-ecotourism-regeneration/spec.md` file or its contents was provided, so we cannot verify that SC‑001 was updated from “[deferred]” to “30”. The required artifact and change are missing.
 - `T006c` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T008` (rejected 1x): The response contains only the task description and project specifications; it does not include any actual directory tree, created folders, or `.gitkeep` files for `data/raw/landsat`, `data/processed`, or `data/ecotourism`. Without these artifacts, the requirement of establishing the data directory structure is not satisfied.
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/climate_covariates.parquet
+- `T008` (rejected 1x): No evidence of the required directories (`data/raw/landsat`, `data/processed`, `data/ecotourism`) or the accompanying `.gitkeep` placeholder files is provided; without these artifacts the task’s requirement is not satisfied.
+- `T012b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/site_coordinates.csv
 
 ## Required change
 
