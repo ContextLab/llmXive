@@ -9,7 +9,7 @@ This project implements a reproducible pipeline to quantify the rate of neural r
 
 **Dual-Model Strategy**: To satisfy both the Project Constitution (Principle VII) and the Functional Spec (FR-005), the pipeline implements a **Primary** Exponential decay model (`drift(t) = a·exp(−b·t) + c`) and a **Fallback** Linear model (`drift(t) = a + b·t`). The Exponential model is the primary metric per Constitution VII. If the Exponential fit fails to converge, the system falls back to the Linear model to satisfy FR-005. Both models' parameters are reported, with the Exponential 'b' being the primary result and the Linear 'b' being a secondary comparability metric. 
 
-The pipeline includes robust handling of missing behavioral data via linear interpolation (with fallback exclusion), permutation testing for significance, and sensitivity analysis across stability thresholds and distance metrics. All computations are designed for a CPU-first environment (2 cores, 7 GB RAM) using `scikit-learn`, `statsmodels`, and `pandas`.
+The pipeline includes robust handling of missing behavioral data via linear interpolation (with fallback exclusion), permutation testing for significance, and sensitivity analysis across stability thresholds and distance metrics. All computations are designed for a CPU-first environment (multi-core, limited RAM) using `scikit-learn`, `statsmodels`, and `pandas`.
 
 ## Technical Context
 

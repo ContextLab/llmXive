@@ -2,19 +2,29 @@ import os
 import pytest
 from pathlib import Path
 
-# Determine project root relative to this test file
-# The test file is at tests/test_config_files.py
-# Project root is two levels up
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Helper to resolve the project root relative to the test file
+# The tests are in projects/PROJ-924-.../tests/
+# The config files are in the project root (same level as tests/)
+def get_project_root():
+    # Assume tests/ is a direct child of the project root
+    return Path(__file__).resolve().parent.parent
 
 def test_ruff_config_exists():
-    """Verify .ruff.toml exists and is non-empty."""
-    ruff_path = PROJECT_ROOT / ".ruff.toml"
-    assert ruff_path.exists(), f"File not found: {ruff_path}"
-    assert ruff_path.stat().st_size > 0, f"File is empty: {ruff_path}"
+    """Verify that .ruff.toml exists and is non-empty."""
+    root = get_project_root()
+    config_path = root / ".ruff.toml"
+    
+    assert config_path.exists(), f"File not found: {config_path}"
+    assert config_path.stat().st_size > 0, f"File is empty: {config_path}"
 
 def test_pyproject_config_exists():
-    """Verify pyproject.toml exists and is non-empty."""
-    pyproject_path = PROJECT_ROOT / "pyproject.toml"
-    assert pyproject_path.exists(), f"File not found: {pyproject_path}"
-    assert pyproject_path.stat().st_size > 0, f"File is empty: {pyproject_path}"
+    """Verify that pyproject.toml exists and is non-empty."""
+    root = get_project_root()
+    config_path = root / "pyproject.toml"
+    
+    assert config_path.exists(), f"File not found: {config_path}"
+    assert config_path.stat().st_size > 0, f"File is empty: {config_path}"
+
+if __name__ == "__main__":
+    # Allow running directly with python -m pytest or python test_config_files.py
+    pytest.main([__file__, "-v"])
