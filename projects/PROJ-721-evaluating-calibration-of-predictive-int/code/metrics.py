@@ -175,3 +175,97 @@ def hypothesis_test_coverage(
     p_value = stats.binom_test(successes, n=n_samples, p=nominal, alternative='two-sided')
 
     return float(p_value)
+
+
+def calculate_coverage_batch(
+    intervals_df: pd.DataFrame,
+    actuals_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Calculate empirical coverage for a batch of series, models, and horizons.
+
+    This function processes the intermediate interval outputs from T015 and
+    computes the empirical coverage rate for each (series_id, model, horizon) combination.
+
+    Args:
+        intervals_df: DataFrame with columns: series_id, model, horizon, lower, upper
+                      (where lower/upper can be lists/arrays or the df is exploded)
+        actuals_df: DataFrame with columns: series_id, horizon, actual_value
+
+    Returns:
+        pd.DataFrame: DataFrame with columns: series_id, model, horizon, empirical_coverage
+
+    Raises:
+        ValueError: If required columns are missing or data alignment fails.
+    """
+    required_interval_cols = {'series_id', 'model', 'horizon', 'lower', 'upper'}
+    required_actual_cols = {'series_id', 'horizon', 'actual_value'}
+
+    if not required_interval_cols.issubset(intervals_df.columns):
+        missing = required_interval_cols - set(intervals_df.columns)
+        raise ValueError(f"Missing columns in intervals_df: {missing}")
+
+    if not required_actual_cols.issubset(actuals_df.columns):
+        missing = required_actual_cols - set(actuals_df.columns)
+        raise ValueError(f"Missing columns in actuals_df: {missing}")
+
+    results = []
+
+    # Group by series_id, model, horizon to calculate coverage
+    # Assuming lower/upper are array-like in the cells, or the data is already exploded
+    # We handle the case where lower/upper are lists/arrays in a single cell per group
+    for (series_id, model, horizon), group in intervals_df.groupby(['series_id', 'model', 'horizon']):
+        # Get the interval bounds (assuming they are identical for the group or aggregated)
+        # If the input is already a single row per (series, model, horizon) with lists:
+        lower_vals = group['lower'].iloc[0] if hasattr(group['lower'].iloc[0], '__len__') else group['lower'].values
+        upper_vals = group['upper'].iloc[0] if hasattr(group['upper'].iloc[0], '__len__') else group['upper'].values
+
+        # Get actuals for this series and horizon
+        actuals = actuals_df[
+            (actuals_df['series_id'] == series_id) &
+            (actuals_df['horizon'] == horizon)
+        ]['actual_value'].values
+
+        if len(actuals) == 0:
+            logger.warning(f"No actuals found for series {series_id}, horizon {horizon}")
+            continue
+
+        # Ensure lengths match
+        if isinstance(lower_vals, list):
+            lower_vals = np.array(lower_vals)
+        if isinstance(upper_vals, list):
+            upper_vals = np.array(upper_vals)
+
+        if len(lower_vals) != len(actuals):
+            # If lengths don't match, try to align or skip
+            # For robustness, we assume the first N or last N match, but here we strict fail or warn
+            logger.warning(
+                f"Length mismatch for series {series_id}, model {model}, horizon {horizon}. "
+                f"Lower/Upper len: {len(lower_vals)}, Actuals len: {len(actuals)}. Skipping."
+            )
+            continue
+
+        cov = empirical_coverage(lower_vals, upper_vals, actuals)
+        results.append({
+            'series_id': series_id,
+            'model': model,
+            'horizon': horizon,
+            'empirical_coverage': cov
+        })
+
+    return pd.DataFrame(results)
+
+
+def save_coverage_results(
+    coverage_df: pd.DataFrame,
+    output_path: str
+) -> None:
+    """
+    Save the calculated coverage results to a CSV file.
+
+    Args:
+        coverage_df: DataFrame containing coverage results.
+        output_path: Path to the output CSV file.
+    """
+    coverage_df.to_csv(output_path, index=False)
+    logger.info(f"Saved coverage results to {output_path}")

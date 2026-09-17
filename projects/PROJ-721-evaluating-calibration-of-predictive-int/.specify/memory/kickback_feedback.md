@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or a `black` config) were provided, so the required setup for `ruff`/`flake8` and `black` cannot be confirmed. The task lacks the necessary artifacts.
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T011` (rejected 1x): The provided `tests/contract/test_coverage_schema.py` is truncated (e.g., ends with `def test_nominal_coverage_valu` and lacks the rest of the test suite, causing a syntax error). Additionally, the required `results/coverage.csv` file does not exist, so the contract test cannot be executed. Both artifacts are incomplete or missing.
+- `T013a` (rejected 1x): The repository lacks `data/processed/sampling_report.json` entirely, and the shown portion of `code/download.py` contains only download‑related utilities with no implementation of stratified sampling, sample index generation, or representativeness metric calculation. Both required artifacts are missing, so the task is not satisfied.
+- `T013b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/sampling_report.json, data/processed/sample_indices_1000.csv
 
 ## Required change
 

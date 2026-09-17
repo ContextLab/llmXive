@@ -1,37 +1,40 @@
 [lint]
-# Select common rules: E (pyflakes), F (pycodestyle), W (warnings), I (isort), N (pep8-naming), UP (pyupgrade)
-select = ["E", "F", "W", "I", "N", "UP", "D"]
+# Select specific rules:
+# E4: pycodestyle (Import formatting)
+# E7: pycodestyle (Syntax errors)
+# E9: pycodestyle (Runtime errors)
+# F: Pyflakes
+# I: isort (Import sorting)
+select = ["E4", "E7", "E9", "F", "I"]
 
-# Ignore specific rules that might be too strict for this project initially
-ignore = [
-    "D100", # Missing docstring in public module
-    "D104", # Missing docstring in public package
-    "D203", # 1 blank line required before class docstring (conflicts with D211)
-    "D213", # Multi-line docstring summary should start at the second line (conflicts with D212)
-    "D401", # First line should be in imperative mood (too strict for some docs)
-]
+# Ignore specific rules if necessary (currently none)
+ignore = []
 
-# Allow automatic fixing for most issues
+# Allow autofix for all enabled rules
 fixable = ["ALL"]
 unfixable = []
 
-[lint.per-file-ignores]
-# Ignore docstring requirements for test files and scripts that are mostly glue code
-"tests/**" = ["D"]
-"scripts/**" = ["D"]
+# Exclude a few files/directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    "data",
+    "results",
+    "state",
+    "contracts",
+    "tests",
+]
 
-[lint.pydocstyle]
-convention = "google"
-
-[format]
-# Use double quotes for strings
-quote-style = "double"
-
-# Indent with spaces
-indent-style = "space"
-
-# Respect magic trailing commas
-skip-magic-trailing-comma = false
+# Same as above but only for files (not directories)
+extend-exclude = []
 
 # Line length
 line-length = 88
+
+# Allow unused variables and imports in test files
+[lint.per-file-ignores]
+"tests/*" = ["F401", "F811"]

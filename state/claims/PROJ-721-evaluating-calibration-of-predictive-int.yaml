@@ -2313,3 +2313,625 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T01:30:53Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: M4 dataset source is official GitHub repository
+  claim_id: c_96b6fae1
+  context: 'Task T004: Fetch M4 dataset: Download M4-Dataset.zip and manifest.json
+    from the official GitHub repository (URL from research.md) to data/raw/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/M4_dataset_source_is_official_GitHub_repository
+  kind: entity_fact
+  raw_text: The M4 dataset is downloaded from the official GitHub repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:27:48Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Project dependencies include statsmodels, prophet, lightgbm, scikit-learn,
+    pandas, numpy, scipy, matplotlib, seaborn, pyyaml, pytest-json-report
+  claim_id: c_d76782d3
+  context: 'Task T002: Initialize Python project with requirements.txt (pins statsmodels,
+    prophet, lightgbm, scikit-learn, pandas, numpy, scipy, matplotlib, seaborn, pyyaml,
+    pytest-json-report).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies_include_statsmodels,_prophet,_lightgbm,
+  kind: entity_fact
+  raw_text: The project uses statsmodels, prophet, lightgbm, scikit-learn, pandas,
+    numpy, scipy, matplotlib, seaborn, pyyaml, and pytest-json-report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:28:55Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Sample representativeness metric must be at least 0.90
+  claim_id: c_caac1d0b
+  context: 'Task T013a: ... VERIFY that the sample represents >=90% of the original
+    distribution (SC-005) and FAIL the task if the metric is < 0.90.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_representativeness_metric_must_be_at_least_0.90
+  kind: magnitude
+  raw_text: The sample must represent at least 90% of the original M4 dataset distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:29:52Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: ETS model uses additive trend and additive seasonality
+  claim_id: c_9cfc0944
+  context: 'Task T005b: Implement ETS wrapper: ... Use trend=''add'', seasonal=''add''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ETS_model_uses_additive_trend_and_additive_seasonality
+  kind: entity_fact
+  raw_text: The ETS model uses additive trend and additive seasonality.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:30:37Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Prophet model uses multiplicative seasonality and changepoint prior scale
+    0.05
+  claim_id: c_bc2a0601
+  context: 'Task T005c: Implement Prophet wrapper: ... Use seasonality_mode=''multiplicative'',
+    changepoint_prior_scale=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Prophet model uses multiplicative seasonality mode and a changepoint
+    prior scale of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:30:59Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Trend strength variance ratio threshold is 0.5
+  claim_id: c_6e143938
+  context: 'Task T007: ... and trend strength derivation (variance ratio > 0.5).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trend_strength_variance_ratio_threshold_is_0.5
+  kind: magnitude
+  raw_text: The trend strength derivation uses a variance ratio threshold greater
+    than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:31:59Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 1000 series in 6 hours
+  claim_id: c_a82f12b4
+  context: 'Phase 3 Goal: Ingest M4, fit models, generate intervals, compute coverage,
+    and output results for 1000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to process 1000 time series within 6 hours of
+    CPU time.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:32:24Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Series selection criteria is length greater than 50
+  claim_id: c_6ddf5f94
+  context: 'Task T013b: ... Criteria: Select series with length > 50 to ensure sufficient
+    data for training/test split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Series_selection_criteria_is_length_greater_than_50
+  kind: magnitude
+  raw_text: The pipeline selects series with a length greater than 50 for the 1000-series
+    subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:33:07Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Prediction intervals generated for horizons 1 to 12
+  claim_id: c_6052341f
+  context: 'Task T015: ... generate prediction intervals for horizons h=1 to 12 at
+    nominal levels defined in config.yaml (0.80, 0.95).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prediction intervals are generated for horizons from 1 to 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:33:42Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: FDR correction uses Benjamini-Hochberg method
+  claim_id: c_d6c29f87
+  context: 'Task T017: ... apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests
+    with method=''fdr_bh''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_uses_Benjamini-Hochberg_method
+  kind: entity_fact
+  raw_text: Statistical significance testing applies the Benjamini-Hochberg FDR correction
+    method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:34:16Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Recalibration gate threshold is 0.02
+  claim_id: c_9cdba6bb
+  context: 'Task T040: ... Check if the initial calibration assessment ... exceeds
+    the threshold value 0.02 (derived from SC-002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gating logic triggers recalibration if the deviation exceeds a threshold
+    of 0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:34:41Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Stratified sampling by frequency and seasonality with seed 42
+  claim_id: c_4d8fb5e7
+  context: T013a [P] Implement data loading and sampling logic in code/download.py.
+    Select a representative set of series using stratified sampling by 'frequency'
+    and 'seasonality' (seed=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a representative set of series using stratified sampling by 'frequency'
+    and 'seasonality' (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:35:58Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Nominal levels configured as 0.80 and 0.95
+  claim_id: c_b342d1aa
+  context: 'Create config.yaml in the project root with keys: learning_rate, step_size,
+    initial_alpha, nominal_levels (list: [0.80, 0.95]), threshold (float: 0.02), seed
+    (int 42), and sensitivity_range (list of floats for sweep).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'nominal_levels (list: [0.80, 0.95])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:36:41Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Threshold configured as 0.02
+  claim_id: c_f2548974
+  context: 'Create config.yaml in the project root with keys: learning_rate, step_size,
+    initial_alpha, nominal_levels (list: [0.80, 0.95]), threshold (float: 0.02), seed
+    (int 42), and sensitivity_range (list of floats for sweep).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'threshold (float: 0.02)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:37:58Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Random seed configured as 42
+  claim_id: c_788f92cd
+  context: 'Create config.yaml in the project root with keys: learning_rate, step_size,
+    initial_alpha, nominal_levels (list: [0.80, 0.95]), threshold (float: 0.02), seed
+    (int 42), and sensitivity_range (list of floats for sweep).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed (int 42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:38:22Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: ETS model configured with additive trend and additive seasonality
+  claim_id: c_d5fd8172
+  context: Implement code/models/ets_model.py using statsmodels.tsa.exponential_smoothing.ETSModel.
+    Use trend='add', seasonal='add'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ETS_model_configured_with_additive_trend_and_additive_season
+  kind: entity_fact
+  raw_text: Use trend='add', seasonal='add'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:39:13Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Prophet model configured with multiplicative seasonality and changepoint
+    prior scale 0.05
+  claim_id: c_60aa7c3d
+  context: Implement code/models/prophet_model.py using prophet.Prophet. Use seasonality_mode='multiplicative',
+    changepoint_prior_scale=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seasonality_mode='multiplicative', changepoint_prior_scale=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:39:33Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied with method fdr_bh
+  claim_id: c_eb99c3e3
+  context: "Generate raw p-values for hypothesis testing (models \xD7 horizons) and\
+    \ apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests\
+    \ with method='fdr_bh'."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_applied_with_method_fdr_bh
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests
+    with method='fdr_bh'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:40:11Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Prediction intervals generated for horizons 1 to 12
+  claim_id: c_2263eed7
+  context: Invoke models defined in T005a-d to generate prediction intervals for horizons
+    h=1 to 12 at nominal levels defined in config.yaml (0.80, 0.95).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate prediction intervals for horizons h=1 to 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:40:38Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: 'Series selection criteria: length greater than 50'
+  claim_id: c_04e9f33b
+  context: 'Execute full 1000-series pipeline: Select the high-volume subset from
+    T013a output. Criteria: Select series with length > 50 to ensure sufficient data
+    for training/test split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Series_selection_criteria:_length_greater_than_50
+  kind: magnitude
+  raw_text: Select series with length > 50 to ensure sufficient data for training/test
+    split.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:41:17Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 1000 series within 6 hours CPU time
+  claim_id: c_2f6c04ce
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for 1000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for 1000 series within 6h CPU.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:42:20Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Runtime limit set to 21600 seconds for 1000-series pipeline
+  claim_id: c_a14b17a5
+  context: Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow logs
+    for the 1000-series subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow
+    logs for the 1000-series subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:42:20Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap test used for recalibration verification
+  claim_id: c_b2856986
+  context: Implement a paired bootstrap test with A large number of resamples in code/metrics.py
+    to verify recalibration improvement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_bootstrap_test_used_for_recalibration_verification
+  kind: entity_fact
+  raw_text: Implement a paired bootstrap test with A large number of resamples in
+    code/metrics.py to verify recalibration improvement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:43:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: M4 dataset used for evaluation
+  claim_id: c_0bad64e7
+  context: 'Fetch M4 dataset: Download M4-Dataset.zip and manifest.json from the official
+    GitHub repository to data/raw/.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The M4 extended and replicated the results of the previous three competitions,
+        using an extended and diverse set of time series to identify the most accurate
+        forecasting method(s) for different types of predictions. It aimed to get
+        answers on how to improve forecasting accuracy and identify the most appropriate
+        methods for each case. To get precise and compelling answers, the M4 Competition
+        utilized 100,000 real-life series, and incorporates all major forecasting
+        methods, including those based on Artificial Intelligence (Machine Learning,
+        ML), as well as traditional statistical ones.
+      source_id: Makridakis Competitions
+      url: https://en.wikipedia.org/wiki/Makridakis_Competitions
+      value: 100,000
+    filled: true
+  kind: entity_fact
+  raw_text: The M4 dataset is used for the evaluation.
+  resolved_value: 100,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T15:52:56Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: nominal coverage levels 0.80 and 0.95
+  claim_id: c_278f6064
+  context: 'Create config.yaml with keys including nominal_levels (list: [0.80, 0.95]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal coverage levels are 0.80 and 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:53:37Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: sample representativeness metric must be >= 0.90
+  claim_id: c_10fafaaf
+  context: VERIFY that the sample represents >=90% of the original distribution (SC-005)
+    and FAIL the task if the metric is < 0.90.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/sample_representativeness_metric_must_be_%3E=_0.90
+  kind: magnitude
+  raw_text: The sample must represent at least 90% of the original distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:54:40Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: trend strength variance ratio > 0.5
+  claim_id: c_aad8b4b2
+  context: Implement code/stratify.py for STL decomposition and trend strength derivation
+    (variance ratio > 0.5).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/trend_strength_variance_ratio_%3E_0.5
+  kind: magnitude
+  raw_text: Trend strength is derived using a variance ratio greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:55:49Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: pipeline processes 1000 series
+  claim_id: c_fa032362
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for 1000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must process 1000 series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:56:47Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_06b21bf9
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for 1000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours of CPU time.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:57:17Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: maximum runtime 21600 seconds
+  claim_id: c_ddea98f6
+  context: Add a GitHub Actions step to assert runtime < 6h (21600s) in workflow logs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum runtime limit in seconds is 21600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:57:47Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: prediction intervals generated for horizons 1 to 12
+  claim_id: c_574f53b3
+  context: Invoke models defined in T005a-d to generate prediction intervals for horizons
+    h=1 to 12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prediction intervals are generated for horizons h=1 to 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:57:48Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction method fdr_bh
+  claim_id: c_aa135654
+  context: Generate raw p-values for hypothesis testing and apply Benjamini-Hochberg
+    (BH) FDR correction using statsmodels.stats.multitest.multipletests with method='fdr_bh'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_method_fdr_bh
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg FDR correction is applied using method='fdr_bh'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T15:58:10Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: ARIMA model order d=1
+  claim_id: c_4ea1cbdc
+  context: Implement code/models/arima_model.py using statsmodels.tsa.arima.model.ARIMA.
+    Use order=(,,1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ARIMA model uses an order with d=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T16:00:27Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Prophet changepoint_prior_scale 0.05
+  claim_id: c_2e64de41
+  context: Implement code/models/prophet_model.py using prophet.Prophet. Use changepoint_prior_scale=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Prophet model uses a changepoint_prior_scale of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T16:01:11Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: ETS model additive trend and additive seasonality
+  claim_id: c_6dd5afd5
+  context: Implement code/models/ets_model.py using statsmodels.tsa.exponential_smoothing.ETSModel.
+    Use trend='add', seasonal='add'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ETS_model_additive_trend_and_additive_seasonality
+  kind: entity_fact
+  raw_text: The ETS model uses additive trend and additive seasonality.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T16:01:13Z'

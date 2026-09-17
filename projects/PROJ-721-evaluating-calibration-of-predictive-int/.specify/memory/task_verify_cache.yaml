@@ -1,13 +1,53 @@
+T011:
+  c: false
+  h: 458ab585cea2c734e145a6a3aeee5dae80efed5819cc228c9a2373a31d63ad4d
+  r: "The repository contains a partially\u2011written `tests/contract/test_coverage_schema.py`,\
+    \ but the file is truncated (e.g., the last test method is incomplete) and it\
+    \ expects a real `results/coverage.csv` file rather than a mock JSON as the task\
+    \ specifies. No mock JSON file is provided, and there is no evidence that the\
+    \ test was executed against such a mock. The required artifact (a complete contract\
+    \ test that validates the schema using a mock JSON) is therefore missing."
 T012:
   c: false
   h: 5d0bfed5a02410e80c1174dcec153ecd937d0d4aa8d5d60043f6a3855c7b51d1
   r: "The required file `tests/integration/test_mini_pipeline.py` does not exist in\
     \ the repository, so the integration test artifact is missing entirely. Without\
     \ this test file, the task\u2019s requirement is not satisfied."
-T013a:
+T013c:
   c: false
-  h: 3ae0313f8531e1e436496c69138bc243b8518646080dc3a63cd35652f9af4c3a
-  r: "The repository lacks the required `data/processed/sampling_report.json` file,\
-    \ and the provided `code/download.py` does not contain any implementation of stratified\
-    \ sampling or generation of the sampling report. Consequently, the task\u2019\
-    s deliverable and verification criteria are not satisfied."
+  h: 2f6554a85f1867fcc7b70c7cfdd0495a0257000d6e50d652a717cb6f90671a38
+  r: "The required deliverable `data/processed/sample_indices_10.csv` does not exist\
+    \ on disk, so the sub\u2011sample selection task has not been provided. The missing\
+    \ file must be created and populated with the appropriate indices to satisfy the\
+    \ requirement."
+T014:
+  c: false
+  h: 6912a0b930d4f1d0e6f6783ceae67612ee0fb0188cb3c5832cbbca041171cda7
+  r: "The required input file `data/processed/sample_indices_1000.csv` is missing,\
+    \ so the script cannot select the 1000\u2011series subset. Additionally, the provided\
+    \ `run_pipeline.py` is truncated and does not show the full loop with short\u2011\
+    series skipping and model\u2011convergence error handling, nor any evidence that\
+    \ `state/errors.log` is created after a test run. Both the input artifact and\
+    \ the complete orchestration logic are absent."
+T015:
+  c: false
+  h: a28d58f33d59df7c652db0180bd234e9fef951298b1276db04ef7dbfe50b646f
+  r: "The required input `data/processed/sample_indices_1000.csv` is missing, and\
+    \ there is no artifact (e.g., CSV/JSON) showing prediction intervals generated\
+    \ for all series and horizons. Without the input data and the interval output,\
+    \ the task\u2019s core requirement is not satisfied."
+T016:
+  c: false
+  h: 87e0864774cd8fe54f5ecefd8b5488d1a1fcc2aa4ab9d73578c3330d63cab140
+  r: "The repository contains `code/metrics.py` with an `empirical_coverage` function,\
+    \ but the required output file `results/coverage_intermediate.csv` is missing,\
+    \ and there is no code that generates this CSV for each series/model/horizon.\
+    \ Consequently, the task\u2019s core deliverable (the coverage CSV) is not present."
+T018:
+  c: false
+  h: 1b997108f30229497cfc0b64f509706dbe920339400784968731bb7d22a7d5ca
+  r: "The required `results/sensitivity_analysis.csv` file does not exist, so no output\
+    \ data was produced. Additionally, the configuration uses `sensitivity_thresholds`\
+    \ instead of the specified `sensitivity_range`, indicating the loop\u2019s parameters\
+    \ are not set as required. Both the artifact and the config key need to be provided\
+    \ correctly."

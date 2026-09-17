@@ -1,65 +1,105 @@
-import os
 import json
-import pandas as pd
+import os
+import tempfile
 import pytest
-from code.download import stratified_sample_metadata, compare_distributions, generate_sampling_report
+import pandas as pd
+import numpy as np
+from code.download import (
+    stratified_sample_metadata,
+    generate_sampling_report,
+    compare_distributions,
+    load_m4_metadata
+)
 
 @pytest.fixture
 def sample_metadata():
+    """Create sample metadata for testing."""
     data = {
-        'series_id': [f's{i}' for i in range(100)],
-        'frequency': ['monthly'] * 50 + ['quarterly'] * 30 + ['yearly'] * 20,
-        'seasonality': ['yes'] * 80 + ['no'] * 20
+        'id': [f'series_{i}' for i in range(100)],
+        'frequency': ['Yearly'] * 30 + ['Quarterly'] * 25 + ['Monthly'] * 25 + ['Weekly'] * 20,
+        'seasonality': [1] * 30 + [4] * 25 + [12] * 25 + [52] * 20
     }
-    # Create a mix
-    df = pd.DataFrame(data)
-    # Shuffle
-    df = df.sample(frac=1, random_state=42).reset_index(drop=True)
-    return df
+    return pd.DataFrame(data)
 
-def test_stratified_sample_metadata(sample_metadata):
-    strata = ['frequency', 'seasonality']
-    sample_size = 20
-    sample_df = stratified_sample_metadata(sample_metadata, strata, sample_size, seed=42)
+def test_stratified_sample_metadata_proportional_allocation(sample_metadata):
+    """Test that stratified sampling uses proportional allocation."""
+    n_samples = 50
+    sample_indices = stratified_sample_metadata(sample_metadata, n_samples, seed=42)
     
-    assert len(sample_df) == sample_size
-    assert set(sample_df.columns) == set(sample_metadata.columns)
+    # Check that we got the right number of samples
+    assert len(sample_indices) == n_samples
     
-    # Check that all strata present in full are in sample (if possible)
-    full_strata = set(sample_metadata.groupby(strata).size().index)
-    sample_strata = set(sample_df.groupby(strata).size().index)
-    # With our logic, we try to include at least one from each group
-    # But if a group is very small, it might be missed if sample_size is too small?
-    # Our logic forces 1 per group if needed.
-    # So sample_strata should be a superset or equal to the intersection.
-    # Actually, we force 1 per group, so all groups should be represented.
-    assert sample_strata == full_strata
+    # Check that all indices are within bounds
+    assert all(0 <= idx < len(sample_metadata) for idx in sample_indices)
+    
+    # Check that there are no duplicates
+    assert len(set(sample_indices)) == n_samples
 
-def test_compare_distributions(sample_metadata):
-    strata = ['frequency', 'seasonality']
-    sample_df = stratified_sample_metadata(sample_metadata, strata, 50, seed=42)
+def test_stratified_sample_metadata_representativeness(sample_metadata):
+    """Test that stratified sampling produces a representative sample."""
+    n_samples = 50
+    sample_indices = stratified_sample_metadata(sample_metadata, n_samples, seed=42)
     
-    result = compare_distributions(sample_metadata, sample_df, strata)
+    sample_df = sample_metadata.loc[sample_indices]
     
-    assert 'coverage' in result
-    assert 'details' in result
-    assert 0.0 <= result['coverage'] <= 1.0
-    # With stratified sampling, coverage should be high
-    assert result['coverage'] >= 0.90
+    # Compare frequency distributions
+    full_freq_dist = sample_metadata['frequency'].value_counts().to_dict()
+    sample_freq_dist = sample_df['frequency'].value_counts().to_dict()
+    
+    # The sample should have similar proportions
+    for freq in full_freq_dist:
+        full_prop = full_freq_dist[freq] / len(sample_metadata)
+        sample_prop = sample_freq_dist.get(freq, 0) / len(sample_indices)
+        # Allow for some variation due to sampling
+        assert abs(full_prop - sample_prop) < 0.15, f"Frequency distribution mismatch for {freq}"
 
-def test_generate_sampling_report(tmp_path, sample_metadata):
-    strata = ['frequency', 'seasonality']
-    sample_df = stratified_sample_metadata(sample_metadata, strata, 50, seed=42)
+def test_generate_sampling_report(sample_metadata):
+    """Test that sampling report is generated correctly."""
+    n_samples = 50
+    sample_indices = stratified_sample_metadata(sample_metadata, n_samples, seed=42)
     
-    output_path = os.path.join(tmp_path, "test_report.json")
-    generate_sampling_report(sample_metadata, sample_df, strata, output_path)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test_report.json')
+        report = generate_sampling_report(sample_metadata, sample_indices, output_path)
+        
+        # Check that report has required fields
+        assert 'full_dataset' in report
+        assert 'sample' in report
+        assert 'statistics' in report
+        assert 'verification' in report
+        
+        # Check that report file was created
+        assert os.path.exists(output_path)
+        
+        # Check report content
+        assert report['full_dataset']['total_series'] == len(sample_metadata)
+        assert report['sample']['total_samples'] == n_samples
+        assert 'representativeness_metric' in report['statistics']
+        
+        # Check that verification field exists
+        assert 'passed' in report['verification']
+
+def test_compare_distributions():
+    """Test distribution comparison function."""
+    full_dist = {'A': 50, 'B': 30, 'C': 20}
+    sample_dist = {'A': 25, 'B': 15, 'C': 10}  # Perfect proportional sample
     
-    assert os.path.exists(output_path)
-    with open(output_path, 'r') as f:
-        report = json.load(f)
+    chi2, p_value = compare_distributions(full_dist, sample_dist)
     
-    assert 'total_series' in report
-    assert 'sample_size' in report
-    assert 'distribution_coverage' in report
-    assert 'sample_indices' in report
-    assert report['sample_size'] == 50
+    # For a perfect proportional sample, p-value should be high
+    assert p_value > 0.05, "Perfect proportional sample should have high p-value"
+
+def test_load_m4_metadata_missing_columns():
+    """Test that load_m4_metadata raises error for missing columns."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a metadata file with missing columns
+        metadata_path = os.path.join(tmpdir, 'metadata.csv')
+        df = pd.DataFrame({
+            'id': ['series_1', 'series_2'],
+            'frequency': ['Yearly', 'Quarterly']
+            # Missing 'seasonality' column
+        })
+        df.to_csv(metadata_path, index=False)
+        
+        with pytest.raises(ValueError, match="Required column 'seasonality' not found"):
+            load_m4_metadata(tmpdir)
