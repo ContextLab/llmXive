@@ -3,11 +3,11 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up-extending-lens-rethink"
+name = "llmxive-lens-followup"
 version = "0.1.0"
-description = "Follow-up study extending 'Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo'"
+description = "Extended Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "xgboost",
     "scikit-learn",
@@ -21,57 +21,36 @@ dependencies = [
     "torch",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff",
-    "black",
-    "pytest",
-    "pytest-cov",
-]
-
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
+skip-magic-trailing-comma = false
 
 [tool.ruff]
+# Inherits from .ruff.toml but provides project-level defaults
 line-length = 88
-target-version = "py311"
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-ignore = [
-    "E501",
-    "E731",
-    "B008",
-]
-fixable = ["ALL"]
-unfixable = []
-exclude = [
-    ".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg", ".mypy_cache",
-    ".nox", ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv",
-    "__pypackages__", "_build", "buck-out", "build", "dist", "node_modules", "venv",
-]
-
-[tool.ruff.isort]
-known-first-party = ["code", "tests", "specs"]
-force-sort-within-sections = false
-lines-after-imports = 2
+target-version = "py39"
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code", "code.utils", "code.models", "code.data", "code.tests", "code.tests.contract"]

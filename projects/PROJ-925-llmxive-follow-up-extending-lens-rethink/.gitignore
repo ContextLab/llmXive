@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -19,7 +23,20 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.hypothesis/
 
 # Virtual environments
 .venv/
@@ -33,26 +50,16 @@ env/
 *.swp
 *.swo
 
-# Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-
-# Logs
-logs/
-*.log
-
-# State
-state/
-
-# Results
-results/
-
-# Jupyter
-.ipynb_checkpoints
-*.ipynb
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific
+data/raw/*.parquet
+data/raw/*.csv
+data/processed/*
+results/*
+state/*
+logs/*
+*.log
+.pytest_cache/

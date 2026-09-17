@@ -1,38 +1,73 @@
 """
-Custom exception classes for the llmXive project.
+Unified error handling utilities for the llmXive pipeline.
 
-Defines specific error types for schema validation, configuration, and model inference.
+This module provides standardized error classes and factory functions
+to ensure consistent error messaging across the project, enforcing
+the "Single Source of Truth" principle for error handling.
 """
+from typing import Optional
+
 
 class DataSchemaError(Exception):
     """
-    Raised when a dataset or schema validation fails.
+    Exception raised when dataset or schema validation fails.
     
-    This error is used to enforce strict data contracts (FR-003).
-    It specifically handles missing datasets or columns.
+    This error is used to indicate missing required datasets, columns,
+    or schema mismatches. It enforces a unified error message format.
     """
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
+    pass
 
 
 class ConfigurationError(Exception):
-    """
-    Raised when there is an error in project configuration.
-    
-    Examples: Missing config file, invalid seed, incorrect path settings.
-    """
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
+    """Exception raised for configuration-related errors."""
+    pass
 
 
 class ModelInferenceError(Exception):
+    """Exception raised when model inference fails."""
+    pass
+
+
+def create_missing_dataset_error(source: str, column: str) -> DataSchemaError:
     """
-    Raised when model inference fails (e.g., timeout, model loading error).
+    Factory function to create a standardized DataSchemaError.
     
-    Used to distinguish between data issues and model/runtime issues.
+    This function ensures that all missing dataset/column errors
+    follow the unified message pattern required by the contracts.
+    
+    Args:
+        source: The dataset or data source name (e.g., 'pick-a-pic')
+        column: The missing column name (e.g., 'human_rating')
+        
+    Returns:
+        DataSchemaError with the standardized message format:
+        "Missing required dataset or column: {source}/{column}"
     """
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
+    message = f"Missing required dataset or column: {source}/{column}"
+    return DataSchemaError(message)
+
+
+def create_configuration_error(message: str) -> ConfigurationError:
+    """
+    Factory function to create a standardized ConfigurationError.
+    
+    Args:
+        message: The error description
+        
+    Returns:
+        ConfigurationError with the provided message
+    """
+    return ConfigurationError(message)
+
+
+def create_model_inference_error(message: str) -> ModelInferenceError:
+    """
+    Factory function to create a standardized ModelInferenceError.
+    
+    Args:
+        message: The error description
+        
+    Returns:
+        ModelInferenceError with the provided message
+    """
+    return ModelInferenceError(message)

@@ -1,29 +1,75 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Significance Results Schema
-description: >
-  Schema for the output of the permutation importance and Benjamini-Hochberg correction.
+description: Schema for the output of permutation importance and sensitivity analysis.
 type: object
-required:
-  - type
-  - properties
 properties:
-  type:
-    type: string
-    const: object
-  properties:
+  model_config:
     type: object
-    required:
-      - feature_name
-      - importance_score
-      - p_value
-      - is_significant
     properties:
-      feature_name:
+      model_type:
         type: string
-      importance_score:
-        type: number
-      p_value:
-        type: number
-      is_significant:
-        type: boolean
-additionalProperties: false
+      n_estimators:
+        type: integer
+      max_depth:
+        type: integer
+      random_seed:
+        type: integer
+    required:
+      - model_type
+      - random_seed
+  permutation_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        mean_decrease:
+          type: number
+        std_decrease:
+          type: number
+        p_value:
+          type: number
+        is_significant:
+          type: boolean
+        adjusted_p_value:
+          type: number
+      required:
+        - feature_name
+        - mean_decrease
+        - p_value
+        - adjusted_p_value
+        - is_significant
+  sensitivity_analysis:
+    type: object
+    properties:
+      alpha_sweep_results:
+        type: object
+        description: Results aggregated across alpha thresholds {0.01, 0.05, 0.1}
+      seed_sweep_results:
+        type: object
+        description: Results aggregated across random seeds
+      noise_sensitivity_results:
+        type: object
+        description: Results aggregated across noise injection levels
+    required:
+      - alpha_sweep_results
+      - seed_sweep_results
+  metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      total_samples:
+        type: integer
+      significant_features_count:
+        type: integer
+    required:
+      - timestamp
+      - total_samples
+required:
+  - model_config
+  - permutation_importance
+  - sensitivity_analysis
+  - metadata

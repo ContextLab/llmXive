@@ -1,3 +1,5 @@
 """
-Utility functions and helpers
+Utility modules for llmXive.
+
+Contains logging, validation, and helper functions.
 """

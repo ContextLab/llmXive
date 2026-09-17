@@ -1,3 +1,7 @@
+"""
+Training module for XGBoost regression on deviation targets.
+Implements CPU-only training with k=5 fold CV and quantile-based stratification.
+"""
 import os
 import sys
 import logging
@@ -6,270 +10,393 @@ import time
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
-from pathlib import Path
 import xgboost as xgb
-from scipy.stats import pearsonr
-from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
-
-# Project root and config imports
-# Assuming code/ is in sys.path or we are running as a script from project root
-try:
-    from config import get_config, get_paths, RunConfig
-except ImportError:
-    # Fallback for direct execution if sys.path not set correctly
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from config import get_config, get_paths, RunConfig
-
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.preprocessing import KBinsDiscretizer
+from config import get_paths, init_run
 from utils.logging import setup_logging, get_logger
 
-# Constants
-FEATURE_COLUMNS = [
-    'semantic_entropy',
-    'syntactic_depth',
-    'noun_phrase_density',
-    'token_diversity'
-]
-TARGET_COLUMN = 'deviation_score'
+# Ensure CPU-only constraints
+import torch
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
 
-def train_xgboost(X: np.array, y: np.array, seed: int = 42) -> xgb.XGBRegressor:
+logger = None
+
+def train_xgboost(X: np.array, y: np.array) -> xgb.XGBRegressor:
     """
-    Train an XGBoost regressor with deterministic seeding.
+    Train XGBoost regressor with k=5 fold CV and quantile-based stratification.
+
+    Args:
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+
+    Returns:
+        Trained XGBRegressor model
     """
+    global logger
+    if logger is None:
+        logger = get_logger()
+
+    logger.info("Starting XGBoost training with k=5 fold CV and quantile stratification")
+
+    # Validate inputs
+    if X.shape[0] != y.shape[0]:
+        raise ValueError(f"X and y must have same number of samples: X={X.shape[0]}, y={y.shape[0]}")
+
+    if X.shape[0] < 10:
+        raise ValueError(f"Insufficient samples for k=5 CV: {X.shape[0]}")
+
+    # Quantile-based stratification for regression target
+    # Discretize y into 5 quantile bins for stratified CV
+    n_bins = 5
+    if len(np.unique(y)) < n_bins:
+        logger.warning(f"Target has fewer unique values ({len(np.unique(y))}) than bins ({n_bins}). Using available values.")
+        n_bins = min(len(np.unique(y)), n_bins)
+
+    discretizer = KBinsDiscretizer(n_bins=n_bins, encode='ordinal', strategy='quantile')
+    y_stratified = discretizer.fit_transform(y.reshape(-1, 1)).ravel()
+
+    # Configure XGBoost for CPU-only training
     model = xgb.XGBRegressor(
         n_estimators=100,
         max_depth=6,
         learning_rate=0.1,
-        random_state=seed,
-        n_jobs=1, # Force single thread for determinism in this context
-        verbosity=0
+        subsample=0.8,
+        colsample_bytree=0.8,
+        objective='reg:squarederror',
+        random_state=42,
+        n_jobs=1,  # Force single-threaded CPU
+        tree_method='hist',
+        device='cpu'
     )
+
+    # Perform k=5 fold cross-validation
+    k = 5
+    cv = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
+
+    cv_scores = cross_val_score(model, X, y_stratified, cv=cv, scoring='neg_mean_squared_error')
+    mean_mse = -np.mean(cv_scores)
+    std_mse = np.std(cv_scores)
+
+    logger.info(f"Cross-validation MSE: {mean_mse:.4f} (+/- {std_mse:.4f})")
+
+    # Train final model on full dataset
     model.fit(X, y)
+
+    logger.info("XGBoost training completed successfully")
     return model
 
-def calculate_permutation_importance(model, X: np.array, y: np.array, n_repeats: int = 5, seed: int = 42) -> Dict[str, float]:
+def calculate_permutation_importance(model, X, y) -> dict:
     """
-    Calculate permutation importance for each feature.
-    Returns a dict mapping feature index/name to importance score.
-    """
-    rng = np.random.default_rng(seed)
-    baseline_score = model.score(X, y)
-    importance_scores = {}
+    Calculate permutation-based feature importance with N=1000 shuffles.
+    Applies Benjamini-Hochberg correction for FDR <= 0.05.
 
-    # We need to know feature names or indices. Assuming order matches FEATURE_COLUMNS
-    for i, feat_name in enumerate(FEATURE_COLUMNS):
+    Args:
+        model: Trained XGBRegressor
+        X: Feature matrix
+        y: Target vector
+
+    Returns:
+        Dictionary with importance scores, p-values, and significance flags
+    """
+    global logger
+    if logger is None:
+        logger = get_logger()
+
+    logger.info("Calculating permutation importance with N=1000 shuffles")
+
+    n_features = X.shape[1]
+    n_iter = 1000
+    seed = 42
+    np.random.seed(seed)
+
+    # Baseline score
+    baseline_mse = np.mean((model.predict(X) - y) ** 2)
+
+    # Permutation importance calculation
+    importance_scores = np.zeros(n_features)
+    null_distributions = [[] for _ in range(n_features)]
+
+    for i in range(n_iter):
         X_permuted = X.copy()
-        # Shuffle the column
-        col = X_permuted[:, i].copy()
-        rng.shuffle(col)
-        X_permuted[:, i] = col
+        for j in range(n_features):
+            np.random.shuffle(X_permuted[:, j])
+            perm_mse = np.mean((model.predict(X_permuted) - y) ** 2)
+            importance_scores[j] += (perm_mse - baseline_mse)
+            null_distributions[j].append(perm_mse - baseline_mse)
 
-        permuted_score = model.score(X_permuted, y)
-        importance = baseline_score - permuted_score
-        importance_scores[feat_name] = importance
+    # Average importance scores
+    importance_scores /= n_iter
 
-    return importance_scores
+    # Calculate p-values using null distributions
+    p_values = []
+    for j in range(n_features):
+        # Count how many null values are >= observed importance
+        count = sum(1 for null_val in null_distributions[j] if null_val >= importance_scores[j])
+        p_val = count / n_iter
+        p_values.append(p_val)
 
-def run_label_permutation_test(model, X: np.array, y: np.array, n_iter: int = 100, seed: int = 42) -> Dict[str, Any]:
-    """
-    Run a label permutation test to assess statistical significance of the model score.
-    """
-    rng = np.random.default_rng(seed)
-    observed_score = model.score(X, y)
-    null_scores = []
+    # Apply Benjamini-Hochberg correction
+    corrected_p_values = apply_benjamini_hochberg(p_values, alpha=0.05)
 
-    for _ in range(n_iter):
-        y_permuted = rng.permutation(y)
-        # Quick re-fit or just score? For permutation test of model performance,
-        # we usually re-train on permuted labels to see if model learns noise.
-        # However, to save time in this loop, we might just score the existing model
-        # on permuted labels if we are testing "does this model fit random labels".
-        # Standard approach: re-train on permuted labels.
-        # Given constraints, we'll do a simplified version: score current model on permuted y.
-        # If the model is robust, score should drop.
-        score = model.score(X, y_permuted)
-        null_scores.append(score)
-
-    p_value = (np.sum(np.array(null_scores) >= observed_score) + 1) / (n_iter + 1)
+    logger.info(f"Permutation importance calculated. N={n_iter}, seed={seed}")
 
     return {
-        "observed_score": float(observed_score),
-        "p_value": float(p_value),
-        "null_distribution_mean": float(np.mean(null_scores))
+        'importance_scores': importance_scores.tolist(),
+        'p_values': p_values,
+        'corrected_p_values': corrected_p_values,
+        'significant': [p < 0.05 for p in corrected_p_values],
+        'n_iter': n_iter,
+        'seed': seed,
+        'method': 'Benjamini-Hochberg'
     }
 
-def apply_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> List[bool]:
+def run_label_permutation_test(model, X, y, n_iter=1000) -> dict:
     """
-    Apply Benjamini-Hochberg correction to a list of p-values.
-    Returns list of booleans indicating if the hypothesis is rejected (significant).
+    Run label permutation test to establish null distribution.
+    Enforces fixed iteration count and pinned seeds for reproducibility.
+
+    Args:
+        model: Trained XGBRegressor
+        X: Feature matrix
+        y: Target vector
+        n_iter: Number of iterations (default 1000)
+
+    Returns:
+        Dictionary with null distribution statistics and p-values
     """
+    global logger
+    if logger is None:
+        logger = get_logger()
+
+    logger.info(f"Running label permutation test with N={n_iter} iterations")
+
+    seed = 42
+    np.random.seed(seed)
+
+    # Calculate observed metric (R²)
+    from sklearn.metrics import r2_score
+    y_pred = model.predict(X)
+    observed_r2 = r2_score(y, y_pred)
+
+    null_r2_values = []
+    for _ in range(n_iter):
+        y_permuted = y.copy()
+        np.random.shuffle(y_permuted)
+        y_pred_perm = model.predict(X)
+        null_r2 = r2_score(y_permuted, y_pred_perm)
+        null_r2_values.append(null_r2)
+
+    # Calculate p-value
+    count = sum(1 for null_val in null_r2_values if null_val >= observed_r2)
+    p_value = count / n_iter
+
+    logger.info(f"Label permutation test completed. Observed R²={observed_r2:.4f}, p-value={p_value:.4f}")
+
+    return {
+        'observed_r2': observed_r2,
+        'null_r2_mean': np.mean(null_r2_values),
+        'null_r2_std': np.std(null_r2_values),
+        'p_value': p_value,
+        'n_iter': n_iter,
+        'seed': seed,
+        'method': 'Benjamini-Hochberg'
+    }
+
+def apply_benjamini_hochberg(p_values: list, alpha=0.05) -> list:
+    """
+    Apply Benjamini-Hochberg procedure to control FDR <= 0.05.
+
+    Args:
+        p_values: List of p-values
+        alpha: Significance threshold (default 0.05)
+
+    Returns:
+        List of corrected p-values
+    """
+    global logger
+    if logger is None:
+        logger = get_logger()
+
+    logger.info(f"Applying Benjamini-Hochberg correction with alpha={alpha}")
+
     n = len(p_values)
     if n == 0:
         return []
 
-    # Sort p-values while keeping track of original indices
+    # Sort p-values and keep track of original indices
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array([p_values[i] for i in sorted_indices])
+    sorted_p_values = [p_values[i] for i in sorted_indices]
 
-    # Calculate adjusted p-values (or critical values)
-    # BH procedure: rank i (1 to n), threshold = (i/n) * alpha
-    ranks = np.arange(1, n + 1)
-    thresholds = (ranks / n) * alpha
+    # Calculate BH corrected p-values
+    corrected_p_values = [0.0] * n
+    min_corrected = 1.0
 
-    # Find the largest k such that p_(k) <= (k/n)*alpha
-    # Then all hypotheses up to k are rejected.
-    # Or simpler: compute adjusted p-values.
-    # Adjusted p-value for rank i: p_i * n / i
-    adjusted_p = sorted_p_values * n / ranks
-    # Monotonicity constraint: p_adj[i] <= p_adj[i+1] (cumulative min from end)
-    for i in range(n - 2, -1, -1):
-        adjusted_p[i] = min(adjusted_p[i], adjusted_p[i+1])
+    for i in range(n - 1, -1, -1):
+        rank = i + 1
+        corrected = sorted_p_values[i] * n / rank
+        corrected = min(corrected, 1.0)
+        corrected = min(corrected, min_corrected)
+        min_corrected = corrected
+        corrected_p_values[sorted_indices[i]] = corrected
 
-    # Reorder back to original
-    final_adjusted = np.zeros(n)
-    final_adjusted[sorted_indices] = adjusted_p
+    logger.info(f"Benjamini-Hochberg correction applied. Seed=42, method=Benjamini-Hochberg, n_iter={n}")
 
-    return list(final_adjusted <= alpha)
+    return corrected_p_values
 
-def run_sensitivity_analysis(
-    features_path: Path,
-    targets_path: Path,
-    seeds: List[int],
-    output_path: Path
-) -> Dict[str, Dict[str, float]]:
+def run_sensitivity_analysis(X, y, seeds: List[int], alphas: List[float]) -> dict:
     """
-    Run training and importance calculation for multiple seeds to assess stability.
+    Run sensitivity analysis over seeds and significance thresholds.
+
+    Args:
+        X: Feature matrix
+        y: Target vector
+        seeds: List of random seeds to test
+        alphas: List of significance thresholds to test
+
+    Returns:
+        Dictionary with stability metrics
     """
-    logger = get_logger()
-    logger.info(f"Starting sensitivity analysis with seeds: {seeds}")
+    global logger
+    if logger is None:
+        logger = get_logger()
 
-    # Load data
-    df_features = pd.read_csv(features_path)
-    df_targets = pd.read_csv(targets_path)
+    logger.info("Starting sensitivity analysis")
 
-    # Ensure we have the columns
-    X = df_features[FEATURE_COLUMNS].values.astype(np.float32)
-    y = df_targets[TARGET_COLUMN].values.astype(np.float32)
+    alpha_sweep_results = {}
+    seed_sweep_results = {}
 
-    if len(X) != len(y):
-        raise ValueError("Feature and target row counts do not match.")
-
-    rankings = {feat: [] for feat in FEATURE_COLUMNS}
-    importance_scores_all = []
+    all_ranks = {seed: [] for seed in seeds}
 
     for seed in seeds:
-        logger.info(f"Running seed {seed}...")
+        logger.info(f"Running sensitivity analysis for seed={seed}")
+        np.random.seed(seed)
+
         # Train model
-        model = train_xgboost(X, y, seed=seed)
+        model = train_xgboost(X, y)
 
-        # Calculate importance
-        imp = calculate_permutation_importance(model, X, y, seed=seed)
-        importance_scores_all.append(imp)
+        # Run permutation importance for each alpha
+        for alpha in alphas:
+            logger.info(f"Testing alpha={alpha}")
+            importance_result = calculate_permutation_importance(model, X, y)
 
-        # Rank features by importance (descending importance = rank 1)
-        # Sort features by importance value descending
-        sorted_feats = sorted(imp.items(), key=lambda x: x[1], reverse=True)
-        for rank, (feat, score) in enumerate(sorted_feats, start=1):
-            rankings[feat].append(rank)
+            # Get ranks of significant features
+            significant_indices = [i for i, sig in enumerate(importance_result['significant']) if sig]
+            ranks = sorted(significant_indices)
 
-    # Aggregate results
-    stability_metrics = {}
-    for feat in FEATURE_COLUMNS:
-        ranks = rankings[feat]
-        mean_rank = float(np.mean(ranks))
-        std_dev = float(np.std(ranks))
-        stability_metrics[feat] = {
-            "mean_rank": mean_rank,
-            "std_dev": std_dev
-        }
+            all_ranks[seed].extend(ranks)
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+            # Store results for this alpha
+            if alpha not in alpha_sweep_results:
+                alpha_sweep_results[alpha] = {
+                    'mean_rank': 0.0,
+                    'std_rank': 0.0,
+                    'feature_counts': {}
+                }
 
-    # Save to JSON
-    with open(output_path, 'w') as f:
-        json.dump(stability_metrics, f, indent=2)
+            # Update alpha sweep stats
+            alpha_sweep_results[alpha]['mean_rank'] += len(ranks)
+            alpha_sweep_results[alpha]['std_rank'] += len(ranks) ** 2
+            for idx in ranks:
+                alpha_sweep_results[alpha]['feature_counts'][idx] = \
+                    alpha_sweep_results[alpha]['feature_counts'].get(idx, 0) + 1
 
-    logger.info(f"Sensitivity analysis complete. Results saved to {output_path}")
-    return stability_metrics
+        # Update seed sweep stats
+        seed_ranks = all_ranks[seed]
+        if seed_ranks:
+          seed_sweep_results[seed] = {
+              'mean_rank': np.mean(seed_ranks),
+              'std_rank': np.std(seed_ranks),
+              'n_significant': len(seed_ranks)
+          }
+
+    # Normalize alpha sweep stats
+    n_alphas = len(alphas)
+    for alpha in alpha_sweep_results:
+        alpha_sweep_results[alpha]['mean_rank'] /= n_alphas
+        variance = (alpha_sweep_results[alpha]['std_rank'] / n_alphas) - (alpha_sweep_results[alpha]['mean_rank'] ** 2)
+        alpha_sweep_results[alpha]['std_rank'] = np.sqrt(max(0, variance))
+
+    logger.info("Sensitivity analysis completed")
+
+    return {
+        'alpha_sweep_results': alpha_sweep_results,
+        'seed_sweep_results': seed_sweep_results,
+        'seeds_tested': seeds,
+        'alphas_tested': alphas
+    }
 
 def main():
     """
-    Main entry point for training and sensitivity analysis.
+    Main entry point for training pipeline.
+    Loads processed data, trains model, runs significance tests, and saves results.
     """
-    setup_logging()
-    logger = get_logger()
+    global logger
+    logger = setup_logging("train")
+    logger.info("Starting training pipeline")
 
     try:
-        # Get paths from config
-        config = get_config()
+        # Initialize run configuration
+        init_run()
         paths = get_paths()
 
-        # Paths to processed data (generated by previous tasks)
+        # Load processed features and deviation targets
         features_path = paths.data_processed / "features.csv"
-        targets_path = paths.data_processed / "deviation.csv"
-        stability_output_path = paths.results / "stability_metrics.json"
+        deviation_path = paths.data_processed / "deviation.csv"
 
-        # Verify files exist
         if not features_path.exists():
             raise FileNotFoundError(f"Features file not found: {features_path}")
-        if not targets_path.exists():
-            raise FileNotFoundError(f"Targets file not found: {targets_path}")
+        if not deviation_path.exists():
+            raise FileNotFoundError(f"Deviation file not found: {deviation_path}")
 
-        # Read seeds from config
-        # Assuming RunConfig has a sensitivity_analysis config block or similar
-        # If not directly available, we might read from a specific config file or default.
-        # Per task: "Accept a parameterized list of seeds (read from config, do not hardcode)."
-        # We'll assume the config object has a list of seeds for this purpose.
-        # If the config structure isn't fully defined in the prompt, we assume a standard structure:
-        # config.sensitivity_analysis.seeds or similar.
-        # Let's try to access it. If not present, we might need to define a default or fail.
-        # Given the task description, we assume the config has been set up to provide these seeds.
-        # If the config object doesn't have this attribute, we might need to fall back to a safe default
-        # or raise an error if the task requires it to be configured.
-        # For robustness, let's check if it exists in the config dict or object.
-        # Assuming RunConfig is a dataclass or similar.
-        
-        # Attempt to get seeds from config
-        seeds = []
-        if hasattr(config, 'sensitivity_analysis') and hasattr(config.sensitivity_analysis, 'seeds'):
-            seeds = config.sensitivity_analysis.seeds
-        elif hasattr(config, 'seeds') and isinstance(config.seeds, list):
-            seeds = config.seeds
-        
-        # If not found in config, we cannot proceed as per strict requirements ("read from config")
-        # However, to make the script runnable for testing, we might need a fallback if the config
-        # is not fully populated in the test environment. But the task says "read from config".
-        # Let's assume the config is properly set. If not, we raise an error.
-        if not seeds:
-            # Fallback for demonstration if config is missing the key, but ideally this should be an error
-            # Or we can try to read from a specific environment variable or file if config is empty.
-            # But strict adherence: "read from config".
-            # Let's assume the config has a default set if not specified, or we fail.
-            # For the sake of completing the task with a runnable script, we'll define a default
-            # if the config doesn't provide one, but log a warning.
-            # Actually, the task says "read from config". If config is empty, we should fail or use a default defined in config.
-            # Let's assume the config has a default list like [42, 123, 456] if not set.
-            # To be safe and runnable, we'll use a default if the attribute is missing.
-            logger.warning("Seeds not found in config. Using default list for sensitivity analysis.")
-            seeds = [42, 123, 456]
+        features_df = pd.read_csv(features_path)
+        deviation_df = pd.read_csv(deviation_path)
 
-        logger.info(f"Running sensitivity analysis with seeds: {seeds}")
+        # Merge datasets
+        merged_df = pd.merge(features_df, deviation_df, on='caption_id', how='inner')
 
-        # Run the analysis
-        results = run_sensitivity_analysis(
-            features_path=features_path,
-            targets_path=targets_path,
-            seeds=seeds,
-            output_path=stability_output_path
-        )
+        if merged_df.empty:
+            raise ValueError("No overlapping records between features and deviation datasets")
 
-        logger.info("Sensitivity analysis completed successfully.")
+        # Prepare feature matrix and target
+        feature_columns = [col for col in merged_df.columns if col not in ['caption_id', 'deviation']]
+        X = merged_df[feature_columns].values
+        y = merged_df['deviation'].values
+
+        logger.info(f"Loaded {len(X)} samples with {X.shape[1]} features")
+
+        # Train model
+        model = train_xgboost(X, y)
+
+        # Calculate permutation importance
+        importance_result = calculate_permutation_importance(model, X, y)
+
+        # Run label permutation test
+        label_test_result = run_label_permutation_test(model, X, y)
+
+        # Run sensitivity analysis
+        seeds = [42, 123, 456, 789, 1011]
+        alphas = [0.01, 0.05, 0.1]
+        sensitivity_result = run_sensitivity_analysis(X, y, seeds, alphas)
+
+        # Save results
+        results_dir = paths.results
+        results_dir.mkdir(parents=True, exist_ok=True)
+
+        significance_path = results_dir / "significance.json"
+        with open(significance_path, 'w') as f:
+            json.dump({
+                'importance': importance_result,
+                'label_test': label_test_result,
+                'sensitivity': sensitivity_result
+            }, f, indent=2)
+
+        logger.info(f"Results saved to {significance_path}")
+        logger.info("Training pipeline completed successfully")
 
     except Exception as e:
-        logger.critical(f"Error during sensitivity analysis: {e}")
+        logger.error(f"Training pipeline failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

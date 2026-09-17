@@ -1,10 +1,45 @@
-T012:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or commit diff were provided showing that the data loader\u2019\
-    s `try/except` blocks generating synthetic data were removed, nor any demonstration\
-    \ that fetch errors now raise explicit exceptions. Without such artifacts, we\
-    \ cannot confirm the loader fails loudly as required."
+  r: No evidence of the requested directory hierarchy (`projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/`
+    with the specified subfolders) is present; the implementer did not provide any
+    file or folder listing to confirm the structure exists. The task therefore remains
+    unfinished.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or other evidence were provided to show that the required
+    `data/raw`, `data/processed`, `code`, `code/tests`, `code/utils`, `code/models`,
+    and `docs` folders actually exist at the project root. Without such artifacts,
+    we cannot confirm the structure was created as specified.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no linting or formatting configuration files (e.g.,\
+    \ .ruff.toml, .flake8, pyproject.toml with black settings, or pre\u2011commit\
+    \ hook definitions). Without these artifacts, the requirement to configure ruff/flake8\
+    \ and black is not satisfied. The next implementer must add the appropriate configuration\
+    \ files and ensure they are functional."
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No contracts were found in `specs/001-llmxive-follow-up-extending-lens-rethink/contracts/`
+    (no dataset, feature_vector, deviation_target, or significance_results files),
+    and the required `DataSchemaError` message is not present. The implementer provided
+    only a textual description, not the actual schema files or error definition.
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/tests/contract/` directory or the expected test files (`test_dataset_schema.py`,
+    `test_feature_vector_schema.py`) are present in the provided evidence, so the
+    required scaffolding for contract validation tests has not been delivered.
+T009:
+  c: false
+  h: a2fa3226bb7680dcbd94975a3b5805c65f834a840677b2230553213d1239a162
+  r: The repository contains `code/data/download.py`, but the required output file
+    `data/raw/pick-a-pic.parquet` is absent, indicating the dataset was not materialized
+    to disk. Without this file the downstream task cannot checksum it, so the core
+    requirement is unmet.
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,6 +47,34 @@ T014b:
     was run against the Constitution Enforcement (T043/T045) checks and that results
     were recorded. The required validation artifact and its output are missing, so
     the task is not satisfied.
+T015b:
+  c: false
+  h: f630d2d4ab75e551749ee6212b9417643f5a4459f2a59c4e25d17f2ee99f7edf
+  r: The `data/logs/exclusions.log` file is present, but the required output `data/processed/exclusion_summary.json`
+    does not exist, so the aggregation and writing step was never completed. The missing
+    JSON file must be created with the correct counts for each exclusion reason.
+T018a:
+  c: false
+  h: 6ab9b37aa23e6b768615e000e03dc91c7fc387e9afa2a592b61c3ac1d18af696
+  r: "The `validation.py` file exists but it does not implement the required pydantic\u2011\
+    based validation, does not check for raw dataset availability or the presence\
+    \ of a `human_rating` column, and the referenced `feature_vector.schema.yaml`\
+    \ file is missing from the repository. Consequently the task\u2019s specifications\
+    \ are not met."
+T018b:
+  c: true
+  h: fcfdae175873694714539dc932b47b0328acca4dc15545fed9de7e4b75072cc2
+  r: "The repository contains a non\u2011empty `code/data/features.py` that loads\
+    \ the T009 output (parquet or JSONL), invokes the feature extraction function,\
+    \ calls the T018a validation routine, and is set up to write the results to `data/processed/features.csv`.\
+    \ The required script wrapper is present and implements the specified steps."
+T025b:
+  c: false
+  h: 4a2af49b8d7e0804fb049481f3b741c0d9cee929449edfd96d293431411c8330
+  r: The `code/data/preprocess.py` script exists, but the required output file `data/processed/deviation.csv`
+    is missing, so the wrapper does not actually produce the validated CSV as the
+    task demands. The implementer must ensure the script runs and creates the `deviation.csv`
+    file according to the contract.
 T033:
   c: false
   h: 354e078bcc6f427efa472bbcda701c5207cb69a2b41a258cf4d24799f51856f1

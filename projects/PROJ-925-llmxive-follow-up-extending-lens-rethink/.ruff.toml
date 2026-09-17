@@ -1,51 +1,48 @@
-# Ruff configuration for llmXive follow-up project
-# Enforces PEP 8 compliance and project-specific rules
+# Ruff configuration for llmXive project
+# Enforces PEP 8 compliance, security checks, and project-specific rules
 
 [lint]
-# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+# Enable all relevant rule sets
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "RUF",    # Ruff-specific rules
+    "T20",    # flake8-print (forbid print statements in production)
+    "TCH",    # flake8-type-checking
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "N",      # pep8-naming
+]
+
+# Ignore specific rules that are too strict for this research context
 ignore = [
-    "E501",  # Line too long (handled by Black)
-    "E731",  # Do not assign a lambda expression, use a def
-    "B008",  # Do not perform function call in argument defaults (common in Pydantic)
+    "E501",   # line-too-long (handled by black)
+    "B008",   # do not perform function calls in argument defaults (common in dataclasses)
+    "ARG001", # unused-arguments (needed for interface compatibility)
+    "N806",   # variable-in-class-scope (research code flexibility)
 ]
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
+# Allow print statements only in tests
+allowed-confusables = []
 
-# Exclude a few specific directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Per-file ignores
-per-file-ignores = {}
-
-# Assume Python 3.11
-target-version = "py311"
+[lint.per-file-ignores]
+"code/tests/*" = ["T201"]  # Allow print in tests
+"code/data/download.py" = ["T201"]  # Allow print for download progress
+"code/setup_project.py" = ["T201"]  # Allow print for setup messages
 
 [lint.isort]
-known-first-party = ["code", "tests", "specs"]
-force-sort-within-sections = false
-lines-after-imports = 2
+known-first-party = ["code", "utils", "models", "data", "tests"]
+force-single-line = true
+lines-between-types = 1
+
+[format]
+# Black-compatible formatting
+line-length = 88
+indent-width = 4
+quote-style = "double"
+skip-magic-trailing-comma = false

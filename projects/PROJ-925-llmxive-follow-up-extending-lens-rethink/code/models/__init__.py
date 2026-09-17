@@ -1,11 +1,5 @@
 """
-Models package initialization.
-"""
-from .caption_record import CaptionRecord, CaptionRecordModel
-from .linguistic_feature_vector import LinguisticFeatureVector
+Model definitions for llmXive.
 
-__all__ = [
-    "CaptionRecord",
-    "CaptionRecordModel",
-    "LinguisticFeatureVector",
-]
+Contains data models and Pydantic schemas.
+"""

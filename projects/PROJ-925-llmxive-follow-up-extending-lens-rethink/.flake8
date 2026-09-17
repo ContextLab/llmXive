@@ -1,14 +1,35 @@
 [flake8]
+# flake8 configuration for llmXive project
+# Compatible with black formatting (88 char line length)
 max-line-length = 88
-extend-ignore = E203, E501
-exclude =
+extend-ignore = E203, E501, W503
+
+# Exclude directories
+exclude = 
     .git,
     __pycache__,
+    .venv,
+    venv,
     build,
     dist,
-    .eggs,
     *.egg-info,
-    .venv,
-    venv
+    .eggs,
+    data/raw,
+    data/processed,
+    results,
+    archive,
+    state,
+    docs,
+    specs
+
+# Per-file ignores
 per-file-ignores =
-    __init__.py:F401
+    code/tests/*: T201, N802
+    code/data/download.py: T201
+    code/setup_project.py: T201
+
+# Maximum complexity for cyclomatic complexity check
+max-complexity = 15
+
+# Enable additional plugins
+enable-extensions = G, T20, B
