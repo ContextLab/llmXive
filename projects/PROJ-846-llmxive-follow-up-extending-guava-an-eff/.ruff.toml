@@ -1,4 +1,47 @@
-# Extend the main pyproject.toml configuration if specific overrides are needed per directory,
-# but for now, we rely on the pyproject.toml. This file exists to ensure ruff
-# can be explicitly pointed to this project root if needed via `ruff check --config .ruff.toml`.
-extend = "pyproject.toml"
+# Ruff configuration for llmXive project
+# Basic linting rules to ensure code quality and consistency
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+
+# Ignore specific rules if necessary
+ignore = [
+    "E501",  # Line too long (handled by Black)
+    "W191",  # Indentation contains tabs (handled by Black)
+]
+
+# Allow unused variables in certain contexts (e.g., function arguments)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files
+"tests/**/*.py" = ["S101"]  # Allow assert statements in tests
+"code/utils/logger.py" = ["B028"]  # Allow stacklevel warnings if needed
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Use Unix line endings
+line-ending = "lf"
+
+# Target Python 3.11+
+target-version = "py311"
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["data", "models", "utils", "analysis"]
+force-single-line = false
+lines-after-imports = 2

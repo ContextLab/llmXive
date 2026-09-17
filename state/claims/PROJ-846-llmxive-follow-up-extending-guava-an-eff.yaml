@@ -444,3 +444,662 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T15:57:15Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: processing time less than or equal to 150 milliseconds per frame on CPU
+  claim_id: c_190efff7
+  context: "The pipeline runs on a subset of trajectories. Output JSON contains valid\
+    \ bounding boxes/class labels. Processing time \u2264 150ms/frame on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_time_less_than_or_equal_to_150_milliseconds_per_f
+  kind: magnitude
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:31:42Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: fine-tuning loss decrease greater than or equal to 15 percent within
+    4 hours on CPU
+  claim_id: c_4301c8b9
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_loss_decrease_greater_than_or_equal_to_15_percen
+  kind: magnitude
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:32:13Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: baseline guava visual model loaded from Hugging Face ID guava/visual-baseline
+  claim_id: c_e9914203
+  context: Implement inference_baseline.py to run the Baseline-Guava (visual) agent
+    (load pre-trained Guava visual model from Hugging Face ID guava/visual-baseline
+    or local checkpoint defined in code/models/config.py).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_guava_visual_model_loaded_from_Hugging_Face_ID_guav
+  kind: entity_fact
+  raw_text: Load pre-trained Guava visual model from Hugging Face ID guava/visual-baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:32:36Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: ratio of semantic failures to total failures excluding perception and
+    latency failures
+  claim_id: c_1a5de869
+  context: Implement logic to calculate the ratio of semantic failures to total failures
+    excluding perception and latency failures, and write the result to data/artifacts/sc004_verification.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ratio_of_semantic_failures_to_total_failures_excluding_perce
+  kind: entity_fact
+  raw_text: Calculate the ratio of semantic failures to total failures excluding perception
+    and latency failures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:33:10Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: research conclusion derived from semantic failure ratio calculation output
+  claim_id: c_a1b89ea4
+  context: "Note: This task calculates and reports the metric; it does NOT enforce\
+    \ the \u226540% threshold as a code pass/fail. The research conclusion is derived\
+    \ from this output."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_conclusion_derived_from_semantic_failure_ratio_calc
+  kind: entity_fact
+  raw_text: The research conclusion is derived from the output of the semantic failure
+    ratio calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:33:54Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: GPU run used for validation only not for reporting primary metrics
+  claim_id: c_e0de7e4a
+  context: If GPU is used, log 'CPU convergence failed' to data/artifacts/gpu_escape_log.json
+    and mark the primary CPU constraint (FR-003) as NOT MET. The GPU run is for validation
+    only, not for reporting primary metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPU_run_used_for_validation_only_not_for_reporting_primary_m
+  kind: entity_fact
+  raw_text: GPU run is for validation only, not for reporting primary metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:34:21Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Baseline-Guava visual model sourced from Hugging Face ID guava/visual-baseline
+  claim_id: c_3880addf
+  context: T032a [US3] Implement ... to run the Baseline-Guava (visual) agent (load
+    pre-trained Guava visual model from Hugging Face ID 'guava/visual-baseline' or
+    local checkpoint defined in code/models/config.py) on the same set of tasks for
+    comparison against the Symbolic agent (FR-004, SC-001, Spec Requirement).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline-Guava_visual_model_sourced_from_Hugging_Face_ID_gua
+  kind: entity_fact
+  raw_text: load pre-trained Guava visual model from Hugging Face ID 'guava/visual-baseline'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:35:14Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Primary evaluation compares Symbolic-Guava vs Baseline-Guava visual
+  claim_id: c_b3026346
+  context: 'Baseline Correction: ... The primary evaluation compares Symbolic vs.
+    Visual (T036a).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_evaluation_compares_Symbolic-Guava_vs_Baseline-Guava
+  kind: entity_fact
+  raw_text: The primary evaluation compares Symbolic vs. Visual (T036a).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:38:56Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: 10000 permutations for statistical test
+  claim_id: c_b9a7e304
+  context: 'Statistical Robustness: T036a uses exactly 10,000 permutations as per
+    FR-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses 10,000 permutations for the permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:40:34Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Baseline-Guava model source guava/visual-baseline
+  claim_id: c_057412cd
+  context: T032a [US3] Implement ... to run the Baseline-Guava (visual) agent (load
+    pre-trained Guava visual model from Hugging Face ID guava/visual-baseline or local
+    checkpoint ...)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline-Guava_model_source_guava/visual-baseline
+  kind: entity_fact
+  raw_text: The Baseline-Guava agent is loaded from Hugging Face ID guava/visual-baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:41:53Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency less than 150ms
+  claim_id: c_9b170e21
+  context: "Independent Test: ... Processing time \u2264 150ms/frame on CPU. ... Unit\
+    \ test for YOLO-tiny inference latency (must be < 150ms) ..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_less_than_150ms
+  kind: magnitude
+  raw_text: The YOLO-tiny inference latency target is less than 150ms per frame.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:42:11Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Full dataset transformation completion time 4 hours on CPU
+  claim_id: c_82230ed0
+  context: Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour
+    full dataset completion ... If CPU training time *during* or immediately after
+    T023. If > 4h, trigger GPU script ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full dataset transformation completion time target is 4 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:42:35Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning loss decrease at least 15%
+  claim_id: c_0e514d26
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU ... Implement training monitoring to track loss decrease (target:\
+    \ \u226515% in 4h) ..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_loss_decrease_at_least_15%25
+  kind: magnitude
+  raw_text: The fine-tuning loss decrease target is at least 15%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:43:12Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Statistical significance declared if p-value less than 0.05
+  claim_id: c_7170281b
+  context: 'Report p-value and declare significance if p < 0.05 (FR-005). *Note: This
+    is the primary result required by the Spec.*'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A hypothesis is generally considered supported when the results match
+        the predicted pattern and that pattern is found to be statistically significant.
+        Under null hypothesis assumption, results are deemed statistically significant
+        when their probability falls below a predetermined threshold (the significance
+        level). This generally answers the question of how unlikely such results would
+        be by chance alone if no true effect existed in the statistical population.
+        If the probability associated with the test statistic exceeds the chosen critical
+        value, the results are considered statistically significant. The p-value represents
+        the probability of obtaining results at least as extreme as observed, assuming
+        the null hypothesis is true. The standard threshold p < 0.05 means accepting
+        a 5% false positive rate. Some fields use smaller p-values, such as p < 0.01
+        (1% chance of a false positive) or p < 0.001 (0.1% chance of a false positive).
+        But a smaller chance of a false positive often requires greater sample sizes
+        or a greater chance of a false negative (a correct hypothesis being erroneously
+        found incorrect). Although p-value testing is the most commonly used method,
+        it is not the only one.
+      source_id: Replication crisis
+      url: https://en.wikipedia.org/wiki/Replication_crisis
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: The primary statistical test declares significance if the p-value is less
+    than 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T23:43:26Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Semantic failure ratio excludes perception and latency failures
+  claim_id: c_1be376a2
+  context: T038 [US3] Implement logic to calculate the ratio of semantic failures
+    to total failures **excluding perception and latency failures** ... T038 explicitly
+    excludes perception and latency failures from the semantic ratio calculation as
+    per SC-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_failure_ratio_excludes_perception_and_latency_failu
+  kind: entity_fact
+  raw_text: The semantic failure ratio calculation excludes perception and latency
+    failures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:43:50Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Python version requirement 3.11
+  claim_id: c_84cd798e
+  context: Add Python version check script to verify Python 3.11+ is available
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version requirement is 3.11 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:44:09Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires opencv-python dependency
+  claim_id: c_fd2857f7
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_opencv-python_dependency
+  kind: entity_fact
+  raw_text: The project requires the opencv-python dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:44:47Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires onnxruntime dependency
+  claim_id: c_cc730f1a
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_onnxruntime_dependency
+  kind: entity_fact
+  raw_text: The project requires the onnxruntime dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:45:09Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires datasets dependency
+  claim_id: c_30da075f
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_datasets_dependency
+  kind: entity_fact
+  raw_text: The project requires the datasets dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:45:32Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires transformers dependency
+  claim_id: c_372ae749
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_transformers_dependency
+  kind: entity_fact
+  raw_text: The project requires the transformers dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:45:58Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires torch dependency
+  claim_id: c_e0732734
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_torch_dependency
+  kind: entity_fact
+  raw_text: The project requires the torch dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:46:19Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires scikit-learn dependency
+  claim_id: c_24c53ff5
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_scikit-learn_dependency
+  kind: entity_fact
+  raw_text: The project requires the scikit-learn dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:46:39Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires pandas dependency
+  claim_id: c_38c5b882
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_pandas_dependency
+  kind: entity_fact
+  raw_text: The project requires the pandas dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:47:03Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires numpy dependency
+  claim_id: c_d5d20eb3
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_numpy_dependency
+  kind: entity_fact
+  raw_text: The project requires the numpy dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:47:24Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Project requires pytest dependency
+  claim_id: c_06812e10
+  context: 'Create .../requirements.txt with dependencies: opencv-python, onnxruntime,
+    datasets, transformers, torch, scikit-learn, pandas, numpy, pytest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_pytest_dependency
+  kind: entity_fact
+  raw_text: The project requires the pytest dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:47:55Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Latency-induced failures excluded from success rate
+  claim_id: c_7c4341b0
+  context: 'Dynamic Environment Handling: The system handles dynamic environments
+    by logging latency-induced failures and excluding them from success rate calculations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency-induced_failures_excluded_from_success_rate
+  kind: entity_fact
+  raw_text: The system handles dynamic environments by logging latency-induced failures
+    and excluding them from success rate calculations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:50:54Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Perception latency limit is 150ms per frame on CPU
+  claim_id: c_ef0eca5b
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Independent Test for User Story 1 requires processing time \u2264\
+    \ 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:55:33Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Model convergence requires 15% loss decrease within 4 hours on CPU
+  claim_id: c_9f8047d9
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Independent Test for User Story 2 requires fine-tuning to converge\
+    \ (loss decrease \u226515%) within 4 hours on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:55:58Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Full dataset completion time limit is 4 hours
+  claim_id: c_440870a8
+  context: Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour
+    full dataset completion in projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Independent Test for User Story 2 requires a 4-hour full dataset completion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:56:19Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Symbolic output excludes raw pixel data
+  claim_id: c_c45f3c64
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU. No raw pixel data in output."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Independent Test for User Story 1 requires no raw pixel data in the
+    output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:56:49Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Null hypothesis states no difference in success rates between Symbolic-Guava
+    and Baseline-Guava visual
+  claim_id: c_6440756c
+  context: 'Null hypothesis: ''No difference in success rates between Symbolic-Guava
+    and Baseline-Guava (visual)''. Report p-value and declare significance if p <
+    0.05'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_states_no_difference_in_success_rates_betwee
+  kind: entity_fact
+  raw_text: The null hypothesis for the statistical test is 'No difference in success
+    rates between Symbolic-Guava and Baseline-Guava (visual)'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:57:30Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Baseline-Guava visual agent loaded from Hugging Face ID guava/visual-baseline
+  claim_id: c_1f9d458f
+  context: Implement `inference_baseline.py` to run the Baseline-Guava (visual) agent
+    (load pre-trained Guava visual model from Hugging Face ID `guava/visual-baseline`
+    or local checkpoint defined in `code/models/config.py`)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline-Guava_visual_agent_loaded_from_Hugging_Face_ID_guav
+  kind: entity_fact
+  raw_text: The Baseline-Guava (visual) agent is loaded from Hugging Face ID 'guava/visual-baseline'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:57:33Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Semantic failure ratio excludes perception and latency failures
+  claim_id: c_d40e3606
+  context: Implement logic to calculate the ratio of semantic failures to total failures
+    excluding perception and latency failures, and write the result to data/artifacts/sc004_verification.json
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_failure_ratio_excludes_perception_and_latency_failu
+  kind: entity_fact
+  raw_text: The semantic failure ratio calculation excludes perception and latency
+    failures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:57:34Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Success rate denominator is total tasks minus latency failures
+  claim_id: c_29095d2f
+  context: Implement verification logic to assert the final success rate denominator
+    equals `total_tasks - latency_failures`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Success_rate_denominator_is_total_tasks_minus_latency_failur
+  kind: entity_fact
+  raw_text: The success rate denominator equals total tasks minus latency failures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:58:08Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Python version requirement is 3.11 or higher
+  claim_id: c_7443a772
+  context: Add Python version check script to verify Python 3.11+ is available
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version requirement is 3.11+.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T23:58:26Z'

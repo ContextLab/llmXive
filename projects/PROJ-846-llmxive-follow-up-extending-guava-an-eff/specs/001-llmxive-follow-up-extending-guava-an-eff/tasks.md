@@ -43,28 +43,17 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project root directory: `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/` <!-- ATOMIZE: requested -->
-- [ ] T001b [P] Create code directory: `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/`
-- [ ] T001c [P] Create data directory: `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/`
-- [ ] T001d [P] Create tests directory: `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/`
+- [ ] T001a [P] Initialize git repository: Run `git init` in the root directory of the project. <!-- ATOMIZE: requested -->
+- [ ] T001b [P] Create initial commit: Create a `.gitignore` file and run `git add.` followed by `git commit -m "Initial commit"`. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T001c [P] Setup remote: Configure the remote repository URL (e.g., `git remote add origin <url>`).
 - [ ] T002a [P] Create `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/requirements.txt` with dependencies: `opencv-python`, `onnxruntime`, `datasets`, `transformers`, `torch`, `scikit-learn`, `pandas`, `numpy`, `pytest`
 - [ ] T002b [P] Add Python version check script to verify Python 3.11+ is available
-- [ ] T003 [P] Configure linting and formatting tools (ruff/black) in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/`
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-Examples of foundational tasks (adjust based on plan.md):
-
+- [ ] T003a [P] Create `.ruff.toml` configuration file with basic linting rules
+- [X] T003b [P] Create `pyproject.toml` configuration for `black` formatting tool
 - [ ] T004a [P] Create `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/raw/` with `.gitkeep`
 - [ ] T004b [P] Create `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/processed/` with `.gitkeep`
 - [ ] T004c [P] Create `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/artifacts/` with `.gitkeep`
-- [ ] T005 [P] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/state_manager.py` to update `state/projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml` with content hashes
+- [ ] T005 [P] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/state_manager.py` to update `state/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml` (repo root) with content hashes and timestamps
 - [X] T006 [P] Setup `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/config.py` for seeds, paths, and hyperparameters
 - [X] T007 [P] Create base data models (`SymbolicObservation`, `Trajectory`, `TaskOutcome`, `PerceptionLog`) in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/models.py`
 - [ ] T008 [P] Configure error handling infrastructure and `DatasetUnavailableError` exception
@@ -80,6 +69,17 @@ Examples of foundational tasks (adjust based on plan.md):
 
 **Independent Test**: The pipeline runs on a subset of trajectories. Output JSON contains valid bounding boxes/class labels. Processing time ≤ 150ms/frame on CPU. No raw pixel data in output.
 
+### Implementation for User Story 1
+
+- [ ] T013a [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/download_guava.py` to fetch raw Guava data to `data/raw/guava/` and generate `data/raw/guava/checksums.json` (raise `DatasetUnavailableError` if fetch fails; NO synthetic fallback)
+- [ ] T013b [US1] Verify `data/raw/guava/` integrity using `checksums.json` and log result
+- [X] T014 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/transform_symbolic.py` to ingest raw frames and generate `SymbolicObservation` JSONs to `data/processed/symbolic_guava/{trajectory_id}.json` (FR-001, FR-002)
+- [X] T015 [US1] Integrate OpenCV + ONNX Runtime YOLO-tiny in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/transform_symbolic.py` for object detection (class, bbox, centroid, color histogram)
+- [ ] T016 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` function `log_perception_ground_truth` to generate a continuous 'Perception Ground-Truth Log' to `data/artifacts/perception_log.json`. Output JSON schema: `{"timestamp": float, "detected_objects": [{"class": str, "bbox": [int, int, int, int], "centroid": [float, float], "color_hist": [float,...]}], "confidence_scores": [float], "object_missing_if_visible": boolean}`. **CRITICAL**: The `object_missing_if_visible` boolean MUST be derived by comparing YOLO output against the ground truth annotations in `data/raw/guava/ground_truth_annotations.json` (produced by T013). (FR-007, FR-008)
+- [ ] T017 [US1] Implement logic in `transform_symbolic.py` to handle empty frames (empty object list or "scene_empty" flag)
+- [X] T018 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` function `log_latency` to add perception latency measurements to `PerceptionLog` in `code/utils/logger.py` (FR-007, FR-008)
+- [X] T019 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/validate_perception.py` to validate YOLO precision/recall and verify the completion time constraint for the full transformation (FR-001, FR-002)
+
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
@@ -87,16 +87,6 @@ Examples of foundational tasks (adjust based on plan.md):
 - [X] T010 [P] [US1] Contract test for `SymbolicObservation` schema validation in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/contract/test_symbolic_observation.py`
 - [X] T011 [P] [US1] Integration test for full trajectory transformation in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/integration/test_transform_pipeline.py`
 - [X] T012 [P] [US1] Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour full dataset completion in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py`
-
-### Implementation for User Story 1
-
-- [ ] T013 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/download_guava.py` to fetch raw Guava data to `data/raw/guava/` and generate `data/raw/guava/checksums.json` (raise `DatasetUnavailableError` if fetch fails; NO synthetic fallback)
-- [X] T014 [P] [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/transform_symbolic.py` to ingest raw frames and generate `SymbolicObservation` JSONs to `data/processed/symbolic_guava/{trajectory_id}.json` (FR-001, FR-002)
-- [X] T015 [P] [US1] Integrate OpenCV + ONNX Runtime YOLO-tiny in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/transform_symbolic.py` for object detection (class, bbox, centroid, color histogram)
-- [ ] T016 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` function `log_perception_ground_truth` to generate a continuous 'Perception Ground-Truth Log' (`data/artifacts/perception_log.json`) for every frame, tracking `object_missing_if_visible` flags (FR-007, FR-008)
-- [ ] T017 [US1] Implement logic to handle empty frames (empty object list or "scene_empty" flag) in `transform_symbolic.py`
-- [X] T018 [P] [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` function `log_latency` to add perception latency measurements to `PerceptionLog` in `code/utils/logger.py` (FR-007, FR-008)
-- [X] T019 [US1] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/data/validate_perception.py` to validate YOLO precision/recall and verify the 4-hour completion time constraint for the full transformation (FR-001, FR-002)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,47 +98,53 @@ Examples of foundational tasks (adjust based on plan.md):
 
 **Independent Test**: Fine-tuning converges (loss decrease ≥15%) within 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input without crashing.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T020 [P] [US2] Contract test for model input format (symbolic JSON) in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/contract/test_model_input.py`
-- [X] T021 [P] [US2] Integration test for training loop convergence in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/integration/test_training_convergence.py`
-
 ### Implementation for User Story 2
 
 - [X] T022 [US2] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/train_llm.py` to load Phi-3-mini and prepare symbolic dataset
-- [~] T023 [US2] Implement LoRA fine-tuning logic using original Guava prompt templates and action abstraction schemas (FR-003)
-- [ ] T024 [US2] Implement training monitoring to track loss decrease (target: ≥15% in 4h), logging to `data/artifacts/training_metrics.json` with keys: epoch, loss, timestamp
-- [~] T025 [US2] Implement checkpoint saving mechanism for partial training runs (FR-003)
-- [~] T026 [US2] Implement GPU escape hatch logic: if CPU training time > 4h, trigger script `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/trigger_gpu_run.sh`. **CRITICAL**: If GPU is used, log "CPU convergence failed" to `data/artifacts/gpu_escape_log.json` and mark the primary CPU constraint (FR-003) as NOT MET. The GPU run is for validation only, not for reporting primary metrics.
-- [~] T027 [US2] Ensure model inference accepts `SymbolicObservation` JSON directly (no pixel tensors) in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_symbolic.py`
+- [ ] T023 [US2] Implement LoRA fine-tuning logic using original Guava prompt templates and action abstraction schemas (FR-003)
+- [ ] T024a [US2] Implement training monitoring to track loss decrease (target: ≥15% in 4h), logging to `data/artifacts/training_metrics.json` with keys: epoch, loss, timestamp
+- [ ] T024b [US2] Implement checkpoint saving mechanism for partial training runs (FR-003)
+- [ ] T025a [US2] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/verify_cpu_constraint.py` to explicitly verify and log 'CPU Constraint Met' status. If GPU escape is triggered, this task MUST mark the primary research claim as 'Spec Constraint Violated' and prevent primary metrics from being reported as valid. (FR-003)
+- [ ] T026a [US2] Implement GPU escape hatch LOGIC in `train_llm.py`: Check CPU training time *during* or immediately after T023. If > 4h, trigger GPU script and log "CPU convergence failed". **CRITICAL**: If GPU is used, log "CPU convergence failed" to `data/artifacts/gpu_escape_log.json` and mark the primary CPU constraint (FR-003) as NOT MET. The GPU run is for validation only, not for reporting primary metrics.
+- [ ] T026b [US2] Create `projects/PROJ-llmxive-follow-up-extending-guava-an-eff/code/models/trigger_gpu_run.sh` script to trigger Kaggle GPU execution if CPU training exceeds 4h
+- [ ] T027 [US2] Ensure model inference accepts `SymbolicObservation` JSON directly (no pixel tensors) in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_symbolic.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Evaluation & Statistical Comparison (Priority: P3)
+## Phase 5a: User Story 3 - Evaluation Execution (Priority: P3)
 
-**Goal**: Evaluate the Symbolic-Guava agent against the Baseline-Guava (visual) agent and perform statistical analysis.
+**Goal**: Execute the Symbolic-Guava agent and Baseline-Guava (visual) agent on held-out tasks.
 
-**Independent Test**: Evaluation runs on a held-out set of tasks. Outputs success rates, step counts, and a p-value from a Permutation Test. Failure categorization works correctly.
+**Independent Test**: Evaluation runs on a held-out set of tasks. Outputs success/failure logs.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T028 [P] [US3] Contract test for `TaskOutcome` schema in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/contract/test_task_outcome.py`
-- [X] T029 [P] [US3] Integration test for evaluation loop on tasks in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/integration/test_evaluation_loop.py`
-- [ ] T030 [P] [US3] Unit test for Permutation Test (sufficient iterations) logic in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_permutation_test.py`
-
-### Implementation for User Story 3
+### Implementation for User Story 3 (Execution)
 
 - [ ] T031 [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_symbolic.py` to run the fine-tuned Symbolic-Guava agent on a held-out set of tasks (FR-004)
-- [ ] T032a [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_baseline.py` to run the **Baseline-Guava (visual)** agent on the same set of tasks for comparison against the Symbolic agent (FR-004, SC-001, Spec Requirement).
-- [ ] T032b [P] [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_oracle.py` to run the **Oracle-Symbolic** agent (perfect policy) on the same set of tasks for secondary analysis of reasoning gaps (Plan Methodology).
+- [ ] T032a [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_baseline.py` to run the **Baseline-Guava (visual)** agent (load pre-trained Guava visual model from Hugging Face ID `guava/visual-baseline` or local checkpoint defined in `code/models/config.py`) on the same set of tasks for comparison against the Symbolic agent (FR-004, SC-001, Spec Requirement).
+- [ ] T032b [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/inference_oracle.py` to run the **Oracle-Symbolic** agent (secondary analysis) using ground-truth action sequences from `data/raw/guava/ground_truth_actions.json` (produced by T013/T014) to simulate a perfect policy (Plan Methodology).
+
+**Checkpoint**: Evaluation data generated for all agents
+
+---
+
+## Phase 5b: User Story 3 - Statistical Analysis & Reporting (Priority: P3)
+
+**Goal**: Analyze evaluation results, perform statistical tests, and verify success criteria.
+
+**Independent Test**: Analysis script produces p-value, success rates, and failure categories.
+
+### Implementation for User Story 3 (Analysis)
+
 - [ ] T033 [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/failure_categorizer.py` to categorize failures (geometric, semantic, perception, latency) using `PerceptionLog` (FR-006, FR-007)
 - [ ] T034 [US3] Implement logic to flag "latency-induced failures" (>150ms) in `TaskOutcome` records
 - [ ] T035 [US3] Implement logic to filter out latency-induced failures from the primary success rate calculation and write updated outcomes to `data/processed/evaluation_outcomes.json` (FR-008)
-- [ ] T036 [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/stats_test.py` to perform a Permutation Test with a sufficient number of iterations to ensure statistical robustness., comparing the Symbolic-Guava agent success rate against the Baseline-Guava (visual) agent success rate (FR-005).
-- [ ] T037 [US3] Implement output generation for success rate, step efficiency, p-value, and failure distribution to `data/artifacts/evaluation_results.json` (FR-005, SC-001, SC-002)
-- [ ] T038 [US3] Implement logic to calculate the ratio of semantic failures to total failures **excluding perception and latency failures**, and verify the ≥40% threshold (SC-004), writing result to `data/artifacts/sc004_verification.json`
+- [ ] T035b [US3] Implement verification logic to assert the final success rate denominator equals `total_tasks - latency_failures` and write assertion result to `data/artifacts/latency_exclusion_verified.json` (FR-008 verification). **Dependency**: Must run after T035 completes.
+- [ ] T036a [US3] **PRIMARY TASK**: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/stats_test.py` to perform a Permutation Test with a sufficient number of iterations for robust statistical inference using `scipy.stats.permutation_test`. **Primary Comparison**: Symbolic-Guava vs. Baseline-Guava (visual) as required by FR-004/SC-001. Null hypothesis: "No difference in success rates between Symbolic-Guava and Baseline-Guava (visual)". Report p-value and declare significance if p < 0.05 (Wikipedia: Replication crisis, https://en.wikipedia.org/wiki/Replication_crisis) (FR-005). *Note: This is the primary result required by the Spec.*
+- [ ] T036b [US3] **SECONDARY TASK**: Implement the Oracle-Symbolic comparison (Symbolic vs. Oracle) as a supplementary analysis. Tagged as secondary/optional per Plan Methodology, not Spec requirement.
+- [ ] T037 [US3] Implement output generation for success rate, step efficiency, p-value, and failure distribution to `data/artifacts/evaluation_results.json` (FR-005, SC-001, SC-002). **Primary Output**: Symbolic vs. Baseline (visual) metrics.
+- [ ] T038 [US3] Implement logic to calculate the ratio of semantic failures to total failures **excluding perception and latency failures**, and write the result to `data/artifacts/sc004_verification.json` in JSON format with keys: `semantic_ratio` (float), `denominator_count` (int), `excluded_count` (int). **Note**: This task calculates and reports the metric; it does NOT enforce the ≥40% threshold as a code pass/fail. The research conclusion is derived from this output. (FR-006, SC-004).
 - [ ] T039 [US3] Implement unit test for the semantic failure ratio calculation in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_semantic_ratio.py`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -159,11 +155,12 @@ Examples of foundational tasks (adjust based on plan.md):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Refactor `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` to reduce cyclomatic complexity to <10
+- [ ] T040a [P] Identify high-complexity functions in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` using `radon` tool
+- [ ] T040b [P] Refactor identified functions in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/utils/logger.py` to reduce cyclomatic complexity to <10
 - [ ] T041 [P] Update README.md with setup instructions
 - [ ] T042 [P] Create docs/quickstart.md with execution examples
 - [ ] T043 [P] Update docs/api.md with function signatures
-- [ ] T044 [P] Run `state_manager.py` to finalize project state hashes
+- [ ] T044 [P] Run `state_manager.py` to finalize project state hashes at `state/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml`
 - [ ] T045 [P] Run quickstart.md validation
 
 ---
@@ -262,6 +259,12 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: All data loading tasks MUST fail loudly if real data is unavailable. No synthetic fallbacks.
 - **Compute Constraints**: Adhere to CPU-only limits unless GPU escape hatch is triggered for training. If GPU is used, CPU constraint is considered failed.
-- **Baseline Correction**: T032a implements the **Baseline-Guava (visual)** agent as required by the Spec (FR-004). T032b implements the **Oracle-Symbolic** agent as per the Plan's secondary analysis. The primary evaluation compares Symbolic vs. Visual.
-- **Statistical Robustness**: T036 uses exactly 10,000 permutations as per FR-005.
+- **Baseline Correction**: T032a implements the **Baseline-Guava (visual)** agent as required by the Spec (FR-004). T032b implements the **Oracle-Symbolic** agent as per the Plan's secondary analysis. The primary evaluation compares Symbolic vs. Visual (T036a).
+- **Statistical Robustness**: T036a uses exactly 10,000 permutations as per FR-005.
 - **Failure Logic**: T038 explicitly excludes perception and latency failures from the semantic ratio calculation as per SC-004.
+- **Dynamic Environment Handling**: The system handles dynamic environments by logging latency-induced failures and excluding them from success rate calculations.
+- **GPU Fallback Logic**: T026 ensures the GPU escape hatch is only triggered for training if the CPU limit is exceeded, with explicit logging to prevent metric misreporting.
+- **Permutation Test Robustness**: T036a uses `scipy.stats.permutation_test` with a defined null hypothesis.
+- **Semantic Failure Validation**: T038 calculates the ratio; the research conclusion (pass/fail) is derived from the output.
+- **Latency Threshold Enforcement**: T035b verifies that tasks exceeding 150ms latency are correctly flagged and excluded.
+- **Primary vs. Secondary Comparison**: The Spec (FR-004, SC-001) explicitly mandates a comparison against the Baseline-Guava (visual) agent. T036a implements this as the PRIMARY result. The Oracle-Symbolic analysis (T036b) is performed as a secondary, supplementary analysis only. The Plan's "Critical Methodological Shift" is noted but does not override the Spec's mandatory requirement.

@@ -45,7 +45,7 @@ The research team MUST be able to execute the Symbolic-Guava agent on a held-out
 
 **Why this priority**: This delivers the final answer to the research question: "Does symbolic perception suffice?" It provides the quantitative evidence needed to validate or refute the hypothesis.
 
-**Independent Test**: The evaluation script must run the agent on 50 tasks, record binary success/failure for each, and output a p-value indicating statistical significance (or lack thereof).
+**Independent Test**: The evaluation script must run the agent on a representative set of tasks., record binary success/failure for each, and output a p-value indicating statistical significance (or lack thereof).
 
 **Acceptance Scenarios**:
 
@@ -69,7 +69,7 @@ The research team MUST be able to execute the Symbolic-Guava agent on a held-out
 - **FR-002**: System MUST transform the original Guava training trajectories (<2,000) into a Symbolic-Guava dataset format compatible with the LLM input schema, replacing pixel tensors with JSON objects (See US-1).
 - **FR-003**: System MUST fine-tune a 1.5B parameter open-source LLM (e.g., Phi-3-mini) on the Symbolic-Guava dataset using the original Guava prompt templates and action abstraction schemas, ensuring convergence (≥15% loss decrease) within 4 hours on a CPU-only runner (See US-2).
 - **FR-004**: System MUST evaluate the fine-tuned Symbolic-Guava agent on a held-out split of 50 long-horizon tasks from the original Guava dataset to measure task success rate and step efficiency (See US-3).
-- **FR-005**: System MUST perform a Permutation Test (10,000 iterations) to compare the success rates of the Symbolic-Guava agent against the Baseline-Guava agent, reporting a p-value with a significance threshold of p < 0.05 (See US-3).
+- **FR-005**: System MUST perform a Permutation Test with a sufficient number of iterations to compare the success rates of the Symbolic-Guava agent against the Baseline-Guava agent, reporting a p-value with a significance threshold of p < 0.05 (See US-3).
 - **FR-006**: System MUST categorize task failures into "geometric" (misalignment, collision), "semantic" (wrong object, texture confusion), or "perception failure" (object missed) based on the Perception Ground-Truth Log (See US-3).
 - **FR-007**: System MUST record a "Perception Ground-Truth Log" for every frame, capturing raw detection confidence and a boolean flag for "object_missing_if_visible" to enable accurate failure categorization (See US-3).
 - **FR-008**: System MUST measure perception latency per frame; if latency > 150ms, the task is flagged as "latency-induced failure" and excluded from the primary success rate calculation (See US-3).
@@ -96,8 +96,8 @@ The research team MUST be able to execute the Symbolic-Guava agent on a held-out
 ## Assumptions
 
 - The original Guava dataset (<2,000 trajectories) is publicly available and contains sufficient visual data to train a YOLO-tiny model for object detection in the simulated environment.
-- A lightweight open-source LLM (e.g., Phi-3-mini) can be fine-tuned and run for inference on a standard CPU-only GitHub Actions runner (2 cores, ~7 GB RAM) within the 4-hour limit without requiring GPU acceleration.
+- A lightweight open-source LLM (e.g., Phi-mini) can be fine-tuned and run for inference on a standard CPU-only GitHub Actions runner (a limited number of cores, ~7 GB RAM) within the 4-hour limit without requiring GPU acceleration.
 - The simulated environment (e.g., Franka) used for evaluation is compatible with CPU-only execution and provides a deterministic physics engine for measuring task success.
 - The symbolic representation (bounding boxes + color histograms) is sufficient to describe the state of tasks involving geometric primitives (stacking, opening drawers) but may lack the fidelity required for texture-based tasks.
-- The YOLO-tiny model, when quantized and run via ONNX Runtime on CPU, achieves inference speeds sufficient to process the trajectory frames within the 150ms time constraint.
+- The YOLO-tiny model, when quantized and run via ONNX Runtime on CPU, achieves inference speeds sufficient to process the trajectory frames within a real-time time constraint.
 - The original Guava prompt templates and action abstraction schemas are compatible with symbolic JSON inputs without requiring structural modification.

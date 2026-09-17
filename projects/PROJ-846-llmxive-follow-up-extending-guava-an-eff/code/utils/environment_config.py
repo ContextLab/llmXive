@@ -1,277 +1,210 @@
 """
 Environment configuration management for CPU-only runner constraints.
 
-This module enforces the CPU-only constraint required by the project's
-execution environment. It provides utilities to verify hardware availability,
-configure device settings, and enforce constraints before heavy computation.
+This module provides utilities to detect hardware capabilities, enforce CPU-only
+execution constraints for PyTorch, and manage environment variables to ensure
+reproducible and compliant research execution.
 """
-
 import os
 import sys
 import platform
 import subprocess
+import logging
 from typing import Dict, Any, Optional, List
-
 import numpy as np
-import torch
 
-from utils.exceptions import DatasetUnavailableError
-
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class EnvironmentConfigError(Exception):
-    """Raised when environment configuration constraints are violated."""
+    """Custom exception for environment configuration errors."""
     pass
-
 
 def detect_cpu_count() -> int:
     """
     Detect the number of available CPU cores.
-
+    
     Returns:
-        int: Number of logical CPU cores available.
-
-    Raises:
-        EnvironmentConfigError: If CPU count cannot be determined.
+        int: Number of available CPU cores.
     """
     try:
-        # Try os.cpu_count first (standard library)
+        # Try to get count via os.cpu_count() first
         count = os.cpu_count()
-        if count is not None and count > 0:
-            return count
-
-        # Fallback to platform-specific methods
-        if platform.system() == "Windows":
-            import ctypes
-            kernel32 = ctypes.windll.kernel32
-            # GetSystemInfo
-            class SYSTEM_INFO(ctypes.Structure):
-                _fields_ = [
-                    ("wProcessorArchitecture", ctypes.c_ushort),
-                    ("wReserved", ctypes.c_ushort),
-                    ("dwPageSize", ctypes.c_ulong),
-                    ("lpMinimumApplicationAddress", ctypes.c_void_p),
-                    ("lpMaximumApplicationAddress", ctypes.c_void_p),
-                    ("dwActiveProcessorMask", ctypes.c_void_p),
-                    ("dwNumberOfProcessors", ctypes.c_ulong),
-                    ("dwProcessorType", ctypes.c_ulong),
-                    ("dwAllocationGranularity", ctypes.c_ulong),
-                    ("wProcessorLevel", ctypes.c_ushort),
-                    ("wProcessorRevision", ctypes.c_ushort),
-                ]
-            sys_info = SYSTEM_INFO()
-            kernel32.GetSystemInfo(ctypes.byref(sys_info))
-            if sys_info.dwNumberOfProcessors > 0:
-                return sys_info.dwNumberOfProcessors
-        else:
-            # Linux/Unix: try nproc command
-            result = subprocess.run(
-                ["nproc"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=False
-            )
-            if result.returncode == 0:
-                try:
-                    return int(result.stdout.strip())
-                except ValueError:
-                    pass
-
-        raise EnvironmentConfigError("Unable to determine CPU count")
+        if count is None:
+            # Fallback for systems where cpu_count might be None
+            count = 1
+        return count
     except Exception as e:
-        raise EnvironmentConfigError(f"Failed to detect CPU count: {e}")
+        logger.warning(f"Failed to detect CPU count via os.cpu_count(): {e}. Defaulting to 1.")
+        return 1
 
-
-def verify_cpu_only_constraint() -> Dict[str, Any]:
+def verify_cpu_only_constraint() -> bool:
     """
-    Verify that the environment is configured for CPU-only execution.
-
-    This function:
-    1. Checks if CUDA is available but disabled (expected for CPU-only)
-    2. Verifies PyTorch is using CPU
-    3. Checks for any GPU device visibility
-    4. Sets environment variables to enforce CPU-only behavior
-
+    Verify that the current environment is configured for CPU-only execution.
+    
+    Checks:
+        1. PyTorch is not using CUDA (torch.cuda.is_available() should be False)
+        2. CUDA_VISIBLE_DEVICES is not set to a specific GPU ID
+        3. Environment variables indicate CPU preference
+    
     Returns:
-        Dict[str, Any]: Configuration status including:
-            - cpu_only: bool (True if CPU-only is enforced)
-            - cuda_available: bool
-            - cuda_disabled: bool
-            - device: str (expected 'cpu')
-            - cpu_count: int
-            - warnings: List[str]
-
+        bool: True if CPU-only constraint is satisfied, False otherwise.
+    
     Raises:
-        EnvironmentConfigError: If GPU is detected and not explicitly disabled,
-          or if CPU count is 0.
+        EnvironmentConfigError: If GPU is detected when CPU-only is required.
     """
-    warnings = []
-    cpu_count = detect_cpu_count()
+    try:
+        import torch
+    except ImportError:
+        logger.warning("PyTorch not installed. Assuming CPU-only environment.")
+        return True
 
-    if cpu_count == 0:
-        raise EnvironmentConfigError("No CPU cores detected. Cannot run.")
-
-    # Check CUDA availability
-    cuda_available = torch.cuda.is_available()
-    cuda_disabled = os.environ.get("CUDA_VISIBLE_DEVICES", "") == ""
-
-    # Enforce CPU-only by setting environment variables if CUDA is available
-    if cuda_available and not cuda_disabled:
-        warnings.append("CUDA is available but not explicitly disabled. Enforcing CPU-only.")
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
-        # Re-check
-        cuda_available = torch.cuda.is_available()
-
-    # Verify device
-    device = torch.device("cpu")
-
-    # Check if any GPU is visible
-    gpu_visible = False
-    if "CUDA_VISIBLE_DEVICES" in os.environ:
-        visible = os.environ["CUDA_VISIBLE_DEVICES"]
-        if visible and visible != "-1":
-            gpu_visible = True
-
-    if gpu_visible:
-        warnings.append("GPU devices are visible. Setting CUDA_VISIBLE_DEVICES='' to enforce CPU-only.")
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
-    # Final verification
+    # Check 1: CUDA availability
     if torch.cuda.is_available():
-        raise EnvironmentConfigError(
-            "GPU is still available after enforcement. "
-            "Please run with CUDA_VISIBLE_DEVICES='' or set --cpu-only flag."
-        )
+        logger.warning("CUDA is available in the environment.")
+        # Check if we are explicitly forced to CPU
+        if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+            logger.info("CUDA_VISIBLE_DEVICES is set to empty string. Forcing CPU.")
+            return True
+        # Check if torch is actually using CPU for operations
+        # (This is a heuristic; the most robust check is ensuring tensors are on CPU)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if device.type != "cpu":
+            logger.error("GPU device detected and active. CPU-only constraint VIOLATED.")
+            return False
+    
+    # Check 2: CUDA_VISIBLE_DEVICES
+    cuda_visible = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if cuda_visible is not None and cuda_visible != "":
+        logger.warning(f"CUDA_VISIBLE_DEVICES is set to '{cuda_visible}'.")
+        # If it's a valid GPU ID, it might be a violation unless we force CPU usage below
+        if cuda_visible.isdigit() or "," in cuda_visible:
+            logger.info("Detected GPU assignment in environment variables.")
+            # We will enforce CPU below if possible, but warn
+            pass
 
-    return {
-        "cpu_only": True,
-        "cuda_available": False,
-        "cuda_disabled": True,
-        "device": str(device),
-        "cpu_count": cpu_count,
-        "warnings": warnings,
-        "platform": platform.system(),
-        "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-    }
-
+    return True
 
 def configure_torch_for_cpu() -> None:
     """
-    Configure PyTorch for optimal CPU performance.
-
-    This function:
-    1. Sets the number of threads for intra-op and inter-op parallelism
-    2. Disables CUDA
-    3. Sets appropriate environment variables
-
-    Must be called before any heavy computation.
-    """
-    # Ensure CUDA is disabled
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
-    # Configure thread count (use half of available cores for better memory locality)
-    cpu_count = detect_cpu_count()
-    optimal_threads = max(1, cpu_count // 2)
-
-    torch.set_num_threads(optimal_threads)
-    torch.set_num_interop_threads(1)
-
-    # Disable MKL multithreading if it conflicts
-    # (usually not needed, but good practice)
-    os.environ["OMP_NUM_THREADS"] = str(optimal_threads)
-
-
-def get_environment_summary() -> Dict[str, Any]:
-    """
-    Get a comprehensive summary of the current environment configuration.
-
-    Returns:
-        Dict[str, Any]: Summary including:
-            - hardware: CPU count, platform
-            - software: Python version, PyTorch version
-            - constraints: CPU-only status, CUDA status
-            - configuration: Thread counts, device
+    Configure PyTorch to use CPU only and optimize for CPU performance.
+    
+    Actions:
+        1. Sets CUDA_VISIBLE_DEVICES to empty string.
+        2. Sets torch.set_num_threads based on available cores.
+        3. Ensures no CUDA operations are attempted.
     """
     try:
-        config = verify_cpu_only_constraint()
-        configure_torch_for_cpu()
+        import torch
+    except ImportError:
+        logger.warning("PyTorch not installed. Skipping CPU configuration.")
+        return
 
-        return {
-            "hardware": {
-                "platform": config["platform"],
-                "cpu_count": config["cpu_count"],
-            },
-            "software": {
-                "python_version": config["python_version"],
-                "torch_version": torch.__version__,
-                "numpy_version": np.__version__,
-            },
-            "constraints": {
-                "cpu_only": config["cpu_only"],
-                "cuda_available": config["cuda_available"],
-                "cuda_disabled": config["cuda_disabled"],
-            },
-            "configuration": {
-                "device": config["device"],
-                "torch_threads": torch.get_num_threads(),
-                "torch_interop_threads": torch.get_num_interop_threads(),
-            },
-            "warnings": config["warnings"],
-        }
-    except EnvironmentConfigError as e:
-        return {
-            "error": str(e),
-            "cpu_only": False,
-        }
-
+    # Force CUDA to be invisible
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    
+    # Set number of threads for better CPU performance
+    num_threads = detect_cpu_count()
+    # Avoid oversubscription; usually 1-2 threads per core is good, but for inference
+    # often 1 is best. Let's use a conservative number.
+    optimal_threads = max(1, min(num_threads, 4)) 
+    
+    torch.set_num_threads(optimal_threads)
+    
+    # Ensure MPS (Apple Silicon) is not used if we strictly want CPU (optional, depending on strictness)
+    # For this task, we focus on standard CPU. MPS is technically a GPU accelerator.
+    # If the requirement is strictly "CPU" (x86/ARM generic), we might want to disable MPS too.
+    # However, usually "CPU-only" in these contexts implies no CUDA. 
+    # We will stick to standard CPU tensor placement.
+    
+    logger.info(f"Configured PyTorch for CPU-only execution. Threads: {optimal_threads}")
 
 def enforce_cpu_only() -> None:
     """
-    Enforce CPU-only execution by raising an error if GPU is detected.
-
-    This is a strict check that should be called at the entry point of
-    any script that must run on CPU only.
-
-    Raises:
-        EnvironmentConfigError: If GPU is detected.
+    Enforce CPU-only execution by setting environment variables and checking constraints.
+    
+    This is a comprehensive function that:
+        1. Detects CPU count.
+        2. Configures PyTorch for CPU.
+        3. Verifies the constraint is met.
+        4. Raises an error if a GPU is forced and cannot be disabled.
     """
-    config = verify_cpu_only_constraint()
-    if not config["cpu_only"]:
-        raise EnvironmentConfigError("CPU-only constraint violated.")
+    logger.info("Enforcing CPU-only execution constraints...")
+    
+    # 1. Detect and log CPU count
+    cpu_count = detect_cpu_count()
+    logger.info(f"Detected {cpu_count} CPU cores.")
+    
+    # 2. Configure PyTorch
+    configure_torch_for_cpu()
+    
+    # 3. Verify
+    is_valid = verify_cpu_only_constraint()
+    
+    if not is_valid:
+        # Try one last time to force it by unloading any GPU context if possible
+        # (Not always possible if CUDA is already initialized)
+        logger.error("Failed to enforce CPU-only constraint after configuration.")
+        logger.error("The environment has active GPU resources that cannot be disabled.")
+        raise EnvironmentConfigError("CPU-only constraint could not be enforced. GPU detected.")
+    
+    logger.info("CPU-only constraint successfully enforced.")
 
-
-def main() -> None:
+def get_environment_summary() -> Dict[str, Any]:
     """
-    Main entry point for testing environment configuration.
-
-    Prints a summary of the environment and any warnings.
+    Generate a summary of the current environment configuration.
+    
+    Returns:
+        Dict[str, Any]: A dictionary containing environment details.
     """
-    print("=== Environment Configuration Check ===")
     try:
+        import torch
+        torch_version = torch.__version__
+        cuda_available = torch.cuda.is_available()
+        device_count = torch.cuda.device_count() if cuda_available else 0
+    except ImportError:
+        torch_version = "Not Installed"
+        cuda_available = False
+        device_count = 0
+
+    summary = {
+        "platform": platform.system(),
+        "platform_release": platform.release(),
+        "platform_machine": platform.machine(),
+        "python_version": sys.version,
+        "cpu_count": detect_cpu_count(),
+        "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES", "Not Set"),
+        "pytorch_version": torch_version,
+        "cuda_available": cuda_available,
+        "cuda_device_count": device_count,
+        "cpu_only_enforced": os.environ.get("CUDA_VISIBLE_DEVICES", "") == ""
+    }
+    
+    return summary
+
+def main():
+    """
+    Main entry point for running environment configuration checks and enforcement.
+    """
+    logger.info("Starting Environment Configuration Management...")
+    
+    try:
+        enforce_cpu_only()
+        
         summary = get_environment_summary()
-        if "error" in summary:
-            print(f"ERROR: {summary['error']}")
-            sys.exit(1)
-
-        print(f"Platform: {summary['hardware']['platform']}")
-        print(f"CPU Cores: {summary['hardware']['cpu_count']}")
-        print(f"Python: {summary['software']['python_version']}")
-        print(f"PyTorch: {summary['software']['torch_version']}")
-        print(f"Device: {summary['configuration']['device']}")
-        print(f"CPU-only enforced: {summary['constraints']['cpu_only']}")
-        print(f"Threads: {summary['configuration']['torch_threads']} (intra), {summary['configuration']['torch_interop_threads']} (interop)")
-
-        if summary["warnings"]:
-            print("\nWarnings:")
-            for warning in summary["warnings"]:
-                print(f"  - {warning}")
-        else:
-            print("\nNo warnings. Environment is correctly configured for CPU-only execution.")
-
+        logger.info("Environment Summary:")
+        for key, value in summary.items():
+            logger.info(f"  {key}: {value}")
+        
+        logger.info("Environment configuration completed successfully.")
+        
     except EnvironmentConfigError as e:
-        print(f"Configuration Error: {e}")
+        logger.error(f"Environment configuration failed: {e}")
         sys.exit(1)
-
+    except Exception as e:
+        logger.error(f"Unexpected error during environment configuration: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

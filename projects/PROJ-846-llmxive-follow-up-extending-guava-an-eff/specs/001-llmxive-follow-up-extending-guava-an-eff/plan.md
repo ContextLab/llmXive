@@ -18,7 +18,7 @@ The implementation adheres to strict CPU-only constraints for the primary evalua
 **Testing**: `pytest` (unit, integration, contract tests)  
 **Target Platform**: Linux (GitHub Actions CPU runner: multiple cores, ~7 GB RAM)  
 **Project Type**: Research Pipeline / Data Processing & ML Training  
-**Performance Goals**: Perception latency ≤ 150ms/frame; Training convergence within 4h (CPU) or 9h (GPU escape); Total pipeline ≤ 6h on CPU.  
+**Performance Goals**: Perception latency ≤ 150ms/frame; Training convergence within 4h (CPU) or h (GPU escape); Total pipeline ≤ 6h on CPU.  
 **Constraints**: CPU-only execution for evaluation; No PII in data; Reproducible seeds; Checksummed data.  
 **Scale/Scope**: [deferred] trajectories (training), A set of tasks (evaluation).
 
