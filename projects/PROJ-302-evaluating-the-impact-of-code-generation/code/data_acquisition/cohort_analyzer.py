@@ -3,243 +3,179 @@ import sys
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
+import pyarrow.parquet as pq
 
-# Import from existing API surface
+# Project imports based on API surface
 from utils.config import get_config, ensure_directories
+from utils.validators import validate_schema, scan_dataset_for_pii
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_cohort_data(
-    prompt_cohort_path: str,
-    classified_snippets_path: str
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_cohort_data(input_path: str) -> pd.DataFrame:
     """
-    Load the prompt-based cohort and the classified snippets dataset.
-    
-    Args:
-        prompt_cohort_path: Path to prompt_cohort.parquet
-        classified_snippets_path: Path to classified_snippets.parquet
-        
-    Returns:
-        Tuple of (prompt_cohort_df, classified_snippets_df)
-        
-    Raises:
-        FileNotFoundError: If required input files do not exist
-        ValueError: If data loading fails
+    Loads the classified snippets dataset from Parquet.
+    Expects 'author_type' column containing 'human' or 'llm-like'.
     """
-    prompt_cohort_file = Path(prompt_cohort_path)
-    classified_snippets_file = Path(classified_snippets_path)
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    if not prompt_cohort_file.exists():
-        raise FileNotFoundError(
-            f"Prompt cohort file not found: {prompt_cohort_path}. "
-            "Ensure T014b has completed successfully."
-        )
-    
-    if not classified_snippets_file.exists():
-        raise FileNotFoundError(
-            f"Classified snippets file not found: {classified_snippets_path}. "
-            "Ensure T014 has completed successfully."
-        )
-    
+    logger.info(f"Loading cohort data from {input_path}")
     try:
-        prompt_cohort_df = pd.read_parquet(prompt_cohort_path)
-        logger.info(f"Loaded prompt cohort: {len(prompt_cohort_df)} rows")
+        df = pd.read_parquet(path)
     except Exception as e:
-        raise ValueError(f"Failed to load prompt cohort: {e}")
+        logger.error(f"Failed to read parquet file: {e}")
+        raise
     
-    try:
-        classified_snippets_df = pd.read_parquet(classified_snippets_path)
-        logger.info(f"Loaded classified snippets: {len(classified_snippets_df)} rows")
-    except Exception as e:
-        raise ValueError(f"Failed to load classified snippets: {e}")
+    if 'author_type' not in df.columns:
+        raise ValueError(f"Input DataFrame missing required column 'author_type'. Columns: {df.columns.tolist()}")
     
-    return prompt_cohort_df, classified_snippets_df
+    logger.info(f"Loaded {len(df)} snippets. Value counts:\n{df['author_type'].value_counts()}")
+    return df
 
-def segment_cohorts(
-    prompt_cohort_df: pd.DataFrame,
-    classified_snippets_df: pd.DataFrame
-) -> pd.DataFrame:
+def segment_cohorts(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Segment the combined data into three cohorts:
-    1. "Prompt-Based" - from the prompt cohort generation (T014b)
-    2. "LLM-like" - from classified snippets where classification = "LLM"
-    3. "Human" - from classified snippets where classification = "Human"
+    Segments the input DataFrame into three cohorts:
+    1. LLM-like (author_type == 'llm-like')
+    2. Human (author_type == 'human')
+    3. All (full dataset with an added 'cohort_label' column for convenience)
     
-    Args:
-        prompt_cohort_df: DataFrame from prompt generation
-        classified_snippets_df: DataFrame with classification labels
-        
     Returns:
-        Combined DataFrame with a 'cohort_type' column
+        Tuple of (llm_like_df, human_df, all_df_with_label)
     """
-    # Validate prompt cohort has required columns
-    required_prompt_cols = ['snippet_id', 'code_content']
-    missing_prompt_cols = [col for col in required_prompt_cols 
-                           if col not in prompt_cohort_df.columns]
-    if missing_prompt_cols:
-        raise ValueError(
-            f"Prompt cohort missing required columns: {missing_prompt_cols}"
-        )
+    logger.info("Segmenting cohorts based on 'author_type'")
     
-    # Validate classified snippets has required columns
-    required_classified_cols = ['snippet_id', 'code_content', 'classification']
-    missing_classified_cols = [col for col in required_classified_cols 
-                               if col not in classified_snippets_df.columns]
-    if missing_classified_cols:
-        raise ValueError(
-            f"Classified snippets missing required columns: {missing_classified_cols}"
-        )
+    llm_like_df = df[df['author_type'] == 'llm-like'].copy()
+    human_df = df[df['author_type'] == 'human'].copy()
     
-    # Create Prompt-Based cohort
-    prompt_cohort_df = prompt_cohort_df.copy()
-    prompt_cohort_df['cohort_type'] = 'Prompt-Based'
+    if llm_like_df.empty:
+        logger.warning("No 'llm-like' snippets found in the dataset.")
+    if human_df.empty:
+        logger.warning("No 'human' snippets found in the dataset.")
     
-    # Filter and label LLM-like cohort
-    llm_like_df = classified_snippets_df[classified_snippets_df['classification'] == 'LLM'].copy()
-    llm_like_df['cohort_type'] = 'LLM-like'
+    # Create a unified dataframe with explicit cohort labels for downstream analysis
+    df['cohort_label'] = df['author_type']
     
-    # Filter and label Human cohort
-    human_df = classified_snippets_df[classified_snippets_df['classification'] == 'Human'].copy()
-    human_df['cohort_type'] = 'Human'
-    
-    # Combine all cohorts
-    combined_df = pd.concat([prompt_cohort_df, llm_like_df, human_df], ignore_index=True)
-    
-    logger.info(f"Segmented cohorts - Prompt-Based: {len(prompt_cohort_df)}, "
-               f"LLM-like: {len(llm_like_df)}, Human: {len(human_df)}")
-    
-    return combined_df
+    return llm_like_df, human_df, df
 
-def analyze_cohort_properties(
-    cohort_df: pd.DataFrame
-) -> Dict[str, Dict[str, Any]]:
+def analyze_cohort_properties(llm_like_df: pd.DataFrame, human_df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Perform descriptive analysis of stylistic properties across cohorts.
+    Performs descriptive statistical analysis on the segmented cohorts.
+    Calculates mean and std for numeric features (e.g., complexity, file_size)
+    to compare stylistic properties as required by US4.
     
-    This function computes summary statistics for key features by cohort type.
-    It does NOT make causal claims, only descriptive comparisons.
-    
-    Args:
-        cohort_df: Combined DataFrame with 'cohort_type' column
-        
     Returns:
-        Dictionary with cohort-level statistics
+        Dictionary containing summary statistics for both cohorts.
     """
-    cohort_types = ['Prompt-Based', 'LLM-like', 'Human']
-    analysis_results = {}
+    logger.info("Analyzing cohort properties (descriptive statistics)")
     
-    for cohort_type in cohort_types:
-        subset = cohort_df[cohort_df['cohort_type'] == cohort_type]
+    numeric_cols = ['complexity_score', 'file_size', 'review_duration']
+    # Filter to only existing columns
+    existing_numeric_cols = [c for c in numeric_cols if c in llm_like_df.columns]
+    
+    stats = {
+        "llm-like": {},
+        "human": {},
+        "comparison": {}
+    }
+    
+    if not existing_numeric_cols:
+        logger.warning(f"No standard numeric columns {numeric_cols} found for comparison.")
+        return stats
+
+    for col in existing_numeric_cols:
+        llm_stats = llm_like_df[col].describe()
+        human_stats = human_df[col].describe()
         
-        if len(subset) == 0:
-            logger.warning(f"No data for cohort: {cohort_type}")
-            analysis_results[cohort_type] = {"count": 0}
-            continue
-        
-        stats = {
-            "count": len(subset),
-            "cohort_type": cohort_type
+        stats["llm-like"][col] = {
+            "mean": float(llm_stats['mean']) if not pd.isna(llm_stats['mean']) else None,
+            "std": float(llm_stats['std']) if not pd.isna(llm_stats['std']) else None,
+            "count": int(llm_stats['count'])
         }
         
-        # Calculate statistics for numeric columns if they exist
-        numeric_cols = subset.select_dtypes(include=['number']).columns.tolist()
-        for col in numeric_cols:
-            if col in ['count', 'snippet_id']:
-                continue
-            stats[f"{col}_mean"] = subset[col].mean()
-            stats[f"{col}_std"] = subset[col].std()
-            stats[f"{col}_min"] = subset[col].min()
-            stats[f"{col}_max"] = subset[col].max()
+        stats["human"][col] = {
+            "mean": float(human_stats['mean']) if not pd.isna(human_stats['mean']) else None,
+            "std": float(human_stats['std']) if not pd.isna(human_stats['std']) else None,
+            "count": int(human_stats['count'])
+        }
         
-        analysis_results[cohort_type] = stats
+        # Simple difference in means
+        if not pd.isna(llm_stats['mean']) and not pd.isna(human_stats['mean']):
+            diff = float(llm_stats['mean']) - float(human_stats['mean'])
+            stats["comparison"][col] = {
+                "mean_difference": diff,
+                "direction": "llm-higher" if diff > 0 else "human-higher" if diff < 0 else "equal"
+            }
     
-    return analysis_results
+    logger.info(f"Analysis complete. Found {len(existing_numeric_cols)} numeric features to compare.")
+    return stats
 
 def run_cohort_segmentation(
-    prompt_cohort_path: Optional[str] = None,
-    classified_snippets_path: Optional[str] = None,
-    output_path: Optional[str] = None
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    input_path: str = "data/processed/classified_snippets.parquet",
+    output_path: str = "data/processed/cohort_segments.parquet"
+) -> str:
     """
-    Main pipeline function to segment cohorts and perform descriptive analysis.
+    Main entry point for the cohort analysis pipeline.
+    1. Loads data.
+    2. Segments into LLM-like and Human cohorts.
+    3. Writes the combined segmented dataframe to Parquet with 'cohort_label'.
+    4. Logs descriptive statistics.
     
     Args:
-        prompt_cohort_path: Path to prompt_cohort.parquet (default from config)
-        classified_snippets_path: Path to classified_snippets.parquet (default from config)
-        output_path: Path for output cohort_segments.parquet (default from config)
+        input_path: Path to the classified snippets parquet file.
+        output_path: Path where the segmented parquet file will be saved.
         
     Returns:
-        Tuple of (segmented_dataframe, analysis_results_dict)
+        Path to the generated output file.
     """
     config = get_config()
+    ensure_directories([output_path])
     
-    # Use config defaults if paths not provided
-    if prompt_cohort_path is None:
-        prompt_cohort_path = config.get('paths', {}).get('prompt_cohort', 'data/processed/prompt_cohort.parquet')
-    if classified_snippets_path is None:
-        classified_snippets_path = config.get('paths', {}).get('classified_snippets', 'data/processed/classified_snippets.parquet')
-    if output_path is None:
-        output_path = config.get('paths', {}).get('cohort_segments', 'data/processed/cohort_segments.parquet')
-    
-    logger.info(f"Loading data from: {prompt_cohort_path}, {classified_snippets_path}")
-    
-    # Load data
-    prompt_cohort_df, classified_snippets_df = load_cohort_data(
-        prompt_cohort_path, 
-        classified_snippets_path
-    )
-    
-    # Segment cohorts
-    logger.info("Segmenting cohorts...")
-    segmented_df = segment_cohorts(prompt_cohort_df, classified_snippets_df)
-    
-    # Perform descriptive analysis
-    logger.info("Analyzing cohort properties...")
-    analysis_results = analyze_cohort_properties(segmented_df)
-    
-    # Ensure output directory exists
-    output_file = Path(output_path)
-    ensure_directories([str(output_file.parent)])
-    
-    # Save segmented data
-    segmented_df.to_parquet(output_path, index=False)
-    logger.info(f"Saved segmented cohorts to: {output_path}")
-    
-    return segmented_df, analysis_results
+    try:
+        # Load
+        df = load_cohort_data(input_path)
+        
+        # Segment
+        llm_df, human_df, segmented_df = segment_cohorts(df)
+        
+        # Analyze (Descriptive)
+        stats = analyze_cohort_properties(llm_df, human_df)
+        logger.info(f"Cohort Statistics:\n{stats}")
+        
+        # Write Output
+        output_file = Path(output_path)
+        segmented_df.to_parquet(output_file, index=False)
+        
+        logger.info(f"Successfully wrote segmented cohorts to {output_file}")
+        return str(output_file)
+        
+    except Exception as e:
+        logger.error(f"Cohort segmentation failed: {e}")
+        raise
 
 def main():
-    """Entry point for cohort analyzer script."""
-    try:
-        logger.info("Starting cohort analysis pipeline...")
-        segmented_df, analysis_results = run_cohort_segmentation()
+    """
+    CLI entry point.
+    """
+    # Default paths from task description
+    input_file = "data/processed/classified_snippets.parquet"
+    output_file = "data/processed/cohort_segments.parquet"
+    
+    # Allow override via environment or args if needed, but defaults are strict per spec
+    if len(sys.argv) > 1:
+        input_file = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_file = sys.argv[2]
         
-        # Log summary
-        print("\n=== Cohort Segmentation Summary ===")
-        for cohort_type, stats in analysis_results.items():
-            if stats.get("count", 0) > 0:
-                print(f"{cohort_type}: {stats['count']} snippets")
-            else:
-                print(f"{cohort_type}: No data available")
-        
-        print(f"\nOutput saved to: data/processed/cohort_segments.parquet")
-        logger.info("Cohort analysis completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Required input file not found: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data processing error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+    logger.info(f"Starting Cohort Analyzer. Input: {input_file}, Output: {output_file}")
+    run_cohort_segmentation(input_file, output_file)
+    logger.info("Cohort Analyzer completed.")
 
 if __name__ == "__main__":
     main()

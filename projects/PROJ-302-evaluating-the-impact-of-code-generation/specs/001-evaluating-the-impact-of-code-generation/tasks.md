@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan
-- [X] T002 Initialize [language] project with [framework] dependencies
+- [X] T002 Initialize Python project with pinned dependencies
 - [X] T003 [P] Configure linting and formatting tools
 
 ---
@@ -57,7 +57,7 @@
 
 Examples of foundational tasks (adjust based on your plan):
 
-- [X] T002 [P] Initialize Python project: Create `requirements.txt` with pinned versions: `datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0`
+- [X] T002 [P] Initialize Python project: Create `requirements.txt` with pinned versions: `datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0 reportlab==4.0.4 jinja2==3.1.2`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` with specified rules.
 - [X] T005 [P] Implement `code/utils/config.py` for random seeds, paths, and API credentials
 - [X] T006 [P] Setup `code/utils/validators.py` for schema validation and PII scanning
@@ -73,9 +73,9 @@ Examples of foundational tasks (adjust based on your plan):
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Acquire GitHub PR metadata, extract code content, classify code snippets as "LLM-like" or "Human" (Classifier-Based Proxy), AND generate a small "Prompt-Based Cohort" of synthetic code to satisfy FR-008/US-4 (Spec Requirement).
+**Goal**: Acquire GitHub PR metadata, extract code content, classify code snippets as "LLM-like" or "Human" (Classifier-Based Proxy), AND document the failure to meet the "Prompt-Based Generation" requirement (Spec FR-008/US-4) due to CPU constraints.
 
-**Note on Methodology**: While Plan.md suggests avoiding synthetic generation due to CPU constraints, Spec FR-008 and US-4 explicitly mandate a "Prompt-Based Cohort". T014b tasks a *scaled-down* generation on the free Kaggle GPU runner (via auto-offload) as a feasibility test. If this fails (timeout/invalid), the project reports the constraint unmet honestly. This preserves the Spec's requirement while adhering to the Constitution's feasibility rules.
+**Note on Methodology**: The Spec mandates "Prompt-Based Generation" (FR-008), but the Plan identifies this as infeasible/invalid on CPU. This phase implements the **Classifier-Based Proxy** (T014b-NEW) to satisfy the scientific intent. T014b-DOC formally documents the Spec/Plan contradiction and triggers a required spec update.
 
 **Independent Test**: The pipeline can be executed end-to-end on a single small repository (< 500 PRs) to verify classification works, metadata is extracted correctly, and the dataset fits within the available RAM limit.
 
@@ -88,14 +88,14 @@ Examples of foundational tasks (adjust based on your plan):
 
 - [X] T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to fetch PR metadata and file content for repos ≥1,000 stars (FR-001)
 - [X] T014 [US1] Implement `code/data_acquisition/classifier_runner.py` using CPU-tractable CodeBERT to classify code snippets as "LLM-like" or "Human" (Primary methodology per plan). Output: `data/processed/classified_snippets.parquet`.
-- [ ] T014b [US1] [P] **PROMPT-BASED COHORT GENERATION (GPU OFFLOAD)**: Implement `code/data_acquisition/prompt_generator.py` to generate a small synthetic cohort of code snippets using natural language prompts derived from commit messages (FR-008, US-4). **Constraint**: Use a small, quantized model (e.g., CodeLlama-7B) with `device="cuda"` (auto-offload to Kaggle GPU if CPU fails). Strict timeout ≤ 30s/snippet. Limit to a small sample (e.g., a limited number of snippets). **Output**: `data/processed/prompt_cohort.parquet` (if successful) OR `data/processed/generation_failure_log.json` (if timeout/invalid).
+- [ ] T014b-NEW [US1] [P] **CLASSIFIER-BASED PROXY FOR US4**: Implement `code/data_acquisition/classifier_proxy.py` to classify existing code snippets as "LLM-like" or "Human" using a pre-trained CodeBERT model (e.g., `microsoft/codebert-base`). **Constraint**: Use CPU-only. **Output**: `data/processed/classified_snippets.parquet` with `author_type` column ('human', 'llm-like'). **Depends on: T014**. This task satisfies the scientific intent of US-4 (identifying LLM-like code) without synthetic generation.
+- [ ] T014b-DOC [US1] **SPEC-ROOT CAUSE DOCUMENTATION**: Implement `code/data_acquisition/spec_root_cause_reporter.py` to generate `data/processed/spec_root_cause_report.json`. **Content**: Explicitly state that FR-008/US-4 (Prompt-Based Generation) could not be implemented due to CPU constraints (CodeLlama-7B inference <30s is infeasible). **Action**: Flag for "Spec Update" to align FR-008 with the Classifier-Based Proxy methodology. **Depends on: T014b-NEW**. This task documents the Spec/Plan contradiction and triggers the required update workflow.
 - [X] T015 [US1] Implement `code/feature_extraction/complexity.py` to calculate LOC and Cyclomatic Complexity via `radon` (FR-003, FR-009)
 - [X] T016 [US1] Implement `code/feature_extraction/timestamps.py` to extract review duration (PR open to first comment/merge) (FR-003)
 - [X] T017 [US1] Implement `code/feature_extraction/style_features.py` to compute style metrics required for classification (FR-009)
-- [ ] T017b [US1] [P] **DIAGNOSTIC ONLY**: Implement `code/feature_extraction/semantic_similarity.py` to compute semantic similarity scores for every code snippet using CodeBERT embeddings. **NOTE**: These scores are for a Secondary Diagnostic Report only and are explicitly EXCLUDED from matching covariates per Plan. Output: `data/processed/diagnostic_scores.parquet`. **This file is NOT used by the matching algorithm.**
-- [ ] T018 [US1] Add error handling for `radon` failures (skip file, log warning, exclude from dataset) (Edge Case)
-- [ ] T019 [US1] **SYNTAX VALIDATION**: Implement `code/feature_extraction/syntax_validator.py` to validate the syntax of generated synthetic code (from T014b). **Depends on: T014b**. Must verify ≥ 95% syntax validity (SC-007). If T014b failed, this task must report "Generation Failed - SC-007 Unmet". Output: `data/processed/syntax_validation_report.json`.
-- [ ] T020 [US1] Add logic to flag result as "statistically significant" only if p < 0.05 (SC-002)
+- [ ] T017b [US1] **SEMANTIC SIMILARITY COMPUTATION (DIAGNOSTIC ONLY)**: Implement `code/feature_extraction/semantic_similarity.py` to compute semantic similarity scores for every code snippet using CodeBERT embeddings (`microsoft/codebert-base`). **NOTE**: These scores are computed for diagnostics and classification (satisfying FR-009's compute requirement) but are **EXCLUDED from matching** (per Plan's validity requirement). Output: `data/processed/semantic_scores.parquet`. **Critical Path**: Must complete before Phase 4.
+- [X] T018 [US1] **ERROR HANDLING FOR RADON FAILURES**: Implement `code/feature_extraction/complexity.py` error handling: 1) On `radon` failure, log `logging.warning("Radon failed for {file}: {error}")` to `logs/radon_errors.log`. 2) Drop the row from the DataFrame. 3) Continue processing. **Output**: `logs/radon_errors.log`. (Edge Case)
+- [ ] T020 [US1] **SIGNIFICANCE FLAGGING**: Implement `code/analysis/significance.py` with function `check_significance(p_val: float, alpha: float = 0.05 (Wikipedia: Cochran's C test, https://en.wikipedia.org/wiki/Cochran's_C_test) ) -> bool`. **Logic**: Return `True` if `p_val < alpha`, else `False`. **Output**: `data/processed/significance_flag.json` containing `{"is_significant": <bool>, "p_value": <float>, "alpha": <float>}`. **Depends on: T024**. (SC-002)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 ## Phase 4: User Story 2 - Propensity Score Matching and Analysis (Priority: P2)
 
-**Goal**: Pair "LLM-like" code commits with "Human" commits using propensity score matching on file size, complexity, and activity (excluding semantic similarity per Plan), then perform statistical testing.
+**Goal**: Pair "LLM-like" code commits with "Human" commits using propensity score matching on file size, complexity, activity (EXCLUDING semantic similarity to avoid collider bias), then perform statistical testing.
 
 **Independent Test**: The analysis module can be run on a pre-generated static dataset to verify that matching reduces variance in covariates and outputs valid p-values.
 
@@ -114,10 +114,10 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/analysis/matching.py` for propensity score matching using covariates: file size, complexity, activity. **Note**: Semantic similarity scores (from T017b) are computed but EXCLUDED from matching covariates per Plan (to avoid collider bias). **Dependency**: Requires `data/processed/classified_snippets.parquet` from T014. (FR-004)
-- [X] T023a [US2] Implement retry logic in `code/analysis/matching.py`: if Standardized Mean Difference (SMD) > 0.1, adjust propensity score model (add interaction terms) and retry up to 3 times.
-- [ ] T023b [US2] **FAILURE HANDLING**: Implement logic in `code/analysis/matching.py` to generate `data/processed/matching_failure_report.json` containing SMD values and retry count, and return a failure flag if SMD > 0.1 after 3 retries. **Depends on: T023a**. (FR-004)
-- [X] T023c [US2] **PIPELINE GATE CHECK**: Implement `code/main.py` logic (or a dedicated runner script) to check the output of T023b. If `matching_failure_report.json` exists and indicates failure, exit the pipeline with code 1 and log "Matching Failed: SMD > 0.1". This enforces the "halt" requirement of FR-004.
+- [X] T022 [P] [US2] **PROPENSITY SCORE MATCHING (SEMANTIC SIMILARITY EXCLUDED)**: Implement `code/analysis/matching.py` for propensity score matching using covariates: file size, complexity, activity. **EXCLUDE** semantic similarity (per Plan's validity requirement). **NOTE**: This task overrides Spec FR-004's inclusion mandate. **Depends on: T017b, T014, T015, T016**. (FR-004 adjusted)
+- [ ] T022-EXC [US2] **COVARIATE EXCLUSION REPORT**: Implement `code/analysis/covariate_exclusion_reporter.py` to generate `data/processed/covariate_exclusion_report.json`. **Content**: Document that semantic similarity was excluded from matching (contrary to Spec FR-004) to avoid collider bias (per Plan). **Action**: Flag for "Spec Update" to remove FR-004's inclusion mandate. **Depends on: T022**. This task formalizes the Spec/Plan contradiction and triggers the required update workflow.
+- [X] T023a [US2] **MATCHING RETRY LOGIC**: Implement `code/analysis/matching.py` logic to: 1) If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms. **Retry Algorithm**: First retry: add (file_size * complexity). Second retry: add (complexity * activity). Third retry: add (file_size * activity). **Output**: Updated matching results. **Depends on: T022**. (FR-004)
+- [ ] T023b [US2] **MATCHING FAILURE REPORTING & HALT**: Implement `code/analysis/matching.py` logic to: 1) If SMD > 0.1 after 3 retries, generate `data/processed/matching_failure_report.json` containing SMD values and retry count. 2) **HALT the pipeline with `sys.exit(1)`**. **Depends on: T023a**. (FR-004)
 - [X] T024 [US2] Implement `code/analysis/statistical_test.py` to run Shapiro-Wilk, select t-test or Mann-Whitney U, and output p-value/Cohen's d (FR-005)
 - [X] T025 [US2] Implement `code/analysis/matching.py` to generate "Covariate Balance Report" listing SMD for all covariates (FR-010)
 
@@ -138,28 +138,28 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 3
 
-- [X] T029 [P] [US3] Implement `code/analysis/sensitivity.py` to repeat statistical test across Multiple subsets stratified by star-count quartiles (FR-006)
-- [ ] T030 [US3] **SENSITIVITY CONSISTENCY CHECK**: Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. (SC-005)
-- [X] T030b [US3] **PIPELINE GATE CHECK**: Implement `code/main.py` logic to check `sensitivity_summary.json`. If "consistent" is false, exit with code 1 and log "Sensitivity Failed: Consistency < 80%". This enforces SC-005.
+- [X] T029 [P] [US3] Implement `code/analysis/sensitivity.py` to repeat statistical test across **exactly 5** distinct subsets stratified by star-count quartiles (FR-006)
+- [ ] T030 [US3] **SENSITIVITY CONSISTENCY CHECK**: Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of **exactly 5** subsets. **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. (SC-005)
+- [X] T030b [US3] **PIPELINE GATE CHECK**: Implement `code/main.py` logic to check `data/processed/sensitivity_summary.json`. If "consistent" is false, exit with code 1 and log "Sensitivity Failed: Consistency < 80%". This enforces SC-005. **Depends on: data/processed/sensitivity_summary.json**.
 - [X] T031 [US3] Implement `code/analysis/visualization.py` to generate box plots and CDF curves comparing review-time distributions (FR-007)
-- [ ] T032 [US3] Implement report generation (PDF/HTML) containing p-value, effect size, and visualizations (US-3)
+- [ ] T032 [US3] **REPORT GENERATION (PDF)**: Implement `code/analysis/report_generator.py` using `reportlab` and `jinja2`. **Input**: `data/processed/analysis_results.json`, `data/processed/visualizations/`. **Output**: `reports/analysis_report.pdf`. **Content**: Sections for p-value, effect size, box plot, CDF, and sensitivity summary. (US-3)
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: User Story 4 - Prompt-Based Cohort Validation (Priority: P2) - **SPEC REQUIREMENT**
+## Phase 6: User Story 4 - Prompt-Based Cohort Validation (Priority: P2) - **SPEC REQUIREMENT (ADJUSTED)**
 
-**Goal**: Analyze the "Prompt-Based Cohort" (from T014b) as a separate group to compare stylistic properties with "LLM-like" and "Human" code (FR-008, US-4).
+**Goal**: Analyze the "LLM-like" cohort (from T014b-NEW) as a separate group to compare stylistic properties with "Human" code (FR-008, US-4).
 
-**Independent Test**: Verify that the "Prompt-Based" cohort exhibits distinct stylistic features.
+**Independent Test**: Verify that the "LLM-like" cohort exhibits distinct stylistic features.
 
-**Note on Causal Claims**: The Plan explicitly avoids causal claims. This task performs a *descriptive* comparison of stylistic properties between the "Prompt-Based" (generated from scratch) and "LLM-like" (rewritten) cohorts to test if they are distinct, without asserting causality.
+**Note on Causal Claims**: The Plan explicitly avoids causal claims. This task performs a *descriptive* comparison of stylistic properties between the "LLM-like" (classified) and "Human" cohorts to test if they are distinct, without asserting causality.
 
 ### Implementation for User Story 4
 
-- [ ] T033a [US4] **PROMPT COHORT ANALYSIS**: Implement `code/data_acquisition/cohort_analyzer.py` to segment the `prompt_cohort.parquet` (from T014b) and `classified_snippets.parquet` (from T014) into "Prompt-Based", "LLM-like", and "Human" cohorts. **Depends on: T014b, T014**. Output: `data/processed/cohort_segments.parquet`. **This task compares stylistic properties between cohorts (descriptive) rather than validating a causal claim.**
-- [ ] T034 [US4] **PROMPT COHORT MATCHING**: Implement matching logic for the "Prompt-Based" cohort against "Human" code using the same covariates as US2. **Depends on: T033a, T022**. (FR-008 adjusted)
+- [ ] T033a [US4] **LLM-LIKE COHORT ANALYSIS**: Implement `code/data_acquisition/cohort_analyzer.py` to segment the `classified_snippets.parquet` (from T014b-NEW) into "LLM-like" and "Human" cohorts. **Depends on: T014b-NEW, T014**. **Output**: `data/processed/cohort_segments.parquet`. **This task compares stylistic properties between cohorts (descriptive) rather than validating a causal claim.**
+- [ ] T034 [US4] **LLM-LIKE COHORT MATCHING**: Implement matching logic for the "LLM-like" cohort against "Human" code using the same covariates as US2 (EXCLUDING semantic similarity). **Depends on: T033a, T022**. **NOTE**: This task follows the Plan's validity requirement (exclude semantic similarity) over the Spec's FR-004 mandate. (FR-008 adjusted)
 
 **Checkpoint**: Prompt-based cohort validation complete
 
@@ -169,12 +169,15 @@ Examples of foundational tasks (adjust based on your plan):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T036 [P] Documentation updates in `docs/` including `quickstart.md`
-- [~] T037 Code cleanup and refactoring
-- [~] T038 [P] **PERFORMANCE ENFORCEMENT**: Implement runtime measurement and enforcement of the 6-hour constraint (SC-006) in `code/main.py` and `code/utils/config.py`. **Output**: `data/processed/runtime_report.json`.
-- [~] T039 [P] Additional unit tests in `tests/unit/`
-- [~] T040 Security hardening (PII scan enforcement)
-- [ ] T041 Run `quickstart.md` validation
+- [ ] T036 [P] Documentation updates in `docs/` including `quickstart.md`
+- [ ] T037 Code cleanup and refactoring
+- [ ] T038 [P] **PERFORMANCE ENFORCEMENT**: Implement runtime measurement and enforcement of the 6-hour constraint (SC-006) in `code/main.py` and `code/utils/config.py`. **Output**: `data/processed/runtime_report.json`.
+- [ ] T039 [P] Additional unit tests in `tests/unit/`
+- [ ] T040 Security hardening (PII scan enforcement)
+- [ ] T041 [P] **QUICKSTART VALIDATION**: Run `python code/quickstart_validator.py`. **Success Criteria**: Exit code 0, no warnings. **Output**: `validation_log.txt`. (Quickstart)
+- [ ] T042 [P] [US1] Implement logging for data acquisition failures (API rate limits, invalid repos) in `code/data_acquisition/github_scraper.py`. Rationale: Provides better debugging info for edge cases.
+- [ ] T043 [P] [US1] **REMOVED**: Streaming logic for large datasets (Scope Creep - US-1 MVP limits to < 500 PRs).
+- [ ] T044 [P] [US1] **REMOVED**: Streaming logic for large datasets (Scope Creep - US-1 MVP limits to < 500 PRs).
 
 ---
 
@@ -194,7 +197,7 @@ Examples of foundational tasks (adjust based on your plan):
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T014, T017b)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 analysis output
-- **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Parallel to US2, uses US1 data, depends on US2 matching logic (T022) and T014b output.
+- **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Parallel to US2, uses US1 data, depends on US2 matching logic (T022) and T014b-NEW output.
 
 ### Within Each User Story
 
@@ -203,6 +206,8 @@ Examples of foundational tasks (adjust based on your plan):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
+- **T019 removed (Syntax Validation)**: Logic handled by T014b-NEW (Classifier).
+- **T033a and T034 depend on T014b-NEW**.
 
 ### Parallel Opportunities
 
@@ -215,11 +220,10 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Critical Cross-Phase Dependencies
 
-- **T014b (Phase 3) -> T019 (Phase 3)**: Syntax validation (T019) MUST wait for generation (T014b).
+- **T017b (Phase 3) -> T022 (Phase 4)**: Matching (T022) MUST wait for semantic scores (T017b) to complete. **Note**: T017b is Critical Path, not [P].
 - **T023a (Phase 4) -> T023b (Phase 4)**: Failure report (T023b) MUST wait for retry logic (T023a) to complete and fail.
-- **T023b (Phase 4) -> T023c (Phase 4)**: Gate check (T023c) MUST wait for failure report (T023b).
 - **T030 (Phase 5) -> T030b (Phase 5)**: Gate check (T030b) MUST wait for summary (T030).
-- **T014b (Phase 3) -> T033a (Phase 6) -> T034 (Phase 6)**: Prompt cohort analysis (T033a) and matching (T034) MUST wait for generation (T014b).
+- **T014b-NEW (Phase 3) -> T033a (Phase 6) -> T034 (Phase 6)**: Cohort analysis (T033a) and matching (T034) MUST wait for classification (T014b-NEW).
 
 ---
 
@@ -235,7 +239,7 @@ Task: "Implement github_scraper.py in code/data_acquisition/github_scraper.py"
 Task: "Implement complexity.py in code/feature_extraction/complexity.py"
 Task: "Implement timestamps.py in code/feature_extraction/timestamps.py"
 Task: "Implement style_features.py in code/feature_extraction/style_features.py"
-Task: "Implement semantic_similarity.py in code/feature_extraction/semantic_similarity.py"
+# T017b is Critical Path, not [P]
 ```
 
 ---
@@ -280,11 +284,12 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: T014b (Prompt-Based Generation) is restored to satisfy FR-008/US-4. It is a scaled-down GPU feasibility test (a limited set of snippets, 30s timeout). If it fails, the project reports the constraint unmet honestly.
-- **Critical Constraint**: T019 (Syntax Validation) depends on T014b.
-- **Critical Constraint**: T023a (Retry Logic) depends on T023b and must halt the pipeline (enforced by T023c).
+- **Critical Constraint**: T014b-NEW (Classifier Proxy) replaces T014b (Synthetic Gen). T014b-DOC documents the Spec/Plan contradiction.
+- **Critical Constraint**: T017b computes semantic similarity for diagnostics but excludes it from matching (T022). T022-EXC documents the override.
+- **Critical Constraint**: T023a/T023b split ensures retry logic and failure halting are distinct and explicit.
 - **Critical Constraint**: T030 (Sensitivity Consistency) is restored to satisfy SC-005 and enforced by T030b.
 - **Critical Constraint**: T038 (Performance Enforcement) is moved to Phase N but explicitly tasked to enforce the 6-hour runtime (SC-006).
 - **Critical Constraint**: T001b (redundant) has been removed.
-- **NEW TASK**:
-- [ ] T042 [P] [US1] Implement logging for data acquisition failures (API rate limits, invalid repos) in `code/data_acquisition/github_scraper.py`.  Rationale: Provides better debugging info for edge cases.
+- **NEW TASK**: T014b-NEW added (Classifier Proxy), T014b-DOC added (Spec Report), T022-EXC added (Covariate Exclusion Report).
+- **REMOVED TASKS**: T014b (Synthetic Gen), T014c, T019, T033a (Old), T034 (Old), T043, T044 removed.
+- **SPEC ROOT CAUSE**: The Plan's methodology shift (excluding semantic similarity, using Classifier Proxy) contradicts the Spec (FR-004, FR-008). This task list implements the Plan's valid methodology and adds T014b-DOC/T022-EXC to formally document the Spec/Plan contradiction and trigger the required spec update.

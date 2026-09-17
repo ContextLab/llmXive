@@ -4,11 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T018` (rejected 1x): No artifact (e.g., modified script, added try/except around radon calls, log output, or updated dataset generation code) was presented to demonstrate that radon failures are now caught, logged, and excluded. Without such evidence the requirement is not satisfied.
-- `T019` (rejected 1x): The `syntax_validator.py` script exists, but the required output file `data/processed/syntax_validation_report.json` is not present, indicating the validation report was never written. The task’s core deliverable—a JSON report confirming ≥95% syntax validity or reporting generation failure—is missing.
-- `T022` (rejected 1x): The `code/analysis/matching.py` file exists and implements propensity‑score matching using the specified covariates, but the required data artifact `data/processed/classified_snippets.parquet` is missing, so the module cannot be executed as intended. The missing parquet file must be provided for the task to be complete.
-- `T023b` (rejected 1x): The required `data/processed/matching_failure_report.json` file does not exist, and the provided `code/analysis/matching.py` snippet shows no implementation of retry logic, SMD‑threshold checking, or report generation as specified. The task’s core requirement is therefore unmet.
-- `T032` (rejected 1x): No PDF or HTML report was supplied, and there are no files containing the required p‑value, effect size, or visualizations. The implementer provided no tangible artifact to verify that a report generation feature was built. The missing deliverable is a generated report (PDF/HTML) that includes the statistical results and accompanying figures.
+- `T017b` (rejected 1x): The provided `semantic_similarity.py` is truncated (the `calculate_similarity` function ends abruptly and no code is shown that writes a Parquet file), and the required output `data/processed/semantic_scores.parquet` does not exist. Both the implementation and the expected artifact are missing, so the task is not satisfied.
+- `T020` (rejected 1x): The `check_significance` function is correctly implemented, but the required output file `data/processed/significance_flag.json` does not exist, so the task’s output artifact is missing.
+- `T030` (rejected 1x): The repository contains a partially shown `code/analysis/sensitivity.py`, but the file is truncated and does not demonstrate the required logic for computing the 80 % significance consistency across exactly five subsets, nor does it write `data/processed/sensitivity_summary.json`. The expected JSON output file is absent, so the task’s deliverable is not satisfied.
+- `T034` (rejected 1x): No code, script, notebook, or other artifact implementing the matching logic for the Prompt‑Based cohort is present; the only evidence is the task description itself. The required implementation (e.g., a function/module that performs propensity‑score matching using the US2 covariates) is missing, so the task is not satisfied.
 
 ## Required change
 

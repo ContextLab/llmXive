@@ -158,3 +158,917 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T05:14:30Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline execution limit of 500 PRs for MVP testing
+  claim_id: c_12482b68
+  context: 'Independent Test: The pipeline can be executed end-to-end on a single
+    small repository (< 500 PRs) to verify classification works, metadata is extracted
+    correctly, and the dataset fits within the available RAM limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline can be executed end-to-end on a single small repository (<
+    500 PRs) to verify classification works, metadata is extracted correctly, and
+    the dataset fits within the available RAM limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:36:16Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B inference time constraint
+  claim_id: c_e3ad9815
+  context: 'Content: Explicitly state that FR-008/US-4 (Prompt-Based Generation) could
+    not be implemented due to CPU constraints (CodeLlama-7B inference <30s is infeasible).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama-7B_inference_time_constraint
+  kind: entity_fact
+  raw_text: CodeLlama-7B inference <30s is infeasible
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:36:58Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Propensity score matching reduces variance in covariates
+  claim_id: c_e5965bd0
+  context: 'Independent Test: The analysis module can be run on a pre-generated static
+    dataset to verify that matching reduces variance in covariates and outputs valid
+    p-values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Propensity_score_matching_reduces_variance_in_covariates
+  kind: entity_fact
+  raw_text: The analysis module can be run on a pre-generated static dataset to verify
+    that matching reduces variance in covariates and outputs valid p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:37:48Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Retry threshold for Standardized Mean Difference is 0.1
+  claim_id: c_bc567291
+  context: 'Implement `code/analysis/matching.py` logic to: 1) If Standardized Mean
+    Difference (SMD) > 0.1, retry with interaction terms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:37:48Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline halt condition after 3 retries with SMD > 0.1
+  claim_id: c_ef26bf8a
+  context: 'Implement `code/analysis/matching.py` logic to: 1) If SMD > 0.1 after
+    3 retries, generate `data/processed/matching_failure_report.json` containing SMD
+    values and retry count. 2) **HALT the pipeline with `sys.exit(1)`**.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline halts with `sys.exit(1)` if SMD > 0.1 after 3 retries.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:37:48Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed on 5 subsets
+  claim_id: c_14874963
+  context: Implement `code/analysis/sensitivity.py` to repeat statistical test across
+    **exactly 5** distinct subsets stratified by star-count quartiles (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test is repeated across exactly 5 distinct subsets stratified
+    by star-count quartiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:38:23Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Runtime enforcement of 6 hours
+  claim_id: c_da213317
+  context: Implement runtime measurement and enforcement of the 6-hour constraint
+    (SC-006) in `code/main.py` and `code/utils/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation enforces a 6-hour runtime constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:39:42Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pipeline execution limit of 500 PRs for MVP validation
+  claim_id: c_a38580d2
+  context: 'Independent Test: The pipeline can be executed end-to-end on a single
+    small repository (< 500 PRs) to verify classification works, metadata is extracted
+    correctly, and the dataset fits within the available RAM limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline can be executed end-to-end on a single small repository (<
+    500 PRs) to verify classification works, metadata is extracted correctly, and
+    the dataset fits within the available RAM limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:41:06Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B inference time exceeds 30 seconds on CPU
+  claim_id: c_ee9c9db1
+  context: 'Content: Explicitly state that FR-008/US-4 (Prompt-Based Generation) could
+    not be implemented due to CPU constraints (CodeLlama-7B inference <30s is infeasible).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-7B inference <30s is infeasible on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:41:24Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: propensity score matching reduces variance in covariates
+  claim_id: c_7276b947
+  context: 'Independent Test: The analysis module can be run on a pre-generated static
+    dataset to verify that matching reduces variance in covariates and outputs valid
+    p-values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Propensity_score_matching_reduces_variance_in_covariates
+  kind: entity_fact
+  raw_text: The analysis module can be run on a pre-generated static dataset to verify
+    that matching reduces variance in covariates and outputs valid p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:41:26Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: retry matching if SMD exceeds 0.1
+  claim_id: c_5c3c463f
+  context: 'Implement code/analysis/matching.py logic to: 1) If Standardized Mean
+    Difference (SMD) > 0.1, retry with interaction terms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:41:26Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: retry algorithm sequence for interaction terms
+  claim_id: c_13591674
+  context: 'Retry Algorithm: First retry: add (file_size * complexity). Second retry:
+    add (complexity * activity). Third retry: add (file_size * activity).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retry_algorithm_sequence_for_interaction_terms
+  kind: entity_fact
+  raw_text: 'The retry algorithm adds interaction terms in three stages: first (file_size
+    * complexity), second (complexity * activity), third (file_size * activity).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:42:00Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pipeline halts after 3 retries if SMD exceeds 0.1
+  claim_id: c_90a54449
+  context: 'Implement code/analysis/matching.py logic to: 1) If SMD > 0.1 after 3
+    retries, generate data/processed/matching_failure_report.json containing SMD values
+    and retry count. 2) HALT the pipeline with sys.exit(1).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline halts with exit code 1 if SMD > 0.1 after 3 retries.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:42:00Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis across 5 subsets
+  claim_id: c_2de9c744
+  context: Implement code/analysis/sensitivity.py to repeat statistical test across
+    exactly 5 distinct subsets stratified by star-count quartiles (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test is repeated across exactly 5 distinct subsets stratified
+    by star-count quartiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:42:00Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 6-hour runtime constraint enforcement
+  claim_id: c_93ec20e6
+  context: Implement runtime measurement and enforcement of the 6-hour constraint
+    (SC-006) in code/main.py and code/utils/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a 6-hour runtime constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:42:21Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Python pinned dependencies list including datasets 2.14.0 and torch 2.0.1
+  claim_id: c_ba999a9c
+  context: 'Phase 2: Foundational tasks list T002 which specifies the exact versions
+    of libraries to be installed.'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with pinned dependencies: datasets==2.14.0
+    scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1
+    transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0
+    gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0 reportlab==4.0.4 jinja2==3.1.2'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:43:26Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline execution validation on repository with less than 500 PRs
+  claim_id: c_1eb62799
+  context: User Story 1 Independent Test description specifies the scope for verifying
+    the classification pipeline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_validation_on_repository_with_less_than_5
+  kind: magnitude
+  raw_text: The pipeline can be executed end-to-end on a single small repository (<
+    500 PRs) to verify classification works, metadata is extracted correctly, and
+    the dataset fits within the available RAM limit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:44:20Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GitHub repository selection criteria of at least 1000 stars
+  claim_id: c_5b1b51ab
+  context: Task T012 description specifies the minimum star count for repositories
+    to be included in data acquisition.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GitHub_repository_selection_criteria_of_at_least_1000_stars
+  kind: magnitude
+  raw_text: "Fetch PR metadata and file content for repos \u22651,000 stars"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:45:12Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Use of microsoft/codebert-base model for code classification
+  claim_id: c_bf8769b0
+  context: Task T014b-NEW describes the implementation of a classifier proxy using
+    a specific pre-trained model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_microsoft/codebert-base_model_for_code_classification
+  kind: entity_fact
+  raw_text: Use pre-trained CodeBERT model (e.g., microsoft/codebert-base) to classify
+    code snippets as LLM-like or Human.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:45:50Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B inference time under 30 seconds is infeasible on CPU
+  claim_id: c_fb874b7e
+  context: Task T014b-DOC explains the rationale for switching from prompt-based generation
+    to a classifier proxy due to CPU constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-7B inference <30s is infeasible on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:45:50Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Calculation of LOC and Cyclomatic Complexity using radon
+  claim_id: c_8a107bf1
+  context: Task T015 specifies the use of the radon library for feature extraction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculation_of_LOC_and_Cyclomatic_Complexity_using_radon
+  kind: entity_fact
+  raw_text: Calculate LOC and Cyclomatic Complexity via radon.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:46:15Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Computation of semantic similarity scores using CodeBERT embeddings
+  claim_id: c_4c24bfd1
+  context: Task T017b describes the diagnostic computation of semantic similarity
+    scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computation_of_semantic_similarity_scores_using_CodeBERT_emb
+  kind: entity_fact
+  raw_text: Compute semantic similarity scores for every code snippet using CodeBERT
+    embeddings (microsoft/codebert-base).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:47:12Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Significance flagging logic based on p-value and alpha threshold
+  claim_id: c_bf6b6030
+  context: Task T020 defines the logic for the significance flagging function.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significance_flagging_logic_based_on_p-value_and_alpha_thres
+  kind: entity_fact
+  raw_text: Return True if p_val < alpha, else False in check_significance function.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:48:24Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Propensity score matching using file size, complexity, and activity covariates
+  claim_id: c_b394c59d
+  context: Task T022 specifies the covariates used for matching while excluding semantic
+    similarity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Propensity_score_matching_using_file_size,_complexity,_and_a
+  kind: entity_fact
+  raw_text: 'Perform propensity score matching using covariates: file size, complexity,
+    activity.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:48:53Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Matching retry logic triggered when SMD exceeds 0.1
+  claim_id: c_cec0bbe9
+  context: Task T023a describes the retry algorithm for matching when balance is not
+    achieved.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Standardized Mean Difference (SMD) > 0.1, retry with interaction terms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:48:53Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Specific interaction terms added during matching retry algorithm
+  claim_id: c_d0dc2afd
+  context: Task T023a details the specific interaction terms used in the three retry
+    steps.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specific_interaction_terms_added_during_matching_retry_algor
+  kind: entity_fact
+  raw_text: 'First retry: add (file_size * complexity). Second retry: add (complexity
+    * activity). Third retry: add (file_size * activity).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:49:22Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline halt after 3 retries if SMD remains above 0.1
+  claim_id: c_da5b74b6
+  context: Task T023b defines the failure condition and exit behavior for the matching
+    process.
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If SMD > 0.1 after 3 retries, generate matching failure report and halt
+    the pipeline with sys.exit(1).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:49:22Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical test selection and output of p-value and Cohen's d
+  claim_id: c_43ff24ff
+  context: Task T024 describes the statistical analysis workflow for comparing cohorts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_selection_and_output_of_p-value_and_Cohen's
+  kind: entity_fact
+  raw_text: Run Shapiro-Wilk, select t-test or Mann-Whitney U, and output p-value/Cohen's
+    d.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:50:02Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed on exactly 5 subsets stratified by star-count
+    quartiles
+  claim_id: c_e3b05afb
+  context: Task T029 specifies the number of subsets used for sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat statistical test across exactly 5 distinct subsets stratified by
+    star-count quartiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:50:22Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: 'Initialize Python project with pinned dependencies: datasets 2.14.0,
+    scikit-learn 1.3.0, pandas 2.0.3, numpy 1.24.3, scipy 1.11.1, radon 6.0.1, torch
+    2.0.1, transformers 4.31.0, matplotlib 3.7.2, seaborn 0.12.2, pyyaml 6.0, requests
+    2.31.0, gitpython 3.1.32, pytest 7.4.0, ruff 0.0.287, black 23.7.0, reportlab
+    4.0.4, jinja2 3.1.2'
+  claim_id: c_f18307ab
+  context: 'T002 [P] Initialize Python project: Create requirements.txt with pinned
+    versions: datasets==2.14.0 scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1
+    radon==6.0.1 torch==2.0.1 transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2
+    pyyaml==6.0 requests==2.31.0 gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0
+    reportlab==4.0.4 jinja2==3.1.2'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with pinned dependencies: datasets==2.14.0
+    scikit-learn==1.3.0 pandas==2.0.3 numpy==1.24.3 scipy==1.11.1 radon==6.0.1 torch==2.0.1
+    transformers==4.31.0 matplotlib==3.7.2 seaborn==0.12.2 pyyaml==6.0 requests==2.31.0
+    gitpython==3.1.32 pytest==7.4.0 ruff==0.0.287 black==23.7.0 reportlab==4.0.4 jinja2==3.1.2'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:50:59Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Use pre-trained CodeBERT model microsoft/codebert-base to classify code
+    snippets as LLM-like or Human
+  claim_id: c_c51e698c
+  context: 'T014b-NEW [US1] [P] CLASSIFIER-BASED PROXY FOR US4: Implement code/data_acquisition/classifier_proxy.py
+    to classify existing code snippets as LLM-like or Human using a pre-trained CodeBERT
+    model (e.g., microsoft/codebert-base).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_pre-trained_CodeBERT_model_microsoft/codebert-base_to_cl
+  kind: entity_fact
+  raw_text: Use pre-trained CodeBERT model (e.g., microsoft/codebert-base) to classify
+    code snippets as LLM-like or Human
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:51:01Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fetch PR metadata and file content for repos with at least 1,000 stars
+  claim_id: c_826fb0f2
+  context: "T012 [P] [US1] Implement code/data_acquisition/github_scraper.py to fetch\
+    \ PR metadata and file content for repos \u22651,000 stars (FR-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_PR_metadata_and_file_content_for_repos_with_at_least_1
+  kind: magnitude
+  raw_text: Fetch PR metadata and file content for repos with at least 1,000 stars
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:51:19Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Return True if p_val < alpha else False with alpha default 0.05
+  claim_id: c_50c40fa5
+  context: 'T020 [US1] SIGNIFICANCE FLAGGING: Implement code/analysis/significance.py
+    with function check_significance(p_val: float, alpha: float = 0.05) -> bool. Logic:
+    Return True if p_val < alpha, else False.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A possible result of the experiment that we consider here is 5 heads.
+        Let outcomes be considered unlikely with respect to an assumed distribution
+        if their probability is lower than a significance threshold of 0.05.
+      source_id: Statistical hypothesis test
+      url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Return True if p_val < alpha, else False, where alpha defaults to 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:51:33Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Retry matching with interaction terms if SMD > 0.1
+  claim_id: c_18c46536
+  context: 'T023a [US2] MATCHING RETRY LOGIC: Implement code/analysis/matching.py
+    logic to: 1) If Standardized Mean Difference (SMD) > 0.1, retry with interaction
+    terms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry matching with interaction terms if Standardized Mean Difference
+    (SMD) > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:51:33Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Perform statistical test across exactly 5 distinct subsets stratified
+    by star-count quartiles
+  claim_id: c_f61a9cd8
+  context: T029 [P] [US3] Implement code/analysis/sensitivity.py to repeat statistical
+    test across exactly 5 distinct subsets stratified by star-count quartiles (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform statistical test across exactly 5 distinct subsets stratified
+    by star-count quartiles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:51:50Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Enforce a 6-hour runtime constraint
+  claim_id: c_e26295e2
+  context: 'T038 [P] PERFORMANCE ENFORCEMENT: Implement runtime measurement and enforcement
+    of the 6-hour constraint (SC-006) in code/main.py and code/utils/config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a 6-hour runtime constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:52:15Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Use of microsoft/codebert-base for LLM-like vs Human classification
+  claim_id: c_aa91059f
+  context: Task T014b-NEW implements a classifier proxy using a pre-trained CodeBERT
+    model to satisfy the scientific intent of identifying LLM-like code.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_microsoft/codebert-base_for_LLM-like_vs_Human_classif
+  kind: entity_fact
+  raw_text: T014b-NEW uses a pre-trained CodeBERT model (e.g., microsoft/codebert-base)
+    to classify code snippets as 'LLM-like' or 'Human'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:54:07Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B inference <30s infeasible on CPU
+  claim_id: c_c8ef943d
+  context: T014b-DOC documents that FR-008/US-4 (Prompt-Based Generation) could not
+    be implemented due to CPU constraints, citing CodeLlama-7B inference <30s as infeasible.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CodeLlama-7B_inference_%3C30s_infeasible_on_CPU
+  kind: magnitude
+  raw_text: CodeLlama-7B inference takes less than 30 seconds, which is considered
+    infeasible on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:54:37Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Repositories must have >= 1000 stars for data acquisition
+  claim_id: c_10318e00
+  context: Task T012 implements a GitHub scraper to fetch PR metadata for repos with
+    >= 1,000 stars per FR-001.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repositories_must_have_%3E=_1000_stars_for_data_acquisition
+  kind: magnitude
+  raw_text: The project requires repositories with at least 1,000 stars for data acquisition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:55:16Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: User Story 1 test on repository < 500 PRs
+  claim_id: c_a15f286c
+  context: The methodology note states the pipeline can be executed end-to-end on
+    a single small repository (< 500 PRs) to verify classification works.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_test_on_repository_%3C_500_PRs
+  kind: magnitude
+  raw_text: The Independent Test for User Story 1 is executed on a single small repository
+    with fewer than 500 PRs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:55:50Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Pinned dependencies: datasets 2.14.0, scikit-learn 1.3.0, pandas 2.0.3,
+    numpy 1.24.3, scipy 1.11.1, radon 6.0.1, torch 2.0.1, transformers 4.31.0, matplotlib
+    3.7.2, seaborn 0.12.2, pyyaml 6.0, requests 2.31.0, gitpython 3.1.32, pytest 7.4.0,
+    ruff 0.0.287, black 23.7.0, reportlab 4.0.4, jinja2 3.1.2'
+  claim_id: c_c708fe39
+  context: Task T002 specifies initializing the Python project with a requirements.txt
+    containing these pinned versions.
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dependency list includes datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.3,
+    numpy==1.24.3, scipy==1.11.1, radon==6.0.1, torch==2.0.1, transformers==4.31.0,
+    matplotlib==3.7.2, seaborn==0.12.2, pyyaml==6.0, requests==2.31.0, gitpython==3.1.32,
+    pytest==7.4.0, ruff==0.0.287, black==23.7.0, reportlab==4.0.4, jinja2==3.1.2.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:55:50Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Significance threshold alpha set to 0.05
+  claim_id: c_06d03764
+  context: Task T020 implements a significance flagging function with alpha = 0.05,
+    citing Wikipedia on statistical hypothesis tests.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The sample variance of data series j is considered an outlier at significance\
+        \ level \u03B1 if Cj exceeds the upper limit critical value CUL.  CUL depends\
+        \ on the desired significance level \u03B1, the number of considered data\
+        \ series N, and the number of data points (n) per data series.  Selections\
+        \ of values for CUL have been tabulated at significance levels \u03B1 = 0.01,\
+        \ \u03B1 = 0.025, and \u03B1 = 0.05.  CUL can also be calculated from:"
+      source_id: Cochran's C test
+      url: https://en.wikipedia.org/wiki/Cochran's_C_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance check uses an alpha value of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:56:03Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Semantic similarity excluded from propensity score matching to avoid
+    collider bias
+  claim_id: c_b29197ef
+  context: Task T022 implements matching using file size, complexity, and activity,
+    explicitly excluding semantic similarity per the Plan's validity requirement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_excluded_from_propensity_score_matching
+  kind: entity_fact
+  raw_text: Propensity score matching excludes semantic similarity to avoid collider
+    bias.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:56:44Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Matching retry triggered if SMD > 0.1
+  claim_id: c_e424dd46
+  context: Task T023a implements retry logic that triggers if SMD > 0.1, adding interaction
+    terms in subsequent retries.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Matching_retry_triggered_if_SMD_%3E_0.1
+  kind: magnitude
+  raw_text: The retry logic for matching adds interaction terms if the Standardized
+    Mean Difference (SMD) is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:57:14Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if SMD > 0.1 after 3 retries
+  claim_id: c_c7e9073c
+  context: Task T023b specifies that if SMD > 0.1 after 3 retries, the pipeline generates
+    a failure report and halts with exit code 1.
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The matching process halts if the Standardized Mean Difference (SMD) remains
+    greater than 0.1 after 3 retries.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:57:14Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed on 5 subsets stratified by star-count
+    quartiles
+  claim_id: c_782bc408
+  context: Task T029 implements sensitivity analysis repeating the statistical test
+    across exactly 5 distinct subsets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis is performed across exactly 5 distinct subsets stratified
+    by star-count quartiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:57:42Z'
+- artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Runtime constraint enforced at 6 hours
+  claim_id: c_65f2c1bc
+  context: Task T038 implements runtime measurement and enforcement of the 6-hour
+    constraint (SC-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance enforcement task enforces a 6-hour runtime constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:58:05Z'

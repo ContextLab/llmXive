@@ -3,178 +3,186 @@ import sys
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
 from radon.complexity import cc_visit
 from radon.raw import analyze as raw_analyze
+import ast
 
-# Ensure project root is in path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Ensure logging is configured to write to the specific file
+def _setup_radon_logging():
+    """Configure logging specifically for radon errors."""
+    log_path = Path("logs")
+    log_path.mkdir(exist_ok=True)
+    log_file = log_path / "radon_errors.log"
 
-from utils.config import get_config, ensure_directories
-from utils.models import CodeSnippet
+    # Create a dedicated logger for radon errors if not exists
+    logger = logging.getLogger("radon_errors")
+    logger.setLevel(logging.WARNING)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+    # Remove existing handlers to avoid duplicates if called multiple times
+    logger.handlers = []
 
-def calculate_snippet_complexity(snippet: CodeSnippet) -> Dict[str, Any]:
+    # File handler for radon errors
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.WARNING)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    return logger
+
+_radon_logger = _setup_radon_logging()
+
+def calculate_snippet_complexity(snippet_code: str, file_path: str = "unknown") -> Dict[str, Any]:
     """
-    Calculate cyclomatic complexity and raw metrics for a single code snippet.
+    Calculate complexity metrics for a given code snippet using radon.
     
     Args:
-        snippet: A CodeSnippet object containing the source code.
+        snippet_code: The source code string to analyze.
+        file_path: Identifier for the source file (for logging purposes).
         
     Returns:
-        A dictionary containing:
-            - 'cyclomatic_complexity': int (sum of complexities)
-            - 'lines_of_code': int
-            - 'blank_lines': int
-            - 'comments': int
-            - 'statements': int
-            - 'error': str (if radon fails, otherwise None)
+        Dictionary containing complexity metrics:
+            - cyclomatic_complexity: Maximum CC value in the snippet
+            - avg_complexity: Average CC value
+            - loc: Lines of code
+            - blank: Blank lines
+            - comments: Comment lines
+            - statements: Number of statements
+            
+    Raises:
+        Exception: If radon fails to parse the code (handled upstream).
     """
-    code_content = snippet.code_content
-    
-    result = {
-        'cyclomatic_complexity': 0,
-        'lines_of_code': 0,
-        'blank_lines': 0,
-        'comments': 0,
-        'statements': 0,
-        'error': None
-    }
-
-    if not code_content or not isinstance(code_content, str):
-        result['error'] = "Invalid or empty code content"
-        logger.warning(f"Skipping snippet {snippet.snippet_id} due to invalid content: {result['error']}")
-        return result
-
     try:
-        # Calculate Cyclomatic Complexity
-        # cc_visit returns a list of complexity results for each function/class
-        complexity_results = cc_visit(code_content)
-        total_cc = sum(block.complexity for block in complexity_results)
-        result['cyclomatic_complexity'] = total_cc
+        # Parse AST to check validity first (optional but good practice)
+        try:
+            ast.parse(snippet_code)
+        except SyntaxError as e:
+            # Radon might handle this, but we log it if we catch it early
+            # However, per task, we handle radon failure specifically.
+            # If radon fails on this, it will be caught in the try/except below.
+            pass
 
-        # Calculate Raw Metrics
-        raw_metrics = raw_analyze(code_content)
-        result['lines_of_code'] = raw_metrics.loc
-        result['blank_lines'] = raw_metrics.blank
-        result['comments'] = raw_metrics.comments
-        result['statements'] = raw_metrics.stmt
-
+        # Raw analysis
+        raw = raw_analyze(snippet_code)
+        
+        # Cyclomatic complexity analysis
+        complexities = cc_visit(snippet_code)
+        
+        if not complexities:
+            # If no functions/classes found, treat as a simple block with CC=1
+            max_cc = 1
+            avg_cc = 1.0
+        else:
+            cc_values = [c.complexity for c in complexities]
+            max_cc = max(cc_values)
+            avg_cc = sum(cc_values) / len(cc_values)
+        
+        return {
+            "cyclomatic_complexity": max_cc,
+            "avg_complexity": round(avg_cc, 2),
+            "loc": raw.loc,
+            "blank": raw.blank,
+            "comments": raw.comments,
+            "statements": raw.statements
+        }
+        
     except Exception as e:
-        # ERROR HANDLING: Catch radon failures, log warning, and exclude from dataset
-        error_msg = str(e)
-        result['error'] = f"Radon analysis failed: {error_msg}"
-        logger.warning(
-            f"Skipping snippet {snippet.snippet_id} due to radon failure: {error_msg}. "
-            f"This snippet will be excluded from the final dataset."
-        )
-        # We return the result with error flag set, but 0 for metrics.
-        # The caller (process_dataset) should filter out rows where 'error' is not None.
-    
-    return result
+        # LOG THE ERROR TO logs/radon_errors.log
+        _radon_logger.warning(f"Radon failed for {file_path}: {e}")
+        
+        # Re-raise so the caller knows to drop the row
+        raise
 
-def process_dataset(input_path: str, output_path: str) -> Tuple[int, int]:
+def process_dataset(input_path: str, output_path: str) -> pd.DataFrame:
     """
-    Process a dataset of code snippets, calculating complexity metrics.
-    Handles radon failures by logging warnings and excluding invalid rows.
+    Process a dataset of code snippets, calculating complexity for each.
+    Rows where radon fails are dropped, and errors are logged.
     
     Args:
-        input_path: Path to input parquet file containing CodeSnippet data.
-        output_path: Path to output parquet file for processed metrics.
+        input_path: Path to the input Parquet/CSV file containing snippets.
+        output_path: Path to save the processed DataFrame.
         
     Returns:
-        A tuple (processed_count, excluded_count)
+        Processed DataFrame with complexity columns added.
     """
-    config = get_config()
-    ensure_directories()
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    input_file = Path(input_path)
-    output_file = Path(output_path)
+    # Load data
+    if input_path.endswith('.parquet'):
+        df = pd.read_parquet(input_path)
+    elif input_path.endswith('.csv'):
+        df = pd.read_csv(input_path)
+    else:
+        raise ValueError("Input file must be .parquet or .csv")
     
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_file}")
+    required_cols = ['snippet_code', 'file_path']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Input data missing required columns: {missing_cols}")
     
-    logger.info(f"Loading dataset from {input_file}")
-    df = pd.read_parquet(input_file)
-    
-    processed_rows = []
-    excluded_count = 0
-    
-    logger.info(f"Processing {len(df)} snippets...")
+    results = []
+    dropped_count = 0
     
     for idx, row in df.iterrows():
-        # Reconstruct CodeSnippet object or use raw data directly
-        # Assuming the parquet contains columns matching CodeSnippet fields
         try:
-            snippet = CodeSnippet(
-                snippet_id=row.get('snippet_id'),
-                source_commit=row.get('source_commit'),
-                generation_source=row.get('generation_source'),
-                code_content=row.get('code_content'), # Assuming this column exists
-                complexity_metrics=None,
-                semantic_similarity_score=row.get('semantic_similarity_score')
-            )
-        except Exception as e:
-            logger.warning(f"Skipping row {idx} due to reconstruction error: {e}")
-            excluded_count += 1
+            code = row['snippet_code']
+            f_path = row.get('file_path', f"row_{idx}")
+            
+            metrics = calculate_snippet_complexity(code, f_path)
+            
+            # Merge metrics into the row
+            new_row = row.to_dict()
+            new_row.update(metrics)
+            results.append(new_row)
+            
+        except Exception:
+            # Error already logged in calculate_snippet_complexity
+            # Drop the row (do not append to results)
+            dropped_count += 1
             continue
-
-        metrics = calculate_snippet_complexity(snippet)
-        
-        if metrics['error']:
-            excluded_count += 1
-            continue
-        
-        # Add metrics to the row
-        row_dict = row.to_dict() if hasattr(row, 'to_dict') else dict(row)
-        row_dict.update({
-            'cyclomatic_complexity': metrics['cyclomatic_complexity'],
-            'lines_of_code': metrics['lines_of_code'],
-            'blank_lines': metrics['blank_lines'],
-            'comments': metrics['comments'],
-            'statements': metrics['statements']
-        })
-        processed_rows.append(row_dict)
     
-    if not processed_rows:
-        logger.error("No valid rows processed. All snippets were excluded.")
-        # Create empty output with correct schema if needed, or just exit
-        pd.DataFrame().to_parquet(output_file)
-        return 0, excluded_count
-        
-    result_df = pd.DataFrame(processed_rows)
+    if dropped_count > 0:
+        logging.warning(f"Dropped {dropped_count} rows due to radon failures.")
     
-    logger.info(f"Writing {len(result_df)} processed snippets to {output_file}")
-    result_df.to_parquet(output_file, index=False)
-    
-    logger.info(f"Processing complete. Included: {len(result_df)}, Excluded: {excluded_count}")
-    return len(result_df), excluded_count
-
-def main():
-    """Main entry point for running the complexity extraction pipeline."""
-    config = get_config()
-    
-    # Default paths can be overridden by config or CLI args
-    input_path = config.get('paths', {}).get('classified_snippets', 'data/processed/classified_snippets.parquet')
-    output_path = config.get('paths', {}).get('complexity_metrics', 'data/processed/complexity_metrics.parquet')
+    processed_df = pd.DataFrame(results)
     
     # Ensure output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    out_dir = Path(output_path).parent
+    out_dir.mkdir(parents=True, exist_ok=True)
     
+    if output_path.endswith('.parquet'):
+        processed_df.to_parquet(output_path, index=False)
+    elif output_path.endswith('.csv'):
+        processed_df.to_csv(output_path, index=False)
+    else:
+        # Default to parquet
+        processed_df.to_parquet(output_path, index=False)
+        
+    return processed_df
+
+def main():
+    """Entry point for running complexity extraction."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Default paths (can be overridden by args in a real CLI)
+    input_file = "data/processed/classified_snippets.parquet"
+    output_file = "data/processed/complexity_features.parquet"
+    
+    if not os.path.exists(input_file):
+        logging.error(f"Input file {input_file} not found. Cannot proceed.")
+        sys.exit(1)
+        
+    logging.info(f"Starting complexity extraction from {input_file}")
     try:
-        processed, excluded = process_dataset(input_path, output_path)
-        print(f"Successfully processed {processed} snippets. Excluded {excluded} due to errors.")
+        df = process_dataset(input_file, output_file)
+        logging.info(f"Successfully processed {len(df)} rows. Output saved to {output_file}")
     except Exception as e:
-        logger.critical(f"Pipeline failed: {e}")
+        logging.error(f"Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

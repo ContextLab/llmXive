@@ -1,0 +1,10 @@
+'|alpha check significance use':
+  quote: "The sample variance of data series j is considered an outlier at significance\
+    \ level \u03B1 if Cj exceeds the upper limit critical value CUL.  CUL depends\
+    \ on the desired significance level \u03B1, the number of considered data series\
+    \ N, and the number of data points (n) per data series.  Selections of values\
+    \ for CUL have been tabulated at significance levels \u03B1 = 0.01, \u03B1 = 0.025,\
+    \ and \u03B1 = 0.05.  CUL can also be calculated from:"
+  source_id: Cochran's C test
+  url: https://en.wikipedia.org/wiki/Cochran's_C_test
+  value: '0.05'

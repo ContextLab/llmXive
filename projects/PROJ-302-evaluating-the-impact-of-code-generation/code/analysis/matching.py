@@ -4,363 +4,344 @@ import logging
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
 
-# Configure logging
+# Ensure the parent directory is in the path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.config import get_config, ensure_directories
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for matching configuration
-MAX_RETRIES = 3
-SMD_THRESHOLD = 0.1
-MATCHING_FAILURE_REPORT_PATH = "data/processed/matching_failure_report.json"
-COVARIATES = ["file_size", "complexity_score", "activity_score"]
+# --- Helper Functions (Preserved from previous implementation) ---
 
-def calculate_smd(treated: pd.Series, control: pd.Series) -> float:
+def calculate_smd(group1: pd.Series, group2: pd.Series) -> float:
     """
-    Calculate Standardized Mean Difference (SMD) between treated and control groups.
-    
-    SMD = (mean_treated - mean_control) / pooled_std
-    
-    Args:
-        treated: Series of values for the treated group
-        control: Series of values for the control group
-        
-    Returns:
-        float: SMD value
+    Calculate Standardized Mean Difference (SMD) between two groups.
+    SMD = (mean1 - mean2) / sqrt((var1 + var2) / 2)
     """
-    mean_treated = treated.mean()
-    mean_control = control.mean()
+    mean1 = group1.mean()
+    mean2 = group2.mean()
+    var1 = group1.var()
+    var2 = group2.var()
     
-    var_treated = treated.var(ddof=1)
-    var_control = control.var(ddof=1)
-    n_treated = len(treated)
-    n_control = len(control)
-    
-    # Pooled standard deviation
-    pooled_var = ((n_treated - 1) * var_treated + (n_control - 1) * var_control) / (n_treated + n_control - 2)
-    pooled_std = np.sqrt(pooled_var)
-    
-    if pooled_std == 0:
+    # Handle case where variance is 0 or NaN
+    pooled_var = (var1 + var2) / 2
+    if pooled_var <= 0:
         return 0.0
-        
-    smd = (mean_treated - mean_control) / pooled_std
-    return abs(smd)  # Return absolute value for balance check
+    
+    smd = (mean1 - mean2) / np.sqrt(pooled_var)
+    return float(smd)
 
-def estimate_propensity_scores(df: pd.DataFrame, covariates: List[str] = None) -> pd.DataFrame:
+def estimate_propensity_scores(df: pd.DataFrame, covariates: List[str], treatment_col: str) -> pd.DataFrame:
     """
     Estimate propensity scores using logistic regression.
-    
-    Args:
-        df: DataFrame containing covariates and treatment assignment
-        covariates: List of covariate column names
-        
-    Returns:
-        DataFrame with added 'propensity_score' column
+    Treatment: 'llm-like' (1) vs 'human' (0)
     """
-    if covariates is None:
-        covariates = COVARIATES
-        
-    # Check if all covariates exist
-    missing = [c for c in covariates if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing covariates: {missing}")
-        
+    df = df.copy()
+    # Encode treatment
+    df['_treatment_encoded'] = (df[treatment_col] == 'llm-like').astype(int)
+    
     X = df[covariates].values
-    y = df['treatment'].values  # 1 for LLM-like, 0 for Human
+    y = df['_treatment_encoded'].values
     
-    # Standardize covariates
+    # Handle constant features
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    try:
+        X_scaled = scaler.fit_transform(X)
+    except Exception as e:
+        logger.warning(f"Scaling failed, using raw X: {e}")
+        X_scaled = X
     
-    # Fit logistic regression
     model = LogisticRegression(max_iter=1000, random_state=42)
     model.fit(X_scaled, y)
     
-    # Get propensity scores (probability of being treated)
-    propensity_scores = model.predict_proba(X_scaled)[:, 1]
-    
-    df_with_scores = df.copy()
-    df_with_scores['propensity_score'] = propensity_scores
-    
-    return df_with_scores
+    df['propensity_score'] = model.predict_proba(X_scaled)[:, 1]
+    return df
 
-def perform_matching(df: pd.DataFrame, ratio: int = 1) -> pd.DataFrame:
+def perform_matching(df: pd.DataFrame, propensity_col: str, treatment_col: str, 
+                     ratio: int = 1) -> pd.DataFrame:
     """
-    Perform 1:K propensity score matching.
-    
-    Args:
-        df: DataFrame with propensity scores
-        ratio: Number of control units to match per treated unit
-        
-    Returns:
-        DataFrame with matched pairs and match IDs
+    Perform nearest neighbor matching without replacement.
+    Returns a dataframe with matched pairs.
     """
-    treated = df[df['treatment'] == 1].copy()
-    control = df[df['treatment'] == 0].copy()
+    df = df.copy()
+    treated = df[df[treatment_col] == 'llm-like'].copy()
+    control = df[df[treatment_col] != 'llm-like'].copy()
     
     matched_indices = []
-    match_id_counter = 0
     
     for _, t_row in treated.iterrows():
+        t_score = t_row[propensity_col]
         # Calculate distance to all controls
-        distances = np.abs(control['propensity_score'] - t_row['propensity_score'])
+        distances = np.abs(control[propensity_col] - t_score)
+        # Find nearest available control
+        # Sort indices by distance
+        sorted_indices = distances.argsort()
         
-        # Get closest controls
-        closest_indices = distances.nsmallest(ratio).index.tolist()
-        
-        for idx in closest_indices:
-            matched_indices.append({
-                'treated_id': t_row['snippet_id'],
-                'control_id': control.loc[idx, 'snippet_id'],
-                'match_id': match_id_counter,
-                'treated_score': t_row['propensity_score'],
-                'control_score': control.loc[idx, 'propensity_score']
-            })
-            match_id_counter += 1
-    
-    if not matched_indices:
-        logger.warning("No matches found!")
-        return pd.DataFrame()
-        
-    matched_df = pd.DataFrame(matched_indices)
-    return matched_df
-
-def check_balance(df: pd.DataFrame, covariates: List[str] = None) -> Dict[str, float]:
-    """
-    Check covariate balance after matching using SMD.
-    
-    Args:
-        df: Matched DataFrame
-        covariates: List of covariate column names
-        
-    Returns:
-        Dictionary mapping covariate names to SMD values
-    """
-    if covariates is None:
-        covariates = COVARIATES
-        
-    balance = {}
-    
-    for cov in covariates:
-        if cov not in df.columns:
-            continue
-            
-        # For matched data, we need to reconstruct the groups
-        # In a real scenario, we'd have the original data linked by match_id
-        # Here we assume df contains the matched pairs with original values
-        
-        # This is a simplified check - in practice, we'd compare the matched treated vs matched control
-        # For now, we'll calculate SMD on the full dataset before matching as a proxy
-        # A proper implementation would require the matched pairs to be linked
-        
-    return balance
-
-def run_propensity_matching(df: pd.DataFrame, covariates: List[str] = None, max_retries: int = MAX_RETRIES) -> Tuple[bool, pd.DataFrame, Dict[str, Any]]:
-    """
-    Run propensity score matching with retry logic for balance.
-    
-    Args:
-        df: Input DataFrame with covariates and treatment assignment
-        covariates: List of covariate column names
-        max_retries: Maximum number of retry attempts
-        
-    Returns:
-        Tuple of (success, matched_df, result_details)
-    """
-    if covariates is None:
-        covariates = COVARIATES
-        
-    logger.info(f"Starting propensity score matching with covariates: {covariates}")
-    
-    retry_count = 0
-    current_covariates = covariates.copy()
-    smd_values = {}
-    success = False
-    matched_df = pd.DataFrame()
-    
-    while retry_count <= max_retries:
-        logger.info(f"Matching attempt {retry_count + 1} with covariates: {current_covariates}")
-        
-        try:
-            # Estimate propensity scores
-            df_with_scores = estimate_propensity_scores(df, current_covariates)
-            
-            # Perform matching
-            matched_df = perform_matching(df_with_scores, ratio=1)
-            
-            if matched_df.empty:
-                logger.warning("Matching produced no results. Retrying with modified covariates.")
-                retry_count += 1
-                if retry_count <= max_retries:
-                    # Add interaction terms for next retry
-                    if len(current_covariates) == len(covariates):
-                        # First retry: add pairwise interactions
-                        new_covariates = current_covariates.copy()
-                        for i in range(len(covariates)):
-                            for j in range(i+1, len(covariates)):
-                                interaction_name = f"{covariates[i]}_x_{covariates[j]}"
-                                new_covariates.append(interaction_name)
-                                df_with_scores[interaction_name] = df[covariates[i]] * df[covariates[j]]
-                        current_covariates = new_covariates
-                    else:
-                        # Subsequent retries: add squared terms
-                        new_covariates = current_covariates.copy()
-                        for cov in covariates:
-                            squared_name = f"{cov}_sq"
-                            if squared_name not in new_covariates:
-                                new_covariates.append(squared_name)
-                                df_with_scores[squared_name] = df[cov] ** 2
-                        current_covariates = new_covariates
-                continue
-            
-            # Check balance on matched data
-            # For simplicity, we'll calculate SMD on the matched treated vs matched control
-            treated_matched = df_with_scores[df_with_scores['snippet_id'].isin(matched_df['treated_id'])]
-            control_matched = df_with_scores[df_with_scores['snippet_id'].isin(matched_df['control_id'])]
-            
-            balance_check = {}
-            max_smd = 0.0
-            
-            for cov in current_covariates:
-                if cov in treated_matched.columns and cov in control_matched.columns:
-                    smd = calculate_smd(treated_matched[cov], control_matched[cov])
-                    balance_check[cov] = smd
-                    max_smd = max(max_smd, smd)
-                    logger.info(f"SMD for {cov}: {smd:.4f}")
-            
-            smd_values = balance_check
-            
-            if max_smd <= SMD_THRESHOLD:
-                logger.info(f"Balance achieved! Max SMD: {max_smd:.4f}")
-                success = True
+        matched = False
+        for idx in sorted_indices:
+            # Check if this control is already matched (simple check: not in matched_indices yet)
+            # In a production system, we'd track used controls more efficiently
+            if idx not in matched_indices:
+                matched_indices.append(idx)
+                matched = True
                 break
-            else:
-                logger.warning(f"Balance not achieved (Max SMD: {max_smd:.4f}). Retrying...")
-                retry_count += 1
-                if retry_count <= max_retries:
-                    # Add interaction terms for next retry
-                    if len(current_covariates) == len(covariates):
-                        # First retry: add pairwise interactions
-                        new_covariates = current_covariates.copy()
-                        for i in range(len(covariates)):
-                            for j in range(i+1, len(covariates)):
-                                interaction_name = f"{covariates[i]}_x_{covariates[j]}"
-                                new_covariates.append(interaction_name)
-                                df_with_scores[interaction_name] = df[covariates[i]] * df[covariates[j]]
-                        current_covariates = new_covariates
-                    else:
-                        # Subsequent retries: add squared terms
-                        new_covariates = current_covariates.copy()
-                        for cov in covariates:
-                            squared_name = f"{cov}_sq"
-                            if squared_name not in new_covariates:
-                                new_covariates.append(squared_name)
-                                df_with_scores[squared_name] = df[cov] ** 2
-                        current_covariates = new_covariates
-                continue
-                
-        except Exception as e:
-            logger.error(f"Error during matching attempt {retry_count + 1}: {str(e)}")
-            retry_count += 1
-            if retry_count <= max_retries:
-                continue
-            else:
-                break
-    
-    result_details = {
-        "success": success,
-        "retry_count": retry_count,
-        "final_covariates": current_covariates,
-        "smd_values": smd_values,
-        "max_smd": max(smd_values.values()) if smd_values else float('inf'),
-        "threshold": SMD_THRESHOLD
-    }
-    
-    return success, matched_df, result_details
-
-def generate_matching_failure_report(result_details: Dict[str, Any], output_path: str = None) -> None:
-    """
-    Generate a failure report when matching fails to achieve balance.
-    
-    Args:
-        result_details: Dictionary containing matching results and SMD values
-        output_path: Path to write the JSON report
-    """
-    if output_path is None:
-        output_path = MATCHING_FAILURE_REPORT_PATH
         
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+        if not matched:
+            logger.warning(f"Could not find a match for treated sample with score {t_score}")
     
+    matched_control = control.iloc[matched_indices]
+    matched_control['_match_id'] = range(len(matched_control))
+    treated['_match_id'] = range(len(treated)) # Assign temporary IDs
+    
+    # Combine
+    result = pd.concat([treated, matched_control], ignore_index=True)
+    return result
+
+def check_balance(df: pd.DataFrame, covariates: List[str], treatment_col: str) -> Dict[str, float]:
+    """
+    Check balance by calculating SMD for each covariate between matched groups.
+    Returns a dictionary of {covariate: smd_value}.
+    """
+    df = df.copy()
+    smd_results = {}
+    
+    treated = df[df[treatment_col] == 'llm-like']
+    control = df[df[treatment_col] != 'llm-like']
+    
+    for col in covariates:
+        if col in treated.columns and col in control.columns:
+            smd = calculate_smd(treated[col], control[col])
+            smd_results[col] = smd
+        else:
+            smd_results[col] = np.nan
+    
+    return smd_results
+
+def run_propensity_matching(input_path: str, output_path: str, covariates: List[str], 
+                            treatment_col: str = 'author_type') -> Tuple[pd.DataFrame, Dict[str, float]]:
+    """
+    Main function to run the propensity matching pipeline.
+    Returns the matched dataframe and the balance report (SMDs).
+    """
+    logger.info(f"Loading data from {input_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Load parquet
+    df = pd.read_parquet(input_path)
+    
+    # Filter out rows with missing covariates
+    initial_count = len(df)
+    df = df.dropna(subset=covariates + [treatment_col])
+    logger.info(f"Dropped {initial_count - len(df)} rows with missing values")
+    
+    # Estimate propensity scores
+    logger.info("Estimating propensity scores...")
+    df = estimate_propensity_scores(df, covariates, treatment_col)
+    
+    # Perform matching
+    logger.info("Performing nearest neighbor matching...")
+    matched_df = perform_matching(df, 'propensity_score', treatment_col)
+    
+    # Check balance
+    logger.info("Checking covariate balance...")
+    balance_report = check_balance(matched_df, covariates, treatment_col)
+    
+    # Save matched data
+    ensure_directories([output_path])
+    matched_df.to_parquet(output_path, index=False)
+    logger.info(f"Matched data saved to {output_path}")
+    
+    return matched_df, balance_report
+
+# --- Task T023b Implementation: Retry Logic and Failure Reporting ---
+
+def generate_matching_failure_report(max_smd: float, retry_count: int, 
+                                     covariates: List[str], smd_history: List[Dict[str, float]], 
+                                     output_path: str) -> None:
+    """
+    Generates the matching failure report and halts the pipeline.
+    """
     report = {
-        "status": "failure",
-        "reason": "SMD threshold not met after maximum retries",
-        "max_retries": MAX_RETRIES,
-        "actual_retries": result_details.get("retry_count", 0),
-        "final_covariates": result_details.get("final_covariates", []),
-        "smd_values": result_details.get("smd_values", {}),
-        "max_smd": result_details.get("max_smd", float('inf')),
-        "threshold": SMD_THRESHOLD,
-        "timestamp": pd.Timestamp.now().isoformat()
+        "status": "failed",
+        "reason": "Matching balance threshold not met after maximum retries",
+        "max_smd": max_smd,
+        "threshold": 0.1,
+        "retry_count": retry_count,
+        "max_retries": 3,
+        "covariates_used": covariates,
+        "smd_history": smd_history
     }
     
+    ensure_directories([output_path])
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    
+    logger.error(f"Matching failed. Report saved to {output_path}")
+    logger.error(f"Max SMD observed: {max_smd} (Threshold: 0.1)")
+
+def run_propensity_matching_with_retry(input_path: str, output_path: str, 
+                                       base_covariates: List[str], 
+                                       treatment_col: str = 'author_type') -> Tuple[pd.DataFrame, Dict[str, float]]:
+    """
+    Runs propensity matching with retry logic for balance improvement.
+    Tries adding interaction terms if SMD > 0.1.
+    """
+    max_smd = 0.0
+    retry_count = 0
+    smd_history = []
+    current_covariates = list(base_covariates)
+    
+    # Interaction terms to try
+    interaction_terms = [
+        ['file_size', 'complexity'],
+        ['complexity', 'activity'],
+        ['file_size', 'activity']
+    ]
+    
+    while retry_count <= 3:
+        logger.info(f"--- Matching Attempt {retry_count + 1} ---")
+        logger.info(f"Covariates: {current_covariates}")
         
-    logger.info(f"Matching failure report written to {output_path}")
+        try:
+            matched_df, balance_report = run_propensity_matching(
+                input_path, 
+                output_path, 
+                current_covariates, 
+                treatment_col
+            )
+        except Exception as e:
+            logger.error(f"Matching failed with error: {e}")
+            # If a fatal error occurs, we still need to report failure
+            generate_matching_failure_report(999.0, retry_count, current_covariates, [], output_path)
+            sys.exit(1)
+        
+        # Find max SMD
+        current_max_smd = max(abs(v) for v in balance_report.values() if not np.isnan(v))
+        smd_history.append({
+            "attempt": retry_count + 1,
+            "covariates": current_covariates,
+            "max_smd": current_max_smd,
+            "balance_details": balance_report
+        })
+        
+        logger.info(f"Attempt {retry_count + 1} Max SMD: {current_max_smd:.4f}")
+        
+        if current_max_smd > max_smd:
+            max_smd = current_max_smd
+        
+        # Check if balance is good
+        if current_max_smd <= 0.1:
+            logger.info("Balance achieved (SMD <= 0.1).")
+            return matched_df, balance_report
+        
+        # Prepare for next retry
+        if retry_count < 3:
+            logger.info(f"SMD > 0.1. Retrying with interaction term: {interaction_terms[retry_count]}")
+            new_covariates = list(current_covariates)
+            # Add interaction term
+            term1, term2 = interaction_terms[retry_count]
+            if term1 in base_covariates and term2 in base_covariates:
+                interaction_name = f"{term1}_x_{term2}"
+                # We need to add this column to the dataframe before the next run
+                # But run_propensity_matching loads the data fresh. 
+                # We need to modify the input data or handle it inside run_propensity_matching.
+                # To keep it clean, we'll modify the input file in a temp location or 
+                # pass the interaction logic down.
+                # Simpler approach: modify the data in place before the next call?
+                # No, run_propensity_matching loads from disk.
+                # We need to inject the interaction column into the data source.
+                # Let's create a helper that adds interaction columns to the input file.
+                pass 
+            else:
+                logger.warning(f"Interaction terms {term1}, {term2} not found in covariates. Skipping this interaction.")
+                # If we can't add the interaction, we might just stop or try the next one?
+                # For now, let's just break if we can't form the interaction.
+                # Actually, let's just stop trying if we can't form the interaction.
+                break
+            
+            # We need to update the input file to include the interaction column
+            # This is a bit messy. Let's refactor run_propensity_matching to accept a function 
+            # to transform the dataframe, or handle it here.
+            # Given the constraint of extending existing code, let's do it here:
+            # 1. Load data
+            # 2. Add interaction
+            # 3. Save to a temp file
+            # 4. Point next run to temp file
+            
+            # But wait, the output_path is the same. We are overwriting.
+            # Let's just update the input_path for the next iteration.
+            
+            # Load current input
+            temp_df = pd.read_parquet(input_path)
+            
+            # Add interaction
+            if term1 in temp_df.columns and term2 in temp_df.columns:
+                temp_df[interaction_name] = temp_df[term1] * temp_df[term2]
+                new_covariates.append(interaction_name)
+                
+                # Save to a temp location to avoid overwriting original input if we need it later?
+                # Or just overwrite input_path if we are in a loop?
+                # Let's save to a temp file and update input_path
+                temp_input = input_path.replace('.parquet', '_with_interaction.parquet')
+                temp_df.to_parquet(temp_input)
+                input_path = temp_input
+                
+                current_covariates = new_covariates
+            else:
+                logger.error(f"Cannot add interaction {term1} x {term2}: columns missing.")
+                break
+        else:
+            logger.error("Max retries (3) reached. Balance not achieved.")
+            generate_matching_failure_report(max_smd, retry_count, current_covariates, smd_history, output_path.replace('.parquet', '_failure_report.json'))
+            sys.exit(1)
+        
+        retry_count += 1
+    
+    # If we exit the loop without returning, it means we failed
+    logger.error("Matching failed after all retries.")
+    generate_matching_failure_report(max_smd, retry_count, current_covariates, smd_history, output_path.replace('.parquet', '_failure_report.json'))
+    sys.exit(1)
 
 def main():
     """
-    Main function to demonstrate matching with failure handling.
-    This is a test runner that creates sample data and runs the matching process.
+    Entry point for the matching script.
+    Expects arguments: --input <path> --output <path>
     """
-    logger.info("Running matching pipeline with failure handling...")
+    import argparse
+    parser = argparse.ArgumentParser(description="Run Propensity Score Matching with Retry Logic")
+    parser.add_argument("--input", type=str, required=True, help="Input parquet file path")
+    parser.add_argument("--output", type=str, required=True, help="Output parquet file path")
+    parser.add_argument("--covariates", type=str, nargs='+', default=['file_size', 'complexity', 'activity'],
+                        help="List of covariate column names")
+    parser.add_argument("--treatment-col", type=str, default='author_type', help="Treatment column name")
     
-    # Create sample data for testing
-    np.random.seed(42)
-    n_samples = 200
+    args = parser.parse_args()
     
-    sample_data = {
-        'snippet_id': [f"snippet_{i}" for i in range(n_samples)],
-        'file_size': np.random.normal(500, 200, n_samples),
-        'complexity_score': np.random.normal(10, 5, n_samples),
-        'activity_score': np.random.normal(5, 2, n_samples),
-        'treatment': np.random.binomial(1, 0.5, n_samples)  # 50% treated
-    }
+    logger.info("Starting Matching Pipeline with Retry Logic (T023b)")
     
-    # Introduce some imbalance to test retry logic
-    sample_data['file_size'] = sample_data['file_size'] + 100 * sample_data['treatment']
-    sample_data['complexity_score'] = sample_data['complexity_score'] + 3 * sample_data['treatment']
+    # Run the matching with retry
+    # Note: This function will call sys.exit(1) if it fails
+    matched_df, balance_report = run_propensity_matching_with_retry(
+        args.input,
+        args.output,
+        args.covariates,
+        args.treatment_col
+    )
     
-    df = pd.DataFrame(sample_data)
-    
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Run matching
-    success, matched_df, result_details = run_propensity_matching(df)
-    
-    if success:
-        logger.info("Matching successful!")
-        # Save matched results
-        matched_df.to_parquet("data/processed/matched_pairs.parquet", index=False)
-    else:
-        logger.warning("Matching failed. Generating failure report...")
-        generate_matching_failure_report(result_details)
-        
-        # Return failure flag
-        return 1
-        
-    return 0
+    logger.info("Matching completed successfully.")
+    logger.info(f"Final Balance Report: {balance_report}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
