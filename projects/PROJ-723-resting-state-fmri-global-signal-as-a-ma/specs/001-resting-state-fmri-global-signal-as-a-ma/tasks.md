@@ -61,8 +61,9 @@
 - [X] T004 Implement `code/config.py` to define paths, random seeds, and hyperparameters
 - [X] T005 [P] Implement `code/utils.py` for logging, file I/O helpers, and error handling
 - [X] T006 [P] Create `code/mwq_scoring.py` to document MWQ version, reverse-scoring rules, and total score calculation (Principle VII)
-- [X] T007 [P] Implement `prepare_bids_structure()` function in `code/ingestion.py` to generate BIDS-compatible directory structure logic. Output: reusable function. Verification: Run on sample subject, verify `sub-<label>/func/` exists. (Phase 0, Step 3)
-- [X] T008 [P] Implement `generate_sidecars()` function in `code/ingestion.py` to create JSON sidecars for fMRI runs. Output: reusable function. File pattern: `sub-<label>_task-rest_bold.json`. Required keys: `TR`, `voxel_size`, `pipeline_version`. (Phase 0, Step 3)
+- [X] T007 [P] Implement `prepare_bids_structure()` function in `code/ingestion.py` to generate BIDS-compatible directory structure logic. Output: reusable function. Verification: Run on sample subject, verify `sub-<label>/func/` exists and contains expected `func/` subdirectory. (Phase 0, Step 3)
+- [X] T008 [P] Implement `generate_sidecars()` function in `code/ingestion.py` to create JSON sidecars for fMRI runs. Output: reusable function. File pattern: `sub-<label>_task-rest_bold.json`. Required keys: `TR`, `voxel_size`, `pipeline_version`. Verification: Verify file exists and contains valid JSON with required keys. (Phase 0, Step 3)
+- [X] T008b [P] [Foundational] Generate `contracts/dataset.schema.yaml` defining the required columns (Subject_ID, global_signal, global_signal_sd, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS) and data types for validation. Output: `contracts/dataset.schema.yaml`. (Required by T010). **Note**: While this task is parallelizable, its output artifact blocks downstream tasks like T010.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,16 +77,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [US1] Implement data download logic in `code/ingestion.py` to fetch HCP resting-state fMRI (NPI source, parquet/zip format) and MWQ scores. Output: files in `data/raw/`. (FR-001) <!-- FAILED: unspecified -->
-- [ ] T010 [US1] [Requires: T009] Implement schema verification in `code/ingestion.py` to halt with `FATAL: Dataset Mismatch` if `contracts/dataset.schema.yaml` required columns (global_signal, global_signal_sd, etc.) are missing. Output: Log or exit code. (FR-001)
+- [X] T009 [US1] Implement data download logic in `code/ingestion.py` using `datasets.load_dataset("hcp_", split="rest", streaming=True)` to fetch HCP resting-state fMRI and MWQ scores. **Constraint**: Must stream data to avoid memory overflow; must NOT use synthetic fallbacks. If fetch fails, raise `FileNotFoundError`. **Critical Verification**: Inspect the fetched stream for required columns (`global_signal` or `global_signal_sd`). If missing, abort with `FATAL: Dataset Mismatch - Required columns not found in verified URL`. Output: files in `data/raw/`. (FR-001) <!-- ATOMIZE: requested -->
+- [ ] T010 [US1] [Requires: T009, T008b] Implement schema verification in `code/ingestion.py` to halt with `FATAL: Dataset Mismatch` if `contracts/dataset.schema.yaml` required columns (global_signal, global_signal_sd, etc.) are missing. Output: Log or exit code. (FR-001)
 - [X] T011 [US1] [Requires: T010] Implement voxel-wise mean time series (global signal) computation per run in `code/ingestion.py` (FR-002)
 - [X] T012 [US1] [Requires: T011] Implement standard deviation calculation of global signal per run and averaging across runs per subject in `code/ingestion.py` (FR-002)
 - [ ] T013 [US1] [Requires: T012] Implement subject validation logic to join fMRI and MWQ data, excluding unmatched pairs and logging counts (FR-009)
-- [ ] T014 [US1] [Requires: T013] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm and log exclusion counts (FR-008)
-- [ ] T015 [US1] [Requires: T014] Implement zero-variance check to exclude subjects with `global_signal_sd == 0` and log warnings
-- [X] T016 [US1] [Requires: T015] Generate `data/processed/cleaned_data.csv` containing Subject_ID, Global_Signal_SD, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS
-- [X] T017 [P] [US1] Unit test: Verify global signal SD calculation matches manual calculation on sample data in `tests/test_ingestion.py`
-- [X] T018 [P] [US1] Unit test: Verify exclusion logic for missing pairs and high motion subjects in `tests/test_ingestion.py`
+- [ ] T014 [US1] [Requires: T013] [Data Hygiene] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm. **Constraint**: This is a data hygiene exclusion step, NOT a model adjustment. Log exclusion counts AND subject IDs to ensure the log is generated and readable. Output: Filtered dataset. (FR-008)
+- [ ] T015 [US1] [Requires: T014] Implement zero-variance check to exclude subjects with `global_signal_sd == 0`, raise a warning, and **log the exclusion count**. (Edge Cases)
+- [ ] T016 [US1] [Requires: T015] Generate `data/processed/cleaned_data.csv` containing Subject_ID, Global_Signal_SD, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS
+- [ ] T017 [P] [US1] Unit test: Verify global signal SD calculation matches manual calculation on sample data in `tests/test_ingestion.py`
+- [ ] T018 [P] [US1] Unit test: Verify exclusion logic for missing pairs and high motion subjects in `tests/test_ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,15 +100,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement primary ridge regression pipeline in `code/modeling.py` with nested 5-fold CV for alpha tuning (FR-004)
-- [X] T020 [US2] [Requires: T019] Implement model structure `Y ~ Global_Signal_SD + FD + DVARS + Age + Sex` in `code/modeling.py` (FR-003, FR-004)
-- [X] T021 [US2] [Requires: T016] Implement null distribution generation in `code/modeling.py` by training on **[deferred]** permuted MWQ vectors (Plan Phase 2 Step 3, Complexity Tracking). Verification: Assert permutation count is 1,000 in output logs/metadata. (FR-005, Plan Constraint)
-- [ ] T022 [US2] [Requires: T021] Implement empirical p-value calculation: proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
-- [X] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect (Plan Phase 2 Step 3). Output: `data/results/delta_r2.json` containing Delta R². Verification: Verify file exists and contains valid JSON with numeric Delta R². (Plan Methodology)
-- [X] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)
-- [X] T025 [US2] [Requires: T020, T021, T022] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and null distribution stats
-- [X] T026 [P] [US2] Unit test: Verify nested CV logic and alpha tuning on synthetic data in `tests/test_modeling.py`
-- [X] T027 [P] [US2] Unit test: Verify null model performance is near zero on permuted data in `tests/test_modeling.py`
+- [ ] T019 [US2] Implement primary ridge regression pipeline in `code/modeling.py` with nested 5-fold CV for alpha tuning (FR-004)
+- [ ] T020 [US2] [Requires: T019] Implement model structure `Y ~ Global_Signal_SD + FD + DVARS + Age + Sex` in `code/modeling.py` (FR-003, FR-004)
+- [ ] T021 [US2] [Requires: T019, T016] **Execute** the null distribution generation in `code/modeling.py` by running the full nested CV pipeline on N=1000 permuted MWQ score vectors (fixed seed) and **writing the resulting MAE and R² values to `data/results/null_distribution.json`**. **Constraint**: Calculate empirical p-value using the formula $p = \frac{\text{count}(\text{Null MAE} \le \text{Observed MAE}) + 1}{N + 1}$. (FR-005, Plan Constraint)
+- [ ] T022 [US2] [Requires: T019, T021] Implement empirical p-value calculation: read `data/results/null_distribution.json` and the observed MAE from T019 execution, then calculate the proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
+- [ ] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect. **Logic**: Re-run the Full Model (T019 logic) internally to obtain baseline R². Calculate Delta R² (Full R² - Reduced R²). **Fallback**: If Reduced Model fails (e.g., collinearity), log 'High Collinearity' and report 'Predictive Gain' instead of 'Independent Effect'. Output: `data/results/delta_r2.json` containing Delta R² and status. (Plan Methodology)
+- [ ] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)
+- [ ] T025 [US2] [Requires: T019, T022, T023] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and Reduced Model stats (Delta R²).
+- [ ] T026 [P] [US2] Unit test: Verify nested CV logic and alpha tuning on synthetic data in `tests/test_modeling.py`
+- [ ] T027 [P] [US2] Unit test: Verify null model performance is near zero on permuted data in `tests/test_modeling.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,12 +122,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] [Requires: T016, T019] Implement sensitivity analysis in `code/robustness.py` to sweep alpha over a range of small to large values and report MAE variation (FR-006)
-- [X] T029 [US3] [Requires: T016, T019] Implement alternative metric analysis in `code/robustness.py` using global-signal variance instead of SD and report Pearson r (FR-007)
-- [ ] T030 [US3] [Requires: T016, T019] Implement partial correlation analysis controlling for mean FD to verify independence of GSA effect. Verification: Assert p < 0.05 (SC-005). (FR-003, SC-005)
-- [X] T031 [US3] [Requires: T028, T029, T030] Generate `data/results/robustness_report.json` containing alpha sweep results, variance metric correlation, and partial correlation stats
-- [X] T032 [P] [US3] Unit test: Verify alpha sweep results match expected MAE variations in `tests/test_robustness.py`
-- [X] T033 [P] [US3] Unit test: Verify variance metric correlation is within ±0.05 of primary SD result in `tests/test_robustness.py`
+- [ ] T028 [US3] [Requires: T016, T019] Implement sensitivity analysis in `code/robustness.py` to sweep alpha over a range of small to large values and report MAE variation (FR-006)
+- [ ] T029 [US3] [Requires: T016, T019] Implement alternative metric analysis in `code/robustness.py` using global-signal variance instead of SD and report Pearson r (FR-007)
+- [ ] T030 [US3] [Requires: T016, T019] Implement partial correlation analysis controlling for mean FD to verify independence of GSA effect. **Verification**: Calculate and report the p-value. **Comparison**: Compare the p-value against the SC-005 baseline (p < 0.05) and report the 'independence status' (met/not met). Do NOT assert p < 0.05; report the actual result and status. (FR-003, SC-005)
+- [ ] T031 [US3] [Requires: T028, T029, T030] Generate `data/results/robustness_report.json` containing alpha sweep results, variance metric correlation, and partial correlation stats
+- [ ] T032 [P] [US3] Unit test: Verify alpha sweep results match expected MAE variations in `tests/test_robustness.py`
+- [ ] T033 [P] [US3] Unit test: Verify variance metric correlation is within ±0.05 of primary SD result in `tests/test_robustness.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,8 +137,8 @@
 
 **Purpose**: Aggregate results and verify success criteria.
 
-- [X] T034a [P] Aggregate all results into `data/results/final_report.json` (Primary, Null, Robustness). (SC-001 to SC-005)
-- [ ] T034b [P] [Requires: T034a] Verify success criteria status in `final_report.json`: assert p-value < 0.05, correlation stability, etc. (SC-001 to SC-005)
+- [ ] T034a [P] Aggregate all results into `data/results/final_report.json` (Primary, Null, Robustness). (SC-001 to SC-005)
+- [ ] T034b [P] [Requires: T034a] Report success criteria status in `final_report.json`: list the p-value, correlation stability, and whether each criterion (SC-001 to SC-005) is met or not met. **Constraint**: If p-value >= 0.05, explicitly state the null finding. Do NOT assert significance; report the actual status. (SC-001 to SC-005)
 - [ ] T035 [P] [Requires: T034a] Generate visualizations: `data/results/null_dist.png`, `data/results/alpha_sweep.png`, `data/results/corr_matrix.png` using `matplotlib`.
 - [ ] T036 [P] Run end-to-end integration test on full pipeline with sample data subset
 
@@ -205,3 +206,4 @@
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must be feasible on CPU-only CI with limited computational resources, including a small number of cores, approximately modest RAM, and no GPU. No 8-bit/4-bit quantization, no large LLMs, no deep nets from scratch.
+- **Data Integrity Rule**: If a verified real data source is injected, USE it. Do not fall back to synthetic data. If data fetch fails, the script must fail loudly.

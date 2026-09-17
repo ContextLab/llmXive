@@ -1,34 +1,40 @@
-version: "1.0"
-description: Schema for the processed fMRI/MWQ dataset used in User Story 1.
+# Dataset Schema for Resting-State fMRI Global Signal Analysis
+# Required columns and their expected data types for validation
+schema_version: "1.0"
 required_columns:
-  - Subject_ID
-  - Global_Signal_SD
-  - MWQ_Score
-  - Age
-  - Sex
-  - Mean_FD
-  - Mean_DVARS
-column_types:
-  Subject_ID: string
-  Global_Signal_SD: float
-  MWQ_Score: float
-  Age: integer
-  Sex: string
-  Mean_FD: float
-  Mean_DVARS: float
-constraints:
-  - column: Subject_ID
-    unique: true
-    nullable: false
-  - column: Global_Signal_SD
-    min: 0
-    nullable: false
-  - column: MWQ_Score
-    min: 0
-    nullable: false
-  - column: Mean_FD
-    min: 0
-    nullable: false
-  - column: Mean_DVARS
-    min: 0
-    nullable: false
+  - name: Subject_ID
+    type: string
+    description: Unique identifier for each subject
+  - name: global_signal
+    type: numeric
+    description: Global signal time series (will be aggregated)
+  - name: global_signal_sd
+    type: numeric
+    description: Standard deviation of the global signal per run
+  - name: MWQ_Score
+    type: numeric
+    description: Mind-Wandering Questionnaire total score
+  - name: Age
+    type: numeric
+    description: Subject age in years
+  - name: Sex
+    type: categorical
+    allowed_values: ["M", "F", "Male", "Female", "M", "F"]
+    description: Biological sex of the subject
+  - name: Mean_FD
+    type: numeric
+    description: Mean Framewise Displacement (motion metric)
+  - name: Mean_DVARS
+    type: numeric
+    description: Mean DVARS (temporal difference of variance)
+
+validation_rules:
+  - rule: no_missing_values
+    columns: all
+    description: All required columns must have non-null values
+  - rule: positive_values
+    columns: ["global_signal_sd", "Mean_FD", "Mean_DVARS", "Age"]
+    description: These columns must contain positive values
+  - rule: unique_subject_ids
+    column: Subject_ID
+    description: Subject IDs must be unique

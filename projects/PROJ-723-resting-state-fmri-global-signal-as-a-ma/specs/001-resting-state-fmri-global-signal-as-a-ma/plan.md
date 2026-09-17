@@ -139,7 +139,7 @@ requirements.txt
         2.  Shuffle `MWQ` scores multiple times to assess the stability of the results..
         3.  For each shuffle, run the full nested CV pipeline.
         4.  Collect a set of null MAE (and R²) values.
-        5.  Calculate empirical p-value: $p = \frac{\text{count}(\text{Null MAE} \le \text{Observed MAE}) + }{1000 + 1}$.
+        5.  Calculate empirical p-value: $p = \frac{\text{count}(\text{Null MAE} \le \text{Observed MAE}) + 1}{N + 1}$, where $N$ represents the total number of permutations drawn for the significance test.
     *   **Reduced Model Comparison (Isolation Step)**:
         1.  Fit a **Reduced Model** (Y ~ FD + DVARS + Age + Sex) without GSA.
         2.  Run a sufficient number of permutations on the Reduced Model.
@@ -167,7 +167,7 @@ requirements.txt
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Nested Cross-Validation** | Required by FR-004 to tune $\alpha$ without data leakage. | Simple CV would overfit the hyperparameter, inflating performance estimates. |
-| **1,000 Permutations** | Required for robust p-value resolution (min 0.001) and tail stability. | A set of permutations yields coarse p-values (min 0.01), insufficient for distinguishing p=0.04 vs 0.06. |
+| **Permutations** | Required for robust p-value resolution and tail stability. | A set of permutations yields coarse p-values (min 0.01), insufficient for distinguishing p=0.04 vs 0.06. |
 | **Reduced Model Comparison** | Required to isolate GSA effect from covariates (Methodology concern). | Permuting the full model only tests the *whole* model, not the specific contribution of GSA. |
 | **VIF Diagnostics** | Required to validate GSA interpretability against motion (Methodology concern). | Ridge shrinks coefficients but does not resolve collinearity ambiguity; diagnostics are needed to assess validity. |
 | **Motion Confound Regression** | Required by FR-003 and FR-008 to control for motion artifacts which correlate with global signal. | Ignoring motion would introduce a severe confound, invalidating the association. |
