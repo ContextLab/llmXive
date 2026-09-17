@@ -149,7 +149,7 @@
 - [ ] T034 [US3] Implement Tobit Regression (`steps ~ loss_type * beta`) handling censored data (FR-005 correction).
 - [ ] T035 [US3] Implement Cox Proportional Hazards survival analysis for convergence "time".
 - [ ] T036 [US3] Extract interaction term F-statistic/p-value (Tobit) and Hazard Ratio/p-value (Cox).
-- [ ] T037 [US3] Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954) correction to interaction p-values (FR-008 updated).
+- [ ] T037 [US3] {{claim:c_db28a2f9}} (FR-008 updated).
 - [ ] T038 [US3] Generate `data/analysis_results.json` with corrected p-values, coefficients, and a boolean `is_significant` flag (p < 0.05) (SC-003).
 - [ ] T039 [US3] Generate final report in `data/report.md` summarizing whether contrastive loss converges faster as $\beta$ increases.
 
@@ -267,6 +267,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All training must run on CPU only (no CUDA, no bitsandbytes).
-- **Constraint**: N=110 graphs, 220 training runs total, must complete in < 6 hours.
+- **Constraint**: N=110 graphs, 220 training runs total, must complete in < 6 hours [UNRESOLVED-CLAIM: c_355c59ca — status=not_enough_info].
 - **Constraint**: Convergence threshold is fixed at 0.90.
 - **Constraint**: Power analysis (T016) MUST run before any sample size is used.

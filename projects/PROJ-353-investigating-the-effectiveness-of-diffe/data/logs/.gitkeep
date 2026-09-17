@@ -1,1 +1,2 @@
-# Logs directory for training run outputs
+# This directory stores training run logs and trajectories.
+# Files will be created by code/train.py

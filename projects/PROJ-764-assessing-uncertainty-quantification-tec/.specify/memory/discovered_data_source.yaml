@@ -1,14 +1,14 @@
 status: none
-intent: Materials Project bulk dataset download python package dataset
+intent: download OQMD Hugging Face subset with composition, formation energy, bulk
+  modulus, band gap python package dataset
 required_fields:
 - material_id
 - composition
-- structure
+- atomic_radius
+- packing_fraction
 - formation_energy_per_atom
 - bulk_modulus
 - band_gap
-- compositional_features
-- structural_descriptors
-cache_key: a93974de4dc48b082b44e5dafd29efb9ecb691764d3f968e3dbdae6ae3f8eea5
-searched_at: '2026-09-09T19:29:14.011004+00:00'
+cache_key: 116221491a8bc1efd1f84a3010b23801d9506bae31fdad0bfe97ae473c27e906
+searched_at: '2026-09-17T00:58:57.372562+00:00'
 retry_count: 1

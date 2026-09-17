@@ -1,1 +1,3 @@
-# llmXive research pipeline: tests module
+"""
+Test suite for the llmXive project.
+"""
