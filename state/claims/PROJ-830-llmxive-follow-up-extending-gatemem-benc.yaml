@@ -452,3 +452,157 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T20:50:26Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: GateMem dataset HuggingFace ID gatekeeper/gatemem
+  claim_id: c_c1e35e45
+  context: Fetch GateMem dataset from HuggingFace ID 'gatekeeper/gatemem' using 'config='default''
+    and 'split='test'' with 'streaming=True' to handle memory constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_HuggingFace_ID_gatekeeper/gatemem
+  kind: entity_fact
+  raw_text: The GateMem dataset is fetched from HuggingFace ID 'gatekeeper/gatemem'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T20:50:59Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Zero-shot intent classifier model ID facebook/bart-large-mnli
+  claim_id: c_9e248c45
+  context: Load Zero-Shot Intent Classifier using model ID 'facebook/bart-large-mnli'
+    (frozen).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zero-shot_intent_classifier_model_ID_facebook/bart-large-mnl
+  kind: entity_fact
+  raw_text: The zero-shot intent classifier uses the model ID 'facebook/bart-large-mnli'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T20:51:32Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Dataset domains medical office education household
+  claim_id: c_f27cd2f2
+  context: Verify that 'domain' values match expected set (medical, office, education,
+    household) and 'roles' match expected format.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_domains_medical_office_education_household
+  kind: entity_fact
+  raw_text: 'The dataset contains four expected domains: medical, office, education,
+    and household.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T20:52:07Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Failure case sampling random seed 42
+  claim_id: c_c7e96c73
+  context: Select a sample of cases with a 'fixed random seed (42)'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Failure case sampling uses a fixed random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T20:52:49Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Failure case sample max 50 entries
+  claim_id: c_68bfc199
+  context: Use 'random.sample(population, min(N, 50))' with 'stratification by domain'
+    if N > 50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The failure case sample is capped at a maximum of 50 entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T20:53:36Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Primary statistical method Linear Mixed-Effects Model
+  claim_id: c_2db7499a
+  context: 'Primary Path: This is the primary statistical method per FR-005.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q59901484
+        url: https://www.wikidata.org/wiki/Q59901484
+        value: Linear Mixed-Effects Model
+      - channel: wikidata
+        source_id: Q59901495
+        url: https://www.wikidata.org/wiki/Q59901495
+        value: Linear Mixed-Effects Model
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: entity_fact
+  raw_text: The primary statistical method is the Linear Mixed-Effects Model (LMM).
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T20:53:45Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Secondary statistical test McNemar's Test
+  claim_id: c_665928de
+  context: McNemar's Test is the Secondary test for binary outcomes (Access Control).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Secondary_statistical_test_McNemar's_Test
+  kind: entity_fact
+  raw_text: The secondary statistical test for binary outcomes is McNemar's Test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T20:54:11Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test alpha 0.05
+  claim_id: c_dbe0f685
+  context: "Implement Shapiro-Wilk normality test (\u03B1=0.05) on paired score differences."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk test uses an alpha level of 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T20:54:11Z'

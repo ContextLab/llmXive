@@ -99,7 +99,7 @@ The researcher needs to measure the wall-clock inference time and peak CPU/RAM u
 ## Assumptions
 
 - The GateMem dataset (arXiv:2606.18829) is publicly accessible via the linked repository and contains all necessary `leak-target` annotations and role definitions required to compute Access Control and Forgetting metrics.
-- The analysis will run on a CPU-only environment (GitHub Actions free tier: limited cores, constrained RAM); therefore, the DistilBERT model must be run in default precision without GPU acceleration, and the dataset must be processed in a memory-efficient manner (e.g., streaming or batching) to fit within ~7 GB RAM.
+- The analysis will run on a CPU-only environment (GitHub Actions free tier: limited cores, constrained RAM); therefore, the DistilBERT model must be run in default precision without GPU acceleration, and the dataset must be processed in a memory-efficient manner (e.g., streaming or batching) to fit within available memory constraints.
 - The "Retrieval-only" and "Long-Context" baselines can be replicated using the same LLM backbone (e.g., Llama-3-8B) as the Gatekeeper agent to ensure a fair comparison, assuming the LLM backbone is available via a local cache or a compatible free-tier inference endpoint.
 - The frozen DistilBERT model used for intent classification is small enough to load and run within the available RAM constraint. alongside the agent's context window.
 - The dataset does not require post-task anxiety/rumination variables; the analysis relies solely on the explicit `leak-target` and role annotations provided in the GateMem dataset.

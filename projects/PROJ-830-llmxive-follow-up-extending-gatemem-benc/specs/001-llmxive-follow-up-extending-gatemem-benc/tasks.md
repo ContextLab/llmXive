@@ -26,12 +26,15 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a Create project directory structure: `src/`, `tests/`, `data/`, `contracts/`, `state/`, `logs/`, `templates/`, `data/raw/`, `data/processed/`, `data/samples/`, `src/gatekeeper/`, `src/utils/`, `src/cli/`, `tests/contract/`, `tests/integration/`, `tests/unit/`. **Verification**: `pytest tests/unit/test_setup.py::test_directory_structure`. **Note**: Test must assert `os.path.isdir()` for all 12 specific directories listed. Consolidated T001a-1..7.
-- [X] T002a [P] Create `requirements.txt` at repository root with pinned versions. Include: `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`, `ruff`. **Verification**: `assert os.path.isfile('requirements.txt')`.
-- [X] T002b [P] Verify `requirements.txt` contains required packages. **Verification**: `pytest tests/unit/test_requirements.py::test_requirements_content`. **Note**: Test must assert presence of `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`, `ruff` and check for version pinning (e.g., `==`).
-- [X] T003 [P] Configure linting (ruff) and formatting tools. **Deliverable**: Create `pyproject.toml` with `[tool.ruff]` section and `.ruff.toml` (if needed) defining line length 88, target-version py311. **Verification**: `assert os.path.isfile('pyproject.toml') and 'ruff' in open('pyproject.toml').read()`.
-- [X] T037a [P] Create `quickstart.md` in `specs/001-llmxive-follow-up-extending-gatemem-benc/` with initial project setup instructions, dataset download guide, and basic run commands. **Deliverable**: A markdown file in `specs/001-llmxive-follow-up-extending-gatemem-benc/` containing step-by-step instructions for environment setup, dataset fetching, and running the first evaluation. **Dependency**: None. **Verification**: `pytest tests/unit/test_docs.py::test_quickstart_exists`.
-- [X] T037b [P] Create `tests/unit/test_docs.py` with `test_quickstart_exists` function. **Deliverable**: A python test file that asserts `os.path.isfile('specs/001-llmxive-follow-up-extending-gatemem-benc/quickstart.md')`. **Verification**: `pytest tests/unit/test_docs.py::test_quickstart_exists`.
+- [X] T001a [P] Create project directory structure: `src/`, `tests/`, `data/`, `contracts/`, `state/`, `logs/`, `templates/`. **Verification**: `assert all(os.path.isdir(p) for p in ['src', 'tests', 'data', 'contracts', 'state', 'logs', 'templates'])`.
+- [X] T001b [P] Create subdirectories: `src/gatekeeper/`, `src/utils/`, `src/cli/` (with `__init__.py`). **Verification**: `assert all(os.path.isdir(p) for p in ['src/gatekeeper', 'src/utils', 'src/cli'])`.
+- [X] T001c [P] Create subdirectories: `tests/contract/`, `tests/integration/`, `tests/unit/`. **Verification**: `assert all(os.path.isdir(p) for p in ['tests/contract', 'tests/integration', 'tests/unit'])`.
+- [X] T001d [P] Create subdirectories: `data/raw/`, `data/processed/`, `data/samples/`. **Verification**: `assert all(os.path.isdir(p) for p in ['data/raw', 'data/processed', 'data/samples'])`.
+- [X] T002a [P] Create `requirements.txt` at repository root with pinned versions. Include: `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`. **Verification**: `assert os.path.isfile('requirements.txt')`.
+- [X] T002b [P] Verify `requirements.txt` contains required packages. **Verification**: `pytest tests/unit/test_requirements.py::test_requirements_content`.
+- [X] T003a [P] Create `.ruff.toml` at repository root with linting rules (max-line-length=88, select=["E", "F", "I"]). **Verification**: `assert os.path.isfile('.ruff.toml')`.
+- [X] T003b [P] Create `tests/unit/test_lint_config.py` to verify `.ruff.toml` exists and is valid. **Verification**: `pytest tests/unit/test_lint_config.py::test_ruff_config_exists`.
+- [X] T037a [P] Create `quickstart.md` in `specs/001-llmxive-follow-up-extending-gatemem-benc/` with initial project setup instructions, dataset download guide, and basic run commands. **Deliverable**: A markdown file in `specs/001-llmxive-follow-up-extending-gatemem-benc/` containing step-by-step instructions for environment setup, dataset fetching, and running the first evaluation. **Dependency**: None. **Verification**: `pytest tests/unit/test_docs.py::test_quickstart_exists` AND `assert "dataset download" in content` AND `assert "run commands" in content`.
 
 ---
 
@@ -54,8 +57,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T006a [FR-001] Create `src/utils/data_loader.py` function `fetch_dataset()`:
  - Fetch GateMem dataset. **CRITICAL**: Do NOT hardcode a specific HuggingFace ID. Read `DATASET_ID` from `src/utils/config.py` or environment variable. If `DATASET_ID` is not set, raise `FileNotFoundError` with message "Dataset ID not configured. Please set DATASET_ID in config.py or env var."
  - **Strictly NO synthetic fallback**. If fetch fails (network error, missing file), raise `ConnectionError` immediately and exit with code 1. Log "Critical: Real Data Fetch Failed". **Rationale**: Constitution Principle I (Reproducibility) requires failure on missing data, not substitution.
- - **Verification**: The dataset must be verified against the arXiv paper's repository or a known public source before use. If the ID is invalid, the task must fail.
- - **Checksumming**: Upon successful download, compute SHA256 checksum and write to `state/artifact_hashes.yaml` under key `gatemem_test`.
+ - **Checksumming**: Upon successful download, compute SHA checksum and write to `state/artifact_hashes.yaml` under key `gatemem_test`.
  - **Validation**: Verify the dataset contains all required variables (`outcome`, `predictors`, `covariates`) before returning. If missing, raise `ValueError`.
  - **Dependency**: None.
  - **Verification**: `pytest tests/unit/test_data_loader.py::test_fetch_streaming`.
@@ -76,28 +78,50 @@ Examples of foundational tasks (adjust based on your project):
  - **Dependency**: None.
 - [X] T006d [FR-001] Create `src/utils/data_loader.py` function `validate_episode()`:
  - Validate presence of `outcome`, `predictors`, `covariates`, `leak-target` against `contracts/dataset.schema.yaml`.
- - **Semantic Validation**: At runtime, verify that `domain` values match expected set (medical, office, education, household) and `roles` match expected format. If values are invalid, log "validation error" and exclude episode.
- - **Checksum Verification**: At runtime, verify the checksum in `state/artifact_hashes.yaml` matches the raw data before processing. **Explicitly check if `state/artifact_hashes.yaml` exists and contains the key `gatemem_test`. If missing, log "First run detected: Checksum file missing. Proceeding without verification" and skip check. If file exists but checksum mismatched, raise `ValueError` with message "Checksum mismatch. Data integrity compromised."**
- - **Dependency**: T004 (schema generation), T005 (schema generation), **T006a** (data fetch), **T006e** (checksum generation). **Note**: This task must be executed sequentially after T006a and T006e complete to ensure the checksum file exists. **No [P] tag**.
+ - **Semantic Validation**: At runtime, verify that `domain` values match expected set (medical, office, education, household) and `roles` match expected format. If values are invalid, **flag the episode with valid=false and log the anomaly. Do NOT exclude from dataset**.
+ - **Checksum Verification**: At runtime, verify the checksum in `state/artifact_hashes.yaml` matches the raw data (`data/raw/gatemem_test.jsonl`) before processing using **SHA-256**. **Explicitly check if `state/artifact_hashes.yaml` exists and contains the key `gatemem_test`. If missing, raise `FileNotFoundError` with message "Checksum file missing. Data integrity cannot be verified. Aborting." If file exists but checksum mismatched, raise `ValueError` with message "Checksum mismatch. Data integrity compromised."**
+ - **Dependency**: T004, T005, **T006a**. **Note**: This task must be executed after T006a in the pipeline to ensure the checksum file exists. **No [P] tag**.
  - **Verification**: `pytest tests/unit/test_data_loader.py::test_validate_episode`.
 - [ ] T007 [P] Create `src/utils/profiling.py` for CPU/RAM and wall-clock time instrumentation (using `tracemalloc` or `psutil`):
  - Implement `profile_execution()` function returning a dict with standardized keys: `{'latency_ms': float, 'peak_ram_mb': float}`.
  - **Standardization**: All profiling tasks MUST use this function to ensure identical output keys for Gatekeeper and Baselines.
  - **Verification**: `pytest tests/unit/test_profiling.py::test_profile_execution_returns_dict`.
-- [ ] T008a [FR-005] Create `src/utils/stats.py` module with statistical primitives:
- - **Deviation Note**: The Spec (FR-005) mandates a Linear Mixed-Effects Model (LMM). Due to N=4 domains (insufficient for random effects), this task implements a **Fixed-Effects GLM** instead. This is a documented deviation requiring a Spec amendment.
- - Implement `shapiro_wilk_test()`: Shapiro-Wilk normality test (α=0.05).
- - Implement `fit_fixed_effects_glm()`: Fixed-Effects Logistic Regression (GLM) using `statsmodels` with formula `score ~ method + C(Domain)`. **Explicitly state 'Domain' is a fixed effect covariate**.
- - Implement `run_mcnemar_test()`: McNemar's Test for paired binary outcomes.
- - **Artifact**: Produces dicts with `[p_value, test_statistic, method]`.
- - **Dependency**: None.
- - **Verification**: `pytest tests/unit/test_stats.py::test_stat_primitives`.
-- [ ] T008b [FR-005] Create `src/utils/stats.py` function `run_full_stats_pipeline()`:
- - **Deviation Note**: Implements Fixed-Effects GLM (see T008a) instead of Spec-mandated LMM due to N=4 domains.
- - **Control Flow**: 1. **Primary**: Run McNemar's Test (for binary Access Control outcomes). 2. **Secondary**: Run Fixed-Effects GLM (for continuous/ordinal Utility/Forgetting). 3. **Normality Check**: If GLM used, perform Shapiro-Wilk on paired differences -> Wilcoxon/t-test. 4. **Fallback**: If GLM fails -> Domain-Stratified Analysis (average p-values).
- - **Dependency**: T008a. **No [P] tag**.
- - **Artifact**: Produces `stats_results` dict with keys: `[method_used, p_value, test_statistic, fallback_reason]`.
+- [ ] T008a [FR-005] Create `src/utils/stats.py` function `shapiro_wilk_test()`:
+ - Implement Shapiro-Wilk normality test (α=0.05) on paired score differences.
+ - **Artifact**: Produces `normality_results` dict for T008e/T026a.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_shapiro_wilk_returns_p_value`.
+- [ ] T008b [FR-005] Create `src/utils/stats.py` function `fit_fixed_effects_glm()`:
+ - Implement Fixed-Effects Logistic Regression (GLM) using `statsmodels` with formula `score ~ method + C(Domain)`. **Explicitly state 'Domain' is a fixed effect covariate**.
+ - **Tertiary Path**: This is the tertiary statistical method if LMM and Stratified Analysis fail.
+ - **Artifact**: Produces `glm_results` dict for T008e.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_fit_glm_returns_dict`.
+- [ ] T008c [FR-005] Create `src/utils/stats.py` function `run_post_hoc()`:
+ - Implement test selection logic: Use Shapiro-Wilk result to choose between parametric (t-test) or non-parametric (Wilcoxon) post-hoc tests on paired differences.
+ - **Artifact**: Produces `post_hoc_results` dict for T008e.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_run_post_hoc_returns_dict`.
+- [ ] T008d [FR-005] Create `src/utils/stats.py` function `domain_stratified_analysis()`:
+ - Implement domain-stratified analysis with aggregation method (average p-values).
+ - **Primary Fallback**: This is the **immediate fallback** if LMM is infeasible (per FR-005).
+ - **Artifact**: Produces `stratified_results` dict for T008e.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_domain_stratified_analysis_returns_dict`.
+- [ ] T008g [FR-005] Create `src/utils/stats.py` function `fit_lmm()`:
+ - Implement Linear Mixed-Effects Model (LMM) using `statsmodels` or `linearmixed` with formula `score ~ method + (1|Domain)`.
+ - **Primary Path**: This is the primary statistical method per FR-005.
+ - **Artifact**: Produces `lmm_results` dict for T008e.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_fit_lmm_returns_dict`.
+- [ ] T008e [FR-005] Create `src/utils/stats.py` function `run_full_stats_pipeline()`:
+ - Implement orchestration logic returning a dict with keys: `[method_used, p_value, test_statistic, fallback_reason]`.
+ - **Control Flow**: 1. **Primary**: Try Linear Mixed-Effects Model (LMM) (T008g). 2. If `SingularMatrixError` or infeasible -> **Domain-Stratified Analysis** (T008d). 3. **Tertiary**: If Stratified Analysis fails -> Fixed-Effects GLM (T008b). 4. **Post-Hoc**: On success of any model, perform Normality Check (Shapiro-Wilk on paired differences) -> Wilcoxon/t-test (T008c).
+ - **Dependency**: T008a, T008b, T008c, T008d, T008g. **No [P] tag**.
  - **Verification**: `pytest tests/unit/test_stats.py::test_full_stats_pipeline_returns_dict`.
+- [ ] T008f [FR-005] [US2] [DEPENDS ON T016, T017c] Implement `src/utils/stats.py` function `pair_episodes()`:
+ - **Executable Task**: Implement logic to match episodes across Gatekeeper and Baseline conditions using `episode_id`.
+ - **Input**: Must be the raw results from T016 and T017c (before metric calculation) OR the unified metrics from T023 (if T023 includes episode_id). **Clarification**: This task pairs raw results from T016/T017c to ensure correct alignment before statistical testing.
+ - **Output**: Produces `paired_data` list for T026a/b/c.
+ - **Constraint**: If `episode_id` is missing or mismatched, raise `ValueError`.
+ - **Dependency**: T016, T017c. **Note**: T023 does NOT depend on T008f. T023 calculates metrics on raw T016/T017c outputs. T008f pairs raw results for T026a.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_pair_episodes_executable`.
+- [X] T009 [P] Create `src/gatekeeper/pipeline.py` skeleton with entry points: `run_gatekeeper()`, `run_baseline()`, and `main()` for argument parsing
 - [ ] T015a [FR-002] Create `src/gatekeeper/rules.py` with regex-based rule engine for role validation and deletion log checking:
  - Implement specific regex patterns for role validation (e.g., `r"role:\s*(\w+)"`) and deletion log checking.
  - **Dependency**: None.
@@ -108,9 +132,9 @@ Examples of foundational tasks (adjust based on your project):
  - **Dependency**: Must run after T015a.
  - **Verification**: `pytest tests/unit/test_rules.py::test_malformed_handling`.
 - [ ] T014a [FR-002] [US-1] Create `src/gatekeeper/classifiers.py`:
- - **Task**: Load Zero-Shot Intent Classifier using model ID `facebook/bart-large-mnli`.
+ - **Task**: Load Zero-Shot Intent Classifier using model ID `facebook/bart-large-mnli` (frozen).
  - **Logic**: Implement `run_inference()` function returning `{'inference_time_ms': float, 'peak_ram_mb': float}`.
- - **Zero-Shot Logic**: Use HuggingFace `pipeline('zero-shot-classification', model='facebook/bart-large-mnli')` to perform zero-shot classification against the `leak-target` schema labels (e.g., "allowed", "denied") without fine-tuning. **Do NOT use a generic BERT base model**.
+ - **Zero-Shot Logic**: The classifier must perform zero-shot classification against the `leak-target` schema labels using `pipeline('zero-shot-classification', model='facebook/bart-large-mnli', candidate_labels=['allowed', 'denied'])`. **Explicitly map schema labels to model candidates**.
  - **CPU Enforcement**: Explicitly enforce CPU execution: Set `device='cpu'` and `torch.set_default_device('cpu')`. Do NOT raise an error if CUDA is available; simply force CPU usage to ensure reproducibility on diverse runners.
  - **Profiling Standardization**: Must use `src/utils/profiling.py` (T007) to generate these values to ensure consistent keys.
  - **Retry Logic**: If model load fails (cache corruption), retry once. If retry fails, exit with code 1 and log "Critical: Model Unavailable".
@@ -126,6 +150,11 @@ Examples of foundational tasks (adjust based on your project):
  - Ensure all prompts use identical system instructions and few-shot examples where applicable.
  - **Constraint**: This file is the single source of truth for prompt engineering; any deviation between methods here invalidates the comparison.
  - **Verification**: `pytest tests/unit/test_prompts.py::test_prompts_load_successfully`.
+- [ ] T044 [P] Create `src/utils/config.py` function `get_llm_singleton()`:
+ - **Task**: Implement a singleton pattern for the LLM backbone (e.g., Llama-3-8B) to ensure identical instance usage across Gatekeeper and Baselines.
+ - **Logic**: Return a shared LLM instance with a unique `instance_id` exposed for verification.
+ - **Verification**: `pytest tests/unit/test_config.py::test_llm_singleton`.
+ - **Dependency**: None.
 
 ---
 
@@ -137,31 +166,34 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [X] T016 [US1] [DEPENDS ON T006, T009, T014a, T015a, T043] [FR-002] Implement `src/gatekeeper/pipeline.py` logic:
+- [ ] T016 [US1] [DEPENDS ON T006, T009, T014a, T015a, T043, T044] [FR-002] Implement `src/gatekeeper/pipeline.py` logic:
  - Implement `run_gatekeeper_episode()` function: Filter memory access using Classifier (T014a) + Rules (T015a) (AND logic) before LLM step.
  - **Prompt Templates**: Must load prompt templates from `templates/prompts.yaml` (T043) to ensure identical templates with baselines.
+ - **LLM Backbone**: Must use the shared LLM instance from T044.
  - Reference `contracts/dataset.schema.yaml` for data structure.
  - **Output**: Write results to `data/processed/gatekeeper_results.json` with keys: `[episode_id, method, score, latency_ms, peak_ram_mb]`.
  - **Concurrency**: This task must run sequentially or with file locking to avoid race conditions on `data/processed/`.
- - **Dependency**: T006 (data loading), T009 (skeleton), T014a (classifier), T015a (rules), T043 (prompts).
+ - **Dependency**: T006 (data loading), T009 (skeleton), T014a (classifier), T015a (rules), T043 (prompts), T044 (LLM).
  - **Verification**: `pytest tests/integration/test_us1_medical_domain.py`.
-- [X] T017a [US1] [DEPENDS ON T006, T009, T043] [FR-003] Implement `src/gatekeeper/pipeline.py` logic:
+- [ ] T017a [US1] [DEPENDS ON T006, T009, T043, T044] [FR-003] Implement `src/gatekeeper/pipeline.py` logic:
  - Implement "Retrieval-only" baseline execution path.
  - **Enforce identical prompt templates**: Load from `templates/prompts.yaml` (T043).
  - **Enforce identical retrieval parameters, and random seeds** as defined in FR-003 and T016 configuration.
+ - **LLM Backbone Verification**: Must use the shared LLM instance from T044. **Verify: Log LLM instance ID and assert match with Gatekeeper run log**.
  - **Profiling**: Must use `src/utils/profiling.py` (T007) to log `latency_ms` and `peak_ram_mb` with standardized keys.
  - **Output**: Write results to `data/processed/baseline_retrieval_results.json`. **Schema**: `[episode_id, method, score, latency_ms, peak_ram_mb]`.
  - **Concurrency**: This task must run sequentially or with file locking to avoid race conditions on `data/processed/`.
- - **Dependency**: T006, T009, T043.
+ - **Dependency**: T006, T009, T043, T044.
  - **Verification**: `pytest tests/contract/test_baseline_retrieval_results.py`.
-- [X] T017b [US1] [DEPENDS ON T006, T009, T043] [FR-003] Implement `src/gatekeeper/pipeline.py` logic: <!-- FAILED: unspecified -->
+- [ ] T017b [US1] [DEPENDS ON T006, T009, T043, T044] [FR-003] Implement `src/gatekeeper/pipeline.py` logic:
  - Implement "Long-Context" baseline execution path.
  - **Enforce identical prompt templates**: Load from `templates/prompts.yaml` (T043).
- - **Enforce identical retrieval parameters, and random seeds** (same as T017a).
+ - **Enforce identical retrieval parameters, and random seeds**.
+ - **LLM Backbone Verification**: Must use the shared LLM instance from T044. **Verify: Log LLM instance ID and assert match with Gatekeeper run log**.
  - **Profiling**: Must use `src/utils/profiling.py` (T007) to log `latency_ms` and `peak_ram_mb` with standardized keys.
  - **Output**: Write results to `data/processed/baseline_longcontext_results.json`. **Schema**: `[episode_id, method, score, latency_ms, peak_ram_mb]`.
  - **Concurrency**: This task must run sequentially or with file locking to avoid race conditions on `data/processed/`.
- - **Dependency**: T006, T009, T043.
+ - **Dependency**: T006, T009, T043, T044.
  - **Verification**: `pytest tests/contract/test_baseline_longcontext_results.py`.
 - [ ] T018 [US1] [FR-004] Implement `src/gatekeeper/metrics.py` function: `calculate_access_control()`:
  - Calculate Access Control score (unauthorized exposure rate) against ground truth.
@@ -193,10 +225,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] [DEPENDS ON T016, T017a, T017b] [FR-004] Implement `src/gatekeeper/metrics.py` function: `calculate_all_metrics()`:
- - Calculate Utility, Access Control, and Forgetting for **EVERY test episode** in a single pass using results from T016 and T017a/b.
+- [ ] T023 [US2] [DEPENDS ON T016, T017c] [FR-004] Implement `src/gatekeeper/metrics.py` function: `calculate_all_metrics()`:
+ - Calculate Utility, Access Control, and Forgetting for **EVERY test episode** in a single pass using results from T016 and T017c.
+ - **Clarification**: This task operates on the **raw results** from T016 and T017c (which contain `episode_id`). It does NOT depend on T008f (pair_episodes). It calculates metrics per episode and outputs a unified file.
  - **Output**: Write a unified results file `data/processed/unified_metrics.json` containing all metrics for all episodes, keyed by `episode_id`.
- - **Dependency**: T016 (Gatekeeper results), T017a (Retrieval results), T017b (Long-Context results). **No [P] tag**.
+ - **Dependency**: T016 (Gatekeeper results), T017c (Baseline results). **Note: T023 must run AFTER T017c to ensure baseline results exist. T023 does NOT depend on T008f.**
  - **Verification**: `pytest tests/unit/test_metrics.py::test_all_metrics_calculation`.
 - [ ] T023a [P] [US2] [FR-004] Implement `src/gatekeeper/metrics.py` function: `calculate_conditional_utility()`:
  - Calculate Conditional Utility (task success rate among queries allowed by the Gatekeeper).
@@ -214,20 +247,27 @@ Examples of foundational tasks (adjust based on your project):
  - Calculate False Positive (valid query blocked) and False Negative (leak allowed) rates - **Supporting Metric**
  - **Output**: Must include `episode_id` for pairing.
  - **Dependency**: T023.
-- [ ] T008f-exec [US2] [DEPENDS ON T023, T017a, T017b] [FR-005] Implement `src/utils/stats.py` function `pair_episodes()`:
- - **Executable Task**: Implement logic to match episodes across Gatekeeper and Baseline conditions using `episode_id`.
- - **Input**: Must be the unified results from T023 and baseline results from T017a/b.
- - **Output**: Produces `paired_data` list for T026a.
- - **Constraint**: If `episode_id` is missing or mismatched, raise `ValueError`.
- - **Dependency**: T023, T017a, T017b.
- - **Verification**: `pytest tests/unit/test_stats.py::test_pair_episodes_executable`.
-- [ ] T026a [US2] [DEPENDS ON T008a, T008b, T008f-exec, T023, T017a, T017b] [FR-005] Implement `src/utils/stats.py` integration:
- - **Role**: Orchestrator of the statistical pipeline.
- - **Logic**: 1. Call `pair_episodes()` (T008f-exec) to get paired data. 2. Call `run_full_stats_pipeline()` (T008b) to perform McNemar's, GLM, Normality Checks, and Fallbacks.
- - **Input**: List of Dicts with keys `[episode_id, score, method]`.
- - **Output Schema**: Dict with keys `[method_used, p_value, test_statistic, fallback_reason]`.
- - **Dependency**: T008a, T008b, **T008f-exec**, T023, T017a, T017b. **No [P] tag**.
+- [ ] T026a [US2] [DEPENDS ON T008a, T008b, T008c, T008d, T008g, T008f, T023] [US2] Implement `src/utils/stats.py` integration:
+ - Implement `run_statistical_comparison()` function:
+ 1. **Primary Model Fit**: Attempt Linear Mixed-Effects Model (LMM) (T008g) for Access Control and Utility.
+ 2. **Primary Fallback**: If LMM fails (singularity/data insufficiency), run **Domain-Stratified Analysis** (T008d).
+ 3. **Tertiary Fallback**: If Stratified Analysis fails, run Fixed-Effects GLM (T008b).
+ 4. **Post-Hoc Selection**: On success of any model, extract paired differences/residuals. **MUST perform Normality Check (Shapiro-Wilk, T008a) BEFORE selecting post-hoc test**. **Select Post-Hoc Test**: If normal -> t-test; If non-normal -> Wilcoxon (T008c).
+ 5. **Pairing**: Must call `pair_episodes()` (T008f) to ensure paired comparison of Gatekeeper vs Baseline scores. **Input: List of Dicts with keys [episode_id, score, method].**
+ - **Output Schema**: Dict with keys `[method_used, p_value, test_statistic, fallback_reason, post_hoc_test]`.
+ - **Dependency**: T008a, T008b, T008c, T008d, T008g, **T008f**, T023. **No [P] tag**.
  - **Verification**: `pytest tests/unit/test_stats.py::test_statistical_comparison_returns_dict`.
+- [ ] T026b [US2] [DEPENDS ON T008f] [US2] Implement secondary statistical validation for binary outcomes:
+ - Implement `run_mcnemar_test()` function for paired binary outcomes (Access Control only) as the **Secondary** test per Plan Summary.
+ - **Output**: Dict with keys `[test_statistic, p_value, method]`.
+ - **Dependency**: **T008f**.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_mcnemar_test_returns_dict`.
+- [ ] T026c [US2] [DEPENDS ON T008f] [US2] Implement primary statistical validation for continuous outcomes:
+ - Implement `run_ttest_wilcoxon()` function for paired continuous outcomes (Utility scores) as mandated by Constitution Principle VI and FR-005.
+ - **Logic**: Select t-test or Wilcoxon based on Shapiro-Wilk result (T008a).
+ - **Output**: Dict with keys `[test_statistic, p_value, method]`.
+ - **Dependency**: **T008f**, T008a.
+ - **Verification**: `pytest tests/unit/test_stats.py::test_ttest_wilcoxon_returns_dict`.
 - [ ] T027 [US2] Implement `src/cli/run_evaluation.py` logic: Execute US2 pipeline on `--domain education,household` using existing CLI skeleton
 - [ ] T028a [US2] [DEPENDS ON T023] Implement `src/cli/run_evaluation.py` logic:
  - Generate individual result files for Utility, Conditional Utility, Forgetting, etc.
@@ -239,17 +279,14 @@ Examples of foundational tasks (adjust based on your project):
  - **Verification**: `pytest tests/contract/test_combined_metrics.py`.
 - [ ] T029a [US2] [DEPENDS ON T023] Implement failure case sampling logic:
  - Select a sample of cases with a **fixed random seed (42)**.
- - **Logic**: Filter results from `data/processed/unified_metrics.json` for failures (False Positive + False Negative + Forgetting Violations).
- - **Definition**: 'False Positive' = valid query blocked; 'False Negative' = leak allowed; **'Forgetting Violation' = `deletion_request=True` AND `deletion_success=False`** (derived from raw boolean field in episode data, NOT the aggregated metric).
- - **Sampling Method**:
- - If **total failure count** N <= 50: Select **All** cases (Simple Random Sample of the population).
- - If **total failure count** N > 50: Select a **Stratified Random Sample** (stratified by domain) to ensure proportional representation within 5% tolerance.
- - **Log N**: Log the total count N and the stratification ratio for each domain.
- - **Verification**: Verify stratification ratio is within 5% tolerance of expected domain proportion.
+ - **Logic**: Filter results from `data/processed/unified_metrics.json` for failures (**False Positive** + **False Negative**). **Do NOT include Forgetting Violations in this sample**.
+ - **Definition**: 'False Positive' = valid query blocked; 'False Negative' = leak allowed.
+ - Calculate N = total failure count.
+ - If N > 0: Use `random.seed(42)` and `random.sample(population, min(N, 50))` with **stratification by domain** if N > 50. If N <= 50, use `random.sample` to select all (ensuring randomness even for small N).
+ - If N = 0: Create an empty file and log a warning.
  - Output to `data/samples/failure_cases.json`.
- - **If a small number of failures exist, output all available. If zero failures exist, create an empty file and log a warning.**
- - **Dependency**: T023. **No [P] tag**.
- - **Verification**: `pytest tests/unit/test_failure_sampling.py::test_sampling_logic_stratified` and `pytest tests/unit/test_failure_sampling.py::test_sampling_logic_seed_42` and `pytest tests/unit/test_failure_sampling.py::test_stratification_tolerance`.
+ - **Dependency**: T023.
+ - **Verification**: `pytest tests/unit/test_failure_sampling.py::test_sampling_logic_stratified` and `pytest tests/unit/test_failure_sampling.py::test_sampling_logic_seed_42`.
 - [ ] T029b [US2] [DEPENDS ON T029a] [P] Create unit test for failure case sampling:
  - File: `tests/unit/test_failure_sampling.py`
  - Assertion: Verify `data/samples/failure_cases.json` exists, contains correct count (N or 50), and is stratified correctly if N > 50. Ensure a fixed random seed was used.
@@ -312,13 +349,14 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T037 [P] Documentation: Update `quickstart.md` with instructions to run the full benchmark suite
-- [ ] T038 Code cleanup: Refactor imports and ensure type hinting in `src/` modules
+- [ ] T037b [P] Documentation: Update `quickstart.md` with instructions to run the full benchmark suite
+- [ ] T038a [P] Run `mypy --strict src/` to check type hints. **Verification**: `assert mypy_exit_code == 0`.
+- [ ] T038b [P] Fix any type errors reported by T038a. **Verification**: `assert mypy_exit_code == 0` after fixes.
 - [ ] T039 [P] Security: Run PII scan on `data/raw/` and `data/processed/` artifacts
 - [ ] T040 [P] Run `pytest` for all unit, integration, and contract tests
 - [ ] T041 Validate `data/results/final_benchmark_report.md` against `contracts/results.schema.yaml`
 - [ ] T042 [P] Add `tests/contract/test_failure_cases.py` to verify schema and count of `data/samples/failure_cases.json`.
- - Verify `data/samples/failure_cases.json` contains exactly 50 entries (or N if N<50). **N is defined as the total count of identified failure cases (False Positives + False Negatives + Forgetting Violations) from the results JSON.** **If N > 50, verify entries are stratified by domain.** Ensure a fixed random seed was used.
+ - Verify `data/samples/failure_cases.json` contains exactly 50 entries (or N if N<50). **N is defined as the total count of identified failure cases (False Positives + False Negatives) from the results JSON.** **If N > 50, verify entries are stratified by domain.** Ensure a fixed random seed was used.
 
 ---
 
@@ -349,7 +387,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T004, T005, T006b-c, T007, T008a) can run in parallel (within Phase 2) **BUT** T006d and T008b must wait for their components.
+- All Foundational tasks marked [P] (T004, T005, T006a-c, T007, T008a-d, T008g) can run in parallel (within Phase 2) **BUT** T006d and T008e must wait for their components.
 - All user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -400,7 +438,6 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [DEF] tasks = function definitions that cannot be executed until later phases (e.g., T008f)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -409,6 +446,8 @@ With multiple developers:
 - **Constraint**: All models must run on CPU-only (DistilBERT Zero-Shot); no low-bit quantization or CUDA usage.
 - **Constraint**: Dataset must be processed in batches or streamed to fit available RAM.
 - **Constraint**: Random seeds fixed to ensure reproducibility.
-- **Statistical Fallback**: Primary method is **McNemar's Test** (for binary outcomes) and **Fixed-Effects GLM** (for continuous outcomes) as per Plan.md. LMM is explicitly rejected due to N=4 domains. Normality checks determine post-hoc test (t-test/Wilcoxon). **Note**: This is a documented deviation from Spec FR-005 requiring a Spec amendment.
-- **Data Integrity**: **T006a/b/c/d/e** include strict fail-loud, streaming, and checksum logic. Synthetic fallbacks are strictly prohibited.
+- **Statistical Fallback**: Primary method is LMM (FR-005). If infeasible, use **Domain-Stratified Analysis**. If Stratified fails, use Fixed-Effects GLM. Normality checks determine post-hoc test (t-test/Wilcoxon). **McNemar's Test is the Secondary test for binary outcomes (Access Control)**.
+- **Data Integrity**: **T006a/b/c/d** include strict fail-loud, streaming, and checksum logic. Synthetic fallbacks are strictly prohibited.
 - **Prompt Integrity**: T043 ensures prompt consistency across Gatekeeper and Baselines, a prerequisite for valid comparison (FR-003).
+- **LLM Integrity**: T044 ensures a shared LLM instance across Gatekeeper and Baselines to prevent configuration drift.
+- **Dependency Clarification**: T023 (calculate_all_metrics) operates on raw T016/T017c outputs. T008f (pair_episodes) pairs raw T016/T017c outputs for T026a. T023 does NOT depend on T008f.

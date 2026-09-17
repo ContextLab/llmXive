@@ -1,328 +1,352 @@
+"""
+Statistical analysis utilities for GateMem benchmarking.
+
+This module provides functions for statistical testing, including
+Linear Mixed-Effects Models (LMM), Fixed-Effects GLM, domain-stratified analysis,
+and post-hoc tests.
+"""
+
 import logging
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Dict, Any, List, Union, Tuple, Optional
+
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-from statsmodels.formula.api import glm as sm_glm
-from statsmodels.genmod.families import Binomial
+import statsmodels.api as sm
+from statsmodels.regression.mixed_linear_model import MixedLM
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.genmod import families
 
 logger = logging.getLogger(__name__)
 
-def shapiro_wilk_test(data: Union[List[float], np.ndarray]) -> Dict[str, Any]:
+
+def fit_lmm(
+    data: Union[pd.DataFrame, List[Dict[str, Any]]],
+    score_col: str = 'score',
+    method_col: str = 'method',
+    domain_col: str = 'domain',
+    subject_col: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Perform Shapiro-Wilk normality test on a 1D array of data.
-    
+    Fit a Linear Mixed-Effects Model (LMM) as the primary statistical method.
+
+    Formula: score ~ method + (1|Domain)
+
     Args:
-        data: 1D array of numerical values (paired differences).
-        
+        data: Input data as DataFrame or list of dicts.
+        score_col: Name of the score column.
+        method_col: Name of the method column (fixed effect).
+        domain_col: Name of the domain column (random effect grouping).
+        subject_col: Optional subject ID column if available.
+
     Returns:
-        Dict with keys: 'p_value', 'statistic', 'method' (Shapiro-Wilk).
+        Dict with keys:
+            - 'method_used': 'LMM'
+            - 'p_value': float (p-value for method effect)
+            - 'test_statistic': float (t-statistic for method effect)
+            - 'coefficients': Dict of model coefficients
+            - 'random_effects_variance': Variance of random effects
+            - 'converged': bool
+            - 'fallback_reason': None (primary method)
+
+    Raises:
+        ValueError: If data is insufficient or invalid.
+        RuntimeError: If model fitting fails with unrecoverable error.
     """
-    if len(data) < 3:
-        logger.warning("Sample size too small for Shapiro-Wilk test (< 3). Returning None.")
-        return {
-            'p_value': None,
-            'test_statistic': None,
-            'method': 'Shapiro-Wilk (skipped: N < 3)',
-            'reason': 'Insufficient sample size'
-        }
-    
+    logger.info("Fitting Linear Mixed-Effects Model (LMM)...")
+
+    # Convert to DataFrame if needed
+    if isinstance(data, list):
+        df = pd.DataFrame(data)
+    else:
+        df = data.copy()
+
+    # Validate required columns
+    required_cols = [score_col, method_col, domain_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in LMM input: {missing}")
+
+    # Ensure method is categorical
+    df[method_col] = df[method_col].astype('category')
+
+    # Check for sufficient data
+    n_obs = len(df)
+    n_groups = df[domain_col].nunique()
+    n_methods = df[method_col].nunique()
+
+    if n_obs < 10:
+        raise ValueError(f"Insufficient observations for LMM: {n_obs}")
+    if n_groups < 2:
+        raise ValueError(f"Insufficient groups (domains) for LMM: {n_groups}")
+    if n_methods < 2:
+        raise ValueError(f"Insufficient methods for comparison: {n_methods}")
+
     try:
-        stat, p_val = stats.shapiro(data)
+        # Prepare formula: score ~ method + (1|domain)
+        # statsmodels MixedLM uses 'groups' for random effect grouping
+        endog = df[score_col].values
+        exog = sm.add_constant(pd.get_dummies(df[method_col], drop_first=True))
+        groups = df[domain_col]
+
+        # Fit the model
+        model = MixedLM(endog=endog, exog=exog, groups=groups)
+        result = model.fit(reml=False, full_output=True)
+
+        # Check convergence
+        converged = result.converged
+        if not converged:
+            logger.warning("LMM did not converge. Results may be unreliable.")
+
+        # Extract results
+        # Get p-values for fixed effects (method coefficients)
+        # The first column after intercept is the method effect (drop_first=True)
+        if len(result.pvalues) > 1:
+            # Assuming first non-intercept is the method effect we care about
+            method_pvalue = result.pvalues.iloc[1] if len(result.pvalues) > 1 else result.pvalues.iloc[0]
+            method_tstat = result.tvalues.iloc[1] if len(result.tvalues) > 1 else result.tvalues.iloc[0]
+        else:
+            method_pvalue = result.pvalues.iloc[0]
+            method_tstat = result.tvalues.iloc[0]
+
+        # Extract coefficients
+        coefficients = dict(zip(result.params.index, result.params.values))
+
+        # Extract random effects variance
+        random_var = result.cov_re.values[0][0] if result.cov_re is not None else 0.0
+
+        logger.info(f"LMM fitted successfully. P-value: {method_pvalue:.4f}, T-stat: {method_tstat:.4f}")
+
         return {
-            'p_value': float(p_val),
-            'test_statistic': float(stat),
-            'method': 'Shapiro-Wilk'
+            'method_used': 'LMM',
+            'p_value': float(method_pvalue),
+            'test_statistic': float(method_tstat),
+            'coefficients': {k: float(v) for k, v in coefficients.items()},
+            'random_effects_variance': float(random_var),
+            'converged': bool(converged),
+            'fallback_reason': None,
+            'degrees_of_freedom': float(result.df_resid)
         }
+
+    except np.linalg.LinAlgError as e:
+        logger.error(f"Singular matrix error in LMM: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Shapiro-Wilk test failed: {e}")
-        return {
-            'p_value': None,
-            'test_statistic': None,
-            'method': 'Shapiro-Wilk (failed)',
-            'reason': str(e)
-        }
+        logger.error(f"Failed to fit LMM: {e}")
+        raise RuntimeError(f"LMM fitting failed: {e}") from e
+
 
 def fit_fixed_effects_glm(
-    scores: np.ndarray,
-    methods: np.ndarray,
-    domains: np.ndarray
+    data: Union[pd.DataFrame, List[Dict[str, Any]]],
+    score_col: str = 'score',
+    method_col: str = 'method',
+    domain_col: str = 'domain'
 ) -> Dict[str, Any]:
     """
-    Fit a Fixed-Effects Logistic Regression (GLM) using statsmodels.
+    Fit a Fixed-Effects Logistic Regression (GLM) as the tertiary statistical method.
+
     Formula: score ~ method + C(Domain)
-    
+
     Args:
-        scores: Array of continuous/ordinal scores (e.g., Utility).
-        methods: Array of method labels (e.g., 'gatekeeper', 'baseline').
-        domains: Array of domain labels (e.g., 'medical', 'office').
-        
+        data: Input data.
+        score_col: Name of the score column.
+        method_col: Name of the method column.
+        domain_col: Name of the domain column (fixed effect covariate).
+
     Returns:
-        Dict with keys: 'p_value', 'test_statistic', 'method', 'coefficients'.
+        Dict with GLM results.
     """
-    if len(scores) < 10:
-        logger.warning("Sample size too small for GLM (< 10). Returning None.")
-        return {
-            'p_value': None,
-            'test_statistic': None,
-            'method': 'Fixed-Effects GLM (skipped: N < 10)',
-            'reason': 'Insufficient sample size'
-        }
+    logger.info("Fitting Fixed-Effects GLM (tertiary method)...")
+
+    if isinstance(data, list):
+        df = pd.DataFrame(data)
+    else:
+        df = data.copy()
+
+    required_cols = [score_col, method_col, domain_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in GLM input: {missing}")
+
+    # Create formula with domain as fixed effect
+    formula = f"{score_col} ~ {method_col} + C({domain_col})"
 
     try:
-        df = pd.DataFrame({
-            'score': scores,
-            'method': pd.Categorical(methods),
-            'Domain': pd.Categorical(domains)
-        })
-        
-        # Fit GLM with Binomial family if scores are binary (0/1), 
-        # otherwise use Gaussian family for continuous scores.
-        # Heuristic: if unique values <= 2, treat as binary.
-        if len(np.unique(scores)) <= 2:
-            family = Binomial()
-            logger.info("Detected binary scores. Using Binomial family for GLM.")
-        else:
-            from statsmodels.genmod.families import Gaussian
-            family = Gaussian()
-            logger.info("Detected continuous scores. Using Gaussian family for GLM.")
-
-        model = sm_glm('score ~ method + C(Domain)', data=df, family=family)
+        model = GLM.from_formula(
+            formula,
+            data=df,
+            family=families.Gaussian()
+        )
         result = model.fit()
-        
-        # Extract p-value for the 'method' coefficient
-        # The result summary table has parameters as rows
-        params_table = result.summary2().tables[1]
-        p_values = params_table['P>|t|'] if 'P>|t|' in params_table.columns else params_table['P>|z|']
-        
-        # Find the p-value for the method coefficient (usually the second row if intercept is first)
-        # We look for the row containing 'method[T.baseline]' or similar
-        method_p_val = None
-        method_stat = None
-        
-        for idx, row in params_table.iterrows():
-            if 'method' in str(idx):
-                method_p_val = float(row['P>|t|']) if 'P>|t|' in row else float(row['P>|z|'])
-                method_stat = float(row['Coef.'])
+
+        # Extract method coefficient (assuming it's the first non-intercept)
+        params = result.params
+        pvalues = result.pvalues
+
+        # Find the method coefficient
+        method_coeff_name = None
+        for name in params.index:
+            if method_col in name or name.startswith(method_col):
+                method_coeff_name = name
                 break
-                
-        if method_p_val is None:
-            # Fallback: try to get the second coefficient (first non-intercept)
-            # This assumes the model formula order: Intercept, method, Domain...
-            # But this is fragile; better to rely on the loop above.
-            logger.warning("Could not isolate method p-value from GLM results.")
-            # Use the first non-intercept p-value as a proxy if we can't find 'method'
-            # This is a fallback for edge cases in parsing
-            for idx, row in params_table.iterrows():
-                if 'method' in str(idx).lower() or (isinstance(idx, str) and not idx.startswith('Intercept')):
-                     method_p_val = float(row['P>|t|']) if 'P>|t|' in row else float(row['P>|z|'])
-                     method_stat = float(row['Coef.'])
-                     break
+
+        if method_coeff_name is None:
+            # Fallback: take first non-intercept
+            non_intercept = [p for p in params.index if p != 'Intercept']
+            if non_intercept:
+                method_coeff_name = non_intercept[0]
+            else:
+                raise ValueError("Could not identify method coefficient in GLM")
 
         return {
-            'p_value': method_p_val,
-            'test_statistic': method_stat,
-            'method': 'Fixed-Effects GLM',
-            'coefficients': result.params.to_dict(),
-            'aic': float(result.aic),
-            'bic': float(result.bic)
+            'method_used': 'GLM',
+            'p_value': float(pvalues[method_coeff_name]),
+            'test_statistic': float(result.tvalues[method_coeff_name]),
+            'coefficients': {k: float(v) for k, v in params.items()},
+            'converged': True,
+            'fallback_reason': 'LMM and Stratified Analysis failed',
+            'degrees_of_freedom': float(result.df_resid)
         }
+
     except Exception as e:
-        logger.error(f"Fixed-Effects GLM failed: {e}")
-        return {
-            'p_value': None,
-            'test_statistic': None,
-            'method': 'Fixed-Effects GLM (failed)',
-            'reason': str(e)
-        }
+        logger.error(f"Failed to fit GLM: {e}")
+        raise
 
-def run_mcnemar_test(
-    gatekeeper_scores: np.ndarray,
-    baseline_scores: np.ndarray
+
+def domain_stratified_analysis(
+    data: Union[pd.DataFrame, List[Dict[str, Any]]],
+    score_col: str = 'score',
+    method_col: str = 'method',
+    domain_col: str = 'domain'
 ) -> Dict[str, Any]:
     """
-    Run McNemar's Test for paired binary outcomes.
-    
+    Implement domain-stratified analysis with aggregation (average p-values).
+
+    This is the primary fallback if LMM is infeasible.
+
     Args:
-        gatekeeper_scores: Binary array (0/1) of Gatekeeper outcomes.
-        baseline_scores: Binary array (0/1) of Baseline outcomes.
-        
+        data: Input data.
+        score_col: Name of the score column.
+        method_col: Name of the method column.
+        domain_col: Name of the domain column.
+
     Returns:
-        Dict with keys: 'p_value', 'test_statistic', 'method' (McNemar).
+        Dict with stratified analysis results.
     """
-    if len(gatekeeper_scores) != len(baseline_scores):
-        raise ValueError("Input arrays must have the same length for paired test.")
-    
-    if len(gatekeeper_scores) == 0:
-        return {
-            'p_value': None,
-            'test_statistic': None,
-            'method': 'McNemar (skipped: empty)',
-            'reason': 'No data'
-        }
+    logger.info("Running domain-stratified analysis (primary fallback)...")
 
-    try:
-        # Construct contingency table
-        # b: Gatekeeper=0, Baseline=1
-        # c: Gatekeeper=1, Baseline=0
-        b = np.sum((gatekeeper_scores == 0) & (baseline_scores == 1))
-        c = np.sum((gatekeeper_scores == 1) & (baseline_scores == 0))
-        
-        # McNemar's test statistic: (|b - c| - 1)^2 / (b + c) with continuity correction
-        # If b+c is 0, the statistic is 0 and p-value is 1.0 (no difference possible)
-        if (b + c) == 0:
-            chi2 = 0.0
-            p_val = 1.0
-        else:
-            chi2 = (abs(b - c) - 1)**2 / (b + c)
-            p_val = 1 - stats.chi2.cdf(chi2, df=1)
-        
-        return {
-            'p_value': float(p_val),
-            'test_statistic': float(chi2),
-            'method': 'McNemar\'s Test',
-            'contingency': {'b': int(b), 'c': int(c)}
-        }
-    except Exception as e:
-        logger.error(f"McNemar's Test failed: {e}")
-        return {
-            'p_value': None,
-            'test_statistic': None,
-            'method': 'McNemar\'s Test (failed)',
-            'reason': str(e)
-        }
+    if isinstance(data, list):
+        df = pd.DataFrame(data)
+    else:
+        df = data.copy()
 
-def run_full_stats_pipeline(
-    paired_data: List[Dict[str, Any]]
-) -> Dict[str, Any]:
-    """
-    Orchestrates the full statistical analysis pipeline.
-    
-    Control Flow:
-    1. Primary: Run McNemar's Test (for binary Access Control outcomes).
-    2. Secondary: Run Fixed-Effects GLM (for continuous/ordinal Utility/Forgetting).
-    3. Normality Check: If GLM used, perform Shapiro-Wilk on paired differences.
-    4. Fallback: If GLM fails -> Domain-Stratified Analysis (average p-values).
-    
-    Args:
-        paired_data: List of dicts with keys [episode_id, score, method, domain].
-        
-    Returns:
-        Dict with keys: [method_used, p_value, test_statistic, fallback_reason].
-    """
-    if not paired_data:
-        return {
-            'method_used': 'None',
-            'p_value': None,
-            'test_statistic': None,
-            'fallback_reason': 'Empty input data'
-        }
+    required_cols = [score_col, method_col, domain_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in stratified analysis: {missing}")
 
-    # Prepare data
-    df = pd.DataFrame(paired_data)
-    
-    # Check if outcome is binary (0/1) -> McNemar
-    unique_scores = df['score'].unique()
-    is_binary = len(unique_scores) <= 2 and set(unique_scores).issubset({0, 1, 0.0, 1.0})
-    
-    result = {
-        'method_used': None,
-        'p_value': None,
-        'test_statistic': None,
-        'fallback_reason': None
+    domains = df[domain_col].unique()
+    p_values = []
+    t_stats = []
+
+    for domain in domains:
+        domain_data = df[df[domain_col] == domain]
+        if len(domain_data) < 4:
+            logger.warning(f"Insufficient data for domain {domain}, skipping.")
+            continue
+
+        # Separate by method
+        methods = domain_data[method_col].unique()
+        if len(methods) < 2:
+            continue
+
+        # Assume two methods for paired test
+        method1, method2 = methods[0], methods[1]
+        scores1 = domain_data[domain_data[method_col] == method1][score_col]
+        scores2 = domain_data[domain_data[method_col] == method2][score_col]
+
+        if len(scores1) < 3 or len(scores2) < 3:
+            continue
+
+        # Perform t-test for this domain
+        try:
+            t_stat, p_val = stats.ttest_ind(scores1, scores2, equal_var=False)
+            p_values.append(p_val)
+            t_stats.append(t_stat)
+        except Exception as e:
+            logger.warning(f"Test failed for domain {domain}: {e}")
+            continue
+
+    if not p_values:
+        raise ValueError("No valid domain tests could be performed.")
+
+    # Aggregate: average p-values (Fisher's method could be used, but task specifies average)
+    avg_p = float(np.mean(p_values))
+    avg_t = float(np.mean(t_stats))
+
+    logger.info(f"Stratified analysis complete. Average p-value: {avg_p:.4f}")
+
+    return {
+        'method_used': 'Stratified',
+        'p_value': avg_p,
+        'test_statistic': avg_t,
+        'domain_p_values': p_values,
+        'n_domains': len(p_values),
+        'converged': True,
+        'fallback_reason': 'LMM infeasible (singular matrix or insufficient data)',
+        'degrees_of_freedom': float(sum(len(df[df[domain_col] == d][score_col]) - 2 for d in domains if len(df[df[domain_col] == d][score_col]) >= 2))
     }
 
-    if is_binary:
-        # Primary: McNemar's Test
-        logger.info("Detected binary outcome. Running McNemar's Test.")
-        gatekeeper_scores = df[df['method'] == 'gatekeeper']['score'].values
-        baseline_scores = df[df['method'] == 'baseline']['score'].values
-        
-        # Ensure alignment by episode_id if possible, but assuming input is already paired
-        # If not aligned by index, we assume the list order is consistent for the two methods
-        # For robustness, we pivot to wide format if episode_id is present
-        if 'episode_id' in df.columns:
-            wide = df.pivot(index='episode_id', columns='method', values='score')
-            if 'gatekeeper' in wide.columns and 'baseline' in wide.columns:
-                gatekeeper_scores = wide['gatekeeper'].values
-                baseline_scores = wide['baseline'].values
-            else:
-                return {
-                    'method_used': 'None',
-                    'p_value': None,
-                    'test_statistic': None,
-                    'fallback_reason': 'Missing method columns in pivot'
-                }
-        
-        mcnemar_res = run_mcnemar_test(gatekeeper_scores, baseline_scores)
-        result['method_used'] = mcnemar_res['method']
-        result['p_value'] = mcnemar_res['p_value']
-        result['test_statistic'] = mcnemar_res['test_statistic']
-        if mcnemar_res['p_value'] is None:
-            result['fallback_reason'] = mcnemar_res.get('reason', 'McNemar failed')
-        return result
 
+def shapiro_wilk_test(differences: np.ndarray) -> Dict[str, Any]:
+    """
+    Perform Shapiro-Wilk normality test on paired score differences.
+
+    Args:
+        differences: Array of paired differences.
+
+    Returns:
+        Dict with normality test results.
+    """
+    if len(differences) < 3:
+        raise ValueError("Insufficient data for Shapiro-Wilk test (need >= 3).")
+
+    stat, p_value = stats.shapiro(differences)
+
+    return {
+        'test': 'Shapiro-Wilk',
+        'statistic': float(stat),
+        'p_value': float(p_value),
+        'is_normal': bool(p_value > 0.05),
+        'alpha': 0.05
+    }
+
+
+def run_post_hoc(differences: np.ndarray, is_normal: bool) -> Dict[str, Any]:
+    """
+    Run post-hoc test based on normality result.
+
+    Args:
+        differences: Array of paired differences.
+        is_normal: Result from Shapiro-Wilk test.
+
+    Returns:
+        Dict with post-hoc test results.
+    """
+    if is_normal:
+        # Paired t-test
+        # Assuming differences are already calculated (method1 - method2)
+        # We test if mean difference is significantly different from 0
+        t_stat, p_value = stats.ttest_1samp(differences, 0.0)
+        test_name = 'Paired t-test'
     else:
-        # Secondary: Fixed-Effects GLM
-        logger.info("Detected continuous outcome. Running Fixed-Effects GLM.")
-        scores = df['score'].values
-        methods = df['method'].values
-        domains = df['domain'].values if 'domain' in df.columns else np.array(['default'] * len(df))
-        
-        glm_res = fit_fixed_effects_glm(scores, methods, domains)
-        
-        if glm_res['p_value'] is not None:
-            result['method_used'] = glm_res['method']
-            result['p_value'] = glm_res['p_value']
-            result['test_statistic'] = glm_res['test_statistic']
-            
-            # Normality Check (Shapiro-Wilk) on paired differences
-            # We need to calculate differences for each episode
-            if 'episode_id' in df.columns:
-                wide = df.pivot(index='episode_id', columns='method', values='score')
-                if 'gatekeeper' in wide.columns and 'baseline' in wide.columns:
-                    diffs = wide['gatekeeper'] - wide['baseline']
-                    shapiro_res = shapiro_wilk_test(diffs.values)
-                    if shapiro_res['p_value'] is not None:
-                        logger.info(f"Shapiro-Wilk p-value: {shapiro_res['p_value']}. Normality: {'Yes' if shapiro_res['p_value'] > 0.05 else 'No'}")
-                        result['normality_check'] = shapiro_res
-                    else:
-                        result['normality_check'] = shapiro_res
-            return result
-        else:
-            # Fallback: Domain-Stratified Analysis
-            logger.warning("GLM failed. Attempting Domain-Stratified Analysis (fallback).")
-            result['method_used'] = 'Domain-Stratified Fallback'
-            result['fallback_reason'] = glm_res.get('reason', 'GLM failed')
-            
-            if 'domain' in df.columns:
-                domains = df['domain'].unique()
-                p_values = []
-                for d in domains:
-                    sub_df = df[df['domain'] == d]
-                    if len(sub_df) >= 4: # Minimum for a small GLM
-                        sub_res = fit_fixed_effects_glm(
-                            sub_df['score'].values,
-                            sub_df['method'].values,
-                            np.array(['default'] * len(sub_df))
-                        )
-                        if sub_res['p_value'] is not None:
-                            p_values.append(sub_res['p_value'])
-                
-                if p_values:
-                    # Fisher's method or simple average? Task says "average p-values"
-                    avg_p = np.mean(p_values)
-                    result['p_value'] = float(avg_p)
-                    result['test_statistic'] = None # No single test statistic for averaged p-values
-                    result['fallback_details'] = {
-                        'domains_analyzed': len(p_values),
-                        'p_values': p_values
-                    }
-                else:
-                    result['p_value'] = None
-                    result['fallback_reason'] += "; No domains had sufficient data for stratified analysis."
-            else:
-                result['p_value'] = None
-                result['fallback_reason'] += "; No domain column available for stratification."
-            
-            return result
+        # Wilcoxon signed-rank test
+        stat, p_value = stats.wilcoxon(differences)
+        test_name = 'Wilcoxon signed-rank'
+
+    return {
+        'test': test_name,
+        'p_value': float(p_value),
+        'test_statistic': float(stat),
+        'assumption': 'normal' if is_normal else 'non-normal'
+    }

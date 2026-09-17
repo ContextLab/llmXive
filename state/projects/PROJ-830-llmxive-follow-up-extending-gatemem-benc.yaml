@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-830-llmxive-follow-up-extending-gatemem-benc
-last_run_id: 0f7f1da0-5160-4166-8121-44a7129f8c5e
+last_run_id: 9ef3f36d-1277-4e72-ae6c-a797d64d1d63
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc
 title: 'llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal
   Shared-Memo"'
-updated_at: '2026-09-17T20:52:52.681988Z'
+updated_at: '2026-09-17T21:05:11.442145Z'
