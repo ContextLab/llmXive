@@ -1,53 +1,51 @@
-# Implementation Plan: Normalized Squarefree Gaps
+# Implementation Plan: Normalized Gaps Between Consecutive Squarefree Numbers
 
 **Branch**: `001-normalized-squarefree-gaps` | **Date**: 2026-08-21 | **Spec**: [https://github.com/llmxive/specify/blob/main/projects/PROJ-722-normalized-gaps-between-consecutive-squa/spec.md]
 **Input**: Feature specification from `/specs/001-normalized-squarefree-gaps/spec.md`
 
 ## Summary
 
-This project aims to determine if the gaps between consecutive squarefree integers, after normalization, follow an exponential distribution. The technical approach utilizes a linear sieve to generate squarefree numbers, calculates normalized gaps, and employs a Lilliefors-style goodness-of-fit test (via Monte Carlo simulation) to compare the empirical distribution with a standard exponential distribution. A control dataset generated through random thinning will be used to validate the heuristic and account for potential biases in the test.
+This project investigates whether the gaps between consecutive squarefree integers, after normalization, follow an exponential distribution. The approach involves generating squarefree numbers using a linear sieve, calculating normalized gaps, and performing a Lilliefors goodness-of-fit test with Monte Carlo simulation. A control dataset generated via random thinning is used for comparison.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
 **Primary Dependencies**: NumPy, SciPy, Matplotlib
-**Storage**: N/A (data generated in memory and processed)
-**Testing**: pytest
+**Storage**: N/A - data is generated in memory and written to files for visualization
+**Testing**: Pytest
 **Target Platform**: Linux server (GitHub Actions runner)
-**Project Type**: library/cli
-**Performance Goals**: Process up to $10^7$ squarefree numbers within the 6-hour time limit.  Peak memory usage below 2GB.
-**Constraints**: Limited to 2 CPU cores, ~7GB RAM, and ~14GB disk space on the GitHub Actions runner. No GPU access.
-**Scale/Scope**: Generate squarefree numbers up to $10^7$ and perform statistical tests on the resulting gap distribution.
+**Project Type**: CLI tool / Research script
+**Performance Goals**: Process up to N = 10^7 within 6 hours. Memory usage ≤ 2 GB.
+**Constraints**: Limited to 2 CPU cores and 7 GB RAM on the CI runner. No GPU access.
+**Scale/Scope**:  Generate squarefree numbers up to N = 10^7, analyze normalized gaps, and perform statistical testing.
 
 ## Constitution Check
 
-*   **I. Reproducibility**: All random seeds will be pinned within the code. The integer generation is deterministic.
-*   **II. Verified Accuracy**: All citations in the research document will be verified before contributing review points.
-*   **III. Data Hygiene**:  Data will be generated programmatically. No external data sources are used.
+*   **I. Reproducibility**: All random seeds will be pinned. Dependencies are versioned via `requirements.txt`.
+*   **II. Verified Accuracy**: All dataset citations will adhere to the verified sources list.
+*   **III. Data Hygiene**: Raw data (squarefree sequences) will be generated on the fly, and derived data (gaps, normalized gaps) will be stored in new files.
 *   **IV. Single Source of Truth**: All figures and statistics will be derived from the generated data and code.
-*   **V. Versioning Discipline**:  This plan will be versioned alongside the project code.
-*   **VI. Deterministic Number-Theoretic Sieving**: The linear sieve will be implemented deterministically to ensure consistent results.
-*   **VII. Rigorous Statistical Convergence Validation**: Statistical claims will be supported by KS test p-values and visual confirmation via QQ-plots across multiple scales.
+*   **V. Versioning Discipline**: Changes to the constitution or core artifacts will be versioned.
+*   **VI. Deterministic Number-Theoretic Sieving**:  The linear sieve will be implemented deterministically.
+*   **VII. Rigorous Statistical Convergence Validation**:  KS tests and QQ-plots will be used to assess convergence and validate the exponential distribution hypothesis.
 
 ## Project Structure
 
 ```text
 src/
-├── squarefree.py       # Linear sieve implementation for generating squarefree numbers
-├── gap_analysis.py     # Functions for calculating gaps and normalization
-├── statistical_tests.py # Lilliefors test implementation
-├── visualization.py   # Functions for generating plots
-└── main.py             # Main script to run the analysis
+├── squarefree.py         # Sieve implementation and gap calculation
+├── statistics.py       # Lilliefors test and statistical analysis
+├── visualization.py    # Plotting functions
+└── main.py              # Main script to run the analysis
 tests/
-├── test_squarefree.py  # Unit tests for the sieve implementation
-├── test_gap_analysis.py # Unit tests for the gap analysis functions
-└── test_statistical_tests.py # Unit tests for the statistical tests
+├── test_squarefree.py    # Unit tests for sieve implementation
+├── test_statistics.py  # Unit tests for statistical functions
+└── contract/
+    └── dataset_schema.yaml # Schema for the normalized gap dataset
 ```
 
-**Structure Decision**: A single project structure is appropriate as the project primarily involves numerical computation and data analysis. The code will be organized into modules for clarity and testability.
+**Structure Decision**: A modular structure is chosen to separate sieve implementation, statistical analysis, and visualization. This allows for easy testing and maintainability.
 
 ## Complexity Tracking
 
-N/A
-
----
+No violations of the constitution are anticipated at this time.

@@ -1,10 +1,10 @@
 status: none
-intent: download squarefree numbers sequence and gap dataset from OEIS python package
-  dataset
+intent: OEIS squarefree numbers sequence A005117 downloadable python package dataset
 required_fields:
 - squarefree_number
-- gap
+- index
+- gap_to_previous
 - normalized_gap
-cache_key: 3bef54bf82f341736c5d6c61bcc0a434d0712145ed5192d44e38f8d9af8d035d
-searched_at: '2026-09-15T09:41:35.236336+00:00'
+cache_key: 1bdac18a5c559b43f2125ab25eff01e2c7fdbe0592b4dd89e338e945c262579b
+searched_at: '2026-09-17T06:32:16.151932+00:00'
 retry_count: 1

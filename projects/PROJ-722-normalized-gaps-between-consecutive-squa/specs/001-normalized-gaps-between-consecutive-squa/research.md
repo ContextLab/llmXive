@@ -1,32 +1,30 @@
-# Research: Normalized Squarefree Gaps
+# Research: Normalized Gaps Between Consecutive Squarefree Numbers
 
-**Feature**: Normalized Gaps Between Consecutive Squarefree Numbers
+## Background
 
-## Hypothesis
-
-The gaps between consecutive squarefree integers, after normalizing by their empirical mean, follow a standard exponential distribution (rate=1). This stems from the "random thinning" heuristic where squarefree numbers are considered a Poisson process thinned by a probability of $6/\pi^2$.  The validation design compares empirical data to a control simulation of random thinning.
+The hypothesis that normalized gaps between consecutive squarefree integers follow an exponential distribution stems from the "random thinning" heuristic. Squarefree numbers are those not divisible by any perfect square greater than 1. The probability of an integer being squarefree is $6/\pi^2 \approx 0.6079$. This suggests a Poisson process with thinning probability $6/\pi^2$.  This research aims to test this heuristic.
 
 ## Dataset Strategy
 
-The project does not rely on external datasets. Squarefree numbers are generated algorithmically using a linear sieve. The control dataset will be generated synthetically using the random thinning heuristic.
+The primary dataset will be generated in-memory using a linear sieve algorithm. No external data sources are required.  A control dataset will be generated using the random thinning heuristic to serve as a baseline comparison.
 
-| Dataset Name | URL | Variables | Usage |
-|---|---|---|---|
-| Synthetic Squarefree Numbers | N/A | Sequence of squarefree integers up to N | Core data for statistical analysis |
-| Randomly Thinned Integers | N/A | Sequence of integers thinned with probability 6/π² | Control dataset for comparison |
+| Dataset Name | Source / URL | Variables | Size (approx.) | Purpose |
+|---|---|---|---|---|
+| Squarefree Gaps | Generated (in-memory) | Raw gaps, normalized gaps | Dependent on N (up to ~10^7) | Primary dataset for statistical testing |
+| Random Thinning | Generated (in-memory) | Raw gaps, normalized gaps | Dependent on N (up to ~10^7) | Control dataset for comparison |
 
 ## Decision/Rationale
 
-All methods will be implemented using CPU-based computation within the limitations of the GitHub Actions runner (2 CPU cores, ~7GB RAM). NumPy and SciPy provide efficient numerical computation and statistical functions without requiring a GPU. The analysis will be performed on the generated data in memory, minimizing disk I/O.
+*   **CPU-first approach**: All computations will be performed on the CPU. The linear sieve, statistical tests, and visualization can all be efficiently implemented using NumPy, SciPy, and Matplotlib. No GPU acceleration is required.
+*   **Memory Management**: The sieve implementation will be optimized to minimize memory usage. Streaming or bit-array techniques will be used if necessary to handle larger values of N.
 
 ## Statistical Methods
 
-*   **Linear Sieve**: Used to efficiently generate squarefree numbers up to a specified limit.
-*   **Kolmogorov-Smirnov (KS) Test (via Monte Carlo)**: Employed to assess the goodness-of-fit between the empirical distribution of normalized gaps and the standard exponential distribution. 10,000 Monte Carlo resamples will be used to estimate the p-value.
-*   **QQ-Plot**: Visual tool to compare the quantiles of the empirical and theoretical distributions.
+*   **Lilliefors Test**: A Lilliefors-style goodness-of-fit test with Monte Carlo simulation will be used to compare the empirical distribution of normalized gaps against the standard exponential distribution (rate=1). The Monte Carlo simulation will account for the estimated mean parameter.
+*   **Convergence Analysis**: The KS statistic and p-value will be plotted as a function of $\log N$ to assess the convergence of the distribution.
+*   **QQ-Plot**: A QQ-plot will be generated to visually assess the fit of the exponential distribution to the normalized gaps.
 
-## Expected Results
+## Verified Datasets
 
-We expect the KS test to yield a p-value greater than 0.05 if the normalized gaps follow an exponential distribution. The QQ-plot should show points aligning approximately along the line y=x. The trend of the KS statistic should decrease as N increases, indicating convergence. The KS statistic for the squarefree gap dataset and the random thinning control dataset should be similar, supporting the random thinning heuristic.
-
----
+*   CDF (parquet): [https://huggingface.co/datasets/autoevaluate/autoeval-staging-eval-project-318525f4-cdf7-4888-965c-d4d9dfeeca48-5250/resolve/main/predictions.parquet](https://huggingface.co/datasets/autoevaluate/autoeval-staging-eval-project-318525f4-cdf7-4888-965c-d4d9dfeeca48-5250/resolve/main/predictions.parquet), [https://huggingface.co/datasets/masashi-hatano/MM-CDFSL/resolve/main/EPIC/flow_frames.zip](https://huggingface.co/datasets/masashi-hatano/MM-CDFSL/resolve/main/EPIC/flow_frames.zip), [https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_cdf19b60-aae7-4dcd-b4ea-9066c19259f7/resolve/main/data/train-00000-of-00001.parquet](https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_cdf19b60-aae7-4dcd-b4ea-9066c19259f7/resolve/main/data/train-00000-of-00001.parquet)
+*   GapDataset: NO verified source found.
