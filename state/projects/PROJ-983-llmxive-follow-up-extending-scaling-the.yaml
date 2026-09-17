@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T01:32:09.240418Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-983-llmxive-follow-up-extending-scaling-the
-last_run_id: a444015e-1b2d-42c9-8315-42d909852bd3
+last_run_id: 349194f6-3279-4714-b1ee-ad3cc888e90b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Scaling the Horizon, Not the Parameters: Reaching
   Trillion-Parameter P"'
-updated_at: '2026-09-10T16:25:35.091581Z'
+updated_at: '2026-09-17T09:39:30.328247Z'

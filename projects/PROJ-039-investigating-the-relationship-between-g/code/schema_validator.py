@@ -1,130 +1,167 @@
-"""
-Schema validation module for gut microbiome and EEG data.
-Validates datasets against JSON schemas defined in contracts/.
-"""
 import os
 import json
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
-
-# Import pydantic if available, otherwise use jsonschema
-try:
-    from jsonschema import validate, ValidationError, Draft7Validator
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
-    logging.warning("jsonschema not installed. Validation will be basic type checking.")
-
+from jsonschema import validate, ValidationError, Draft7Validator
 from config import get_project_root
 
 logger = logging.getLogger(__name__)
 
 class SchemaValidator:
     """
-    Validates data records against JSON schemas.
+    Validates data against JSON schemas defined in contracts/
     """
+
     def __init__(self, schema_path: str):
-        self.schema_path = schema_path
-        self.schema = self._load_schema(schema_path)
-        self.validator = Draft7Validator(self.schema) if HAS_JSONSCHEMA else None
-
-    def _load_schema(self, path: str) -> Dict[str, Any]:
-        """Load a YAML or JSON schema file."""
-        p = Path(path)
-        if not p.exists():
-            raise FileNotFoundError(f"Schema file not found: {path}")
-        
-        with open(p, 'r') as f:
-            if p.suffix in ['.yaml', '.yml']:
-                return yaml.safe_load(f)
-            elif p.suffix == '.json':
-                return json.load(f)
-            else:
-                raise ValueError(f"Unsupported schema format: {p.suffix}")
-
-    def validate_record(self, record: Dict[str, Any]) -> bool:
         """
-        Validate a single record against the schema.
-        Returns True if valid, False otherwise.
-        Logs errors.
-        """
-        if not self.validator:
-            # Fallback basic check if jsonschema not available
-            logger.warning("jsonschema not available, skipping deep validation.")
-            return True
+        Initialize validator with a schema file.
 
-        errors = list(self.validator.iter_errors(record))
-        if errors:
-            for error in errors:
-                logger.error(f"Validation error: {error.message} at path: {list(error.path)}")
-            return False
+        Args:
+            schema_path: Path to the YAML schema file relative to project root
+        """
+        self.schema_path = Path(schema_path)
+        self.schema = self._load_schema()
+        self.validator = Draft7Validator(self.schema)
+
+    def _load_schema(self) -> Dict[str, Any]:
+        """Load schema from YAML file."""
+        if not self.schema_path.exists():
+            raise FileNotFoundError(f"Schema file not found: {self.schema_path}")
         
-        logger.debug("Record validation passed.")
+        with open(self.schema_path, 'r') as f:
+            return yaml.safe_load(f)
+
+    def validate(self, data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> bool:
+        """
+        Validate data against the schema.
+
+        Args:
+            data: Data to validate (single record or list of records)
+
+        Returns:
+            True if valid, raises ValidationError if invalid
+
+        Raises:
+            ValidationError: If data does not conform to schema
+        """
+        if isinstance(data, list):
+            for i, record in enumerate(data):
+                try:
+                    validate(instance=record, schema=self.schema)
+                except ValidationError as e:
+                    logger.error(f"Validation error in record {i}: {e.message}")
+                    raise
+        else:
+            validate(instance=data, schema=self.schema)
+        
+        logger.info(f"Data validation successful against {self.schema_path}")
         return True
 
-    def validate_batch(self, records: List[Dict[str, Any]]) -> List[int]:
+    def validate_file(self, file_path: str) -> bool:
         """
-        Validate a batch of records.
-        Returns a list of indices of invalid records.
+        Validate a JSON/CSV file against the schema.
+
+        Args:
+            file_path: Path to the file to validate
+
+        Returns:
+            True if valid
+
+        Raises:
+            FileNotFoundError: If file doesn't exist
+            json.JSONDecodeError: If file is not valid JSON
         """
-        invalid_indices = []
-        for i, record in enumerate(records):
-            if not self.validate_record(record):
-                invalid_indices.append(i)
-        return invalid_indices
+        file_path = Path(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        ext = file_path.suffix.lower()
+        
+        if ext == '.json':
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+        elif ext == '.csv':
+            import pandas as pd
+            df = pd.read_csv(file_path)
+            data = df.to_dict(orient='records')
+        else:
+            raise ValueError(f"Unsupported file format: {ext}")
+
+        return self.validate(data)
 
 def validate_artifacts() -> bool:
     """
-    Main entry point to validate all required artifacts against their schemas.
-    Returns True if all validations pass, False otherwise.
+    Validate all key artifacts against their respective schemas.
+
+    Returns:
+        True if all validations pass, False otherwise
     """
     project_root = get_project_root()
     contracts_dir = project_root / "contracts"
-    
-    dataset_schema_path = contracts_dir / "dataset.schema.yaml"
-    output_schema_path = contracts_dir / "output.schema.yaml"
-    
-    if not dataset_schema_path.exists():
-        logger.error(f"Dataset schema not found at {dataset_schema_path}")
-        return False
-    if not output_schema_path.exists():
-        logger.error(f"Output schema not found at {output_schema_path}")
-        return False
+    data_dir = project_root / "data" / "processed"
+    artifacts_dir = project_root / "artifacts"
 
-    # Validate dataset schema structure itself
-    try:
-        dataset_validator = SchemaValidator(str(dataset_schema_path))
-        logger.info(f"Dataset schema loaded successfully from {dataset_schema_path}")
-    except Exception as e:
-        logger.error(f"Failed to load dataset schema: {e}")
-        return False
+    all_valid = True
 
-    # Validate output schema structure itself
-    try:
-        output_validator = SchemaValidator(str(output_schema_path))
-        logger.info(f"Output schema loaded successfully from {output_schema_path}")
-    except Exception as e:
-        logger.error(f"Failed to load output schema: {e}")
-        return False
+    # Validate dataset schema against processed microbiome and EEG data
+    dataset_schema = contracts_dir / "dataset.schema.yaml"
+    if dataset_schema.exists():
+        validator = SchemaValidator(str(dataset_schema.relative_to(project_root)))
+        
+        # Check if processed data files exist before validating
+        microbiome_file = data_dir / "microbiome_features.csv"
+        eeg_file = data_dir / "eeg_features.csv"
+        
+        if microbiome_file.exists():
+            try:
+                validator.validate_file(str(microbiome_file))
+                logger.info(f"✓ {microbiome_file} valid against dataset schema")
+            except Exception as e:
+                logger.error(f"✗ {microbiome_file} failed validation: {e}")
+                all_valid = False
+        
+        if eeg_file.exists():
+            try:
+                validator.validate_file(str(eeg_file))
+                logger.info(f"✓ {eeg_file} valid against dataset schema")
+            except Exception as e:
+                logger.error(f"✗ {eeg_file} failed validation: {e}")
+                all_valid = False
 
-    # Example validation of data files if they exist
-    # In a real pipeline, this would be called by the data loading scripts
-    microbiome_file = project_root / "data" / "processed" / "microbiome_features.csv"
-    eeg_file = project_root / "data" / "processed" / "eeg_features.csv"
-    stratum_file = project_root / "data" / "processed" / "stratum_features.csv"
-    
-    # We don't load CSVs here to keep this module light, 
-    # but we ensure the schemas are ready for consumption.
-    logger.info("Schema validation infrastructure initialized.")
-    return True
+    # Validate output schema against stratum features
+    output_schema = contracts_dir / "output.schema.yaml"
+    if output_schema.exists():
+        validator = SchemaValidator(str(output_schema.relative_to(project_root)))
+        
+        stratum_file = data_dir / "stratum_features.csv"
+        if stratum_file.exists():
+            try:
+                validator.validate_file(str(stratum_file))
+                logger.info(f"✓ {stratum_file} valid against output schema")
+            except Exception as e:
+                logger.error(f"✗ {stratum_file} failed validation: {e}")
+                all_valid = False
+        
+        # Also validate strata_report.json if it exists
+        strata_report = artifacts_dir / "strata_report.json"
+        if strata_report.exists():
+            try:
+                validator.validate_file(str(strata_report))
+                logger.info(f"✓ {strata_report} valid against output schema")
+            except Exception as e:
+                logger.error(f"✗ {strata_report} failed validation: {e}")
+                all_valid = False
+
+    return all_valid
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     success = validate_artifacts()
     if success:
-        print("All schemas are valid and ready for use.")
+        print("All artifacts validated successfully.")
+        exit(0)
     else:
-        print("Schema validation failed.")
+        print("Validation failed for one or more artifacts.")
         exit(1)

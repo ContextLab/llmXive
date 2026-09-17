@@ -85,7 +85,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from ` (or execute 'Manual Download + Checksum' protocol if URL fails). Run QIIME2 version `2023.5` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **FAIL LOUDLY**: Raise `FileNotFoundError` if download fails. Use SHA256 for checksums. (US-1)
+- [ ] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from ` (or execute 'Manual Download + Checksum' protocol if URL fails). Run QIIME2 version `2023.5` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **FAIL LOUDLY**: Raise `FileNotFoundError` if download fails. Use SHA256 for checksums. (US-1) <!-- FAILED: unspecified -->
 - [ ] T013 [P] [US1] Implement `code/preprocess_eeg.py` to download OpenNeuro dataset `ds000248` (Spec/Constitution mandate). Filter (low-pass to high-pass frequency range), run FastICA (a set of components), epoch (-min), compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`. **NOTE**: Use `ds000248`. (US-1)
 - [X] T014 [US1] Implement `code/ecological_aggregation.py` to perform **Ecological Aggregation** (FR-003):
  1. Load `microbiome_features.csv` and `eeg_features.csv`.
@@ -123,7 +123,7 @@
  - Load `data/processed/stratum_features.csv`.
  - **Select Top 20 Taxa**: Compute the mean relative abundance of each taxon across *all* strata in the file. Select the taxa with the highest mean abundance..
  - **Correlation**: Perform Spearman correlation between the CLR-transformed abundances of these 20 taxa and `mean_alpha_power` per stratum.
- - **FDR**: Apply Benjamini-Hochberg FDR correction (q<0.1).
+ - **FDR**: Apply Benjamini-Hochberg FDR correction (q<0.1 (1705.04312, https://arxiv.org/abs/1705.04312)).
  - **Output**: Write `artifacts/correlation_results.json` (rho, p-value, q-value, significance flag) and `artifacts/top_taxa.txt`. (US-2)
 - [ ] T023 [US2] Implement collinearity diagnostics (**Depends on T022**):
  - Calculate **Variance Inflation Factor (VIF)** for the 20 taxa tested in T022.

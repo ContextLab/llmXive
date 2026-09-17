@@ -30,7 +30,7 @@
 
 - [X] T002 [P] Initialize Python project with pinned Python dependencies in `requirements.txt` (biopython, scikit-bio, scipy, pandas, numpy, ete3, requests, lxml, matplotlib, seaborn, pytest). **Note**: System binaries `mafft` and `fasttree` are NOT included here; see T002a.
 
-- [X] T002a [P] Install system binaries `mafft` and `fasttree` on the runner via `apt-get install mafft fasttree`. **Constraint**: Must verify binaries are in PATH by running `mafft --version` and `FastTree --version` before proceeding. [UNRESOLVED-CLAIM: c_9e628246 — status=not_enough_info] If `fasttree` is not found, attempt `apt-get install fasttree-mt` or build from source if the package is unavailable.
+- [X] T002a [P] Install system binaries `mafft` and `fasttree` on the runner via `apt-get install mafft fasttree`. **Constraint**: Must verify binaries are in PATH by running `mafft --version` and `FastTree --version` before proceeding. If `fasttree` is not found, attempt `apt-get install fasttree-mt` or build from source if the package is unavailable.
 
 - [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools. **Constraint**: {{claim:c_f23160f3}}
 
@@ -66,7 +66,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must read `data/raw/species_list.txt` (from T009) to calculate 'Total Target'. **Pre-condition**: Must verify `data/raw/species_list.txt` exists before proceeding; if missing, raise `FileNotFoundError`. Must distinguish between 'total data loss' (>20% species missing BOTH sequence AND metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning). **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total Target. [UNRESOLVED-CLAIM: c_ed7d204a — status=not_enough_info] **Threshold**: Halt if >20%. [UNRESOLVED-CLAIM: c_ddad7ffb — status=not_enough_info]
+- [X] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must read `data/raw/species_list.txt` (from T009) to calculate 'Total Target'. **Pre-condition**: Must verify `data/raw/species_list.txt` exists before proceeding; if missing, raise `FileNotFoundError`. Must distinguish between 'total data loss' (>20% species missing BOTH sequence AND metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning). **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total Target. **Threshold**: Halt if >20%.
 
 - [X] T013a [P] [US1] Create a stub function `fetch_species_data` in `code/data_loader.py` that raises `NotImplementedError`. **Constraint**: This task establishes the interface for T013b. **Signature**: `def fetch_species_data(species_id: str, loci: list) -> dict`.
 
@@ -78,11 +78,11 @@
 
 - [X] T014 [US1] Implement `code/data_loader.py`: KEGG COMPOUND/BRITE fetcher for secondary metabolite presence/absence. **Constraint**: Must handle species with no KEGG entry by excluding from matrix but flagging in log (do not halt).
 
-- [X] T021 [P] [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml` `artifact_hashes.data_raw` map with checksums [UNRESOLVED-CLAIM: c_77d1e3b8 — status=not_enough_info] (primary source of truth); local `checksums.txt` is secondary only. **Path**: `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml`. **Order**: Must execute immediately after T013b and T014.
+- [X] T021 [P] [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml` `artifact_hashes.data_raw` map with checksums (primary source of truth); local `checksums.txt` is secondary only. **Path**: `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml`. **Order**: Must execute immediately after T013b and T014.
 
 - [X] T015a [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence concatenation. **Input**: Individual FASTA files from T013b. **Output**: Single concatenated FASTA per species.
 
-- [X] T015b [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence alignment using the `mafft` binary (via subprocess). **Input**: Concatenated FASTA from a designated sample. **Output**: Aligned FASTA. **Constraint**: Must use `mafft` binary with `--thread` flags [UNRESOLVED-CLAIM: c_063eb406 — status=not_enough_info]; no alternative aligners.
+- [X] T015b [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence alignment using the `mafft` binary (via subprocess). **Input**: Concatenated FASTA from a designated sample. **Output**: Aligned FASTA. **Constraint**: Must use `mafft` binary with `--thread` flags; no alternative aligners.
 
 - [X] T016a [US1] Implement `code/phylo_pipeline.py`: Prepare alignment for FastTree (formatting, trimming if needed). **Input**: Aligned FASTA from T015b.
 
@@ -278,7 +278,7 @@ With multiple developers:
 
 **Purpose**: Address specific gaps identified in the analysis phase regarding data provenance, edge case handling, and verification robustness.
 
-- [ ] T039 [P] [US1] Implement explicit species ID mapping validation in `code/data_loader.py`. **Rationale**: To prevent silent mismatches between NCBI Taxonomy IDs and KEGG organism codes which can lead to data loss. **Constraint**: Must verify 1:1 mapping for every species in `data/raw/species_list.txt` before initiating fetches; halt if any ID is ambiguous or missing in either source.
+- [X] T039 [P] [US1] Implement explicit species ID mapping validation in `code/data_loader.py`. **Rationale**: To prevent silent mismatches between NCBI Taxonomy IDs and KEGG organism codes which can lead to data loss. **Constraint**: Must verify 1:1 mapping for every species in `data/raw/species_list.txt` before initiating fetches; halt if any ID is ambiguous or missing in either source.
 
 - [X] T040 [P] [US1] Add a "degenerate distribution" detection unit test in `tests/unit/test_stats_engine.py`. **Rationale**: To ensure T019 correctly handles the edge case where all permutations yield the same statistic. **Input**: Synthetic matrix with zero variance. **Assertion**: `assert warning_raised` and `p_value == 1.0` (or specific sentinel).
 

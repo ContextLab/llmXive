@@ -1,10 +1,10 @@
-'|applied benjamini correction fdr hochberg':
-  quote: FDR level q = 0.05, 0.1, 0.2. For Step 2 of the procedure
+'|applied benjamini correction fdr hochberg threshold':
+  quote: 0.1, otherwise.
   source_id: '1705.04312'
   url: https://arxiv.org/abs/1705.04312
-  value: '0.05'
-'|applied pseudocount':
-  quote: '0.5'
-  source_id: Rule of succession
-  url: https://en.wikipedia.org/wiki/Rule_of_succession
-  value: '0.5'
+  value: '0.1'
+'|iteration performed permutation testing':
+  quote: 10000 104729
+  source_id: A000040
+  url: https://oeis.org/A000040
+  value: '104729'

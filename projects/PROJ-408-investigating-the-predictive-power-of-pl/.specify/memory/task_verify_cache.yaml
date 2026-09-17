@@ -40,8 +40,8 @@ T039:
     \ a unique 1:1 mapping or detect ambiguous/missing IDs, contrary to the task specification."
 T042:
   c: false
-  h: f9a57b11379b0b656e877352f1d1bb48f675ed2fe9e67be22071a81da002fa51
-  r: "The `scripts/audit_data.py` file exists but is truncated and relies on `data/raw/species_list.txt`,\
-    \ which is missing, so the script cannot run. Moreover, the required output `output/reports/retention_audit.txt`\
-    \ was not generated. The task\u2019s essential artifacts are absent, so the requirement\
-    \ is not satisfied."
+  h: ff4c5e946983ab4d63f3c7fc594650e18e06134dd4f74eef5fb7b6491e16cfef
+  r: The repository contains `scripts/audit_data.py`, but the script is truncated
+    and lacks a complete implementation (e.g., unfinished functions, placeholder comments,
+    no logic to generate a PASS/FAIL report). Moreover, the required output file `output/reports/retention_audit.txt`
+    is missing. Both the functional script and the audit report need to be fully implemented.

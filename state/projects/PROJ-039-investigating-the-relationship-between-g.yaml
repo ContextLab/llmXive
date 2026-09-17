@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T12:45:09.082916Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-039-investigating-the-relationship-between-g
-last_run_id: 5ed42588-79d3-4055-a536-4af17a8abfea
+last_run_id: 625921d2-772a-499b-a381-99831272abd6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g
 title: Investigating the Relationship Between Gut Microbiome Composition and Resting-State
   EEG Alpha Power
-updated_at: '2026-09-09T18:42:12.509787Z'
+updated_at: '2026-09-17T09:38:11.461133Z'
