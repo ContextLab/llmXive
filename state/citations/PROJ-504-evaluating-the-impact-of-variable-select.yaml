@@ -54,20 +54,9 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
   verified_at: '2026-09-06T15:19:05.805973Z'
-- artifact_hash: b32744723b7f8bd158752dae54d96eaa0bf04be9a737a78df359446bea04110c
+- artifact_hash: d549c676981fb05d32bd24f41df9328d40e44b4a707054f58aef119f9f5228e0
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Python - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Python_
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Python
-  verified_at: '2026-09-06T15:29:23.591854Z'
-- artifact_hash: b32744723b7f8bd158752dae54d96eaa0bf04be9a737a78df359446bea04110c
-  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Welcome to the Tidyverse
@@ -75,4 +64,4 @@
   value: 10.21105/joss.01686
   verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
-  verified_at: '2026-09-06T15:29:23.591854Z'
+  verified_at: '2026-09-17T12:09:06.223220Z'
