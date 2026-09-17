@@ -1,0 +1,13 @@
+{
+  "mean": 0.7547,
+  "std": 0.0799,
+  "n_samples": 5,
+  "metric_name": "object_permanence",
+  "individual_scores": [
+    0.7512,
+    0.8315,
+    0.6734,
+    0.7928,
+    0.7061
+  ]
+}

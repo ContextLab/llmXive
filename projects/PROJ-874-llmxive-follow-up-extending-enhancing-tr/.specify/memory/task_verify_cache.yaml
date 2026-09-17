@@ -40,3 +40,45 @@ T019:
   r: "The required file `tests/integration/test_flow_correction.py` does not exist,\
     \ so no integration test for the flow correction pipeline is present. The task\u2019\
     s core deliverable is missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the non\u2011differentiable warping\
+    \ and smoothing logic is provided, nor is there any evidence of a check for the\
+    \ existence of T021 flow fields with an abort\u2011on\u2011missing error. The\
+    \ required artifact is missing, so the task is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only high\u2011level user stories and testing criteria;\
+    \ there is no code, script, or module that implements the required fallback logic\
+    \ (nearest\u2011neighbor interpolation for failed flow estimation). Consequently,\
+    \ the core artifact the task demands is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material only contains the feature specification and user\u2011\
+    story descriptions; there is no code, script, log output, or test evidence showing\
+    \ that frames with tearing are detected, logged, and flagged for manual review.\
+    \ Consequently, the required artifact (implementation of detection and logging)\
+    \ is missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the adaptive statistical testing\
+    \ logic is provided; there is no artifact showing a normality check that triggers\
+    \ a Wilcoxon signed\u2011rank test when p\u202F<\u202F0.05 and a paired t\u2011\
+    test otherwise. The required implementation is missing."
+T029:
+  c: false
+  h: 5d03cec4f650dceb55f736f5aca2d21d03acb058f988516895bcda231d9a4a72
+  r: "The required output file `results/failure_cases.json` does not exist, so the\
+    \ failure\u2011case identification logic was not produced nor logged as specified.\
+    \ The task therefore remains unfinished."
+T037:
+  c: false
+  h: 57ac286340f72ad797677e241e72d368a5c605305874ac046cb5ac1e48986b9e
+  r: The required file `tests/contract/test_metrics_schema.py` does not exist in the
+    repository, so the contract test for the metrics schema is missing. The task cannot
+    be considered done until this test file is created and contains the appropriate
+    schema validation code.

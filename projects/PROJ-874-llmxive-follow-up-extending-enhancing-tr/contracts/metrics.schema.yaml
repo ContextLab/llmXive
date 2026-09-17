@@ -1,27 +1,27 @@
 %YAML 1.2
 ---
 $schema: http://json-schema.org/draft-07/schema#
-title: llmXive Metrics Schema
+title: LlmXive Metrics Schema
 description: >
-  Schema defining the structure of evaluation metrics computed for the
-  llmXive follow-up study (VBench, FVD, Object Permanence).
+  Schema defining the structure for evaluation metrics (VBench, FVD, Object Permanence)
+  and statistical analysis results.
 type: object
 required:
   - experiment_id
   - timestamp
   - metrics
+  - statistical_analysis
 properties:
   experiment_id:
     type: string
     description: Unique identifier for the experiment run
-    pattern: '^[a-zA-Z0-9_-]+$'
   timestamp:
     type: string
+    description: ISO 8601 timestamp of the evaluation
     format: date-time
-    description: ISO 8601 timestamp when metrics were computed
   mode:
     type: string
-    description: Generation mode (baseline-full, baseline-naive, corrected)
+    description: Generation mode used (baseline-full, baseline-naive, corrected)
     enum:
       - baseline-full
       - baseline-naive
@@ -31,72 +31,108 @@ properties:
     description: ID of the video being evaluated
   metrics:
     type: object
+    description: Dictionary of calculated metrics
     required:
       - vbench_score
       - fvd
       - object_permanence
+      - wall_clock_time
     properties:
       vbench_score:
         type: number
+        description: VBench consistency score (0.0 to 1.0)
         minimum: 0.0
         maximum: 1.0
-        description: Overall VBench consistency score
-      vbench_details:
-        type: object
-        description: Breakdown of VBench sub-metrics
-        properties:
-          subject_consistency:
-            type: number
-          background_consistency:
-            type: number
-          motion_smoothness:
-            type: number
-          temporal_flickering:
-            type: number
       fvd:
         type: number
-        description: Fréchet Video Distance (lower is better)
+        description: Frechet Video Distance (lower is better)
+        minimum: 0.0
       object_permanence:
         type: number
+        description: Object permanence score (0.0 to 1.0)
         minimum: 0.0
         maximum: 1.0
-        description: Score indicating object retention over occlusion
-      generation_time_seconds:
+      wall_clock_time:
         type: number
-        minimum: 0
-        description: Wall-clock time for generation
-      peak_memory_mb:
+        description: Total wall-clock time in seconds
+        minimum: 0.0
+      memory_peak_mb:
         type: number
-        minimum: 0
-        description: Peak RSS memory usage during generation
-  statistical_summary:
+        description: Peak memory usage in MB (optional)
+        minimum: 0.0
+  statistical_analysis:
     type: object
-    description: Optional statistical aggregation if multiple runs exist
+    description: Results of statistical tests comparing modes
     properties:
-      mean_vbench:
-        type: number
-      std_vbench:
-        type: number
-      mean_fvd:
-        type: number
-      std_fvd:
-        type: number
-      n_samples:
-        type: integer
-        minimum: 1
-      p_value:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      test_type:
-        type: string
-        enum:
-          - t-test
-          - wilcoxon
-          - shapiro-wilk
-      power:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Statistical power of the test
+      normality_test:
+        type: object
+        properties:
+          method:
+            type: string
+            enum:
+              - shapiro-wilk
+          p_value:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          is_normal:
+            type: boolean
+      comparative_test:
+        type: object
+        properties:
+          method:
+            type: string
+            enum:
+              - wilcoxon-signed-rank
+              - paired-t-test
+          statistic:
+            type: number
+          p_value:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          is_significant:
+            type: boolean
+          alpha:
+            type: number
+            default: 0.05
+      power_analysis:
+        type: object
+        properties:
+          calculated_power:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          is_sufficient:
+            type: boolean
+          sample_size:
+            type: integer
+            minimum: 1
+      failure_cases:
+        type: array
+        description: List of videos flagged as failure cases
+        items:
+          type: object
+          required:
+            - video_id
+            - failure_reason
+          properties:
+            video_id:
+              type: string
+            failure_reason:
+              type: string
+              enum:
+                - object_permanence_drop
+                - vbench_score_drop
+                - tearing_artifact
+                - flow_estimation_failed
+            severity:
+              type: string
+              enum:
+                - minor
+                - moderate
+                - severe
+  notes:
+    type: string
+    description: Optional notes about the evaluation
 additionalProperties: false

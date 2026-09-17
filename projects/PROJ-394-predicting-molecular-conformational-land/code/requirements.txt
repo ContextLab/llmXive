@@ -1,6 +1,4 @@
-# NOTE: xtb is NOT included here. Install xtb via conda-forge:
-#   conda install -c conda-forge xtb
-# or via system package manager (e.g., apt) as per project spec.
+# Core dependencies
 torch==2.3.0
 rdkit==2024.3.1
 joblib==1.4.2
@@ -9,3 +7,7 @@ pandas==2.2.2
 numpy==1.26.4
 scikit-learn==1.5.0
 huggingface-hub==0.23.4
+
+# xtb is NOT included here as it is a C++ binary.
+# Install xtb via conda-forge: conda install -c conda-forge xtb
+# Or use the provided script: ./code/scripts/install_xtb.sh

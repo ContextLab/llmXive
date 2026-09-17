@@ -19,3 +19,18 @@ T007:
     \ (float), and `confidence_interval` (array of exactly two floats) properties,\
     \ matching the task specification. The missing `schema.yaml` is unrelated to the\
     \ stated requirement."
+T013:
+  c: false
+  h: e23a8915a5a0b7816369fe668540ec5eaaa6066dd750a78528179e11e6c78e3f
+  r: "The `code/data/download_zinc.py` script exists and begins to download the dataset\
+    \ and compute a checksum, but the provided code is truncated and never writes\
+    \ any checksum data to `data/checksums.json`. Moreover, the required `data/checksums.json`\
+    \ file is missing from the repository. The task\u2019s core requirement of persisting\
+    \ checksums is therefore not satisfied."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script or code file was provided that checks a ZINC15 dataset ID against\
+    \ the canonical ZINC15 source URL and logs the outcome, so the required artifact\
+    \ is missing. The implementer\u2019s claim cannot be verified without the actual\
+    \ script."

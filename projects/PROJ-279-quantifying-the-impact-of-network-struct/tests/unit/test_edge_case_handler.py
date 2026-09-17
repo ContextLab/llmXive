@@ -1,175 +1,157 @@
 """
-Unit tests for edge case handling in graph construction.
+Unit tests for edge case handling in edge_case_handler.py.
+Tests for:
+1. Corrupted file detection and abortion.
+2. Unexpected coordination number detection and flagging/dropping.
 """
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pytest
-import numpy as np
-from ase import Atoms
-import ase.io
 
-from edge_case_handler import (
-    check_file_corruption,
+import pytest
+
+from code.edge_case_handler import (
+    detect_corrupted_file,
+    handle_corrupted_file,
+    handle_unexpected_coordination,
     analyze_coordination_numbers,
-    validate_coordination_numbers,
-    handle_edge_cases,
-    generate_edge_case_report,
-    run_edge_case_checks,
+    process_with_edge_case_handling,
     CorruptedFileError,
-    UnexpectedCoordinationError
+    UnexpectedCoordinationError,
+    save_edge_case_report
 )
 
-class TestCheckFileCorruption:
-    def test_file_not_found(self):
-        with pytest.raises(CorruptedFileError, match="File not found"):
-            check_file_corruption(Path("/nonexistent/file.xyz"))
-            
-    def test_empty_file(self):
-        with tempfile.NamedTemporaryFile(suffix=".xyz", delete=False) as f:
-            temp_path = Path(f.name)
-        try:
-            with pytest.raises(CorruptedFileError, match="File is empty"):
-                check_file_corruption(temp_path)
-        finally:
-            temp_path.unlink()
-            
-    def test_valid_file(self):
-        with tempfile.NamedTemporaryFile(suffix=".xyz", delete=False, mode='w') as f:
-            f.write("1\n\nC\n")
-            temp_path = Path(f.name)
-        try:
-            is_valid, msg = check_file_corruption(temp_path)
-            assert is_valid
-            assert "verified" in msg
-        finally:
-            temp_path.unlink()
 
-class TestAnalyzeCoordinationNumbers:
-    def test_simple_lattice(self):
-        # Create a simple cubic lattice (coordination = 6 for bulk, but with cutoff)
-        atoms = Atoms('C4', 
-                     positions=[[0,0,0], [1.5,0,0], [0,1.5,0], [0,0,1.5]],
-                     cell=[3,3,3], pbc=True)
-        
-        # With a large cutoff, all should be neighbors
-        coords = analyze_coordination_numbers(atoms, cutoff=2.0)
-        
-        # Each atom should have 3 neighbors in this tiny cluster
-        assert 3 in coords
-        assert len(coords[3]) == 4
+class TestCorruptedFileDetection:
+    def test_detect_nonexistent_file(self, tmp_path):
+        """Test that a non-existent file is detected as corrupted."""
+        fake_path = tmp_path / "does_not_exist.xyz"
+        assert detect_corrupted_file(fake_path) is True
 
-class TestValidateCoordinationNumbers:
-    def test_valid_coordination(self):
-        # Create a configuration with expected coordination
-        atoms = Atoms('C2', 
-                     positions=[[0,0,0], [1.5,1.5,1.5]],
-                     cell=[3,3,3], pbc=True)
-        
-        is_valid, warnings, invalid = validate_coordination_numbers(atoms, "test", cutoff=2.0)
-        assert is_valid
-        assert len(warnings) == 0
-        assert len(invalid) == 0
-        
-    def test_invalid_coordination(self):
-        # Create a configuration with very low coordination (isolated atom)
-        atoms = Atoms('C1', positions=[[0,0,0]], cell=[3,3,3], pbc=True)
-        
-        is_valid, warnings, invalid = validate_coordination_numbers(atoms, "test", cutoff=1.0)
-        assert not is_valid
-        assert len(warnings) > 0
-        assert len(invalid) == 1
+    def test_detect_empty_file(self, tmp_path):
+        """Test that an empty file is detected as corrupted."""
+        empty_file = tmp_path / "empty.xyz"
+        empty_file.write_text("")
+        assert detect_corrupted_file(empty_file) is True
 
-class TestHandleEdgeCases:
-    def test_corrupted_file_abort(self):
-        with tempfile.NamedTemporaryFile(suffix=".xyz", delete=False) as f:
-            temp_path = Path(f.name)
-        try:
-            # Write garbage
-            with open(temp_path, 'wb') as f:
-                f.write(b'\x00\x01\x02\x03')
-                
-            with pytest.raises(CorruptedFileError):
-                handle_edge_cases(temp_path, "test", mode="abort")
-        finally:
-            temp_path.unlink()
-            
-    def test_corrupted_file_flag(self):
-        with tempfile.NamedTemporaryFile(suffix=".xyz", delete=False) as f:
-            temp_path = Path(f.name)
-        try:
-            with open(temp_path, 'wb') as f:
-                f.write(b'\x00\x01\x02\x03')
-                
-            atoms, warnings = handle_edge_cases(temp_path, "test", mode="flag")
-            assert atoms is None
-            assert len(warnings) > 0
-            assert "Corruption" in str(warnings[0])
-        finally:
-            temp_path.unlink()
-            
-    def test_valid_file(self):
-        with tempfile.NamedTemporaryFile(suffix=".xyz", delete=False, mode='w') as f:
-            f.write("2\n\nC 0 0 0\nC 1.5 1.5 1.5\n")
-            temp_path = Path(f.name)
-        try:
-            atoms, warnings = handle_edge_cases(temp_path, "test", mode="abort")
-            assert atoms is not None
-            assert len(atoms) == 2
-            assert len(warnings) == 0
-        finally:
-            temp_path.unlink()
+    def test_detect_invalid_xyz_header(self, tmp_path):
+        """Test that a file with invalid XYZ header (non-integer) is corrupted."""
+        invalid_file = tmp_path / "invalid_header.xyz"
+        invalid_file.write_text("NotANumber\nComment line\n")
+        assert detect_corrupted_file(invalid_file) is True
 
-class TestGenerateEdgeCaseReport:
-    def test_report_generation(self):
-        results = [
-            {"config_id": "test1", "status": "valid", "reason": "", "warnings": []},
-            {"config_id": "test2", "status": "corrupted", "reason": "Bad file", "warnings": []}
-        ]
-        
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
-            temp_path = Path(f.name)
-            
-        try:
-            generate_edge_case_report(results, temp_path)
-            
-            with open(temp_path) as f:
-                report = json.load(f)
-                
-            assert report["summary"]["total_processed"] == 2
-            assert report["summary"]["corrupted"] == 1
-            assert report["summary"]["valid"] == 1
-        finally:
-            temp_path.unlink()
+    def test_detect_truncated_xyz(self, tmp_path):
+        """Test that a file with fewer atoms than declared is corrupted."""
+        truncated_file = tmp_path / "truncated.xyz"
+        # Declares 10 atoms but only provides 2 lines of data
+        content = "10\nComment\nSi 0 0 0\nSi 1 1 1\n"
+        truncated_file.write_text(content)
+        assert detect_corrupted_file(truncated_file) is True
 
-class TestRunEdgeCaseChecks:
-    def test_run_checks(self):
-        # Create temporary valid and invalid files
-        valid_file = tempfile.NamedTemporaryFile(suffix=".xyz", delete=False, mode='w')
-        valid_file.write("2\n\nC 0 0 0\nC 1.5 1.5 1.5\n")
-        valid_file.close()
+    def test_detect_valid_xyz(self, tmp_path):
+        """Test that a valid XYZ file passes detection."""
+        valid_file = tmp_path / "valid.xyz"
+        # 2 atoms, 2 lines of coords
+        content = "2\nComment\nSi 0.0 0.0 0.0\nSi 1.0 1.0 1.0\n"
+        valid_file.write_text(content)
+        assert detect_corrupted_file(valid_file) is False
+
+
+class TestCoordinationAnalysis:
+    def test_analyze_normal_coordination(self):
+        """Test analysis of a graph with normal coordination numbers (4)."""
+        # 4 atoms, each connected to 2 others (ring), but let's make a simple chain or star
+        # Let's make a central atom connected to 3 others (coord 3, 1, 1, 1) - all within range
+        graph_data = {
+            "nodes": [{"id": 0}, {"id": 1}, {"id": 2}, {"id": 3}],
+            "edges": [
+                {"u": 0, "v": 1},
+                {"u": 0, "v": 2},
+                {"u": 0, "v": 3}
+            ]
+        }
+        has_unexpected, counts = analyze_coordination_numbers(graph_data, "test_config")
+        assert has_unexpected is False
+        assert counts[3] == 1
+        assert counts[1] == 3
+
+    def test_analyze_unexpected_low_coordination(self):
+        """Test detection of atoms with coordination < 2."""
+        # Atom 0 connected to nothing (coord 0)
+        graph_data = {
+            "nodes": [{"id": 0}, {"id": 1}],
+            "edges": []
+        }
+        has_unexpected, counts = analyze_coordination_numbers(graph_data, "test_config")
+        assert has_unexpected is True
+        assert counts[0] == 2
+
+    def test_analyze_unexpected_high_coordination(self):
+        """Test detection of atoms with coordination > 6."""
+        # Create a star graph where center has degree 10
+        nodes = [{"id": i} for i in range(11)]
+        edges = [{"u": 0, "v": i} for i in range(1, 11)]
+        graph_data = {"nodes": nodes, "edges": edges}
         
-        invalid_file = tempfile.NamedTemporaryFile(suffix=".xyz", delete=False)
-        invalid_file.write(b'\x00\x01\x02')
-        invalid_file.close()
+        has_unexpected, counts = analyze_coordination_numbers(graph_data, "test_config")
+        assert has_unexpected is True
+        assert counts[10] == 1
+
+
+class TestEdgeCaseHandling:
+    def test_handle_corrupted_file_raises(self, tmp_path, caplog):
+        """Test that handle_corrupted_file raises CorruptedFileError."""
+        fake_file = tmp_path / "bad.xyz"
+        with pytest.raises(CorruptedFileError):
+            handle_corrupted_file(fake_file)
+
+    def test_handle_unexpected_coordination_raises(self, caplog):
+        """Test that handle_unexpected_coordination raises UnexpectedCoordinationError."""
+        invalid_coords = {0: 1, 10: 1}
+        with pytest.raises(UnexpectedCoordinationError) as exc_info:
+            handle_unexpected_coordination("config_123", invalid_coords)
         
-        try:
-            results = run_edge_case_checks(
-                [Path(valid_file.name), Path(invalid_file.name)],
-                mode="flag"
-            )
-            
-            assert len(results) == 2
-            
-            # Check valid file result
-            valid_result = next(r for r in results if "valid" in r["file_path"])
-            assert valid_result["status"] == "valid"
-            
-            # Check invalid file result
-            invalid_result = next(r for r in results if "invalid" in r["file_path"] or "tmp" in r["file_path"] and r["file_path"] != valid_file.name)
-            assert invalid_result["status"] in ["corrupted", "error"]
-            
-        finally:
-            Path(valid_file.name).unlink()
-            Path(invalid_file.name).unlink()
+        assert "config_123" in str(exc_info.value)
+        assert "0" in str(exc_info.value)
+
+    def test_process_with_edge_case_handling_corrupted(self, tmp_path):
+        """Test that process_with_edge_case_handling aborts on corrupted file."""
+        bad_file = tmp_path / "bad.xyz"
+        bad_file.write_text("BadHeader\n")
+        
+        with pytest.raises(CorruptedFileError):
+            process_with_edge_case_handling(bad_file)
+
+    def test_process_with_edge_case_handling_unexpected_coords(self, tmp_path):
+        """Test that process_with_edge_case_handling drops on unexpected coords."""
+        good_file = tmp_path / "good.xyz"
+        good_file.write_text("2\nComment\nSi 0 0 0\nSi 1 1 1\n")
+        
+        bad_graph = {
+            "nodes": [{"id": 0}],
+            "edges": [] # Coord 0
+        }
+        
+        with pytest.raises(UnexpectedCoordinationError):
+            process_with_edge_case_handling(good_file, bad_graph, "test_id")
+
+
+class TestReportSaving:
+    def test_save_edge_case_report(self, tmp_path):
+        """Test saving the edge case report JSON."""
+        report_path = tmp_path / "edge_cases.json"
+        dropped = ["config_A", "config_B"]
+        corrupted = ["/path/to/bad.xyz"]
+        
+        save_edge_case_report(report_path, dropped, corrupted)
+        
+        assert report_path.exists()
+        with open(report_path, 'r') as f:
+            data = json.load(f)
+        
+        assert data["summary"]["total_dropped"] == 2
+        assert data["summary"]["total_corrupted"] == 1
+        assert data["dropped_due_to_coordination"] == dropped
+        assert data["corrupted_files"] == corrupted

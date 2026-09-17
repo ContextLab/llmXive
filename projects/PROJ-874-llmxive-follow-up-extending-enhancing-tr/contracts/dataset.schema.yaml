@@ -1,16 +1,16 @@
 %YAML 1.2
 ---
 $schema: http://json-schema.org/draft-07/schema#
-title: llmXive Dataset Schema
+title: LlmXive Dataset Schema
 description: >
-  Schema defining the structure of the raw and processed datasets used in the
-  llmXive follow-up study (NarrLV and VBench).
+  Schema defining the structure and constraints for the NarrLV and VBench datasets
+  used in the llmXive pipeline.
 type: object
 required:
   - dataset_name
   - version
   - source
-  - records
+  - samples
 properties:
   dataset_name:
     type: string
@@ -20,76 +20,62 @@ properties:
       - VBench
   version:
     type: string
-    description: Semantic version of the dataset snapshot
+    description: Semantic version of the dataset
     pattern: '^\d+\.\d+\.\d+$'
   source:
     type: string
-    description: Original source URL or HuggingFace ID
-    format: uri
-  download_timestamp:
+    description: Source identifier (HuggingFace ID or URL)
+  download_status:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp when the dataset was downloaded
+    description: Status of the dataset download
+    enum:
+      - pending
+      - downloading
+      - verified
+      - failed
+      - missing
   checksum:
-    type: object
-    required:
-      - algorithm
-      - value
-    properties:
-      algorithm:
-        type: string
-        enum:
-          - sha256
-          - md5
-      value:
-        type: string
-        description: Hexadecimal checksum string
-  records:
+    type: string
+    description: SHA-256 checksum of the downloaded archive
+    pattern: '^[a-f0-9]{64}$'
+  samples:
     type: array
-    description: List of video records in the dataset
+    description: List of sample entries in the dataset
+    minItems: 1
     items:
       type: object
       required:
-        - video_id
-        - file_path
-        - duration_seconds
-        - frame_count
-        - resolution
-        - fps
+        - sample_id
+        - video_path
+        - prompt
+        - metadata
       properties:
-        video_id:
+        sample_id:
           type: string
-          description: Unique identifier for the video
-        file_path:
+          description: Unique identifier for the sample
+        video_path:
           type: string
-          description: Relative path to the video file from data/raw/
-          pattern: '^data/raw/.*\.(mp4|avi|mov|mkv)$'
-        duration_seconds:
-          type: number
-          minimum: 0
-          description: Duration in seconds
-        frame_count:
-          type: integer
-          minimum: 1
-          description: Total number of frames
-        resolution:
-          type: object
-          required:
-            - width
-            - height
-          properties:
-            width:
-              type: integer
-              minimum: 1
-            height:
-              type: integer
-              minimum: 1
-        fps:
-          type: number
-          minimum: 0.1
-          description: Frames per second
+          description: Relative path to the video file
+          pattern: '^data/raw/.+\.mp4$'
+        prompt:
+          type: string
+          description: Text prompt associated with the video
         metadata:
           type: object
-          description: Optional additional metadata (e.g., prompt, seed)
+          description: Additional metadata for the sample
+          properties:
+            duration_seconds:
+              type: number
+              minimum: 0
+            resolution:
+              type: string
+              description: Video resolution (e.g., "1920x1080")
+              pattern: '^\d+x\d+$'
+            fps:
+              type: integer
+              minimum: 1
+            frame_count:
+              type: integer
+              minimum: 1
           additionalProperties: true
 additionalProperties: false

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T001b [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/data/raw/`, `data/processed/`, `data/results/` directories
 - [X] T001c [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/tests/contract/`, `tests/integration/`, `tests/unit/` directories
 
@@ -87,7 +87,7 @@
 - [ ] T014 [US1] Add logic to record **total end-to-end wall-clock time** per video in logs for both modes, including data loading and model initialization overhead (FR-002, Constitution Principle VI)
 - [ ] T015 [US1] Add validation to ensure all required dataset files are present before generation begins (FR-001)
 - [ ] T016 [US1] Add error handling for dataset download failures with clear error messages listing missing files
-- [ ] T017 [US1] Implement and run a pilot study script (`code/pilot_study.py`) on N=5 samples to calculate empirical variance for power analysis, saving results to `data/pilot_variance.json`. **Output JSON MUST contain keys: 'mean', 'std', 'n_samples', 'metric_name'** (SC-006 prerequisite)
+- [X] T017 [US1] Implement and run a pilot study script (`code/pilot_study.py`) on N=5 samples to calculate empirical variance for power analysis, saving results to `data/pilot_variance.json`. **Output JSON MUST contain keys: 'mean', 'std', 'n_samples', 'metric_name'** (SC-006 prerequisite)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,9 +109,9 @@
 - [X] T020a [US2] Implement `code/utils/flow_benchmark.py` to verify RAFT-Small FP16 feasibility on CPU. **Must run a small benchmark (1 frame) and report success/failure. If FP16 fails (OOM), report fallback to FP32.**
 - [X] T020 [US2] Implement `code/utils/flow.py` to load RAFT-Small model. **Must depend on T020a success. If T020a fails, implement fallback to FP32 precision or abort with clear error. Do not assume FP16 is always feasible.** (FR-003)
 - [X] T021 [US2] Implement `code/correct.py` to compute optical flow fields between consecutive frames of naive baseline videos. **Must include step to verify existence of naive baseline videos (T013 output) and abort with error if missing** (FR-003, FR-001)
-- [~] T022 [US2] Implement non-differentiable warping and smoothing logic using flow fields to generate Condition C outputs. **Must include step to verify existence of flow fields (T021 output) and abort with error if missing** (FR-004)
-- [~] T023 [US2] Implement fallback logic for failed flow estimation (e.g., extreme motion blur) using nearest-neighbor interpolation of flow vectors
-- [~] T024 [US2] Add detection and logging for frames with invalid pixel artifacts (tearing) due to severe 3D drift, flagging them for manual review instead of silently corrupting video
+- [ ] T022 [US2] Implement non-differentiable warping and smoothing logic using flow fields to generate Condition C outputs. **Must include step to verify existence of flow fields (T021 output) and abort with error if missing** (FR-004)
+- [ ] T023 [US2] Implement fallback logic for failed flow estimation (e.g., extreme motion blur) using nearest-neighbor interpolation of flow vectors
+- [ ] T024 [US2] Add detection and logging for frames with invalid pixel artifacts (tearing) due to severe 3D drift, flagging them for manual review instead of silently corrupting video
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,15 +125,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T037 [P] [US3] Contract test for metrics schema in `tests/contract/test_metrics_schema.py` (Renamed from T024 to resolve ID collision)
+- [ ] T037 [P] [US3] Contract test for metrics schema in `tests/contract/test_metrics_schema.py` (Renamed from T024 to resolve ID collision)
 - [X] T025 [P] [US3] Integration test for statistical analysis in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
 - [X] T030a [US3] Implement `code/analyze.py` power analysis function using `statsmodels.stats.power` based on pilot variance from T017. **Must calculate power for N=50. If power < 0.8, the report MUST explicitly state the study is underpowered and ABORT subsequent statistical tests (T027/T028) or flag them as invalid.** (SC-006)
 - [X] T027 [US3] Implement `code/analyze.py` to perform Shapiro-Wilk test for normality on metric differences. **Note: Correct interpretation is p < 0.05 implies non-normality (reject null).** (FR-006)
-- [~] T028 [US3] Implement adaptive statistical testing: Wilcoxon signed-rank if normality rejected (p<0.05), else paired t-test. **Note: Correct interpretation is p < 0.05 implies non-normality, triggering Wilcoxon.** (FR-006)
-- [~] T029 [US3] Implement failure case identification logic: flag videos where object permanence drops ≥5% or VBench score drops ≥0.1 compared to naive baseline. **Output must be written to `results/failure_cases.json`. MUST log explicit note that these are 2D perceptual proxies and do not guarantee 3D geometric correctness** (FR-007)
+- [ ] T028 [US3] Implement adaptive statistical testing: Wilcoxon signed-rank if normality rejected (p<0.05), else paired t-test. **Note: Correct interpretation is p < 0.05 implies non-normality, triggering Wilcoxon.** (FR-006)
+- [ ] T029 [US3] Implement failure case identification logic: flag videos where object permanence drops ≥5% or VBench score drops ≥0.1 compared to naive baseline. **Output must be written to `results/failure_cases.json`. MUST log explicit note that these are 2D perceptual proxies and do not guarantee 3D geometric correctness** (FR-007)
 - [~] T030 [US3] Generate CSV report containing all metrics and a final statistical summary with p-values. **Must consume output of T030a. CSV columns MUST include: 'video_id', 'condition', 'vbench_score', 'fvd', 'object_permanence', 'p_value', 'test_type', 'power_sufficient' (boolean).** (SC-006)
 
 **Checkpoint**: All user stories should now be independently functional

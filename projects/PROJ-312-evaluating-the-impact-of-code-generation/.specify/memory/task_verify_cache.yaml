@@ -1,44 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure is shown in the provided evidence; the required `projects/PROJ-312-evaluating-the-impact-of-code-generation/`
-    folder with its subfolders (`code/`, `data/`, `tests/`, `contracts/`, `artifacts/`,
-    `state/`) is not present or documented. The implementer must create and list these
-    directories to satisfy the task.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `contracts/` directory or schema definition files were provided; the required\
-    \ local schema definitions are missing entirely. The task\u2019s core deliverable\
-    \ is absent, so the claim is not satisfied."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `logs/pipeline.log` file with JSON\u2011formatted entries is present, and\
-    \ there is no code shown that configures logging or records the `X-RateLimit-Remaining`\
-    \ and `X-RateLimit-Reset` headers on API calls. The required logging infrastructure\
-    \ is therefore missing."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the required directories (`data/raw/`,
-    `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist
-    in the repository; the claim is unsubstantiated. The implementer must provide
-    a directory listing or screenshots confirming the creation of these folders.
-T011:
-  c: false
-  h: 1f3f6258b3ecd8271b462ace8da8d9e8557f6643d3feb433bc27a82e2473962c
-  r: The test file `tests/contract/test_schema_validation.py` exists and contains
-    contract tests for `pull_request.schema.yaml`, but the required schema file `contracts/pull_request.schema.yaml`
-    is missing, so the tests cannot actually validate anything. Add the missing `pull_request.schema.yaml`
-    (and any other referenced schemas) with the correct structure.
-T012b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, notebook, or data files were provided that fetch PRs for the repositories\
-    \ from T012a, iterate through each PR\u2019s commits, and extract commit messages.\
-    \ The required artifact (code and/or output CSV containing the commit messages)\
-    \ is missing, so the task is not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -70,3 +29,42 @@ T023c:
   r: "No code, script, or log file was provided that computes or records the Shapiro\u2011\
     Wilk test p\u2011values for the AI\u2011assisted and non\u2011AI groups. Consequently\
     \ the required artifact (normality\u2011check calculation and logging) is missing."
+T024b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a CSV, JSON, or other file) containing the saved outlier indices
+    was provided, nor any evidence that the primary dataset used in T026 still includes
+    those outliers. The implementer therefore has not demonstrated that the required
+    outlier indices were persisted for later visualization and sensitivity analysis.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I examined the provided information and found no code, log file, or output that
+    records the number of outliers removed per group. The task requires an artifact
+    (e.g., a log entry or report) showing these counts, but none is present. Consequently,
+    the requirement is not satisfied.
+T026b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or test output was provided that shows the p\u2011\
+    value being compared to \u03B1=0.05, the appropriate conclusion being logged,\
+    \ or a `SignificanceError` being raised when required. Without any artifact demonstrating\
+    \ this logic, the task is not satisfied."
+T027b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code defining `SampleSizeError` or raising it with the required message is
+    present; the implementer provided no artifact showing the class or the conditional
+    raise, so the task requirement is unmet.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No boxplot image, script, or notebook was provided that shows the turnaround\u2011\
+    time\u2011vs\u2011PR\u2011type plot with labeled axes and whiskers defined by\
+    \ IQR bounds, so the requirement cannot be verified as met."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/boxplot.png` file is present, and there is no evidence of a saved\
+    \ visualization with \u2265300\u202FDPI resolution. The required high\u2011resolution\
+    \ image is missing, so the task is not satisfied."

@@ -1,3 +1,10 @@
+"""
+Fetch top Python and JavaScript repositories from GitHub API.
+
+This module implements T012a: Fetch a representative set of top Python and JavaScript
+repositories by star count using GitHub API endpoints and save the output to data/raw/repos.json.
+"""
+
 import json
 import logging
 import os
@@ -5,129 +12,129 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any
 
+# Import utilities from sibling module
 from utils import api_request_with_backoff
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def fetch_repos_from_github(
-    languages: List[str] = None,
-    min_stars: int = 10000,
-    limit_per_lang: int = 50
-) -> List[Dict[str, Any]]:
-    """
-    Fetch top repositories by star count for specified languages using GitHub API.
+# GitHub API configuration
+GITHUB_API_BASE = "https://api.github.com"
+RATE_LIMIT_DELAY = 1.0  # Base delay to respect rate limits
 
+def fetch_repos_from_github(language: str, min_stars: int = 10000, limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Fetch top repositories for a given language from GitHub API.
+    
     Args:
-        languages: List of languages to query (e.g., ["Python", "JavaScript"])
+        language: Programming language (e.g., 'Python', 'JavaScript')
         min_stars: Minimum star count threshold
-        limit_per_lang: Maximum number of repos to fetch per language
-
+        limit: Maximum number of repositories to fetch
+    
     Returns:
-        List of repository objects containing 'name' and 'stars'
+        List of repository dictionaries with 'name' and 'stars' keys
+    
+    Raises:
+        RuntimeError: If API request fails after retries
     """
-    if languages is None:
-        languages = ["Python", "JavaScript"]
-
-    all_repos = []
-
-    for lang in languages:
-        logger.info(f"Fetching top {limit_per_lang} {lang} repositories with > {min_stars} stars...")
+    # Construct query: language:Python+stars:>10000&sort=stars&order=desc
+    query = f"language:{language}+stars:>{min_stars}&sort=stars&order=desc"
+    url = f"{GITHUB_API_BASE}/search/repositories?q={query}&per_page={limit}"
+    
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "llmXive-Research-Agent"
+    }
+    
+    logger.info(f"Fetching {language} repositories from GitHub API: {url}")
+    
+    # Use the backoff utility for rate limit handling
+    response = api_request_with_backoff(url, headers)
+    
+    if not response or response.status_code != 200:
+        error_msg = f"Failed to fetch {language} repositories. Status code: {response.status_code if response else 'No response'}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    
+    try:
+        data = response.json()
+        items = data.get('items', [])
         
-        # Construct query: language:Python stars:>10000 sort:stars order:desc
-        query = f"language:{lang} stars:>{min_stars}"
-        url = "https://api.github.com/search/repositories"
-        params = {
-            "q": query,
-            "sort": "stars",
-            "order": "desc",
-            "per_page": 100,  # Max allowed per page
-            "page": 1
-        }
-
-        fetched_count = 0
-        page = 1
-
-        while fetched_count < limit_per_lang:
-            params["page"] = page
-            
-            try:
-                response = api_request_with_backoff(url, params=params)
-                
-                if response is None:
-                    logger.error(f"Failed to fetch page {page} for {lang} after retries")
-                    break
-
-                items = response.get("items", [])
-                if not items:
-                    logger.warning(f"No more items found for {lang} on page {page}")
-                    break
-
-                for item in items:
-                    if fetched_count >= limit_per_lang:
-                        break
-                    
-                    repo_data = {
-                        "name": item["full_name"],
-                        "stars": item["stargazers_count"],
-                        "language": item["language"]
-                    }
-                    all_repos.append(repo_data)
-                    fetched_count += 1
-
-                # Check rate limit headers if available
-                remaining = response.get("_headers", {}).get("X-RateLimit-Remaining")
-                if remaining and int(remaining) < 10:
-                    logger.warning(f"Approaching rate limit for {lang} ({remaining} remaining)")
-
-                page += 1
-
-            except Exception as e:
-                logger.error(f"Error fetching repos for {lang}: {e}")
-                break
-
-        logger.info(f"Fetched {fetched_count} repositories for {lang}")
-
-    return all_repos
+        logger.info(f"Retrieved {len(items)} repositories for {language}")
+        
+        # Extract only 'name' and 'stars' as required by FR-001
+        repos = []
+        for item in items:
+            repos.append({
+                "name": item['full_name'],
+                "stars": item['stargazers_count']
+            })
+        
+        return repos
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON response for {language}: {e}")
+        raise RuntimeError(f"JSON parsing failed: {e}")
+    except KeyError as e:
+        logger.error(f"Missing expected key in response for {language}: {e}")
+        raise RuntimeError(f"Missing key in response: {e}")
 
 def main():
     """
-    Main entry point to fetch repositories and save to data/raw/repos.json
+    Main entry point for T012a.
+    
+    Fetches top Python and JavaScript repositories and saves them to data/raw/repos.json.
     """
     # Ensure output directory exists
     output_dir = Path("data/raw")
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "repos.json"
-
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    logger.info("Starting repository fetch process...")
-
+    output_file = output_dir / "repos.json"
+    
+    logger.info(f"Starting repository fetch. Output will be saved to: {output_file}")
+    
+    all_repos = []
+    
+    # Fetch Python repositories
     try:
-        # Fetch repositories
-        repos = fetch_repos_from_github(
-            languages=["Python", "JavaScript"],
-            min_stars=10000,
-            limit_per_lang=50
-        )
-
-        if not repos:
-            logger.error("No repositories fetched. Check API connectivity and rate limits.")
-            return 1
-
-        # Save to JSON
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(repos, f, indent=2)
-
-        logger.info(f"Successfully saved {len(repos)} repositories to {output_path}")
-        return 0
-
+        python_repos = fetch_repos_from_github("Python", min_stars=10000, limit=50)
+        all_repos.extend(python_repos)
+        logger.info(f"Successfully fetched {len(python_repos)} Python repositories")
     except Exception as e:
-        logger.exception(f"Fatal error in main: {e}")
-        return 1
+        logger.error(f"Failed to fetch Python repositories: {e}")
+        raise
+    
+    # Fetch JavaScript repositories
+    try:
+        js_repos = fetch_repos_from_github("JavaScript", min_stars=10000, limit=50)
+        all_repos.extend(js_repos)
+        logger.info(f"Successfully fetched {len(js_repos)} JavaScript repositories")
+    except Exception as e:
+        logger.error(f"Failed to fetch JavaScript repositories: {e}")
+        raise
+    
+    # Validate we have data (fail loudly if empty)
+    if not all_repos:
+        error_msg = "No repositories fetched from GitHub API. Aborting."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    
+    # Save to JSON file
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(all_repos, f, indent=2)
+        
+        logger.info(f"Successfully saved {len(all_repos)} repositories to {output_file}")
+        logger.info(f"Repository names saved: {[repo['name'] for repo in all_repos[:5]]}...")
+        
+    except IOError as e:
+        logger.error(f"Failed to write output file: {e}")
+        raise RuntimeError(f"Failed to write output file: {e}")
+    
+    logger.info("T012a completed successfully")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

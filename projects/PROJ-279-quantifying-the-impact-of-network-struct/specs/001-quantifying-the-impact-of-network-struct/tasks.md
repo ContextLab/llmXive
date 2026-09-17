@@ -137,12 +137,12 @@
 
 ### Implementation for User Story 3
 
-- [~] T031 [P] [US3] Implement `models.py` with Ridge Regression and Random Forest/Kernel Ridge (FR-004)
-- [~] T032 [US3] Implement dimensionality reduction (PCA/Lasso) **as a preprocessing step for small N** to prevent overfitting, followed by stability selection (Plan: Complexity Tracking)
-- [~] T033 [US3] Implement cross-validation logic: 5-fold if N ≥ 30, else LOOCV (FR-004, Spec US-3, Scenario 1)
-- [~] T034 [US3] Calculate and log mean R², std dev, and p-values for top 3 features (FR-004, Spec US-3, Scenario 1)
-- [~] T035 [US3] Implement `viz.py` to generate scatter plot (top predictor vs. k) with regression line and Pearson r (FR-005)
-- [~] T036 [US3] Generate feature importance bar chart with error bars (std dev across folds) (FR-005)
+- [ ] T031 [P] [US3] Implement `models.py` with Ridge Regression and Random Forest/Kernel Ridge (FR-004)
+- [ ] T032 [US3] Implement dimensionality reduction (PCA/Lasso) **as a preprocessing step for small N** to prevent overfitting, followed by stability selection (Plan: Complexity Tracking)
+- [ ] T033 [US3] Implement cross-validation logic: 5-fold if N ≥ 30, else LOOCV (FR-004, Spec US-3, Scenario 1)
+- [ ] T034 [US3] Calculate and log mean R², std dev, and p-values for top 3 features (FR-004, Spec US-3, Scenario 1)
+- [ ] T035 [US3] Implement `viz.py` to generate scatter plot (top predictor vs. k) with regression line and Pearson r (FR-005)
+- [ ] T036 [US3] Generate feature importance bar chart with error bars (std dev across folds) (FR-005)
 - [ ] T037 [US3] Implement Tiered Execution logic: if k/VDOS missing, skip regression, **Update `data/processed/results/hypothesis_status.json`**.
  - **H-001/H-002**: Mark 'UNTESTABLE' if regression is skipped.
  - **H-003**: Mark 'TESTED' if ring statistics were successfully computed (Structure-Only Mode OK).

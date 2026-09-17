@@ -75,17 +75,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Unit test for SMILES-to-graph conversion in `code/tests/unit/test_data_loader.py` (assert graph properties match input)
-- [ ] T011 [P] [US1] Unit test for VAE architecture (encoder/decoder) shapes in `code/tests/unit/test_vae.py` (assert latent dim=64, reconstruction matches input dim)
-- [ ] T012 [US1] Integration test for training loop on A set of molecules in `code/tests/integration/test_training.py` (Depends on T017; asserts checkpoint exists, loss ≤ 0.15)
+- [X] T010 [P] [US1] Unit test for SMILES-to-graph conversion in `code/tests/unit/test_data_loader.py` (assert graph properties match input)
+- [X] T011 [P] [US1] Unit test for VAE architecture (encoder/decoder) shapes in `code/tests/unit/test_vae.py` (assert latent dim=64 [UNRESOLVED-CLAIM: c_09c83161 — status=not_enough_info], reconstruction matches input dim)
+- [ ] T012 [US1] Integration test for training loop on A set of molecules in `code/tests/integration/test_training.py` (Depends on T017; asserts checkpoint exists, loss ≤ 0.15 [UNRESOLVED-CLAIM: c_31a3c4d9 — status=not_enough_info]) <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement ZINC15 data download script in `code/data/download_zinc.py` using HuggingFace `datasets.load_dataset('zinc15', split='train')`, verify canonical source match per Constitution Principle I, and save checksums to `data/checksums.json`
 - [ ] T013b [P] [US1] Verify ZINC15 source match: Write a script to confirm `zinc15` dataset ID maps to the canonical ZINC15 source URL as required by Constitution Principle I, logging the result
-- [ ] T014 [P] [US1] Implement SMILES to RDKit Graph conversion in `code/data/preprocess.py` (FR-001)
-- [ ] T015 [US1] Implement MPNN Encoder and Decoder in `code/models/vae.py` (2 layers, A hidden dimension of moderate size will be employed to balance model capacity and computational efficiency., ReLU activation, A latent space of appropriate dimensionality will be employed to encode the data structure., CPU-only)
-- [ ] T016 [US1] Implement training loop in `code/train.py` (CPU threads=2, batch size tuned for <7GB RAM, seed pinned)
+- [X] T014 [P] [US1] Implement SMILES to RDKit Graph conversion in `code/data/preprocess.py` (FR-001)
+- [X] T015 [US1] Implement MPNN Encoder and Decoder in `code/models/vae.py` (2 layers, A hidden dimension of moderate size will be employed to balance model capacity and computational efficiency., ReLU activation, A latent space of appropriate dimensionality will be employed to encode the data structure., CPU-only)
+- [X] T016 [US1] Implement training loop in `code/train.py` (CPU threads=2 [UNRESOLVED-CLAIM: c_b0d02bd0 — status=not_enough_info], batch size tuned for <7GB RAM [UNRESOLVED-CLAIM: c_778b80eb — status=not_enough_info], seed pinned)
 - [ ] T017 [US1] Implement checkpoint saving and loading logic in `code/train.py` (save `vae_checkpoint.pt` with optimizer state and epoch)
 - [ ] T018 [US1] Implement inference script to encode held-out SMILES in `code/models/vae.py` (FR-003)
 
@@ -108,13 +108,13 @@
 ### Implementation for User Story 2
 
 - [ ] T022 [P] [US2] Implement ETKDG conformer generation in `code/data/preprocess.py` (a limited set of conformers, seed pinned)
-- [ ] T023 [US2] Implement GFN2-xTB geometry optimization wrapper in `code/data/energy_calc.py` (parallelized via joblib n_jobs=2, FR-004, calls T009b for metadata logging)
-- [ ] T024 [US2] Implement linear regression head for energy prediction in `code/models/linear_head.py` (input dim=64, output dim=1)
+- [ ] T023 [US2] Implement GFN2-xTB geometry optimization wrapper in `code/data/energy_calc.py` (parallelized via joblib n_jobs=2 [UNRESOLVED-CLAIM: c_cebe9f5c — status=not_enough_info], FR-004, calls T009b for metadata logging)
+- [ ] T024 [US2] Implement linear regression head for energy prediction in `code/models/linear_head.py` (input dim=64, output dim=1 [UNRESOLVED-CLAIM: c_1a123865 — status=not_enough_info])
 - [ ] T025 [US2] Implement end-to-end ranking pipeline in `code/evaluate.py` (latent vector -> predicted scores via T024 -> rank, Depends on T017, T024)
 - [ ] T026 [US2] Implement Spearman ρ and Bonferroni-adjusted p-value calculation in `code/evaluate.py` (FR-005, FR-008)
 - [ ] T027 [US2] Implement sensitivity analysis loop in `code/evaluate.py` explicitly sweeping α over a range of small numeric values (FR-010) and saving results to `data/sensitivity_analysis.json` with columns `alpha`, `p_value`, `rho`.
 - [ ] T028 [US2] Implement power analysis function in `code/evaluate.py` using `statsmodels`, {{claim:c_16294c32}} (Wikipedia: Statistical significance, https://en.wikipedia.org/wiki/Statistical_significance), power=0.8) and save report to `data/power_analysis_report.txt` (FR-012)
-- [ ] T029 [US2] Implement workflow success rate validation (≥95% success) in `code/data/energy_calc.py` (FR-011)
+- [ ] T029 [US2] Implement workflow success rate validation (≥95% success) [UNRESOLVED-CLAIM: c_520c9edd — status=refuted] in `code/data/energy_calc.py` (FR-011)
 
 **Checkpoint**: At this point, User Story 2 should be fully functional and testable independently
 
@@ -283,4 +283,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be executable on CPU-only (2 cores, 7GB RAM) within 6 hours. No GPU/CUDA, no 8-bit quantization, no large model loading.
+- **Critical Constraint**: All tasks must be executable on CPU-only (2 cores, 7GB RAM) within 6 hours [UNRESOLVED-CLAIM: c_db1c30fd — status=not_enough_info]. No GPU/CUDA, no 8-bit quantization, no large model loading.

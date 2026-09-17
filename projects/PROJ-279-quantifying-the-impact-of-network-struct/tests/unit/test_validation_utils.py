@@ -1,180 +1,243 @@
 """
-Unit tests for validation_utils module.
-
-Tests checksum verification and file integrity checks.
+Unit tests for validation_utils.py
 """
-import pytest
-import tempfile
-import os
-from pathlib import Path
 import json
-import sys
+import os
+import tempfile
+import time
+from pathlib import Path
+from unittest import TestCase
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import pytest
 
-from validation_utils import (
+from code.validation_utils import (
     compute_file_checksum,
     verify_file_integrity,
     create_manifest,
     verify_manifest,
     check_file_age,
-    save_manifest
+    save_manifest,
+    DEFAULT_ALGORITHM
 )
-from logging_config import setup_logging
 
-@pytest.fixture
-def temp_file(tmp_path):
-    """Create a temporary file with known content."""
-    file_path = tmp_path / "test_file.txt"
-    content = "This is test content for checksum verification."
-    file_path.write_text(content)
-    return file_path
 
-@pytest.fixture
-def temp_directory(tmp_path):
-    """Create a temporary directory with test files."""
-    # Create some test files
-    (tmp_path / "file1.json").write_text('{"key": "value1"}')
-    (tmp_path / "file2.json").write_text('{"key": "value2"}')
-    (tmp_path / "file3.txt").write_text("Some text content")
-    (tmp_path / "subdir").mkdir()
-    (tmp_path / "subdir" / "nested.json").write_text('{"nested": true}')
-    return tmp_path
+class TestComputeFileChecksum(TestCase):
+    def test_compute_checksum_sha256(self):
+        """Test checksum computation with SHA256."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test data")
+            temp_path = Path(f.name)
+        
+        try:
+            checksum = compute_file_checksum(temp_path, algorithm='sha256')
+            self.assertEqual(len(checksum), 64)  # SHA256 hex length
+            self.assertTrue(all(c in '0123456789abcdef' for c in checksum.lower()))
+        finally:
+            os.unlink(temp_path)
 
-def test_compute_file_checksum(temp_file):
-    """Test SHA256 checksum computation."""
-    checksum1 = compute_file_checksum(temp_file)
-    checksum2 = compute_file_checksum(temp_file)
-    
-    # Checksums should be consistent
-    assert checksum1 == checksum2
-    
-    # Checksum should be a valid hex string
-    assert len(checksum1) == 64  # SHA256 produces 64 hex characters
-    assert all(c in '0123456789abcdef' for c in checksum1)
+    def test_compute_checksum_md5(self):
+        """Test checksum computation with MD5."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test data")
+            temp_path = Path(f.name)
+        
+        try:
+            checksum = compute_file_checksum(temp_path, algorithm='md5')
+            self.assertEqual(len(checksum), 32)  # MD5 hex length
+        finally:
+            os.unlink(temp_path)
 
-def test_compute_file_checksum_nonexistent():
-    """Test checksum computation on non-existent file."""
-    with pytest.raises(FileNotFoundError):
-        compute_file_checksum(Path("/nonexistent/file.txt"))
+    def test_compute_checksum_file_not_found(self):
+        """Test that FileNotFoundError is raised for missing file."""
+        with self.assertRaises(FileNotFoundError):
+            compute_file_checksum(Path("/nonexistent/file.txt"))
 
-def test_verify_file_integrity_success(temp_file):
-    """Test successful file integrity verification."""
-    checksum = compute_file_checksum(temp_file)
-    assert verify_file_integrity(temp_file, checksum) is True
+    def test_compute_checksum_invalid_algorithm(self):
+        """Test that ValueError is raised for invalid algorithm."""
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            temp_path = Path(f.name)
+        try:
+            with self.assertRaises(ValueError):
+                compute_file_checksum(temp_path, algorithm='invalid_algo')
+        finally:
+            os.unlink(temp_path)
 
-def test_verify_file_integrity_failure(temp_file):
-    """Test failed file integrity verification."""
-    checksum = compute_file_checksum(temp_file)
-    wrong_checksum = "a" * 64  # Invalid checksum
-    assert verify_file_integrity(temp_file, wrong_checksum) is False
 
-def test_verify_file_integrity_with_actual_checksum(temp_file):
-    """Test verification with pre-computed checksum."""
-    actual_checksum = compute_file_checksum(temp_file)
-    assert verify_file_integrity(temp_file, actual_checksum, actual_checksum) is True
+class TestVerifyFileIntegrity(TestCase):
+    def test_verify_success(self):
+        """Test successful verification."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test data")
+            temp_path = Path(f.name)
+        
+        try:
+            checksum = compute_file_checksum(temp_path)
+            self.assertTrue(verify_file_integrity(temp_path, checksum))
+        finally:
+            os.unlink(temp_path)
 
-def test_create_manifest(temp_directory):
-    """Test manifest creation."""
-    manifest = create_manifest(temp_directory)
-    
-    # Should find all files
-    assert len(manifest) == 4  # file1.json, file2.json, file3.txt, subdir/nested.json
-    
-    # All values should be valid checksums
-    for checksum in manifest.values():
-        assert len(checksum) == 64
-        assert all(c in '0123456789abcdef' for c in checksum)
+    def test_verify_failure(self):
+        """Test verification failure with wrong checksum."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test data")
+            temp_path = Path(f.name)
+        
+        try:
+            self.assertFalse(verify_file_integrity(temp_path, "wrong_checksum"))
+        finally:
+            os.unlink(temp_path)
 
-def test_create_manifest_with_patterns(temp_directory):
-    """Test manifest creation with file patterns."""
-    # Only include JSON files
-    manifest = create_manifest(temp_directory, patterns=['*.json'])
-    
-    # Should find only JSON files
-    assert len(manifest) == 3  # file1.json, file2.json, subdir/nested.json
-    
-    # No .txt files
-    for path in manifest.keys():
-        assert not path.endswith('.txt')
+    def test_verify_file_not_found(self):
+        """Test verification returns False for missing file."""
+        self.assertFalse(verify_file_integrity(Path("/nonexistent/file.txt"), "checksum"))
 
-def test_verify_manifest_success(temp_directory):
-    """Test successful manifest verification."""
-    manifest = create_manifest(temp_directory)
-    manifest_path = temp_directory / "manifest.json"
-    save_manifest(manifest, manifest_path)
-    
-    is_valid, failures = verify_manifest(manifest_path)
-    
-    assert is_valid is True
-    assert len(failures) == 0
 
-def test_verify_manifest_file_missing(temp_directory):
-    """Test manifest verification with missing file."""
-    manifest = create_manifest(temp_directory)
-    manifest_path = temp_directory / "manifest.json"
-    save_manifest(manifest, manifest_path)
-    
-    # Delete a file
-    (temp_directory / "file1.json").unlink()
-    
-    is_valid, failures = verify_manifest(manifest_path)
-    
-    assert is_valid is False
-    assert "file1.json" in failures
-    assert "not found" in failures["file1.json"].lower()
+class TestCreateManifest(TestCase):
+    def test_create_manifest_single_file(self):
+        """Test manifest creation for a single file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+        
+        try:
+            manifest = create_manifest([temp_path])
+            self.assertIn("files", manifest)
+            self.assertIn("algorithm", manifest)
+            self.assertIn("created_at", manifest)
+            self.assertEqual(len(manifest["files"]), 1)
+            self.assertIn(str(temp_path), manifest["files"])
+        finally:
+            os.unlink(temp_path)
 
-def test_verify_manifest_checksum_mismatch(temp_directory):
-    """Test manifest verification with checksum mismatch."""
-    manifest = create_manifest(temp_directory)
-    manifest_path = temp_directory / "manifest.json"
-    save_manifest(manifest, manifest_path)
-    
-    # Modify a file
-    (temp_directory / "file1.json").write_text("Modified content")
-    
-    is_valid, failures = verify_manifest(manifest_path)
-    
-    assert is_valid is False
-    assert "file1.json" in failures
-    assert "mismatch" in failures["file1.json"].lower()
+    def test_create_manifest_missing_file(self):
+        """Test manifest creation handles missing files gracefully."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+        
+        try:
+            missing_path = Path("/nonexistent/file.txt")
+            manifest = create_manifest([temp_path, missing_path])
+            self.assertEqual(len(manifest["files"]), 1)  # Only the existing file
+        finally:
+            os.unlink(temp_path)
 
-def test_check_file_age_fresh(temp_file):
-    """Test file age check for fresh file."""
-    # File should be fresh (just created)
-    assert check_file_age(temp_file, max_age_hours=1.0) is True
+    def test_create_manifest_save(self):
+        """Test manifest creation and saving to file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "manifest.json"
+            try:
+                manifest = create_manifest([temp_path], output_path=output_path)
+                self.assertTrue(output_path.exists())
+                with open(output_path, 'r') as f:
+                    saved_manifest = json.load(f)
+                self.assertEqual(manifest, saved_manifest)
+            finally:
+                os.unlink(temp_path)
 
-def test_check_file_age_old(temp_file):
-    """Test file age check for old file."""
-    # Set file modification time to 24 hours ago
-    old_time = os.path.getmtime(temp_file) - (24 * 3600)
-    os.utime(temp_file, (old_time, old_time))
-    
-    # Should be old
-    assert check_file_age(temp_file, max_age_hours=1.0) is False
 
-def test_check_file_age_nonexistent():
-    """Test file age check for non-existent file."""
-    assert check_file_age(Path("/nonexistent/file.txt"), max_age_hours=1.0) is False
+class TestVerifyManifest(TestCase):
+    def test_verify_manifest_success(self):
+        """Test successful manifest verification."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+        
+        try:
+            manifest = create_manifest([temp_path])
+            all_valid, passed, failed = verify_manifest(manifest)
+            self.assertTrue(all_valid)
+            self.assertEqual(len(passed), 1)
+            self.assertEqual(len(failed), 0)
+        finally:
+            os.unlink(temp_path)
 
-def test_save_manifest(tmp_path):
-    """Test saving manifest to file."""
-    manifest = {
-        "file1.txt": "abc123...",
-        "file2.txt": "def456..."
-    }
-    output_path = tmp_path / "test_manifest.json"
-    saved_path = save_manifest(manifest, output_path)
-    
-    assert saved_path.exists()
-    assert saved_path == output_path
-    
-    # Verify content
-    with open(saved_path, 'r') as f:
-        loaded_manifest = json.load(f)
-    
-    assert loaded_manifest == manifest
+    def test_verify_manifest_failure(self):
+        """Test manifest verification with corrupted file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+        
+        try:
+            manifest = create_manifest([temp_path])
+            # Corrupt the file
+            with open(temp_path, 'w') as f:
+                f.write("corrupted content")
+            
+            all_valid, passed, failed = verify_manifest(manifest)
+            self.assertFalse(all_valid)
+            self.assertEqual(len(passed), 0)
+            self.assertEqual(len(failed), 1)
+        finally:
+            os.unlink(temp_path)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_verify_manifest_missing_file(self):
+        """Test manifest verification with missing file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+        
+        try:
+            manifest = create_manifest([temp_path])
+            os.unlink(temp_path)  # Delete the file
+            
+            all_valid, passed, failed = verify_manifest(manifest)
+            self.assertFalse(all_valid)
+            self.assertEqual(len(passed), 0)
+            self.assertEqual(len(failed), 1)
+        finally:
+            pass  # File already deleted
+
+
+class TestCheckFileAge(TestCase):
+    def test_check_file_age_fresh(self):
+        """Test file age check for a fresh file."""
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            temp_path = Path(f.name)
+        
+        try:
+            self.assertTrue(check_file_age(temp_path, max_age_seconds=60))
+        finally:
+            os.unlink(temp_path)
+
+    def test_check_file_age_stale(self):
+        """Test file age check for a stale file."""
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            temp_path = Path(f.name)
+        
+        # Set modification time to 1 hour ago
+        old_time = time.time() - 3600
+        os.utime(temp_path, (old_time, old_time))
+        
+        try:
+            self.assertFalse(check_file_age(temp_path, max_age_seconds=60))
+        finally:
+            os.unlink(temp_path)
+
+    def test_check_file_age_not_found(self):
+        """Test file age check raises error for missing file."""
+        with self.assertRaises(FileNotFoundError):
+            check_file_age(Path("/nonexistent/file.txt"), max_age_seconds=60)
+
+
+class TestSaveManifest(TestCase):
+    def test_save_manifest(self):
+        """Test saving manifest to file."""
+        manifest = {
+            "algorithm": "sha256",
+            "created_at": "2023-01-01T00:00:00Z",
+            "files": {}
+        }
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_manifest.json"
+            save_manifest(manifest, output_path)
+            
+            self.assertTrue(output_path.exists())
+            with open(output_path, 'r') as f:
+                loaded_manifest = json.load(f)
+            self.assertEqual(manifest, loaded_manifest)

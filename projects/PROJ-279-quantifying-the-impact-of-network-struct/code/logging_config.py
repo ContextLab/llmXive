@@ -5,57 +5,76 @@ from pathlib import Path
 from typing import Optional
 from config.env_config import get_config, get_log_file_path, get_log_level
 
-def setup_logging(log_file: Optional[Path] = None, log_level: Optional[int] = None) -> logging.Logger:
-    """
-    Configure logging to output to both a file and stdout.
-    """
-    if log_file is None:
-        log_file = get_log_file_path()
-    if log_level is None:
-        log_level = get_log_level()
+_logger_instance: Optional[logging.Logger] = None
 
+def setup_logging():
+    """
+    Configure logging infrastructure to output to both file and stdout.
+    Logs are written to logs/analysis.log as per project spec.
+    """
+    global _logger_instance
+    
+    if _logger_instance is not None:
+        return _logger_instance
+
+    log_file = get_log_file_path()
+    log_level = get_log_level()
+    
     # Ensure log directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_dir = Path(log_file).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create logger
-    logger = logging.getLogger()
-    logger.setLevel(log_level)
-
-    # Clear existing handlers to avoid duplicates in re-runs
-    logger.handlers.clear()
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
     # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(log_level)
-    fh_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(fh_formatter)
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(formatter)
 
     # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(log_level)
-    ch_formatter = logging.Formatter('%(levelname)s: %(message)s')
-    ch.setFormatter(ch_formatter)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
 
-    # Add handlers
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-
-    return logger
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger with the specified name, ensuring logging is configured.
-    """
-    # Ensure global logging is configured
-    if not logging.getLogger().handlers:
-        setup_logging()
+    # Root logger configuration
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
     
-    return logging.getLogger(name)
+    # Avoid adding handlers multiple times if called repeatedly
+    if not root_logger.handlers:
+        root_logger.addHandler(file_handler)
+        root_logger.addHandler(console_handler)
+    
+    _logger_instance = root_logger
+    return _logger_instance
+
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger instance, ensuring logging is configured first.
+    
+    Args:
+        name: Name for the logger. If None, returns root logger.
+    
+    Returns:
+        Configured logger instance
+    """
+    setup_logging()
+    if name:
+        return logging.getLogger(name)
+    return logging.getLogger()
 
 def main():
     """
-    Entry point for logging configuration.
+    Test logging configuration.
     """
     logger = setup_logging()
-    logger.info("Logging infrastructure configured.")
-    return 0
+    logger.info("Logging configuration test successful.")
+    logger.debug("Debug message test.")
+    logger.warning("Warning message test.")
+
+if __name__ == "__main__":
+    main()

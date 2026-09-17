@@ -1,43 +1,3 @@
-T007b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `mode_selector.py` file or code snippet defining the required logic is provided;
-    the evidence contains only the task description without any implementation artifact,
-    so the required definition cannot be verified. The missing implementation must
-    be added to satisfy the task.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `validation_utils.py` file is present in the provided evidence, nor any code\
-    \ snippet showing checksum verification or file\u2011integrity functions. The\
-    \ required artifact is missing, so the task is not satisfied."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging configuration file, code snippet, or documentation was presented that
-    sets up logging to both `logs/analysis.log` and standard output. The required
-    artifact is missing, so the task is not satisfied.
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or test evidence was provided that demonstrates
-    loading `cutoff_radius` and `zenodo_url` from environment variables. The required
-    artifact (e.g., a module or script implementing this configuration management)
-    is missing, so the task is not satisfied.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `download.py` script or any code implementing the required download-and-checksum
-    functionality is present in the provided evidence. The task explicitly demands
-    a concrete implementation that can retrieve trajectories from Zenodo or HuggingFace
-    and verify their integrity, which is missing.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or log artifacts were provided showing that validation logic\
-    \ for detecting disconnected graph components was added or that warnings are logged\
-    \ as required by US\u20111 Scenario\u202F3. The implementer\u2019s claim cannot\
-    \ be verified without concrete implementation evidence."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -85,3 +45,43 @@ T026:
     \ now skips configurations with missing thermal conductivity values and logs the\
     \ count of such skips. The required artifact (implementation and evidence of the\
     \ edge\u2011case handling) is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `models.py` file or any code implementing Ridge Regression, Random Forest,
+    or Kernel Ridge is present in the provided evidence. The task explicitly required
+    a functional `models.py` containing these models, which is missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or any other artifact implementing PCA/Lasso dimensionality
+    reduction and subsequent stability selection is present. The provided text only
+    restates the task and project context without delivering the required preprocessing
+    implementation or evidence of its execution.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required cross\u2011validation\
+    \ logic (5\u2011fold when N\u202F\u2265\u202F30, otherwise LOOCV) is present;\
+    \ the only evidence is a high\u2011level spec excerpt without any concrete implementation\
+    \ artifact. The required artifact is missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the calculated mean R\xB2, its standard deviation, or\
+    \ the p\u2011values for the top three features is provided; the claim lacks any\
+    \ code, data, log, or figure demonstrating these values. The required output is\
+    \ therefore missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `viz.py` file or any code implementing the required scatter plot, regression\
+    \ line, and Pearson\u202Fr calculation is present in the provided evidence. Consequently,\
+    \ the task\u2019s deliverable is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No feature\u2011importance bar chart with error bars (showing standard deviation\
+    \ across cross\u2011validation folds) was provided; the evidence consists only\
+    \ of a specification excerpt and contains no code, data, or figure output required\
+    \ by task T036. The required artifact is missing."
