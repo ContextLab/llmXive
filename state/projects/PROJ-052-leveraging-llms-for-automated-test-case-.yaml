@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-052-leveraging-llms-for-automated-test-case-
-last_run_id: d12f8b81-9883-4f86-9287-97673cd2c489
+last_run_id: dd898ca7-13b8-442c-8d02-eecf6fe8c7bb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case
 title: Leveraging LLMs for Automated Test Case Generation from Natural Language Requirements
-updated_at: '2026-09-07T01:23:29.242600Z'
+updated_at: '2026-09-17T14:05:10.785815Z'

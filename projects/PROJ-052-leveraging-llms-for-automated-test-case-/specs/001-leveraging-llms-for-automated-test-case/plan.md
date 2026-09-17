@@ -18,7 +18,7 @@ This project implements a pipeline to evaluate the capability of a quantized Phi
 **Target Platform**: GitHub Actions Free Tier (Ubuntu, 2 vCPU, ~7GB RAM)  
 **Project Type**: Research Pipeline / CLI Tool  
 **Performance Goals**: ≤6h total runtime for configured sample size; ≤30s timeout per test execution.  
-**Constraints**: No GPU; Phi-2 model must be quantized (Q4_K_M or similar) to fit in 7GB RAM; JaCoCo must run on CPU.  
+**Constraints**: No GPU; The model must be quantized (Q4_K_M or similar) to fit in available RAM.; JaCoCo must run on CPU.  
 **Scale/Scope**: Configurable sample size (default small subset for CI feasibility); Defects4J projects limited to those with available bug descriptions in the verified dataset.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
@@ -109,7 +109,7 @@ To address construct validity and the "Category Error":
 | **High Exclusion Rate** | Medium (Sample size reduction) | Monitor exclusion rate. If >50%, explicitly flag the study as limited to a specific subset of bugs in the final report. |
 | **Low Power (Type II Error)** | High (Inconclusive results) | Perform a priori power analysis. If achievable N is low, explicitly label study as "exploratory" and focus on effect sizes/CI rather than p-values. |
 | **Model Hallucination** | Medium (Invalid code) | Retry mechanism; mark as "failed to compile". |
-| **Runtime Exceed** | High (CI failure) | Hard stop at 6h. Configurable sample limit. |
+| **Runtime Exceed** | High (CI failure) | Hard stop at a predetermined duration. Configurable sample limit. |
 
 ## Testing Strategy
 

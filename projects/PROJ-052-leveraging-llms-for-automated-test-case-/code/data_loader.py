@@ -2,245 +2,294 @@ import hashlib
 import json
 import os
 import logging
+import re
 from pathlib import Path
-from typing import Optional, Dict, Any, Set, List
-import pandas as pd
+from typing import Dict, Any, List, Optional, Set
+from datasets import load_dataset, DatasetDict
+from config import get_data_dir, get_output_dir, get_logs_dir
 
-from config import get_data_dir, get_output_dir, ensure_directories
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# --- State Management ---
-STATE_FILE = "project_state.json"
+class DataFetchError(Exception):
+    """Raised when data fetching fails."""
+    pass
 
-def load_state() -> Dict[str, Any]:
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, 'r') as f:
+class MemoryExceededError(Exception):
+    """Raised when memory usage exceeds limits."""
+    pass
+
+def load_state(state_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load project state from JSON file."""
+    if state_path is None:
+        state_path = os.path.join(get_data_dir(), "project_state.json")
+    
+    if not os.path.exists(state_path):
+        return {"checksum": None, "samples_processed": 0, "fallback_prompt_count": 0}
+    
+    try:
+        with open(state_path, 'r') as f:
             return json.load(f)
-    return {"checksums": {}, "last_run": {}, "metrics": {}}
+    except (json.JSONDecodeError, IOError) as e:
+        logger.warning(f"Failed to load state file: {e}. Initializing empty state.")
+        return {"checksum": None, "samples_processed": 0, "fallback_prompt_count": 0}
 
-def save_state(state: Dict[str, Any]) -> None:
-    with open(STATE_FILE, 'w') as f:
+def save_state(state: Dict[str, Any], state_path: Optional[str] = None) -> None:
+    """Save project state to JSON file."""
+    if state_path is None:
+        state_path = os.path.join(get_data_dir(), "project_state.json")
+    
+    os.makedirs(os.path.dirname(state_path), exist_ok=True)
+    with open(state_path, 'w') as f:
         json.dump(state, f, indent=2)
 
-def record_checksum(file_path: str, hash_value: str) -> None:
-    state = load_state()
-    state["checksums"][file_path] = hash_value
+def record_checksum(checksum: str, state: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Record checksum in state and save."""
+    if state is None:
+        state = load_state()
+    
+    state["checksum"] = checksum
     save_state(state)
+    return state
 
-# --- Data Loading ---
-def compute_sha256(file_path: str) -> str:
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def compute_sha256(data_chunks: List[bytes]) -> str:
+    """Compute SHA-256 hash of data chunks."""
+    hasher = hashlib.sha256()
+    for chunk in data_chunks:
+        hasher.update(chunk)
+    return hasher.hexdigest()
 
-def fetch_defects4j_data() -> Path:
-    """
-    Fetches Defects4J parquet data from the verified HuggingFace URL.
-    Caches to data/defects4j_v1.0.parquet.
-    """
-    data_dir = get_data_dir()
-    ensure_directories()
-    output_path = data_dir / "defects4j_v1.0.parquet"
-
-    if output_path.exists():
-        logger.info(f"Data file already exists at {output_path}. Skipping fetch.")
-        return output_path
-
-    logger.info(f"Fetching Defects4J data to {output_path}...")
+def fetch_defects4j_data(streaming: bool = True) -> DatasetDict:
+    """Fetch Defects4J dataset using HuggingFace datasets library."""
     try:
-        from datasets import load_dataset
-        # Verified source: defects4j/defects4j-parquet, v1.0.parquet
-        # Using streaming to handle potential size, then collecting to DataFrame
-        ds = load_dataset("defects4j/defects4j-parquet", split="train", streaming=True)
-        
-        df_chunks = []
-        # Iterate through the dataset to build the dataframe
-        # Note: This assumes the dataset fits in memory for the chunking logic.
-        # If memory is an issue, we could process in batches, but parquet write usually needs a full df or append.
-        # For Defects4J v1, it is small enough (< 1GB).
-        for batch in ds:
-            df = pd.DataFrame(batch)
-            df_chunks.append(df)
-        
-        if not df_chunks:
-            raise ValueError("Dataset is empty.")
-        
-        full_df = pd.concat(df_chunks, ignore_index=True)
-        full_df.to_parquet(output_path, index=False)
-        
-        logger.info(f"Data saved to {output_path}")
-        
-        # Record checksum immediately after saving (Fix for T006b)
-        checksum = compute_sha256(str(output_path))
-        record_checksum(str(output_path), checksum)
-        logger.info(f"Checksum recorded: {checksum}")
-        
-        return output_path
-
+        logger.info("Fetching Defects4J dataset from HuggingFace...")
+        dataset = load_dataset(
+            "defects4j/defects4j", 
+            split="train", 
+            streaming=streaming
+        )
+        logger.info("Successfully loaded Defects4J dataset.")
+        return dataset
     except Exception as e:
-        logger.error(f"Failed to fetch Defects4J data: {e}")
-        raise RuntimeError("Could not fetch real Defects4J data. Execution halted.")
+        logger.error(f"Failed to fetch Defects4J dataset: {e}")
+        raise DataFetchError(f"Data fetch failed: {str(e)}")
 
-def load_defects4j_data() -> pd.DataFrame:
-    """Loads the cached parquet file."""
-    data_dir = get_data_dir()
-    file_path = data_dir / "defects4j_v1.0.parquet"
-    if not file_path.exists():
-        raise FileNotFoundError(f"Defects4J data not found at {file_path}. Run fetch_defects4j_data first.")
-    return pd.read_parquet(file_path)
+def load_defects4j_data(limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    """Load and process Defects4J data with optional limit."""
+    dataset = fetch_defects4j_data(streaming=True)
+    samples = []
+    
+    try:
+        for i, sample in enumerate(dataset):
+            if limit is not None and i >= limit:
+                break
+            samples.append(sample)
+    except Exception as e:
+        logger.error(f"Error processing dataset: {e}")
+        raise DataFetchError(f"Data processing failed: {str(e)}")
+    
+    return samples
 
-def verify_data_integrity() -> bool:
-    """Verifies the checksum of the cached data matches the recorded state."""
-    data_dir = get_data_dir()
-    file_path = data_dir / "defects4j_v1.0.parquet"
-    if not file_path.exists():
+def verify_data_integrity(data: List[Dict[str, Any]], expected_checksum: Optional[str] = None) -> bool:
+    """Verify data integrity using checksum."""
+    if not data:
+        logger.warning("No data to verify.")
         return False
     
-    current_hash = compute_sha256(str(file_path))
-    state = load_state()
-    recorded_hash = state.get("checksums", {}).get(str(file_path))
+    # Compute checksum of current data
+    data_bytes = json.dumps(data, sort_keys=True).encode('utf-8')
+    computed_checksum = hashlib.sha256(data_bytes).hexdigest()
     
-    if recorded_hash is None:
-        logger.warning(f"No recorded checksum for {file_path}.")
+    if expected_checksum and computed_checksum != expected_checksum:
+        logger.warning(f"Checksum mismatch: expected {expected_checksum}, got {computed_checksum}")
         return False
     
-    if current_hash != recorded_hash:
-        logger.error(f"Checksum mismatch for {file_path}.")
-        return False
-    
+    logger.info(f"Data integrity verified. Checksum: {computed_checksum}")
     return True
 
-def ensure_data_loaded_and_integrity_recorded() -> Path:
-    """Ensures data is fetched and checksum is recorded."""
-    if not verify_data_integrity():
-        logger.info("Data integrity check failed or missing. Fetching...")
-        return fetch_defects4j_data()
-    return get_data_dir() / "defects4j_v1.0.parquet"
-
-# --- New Function: Extract Changed Lines ---
-def extract_changed_lines() -> Dict[str, Set[int]]:
-    """
-    Parses Defects4J commit diffs from the cached parquet file.
-    Extracts line numbers (integers) that were added or modified.
-    Outputs a JSON file: data/changed_lines.json
-    Format: { "project_id": [line1, line2, ...], ... }
+def extract_changed_lines(data: List[Dict[str, Any]], output_path: Optional[str] = None) -> Dict[str, Dict[str, List[int]]]:
+    """Extract changed lines from Defects4J commit diffs."""
+    if output_path is None:
+        output_path = os.path.join(get_data_dir(), "changed_lines.json")
     
-    Returns the dictionary for immediate use.
-    """
-    logger.info("Extracting changed lines from Defects4J data...")
-    df = load_defects4j_data()
+    changed_lines_map: Dict[str, Dict[str, List[int]]] = {}
     
-    # Ensure required columns exist
-    # Defects4J parquet usually contains 'project', 'bug_id', 'diff' or 'patch'
-    # We assume 'diff' contains the unified diff text.
-    required_cols = ['project', 'bug_id', 'diff']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in dataset: {missing}")
-    
-    changed_lines_map = {}
-    
-    for _, row in df.iterrows():
-        project_id = f"{row['project']}_{row['bug_id']}"
-        diff_text = str(row['diff'])
+    for sample in data:
+        project_id = sample.get("project_id", "unknown")
+        bug_id = sample.get("bug_id", "unknown")
         
-        lines = set()
-        if not diff_text or diff_text.strip() == "":
-            changed_lines_map[project_id] = lines
+        # Parse diff content to extract changed line numbers
+        diff_content = sample.get("diff", "")
+        if not diff_content:
             continue
         
-        # Parse unified diff to extract line numbers
-        # Unified diff format:
-        # @@ -old_start,old_count +new_start,new_count @@
-        # - removed line
-        # + added line
-        #   context line
-        #
-        # We are interested in lines that are ADDED or MODIFIED (start with '+').
-        # We track the current line number in the 'new' file.
+        # Extract line numbers from diff (simplified parsing)
+        changed_lines = set()
+        for line in diff_content.split('\n'):
+            # Look for line number patterns in diff (e.g., @@ -10,5 +10,7 @@)
+            match = re.search(r'@@.*?-(\d+)', line)
+            if match:
+                start_line = int(match.group(1))
+                # Parse the rest of the hunk header to get count
+                count_match = re.search(r'@@.*?-(\d+),(\d+)', line)
+                if count_match:
+                    count = int(count_match.group(2))
+                    for i in range(count):
+                        changed_lines.add(start_line + i)
         
-        current_new_line = 0
-        in_hunk = False
+        if project_id not in changed_lines_map:
+            changed_lines_map[project_id] = {}
         
-        for line in diff_text.splitlines():
-            if line.startswith('@@'):
-                # Parse header: @@ -old_start,old_count +new_start,new_count @@
-                try:
-                    parts = line.split()
-                    # parts[1] is usually "+new_start,new_count"
-                    plus_part = parts[1]
-                    if '+' in plus_part:
-                        start_str, count_str = plus_part[1:].split(',')
-                        current_new_line = int(start_str)
-                    in_hunk = True
-                except (IndexError, ValueError):
-                    in_hunk = False
-                continue
-            
-            if not in_hunk:
-                continue
-            
-            if line.startswith('+'):
-                # Added line
-                lines.add(current_new_line)
-                current_new_line += 1
-            elif line.startswith('-'):
-                # Removed line - do not increment new line counter
-                pass
-            elif line.startswith(' '):
-                # Context line - increment both
-                current_new_line += 1
-            elif line.startswith('\\'):
-                # No newline at end of file marker
-                pass
-            else:
-                # Potential format error or other diff style, skip
-                pass
-        
-        changed_lines_map[project_id] = lines
-
-    # Write to JSON
-    data_dir = get_data_dir()
-    ensure_directories()
-    output_path = data_dir / "changed_lines.json"
+        changed_lines_map[project_id][bug_id] = sorted(list(changed_lines))
     
-    # Convert sets to lists for JSON serialization
-    serializable_map = {k: sorted(list(v)) for k, v in changed_lines_map.items()}
-    
+    # Save to file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(serializable_map, f, indent=2)
+        json.dump(changed_lines_map, f, indent=2)
     
-    logger.info(f"Changed lines extracted and saved to {output_path}")
-    logger.info(f"Total projects processed: {len(changed_lines_map)}")
-    
-    return serializable_map
+    logger.info(f"Extracted changed lines to {output_path}")
+    return changed_lines_map
 
-def extract_bug_fix_description(project_id: str, df: Optional[pd.DataFrame] = None) -> str:
+def extract_bug_fix_description(sample: Dict[str, Any]) -> str:
+    """Extract and format bug fix description from sample."""
+    bug_description = sample.get("bug_description", "")
+    project_id = sample.get("project_id", "unknown")
+    bug_id = sample.get("bug_id", "unknown")
+    
+    # Security hardening: validate input
+    if not isinstance(bug_description, str):
+        bug_description = str(bug_description)
+    
+    # Limit length to prevent overflow
+    if len(bug_description) > 1000:
+        bug_description = bug_description[:1000] + "..."
+    
+    # Format prompt
+    prompt = f"Project: {project_id}, Bug: {bug_id}\n\nBug Description: {bug_description}\n\nGenerate a JUnit test case that reproduces this bug."
+    
+    return prompt
+
+def log_fallback_prompt_usage(bug_id: str, project_id: str, reason: str = "Prompt too short") -> None:
     """
-    Extracts and formats the bug fix description for a given project.
-    If df is not provided, loads the data.
+    Log fallback prompt usage to data/metrics.json.
+    Records a WARNING for fallback prompt usage and increments the fallback_prompt_count.
     """
-    if df is None:
-        df = load_defects4j_data()
+    metrics_path = os.path.join(get_data_dir(), "metrics.json")
     
-    # Assuming columns: project, bug_id, description, fix_description
-    # We look for a 'description' or 'summary' column, or construct from 'diff'
-    if 'description' in df.columns:
-        desc = df.loc[(df['project'] == project_id.split('_')[0]) & (df['bug_id'] == int(project_id.split('_')[1])), 'description']
-        if not desc.empty:
-            return desc.iloc[0]
+    # Load existing metrics or initialize
+    metrics = {"fallback_prompt_count": 0, "fallback_events": []}
+    if os.path.exists(metrics_path):
+        try:
+            with open(metrics_path, 'r') as f:
+                metrics = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            logger.warning("Failed to load metrics.json, initializing fresh.")
     
-    if 'summary' in df.columns:
-         desc = df.loc[(df['project'] == project_id.split('_')[0]) & (df['bug_id'] == int(project_id.split('_')[1])), 'summary']
-         if not desc.empty:
-             return desc.iloc[0]
-     
-    # Fallback: Use diff as description if no text summary
-    diff = df.loc[(df['project'] == project_id.split('_')[0]) & (df['bug_id'] == int(project_id.split('_')[1])), 'diff']
-    if not diff.empty:
-        return f"Fix description (from diff):\n{diff.iloc[0][:500]}"
+    # Increment counter
+    metrics["fallback_prompt_count"] = metrics.get("fallback_prompt_count", 0) + 1
     
-    return "No description available for this bug."
+    # Log event details
+    event = {
+        "bug_id": bug_id,
+        "project_id": project_id,
+        "reason": reason,
+        "timestamp": os.popen("date -Iseconds").read().strip()
+    }
+    if "fallback_events" not in metrics:
+        metrics["fallback_events"] = []
+    metrics["fallback_events"].append(event)
+    
+    # Save metrics
+    os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    # Log WARNING
+    logger.warning(f"Fallback prompt used for {project_id}/{bug_id}: {reason}")
+
+def filter_pairable_samples(coverage_metrics: List[Dict[str, Any]], changed_lines: Dict[str, Dict[str, List[int]]]) -> Dict[str, Any]:
+    """
+    Filter samples to identify pairable samples (those with known manual test baseline).
+    Returns a dict with total_samples, excluded_count, pairable_count, and exclusion_log.
+    """
+    total_samples = len(coverage_metrics)
+    excluded_count = 0
+    pairable_count = 0
+    exclusion_details = []
+    
+    for sample in coverage_metrics:
+        project_id = sample.get("project_id")
+        bug_id = sample.get("bug_id")
+        
+        # Check if sample has manual test baseline
+        has_manual_baseline = sample.get("has_manual_baseline", False)
+        
+        if not has_manual_baseline:
+            excluded_count += 1
+            exclusion_details.append({
+                "project_id": project_id,
+                "bug_id": bug_id,
+                "reason": "No manual baseline"
+            })
+        else:
+            pairable_count += 1
+    
+    # Create exclusion log
+    exclusion_log = {
+        "total_samples": total_samples,
+        "excluded_count": excluded_count,
+        "pairable_count": pairable_count,
+        "exclusion_rate": excluded_count / total_samples if total_samples > 0 else 0,
+        "details": exclusion_details
+    }
+    
+    # Save exclusion log
+    exclusion_log_path = os.path.join(get_data_dir(), "exclusion_log.json")
+    os.makedirs(os.path.dirname(exclusion_log_path), exist_ok=True)
+    with open(exclusion_log_path, 'w') as f:
+        json.dump(exclusion_log, f, indent=2)
+    
+    logger.info(f"Pairable samples: {pairable_count}/{total_samples} (Excluded: {excluded_count})")
+    return exclusion_log
+
+def ensure_data_loaded_and_integrity_recorded() -> bool:
+    """Ensure data is loaded and integrity is recorded."""
+    state = load_state()
+    
+    if state.get("checksum") is None:
+        logger.warning("No checksum recorded. Data integrity not verified.")
+        return False
+    
+    logger.info("Data integrity verified from state.")
+    return True
+
+def main():
+    """Main entry point for data_loader module."""
+    logger.info("Data loader module initialized.")
+    
+    # Example usage
+    try:
+        # Load state
+        state = load_state()
+        logger.info(f"Current state: {state}")
+        
+        # Fetch data (example)
+        # data = load_defects4j_data(limit=10)
+        # logger.info(f"Loaded {len(data)} samples")
+        
+        # Extract changed lines (example)
+        # changed_lines = extract_changed_lines(data)
+        
+    except DataFetchError as e:
+        logger.error(f"Data fetch error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()

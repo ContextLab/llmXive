@@ -1,292 +1,227 @@
-"""
-code/analyzer.py
-
-Statistical analysis utilities for the LLM test generation pipeline.
-Implements hypothesis testing (Shapiro-Wilk, Wilcoxon, t-test) and power analysis
-as required by User Story 3 (US3) and FR-008.
-"""
 import numpy as np
 from typing import Dict, Any, List, Tuple, Optional
 from scipy import stats
-
 from config import get_sample_limit
+import pandas as pd
+import logging
+import os
+import json
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def check_normality(sample: np.ndarray) -> Tuple[bool, float]:
+def check_normality(differences: List[float]) -> Tuple[bool, float]:
     """
-    Perform Shapiro-Wilk test for normality on the given sample.
-
-    Args:
-        sample: 1D numpy array of coverage differences (LLM - Baseline).
-
-    Returns:
-        Tuple of (is_normal, p_value).
-        is_normal is True if p_value >= 0.05 (fail to reject null hypothesis of normality).
+    Check normality of the differences using Shapiro-Wilk test.
+    Returns (is_normal, p_value).
+    Normality is assumed if p > 0.10 (stricter threshold per Plan).
     """
-    if len(sample) < 3:
-        # Shapiro-Wilk requires at least 3 samples
+    if len(differences) < 3:
+        logger.warning("Sample size too small for Shapiro-Wilk test. Assuming non-normal.")
         return False, 0.0
-
-    stat, p_value = stats.shapiro(sample)
-    is_normal = p_value >= 0.05
+    
+    stat, p_value = stats.shapiro(differences)
+    is_normal = p_value > 0.10
+    logger.info(f"Shapiro-Wilk test: stat={stat:.4f}, p-value={p_value:.4f}, is_normal={is_normal}")
     return is_normal, p_value
 
-
-def run_statistical_test(group_a: np.ndarray, group_b: np.ndarray) -> Dict[str, Any]:
+def run_statistical_test(manual_coverage: List[float], llm_coverage: List[float]) -> Dict[str, Any]:
     """
-    Select and run the appropriate paired statistical test based on normality.
-
-    Per FR-008:
-    - If normality holds (p >= 0.05), run paired t-test.
-    - Else, run Wilcoxon signed-rank test.
-
-    Args:
-        group_a: 1D numpy array (e.g., LLM coverage).
-        group_b: 1D numpy array (e.g., Manual baseline coverage).
-
-    Returns:
-        Dictionary containing:
-            - 'test_type': str ('t-test' or 'wilcoxon')
-            - 'statistic': float
-            - 'p_value': float
-            - 'is_significant': bool (p < 0.05)
-            - 'method_description': str
+    Run the appropriate statistical test based on normality check.
+    If normal, run paired t-test. Otherwise, run Wilcoxon signed-rank test.
+    Returns a dictionary with test results.
     """
-    if len(group_a) != len(group_b) or len(group_a) < 2:
-        raise ValueError("Both groups must have equal length >= 2 for paired test.")
-
-    # Check normality of differences
-    differences = group_a - group_b
-    is_normal, p_normal = check_normality(differences)
-
+    if len(manual_coverage) != len(llm_coverage):
+        raise ValueError("Manual and LLM coverage lists must have the same length.")
+    
+    differences = np.array(llm_coverage) - np.array(manual_coverage)
+    is_normal, p_normal = check_normality(differences.tolist())
+    
     result = {
-        'test_type': None,
-        'statistic': None,
-        'p_value': None,
-        'is_significant': False,
-        'method_description': None,
-        'normality_check': {
-            'is_normal': is_normal,
-            'p_value': p_normal
-        }
+        "test_type": "paired_t_test" if is_normal else "wilcoxon_signed_rank",
+        "normality_p_value": p_normal,
+        "mean_difference": float(np.mean(differences)),
+        "std_difference": float(np.std(differences)),
+        "n_samples": len(differences)
     }
-
+    
     if is_normal:
         # Paired t-test
-        stat, p_value = stats.ttest_rel(group_a, group_b)
-        result['test_type'] = 'paired_t-test'
-        result['method_description'] = "Data passed normality test (Shapiro-Wilk p >= 0.05). Using paired t-test."
+        t_stat, p_value = stats.ttest_rel(llm_coverage, manual_coverage)
+        result["statistic"] = float(t_stat)
+        result["p_value"] = float(p_value)
+        logger.info(f"Paired t-test: t={t_stat:.4f}, p={p_value:.4f}")
     else:
         # Wilcoxon signed-rank test
-        stat, p_value = stats.wilcoxon(group_a, group_b)
-        result['test_type'] = 'wilcoxon_signed_rank'
-        result['method_description'] = "Data failed normality test (Shapiro-Wilk p < 0.05). Using Wilcoxon signed-rank test."
-
-    result['statistic'] = float(stat)
-    result['p_value'] = float(p_value)
-    result['is_significant'] = result['p_value'] < 0.05
-
+        w_stat, p_value = stats.wilcoxon(llm_coverage, manual_coverage)
+        result["statistic"] = float(w_stat)
+        result["p_value"] = float(p_value)
+        logger.info(f"Wilcoxon signed-rank test: W={w_stat:.4f}, p={p_value:.4f}")
+    
     return result
 
-
-def calculate_effect_size(group_a: np.ndarray, group_b: np.ndarray, test_type: str) -> Dict[str, float]:
+def calculate_effect_size(manual_coverage: List[float], llm_coverage: List[float], test_type: str) -> Dict[str, float]:
     """
-    Calculate effect size based on the test type used.
-
-    - For t-test: Cohen's d (paired)
-    - For Wilcoxon: Rank-biserial correlation
-
-    Args:
-        group_a: 1D numpy array.
-        group_b: 1D numpy array.
-        test_type: String indicating which test was used ('paired_t-test' or 'wilcoxon_signed_rank').
-
-    Returns:
-        Dictionary with 'effect_size' and 'interpretation'.
+    Calculate effect size based on the test type.
+    Cohen's d for t-test, Rank-biserial correlation for Wilcoxon.
     """
-    if len(group_a) != len(group_b) or len(group_a) < 2:
-        raise ValueError("Both groups must have equal length >= 2.")
-
-    differences = group_a - group_b
-
-    if test_type == 'paired_t-test':
+    differences = np.array(llm_coverage) - np.array(manual_coverage)
+    
+    if test_type == "paired_t_test":
         # Cohen's d for paired samples
-        # d = mean(diff) / std(diff)
         mean_diff = np.mean(differences)
         std_diff = np.std(differences, ddof=1)
-        
         if std_diff == 0:
-            d = 0.0
+            cohens_d = 0.0
         else:
-            d = mean_diff / std_diff
+            cohens_d = mean_diff / std_diff
         
-        interpretation = interpret_cohen_d(abs(d))
-        return {'effect_size': float(d), 'metric': 'cohen_d', 'interpretation': interpretation}
-
-    elif test_type == 'wilcoxon_signed_rank':
-        # Rank-biserial correlation for Wilcoxon
-        # r = Z / sqrt(N)
-        # We need to re-run wilcoxon to get Z if not provided, or approximate.
-        # scipy.stats.wilcoxon does not return Z directly in all versions, 
-        # but we can use the statistic to approximate or use statsmodels if available.
-        # However, a common approximation for rank-biserial is:
-        # r = 1 - (2 * W) / (n * (n + 1)) where W is the smaller sum of ranks?
-        # Or use the Z-score from the normal approximation if n is large.
-        
-        # Let's use the normal approximation Z-score for large n (n > 20 usually)
-        # scipy.stats.wilcoxon returns (statistic, pvalue).
-        # We need Z. We can compute it manually or use stats.ranksums if independent (not paired).
-        # For paired, we can use the formula: Z = (W - 0.5 * n * (n + 1)) / sqrt(n * (n + 1) * (2 * n + 1) / 6)
-        # where W is the sum of signed ranks? No, Wilcoxon statistic is usually sum of positive ranks.
-        
-        # Alternative: Use the p-value to back-calculate Z? No, loses sign.
-        # Let's implement the Z calculation for Wilcoxon signed-rank.
-        n = len(differences)
-        # Calculate signed ranks
-        abs_diffs = np.abs(differences)
-        # Handle zeros by dropping them
-        non_zero_mask = abs_diffs > 0
-        abs_diffs = abs_diffs[non_zero_mask]
-        signs = np.sign(differences[non_zero_mask])
-        
-        if len(abs_diffs) == 0:
-            return {'effect_size': 0.0, 'metric': 'rank_biserial', 'interpretation': 'No difference'}
-
-        ranks = stats.rankdata(abs_diffs)
-        W_plus = np.sum(ranks[signs == 1])
-        W_minus = np.sum(ranks[signs == -1])
-        W = min(W_plus, W_minus) # Statistic used by scipy usually
-        
-        # Mean and SD of W under null
-        mean_W = n * (n + 1) / 4
-        sd_W = np.sqrt(n * (n + 1) * (2 * n + 1) / 24)
-        
-        if sd_W == 0:
-            z = 0.0
-        else:
-            # Continuity correction
-            if W_plus > W_minus:
-                z = (W_minus - mean_W + 0.5) / sd_W
-            else:
-                z = (W_plus - mean_W - 0.5) / sd_W
-        
-        r = z / np.sqrt(n)
-        interpretation = interpret_rank_biserial(abs(r))
-        return {'effect_size': float(r), 'metric': 'rank_biserial', 'interpretation': interpretation}
-
+        logger.info(f"Cohen's d: {cohens_d:.4f}")
+        return {"cohens_d": float(cohens_d), "effect_size_type": "cohens_d"}
     else:
-        raise ValueError(f"Unknown test type: {test_type}")
+        # Rank-biserial correlation for Wilcoxon
+        # r = 1 - (2 * W) / (n * (n + 1))
+        n = len(differences)
+        if n < 2:
+            rank_biserial = 0.0
+        else:
+            # Re-run wilcoxon to get W if not passed, or calculate from ranks
+            # Using scipy's wilcoxon result directly is better, but here we calculate
+            # Note: scipy.stats.wilcoxon returns (W, p)
+            # We need W (sum of positive ranks)
+            # Let's recompute W
+            from scipy.stats import rankdata
+            abs_diffs = np.abs(differences)
+            ranks = rankdata(abs_diffs)
+            signs = np.sign(differences)
+            W = np.sum(ranks[signs > 0])
+            rank_biserial = 1 - (2 * W) / (n * (n + 1))
+        
+        logger.info(f"Rank-biserial correlation: {rank_biserial:.4f}")
+        return {"rank_biserial": float(rank_biserial), "effect_size_type": "rank_biserial"}
 
-
-def interpret_cohen_d(d: float) -> str:
-    """Interpret Cohen's d effect size."""
-    if d < 0.2:
+def interpret_cohen_d(cohens_d: float) -> str:
+    """
+    Interpret Cohen's d effect size.
+    """
+    abs_d = abs(cohens_d)
+    if abs_d < 0.2:
         return "negligible"
-    elif d < 0.5:
+    elif abs_d < 0.5:
         return "small"
-    elif d < 0.8:
+    elif abs_d < 0.8:
         return "medium"
     else:
         return "large"
-
 
 def interpret_rank_biserial(r: float) -> str:
-    """Interpret Rank-biserial correlation effect size."""
-    if r < 0.1:
+    """
+    Interpret Rank-biserial correlation effect size.
+    """
+    abs_r = abs(r)
+    if abs_r < 0.1:
         return "negligible"
-    elif r < 0.3:
+    elif abs_r < 0.3:
         return "small"
-    elif r < 0.5:
+    elif abs_r < 0.5:
         return "medium"
     else:
         return "large"
 
-
-def run_power_analysis(effect_size: float, alpha: float = 0.05, power_target: float = 0.80) -> Dict[str, Any]:
+def run_power_analysis(effect_size: float, n_samples: int, alpha: float = 0.05) -> Dict[str, float]:
     """
-    Calculate required sample size and achieved power for a paired t-test.
-    
-    Note: This is descriptive only, not used for validation (FR-009).
-    
-    Args:
-        effect_size: Cohen's d.
-        alpha: Significance level.
-        power_target: Target power (0.80).
-        
-    Returns:
-        Dictionary with 'required_n', 'achieved_power' (if n is known), 'notes'.
+    Run power analysis to calculate achieved power.
+    Returns achieved power as a descriptive metric.
     """
-    # Using statsmodels is ideal, but to avoid extra deps not in requirements.txt,
-    # we use a simplified approximation or raise a warning if statsmodels is missing.
-    # However, the requirements.txt listed in T002 does NOT include statsmodels.
-    # We must implement a basic approximation or rely on scipy if possible.
-    # scipy.stats does not have power analysis.
-    # We will implement a basic approximation for paired t-test sample size:
-    # n = 2 * ((Z_alpha + Z_beta) / d)^2 (for independent) -> for paired, it's similar but d is standardized mean diff.
-    # Actually, for paired: n = ((Z_alpha/2 + Z_beta) / d)^2 * 2? 
-    # Standard formula: n = ( (Z_alpha + Z_beta) / d )^2 * 2 is for independent.
-    # For paired, variance is reduced. The formula n = ( (Z_alpha + Z_beta) / d )^2 is often cited for paired if d is defined on the difference.
-    # Let's use the standard approximation: n = ( (1.96 + 0.84) / d )^2 for 80% power, 5% alpha.
+    from statsmodels.stats.power import TTestPower, TTestIndPower, TTestPower
+    # Note: For paired t-test, we can approximate with TTestPower using effect size d
+    # However, statsmodels TTestPower is for one-sample or two-sample independent.
+    # For paired, we treat it as one-sample on differences.
+    power_analysis = TTestPower()
     
     try:
-        from scipy.stats import norm
-    except ImportError:
-        # Fallback to hardcoded Z values if scipy.stats.norm is somehow missing (unlikely)
-        Z_alpha = 1.96
-        Z_beta = 0.84
-    else:
-        Z_alpha = norm.ppf(1 - alpha/2)
-        Z_beta = norm.ppf(power_target)
+        # power = 1 - beta
+        # effect_size = d, nobs = n, alpha = alpha, alternative = 'two-sided'
+        achieved_power = power_analysis.solve_power(effect_size=effect_size, nobs1=n_samples, alpha=alpha, alternative='two-sided')
+        # solve_power might return None if not found, but usually it works
+        if achieved_power is None:
+            achieved_power = 0.0
+        else:
+            achieved_power = float(achieved_power)
+    except Exception as e:
+        logger.warning(f"Power analysis failed: {e}. Setting power to 0.0.")
+        achieved_power = 0.0
     
-    if effect_size == 0:
-        return {
-            'required_n': float('inf'),
-            'achieved_power': 0.0,
-            'notes': "Effect size is zero; infinite sample size required to detect difference."
-        }
+    logger.info(f"Achieved power: {achieved_power:.4f}")
+    return {"achieved_power": achieved_power}
 
-    # Approximation for paired t-test sample size
-    # n = ( (Z_alpha + Z_beta) / d )^2
-    n_req = ((Z_alpha + Z_beta) / effect_size) ** 2
+def calculate_confidence_intervals(manual_coverage: List[float], llm_coverage: List[float]) -> Dict[str, Any]:
+    """
+    Compute 95% confidence intervals for the mean ratio (LLM/Manual) using scipy.stats.t.interval.
+    This satisfies the Plan's 'Statistical Interpretation Note'.
+    Returns a dictionary with the mean ratio, confidence interval, and sample size.
+    """
+    if len(manual_coverage) != len(llm_coverage):
+        raise ValueError("Manual and LLM coverage lists must have the same length.")
+    if len(manual_coverage) == 0:
+        raise ValueError("Coverage lists cannot be empty.")
+    
+    manual_arr = np.array(manual_coverage)
+    llm_arr = np.array(llm_coverage)
+    
+    # Avoid division by zero
+    if np.any(manual_arr == 0):
+        # Handle zeros: either skip or add a small epsilon. 
+        # For ratio, if manual is 0 and llm is > 0, ratio is infinite.
+        # If both are 0, ratio is undefined.
+        # We will filter out pairs where manual is 0 to avoid infinite ratios.
+        valid_mask = manual_arr != 0
+        if not np.any(valid_mask):
+            raise ValueError("All manual coverage values are zero; cannot compute ratio.")
+        manual_arr = manual_arr[valid_mask]
+        llm_arr = llm_arr[valid_mask]
+    
+    ratios = llm_arr / manual_arr
+    
+    n = len(ratios)
+    mean_ratio = np.mean(ratios)
+    std_ratio = np.std(ratios, ddof=1)
+    
+    # 95% Confidence Interval for the mean ratio
+    # Using t-distribution
+    alpha = 0.05
+    confidence_level = 1 - alpha
+    dof = n - 1
+    t_crit = stats.t.ppf(1 - alpha/2, dof)
+    margin_error = t_crit * (std_ratio / np.sqrt(n))
+    
+    ci_lower = mean_ratio - margin_error
+    ci_upper = mean_ratio + margin_error
+    
+    logger.info(f"Mean ratio: {mean_ratio:.4f}, 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
     
     return {
-        'required_n': int(np.ceil(n_req)),
-        'achieved_power': None, # Requires actual N to calculate
-        'notes': f"Estimated required N for power={power_target}, alpha={alpha}, d={effect_size:.3f}."
+        "mean_ratio": float(mean_ratio),
+        "std_ratio": float(std_ratio),
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper),
+        "confidence_level": confidence_level,
+        "n_samples": n
     }
 
+def main():
+    """
+    Main function to run the analysis pipeline.
+    This is a placeholder for the full pipeline execution.
+    In a real scenario, this would load data, run tests, and generate reports.
+    """
+    logger.info("Analyzer module loaded successfully.")
+    # Example usage (would be replaced by actual data loading in full pipeline)
+    # manual = [50.0, 60.0, 70.0]
+    # llm = [55.0, 65.0, 75.0]
+    # result = calculate_confidence_intervals(manual, llm)
+    # print(result)
 
-def calculate_confidence_interval(group_a: np.ndarray, group_b: np.ndarray, confidence: float = 0.95) -> Dict[str, float]:
-    """
-    Calculate 95% confidence interval for the mean difference.
-    
-    Args:
-        group_a, group_b: Arrays of equal length.
-        confidence: Confidence level (default 0.95).
-        
-    Returns:
-        Dictionary with 'mean_diff', 'ci_lower', 'ci_upper'.
-    """
-    if len(group_a) != len(group_b) or len(group_a) < 2:
-        raise ValueError("Both groups must have equal length >= 2.")
-        
-    differences = group_a - group_b
-    mean_diff = np.mean(differences)
-    sem = stats.sem(differences)
-    
-    try:
-        from scipy.stats import norm
-    except ImportError:
-        # Fallback to t-distribution if norm is missing? No, sem uses t if n is small.
-        # stats.sem uses t-distribution by default if ddof is set?
-        # Let's use t.interval which is robust for small n.
-        pass
-        
-    ci = stats.t.interval(confidence, len(differences)-1, loc=mean_diff, scale=sem)
-    
-    return {
-        'mean_diff': float(mean_diff),
-        'ci_lower': float(ci[0]),
-        'ci_upper': float(ci[1]),
-        'confidence_level': confidence
-    }
+if __name__ == "__main__":
+    main()

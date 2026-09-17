@@ -1,164 +1,94 @@
-"""
-Unit tests for data_loader module, specifically for extract_changed_lines.
-"""
-import json
-import os
 import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+import json
 import pandas as pd
-import sys
+from pathlib import Path
+import os
+import tempfile
+import shutil
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Mock the config to use a temporary directory
+from unittest.mock import patch, MagicMock
 
-from data_loader import extract_changed_lines, load_defects4j_data
+# Import the function to test
+# We need to patch the imports in data_loader to use our temp dir
+import code.data_loader as data_loader_module
+import code.config as config_module
 
-class TestExtractChangedLines:
-    """Tests for the extract_changed_lines function."""
+@pytest.fixture
+def temp_data_dir():
+    temp_dir = tempfile.mkdtemp()
+    # Create necessary subdirectories
+    os.makedirs(temp_dir, exist_ok=True)
+    # Mock config functions
+    with patch.object(config_module, 'get_data_dir', return_value=temp_dir):
+        with patch.object(config_module, 'get_sample_limit', return_value=100):
+            yield temp_dir
+    shutil.rmtree(temp_dir)
 
-    def test_extract_changed_lines_creates_output_file(self, tmp_path, monkeypatch):
-        """Test that extract_changed_lines creates the expected output file."""
-        # Mock the data loading
-        mock_df = pd.DataFrame({
-            'project': ['test_project'],
-            'version': ['1.0'],
-            'diff': [
-                "@@ -10,5 +10,7 @@\n"
-                "-old line\n"
-                "+new line\n"
-                "+another line\n"
-            ]
-        })
+def test_filter_pairable_samples_creates_log(temp_data_dir):
+    # Setup: Create mock coverage_metrics.csv
+    coverage_path = Path(temp_data_dir) / "coverage_metrics.csv"
+    data = {
+        "project_id": ["p1", "p1", "p2", "p3", "p4"],
+        "bug_id": ["b1", "b2", "b1", "b1", "b5"],
+        "test_type": ["manual", "generated", "manual", "generated", "generated"],
+        "coverage_percentage": [40.0, 45.0, 50.0, 55.0, None]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(coverage_path, index=False)
 
-        # Create a temporary data directory
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        # Mock get_data_dir to return our temp directory
-        def mock_get_data_dir():
-            return str(data_dir)
+    # Setup: Create mock changed_lines.json
+    changed_lines_path = Path(temp_data_dir) / "changed_lines.json"
+    changed_lines_data = {
+        "p1": {"b1": [10, 20], "b2": [30]},
+        "p2": {"b1": [40]}
+    }
+    with open(changed_lines_path, 'w') as f:
+        json.dump(changed_lines_data, f)
 
-        monkeypatch.setattr('data_loader.get_data_dir', mock_get_data_dir)
-        
-        # Mock load_defects4j_data
-        with patch('data_loader.load_defects4j_data', return_value=mock_df):
-            result = extract_changed_lines()
+    # Execute
+    result = data_loader_module.filter_pairable_samples()
 
-        # Check that output file was created
-        output_file = data_dir / "changed_lines.json"
-        assert output_file.exists()
+    # Verify
+    assert result["total_samples"] == 5
+    # p1/b1 (manual) -> pairable
+    # p1/b2 (generated) -> pairable (has changed lines)
+    # p2/b1 (manual) -> pairable
+    # p3/b1 (generated) -> excluded (no changed lines for p3)
+    # p4/b5 (generated) -> excluded (no changed lines for p4, also null coverage)
+    # Wait, p4/b5 has null coverage, so excluded.
+    # p3/b1 has changed lines? No, p3 is not in changed_lines_data. So excluded.
+    # Total excluded: 2 (p3/b1, p4/b5)
+    # Total pairable: 3 (p1/b1, p1/b2, p2/b1)
 
-        # Check that result is correct
-        assert "test_project_1.0" in result
-        # The mock diff has changes at line 10
-        assert 10 in result["test_project_1.0"]
+    assert result["excluded_count"] == 2
+    assert result["pairable_count"] == 3
+    assert result["exclusion_rate"] == 0.4
 
-    def test_extract_changed_lines_handles_empty_diff(self, tmp_path, monkeypatch):
-        """Test that extract_changed_lines handles empty diff gracefully."""
-        mock_df = pd.DataFrame({
-            'project': ['test_project'],
-            'version': ['1.0'],
-            'diff': [None]
-        })
+    # Verify file creation
+    exclusion_log_path = Path(temp_data_dir) / "exclusion_log.json"
+    assert exclusion_log_path.exists()
+    with open(exclusion_log_path, 'r') as f:
+        log_data = json.load(f)
+    assert log_data["total_samples"] == 5
+    assert log_data["excluded_count"] == 2
+    assert log_data["pairable_count"] == 3
 
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        def mock_get_data_dir():
-            return str(data_dir)
+def test_filter_pairable_samples_missing_coverage_file(temp_data_dir):
+    # Setup: Do not create coverage_metrics.csv
+    changed_lines_path = Path(temp_data_dir) / "changed_lines.json"
+    with open(changed_lines_path, 'w') as f:
+        json.dump({}, f)
 
-        monkeypatch.setattr('data_loader.get_data_dir', mock_get_data_dir)
-        
-        with patch('data_loader.load_defects4j_data', return_value=mock_df):
-            result = extract_changed_lines()
+    # Execute & Verify
+    with pytest.raises(FileNotFoundError):
+        data_loader_module.filter_pairable_samples()
 
-        # Should return empty dict for projects with no diff
-        assert len(result) == 0
+def test_filter_pairable_samples_missing_changed_lines_file(temp_data_dir):
+    # Setup: Create coverage_metrics.csv but no changed_lines.json
+    coverage_path = Path(temp_data_dir) / "coverage_metrics.csv"
+    pd.DataFrame({"project_id": ["p1"], "bug_id": ["b1"], "test_type": ["manual"], "coverage_percentage": [40.0]}).to_csv(coverage_path, index=False)
 
-    def test_extract_changed_lines_parses_multiple_hunks(self, tmp_path, monkeypatch):
-        """Test parsing of multiple hunks in diff."""
-        mock_df = pd.DataFrame({
-            'project': ['test_project'],
-            'version': ['1.0'],
-            'diff': [
-                "@@ -10,5 +10,7 @@\n"
-                "-old line\n"
-                "+new line\n"
-                "@@ -20,3 +20,5 @@\n"
-                "-another old\n"
-                "+another new\n"
-                "+yet another\n"
-            ]
-        })
-
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        def mock_get_data_dir():
-            return str(data_dir)
-
-        monkeypatch.setattr('data_loader.get_data_dir', mock_get_data_dir)
-        
-        with patch('data_loader.load_defects4j_data', return_value=mock_df):
-            result = extract_changed_lines()
-
-        # Should have lines from both hunks
-        assert "test_project_1.0" in result
-        changed_lines = result["test_project_1.0"]
-        assert 10 in changed_lines  # From first hunk
-        assert 20 in changed_lines  # From second hunk
-
-    def test_extract_changed_lines_missing_columns(self, tmp_path, monkeypatch):
-        """Test that missing columns raise ValueError."""
-        mock_df = pd.DataFrame({
-            'project': ['test_project'],
-            'version': ['1.0']
-            # Missing 'diff' column
-        })
-
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        def mock_get_data_dir():
-            return str(data_dir)
-
-        monkeypatch.setattr('data_loader.get_data_dir', mock_get_data_dir)
-        
-        with patch('data_loader.load_defects4j_data', return_value=mock_df):
-            with pytest.raises(ValueError, match="Missing required columns"):
-                extract_changed_lines()
-
-    def test_extract_changed_lines_output_format(self, tmp_path, monkeypatch):
-        """Test that output is valid JSON with correct structure."""
-        mock_df = pd.DataFrame({
-            'project': ['project_a', 'project_b'],
-            'version': ['1.0', '2.0'],
-            'diff': [
-                "@@ -5,2 +5,4 @@\n+line1\n+line2\n",
-                "@@ -10,1 +10,3 @@\n+line3\n"
-            ]
-        })
-
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        def mock_get_data_dir():
-            return str(data_dir)
-
-        monkeypatch.setattr('data_loader.get_data_dir', mock_get_data_dir)
-        
-        with patch('data_loader.load_defects4j_data', return_value=mock_df):
-            result = extract_changed_lines()
-
-        # Verify JSON structure
-        assert isinstance(result, dict)
-        assert "project_a_1.0" in result
-        assert "project_b_2.0" in result
-        assert isinstance(result["project_a_1.0"], list)
-        assert isinstance(result["project_b_2.0"], list)
-        
-        # Verify lines are integers
-        for lines in result.values():
-            for line in lines:
-                assert isinstance(line, int)
+    # Execute & Verify
+    with pytest.raises(FileNotFoundError):
+        data_loader_module.filter_pairable_samples()

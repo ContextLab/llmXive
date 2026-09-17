@@ -1,0 +1,11 @@
+project_id,bug_id,test_type,coverage_percentage,status,error_msg,assertion_density
+example_project,bug_001,manual,45.5,passed,,0.05
+example_project,bug_001,generated,52.3,passed,,0.08
+example_project,bug_002,manual,30.0,passed,,0.04
+example_project,bug_002,generated,35.2,passed,,0.06
+other_project,bug_100,manual,60.0,passed,,0.10
+other_project,bug_100,generated,58.5,passed,,0.09
+missing_baseline_project,bug_999,generated,40.0,passed,,0.05
+no_changed_lines,bug_888,manual,50.0,passed,,0.07
+no_changed_lines,bug_888,generated,48.0,passed,,0.06
+null_coverage,bug_777,manual,,failed,Missing coverage data,0.0
