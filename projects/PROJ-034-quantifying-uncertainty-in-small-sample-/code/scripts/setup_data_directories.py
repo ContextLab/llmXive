@@ -1,73 +1,57 @@
-"""
-Script to create the required data directory structure for the project.
-Creates data/raw, data/simulated, and data/results directories with .gitkeep files.
-"""
 import os
 import sys
 from pathlib import Path
 
-
 def create_directories():
     """
-    Create the required data directory structure.
+    Creates the required data directory structure:
+    - data/raw
+    - data/simulated
+    - data/results
     
-    Creates:
-    - data/raw/
-    - data/simulated/
-    - data/results/
-    
-    Each directory contains a .gitkeep file to ensure they are tracked by git.
-    
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Each directory will contain a .gitkeep file to ensure they are tracked by git
+    even if empty.
     """
-    # Define the base data directory
-    base_dir = Path(__file__).parent.parent.parent / "data"
+    # Define the project root (assuming scripts are in code/scripts/)
+    # We need to go up two levels to reach the project root
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent.parent
     
-    # Define the required subdirectories
-    required_dirs = [
-        base_dir / "raw",
-        base_dir / "simulated",
-        base_dir / "results"
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "simulated",
+        project_root / "data" / "results"
     ]
     
-    success = True
+    created_dirs = []
     
-    for dir_path in required_dirs:
-        try:
-            # Create the directory if it doesn't exist
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            
-            # Create .gitkeep file in each directory
-            gitkeep_path = dir_path / ".gitkeep"
+    for dir_path in data_dirs:
+        # Create the directory if it doesn't exist
+        dir_path.mkdir(parents=True, exist_ok=True)
+        
+        # Create .gitkeep file
+        gitkeep_path = dir_path / ".gitkeep"
+        if not gitkeep_path.exists():
             gitkeep_path.touch()
-            print(f"Created .gitkeep file: {gitkeep_path}")
-            
-        except Exception as e:
-            print(f"Error creating directory {dir_path}: {e}")
-            success = False
+            created_dirs.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
+            print(f"Created .gitkeep in: {gitkeep_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
+            print(f".gitkeep already exists: {gitkeep_path}")
+        
+        created_dirs.append(str(dir_path))
     
-    if success:
-        print("All data directories created successfully.")
-    else:
-        print("Some directories failed to create.")
-    
-    return success
-
+    return created_dirs
 
 def main():
     """
     Main entry point for the script.
     """
-    print("Setting up data directory structure...")
-    success = create_directories()
-    
-    if not success:
-        sys.exit(1)
-    
-    print("Data directory setup complete.")
-
+    print("Setting up data directories...")
+    created = create_directories()
+    print(f"\nSetup complete. Created/verified {len(created)} directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

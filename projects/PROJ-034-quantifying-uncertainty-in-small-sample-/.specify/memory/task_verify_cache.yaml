@@ -1,10 +1,23 @@
 T000:
   c: false
-  h: 57061fa8e473a89376963dc6cdec3c059492abc7f0368a07d83a6ef722a2f531
-  r: The required script `code/scripts/verify_citation.py` does not exist, and the
-    expected output file `data/raw/uci_citation_verified.json` is also missing, despite
-    the YAML claiming completion. Without these artifacts the citation verification
-    task is not genuinely fulfilled.
+  h: 05a03433aa382226f7e6c832a558ddcd5321bb020adcaac04649c123ab41d6c1
+  r: The required `data/raw/uci_citation_verified.json` file does not exist, and the
+    YAML file updates the wrong key (`citation_verification` instead of `uci_citation_verified`)
+    and lack the required URL field. There is also no evidence that the Reference-Validator
+    Agent was used. The task therefore fails to meet the specified artifacts and schema.
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required directory tree and the `tree_manifest.json` file that\
+    \ should contain a JSON list of absolute paths, but no such directories or manifest\
+    \ file are present in the provided evidence. The task\u2019s core deliverable\
+    \ is missing."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the three required directories (`data/raw/`, `data/simulated/`,\
+    \ `data/results/`) or the `.gitkeep` placeholder files is provided; without visible\
+    \ artifacts the task\u2019s requirement is not satisfied."
 T026:
   c: false
   h: 4f019cb75e8288ddbe33a79b30f72af8ba4c5b8c4ebb6e5561e5122652c0eebe

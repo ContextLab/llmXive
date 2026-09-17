@@ -2040,3 +2040,479 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T22:56:28Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Verify UCI Concrete Compressive Strength dataset citation via Reference-Validator
+    Agent
+  claim_id: c_025beed9
+  context: 'Phase 0: Research & Verification (Blocking Prerequisite) - Verify UCI
+    Citation via Reference-Validator Agent'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The agent must save the verified citation details to data/raw/uci_citation_verified.json
+    and update state/projects/PROJ-034-quantifying-uncertainty-in-small-sample-.yaml
+    with the verification status.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:53:16Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Generate synthetic datasets with sample sizes N < 50 for coverage probability
+    estimation
+  claim_id: c_671dbb26
+  context: 'Phase 3: User Story 1 - Simulation Engine for Coverage Probability Estimation
+    (Priority: P1) - Goal'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic datasets with controlled sample sizes (N < 50) and
+    specific correlation structures to test coverage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:53:16Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Flag collinearity when Variance Inflation Factor exceeds 10
+  claim_id: c_2ebca31b
+  context: 'Phase 3: User Story 1 - Implementation T014 - Add full VIF calculation
+    integration and flagging'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flagging (VIF > 10) for collinearity verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:53:16Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: 'Bayesian model execution parameters: num_chains=4, iter_warmup=1000,
+    iter_sampling=2000'
+  claim_id: c_b8a66ef6
+  context: 'Phase 4: User Story 2 - Implementation T023C - Execute wrapper with strict
+    convergence checks'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must accept num_chains (default 4), iter_warmup (default 1000), iter_sampling
+    (default 2000), seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:54:24Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Raise ConvergenceError if R-hat exceeds 1.05 for any chain
+  claim_id: c_778f673b
+  context: 'Phase 4: User Story 2 - Implementation T023C - Convergence Check'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise ConvergenceError if any chain has R-hat > 1.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:54:24Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: CI job fails if simulation process exceeds 6 hours
+  claim_id: c_dd885f1c
+  context: 'Phase 4.5: Orchestration & Comparative Analysis - Implement code/main.py:
+    Orchestration loop'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the process exceeds 6 hours, the CI job will fail.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:55:02Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bin VIF results into Low (<=5), Medium (>5 and <=10), and High (>10)
+    categories
+  claim_id: c_21cf978a
+  context: 'Phase 4.5: Orchestration & Comparative Analysis - Implement code/scripts/analyze_comparative.py:
+    Binning Logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aggregate data across the completed replications by binning the results
+    based on realized VIF with explicit edges: Low (<= 5), Medium (> 5 and <= 10),
+    High (> 10).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:55:28Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Subsample UCI dataset to N=40 and iterate over feature subsets
+  claim_id: c_7c95be09
+  context: 'Phase 5: User Story 3 - Implementation T030 - Subsample logic with a deterministic
+    configuration space'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subsample logic with a deterministic configuration space. For N=40, iterate
+    over all combinations of feature subsets of varying small sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:56:02Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if no valid subsample found for N < 50 and p >= 3
+  claim_id: c_693a4459
+  context: 'Phase 5: User Story 3 - Implementation T030 - Graceful Failure'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raise a RuntimeError with message ''VALIDATION_FAILED: No valid subsample
+    found for N < 50 and p >= 3''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:56:52Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if total duration exceeds 21600 seconds
+  claim_id: c_d890be41
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - Implement code/scripts/verify_runtime.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exits with code 1 if total_duration > 21600s (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:57:17Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: target sample size N < 50 for small sample regression
+  claim_id: c_b28e5c09
+  context: 'Goal: Generate synthetic datasets with controlled sample sizes ($N < 50$)
+    and specific correlation structures to test coverage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets small sample regression models with sample sizes N
+    < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:58:35Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation requires 200 replications
+  claim_id: c_7fb08303
+  context: 'Target: Execute exactly 200 replications (SC-004). Logic: Loop for i in
+    range(200).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation engine must execute exactly 200 replications.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:59:03Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian model default num_chains is 4
+  claim_id: c_41338952
+  context: 'Arguments: Must accept num_chains (default 4), iter_warmup (default 1000),
+    iter_sampling (default 2000), seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian regression model must use 4 chains by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T12:59:54Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian model default iter_warmup is 1000
+  claim_id: c_645398ea
+  context: 'Arguments: Must accept num_chains (default 4), iter_warmup (default 1000),
+    iter_sampling (default 2000), seed.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 1,000 warmup iterations, and 2,000 posterior draws per chain, with a
+        target acceptance rate of
+      source_id: '2605.00835'
+      url: https://arxiv.org/abs/2605.00835
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: The Bayesian regression model must use 1000 warmup iterations by default.
+  resolved_value: 1,000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T13:00:27Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian model default iter_sampling is 2000
+  claim_id: c_19f674c1
+  context: 'Arguments: Must accept num_chains (default 4), iter_warmup (default 1000),
+    iter_sampling (default 2000), seed. Constraint: iter_sampling MUST be 2000 to
+    satisfy FR-003.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 1,000 warmup iterations, and 2,000 posterior draws per chain, with a
+        target acceptance rate of
+      source_id: '2605.00835'
+      url: https://arxiv.org/abs/2605.00835
+      value: '2000'
+    filled: true
+  kind: numeric
+  raw_text: The Bayesian regression model must use 2000 sampling iterations by default.
+  resolved_value: '2000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T13:00:59Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian convergence error if R-hat > 1.05
+  claim_id: c_8b3cde89
+  context: 'Convergence Check: Must calculate R-hat per chain and raise ConvergenceError
+    if any chain has R-hat > 1.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_convergence_error_if_R-hat_%3E_1.05
+  kind: magnitude
+  raw_text: The Bayesian model must raise a ConvergenceError if any chain has an R-hat
+    value greater than 1.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:02:13Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: CI job fails if simulation exceeds 6 hours
+  claim_id: c_37a4e521
+  context: Do not stop early due to time limits; the -hour limit is a success criterion
+    for the entire process... If the process exceeds 6 hours, the CI job will fail...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI job must fail if the simulation process exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:02:40Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Runtime validation fails if duration > 21600 seconds
+  claim_id: c_b6cc9dd0
+  context: Create a script that reads data/results/runtime_log.json... and exits with
+    code 1 if total_duration > 21600s (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script must exit with code 1 if the total duration exceeds
+    21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:03:35Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: VIF binning thresholds are 5 and 10
+  claim_id: c_a965ded4
+  context: 'Aggregate data across the completed replications by binning the results
+    based on realized VIF with explicit edges: Low (<= 5), Medium (> 5 and <= 10),
+    High (> 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must bin results into Low (<= 5), Medium (> 5 and <= 10),
+    and High (> 10) VIF categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:04:11Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: VIF binning thresholds are 10
+  claim_id: c_80498fe4
+  context: 'Aggregate data across the completed replications by binning the results
+    based on realized VIF with explicit edges: Low (<= 5), Medium (> 5 and <= 10),
+    High (> 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must bin results into Low (<= 5), Medium (> 5 and <= 10),
+    and High (> 10) VIF categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:04:11Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset used for validation
+  claim_id: c_571777cf
+  context: 'Goal: Apply methods to a real-world small-sample dataset (UCI Concrete)
+    to confirm simulation findings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_Concrete_Compressive_Strength_dataset_used_for_validatio
+  kind: entity_fact
+  raw_text: The UCI Concrete Compressive Strength dataset will be used for real-world
+    validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:04:31Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Validation uses N=40 subsample
+  claim_id: c_1d160d71
+  context: 'Independent Test: Load UCI Concrete, subsample to N=40, run all three
+    methods, verify output includes intervals and diagnostic plots.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation phase will test a subsample of size N=40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:04:53Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Validation tests predictor counts 3, 4, 5, and 6
+  claim_id: c_ccc0eee1
+  context: Update code/validation/uci_runner.py (T030) to explicitly list the feature
+    subset indices used for the '3, 4, 5, 6' predictor counts to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation logic must check configurations for predictor counts of
+    3, 4, 5, and 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:05:17Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Validation tests predictor counts 4
+  claim_id: c_f888ac84
+  context: Update code/validation/uci_runner.py (T030) to explicitly list the feature
+    subset indices used for the '3, 4, 5, 6' predictor counts to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation logic must check configurations for predictor counts of
+    3, 4, 5, and 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:05:18Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Validation tests predictor counts 5
+  claim_id: c_bba19321
+  context: Update code/validation/uci_runner.py (T030) to explicitly list the feature
+    subset indices used for the '3, 4, 5, 6' predictor counts to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation logic must check configurations for predictor counts of
+    3, 4, 5, and 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:05:18Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Validation tests predictor counts 6
+  claim_id: c_8c6d917b
+  context: Update code/validation/uci_runner.py (T030) to explicitly list the feature
+    subset indices used for the '3, 4, 5, 6' predictor counts to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation logic must check configurations for predictor counts of
+    3, 4, 5, and 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:05:18Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 2
+  canonical: RuntimeError if no valid subsample found for N < 50 and p >= 3
+  claim_id: c_8e2c5597
+  context: 'If no valid subsample is found after exhausting the entire configuration
+    space, raise a RuntimeError with message ''VALIDATION_FAILED: No valid subsample
+    found for N < 50 and p >= 3''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A RuntimeError must be raised if no valid subsample is found where N <
+    50 and p >= 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T13:06:07Z'

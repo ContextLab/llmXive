@@ -4,113 +4,110 @@ from pathlib import Path
 import subprocess
 import json
 
-def create_directories():
-    """Create the entire project directory structure."""
-    root = Path(__file__).parent.parent.parent
+# Define the directory and file structure based on plan.md requirements
+STRUCTURE = [
+    # Code modules
+    "code/simulation",
+    "code/models",
+    "code/metrics",
+    "code/validation",
+    "code/plots",
+    "code/scripts",
     
-    directories = [
-        "code/simulation",
-        "code/models",
-        "code/metrics",
-        "code/validation",
-        "code/plots",
-        "code/scripts",
-        "data/raw",
-        "data/simulated",
-        "data/results",
-        "tests/unit",
-        "tests/integration",
-        "docs/paper",
-    ]
+    # Data directories
+    "data/raw",
+    "data/simulated",
+    "data/results",
     
-    created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
+    # Test directories
+    "tests/unit",
+    "tests/integration",
     
-    # Create .gitkeep files in data directories
-    data_dirs = ["data/raw", "data/simulated", "data/results"]
-    for dir_path in data_dirs:
-        full_path = root / dir_path / ".gitkeep"
-        full_path.touch()
-        print(f"Created .gitkeep in: {full_path.parent}")
-    
-    return created_count
+    # Docs
+    "docs/paper"
+]
 
-def generate_tree_manifest(root: Path) -> str:
-    """Generate tree output and save to tree_manifest.txt."""
+def create_directories():
+    """Create the entire directory tree defined in plan.md."""
+    root = Path(os.getcwd())
+    created_paths = []
+    
+    for path_str in STRUCTURE:
+        full_path = root / path_str
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(full_path.resolve()))
+        
+        # Create .gitkeep files in data directories to ensure they are tracked
+        if path_str.startswith("data/"):
+            gitkeep_path = full_path / ".gitkeep"
+            gitkeep_path.touch(exist_ok=True)
+            created_paths.append(str(gitkeep_path.resolve()))
+    
+    return created_paths
+
+def generate_tree_manifest(created_paths):
+    """Generate a JSON manifest of all created absolute paths."""
+    # Sort paths for deterministic output
+    created_paths.sort()
+    
+    manifest = {
+        "description": "Project directory structure manifest for PROJ-034",
+        "created_paths": created_paths,
+        "total_items": len(created_paths)
+    }
+    
+    output_path = Path(os.getcwd()) / "tree_manifest.json"
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=2)
+    
+    return str(output_path.resolve())
+
+def build_tree_python():
+    """Build the tree structure using subprocess if available, else fallback."""
     try:
-        # Try to use tree command if available
+        # Try using the system 'tree' command
         result = subprocess.run(
-            ["tree", "-a", "--noreport"],
-            cwd=root,
+            ["tree", "-a", "."],
+            cwd=os.getcwd(),
             capture_output=True,
             text=True,
-            timeout=30
+            check=True
         )
-        if result.returncode == 0:
-            return result.stdout
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
-    
-    # Fallback: generate tree output manually
-    lines = []
-    lines.append(f"{root.name}/")
-    
-    def walk_tree(path: Path, prefix: str = "", is_last: bool = True):
-        items = sorted([p for p in path.iterdir() if not p.name.startswith('__')], 
-                     key=lambda x: x.name)
-        for i, item in enumerate(items):
-            is_last_item = i == len(items) - 1
-            connector = "└── " if is_last_item else "├── "
-            lines.append(f"{prefix}{connector}{item.name}")
+        return result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Fallback: generate a simple text representation if 'tree' is not installed
+        lines = ["."]
+        for root, dirs, files in os.walk("."):
+            # Skip hidden directories and venv
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d != 'venv']
             
-            if item.is_dir():
-                extension = "    " if is_last_item else "│   "
-                walk_tree(item, prefix + extension, is_last_item)
-    
-    walk_tree(root)
-    return "\n".join(lines)
-
-def build_tree_python(root: Path) -> str:
-    """Build a Python representation of the tree structure."""
-    tree_data = {}
-    
-    def build_dir(path: Path):
-        items = {}
-        for item in sorted(path.iterdir()):
-            if item.is_dir():
-                items[item.name] = build_dir(item)
-            elif item.name != ".gitkeep":
-                items[item.name] = "file"
-        return items
-    
-    tree_data[root.name] = build_dir(root)
-    return json.dumps(tree_data, indent=2)
+            level = root.replace(".", "").count(os.sep)
+            indent = " " * 2 * level
+            lines.append(f"{indent}{os.path.basename(root)}/")
+            sub_indent = " " * 2 * (level + 1)
+            for file in files:
+                if file != ".gitkeep":
+                    lines.append(f"{sub_indent}{file}")
+                else:
+                    lines.append(f"{sub_indent}.gitkeep")
+        return "\n".join(lines)
 
 def main():
-    """Main entry point for project structure setup."""
-    root = Path(__file__).parent.parent.parent
-    
+    """Main entry point for setting up the project structure."""
     print("Creating project directory structure...")
-    created = create_directories()
-    print(f"Created {created} new directories.")
+    created_paths = create_directories()
+    print(f"Created {len(created_paths)} paths.")
     
-    print("\nGenerating tree manifest...")
-    tree_output = generate_tree_manifest(root)
+    print("Generating tree manifest...")
+    manifest_path = generate_tree_manifest(created_paths)
+    print(f"Manifest saved to: {manifest_path}")
     
-    manifest_path = root / "tree_manifest.txt"
-    with open(manifest_path, "w") as f:
+    # Also generate a human-readable tree output for verification
+    tree_output = build_tree_python()
+    tree_txt_path = Path(os.getcwd()) / "tree_manifest.txt"
+    with open(tree_txt_path, 'w', encoding='utf-8') as f:
         f.write(tree_output)
-    
-    print(f"Tree manifest saved to: {manifest_path}")
-    print("\nTree structure:")
-    print(tree_output)
+    print(f"Tree output saved to: {tree_txt_path}")
     
     return 0
 

@@ -3,20 +3,17 @@ import os
 from datetime import datetime
 from typing import Dict, Any, Optional
 from pathlib import Path
+import hashlib
 
-def ensure_log_directory(log_dir: str = "data/results") -> Path:
-    """
-    Ensure the log directory exists.
-    
-    Args:
-        log_dir: Path to the log directory.
-        
-    Returns:
-        Path object for the log directory.
-    """
-    path = Path(log_dir)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+from simulation.config import SimulationConfig
+
+LOG_FILE_PATH = "data/results/simulation.log"
+
+def ensure_log_directory():
+    """Ensure the directory for the log file exists."""
+    log_dir = os.path.dirname(LOG_FILE_PATH)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
 
 def log_simulation_run(
     N: int,
@@ -25,59 +22,49 @@ def log_simulation_run(
     duration: float,
     vif_max: float,
     regeneration_attempts: int,
-    regeneration_reason: str,
-    log_file: str = "data/results/simulation.log"
+    regeneration_reason: Optional[str] = None,
 ) -> None:
     """
-    Log simulation run parameters to a JSON-lines file.
-    
-    This function appends a single JSON record to the specified log file.
-    The record contains all relevant simulation parameters and runtime metrics.
-    
+    Log a single simulation run to data/results/simulation.log in JSON format (one JSON object per line).
+
     Args:
-        N: Sample size used in the simulation.
-        rho: Target correlation coefficient used in the simulation.
-        seed: Random seed used for reproducibility.
-        duration: Execution time in seconds.
-        vif_max: Maximum VIF score observed in the generated dataset.
-        regeneration_attempts: Number of attempts made to generate a valid dataset.
-        regeneration_reason: Reason for any regeneration attempts (e.g., "not_positive_semidefinite").
-        log_file: Path to the log file.
+        N: Sample size.
+        rho: Target correlation coefficient.
+        seed: Random seed used for generation.
+        duration: Duration of the run in seconds.
+        vif_max: Maximum VIF score observed.
+        regeneration_attempts: Number of regeneration attempts (int).
+        regeneration_reason: Reason for regeneration if any ("PSD_failure", "VIF_limit", "rank_deficient").
     """
-    log_entry = {
-        "timestamp": datetime.now().isoformat(),
+    ensure_log_directory()
+
+    entry = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
         "N": N,
         "rho": rho,
         "seed": seed,
         "duration": duration,
         "vif_max": vif_max,
         "regeneration_attempts": regeneration_attempts,
-        "regeneration_reason": regeneration_reason
+        "regeneration_reason": regeneration_reason,
     }
-    
-    log_path = Path(log_file)
-    ensure_log_directory(str(log_path.parent))
-    
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
 
-def get_log_entries(log_file: str = "data/results/simulation.log") -> list:
+    # Append as a single JSON line
+    with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+
+def get_log_entries() -> list:
     """
-    Read all log entries from the simulation log file.
-    
-    Args:
-        log_file: Path to the log file.
-        
+    Read and parse all entries from the simulation log file.
+
     Returns:
-        List of dictionaries, each representing a log entry.
+        List of dicts, each representing one log entry.
     """
+    if not os.path.exists(LOG_FILE_PATH):
+        return []
+
     entries = []
-    log_path = Path(log_file)
-    
-    if not log_path.exists():
-        return entries
-        
-    with open(log_path, "r", encoding="utf-8") as f:
+    with open(LOG_FILE_PATH, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -86,5 +73,20 @@ def get_log_entries(log_file: str = "data/results/simulation.log") -> list:
                 except json.JSONDecodeError:
                     # Skip malformed lines
                     continue
-                    
     return entries
+
+def compute_log_checksum() -> str:
+    """
+    Compute SHA-256 checksum of the simulation log file.
+
+    Returns:
+        Hex digest of the SHA-256 hash.
+    """
+    if not os.path.exists(LOG_FILE_PATH):
+        return ""
+
+    sha256_hash = hashlib.sha256()
+    with open(LOG_FILE_PATH, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()

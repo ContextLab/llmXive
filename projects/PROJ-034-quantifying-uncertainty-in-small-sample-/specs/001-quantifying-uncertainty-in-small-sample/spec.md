@@ -17,7 +17,7 @@ The researcher needs to generate synthetic datasets with controlled sample sizes
 
 **Acceptance Scenarios**:
 
-1. **Given** a configuration for $N=30$ and a correlation matrix with $\rho=0.85$, **When** the simulation engine generates 100 datasets, **Then** the empirical correlation of the generated predictors matches the target $\rho$ within a tolerance of $\pm 0.02$ across the aggregate of the 100 datasets, and the true regression coefficients are recorded for every dataset.
+1. **Given** a configuration for $N=30$ and a correlation matrix with $\rho=0.85$, **When** the simulation engine generates A collection of datasets, **Then** the empirical correlation of the generated predictors matches the target $\rho$ within a tolerance of $\pm 0.02$ across the aggregate of the 100 datasets, and the true regression coefficients are recorded for every dataset.
 2. **Given** a configuration for $N=45$ with no collinearity, **When** the simulation engine generates data, **Then** the generated predictor matrix is full rank, and the system outputs a summary of the true parameter values used for verification.
 
 ---
@@ -33,7 +33,7 @@ The researcher needs to run three distinct modeling approaches (OLS, Non-paramet
 **Acceptance Scenarios**:
 
 1. **Given** a dataset with known true coefficients $\beta_{true}$, **When** the pipeline runs OLS, Bootstrap (using a resampling approach), and Bayesian regression (multiple chains, sufficient samples), **Then** the system outputs three distinct interval estimates and a binary flag indicating whether $\beta_{true}$ is contained in the generated interval for each method.
-2. **Given** a high-collinearity scenario, **When** the pipeline executes, **Then** The Bayesian method completes without divergent transitions exceeding a negligible proportion of the total samples across multiple chains., and the Bootstrap method completes within 10 seconds per dataset.
+2. **Given** a high-collinearity scenario, **When** the pipeline executes, **Then** The Bayesian method completes without divergent transitions exceeding a negligible proportion of the total samples across multiple chains., and the Bootstrap method completes within A short, fixed duration per dataset.
 
 ---
 
@@ -47,7 +47,7 @@ The researcher needs to apply the selected best-performing method (from the simu
 
 **Acceptance Scenarios**:
 
-1. **Given** the UCI Concrete dataset, **When** the system subsamples to $N=40$ and runs the Bayesian model, **Then** the output includes a 95% credible interval for the regression coefficients and a diagnostic plot showing the posterior distribution.
+1. **Given** the UCI Concrete dataset, **When** the system subsamples to $N=40$ and runs the Bayesian model, **Then** the output includes a % credible interval for the regression coefficients and a diagnostic plot showing the posterior distribution.
 2. **Given** the same dataset, **When** the system compares the interval widths of the Bayesian model vs. OLS, **Then** the system reports the ratio of interval widths.
 
 ### Edge Cases
@@ -63,8 +63,8 @@ The researcher needs to apply the selected best-performing method (from the simu
 - **FR-001**: The system MUST generate synthetic regression datasets with user-specified sample sizes ($3 \le N \le 49$) and a target correlation matrix for predictors, ensuring the ground truth parameters are stored for coverage calculation (See US-1).
 - **FR-002**: The system MUST implement a Non-parametric Bootstrap procedure with a configurable number of resamples per dataset, defaulting to a representative sample size, to generate frequentist confidence intervals (See US-2).
 - **FR-003**: The system MUST implement a Bayesian Linear Regression model using weakly informative priors (e.g., Normal centered at zero for slopes, Half-Cauchy for scale) with multiple chains and 2000 samples per chain, discarding an initial warm-up period (See US-2).
-- **FR-004**: The system MUST calculate the empirical coverage probability for each method by comparing the generated 95% confidence/credible intervals against the known true parameters across Monte Carlo replications (See US-2).
-- **FR-005**: The system MUST validate the methods on a real-world UCI dataset with $N < 50$ and at least 3 predictors (default: Concrete Compressive Strength) by subsampling and generating interval estimates without fine-tuning hyperparameters, focusing on interval stability and width comparison (See US-3).
+- **FR-004**: The system MUST calculate the empirical coverage probability for each method by comparing the generated % confidence/credible intervals against the known true parameters across Monte Carlo replications (See US-2).
+- **FR-005**: The system MUST validate the methods on a real-world UCI dataset with $N < 50$ and at least predictors (default: Concrete Compressive Strength) by subsampling and generating interval estimates without fine-tuning hyperparameters, focusing on interval stability and width comparison (See US-3).
 - **FR-006**: The system MUST perform a collinearity diagnostic (Variance Inflation Factor) on all generated datasets and flag any where VIF > 10 to ensure the "high collinearity" condition is met (See US-1, US-2).
 - **FR-007**: The system MUST output calibration plots comparing interval width vs. coverage probability for all three methods (See US-2, US-3).
 
@@ -91,7 +91,7 @@ The researcher needs to apply the selected best-performing method (from the simu
 
 - The UCI Machine Learning Repository contains at least one dataset with sufficient features to allow for a subsample of $N < 50$ with at least 3 predictors, ensuring the regression is not trivially under-determined.
 - The "weakly informative priors" defined as Normal(0, 10) for coefficients and Half-Cauchy(0, 2.5) for the noise scale are appropriate community standards for this specific comparison and do not require further justification in the study design.
-- The GitHub Actions free-tier runner (A small number of CPU cores with limited RAM) is sufficient to run 200 Monte Carlo replications with 500 bootstrap samples and 2000 MCMC samples per chain within the 6-hour job limit, provided no GPU is requested.
+- The GitHub Actions free-tier runner (A small number of CPU cores with limited RAM) is sufficient to run A set of Monte Carlo replications will be conducted to evaluate the robustness of the proposed method under varying conditions. with A large number of bootstrap samples and A sufficient number of MCMC samples per chain to ensure convergence within the -hour job limit, provided no GPU is requested.
 - The correlation structures generated in the synthetic data will be stable and positive semi-definite without requiring complex matrix adjustment algorithms beyond standard Cholesky decomposition.
 - The real-world validation on the UCI dataset will treat the "true parameters" as unknown; therefore, the validation step focuses on interval stability and width comparison rather than coverage calculation (since ground truth is unavailable).
 - The collinearity introduced in the synthetic data will be strong enough (VIF > 10) to trigger the expected degradation in OLS performance, as hypothesized in the motivation.

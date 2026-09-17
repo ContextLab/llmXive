@@ -1,5 +1,12 @@
-'|collinearity threshold use verification vif':
-  quote: If the VIF is high (with 10 being the traditionally accepted thresh-
-  source_id: '2005.02245'
-  url: https://arxiv.org/abs/2005.02245
-  value: '10'
+'|bayesian default iteration model must regression sampling use':
+  quote: 1,000 warmup iterations, and 2,000 posterior draws per chain, with a target
+    acceptance rate of
+  source_id: '2605.00835'
+  url: https://arxiv.org/abs/2605.00835
+  value: '2000'
+'|bayesian default iteration model must regression use warmup':
+  quote: 1,000 warmup iterations, and 2,000 posterior draws per chain, with a target
+    acceptance rate of
+  source_id: '2605.00835'
+  url: https://arxiv.org/abs/2605.00835
+  value: 1,000
