@@ -1,3 +1,1 @@
-"""
-Contract test framework for validating data artifacts against YAML schemas.
-"""
+# Contract test framework for YAML schema validation

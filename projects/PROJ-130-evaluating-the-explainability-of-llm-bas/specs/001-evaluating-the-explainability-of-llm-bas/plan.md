@@ -18,7 +18,7 @@ This project evaluates how well three explainability techniques (attention visua
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: computational research pipeline  
 **Performance Goals**: Process 50 bugs end-to-end within 6 hours on CPU-only runner  
-**Constraints**: No GPU/CUDA, ≤7 GB RAM, ≤14 GB disk, 60-second timeout per test run  
+**Constraints**: No GPU/CUDA, ≤7 GB RAM, ≤14 GB disk, -second timeout per test run  
 **Scale/Scope**: A representative sample of bugs from Defects4J v2.0 (sample size chosen for feasibility; minimum detectable r of moderate magnitude at [deferred] power)
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

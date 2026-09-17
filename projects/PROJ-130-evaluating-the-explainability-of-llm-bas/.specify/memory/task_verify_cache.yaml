@@ -1,16 +1,14 @@
-T011:
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No YAML schema files are present in the indicated `specs/001-evaluating-the-explainability-of-llm-bas/contracts/`
-    directory, and no evidence of their contents (for dataset, patch, correctness,
-    explainability, or statistical contracts) was provided. The required artifacts
-    are therefore missing.
-T012:
+  r: No directory listings or file contents were provided, so we cannot confirm that
+    `explanations/.gitkeep`, `state/.gitkeep`, and `tests/.gitkeep` actually exist.
+    The required evidence (e.g., output of `ls explanations/` showing the .gitkeep
+    file) is missing.
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no files, code, or documentation under `tests/contract/`,
-    nor any implementation of a contract test framework that validates YAML schemas.
-    Without the required test suite or framework artifacts, the task is not satisfied.
-    The next implementer must add a `tests/contract/` directory containing test code
-    that loads the project's YAML schemas and asserts conformity of relevant data
-    structures.
+  r: "No logging configuration files, code snippets, or documentation were provided\
+    \ to demonstrate that edge cases (invalid patches, timeouts, missing rationales)\
+    \ are being recorded. The required artifact\u2014an implemented logging infrastructure\u2014\
+    is missing."

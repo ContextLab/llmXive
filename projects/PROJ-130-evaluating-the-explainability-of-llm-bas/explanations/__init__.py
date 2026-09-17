@@ -1,1 +1,1 @@
-# Explanations artifacts package
+# Explanations package initialization

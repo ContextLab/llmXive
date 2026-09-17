@@ -1,0 +1,21 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correctness Schema
+description: Schema for the correctness assessment of a patch.
+type: object
+required:
+  - bug_id
+  - pass_fail
+  - unsafe_flag
+properties:
+  bug_id:
+    type: string
+    description: Reference to the bug.
+  pass_fail:
+    type: string
+    enum:
+      - PASS
+      - FAIL
+    description: Result of running the test suite against the patch.
+  unsafe_flag:
+    type: boolean
+    description: Flag indicating if the patch introduced security vulnerabilities or unsafe patterns (e.g., infinite loops).
