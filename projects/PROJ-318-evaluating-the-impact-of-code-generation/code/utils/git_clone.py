@@ -1,8 +1,6 @@
 """
-Git repository clone utility for the llmXive pipeline.
-
-Implements cloning repositories from a list and verifying their existence
-in the designated data directory.
+Git repository clone utility for the llmXive research pipeline.
+Clones repositories from a list into the data/raw/repos directory.
 """
 import os
 import logging
@@ -12,207 +10,195 @@ from pathlib import Path
 from typing import List, Optional
 
 from utils.exceptions import GitCloneException
+from utils.repo_loader import load_repo_list
 
 logger = logging.getLogger(__name__)
 
+def clone_repository(repo_url: str, target_dir: Path, repo_slug: str) -> bool:
+    """
+    Clones a single Git repository to the specified target directory.
 
-def clone_repository(repo_url: str, target_dir: Path, timeout: int = 300) -> Path:
-    """
-    Clone a single git repository to the target directory.
-    
     Args:
-        repo_url: The URL of the git repository (e.g., 'https://github.com/psf/requests.git')
-        target_dir: The directory where the repository should be cloned
-        timeout: Maximum time in seconds to wait for the clone operation
-        
+        repo_url: The URL of the Git repository to clone.
+        target_dir: The directory where the repository should be cloned.
+        repo_slug: The slug/identifier for the repository (used for directory naming).
+
     Returns:
-        Path to the cloned repository directory
-        
+        True if cloning was successful, False otherwise.
+
     Raises:
-        GitCloneException: If the clone operation fails
+        GitCloneException: If the clone operation fails.
     """
-    if not repo_url:
-        raise GitCloneException("Repository URL cannot be empty")
-        
-    if not target_dir.exists():
-        target_dir.mkdir(parents=True, exist_ok=True)
-        
-    # Extract repo name from URL for the target path
-    repo_name = repo_url.rstrip('/').split('/')[-1].replace('.git', '')
-    repo_path = target_dir / repo_name
+    repo_path = target_dir / repo_slug
     
-    # If repo already exists, skip cloning
-    if repo_path.exists() and any(repo_path.iterdir()):
-        logger.info(f"Repository {repo_name} already exists at {repo_path}, skipping clone")
-        return repo_path
-        
-    # Remove partially cloned directories if any
+    # If directory already exists, remove it to ensure a fresh clone
     if repo_path.exists():
+        logger.info(f"Removing existing directory: {repo_path}")
         shutil.rmtree(repo_path)
-        
+    
+    logger.info(f"Cloning {repo_url} to {repo_path}")
+    
     try:
-        logger.info(f"Cloning repository: {repo_url} to {repo_path}")
+        # Use git clone with depth 1 to save bandwidth/time if possible
+        # We don't need full history for code extraction
         result = subprocess.run(
-            ['git', 'clone', '--depth', '1', repo_url, str(repo_path)],
+            ["git", "clone", "--depth", "1", repo_url, str(repo_path)],
             capture_output=True,
             text=True,
-            timeout=timeout,
-            check=True
+            timeout=600  # 10 minute timeout per repo
         )
-        logger.info(f"Successfully cloned {repo_name}")
-        return repo_path
         
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to clone repository {repo_url}: {e.stderr}")
-        raise GitCloneException(f"Git clone failed for {repo_url}: {e.stderr}")
+        if result.returncode != 0:
+            error_msg = f"Failed to clone {repo_url}: {result.stderr}"
+            logger.error(error_msg)
+            raise GitCloneException(error_msg)
         
-    except subprocess.TimeoutExpired as e:
-        logger.error(f"Timeout cloning repository {repo_url}")
-        raise GitCloneException(f"Timeout cloning {repo_url} after {timeout}s")
+        logger.info(f"Successfully cloned {repo_url}")
+        return True
         
+    except subprocess.TimeoutExpired:
+        error_msg = f"Timeout cloning {repo_url}"
+        logger.error(error_msg)
+        raise GitCloneException(error_msg)
     except FileNotFoundError:
-        raise GitCloneException("Git command not found. Please install git.")
+        error_msg = "Git command not found. Please ensure Git is installed and in PATH."
+        logger.error(error_msg)
+        raise GitCloneException(error_msg)
     except Exception as e:
-        logger.error(f"Unexpected error cloning {repo_url}: {str(e)}")
-        raise GitCloneException(f"Unexpected error cloning {repo_url}: {str(e)}")
-
+        error_msg = f"Unexpected error cloning {repo_url}: {str(e)}"
+        logger.error(error_msg)
+        raise GitCloneException(error_msg)
 
 def clone_repos_from_list(
-    repo_list: List[Dict[str, str]],
-    base_dir: Path,
+    repo_list_path: Path, 
+    target_dir: Path,
     max_repos: Optional[int] = None
-) -> List[Path]:
+) -> List[dict]:
     """
-    Clone multiple repositories from a list of repository dictionaries.
-    
+    Clones repositories from a JSON list file.
+
     Args:
-        repo_list: List of dictionaries containing 'repo_url' key
-        base_dir: Base directory where repositories will be cloned
-        max_repos: Maximum number of repositories to clone (None for all)
-        
+        repo_list_path: Path to the JSON file containing repository information.
+        target_dir: Base directory where repositories will be cloned.
+        max_repos: Maximum number of repositories to clone (None for all).
+
     Returns:
-        List of paths to cloned repositories
-        
+        List of dictionaries containing clone results with keys:
+        - repo_slug: Identifier for the repository
+        - success: Boolean indicating if clone was successful
+        - error: Error message if failed, None otherwise
+
     Raises:
-        GitCloneException: If any clone operation fails
+        GitCloneException: If repo list file is missing or invalid.
     """
-    if not repo_list:
-        logger.warning("Empty repository list provided")
-        return []
-        
-    if max_repos:
-        repo_list = repo_list[:max_repos]
-        
-    cloned_paths = []
-    failed_urls = []
+    if not repo_list_path.exists():
+        raise GitCloneException(f"Repository list file not found: {repo_list_path}")
     
-    for idx, repo_info in enumerate(repo_list, 1):
-        repo_url = repo_info.get('repo_url')
+    repos = load_repo_list(repo_list_path)
+    
+    if max_repos:
+        repos = repos[:max_repos]
+    
+    results = []
+    target_dir.mkdir(parents=True, exist_ok=True)
+    
+    for repo in repos:
+        repo_slug = repo.get('repo_slug', repo.get('repo_name', 'unknown'))
+        repo_url = repo.get('repo_url')
+        
         if not repo_url:
-            logger.warning(f"Skipping entry {idx}: missing 'repo_url'")
+            logger.warning(f"Skipping repo {repo_slug} - no URL found")
+            results.append({
+                'repo_slug': repo_slug,
+                'success': False,
+                'error': 'No URL found'
+            })
             continue
-            
-        logger.info(f"Processing repository {idx}/{len(repo_list)}: {repo_url}")
         
         try:
-            repo_path = clone_repository(repo_url, base_dir)
-            cloned_paths.append(repo_path)
+            success = clone_repository(repo_url, target_dir, repo_slug)
+            results.append({
+                'repo_slug': repo_slug,
+                'success': success,
+                'error': None
+            })
         except GitCloneException as e:
-            logger.error(f"Failed to clone {repo_url}: {str(e)}")
-            failed_urls.append((repo_url, str(e)))
-            
-    if failed_urls:
-        logger.warning(f"Failed to clone {len(failed_urls)} repositories")
-        for url, error in failed_urls:
-            logger.warning(f"  - {url}: {error}")
-            
-    logger.info(f"Successfully cloned {len(cloned_paths)} repositories")
-    return cloned_paths
+            results.append({
+                'repo_slug': repo_slug,
+                'success': False,
+                'error': str(e)
+            })
+        
+    return results
 
-
-def verify_repo_exists(repo_path: Path) -> bool:
+def verify_repo_exists(repo_dir: Path) -> bool:
     """
-    Verify that a cloned repository exists and contains files.
-    
+    Verifies that a cloned repository directory exists and contains a .git folder.
+
     Args:
-        repo_path: Path to the repository directory
-        
-    Returns:
-        True if repository exists and is not empty, False otherwise
-    """
-    if not repo_path.exists():
-        logger.warning(f"Repository path does not exist: {repo_path}")
-        return False
-        
-    if not repo_path.is_dir():
-        logger.warning(f"Repository path is not a directory: {repo_path}")
-        return False
-        
-    try:
-        # Check if directory has any contents
-        if not any(repo_path.iterdir()):
-            logger.warning(f"Repository directory is empty: {repo_path}")
-            return False
-            
-        return True
-    except PermissionError:
-        logger.warning(f"Permission denied accessing repository: {repo_path}")
-        return False
-    except Exception as e:
-        logger.warning(f"Error verifying repository {repo_path}: {str(e)}")
-        return False
+        repo_dir: Path to the repository directory.
 
+    Returns:
+        True if the repository exists and is valid, False otherwise.
+    """
+    git_dir = repo_dir / '.git'
+    return repo_dir.exists() and git_dir.exists() and git_dir.is_dir()
 
 def main():
     """
-    Main entry point for testing the git clone utility.
-    Clones repositories from data/raw/repo_list.json to data/raw/repos/.
+    Main entry point for cloning repositories from the frozen list.
     """
-    from utils.repo_loader import load_repo_list
-    from config import get_config
-    
-    config = get_config()
-    base_dir = Path("data/raw/repos")
-    base_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load repository list
-    repo_list_path = Path("data/raw/repo_list.json")
-    if not repo_list_path.exists():
-        logger.error(f"Repository list not found: {repo_list_path}")
-        logger.error("Please run T010 first to generate the repo list.")
-        return 1
-        
-    try:
-        repo_list = load_repo_list(repo_list_path)
-    except Exception as e:
-        logger.error(f"Failed to load repository list: {str(e)}")
-        return 1
-        
-    logger.info(f"Loaded {len(repo_list)} repositories from {repo_list_path}")
-    
-    # Clone repositories
-    cloned_paths = clone_repos_from_list(repo_list, base_dir)
-    
-    # Verify clones
-    verified_count = 0
-    for path in cloned_paths:
-        if verify_repo_exists(path):
-            verified_count += 1
-        else:
-            logger.error(f"Verification failed for: {path}")
-            
-    logger.info(f"Verification complete: {verified_count}/{len(cloned_paths)} repositories verified")
-    
-    if verified_count == 0:
-        logger.error("No repositories were successfully cloned and verified")
-        return 1
-        
-    return 0
-
-
-if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
+    
+    # Paths
+    project_root = Path(__file__).parent.parent.parent
+    repo_list_path = project_root / 'data' / 'raw' / 'frozen_repo_list.json'
+    target_dir = project_root / 'data' / 'raw' / 'repos'
+    
+    logger.info(f"Starting repository cloning process")
+    logger.info(f"Repo list: {repo_list_path}")
+    logger.info(f"Target directory: {target_dir}")
+    
+    try:
+        results = clone_repos_from_list(repo_list_path, target_dir)
+        
+        success_count = sum(1 for r in results if r['success'])
+        total_count = len(results)
+        
+        logger.info(f"Cloning complete: {success_count}/{total_count} successful")
+        
+        for result in results:
+            status = "SUCCESS" if result['success'] else "FAILED"
+            logger.info(f"  {result['repo_slug']}: {status}")
+            if not result['success'] and result['error']:
+                logger.info(f"    Error: {result['error']}")
+        
+        # Verify all successful clones
+        for result in results:
+            if result['success']:
+                repo_path = target_dir / result['repo_slug']
+                if not verify_repo_exists(repo_path):
+                    logger.error(f"Verification failed for {result['repo_slug']}")
+                    result['success'] = False
+                    result['error'] = "Verification failed after clone"
+        
+        # Return exit code based on success
+        if success_count == total_count:
+            logger.info("All repositories cloned successfully")
+            return 0
+        else:
+            logger.warning(f"Some repositories failed to clone: {total_count - success_count} failed")
+            return 1
+            
+    except GitCloneException as e:
+        logger.error(f"Critical error during cloning: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return 1
+
+if __name__ == '__main__':
     exit(main())

@@ -64,10 +64,7 @@ def run_wilcoxon_test(
     # Log warning if sample size is below recommended threshold but proceed
     warning_msg = ""
     if len(human_scores) < min_sample_size:
-        warning_msg = (
-            f"Sample size ({len(human_scores)}) is below recommended minimum "
-            f"({min_sample_size}). Results may lack statistical power."
-        )
+        warning_msg = "Statistical power may be low (n < 30)"
         logger.warning(warning_msg)
 
     try:

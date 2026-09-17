@@ -1,158 +1,151 @@
-"""
-Unit tests for T019: serialize_and_hash.py
-"""
 import json
 import os
 import tempfile
-import shutil
-import yaml
 from pathlib import Path
 import pytest
+import hashlib
 
-# Adjust path for local testing if run directly
+# Import the module under test
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
-from code.serialize_and_hash import (
-    compute_sha256,
-    validate_ast_params,
-    ensure_state_file,
-    update_state_file
-)
-from code.utils.exceptions import SerializationException
+sys.path.insert(0, 'code')
+from serialize_and_hash import compute_sha256, validate_ast_params, ensure_state_file, update_state_file
 
 class TestComputeSha256:
-    def test_compute_sha256_known_value(self, tmp_path):
-        """Test SHA-256 computation against a known string."""
+    def test_compute_sha256_simple(self, tmp_path):
+        """Test SHA-256 computation on a simple file."""
         test_file = tmp_path / "test.txt"
-        content = "Hello, World!"
-        test_file.write_text(content)
-        
-        # Expected hash for "Hello, World!"
-        expected_hash = "7f83b1657ff1fc53b92dc18148a1d65dfa355894746b7c0939c6372069e94600"
-        
-        result = compute_sha256(test_file)
-        assert result == expected_hash
-
-    def test_compute_sha256_binary(self, tmp_path):
-        """Test SHA-256 with binary content."""
-        test_file = tmp_path / "test.bin"
-        content = b"\x00\x01\x02\x03"
+        content = b"Hello, World!"
         test_file.write_bytes(content)
         
-        # Expected hash for b"\x00\x01\x02\x03"
-        expected_hash = "a3c65c2974270fd093ee8a9bf8f7d36f15f21104943564949494949494949494" # Placeholder, calculate real one if needed, but logic holds
-        # Let's calculate real one for safety in test
-        import hashlib
-        real_hash = hashlib.sha256(content).hexdigest()
+        expected_hash = hashlib.sha256(content).hexdigest()
+        actual_hash = compute_sha256(test_file)
         
-        result = compute_sha256(test_file)
-        assert result == real_hash
+        assert actual_hash == expected_hash
+        assert len(actual_hash) == 64  # SHA-256 hex length
+    
+    def test_compute_sha256_empty_file(self, tmp_path):
+        """Test SHA-256 computation on an empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_bytes(b"")
+        
+        expected_hash = hashlib.sha256(b"").hexdigest()
+        actual_hash = compute_sha256(test_file)
+        
+        assert actual_hash == expected_hash
+    
+    def test_compute_sha256_nonexistent_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for nonexistent file."""
+        nonexistent = tmp_path / "does_not_exist.txt"
+        
+        with pytest.raises(FileNotFoundError):
+            compute_sha256(nonexistent)
 
 class TestValidateAstParams:
-    def test_valid_list_with_params(self, tmp_path):
-        """Test validation of a list containing records with ast_params."""
-        test_file = tmp_path / "valid.json"
-        data = [
-            {"method": "foo", "ast_params": ["a", "b"]},
-            {"method": "bar", "ast_params": []}
-        ]
-        test_file.write_text(json.dumps(data))
-        
-        assert validate_ast_params(test_file) is True
-
-    def test_missing_ast_params(self, tmp_path):
-        """Test validation failure when ast_params is missing."""
-        test_file = tmp_path / "invalid.json"
-        data = [
-            {"method": "foo", "params": ["a"]} # Key is 'params', not 'ast_params'
-        ]
-        test_file.write_text(json.dumps(data))
-        
-        assert validate_ast_params(test_file) is False
-
-    def test_non_list_ast_params(self, tmp_path):
-        """Test validation failure when ast_params is not a list."""
-        test_file = tmp_path / "invalid.json"
-        data = [
-            {"method": "foo", "ast_params": "not a list"}
-        ]
-        test_file.write_text(json.dumps(data))
-        
-        assert validate_ast_params(test_file) is False
-
-    def test_invalid_json(self, tmp_path):
-        """Test exception raising for invalid JSON."""
-        test_file = tmp_path / "invalid.json"
-        test_file.write_text("{ invalid json }")
-        
-        with pytest.raises(SerializationException):
-            validate_ast_params(test_file)
+    def test_valid_ast_params(self):
+        """Test validation with valid ast_params."""
+        data = {
+            "repo_slug": "test/repo",
+            "ast_params": ["param1", "param2"],
+            "methods": []
+        }
+        assert validate_ast_params(data) is True
+    
+    def test_missing_ast_params(self):
+        """Test validation when ast_params is missing."""
+        data = {
+            "repo_slug": "test/repo",
+            "methods": []
+        }
+        assert validate_ast_params(data) is False
+    
+    def test_ast_params_not_list(self):
+        """Test validation when ast_params is not a list."""
+        data = {
+            "repo_slug": "test/repo",
+            "ast_params": "not_a_list",
+            "methods": []
+        }
+        assert validate_ast_params(data) is False
+    
+    def test_data_not_dict(self):
+        """Test validation when data is not a dictionary."""
+        assert validate_ast_params([]) is False
+        assert validate_ast_params("string") is False
+        assert validate_ast_params(None) is False
 
 class TestEnsureStateFile:
-    def test_creates_directory_and_file(self, tmp_path, monkeypatch):
-        """Test that ensure_state_file creates the directory and file."""
-        # Mock the global paths to point to tmp_path
-        import code.serialize_and_hash as mod
-        original_dir = mod.STATE_DIR
-        original_file = mod.STATE_FILE
+    def test_creates_new_file(self, tmp_path):
+        """Test that ensure_state_file creates a new file if missing."""
+        state_file = tmp_path / "state.yaml"
         
-        mod.STATE_DIR = tmp_path / "state" / "projects"
-        mod.STATE_FILE = mod.STATE_DIR / "test.yaml"
+        result = ensure_state_file(state_file)
         
-        mod.ensure_state_file()
+        assert state_file.exists()
+        assert result == {"artifact_hashes": {}}
         
-        assert mod.STATE_DIR.exists()
-        assert mod.STATE_FILE.exists()
+        # Verify file content
+        content = state_file.read_text()
+        assert "artifact_hashes: {}" in content
+    
+    def test_loads_existing_file(self, tmp_path):
+        """Test that ensure_state_file loads existing file."""
+        state_file = tmp_path / "state.yaml"
+        initial_content = "artifact_hashes: {\n  'file1.json': 'hash1'\n}\n"
+        state_file.write_text(initial_content)
         
-        # Restore
-        mod.STATE_DIR = original_dir
-        mod.STATE_FILE = original_file
-
-    def test_initializes_schema(self, tmp_path, monkeypatch):
-        """Test that the created file has the correct initial schema."""
-        import code.serialize_and_hash as mod
-        mod.STATE_DIR = tmp_path / "state" / "projects"
-        mod.STATE_FILE = mod.STATE_DIR / "test.yaml"
+        result = ensure_state_file(state_file)
         
-        mod.ensure_state_file()
+        assert result == {"artifact_hashes": {"file1.json": "hash1"}}
+    
+    def test_handles_empty_file(self, tmp_path):
+        """Test handling of empty file."""
+        state_file = tmp_path / "state.yaml"
+        state_file.write_text("")
         
-        with open(mod.STATE_FILE, 'r') as f:
-            data = yaml.safe_load(f)
+        result = ensure_state_file(state_file)
         
-        assert "artifact_hashes" in data
-        assert isinstance(data["artifact_hashes"], dict)
+        assert result == {"artifact_hashes": {}}
 
 class TestUpdateStateFile:
-    def test_updates_existing_file(self, tmp_path, monkeypatch):
-        """Test updating an existing state file."""
-        import code.serialize_and_hash as mod
-        mod.STATE_DIR = tmp_path / "state" / "projects"
-        mod.STATE_FILE = mod.STATE_DIR / "test.yaml"
+    def test_adds_new_hash(self, tmp_path):
+        """Test adding a new hash to state file."""
+        state_file = tmp_path / "state.yaml"
         
-        # Create initial file
-        mod.ensure_state_file()
+        # Initialize file
+        ensure_state_file(state_file)
         
-        # Update
-        mod.update_state_file("file1.json", "hash1")
+        # Update with new hash
+        update_state_file(state_file, "test.json", "abc123")
         
-        with open(mod.STATE_FILE, 'r') as f:
-            data = yaml.safe_load(f)
+        # Verify
+        result = ensure_state_file(state_file)
+        assert "test.json" in result["artifact_hashes"]
+        assert result["artifact_hashes"]["test.json"] == "abc123"
+    
+    def test_overwrites_existing_hash(self, tmp_path):
+        """Test overwriting an existing hash."""
+        state_file = tmp_path / "state.yaml"
         
-        assert data["artifact_hashes"]["file1.json"] == "hash1"
-
-    def test_merges_new_hashes(self, tmp_path, monkeypatch):
-        """Test that new hashes are merged without overwriting others."""
-        import code.serialize_and_hash as mod
-        mod.STATE_DIR = tmp_path / "state" / "projects"
-        mod.STATE_FILE = mod.STATE_DIR / "test.yaml"
+        # Initialize with existing hash
+        ensure_state_file(state_file)
+        update_state_file(state_file, "test.json", "old_hash")
         
-        mod.ensure_state_file()
-        mod.update_state_file("file1.json", "hash1")
-        mod.update_state_file("file2.json", "hash2")
+        # Update with new hash
+        update_state_file(state_file, "test.json", "new_hash")
         
-        with open(mod.STATE_FILE, 'r') as f:
-            data = yaml.safe_load(f)
+        # Verify
+        result = ensure_state_file(state_file)
+        assert result["artifact_hashes"]["test.json"] == "new_hash"
+    
+    def test_multiple_hashes(self, tmp_path):
+        """Test adding multiple hashes."""
+        state_file = tmp_path / "state.yaml"
+        ensure_state_file(state_file)
         
-        assert data["artifact_hashes"]["file1.json"] == "hash1"
-        assert data["artifact_hashes"]["file2.json"] == "hash2"
+        update_state_file(state_file, "file1.json", "hash1")
+        update_state_file(state_file, "file2.json", "hash2")
+        
+        result = ensure_state_file(state_file)
+        assert len(result["artifact_hashes"]) == 2
+        assert result["artifact_hashes"]["file1.json"] == "hash1"
+        assert result["artifact_hashes"]["file2.json"] == "hash2"

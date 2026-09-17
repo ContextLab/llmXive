@@ -1,75 +1,203 @@
-# Data Model: Evaluating the Impact of Code Generation Models on Code Documentation Completeness
+# Data Model Specification
+# Project: PROJ-318-evaluating-the-impact-of-code-generation
+# Description: Schema definitions for all data artifacts produced and consumed by the pipeline.
 
-## Overview
+## 1. Raw Repository List
+**File**: `data/raw/frozen_repo_list.json`
+**Source**: PyPI/HuggingFace (T010)
+**Schema**: Array of objects
+```json
+[
+ {
+ "repo_url": "string (GitHub URL)",
+ "github_url": "string (GitHub URL)",
+ "star_count": "integer"
+ }
+]
+```
+**Constraints**: Must contain exactly 20 items. Sorted deterministically by star count.
 
-This document defines the data structures used in the pipeline. All data is stored in JSON format to ensure reproducibility and ease of parsing. Versioning hashes are recorded in `state/` for every artifact.
+## 2. Extracted Repository Data (Ground Truth)
+**File**: `data/raw/repos/{repo_slug}.json`
+**Source**: AST Parser (T017, T018)
+**Schema**: Array of objects
+```json
+[
+ {
+ "repo_slug": "string",
+ "file_path": "string (relative to repo root)",
+ "function_name": "string",
+ "signature": "string (full function signature)",
+ "human_docstring": "string | null",
+ "ast_params": [
+ {
+ "name": "string",
+ "annotation": "string | null",
+ "default": "string | null"
+ }
+ ]
+ }
+]
+```
+**Constraints**:
+- `human_docstring` MUST be `null` (not empty string) if no docstring exists.
+- Array length per file MUST be <= 1000 (enforced by T018).
+- `ast_params` is a list of parameter objects extracted from the AST.
 
-## Entities
+## 3. Generation Batch (Intermediate)
+**File**: `data/processed/generation_batch_{repo_slug}.json`
+**Source**: LLM Generation (T024)
+**Schema**: Array of objects (extends Extraction schema)
+```json
+[
+ {
+ "repo_slug": "string",
+ "file_path": "string",
+ "function_name": "string",
+ "signature": "string",
+ "human_docstring": "string | null",
+ "ast_params": [... ],
+ "generated_docstring": "string | null"
+ }
+]
+```
+**Constraints**:
+- `generated_docstring` may be empty string, whitespace, or null if generation failed or produced no text.
+- Row count <= 1000 per file.
 
-### 1. MethodSignature
-Represents a single public method extracted from a repository.
+## 4. Cleaned Generation Batch (Intermediate)
+**File**: `data/processed/generation_batch_{repo_slug}_cleaned.json`
+**Source**: Post-Processing (T027)
+**Description**: Intermediate schema for records after empty/whitespace docstring handling.
+**Schema**: Array of objects (extends Generation Batch schema)
+```json
+[
+ {
+ "repo_slug": "string",
+ "file_path": "string",
+ "function_name": "string",
+ "signature": "string",
+ "human_docstring": "string | null",
+ "ast_params": [
+ {
+ "name": "string",
+ "annotation": "string | null",
+ "default": "string | null"
+ }
+ ],
+ "generated_docstring": "string | null",
+ "needs_review": "boolean",
+ "coverage_score": "float"
+ }
+]
+```
+**Field Definitions**:
+- `needs_review`: `true` if `generated_docstring` is empty or whitespace-only; `false` otherwise.
+- `coverage_score`: `0.0` if `needs_review` is `true`; otherwise calculated based on parameter matching (T033).
+- **Logic**:
+ ```python
+ if not generated_docstring.strip():
+ needs_review = True
+ coverage_score = 0.0
+ else:
+ needs_review = False
+ coverage_score = <calculated value later> # Initially 0.0 or placeholder if not yet calculated
+ ```
+**Constraints**:
+- This file is the input for the aggregation step (T026).
+- All records from the input batch file MUST be present here.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `repo_name` | string | Name of the repository (e.g., "requests"). |
-| `file_path` | string | Relative path to the source file within the repo. |
-| `method_name` | string | Name of the public method. |
-| `parameters` | list[string] | List of parameter names extracted from the AST signature (excluding 'self', 'cls'). |
-| `source_code` | string | The raw source code of the method (truncated if necessary). |
-| `human_docstring` | string | The existing human-written docstring (or `null` if absent). |
+## 5. Aggregated Results
+**File**: `data/processed/results.json`
+**Source**: Aggregation (T026)
+**Schema**: Array of objects (union of all cleaned batches)
+```json
+[
+ {
+ "repo_slug": "string",
+ "file_path": "string",
+ "function_name": "string",
+ "signature": "string",
+ "human_docstring": "string | null",
+ "ast_params": [... ],
+ "generated_docstring": "string | null",
+ "needs_review": "boolean",
+ "coverage_score": "float"
+ }
+]
+```
+**Constraints**:
+- Total row count <= 20,000 (20 repos * 1000 methods).
+- Must preserve `ast_params` from raw extraction.
 
-### 2. DocstringPair
-Extends `MethodSignature` with the generated docstring and calculated scores.
+## 6. Results with Coverage Scores
+**File**: `data/processed/results_with_coverage.json`
+**Source**: Analysis Step: Coverage (T033)
+**Schema**: Array of objects (extends Aggregated Results)
+```json
+[
+ {
+ "repo_slug": "string",
+ "file_path": "string",
+ "function_name": "string",
+ "signature": "string",
+ "human_docstring": "string | null",
+ "ast_params": [... ],
+ "generated_docstring": "string | null",
+ "needs_review": "boolean",
+ "coverage_score": "float",
+ "parse_error": "boolean (optional)"
+ }
+]
+```
+**Field Definitions**:
+- `coverage_score`: Calculated as `(matched params / total ast_params)`.
+- `parse_error`: `true` if `docstring_parser` failed to parse the generated docstring.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `repo_name` | string | Inherited from `MethodSignature`. |
-| `file_path` | string | Inherited. |
-| `method_name` | string | Inherited. |
-| `parameters` | list[string] | Inherited. |
-| `human_docstring` | string | Inherited. |
-| `generated_docstring` | string | The LLM-generated docstring. |
-| `parameter_coverage_score` | float | Primary metric: (matched params / total params). Range [0.0, 1.0]. Calculated using `docstring_parser`. |
-| `semantic_similarity_score` | float | Auxiliary metric: Cosine similarity between human and generated embeddings. Range [-1.0, 1.0]. |
-| `generation_status` | string | "success", "timeout", "error". |
-| `error_message` | string | Description of error if `generation_status` != "success". |
+## 7. Results with Semantic Similarity
+**File**: `data/processed/results_with_scores.json`
+**Source**: Analysis Step: Similarity (T034)
+**Schema**: Array of objects (extends Results with Coverage)
+```json
+[
+ {
+ "repo_slug": "string",
+ "file_path": "string",
+ "function_name": "string",
+ "signature": "string",
+ "human_docstring": "string | null",
+ "ast_params": [... ],
+ "generated_docstring": "string | null",
+ "needs_review": "boolean",
+ "coverage_score": "float",
+ "parse_error": "boolean (optional)",
+ "semantic_similarity": "float"
+ }
+]
+```
+**Field Definitions**:
+- `semantic_similarity`: Cosine similarity between human and generated docstring embeddings.
 
-### 3. RepositoryStats
-Aggregated statistics for a single repository.
+## 8. Final Statistical Report
+**File**: `data/processed/final_report.json`
+**Source**: Analysis Step: Stats (T037)
+**Schema**: Single object
+```json
+{
+ "total_methods": "integer",
+ "human_coverage_mean": "float",
+ "llm_coverage_mean": "float",
+ "wilcoxon_statistic": "float",
+ "wilcoxon_pvalue": "float",
+ "small_sample_warning": "boolean"
+}
+```
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `repo_name` | string | Repository name. |
-| `total_methods` | integer | Total methods extracted (fixed number). |
-| `successful_generations` | integer | Count of successful generations. |
-| `avg_human_coverage` | float | Mean `parameter_coverage_score` for human docstrings (vs AST). |
-| `avg_llm_coverage` | float | Mean `parameter_coverage_score` for LLM docstrings. |
-| `avg_similarity` | float | Mean `semantic_similarity_score`. |
-
-### 4. GlobalResults
-Final aggregated results for the Wilcoxon test.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `total_pairs` | integer | Total number of valid pairs (Human vs LLM). |
-| `human_scores` | list[float] | List of all human coverage scores. |
-| `llm_scores` | list[float] | List of all LLM coverage scores. |
-| `wilcoxon_statistic` | float | Test statistic from Wilcoxon signed-rank test. |
-| `wilcoxon_p_value` | float | P-value from the test. |
-| `significance` | boolean | `true` if p-value < 0.05 AND difference > 0.05 (MES). |
-| `execution_time_seconds` | float | Total runtime of the pipeline. |
-
-## Data Flow
-
-1.  **Extraction**: `extract.py` reads repo source -> writes `data/raw/{repo_name}_methods.json` (List of `MethodSignature`).
-2.  **Generation**: `generate.py` reads `data/raw/{repo_name}_methods.json` -> writes `data/processed/{repo_name}_results.json` (List of `DocstringPair`).
-3.  **Analysis**: `analyze.py` reads all `data/processed/*.json` -> writes `data/processed/global_results.json` (Single `GlobalResults` object).
-4.  **Versioning**: Content hashes for all files in `data/` are recorded in `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml` under `artifact_hashes`.
-
-## Constraints
-
--   **Max Methods**: 100 per repository (Fixed Sample).
--   **Null Handling**: `human_docstring` must be `null` (JSON null) if missing, not empty string.
--   **Float Precision**: Scores rounded to 4 decimal places.
--   **Encoding**: UTF-8.
--   **Versioning**: Every file in `data/` must be checksummed and recorded in `state/`.
+## 9. State Tracking
+**File**: `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml`
+**Schema**: YAML
+```yaml
+artifact_hashes:
+ "data/raw/repos/{repo_slug}.json": "sha256_hash_string"
+...
+```

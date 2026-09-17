@@ -20,3 +20,14 @@
   verification_status: mismatch
   verified_against_url: https://pypistats.org/api/packages/top
   verified_at: '2026-08-25T21:28:53.246199Z'
+- artifact_hash: 9fb8e590e4cd726a9777833b70f00ef59d9fe36e96563fac11b5aa630c30a4bb
+  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pypi.org/pypi/{package}/json`
+  verification_status: mismatch
+  verified_against_url: https://pypi.org/pypi/%7Bpackage%7D/json
+  verified_at: '2026-09-17T20:09:38.981904Z'

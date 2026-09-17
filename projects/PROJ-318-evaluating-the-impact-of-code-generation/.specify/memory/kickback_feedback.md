@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010` (rejected 1x): The required `data/raw/frozen_repo_list.json` (and its copy `repo_list.json`) are absent, and the provided `code/utils/repo_fetcher.py` is incomplete/truncated and does not demonstrably implement the fetching, sorting, validation, and writing logic required to produce a JSON array of exactly 20 entries. The task’s core output artifact is missing.
-- `T033` (rejected 1x): The required `data/processed/results.json` and the generated `data/processed/results_with_coverage.json` are both missing, so the script cannot be run and no coverage scores are produced. Additionally, the provided `code/analyze.py` snippet does not show a command‑line interface handling `--step=coverage`, and without the input file the coverage calculation cannot be verified. The implementer must ensure the input JSON exists, run the script to produce the output file, and confirm each record contains a `coverage_score` field.
+- `T034` (rejected 1x): The required input file `data/processed/results_with_coverage.json` does not exist, and the expected output `data/processed/results_with_scores.json` is also missing. Moreover, the provided `code/analyze.py` snippet is truncated and does not show any implementation of the semantic similarity calculation or handling of the `--step=similarity` argument. Consequently, the task’s core requirements are unmet.
 
 ## Required change
 
