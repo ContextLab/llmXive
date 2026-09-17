@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
 **Input**: Design documents from `/specs/001-llmxive-follow-up-extending-gatemem-benc/`
@@ -34,16 +38,18 @@
 - [X] T001d [P] Create subdirectories: `data/raw/`, `data/processed/`, `data/samples/`. **Verification**: `assert all(os.path.isdir(p) for p in ['data/raw', 'data/processed', 'data/samples'])`.
 - [X] T002a [P] Create `requirements.txt` at repository root with pinned versions. Include: `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`. **Verification**: `assert os.path.isfile('requirements.txt')`.
 - [X] T002b [P] Verify `requirements.txt` contains required packages. **Verification**: `pytest tests/unit/test_requirements.py::test_requirements_content`.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools.
+- [X] T003 [P] Configure linting (ruff) and formatting tools.
 - [ ] T037a [P] Create `quickstart.md` in `specs/001-llmxive-follow-up-extending-gatemem-benc/` with initial project setup instructions, dataset download guide, and basic run commands. **Deliverable**: A markdown file in `specs/001-llmxive-follow-up-extending-gatemem-benc/` containing step-by-step instructions for environment setup, dataset fetching, and running the first evaluation. **Dependency**: None. **Verification**: `pytest tests/unit/test_docs.py::test_quickstart_exists`.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data loading (with hardening/streaming), stats logic, rule engine, classifier, and CLI skeleton.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+Examples of foundational tasks (adjust based on your project):
 
 - [X] T004a [P] Generate `contracts/dataset.schema.yaml` defining GateMem episode structure:
  - Define keys: `leak-target`, `roles`, `domains`, `outcome`, `predictors`, `covariates`.
@@ -129,19 +135,17 @@
  - **Profiling Standardization**: Must use `src/utils/profiling.py` (T007) to generate these values to ensure consistent keys.
  - **Retry Logic**: If model load fails (cache corruption), retry once. If retry fails, exit with code 1 and log "Critical: Model Unavailable".
  - **Acceptance Criteria**: Verify the model runs on CPU-only runner (no CUDA, memory within constrained limits) and logs resource usage. **This verification must pass before T016 can proceed.**
- - **Dependency**: None (Independent of T015a).
+ - **Dependency**: None.
  - **Verification**: `pytest tests/unit/test_classifier.py::test_cpu_only_enforcement`.
 - [X] T010 [P] Create `tests/contract/test_dataset_schema.py` to validate raw data against `dataset.schema.yaml`
 - [X] T011 [P] Create `tests/contract/test_results_schema.py` to validate output against `results.schema.yaml`
 - [X] T001b Create `data/samples/` directory structure (if not created by T001).
 - [X] T001c Create `logs/` directory structure (if not created by T001).
-- [ ] T043 [P] [FR-003] Create `templates/prompts.yaml` defining identical prompt templates for Gatekeeper and Baseline configurations:
+- [ ] T043 [P] Create `templates/prompts.yaml` defining identical prompt templates for Gatekeeper and Baseline configurations:
  - Define keys: `gatekeeper_prompt`, `retrieval_only_prompt`, `long_context_prompt`.
  - Ensure all prompts use identical system instructions and few-shot examples where applicable.
  - **Constraint**: This file is the single source of truth for prompt engineering; any deviation between methods here invalidates the comparison.
  - **Verification**: `pytest tests/unit/test_prompts.py::test_prompts_load_successfully`.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
@@ -184,7 +188,6 @@
  - Output `data/processed/baseline_results.json` with keys: `[method, score, std_dev, latency_ms, peak_ram_mb, episode_id]`.
  - **Explicitly write code to generate this file** and validate output against `contracts/results.schema.yaml`.
  - **Dependency**: T017a, T017b.
- - **Note**: This task must wait for T017a and T017b to complete before aggregating outputs.
  - **Verification**: `pytest tests/contract/test_baseline_results.py`.
 - [ ] T018 [US1] [FR-004] Implement `src/gatekeeper/metrics.py` function: `calculate_access_control()`:
  - Calculate Access Control score (unauthorized exposure rate) against ground truth.
@@ -237,7 +240,7 @@
  - Calculate False Positive (valid query blocked) and False Negative (leak allowed) rates - **Supporting Metric**
  - **Output**: Must include `episode_id` for pairing.
  - **Dependency**: T023.
-- [ ] T008f-exec [US2] [DEPENDS ON T023, T017c] [FR-005] Implement `src/utils/stats.py` function `pair_episodes()`:
+- [ ] T008f [US2] [DEPENDS ON T023, T017c] [FR-005] Implement `src/utils/stats.py` function `pair_episodes()`:
  - **Executable Task**: Implement logic to match episodes across Gatekeeper and Baseline conditions using `episode_id`.
  - **Input**: Must be the unified results from T023 and baseline results from T017c.
  - **Output**: Produces `paired_data` list for T026a/b.
@@ -267,7 +270,7 @@
  - Aggregate individual metric results into `data/processed/combined_metrics.json`.
  - **Requirement**: Must merge all metric outputs into a single JSON file keyed by `episode_id` to enable downstream sampling and statistical pairing.
  - **Dependency**: T028a.
-- [ ] T029a [US2] [DEPENDS ON T023] [P] [US2] Implement failure case sampling logic:
+- [ ] T029a [US2] [DEPENDS ON T023] Implement failure case sampling logic:
  - Select a sample of cases with a **fixed random seed (42)**.
  - **Logic**: Filter results from `data/processed/unified_metrics.json` for failures (False Positive + False Negative + Forgetting Violations).
  - **Definition**: 'False Positive' = valid query blocked; 'False Negative' = leak allowed; **'Forgetting Violation' = deletion_request=True AND deletion_success=False**.
@@ -276,10 +279,9 @@
  - **If a small number of failures exist, output all available. If zero failures exist, create an empty file and log a warning.**
  - **Dependency**: T023.
  - **Verification**: `pytest tests/unit/test_failure_sampling.py::test_sampling_logic_stratified` and `pytest tests/unit/test_failure_sampling.py::test_sampling_logic_seed_42`.
-- [ ] T029b [US2] [DEPENDS ON T029a] [P] [US2] Create unit test for failure case sampling:
+- [ ] T029b [US2] [DEPENDS ON T029a] [P] Create unit test for failure case sampling:
  - File: `tests/unit/test_failure_sampling.py`
- - Assertion: Verify `data/samples/failure_cases.json` exists, contains correct count (N or 50), and is stratified correctly if N > 50.
- - **Verification**: `pytest tests/unit/test_failure_sampling.py::test_sampling_logic`.
+ - Assertion: Verify `data/samples/failure_cases.json` exists, contains correct count (N or 50), and is stratified correctly if N > 50. Ensure a fixed random seed was used.
 
 ### Tests for User Story 2 (Post-Implementation)
 
@@ -291,8 +293,6 @@
  - Assertion: `assert 0.0 <= utility_score <= 1.0`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
-**⚠️ NOTE**: T026a (Statistical Comparison) CANNOT run in parallel with T023/T024 (Metric Calculation) as it depends on their output.
 
 ---
 
@@ -370,7 +370,7 @@
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation (or run after implementation to verify)
+- Tests (if included) MUST be written and FAIL before implementation
 - Models/Utilities before pipeline logic
 - Core implementation before integration
 - Story complete before moving to next priority
@@ -439,7 +439,5 @@ With multiple developers:
 - **Constraint**: Dataset must be processed in batches or streamed to fit available RAM.
 - **Constraint**: Random seeds fixed to ensure reproducibility.
 - **Statistical Fallback**: Primary method is LMM (FR-005). If infeasible, use Fixed-Effects GLM. If GLM fails, use Domain-Stratified Analysis. Normality checks determine post-hoc test (t-test/Wilcoxon). **McNemar's Test is the Primary test for binary outcomes (Access Control)**.
-- **Critical Dependency**: T016 requires T014a and T015a completion. T026a requires T023, T008f-exec. T006 requires T004/T005/T006a-d. T008 requires T008a-g. T017/T027/T033 require T006.
 - **Data Integrity**: **T006a/b/c/d** include strict fail-loud, streaming, and checksum logic. Synthetic fallbacks are strictly prohibited.
-- **Plan Note**: The Plan Summary (plan.md) has been corrected to state "Fixed-Effects GLM" as secondary, with LMM as primary (attempt first, fallback if invalid).
 - **Prompt Integrity**: T043 ensures prompt consistency across Gatekeeper and Baselines, a prerequisite for valid comparison (FR-003).

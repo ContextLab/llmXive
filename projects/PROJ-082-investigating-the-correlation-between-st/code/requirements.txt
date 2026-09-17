@@ -18,3 +18,4 @@ requests>=2.31.0
 
 # Python version
 python>=3.11
+data  # auto-added: imported by run-book but missing from venv
