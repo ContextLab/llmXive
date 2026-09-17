@@ -1,0 +1,11 @@
+status: none
+intent: USPTO-MIT reaction dataset download python package dataset
+required_fields:
+- reaction_id
+- reactants_smiles
+- products_smiles
+- category
+- yield
+cache_key: 054d762a2383f34e18e4baed2e964e9520d846e29a833afe15134d2141aaf058
+searched_at: '2026-09-17T15:35:28.298574+00:00'
+retry_count: 1

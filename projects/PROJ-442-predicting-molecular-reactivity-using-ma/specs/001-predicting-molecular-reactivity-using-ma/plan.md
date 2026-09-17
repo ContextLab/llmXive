@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a machine learning pipeline to predict molecular reactivity rankings for SN1, SN2, and Diels-Alder reactions using the USPTO-MIT reaction dataset. The approach involves ingesting raw reaction data, filtering by reaction templates, extracting structural features via RDKit, applying rigorous two-stage dimensionality reduction (Variance Thresholding + SelectKBest) to prevent overfitting on high-dimensional fingerprints, training a CPU-based XGBoost model with 5-fold cross-validation and Leave-One-Scaffold-Out validation, and performing a permutation test with 1,000 iterations to establish statistical significance. The entire pipeline is constrained to run within 30 minutes on a 2-core, 7GB RAM GitHub Actions free-tier runner through optimized batching and parameter tuning.
+This feature implements a machine learning pipeline to predict molecular reactivity rankings for SN1, SN2, and Diels-Alder reactions using the USPTO-MIT reaction dataset. The approach involves ingesting raw reaction data, filtering by reaction templates, extracting structural features via RDKit, applying rigorous two-stage dimensionality reduction (Variance Thresholding + SelectKBest) to prevent overfitting on high-dimensional fingerprints, training a CPU-based XGBoost model with 5-fold cross-validation and Leave-One-Scaffold-Out validation, and performing a permutation test with a sufficient number of iterations to establish statistical significance. The entire pipeline is constrained to run within 30 minutes on a 2-core, 7GB RAM GitHub Actions free-tier runner through optimized batching and parameter tuning.
 
 ## Technical Context
 
@@ -34,7 +34,7 @@ This feature implements a machine learning pipeline to predict molecular reactiv
 4.  **IV. Single Source of Truth**: All metrics (Spearman ρ, p-values) in the final report will be generated programmatically from the `ModelResult` artifacts, not hand-typed.
 5.  **V. Versioning Discipline**: Every artifact (data, code, models) will carry a content hash. **Mechanism**: A dedicated script `scripts/update_state.py` is invoked by `main.py` after every major stage (ingestion, feature extraction, training). This script updates the project's `state/projects/PROJ-442-predicting-molecular-reactivity-using-ma.yaml` file, updating the `updated_at` timestamp and the `artifact_hashes` map with the new checksums of the generated files.
 6.  **VI. Reaction Data Integrity**: Reaction classes (SN1, SN2, Diels-Alder) will be assigned *only* via the documented template-matching code, which is version-controlled. Filtering logs will track excluded records.
-7.  **VII. Model Evaluation Transparency**: The output will explicitly report Spearman ρ, p-values, and permutation test results (1,000 iterations). Hyperparameters and CV splits will be recorded in a machine-readable config.
+7.  **VII. Model Evaluation Transparency**: The output will explicitly report Spearman ρ, p-values, and permutation test results with a sufficient number of iterations to ensure robustness. Hyperparameters and CV splits will be recorded in a machine-readable config.
 
 ## Project Structure
 
@@ -108,7 +108,7 @@ scripts/
 | FR-002 | Req | Phase 2: Feature Extraction (RDKit) & Dimensionality Reduction (SelectKBest). |
 | FR-003 | Req | Phase 3: Model Training (XGBoost, 5-fold CV, 30-min limit). |
 | FR-004 | Req | Phase 3: Target Normalization (Z-score) & Spearman Calculation. |
-| FR-005 | Req | Phase 4: Permutation Test (1,000 iterations, class-conditional). |
+| FR-005 | Req | Phase 4: Permutation Test (multiple iterations, class-conditional). |
 | FR-006 | Req | Phase 1: Sample Size Check (Warning/Exclude if <1,000). |
 | SC-001 | Metric | Phase 4: Null Hypothesis (ρ=0) test via Permutation. |
 | SC-002 | Metric | Phase 4: Significance Threshold (p<0.01) enforcement. |

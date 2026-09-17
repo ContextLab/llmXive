@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-442-predicting-molecular-reactivity-using-ma",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python src/modeling/evaluate.py --input data/results/cv_results.csv --output reports/final_report.md; 3 command(s) failed: python src/data/ingestion.py --output data/processed/filtered_reactions.parquet (rc=1); python src/data/preprocessing.py --input data/processed/filtered_reactions.parquet --output data/processed/features.parquet (rc=1); python src/modeling/train.py --config src/modeling/config.yaml (rc=1); 5 declared deliverable(s) absent: data/models/xgboost_model.json; data/processed/analysis_report.json; data/processed/feature_matrix.parquet",
+  "artifacts": [],
+  "failures": [
+    "python src/data/ingestion.py --output data/processed/filtered_reactions.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/src/data/ingestion.py\", line 22, in <module>\n    from tqdm import tqdm\nModuleNotFoundError: No module named 'tqdm'",
+    "python src/data/preprocessing.py --input data/processed/filtered_reactions.parquet --output data/processed/features.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/src/data/preprocessing.py\", line 314, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/src/data/preprocessing.py\", line 307, in main\n    setup_logger(__name__)\n    ^^^^^^^^^^^^\nNameError: name 'setup_logger' is not defined. Did you mean: 'get_logger'?",
+    "python src/modeling/train.py --config src/modeling/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/src/modeling/train.py\", line 13, in <module>\n    from sklearn.metrics import spearmanr\nImportError: cannot import name 'spearmanr' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)",
+    "python src/modeling/evaluate.py --input data/results/cv_results.csv --output reports/final_report.md -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-442-predicting-molecular-reactivity-using-ma/src/modeling/evaluate.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-17T15:34:30Z"
+}

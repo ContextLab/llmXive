@@ -62,7 +62,7 @@ The researcher needs to compare the predictive performance across the three reac
 
 - **FR-001**: System MUST download and parse the provided input subset of the USPTO reaction dataset and filter it to include reactions matching the classes SN1, SN2, or Diels-Alder, excluding all others (See US-1).
 - **FR-002**: System MUST convert molecular reactants into a feature matrix including molecular weight, atom counts, bond types, and topological indices using RDKit, ensuring no GPU usage (See US-2).
-- **FR-003**: System MUST train a gradient-boosting model (XGBoost) using 5-fold cross-validation within a maximum runtime of 30 minutes on a CPU-only environment (See US-2).
+- **FR-003**: System MUST train a gradient-boosting model (XGBoost) using cross-validation within a maximum runtime of 30 minutes on a CPU-only environment (See US-2).
 - **FR-004**: System MUST compute Spearman rank correlation coefficients between predicted and observed reactivity rankings, where 'observed' rankings are derived strictly from experimental yield values or reaction success flags, not from structural features or reaction class labels (See US-3).
 - **FR-005**: System MUST perform a permutation test (A sufficient number of iterations, a community standard for initial significance estimation when power analysis is not feasible) to calculate the statistical significance (p-value) of the observed correlations, explicitly framing results as associational (See US-3).
 - **FR-006**: System MUST handle datasets with < 1,000 samples per class by logging a warning and excluding that class from the final comparison report rather than crashing (See US-1).
@@ -81,7 +81,7 @@ The researcher needs to compare the predictive performance across the three reac
 
 - **SC-001**: The Spearman correlation coefficient (ρ) between predicted and observed reactivity rankings is measured against the null hypothesis of ρ = 0 (See US-3).
 - **SC-002**: The statistical significance (p-value) of the correlation is measured against the threshold of p < 0.01 for the permutation test (See US-3).
-- **SC-003**: The training runtime is measured against the 30-minute CPU budget limit to ensure feasibility on free-tier runners (See US-2).
+- **SC-003**: The training runtime is measured against a fixed CPU budget limit to ensure feasibility on free-tier runners (See US-2).
 - **SC-004**: The memory footprint of the feature extraction process is measured against the GB RAM limit to confirm batch processing is effective (See US-2).
 - **SC-005**: The proportion of reactions successfully classified into SN1, SN2, or Diels-Alder is measured against the total input size to assess data quality (See US-1).
 

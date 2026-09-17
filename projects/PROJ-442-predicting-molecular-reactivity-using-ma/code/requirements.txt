@@ -4,5 +4,7 @@ pandas
 scikit-learn
 pyarrow
 requests
+tqdm
 pyyaml
-pytest
+numpy
+matplotlib

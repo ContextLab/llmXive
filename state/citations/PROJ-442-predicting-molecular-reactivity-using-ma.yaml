@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/USPTO-MIT/USPTO-MIT/resolve/main/data/train-00000-of-00001.parquet
   verified_at: '2026-07-03T10:56:05.382947Z'
-- artifact_hash: fba6be456a58c3e802e9a4146d176988cbf88db3490574b5a3d93274985e0c5f
+- artifact_hash: 4308dfa2875b358b0898f51fa937daae69e91cba0fb6f07031a18152e851e639
   artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,28 +19,4 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-09-07T03:37:39.349808Z'
-- artifact_hash: fba6be456a58c3e802e9a4146d176988cbf88db3490574b5a3d93274985e0c5f
-  artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Numerical Study The Dielectric Properties And Specific Absorption
-    Rate Of Nerve Human Tissue At Different Frequencies | Zenodo
-  kind: url
-  value: https://zenodo.org/record/3969375
-  verification_status: pending
-  verified_against_url: https://zenodo.org/records/3969376
-  verified_at: '2026-09-07T03:37:39.349808Z'
-- artifact_hash: fba6be456a58c3e802e9a4146d176988cbf88db3490574b5a3d93274985e0c5f
-  artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2408.08592] Case Study: Runtime Safety Verification of Neural Network
-    Controlled System'
-  kind: url
-  value: https://arxiv.org/abs/2408.08592
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2408.08592
-  verified_at: '2026-09-07T03:37:39.349808Z'
+  verified_at: '2026-09-17T15:45:21.485147Z'
