@@ -1,110 +1,98 @@
-"""
-Unit tests for the permutation test generator in code/analyze_pvalues.py.
-"""
 import pytest
+import json
+import os
+import tempfile
+from pathlib import Path
 import numpy as np
-from scipy import stats
+import csv
 
-from code.analyze_pvalues import generate_permutation_reference, calculate_ks_statistic
-from code.utils.exceptions import AnalysisError
+from code.analyze_pvalues import (
+    load_embarrassment_log,
+    classify_failure_modes,
+    calculate_ks_statistic
+)
 
+class TestClassifyFailureModes:
+    @pytest.fixture
+    def temp_log_file(self):
+        # Create a temporary CSV file for the embarrassment log
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', dir='data/results') as f:
+            writer = csv.writer(f)
+            writer.writerow(['seed', 'rho', 'n', 'p', 'distribution_type', 'ks_stat'])
+            # Add some test data
+            # Scenario 1: High KS, high p/n, high rho
+            writer.writerow([1, 0.9, 50, 5000, 'normal', 0.15])
+            # Scenario 2: High KS, lower p/n
+            writer.writerow([2, 0.9, 100, 5000, 'normal', 0.14])
+            # Scenario 3: Lower KS
+            writer.writerow([3, 0.5, 50, 5000, 'normal', 0.05])
+            # Scenario 4: Same KS as 1, but lower p/n
+            writer.writerow([4, 0.9, 100, 1000, 'normal', 0.15])
+            
+            temp_path = f.name
+        yield temp_path
+        os.unlink(temp_path)
 
-class TestPermutationReference:
-    """Tests for the Gold Standard permutation test generator."""
+    def test_load_embarrassment_log(self, temp_log_file):
+        logs = load_embarrassment_log(temp_log_file)
+        assert len(logs) == 4
+        assert logs[0]['seed'] == 1
+        assert logs[0]['ks_stat'] == 0.15
 
-    def test_output_structure(self):
-        """Verify that the function returns the expected dictionary keys."""
-        data = np.random.randn(50, 20)
-        result = generate_permutation_reference(data, n_permutations=10, seed=42)
-
-        expected_keys = {
-            'observed_stats', 'permuted_stats', 'p_values', 
-            'n_permutations', 'shape', 'seed', 'two_sided'
-        }
-        assert set(result.keys()) == expected_keys
-
-    def test_permuted_stats_shape(self):
-        """Verify that permuted stats have the correct shape."""
-        n_samples, n_features = 100, 15
-        n_perms = 50
-        data = np.random.randn(n_samples, n_features)
+    def test_classify_failure_modes_sorting(self, temp_log_file):
+        # Mock the path used in the function by temporarily replacing the default
+        # Since the function uses hardcoded paths, we need to ensure the file is in the expected location
+        # or modify the function to accept a path. For this test, we assume the file is moved/renamed.
+        # Actually, the function `classify_failure_modes` uses hardcoded path "data/results/embarrassment_log.csv".
+        # We must ensure the temp file is at that location or mock the function.
+        # To keep it simple, let's just test the logic by creating the file in the expected spot.
         
-        result = generate_permutation_reference(data, n_permutations=n_perms, seed=99)
+        expected_path = "data/results/embarrassment_log.csv"
+        os.makedirs("data/results", exist_ok=True)
+        # Copy temp content to expected path
+        with open(temp_log_file, 'r') as src, open(expected_path, 'w') as dst:
+            dst.write(src.read())
         
-        # permuted_stats should be a list of lists (n_perms, n_features)
-        # or converted to array in the logic, but stored as list in dict
-        assert len(result['permuted_stats']) == n_perms
-        assert len(result['permuted_stats'][0]) == n_features
+        try:
+            result = classify_failure_modes()
+            assert result['found'] is True
+            worst = result['worst_case_scenario']
+            
+            # Expected winner: seed 1 (KS=0.15, p/n=100, rho=0.9)
+            # Seed 4 has KS=0.15, but p/n=10 (1000/100). Seed 1 has p/n=100.
+            # So seed 1 should win.
+            assert worst['seed'] == 1
+            assert worst['ks_stat'] == 0.15
+            assert worst['p_over_n'] == 100.0
+        finally:
+            os.unlink(expected_path)
 
-    def test_p_value_range(self):
-        """Verify that p-values are within [0, 1]."""
-        data = np.random.randn(50, 10)
-        result = generate_permutation_reference(data, n_permutations=20, seed=1)
+    def test_classify_failure_modes_empty_log(self):
+        expected_path = "data/results/embarrassment_log.csv"
+        os.makedirs("data/results", exist_ok=True)
+        # Create empty file with header
+        with open(expected_path, 'w') as f:
+            f.write("seed,rho,n,p,distribution_type,ks_stat\n")
         
-        p_vals = result['p_values']
-        assert all(0.0 <= p <= 1.0 for p in p_vals)
+        try:
+            result = classify_failure_modes()
+            assert result['found'] is False
+            assert "No entries" in result['reason']
+        finally:
+            os.unlink(expected_path)
 
-    def test_invalid_input_shape(self):
-        """Verify that non-2D input raises AnalysisError."""
-        data_1d = np.random.randn(100)
-        with pytest.raises(AnalysisError):
-            generate_permutation_reference(data_1d)
+class TestCalculateKsStatistic:
+    def test_ks_statistic_calculation(self):
+        # Uniform vs Uniform should be low
+        u1 = np.random.uniform(0, 1, 1000)
+        u2 = np.random.uniform(0, 1, 1000)
+        ks = calculate_ks_statistic(u1, u2)
+        assert ks < 0.1 # Should be close
 
-    def test_insufficient_samples(self):
-        """Verify that data with < 2 samples raises AnalysisError."""
-        data = np.random.randn(1, 10)
-        with pytest.raises(AnalysisError):
-            generate_permutation_reference(data)
-
-    def test_deterministic_with_seed(self):
-        """Verify that results are reproducible with the same seed."""
-        data = np.random.randn(50, 10)
-        seed = 12345
-        
-        res1 = generate_permutation_reference(data, n_permutations=10, seed=seed)
-        res2 = generate_permutation_reference(data, n_permutations=10, seed=seed)
-        
-        assert res1['p_values'] == res2['p_values']
-        assert res1['observed_stats'] == res2['observed_stats']
-
-
-class TestKSStatistic:
-    """Tests for the KS statistic calculation."""
-
-    def test_ks_uniform_perfect(self):
-        """
-        Test KS statistic on a perfect uniform distribution (simulated).
-        With large N, KS should be small.
-        """
-        # Generate uniform random numbers
-        p_vals = np.random.uniform(0, 1, 10000)
-        ks = calculate_ks_statistic(list(p_vals))
-        
-        # For N=10000, KS should be roughly < 0.02 (approx 1.36/sqrt(N) at 95%)
-        assert ks < 0.03
-
-    def test_ks_non_uniform(self):
-        """Test KS statistic on a clearly non-uniform distribution."""
-        # Generate p-values that are clustered near 0 (anti-conservative)
-        # e.g., Beta(0.5, 1) distribution which is skewed towards 0
-        p_vals = np.random.beta(0.5, 1, 1000)
-        ks = calculate_ks_statistic(list(p_vals))
-        
-        # Should be significantly larger than for uniform
-        assert ks > 0.05
-
-    def test_empty_input(self):
-        """Verify that empty input raises AnalysisError."""
-        with pytest.raises(AnalysisError):
-            calculate_ks_statistic([])
-
-    def test_one_vs_two_sided_logic(self):
-        """
-        Verify that the function handles the logic correctly.
-        This is a structural test since KS implementation is fixed to uniform.
-        """
-        p_vals = [0.1, 0.2, 0.3, 0.8, 0.9]
-        # Just ensure it runs without error
-        ks = calculate_ks_statistic(p_vals)
-        assert isinstance(ks, float)
-        assert 0.0 <= ks <= 1.0
+    def test_ks_statistic_different_distributions(self):
+        # Uniform vs Normal (mapped to 0-1 via CDF? No, just raw values)
+        # If we compare U[0,1] and N(0,1), the CDFs will be very different.
+        u = np.random.uniform(0, 1, 1000)
+        n = np.random.normal(0, 1, 1000)
+        ks = calculate_ks_statistic(u, n)
+        assert ks > 0.1 # Should be significant

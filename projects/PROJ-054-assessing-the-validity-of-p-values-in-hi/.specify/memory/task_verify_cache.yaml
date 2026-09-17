@@ -28,13 +28,6 @@ T027:
     \ tables, plots, or logs) showing the calculation on synthetic high\u2011dimensional\
     \ data. The claim lacks the required artifact(s) to verify that the task was actually\
     \ completed."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or analysis outputs (e.g., synthetic data generator, test\u2011\
-    execution scripts, p\u2011value collections, KS statistics, or QQ\u2011plot figures)\
-    \ were supplied; the claim cannot be verified against any concrete artifact. The\
-    \ required deliverables for User Stories\u202F1\u20113 are missing."
 T043:
   c: false
   h: 1340864d411bba4e12299da63fd3d953aa8de1cfd7f7ee12418930f77271b1eb

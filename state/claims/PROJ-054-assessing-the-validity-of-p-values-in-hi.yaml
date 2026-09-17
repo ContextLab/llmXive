@@ -180,3 +180,363 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T01:50:12Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 288 unique parameter sets generated from Cartesian product of n, p, rho,
+    and distribution_type
+  claim_id: c_3aca87e4
+  context: "Implement parameter sweep logic in code/generate_data.py for n \u2208\
+    \ {50, 100, 200, 500}, p \u2208 {500, 1000, 2000, 5000}, \u03C1 \u2208 {0, 0.1,\
+    \ 0.3, 0.5, 0.7, 0.9}, AND distribution_type \u2208 {Normal, t-dist, Skewed Normal}.\
+    \ Logic: The system MUST iterate over the full Cartesian product of these four\
+    \ parameter sets to generate every combination (4 x 4 x 6 x 3 = 288 unique parameter\
+    \ sets)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system iterates over the full Cartesian product of four parameter
+    sets (4 x 4 x 6 x 3 = 288 unique parameter sets).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:35:19Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 1000 iterations per parameter set used as fixed design parameter
+  claim_id: c_18b5fad8
+  context: 'Iteration Count: Use 1000 iterations per parameter set as the fixed design
+    parameter (Plan Design Parameters).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 iterations are used per parameter set as the fixed design parameter.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:35:46Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 1000 iterations provides greater than 90% power to detect KS deviation
+    of 0.05
+  claim_id: c_84ec580f
+  context: 'Content: Must cite the Plan''s design parameter, reference the power analysis
+    utility from T011a, and state that 1000 iterations provides >90% power to detect
+    a KS deviation of 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/1000_iterations_provides_greater_than_90%25_power_to_detect_KS
+  kind: magnitude
+  raw_text: 1000 iterations provides >90% power to detect a KS deviation of 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:37:32Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Condition number threshold for high-dimensional instability is greater
+    than 10 to the power of 12
+  claim_id: c_aa1f3d03
+  context: Define error code ERR_HIGH_DIMENSIONAL_INSTABILITY in code/utils/exceptions.py
+    specifically for condition number > 10^12 (required by T010b).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Condition_number_threshold_for_high-dimensional_instability
+  kind: magnitude
+  raw_text: The condition number threshold for high-dimensional instability is > 10^12.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:38:01Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Regularization epsilon value is 10 to the power of negative 6
+  claim_id: c_ba6343a2
+  context: "Implement covariance regularization utility in code/utils/regularization.py\
+    \ (FR\u2011009: handle singular matrices, condition number > 10^12, apply \u03B5\
+    \ = 10\u207B\u2076 regularization OR raise ERR_HIGH_DIMENSIONAL_INSTABILITY; also\
+    \ detect p/n > 10 and raise the same error)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regularization epsilon value is 10^-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:38:35Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: p/n ratio greater than 10 triggers error
+  claim_id: c_f1df38ed
+  context: also detect p/n > 10 and raise the same error).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P/n_ratio_greater_than_10_triggers_error
+  kind: magnitude
+  raw_text: A p/n ratio greater than 10 triggers an error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:39:31Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Memory monitor logs warning if RSS greater than 6 GB
+  claim_id: c_fe28b63d
+  context: Implement a memory monitor in code/utils/simulation.py that logs a warning
+    if RSS > 6 GB and suggests an abort.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_monitor_logs_warning_if_RSS_greater_than_6_GB
+  kind: magnitude
+  raw_text: The memory monitor logs a warning if RSS > 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:40:38Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Power analysis utility calculates minimum iterations for statistical
+    power greater than or equal to 0.8 for detecting KS statistic deviation greater
+    than 0.05
+  claim_id: c_7b5a1132
+  context: "Implement power analysis utility function in code/utils/simulation.py\
+    \ to calculate the minimum simulation iteration count required to achieve statistical\
+    \ power \u2265 0.8 for detecting a KS statistic deviation > 0.05 (For reference\
+    \ only; not used for iteration count in this project)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_utility_calculates_minimum_iterations_for_sta
+  kind: magnitude
+  raw_text: "The power analysis utility calculates minimum iterations for statistical\
+    \ power \u2265 0.8 for detecting a KS statistic deviation > 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:41:16Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Test t_dist_df3 passes with KS distance less than 0.01
+  claim_id: c_3d88b7bb
+  context: "Unit test for distribution shape validation (t\u2011distribution, skewed\
+    \ normal) in tests/unit/test_data_gen.py (Verify test_t_dist_df3 passes with KS\
+    \ distance < 0.01)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_t_dist_df3_passes_with_KS_distance_less_than_0.01
+  kind: magnitude
+  raw_text: The test verifies test_t_dist_df3 passes with KS distance < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:41:41Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Default master seed is 42
+  claim_id: c_e63963c6
+  context: 'Algorithm: read master seed from data/sweep/master_seed.txt (create if
+    missing, default = 42);'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default master seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:42:12Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 10000 bootstrap resamples performed to compute KS statistic confidence
+    interval
+  claim_id: c_2c990275
+  context: 'Methodology: Perform 10,000 bootstrap resamples of the standard test p-values
+    (the observed data) to compute the confidence interval for the KS statistic against
+    the fixed permutation reference distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000 bootstrap resamples are performed to compute the confidence interval
+    for the KS statistic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:42:28Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Practical significance threshold for flagging high deviation is KS greater
+    than 0.05
+  claim_id: c_f129fb88
+  context: 'Logic: Read data/results/ks_stats.json. Flag rows where ks_stat > 0.05
+    (practical significance threshold) as high deviation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Practical_significance_threshold_for_flagging_high_deviation
+  kind: magnitude
+  raw_text: The practical significance threshold for flagging high deviation is KS
+    > 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:43:11Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Jagged line visualizer uses 100 bins to reveal jaggedness
+  claim_id: c_2bfe15b7
+  context: 'Requirement: The plot must use a large number of bins (e.g., 100) to reveal
+    the jaggedness and deviation from the theoretical uniform line, explicitly avoiding
+    smoothing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The jagged line visualizer uses 100 bins to reveal jaggedness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:43:41Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: standard t-test false positive rate 42.8% vs permutation 5.1% at rho
+    0.9 and p/n 100
+  claim_id: c_05a4b0e7
+  context: 'The Gap: The standard test yields a false positive rate of 42.8% (the
+    ritual), while the permutation test (ground truth) shows the true rate is 5.1%
+    (the understanding).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In this scenario, the standard test yields a false positive rate of 42.8%
+    (the ritual), while the permutation test (ground truth) shows the true rate is
+    5.1% (the understanding).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:45:52Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: correlation 0.9 drastically reduces effective sample size
+  claim_id: c_2b0ead3f
+  context: '1. Correlation Inflates Variance: With rho=0.9, the effective sample size
+    is drastically reduced.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With rho=0.9, the effective sample size is drastically reduced.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:46:19Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: monotonic increase in KS statistic across 288 parameter combinations
+    as rho and p/n increased
+  claim_id: c_ac5ffbbc
+  context: Across 288 parameter combinations (varying n, p, rho, and distribution
+    type), we observed a monotonic increase in the Kolmogorov-Smirnov (KS) statistic
+    as rho and p/n increased.
+  evidence:
+    error: 'MissingCredentialError: Receipt signing key not found. Set $LLMXIVE_RECEIPT_KEY
+      or add `llmxive_receipt_key = "..."` to /home/runner/.config/llmxive/credentials.toml.'
+  kind: result
+  raw_text: Across 288 parameter combinations (varying n, p, rho, and distribution
+    type), we observed a monotonic increase in the Kolmogorov-Smirnov (KS) statistic
+    as rho and p/n increased.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:46:19Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: KS statistics close to 0.01 at low correlation rho 0
+  claim_id: c_9351ed8e
+  context: 'Low Correlation (rho=0): KS statistics remained close to 0.01, indicating
+    the standard test is robust even at high p/n if features are independent.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Low Correlation (rho=0): KS statistics remained close to 0.01, indicating
+    the standard test is robust even at high p/n if features are independent.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:46:50Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: KS statistics exceeded 0.30 at high correlation rho 0.9 in highest p/n
+    regimes
+  claim_id: c_d04853c8
+  context: 'High Correlation (rho=0.9): KS statistics exceeded 0.30 in the highest
+    p/n regimes, indicating a severe deviation from uniformity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_statistics_exceeded_0.30_at_high_correlation_rho_0.9_in_h
+  kind: magnitude
+  raw_text: 'High Correlation (rho=0.9): KS statistics exceeded 0.30 in the highest
+    p/n regimes, indicating a severe deviation from uniformity.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:47:51Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: strong collinearity and high dimensionality fatal to standard parametric
+    assumptions
+  claim_id: c_bad821ca
+  context: In this scenario, the data exhibits strong collinearity and high dimensionality,
+    conditions that are increasingly common in genomics and financial data but are
+    fatal to standard parametric assumptions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strong_collinearity_and_high_dimensionality_fatal_to_standar
+  kind: entity_fact
+  raw_text: In this scenario, the data exhibits strong collinearity and high dimensionality,
+    conditions that are increasingly common in genomics and financial data but are
+    fatal to standard parametric assumptions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T14:48:24Z'
