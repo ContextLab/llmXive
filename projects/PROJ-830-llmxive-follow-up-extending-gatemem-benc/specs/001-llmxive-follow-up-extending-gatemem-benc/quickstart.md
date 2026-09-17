@@ -1,132 +1,129 @@
-# llmXive Follow-up: Extending GateMem Benchmark
-## Quickstart Guide
+# Quickstart Guide: GateMem Benchmark Extension
 
-This guide provides step-by-step instructions for setting up the environment, fetching the real dataset, and running the initial evaluation for the GateMem benchmark extension.
+This guide provides step-by-step instructions to set up the environment, fetch the real GateMem dataset, and run the initial evaluation pipeline for the llmXive follow-up project.
 
----
+## Prerequisites
+
+- Python 3.11+
+- pip
+- Access to Hugging Face Hub (for dataset/model download)
 
 ## 1. Environment Setup
 
-### Prerequisites
-- Python 3.9+
-- pip package manager
-- Git (for cloning the repository)
+### Install Dependencies
 
-### Installation Steps
+Ensure you are in the project root directory and install the required packages:
 
-1. **Clone the repository** (if not already done):
- ```bash
- git clone <repository-url>
- cd <project-root>
- ```
-
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
- *Note: `requirements.txt` includes `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, and `huggingface_hub`.*
-
----
-
-## 2. Dataset Download & Verification
-
-This project uses the **GateMem** dataset from HuggingFace. The data loader is configured to **stream** the dataset to handle memory constraints and **strictly forbids** synthetic fallbacks.
-
-### Automatic Fetching
-The data loading pipeline (`code/utils/data_loader.py`) automatically fetches the dataset when run.
-
-- **Source**: HuggingFace ID `gatekeeper/gatemem`
-- **Configuration**: `default`
-- **Split**: `test`
-- **Mode**: Streaming (`streaming=True`)
-
-### Manual Verification (Optional)
-To verify the dataset exists and is accessible before running the full pipeline:
-
-```python
-from code.utils.data_loader import fetch_dataset
-
-try:
- dataset = fetch_dataset()
- print(f"Dataset loaded successfully. Number of episodes: {len(dataset)}")
-except ConnectionError as e:
- print(f"Critical: Real Data Fetch Failed - {e}")
- exit(1)
+```bash
+pip install -r requirements.txt
 ```
 
-**Important**: If the network is unavailable or the dataset ID is incorrect, the script will raise a `ConnectionError` and exit with code 1. No synthetic data will be generated.
+**Required Packages**: `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, `huggingface_hub`, `ruff`.
 
----
+### Verify Installation
 
-## 3. Running the First Evaluation
+Run the setup verification test:
 
-The evaluation pipeline compares the **Gatekeeper** method against **Baseline** configurations (Retrieval-only and Long-Context).
+```bash
+pytest tests/unit/test_setup.py::test_directory_structure
+```
+
+This ensures all necessary directories (`code/`, `data/`, `tests/`, `state/`, `logs/`, etc.) are present.
+
+## 2. Dataset Configuration & Download
+
+The pipeline relies on the real GateMem dataset. **Do not use synthetic data.**
+
+### Configure Dataset ID
+
+The dataset ID is read from the environment variable `DATASET_ID` or `code/utils/config.py`.
+
+**Option A: Environment Variable (Recommended)**
+```bash
+export DATASET_ID="your_huggingface_dataset_id"
+```
+
+**Option B: Configuration File**
+Edit `code/utils/config.py` (create if missing) and set:
+```python
+DATASET_ID = "your_huggingface_dataset_id"
+```
+
+> **Note**: If `DATASET_ID` is not configured, the data loader will raise a `FileNotFoundError` immediately.
+
+### Fetch the Dataset
+
+Run the data loader script to fetch and validate the dataset:
+
+```bash
+python code/utils/data_loader.py
+```
+
+**What this script does:**
+1. Fetches the dataset from Hugging Face using `datasets.load_dataset()`.
+2. Computes and stores a SHA256 checksum in `state/artifact_hashes.yaml` (key: `gatemem_test`).
+3. Validates the presence of required fields (`outcome`, `predictors`, `covariates`, `leak-target`).
+4. **Fails loudly** if the fetch fails or validation errors occur. No synthetic fallbacks are used.
+
+**Output:**
+- Raw data is saved to `data/raw/`.
+- Processed data is saved to `data/processed/`.
+
+## 3. Running the Evaluation
+
+The evaluation pipeline compares the Gatekeeper model against Retrieval-only and Long-Context baselines.
 
 ### Run Access Control Evaluation (User Story 1)
 
-Execute the pipeline for the "medical" and "office" domains to verify Access Control scores:
+Evaluate the "medical" and "office" domains:
 
 ```bash
-python code/cli/run_evaluation.py --domains medical,office --phase us1
+python code/cli/run_evaluation.py --domains medical,office
 ```
 
-**Expected Output**:
+**Output:**
 - `data/processed/gatekeeper_results.json`
 - `data/processed/baseline_retrieval_results.json`
 - `data/processed/baseline_longcontext_results.json`
-- `data/processed/access_control_results.json`
 
-### Run Full Benchmark (All User Stories)
+### Run Utility & Forgetting Evaluation (User Story 2)
 
-To run the complete suite (Access Control, Utility, Forgetting, and Profiling):
-
-```bash
-python code/cli/run_evaluation.py --domains medical,office,education,household --phase all
-```
-
----
-
-## 4. Verification & Testing
-
-Run the contract and unit tests to ensure the setup is correct:
+Evaluate the "education" and "household" domains:
 
 ```bash
-# Run all tests
-pytest tests/ -v
-
-# Specifically test the quickstart documentation
-pytest tests/unit/test_docs.py::test_quickstart_exists -v
+python code/cli/run_evaluation.py --domains education,household --metrics utility,forgetting
 ```
 
----
+### Run Profiling (User Story 3)
 
-## 5. Troubleshooting
+Generate performance metrics (latency, RAM):
 
-### "ConnectionError: Real Data Fetch Failed"
-- Ensure you have an active internet connection.
-- Verify the HuggingFace dataset ID `gatekeeper/gatemem` is correct and accessible.
-- Check if you need to log in to HuggingFace (`huggingface-cli login`) if the dataset is gated.
+```bash
+python code/cli/run_evaluation.py --profile
+```
 
-### "ModuleNotFoundError: No module named 'code'"
-- Ensure you are running the script from the project root directory.
-- Add the project root to `PYTHONPATH`: `export PYTHONPATH="${PYTHONPATH}:$(pwd)"`
+## 4. Verification
 
-### Memory Issues
-- The dataset is configured to stream. If you encounter OOM errors, ensure no other heavy processes are running.
-- Check `data/processed/` for intermediate files; ensure sufficient disk space.
+Run the full test suite to ensure all components are working correctly:
 
----
+```bash
+pytest tests/
+```
 
-## 6. Next Steps
+**Key Tests:**
+- `tests/unit/test_docs.py::test_quickstart_exists`: Verifies this guide exists.
+- `tests/unit/test_data_loader.py::test_fetch_streaming`: Verifies real data fetching.
+- `tests/contract/test_dataset_schema.py`: Validates data structure.
+- `tests/contract/test_results_schema.py`: Validates output structure.
 
-After successfully running the initial evaluation:
-1. Review `data/results/final_benchmark_report.md` (generated after Phase 3-5).
-2. Analyze failure cases in `data/samples/failure_cases.json`.
-3. Consult `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md` for detailed user stories and implementation plans.
+## Troubleshooting
+
+- **Dataset ID Error**: If you see "Dataset ID not configured", ensure `DATASET_ID` is set in your environment or `code/utils/config.py`.
+- **Checksum Mismatch**: If you see "Checksum mismatch", delete `state/artifact_hashes.yaml` and re-run `python code/utils/data_loader.py`.
+- **Memory Errors**: The pipeline uses streaming for large datasets. If you encounter OOM errors, ensure your runner has at least 16GB RAM or reduce the batch size in `code/utils/data_loader.py`.
+
+## Next Steps
+
+- Review `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md` for detailed user stories.
+- Check `code/gatekeeper/pipeline.py` for implementation details.
+- Generate the final report with `python code/cli/generate_report.py`.

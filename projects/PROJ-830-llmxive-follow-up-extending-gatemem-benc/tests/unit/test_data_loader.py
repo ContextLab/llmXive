@@ -1,191 +1,238 @@
-import pytest
-import yaml
 import os
-import logging
+import json
+import yaml
+import pytest
 from pathlib import Path
-from code.utils.data_loader import validate_episode, load_schema, validate_checksum, STATE_PATH, SCHEMA_PATH
+import tempfile
+import shutil
+import hashlib
 
-# Setup logging for tests
-logging.basicConfig(level=logging.DEBUG)
+from code.utils.data_loader import (
+    validate_episode,
+    load_schema,
+    validate_checksum,
+    compute_file_hash,
+    compute_directory_hash,
+    ensure_dirs,
+    RAW_DATA_DIR,
+    STATE_DIR,
+    ARTIFACT_HASHES_FILE,
+    VALID_DOMAINS
+)
 
 @pytest.fixture
-def valid_schema():
-    # Create a temporary schema file if it doesn't exist or load existing
-    if not SCHEMA_PATH.exists():
-        # Create a minimal valid schema for testing
-        schema = {
-            "required": ["outcome", "predictors", "covariates", "leak-target"],
-            "properties": {
-                "outcome": {"type": "string"},
-                "predictors": {"type": "array"},
-                "covariates": {"type": "object"},
-                "leak-target": {"type": "string"},
-                "domains": {"type": "string"},
-                "roles": {"type": "array"}
-            }
-        }
-        os.makedirs(SCHEMA_PATH.parent, exist_ok=True)
-        with open(SCHEMA_PATH, 'w') as f:
-            yaml.dump(schema, f)
-    return load_schema()
+def setup_test_env():
+    """Create a temporary test environment."""
+    # Create temporary directories
+    test_raw_dir = Path(tempfile.mkdtemp()) / 'data' / 'raw'
+    test_state_dir = Path(tempfile.mkdtemp()) / 'state'
+    
+    # Override global paths for testing
+    global RAW_DATA_DIR, STATE_DIR, ARTIFACT_HASHES_FILE
+    original_raw = RAW_DATA_DIR
+    original_state = STATE_DIR
+    original_hash_file = ARTIFACT_HASHES_FILE
+    
+    RAW_DATA_DIR = test_raw_dir
+    STATE_DIR = test_state_dir
+    ARTIFACT_HASHES_FILE = test_state_dir / 'artifact_hashes.yaml'
+    
+    ensure_dirs()
+    
+    yield {
+        'raw_dir': test_raw_dir,
+        'state_dir': test_state_dir,
+        'hash_file': ARTIFACT_HASHES_FILE
+    }
+    
+    # Cleanup
+    RAW_DATA_DIR = original_raw
+    STATE_DIR = original_state
+    ARTIFACT_HASHES_FILE = original_hash_file
+    shutil.rmtree(test_raw_dir.parent)
+    shutil.rmtree(test_state_dir.parent)
 
 @pytest.fixture
 def valid_episode():
+    """Create a valid test episode."""
     return {
-        "outcome": "allowed",
-        "predictors": ["feature1"],
-        "covariates": {"key": "value"},
-        "leak-target": "sensitive_info",
-        "domains": ["medical"],
-        "roles": ["user"]
+        'leak-target': 'allowed',
+        'roles': ['doctor', 'nurse'],
+        'domains': ['medical'],
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5},
+        'covariates': {'age': 30}
     }
 
 @pytest.fixture
 def invalid_domain_episode():
+    """Create an episode with invalid domain."""
     return {
-        "outcome": "allowed",
-        "predictors": ["feature1"],
-        "covariates": {"key": "value"},
-        "leak-target": "sensitive_info",
-        "domains": ["invalid_domain"],
-        "roles": ["user"]
+        'leak-target': 'allowed',
+        'roles': ['doctor'],
+        'domains': ['invalid_domain'],
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5},
+        'covariates': {'age': 30}
+    }
+
+@pytest.fixture
+def invalid_role_episode():
+    """Create an episode with invalid role format."""
+    return {
+        'leak-target': 'allowed',
+        'roles': ['doctor@invalid'],
+        'domains': ['medical'],
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5},
+        'covariates': {'age': 30}
     }
 
 @pytest.fixture
 def missing_field_episode():
+    """Create an episode with missing required field."""
     return {
-        "outcome": "allowed",
-        "predictors": ["feature1"],
-        "covariates": {"key": "value"},
-        # missing leak-target
-        "domains": ["medical"],
-        "roles": ["user"]
+        'leak-target': 'allowed',
+        'roles': ['doctor'],
+        'domains': ['medical'],
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5}
+        # Missing 'covariates'
     }
 
-@pytest.fixture
-def checksum_file(tmp_path):
-    # Create a temporary state file with a valid checksum entry
-    state_file = tmp_path / "artifact_hashes.yaml"
-    state_file.write_text("gatemem_test: abc123def456\n")
-    return state_file
+def test_validate_episode_valid(setup_test_env, valid_episode):
+    """Test validation of a valid episode."""
+    schema = load_schema()
+    result = validate_episode(valid_episode, schema)
+    assert result is True
 
-def test_validate_episode_valid(valid_episode, valid_schema):
-    """Test that a valid episode passes validation."""
-    # Ensure state file exists for the test (mocking the checksum file)
-    # Since validate_checksum checks STATE_PATH, we need to mock or ensure it exists.
-    # We'll create a dummy state file for the test scope.
-    state_dir = Path("state")
-    state_dir.mkdir(exist_ok=True)
-    state_file = state_dir / "artifact_hashes.yaml"
-    original_content = None
-    if state_file.exists():
-        original_content = state_file.read_text()
-    
-    try:
-        state_file.write_text("gatemem_test: dummy_checksum\n")
-        result = validate_episode(valid_episode, valid_schema)
-        assert result is True
-    finally:
-        if original_content:
-            state_file.write_text(original_content)
-        else:
-            state_file.unlink(missing_ok=True)
+def test_validate_episode_invalid_domain(setup_test_env, invalid_domain_episode):
+    """Test validation rejects invalid domain."""
+    schema = load_schema()
+    result = validate_episode(invalid_domain_episode, schema)
+    assert result is False
 
-def test_validate_episode_invalid_domain(valid_schema):
-    """Test that an episode with invalid domain raises ValueError."""
-    state_dir = Path("state")
-    state_dir.mkdir(exist_ok=True)
-    state_file = state_dir / "artifact_hashes.yaml"
-    original_content = None
-    if state_file.exists():
-        original_content = state_file.read_text()
-    
-    try:
-        state_file.write_text("gatemem_test: dummy_checksum\n")
-        with pytest.raises(ValueError, match="Invalid domain"):
-            validate_episode({"domains": ["invalid_domain"], "outcome": "x", "predictors": [], "covariates": {}, "leak-target": "y"}, valid_schema)
-    finally:
-        if original_content:
-            state_file.write_text(original_content)
-        else:
-            state_file.unlink(missing_ok=True)
+def test_validate_episode_invalid_role(setup_test_env, invalid_role_episode):
+    """Test validation rejects invalid role format."""
+    schema = load_schema()
+    result = validate_episode(invalid_role_episode, schema)
+    assert result is False
 
-def test_validate_episode_missing_field(valid_schema):
-    """Test that an episode with missing required field raises ValueError."""
-    state_dir = Path("state")
-    state_dir.mkdir(exist_ok=True)
-    state_file = state_dir / "artifact_hashes.yaml"
-    original_content = None
-    if state_file.exists():
-        original_content = state_file.read_text()
-    
-    try:
-        state_file.write_text("gatemem_test: dummy_checksum\n")
-        with pytest.raises(ValueError, match="Missing required fields"):
-            validate_episode({"outcome": "x", "predictors": [], "covariates": {}}, valid_schema) # missing leak-target
-    finally:
-        if original_content:
-            state_file.write_text(original_content)
-        else:
-            state_file.unlink(missing_ok=True)
+def test_validate_episode_missing_field(setup_test_env, missing_field_episode):
+    """Test validation rejects missing required field."""
+    schema = load_schema()
+    result = validate_episode(missing_field_episode, schema)
+    assert result is False
 
-def test_validate_checksum_missing_file(caplog):
-    """Test that missing state file logs warning and returns True."""
-    # Temporarily rename the state file if it exists
-    state_file = Path("state/artifact_hashes.yaml")
-    backup = None
-    if state_file.exists():
-        backup = state_file.read_text()
-        state_file.unlink()
+def test_validate_checksum_first_run(setup_test_env):
+    """Test checksum validation on first run (no checksum file)."""
+    # Ensure no checksum file exists
+    if ARTIFACT_HASHES_FILE.exists():
+        ARTIFACT_HASHES_FILE.unlink()
     
-    try:
-        with caplog.at_level(logging.WARNING):
-            result = validate_checksum()
-            assert result is True
-            assert "First run detected" in caplog.text or "missing" in caplog.text
-    finally:
-        if backup:
-            state_file.write_text(backup)
+    # Should return True without raising
+    result = validate_checksum()
+    assert result is True
 
-def test_validate_checksum_mismatch(tmp_path, caplog):
-    """Test that checksum mismatch raises ValueError."""
-    # We cannot easily simulate a mismatch without a real file hash calculation,
-    # but we can test the logic if we mock the checksum calculation.
-    # For now, we test the happy path or missing key.
-    # The task requires raising on mismatch.
-    # Since we don't have the raw file to hash here, we assume the logic is correct
-    # based on the implementation. We test the missing key case.
-    state_dir = Path("state")
-    state_dir.mkdir(exist_ok=True)
-    state_file = state_dir / "artifact_hashes.yaml"
-    original_content = None
-    if state_file.exists():
-        original_content = state_file.read_text()
+def test_validate_checksum_mismatch(setup_test_env):
+    """Test checksum validation raises on mismatch."""
+    # Create a dummy file in raw data
+    dummy_file = RAW_DATA_DIR / 'dummy.jsonl'
+    dummy_file.write_text('{"test": 1}\n')
     
-    try:
-        state_file.write_text("other_key: value\n") # Missing gatemem_test
-        with caplog.at_level(logging.WARNING):
-            result = validate_checksum()
-            assert result is True
-            assert "missing" in caplog.text
-    finally:
-        if original_content:
-            state_file.write_text(original_content)
-        else:
-            state_file.unlink(missing_ok=True)
+    # Create checksum file with wrong hash
+    wrong_hash = "0" * 64
+    with open(ARTIFACT_HASHES_FILE, 'w') as f:
+        yaml.dump({'gatemem_test': wrong_hash}, f)
+    
+    # Should raise ValueError
+    with pytest.raises(ValueError, match="Checksum mismatch"):
+        validate_checksum()
 
-def test_validate_episode_missing_state_file(tmp_path, valid_episode, valid_schema):
-    """Test validation when state file is missing (should skip checksum check)."""
-    state_dir = Path("state")
-    if state_dir.exists():
-        # Backup or remove
-        for f in state_dir.glob("*"):
-            f.unlink()
+def test_validate_checksum_match(setup_test_env):
+    """Test checksum validation passes on match."""
+    # Create a dummy file in raw data
+    dummy_file = RAW_DATA_DIR / 'dummy.jsonl'
+    dummy_file.write_text('{"test": 1}\n')
     
-    try:
-        # Should not raise, should log warning
-        result = validate_episode(valid_episode, valid_schema)
-        assert result is True
-    finally:
-        # Restore state if needed for other tests
-        pass
+    # Compute correct hash
+    correct_hash = compute_directory_hash(RAW_DATA_DIR)
+    
+    # Create checksum file with correct hash
+    with open(ARTIFACT_HASHES_FILE, 'w') as f:
+        yaml.dump({'gatemem_test': correct_hash}, f)
+    
+    # Should return True
+    result = validate_checksum()
+    assert result is True
+
+def test_compute_file_hash(setup_test_env):
+    """Test file hash computation."""
+    test_file = RAW_DATA_DIR / 'test.txt'
+    content = "test content"
+    test_file.write_text(content)
+    
+    computed_hash = compute_file_hash(test_file)
+    
+    # Verify against hashlib
+    expected_hash = hashlib.sha256(content.encode()).hexdigest()
+    assert computed_hash == expected_hash
+
+def test_compute_directory_hash(setup_test_env):
+    """Test directory hash computation."""
+    file1 = RAW_DATA_DIR / 'file1.txt'
+    file2 = RAW_DATA_DIR / 'file2.txt'
+    
+    file1.write_text("content1")
+    file2.write_text("content2")
+    
+    dir_hash = compute_directory_hash(RAW_DATA_DIR)
+    
+    # Verify it's a valid SHA256 hash
+    assert len(dir_hash) == 64
+    assert all(c in '0123456789abcdef' for c in dir_hash)
+
+def test_validate_episode_multiple_domains(setup_test_env):
+    """Test validation with multiple domains."""
+    episode = {
+        'leak-target': 'allowed',
+        'roles': ['doctor'],
+        'domains': ['medical', 'office'],
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5},
+        'covariates': {'age': 30}
+    }
+    
+    schema = load_schema()
+    result = validate_episode(episode, schema)
+    assert result is True
+
+def test_validate_episode_single_domain_as_string(setup_test_env):
+    """Test validation with domain as string instead of list."""
+    episode = {
+        'leak-target': 'allowed',
+        'roles': ['doctor'],
+        'domains': 'medical',
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5},
+        'covariates': {'age': 30}
+    }
+    
+    schema = load_schema()
+    result = validate_episode(episode, schema)
+    assert result is True
+
+def test_validate_episode_single_role_as_string(setup_test_env):
+    """Test validation with role as string instead of list."""
+    episode = {
+        'leak-target': 'allowed',
+        'roles': 'doctor',
+        'domains': ['medical'],
+        'outcome': {'success': True},
+        'predictors': {'feature1': 0.5},
+        'covariates': {'age': 30}
+    }
+    
+    schema = load_schema()
+    result = validate_episode(episode, schema)
+    assert result is True

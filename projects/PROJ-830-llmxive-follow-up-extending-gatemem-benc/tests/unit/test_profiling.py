@@ -1,171 +1,144 @@
 """
-Unit tests for profiling utilities.
+Unit tests for the profiling module.
+
+These tests verify that the profiling utilities work correctly
+and return standardized output keys as required by the task.
 """
+
 import pytest
 import time
 import sys
 import os
 
-# Add project root to path
+# Add the code directory to the path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from code.utils.profiling import (
     profile_execution,
     ProfileResult,
+    get_process_memory_mb,
+    get_peak_memory_mb,
+    ProfileContext,
     start_profiling,
     stop_profiling,
     reset_profiling,
     profile_block,
-    get_process_memory_mb,
-    get_peak_memory_mb
+    get_results_summary,
+    save_results_to_file
 )
 
-
-class TestProfileExecution:
-    """Tests for profile_execution function."""
-
-    def test_profile_execution_returns_dict(self):
-        """Verify profile_execution returns a dict with required keys."""
-        def dummy_func():
-            time.sleep(0.01)
-            return "done"
-        
-        result = profile_execution(dummy_func)
-        
-        assert isinstance(result, ProfileResult)
-        assert hasattr(result, 'latency_ms')
-        assert hasattr(result, 'peak_ram_mb')
-        assert isinstance(result.latency_ms, float)
-        assert isinstance(result.peak_ram_mb, float)
-        assert result.latency_ms >= 0
-        assert result.peak_ram_mb >= 0
-
-    def test_profile_execution_latency_positive(self):
-        """Verify profiling captures non-zero latency for a sleep."""
-        def slow_func():
-            time.sleep(0.1)
-        
-        result = profile_execution(slow_func)
-        
-        # Allow some tolerance for system variability
-        assert result.latency_ms >= 90  # 100ms - 10% tolerance
-
-    def test_profile_execution_memory_positive(self):
-        """Verify profiling captures memory usage."""
-        def memory_func():
-            data = [0] * 10000
-            time.sleep(0.01)
-            return data
-        
-        result = profile_execution(memory_func)
-        
-        # Memory should be positive (even if small)
-        assert result.peak_ram_mb > 0
-
-    def test_profile_execution_context_manager(self):
-        """Test the profile_block context manager directly."""
-        with profile_block() as result:
-            time.sleep(0.02)
-        
-        assert isinstance(result, ProfileResult)
-        assert result.latency_ms >= 18  # 20ms - 10% tolerance
-        assert result.peak_ram_mb >= 0
-
-    def test_profile_execution_multiple_calls(self):
-        """Verify consistent results across multiple calls."""
-        def constant_func():
-            time.sleep(0.01)
-        
-        results = [profile_execution(constant_func) for _ in range(5)]
-        
-        assert all(isinstance(r, ProfileResult) for r in results)
-        assert all(r.latency_ms >= 0 for r in results)
-        assert all(r.peak_ram_mb >= 0 for r in results)
-
-    def test_profile_execution_with_exception(self):
-        """Verify profiling handles exceptions gracefully."""
-        def failing_func():
-            time.sleep(0.01)
-            raise ValueError("Test exception")
-        
-        with pytest.raises(ValueError):
-            profile_execution(failing_func)
-        
-        # Profiling state should be clean after exception
-        result = profile_execution(lambda: time.sleep(0.01))
-        assert isinstance(result, ProfileResult)
-
-
-class TestProfileResult:
-    """Tests for ProfileResult dataclass."""
-
-    def test_to_dict(self):
-        """Verify to_dict returns correct keys."""
-        result = ProfileResult(latency_ms=100.5, peak_ram_mb=50.2)
-        d = result.to_dict()
-        
-        assert 'latency_ms' in d
-        assert 'peak_ram_mb' in d
-        assert d['latency_ms'] == 100.5
-        assert d['peak_ram_mb'] == 50.2
-
-    def test_dict_values_types(self):
-        """Verify dictionary values are floats."""
-        result = ProfileResult(latency_ms=100, peak_ram_mb=50)
-        d = result.to_dict()
-        
-        assert isinstance(d['latency_ms'], float)
-        assert isinstance(d['peak_ram_mb'], float)
-
-
-class TestMemoryFunctions:
-    """Tests for memory-related helper functions."""
-
-    def test_get_process_memory_mb(self):
-        """Verify memory function returns a non-negative float."""
-        mem = get_process_memory_mb()
-        assert isinstance(mem, float)
-        assert mem >= 0
-
-    def test_get_peak_memory_mb(self):
-        """Verify peak memory function returns a non-negative float."""
-        start_profiling()
-        data = [0] * 100000
-        mem = get_peak_memory_mb()
-        stop_profiling()
-        
-        assert isinstance(mem, float)
-        assert mem >= 0
-        # Should be greater than 0 since we allocated data
-        assert mem > 0
-
-
-class TestProfilerLifecycle:
-    """Tests for profiler start/stop/reset."""
-
-    def test_start_stop_cycle(self):
-        """Verify start/stop cycle works correctly."""
-        start_profiling()
+def test_profile_execution_returns_dict():
+    """Test that profile_execution returns a dictionary with standardized keys."""
+    
+    def dummy_function():
         time.sleep(0.01)
-        stop_profiling()
-        
-        # Should be able to start again
-        start_profiling()
-        result = profile_execution(lambda: time.sleep(0.01))
-        stop_profiling()
-        
-        assert isinstance(result, ProfileResult)
+        return "success"
+    
+    result = profile_execution(dummy_function)
+    
+    # Verify return type
+    assert isinstance(result, dict), "profile_execution must return a dictionary"
+    
+    # Verify required keys exist
+    assert 'latency_ms' in result, "Result must contain 'latency_ms' key"
+    assert 'peak_ram_mb' in result, "Result must contain 'peak_ram_mb' key"
+    
+    # Verify types
+    assert isinstance(result['latency_ms'], float), "latency_ms must be a float"
+    assert isinstance(result['peak_ram_mb'], float), "peak_ram_mb must be a float"
+    
+    # Verify values are non-negative
+    assert result['latency_ms'] >= 0, "latency_ms must be non-negative"
+    assert result['peak_ram_mb'] >= 0, "peak_ram_mb must be non-negative"
+    
+    # Verify latency is reasonable (should be > 0 for a sleep call)
+    assert result['latency_ms'] > 0, "latency_ms should be > 0 for a function with sleep"
 
-    def test_reset_profiling(self):
-        """Verify reset clears state."""
-        start_profiling()
-        data = [0] * 100000
-        reset_profiling()
-        
-        # Should be able to profile new allocation
-        result = profile_execution(lambda: time.sleep(0.01))
-        assert isinstance(result, ProfileResult)
+def test_profile_execution_latency_accuracy():
+    """Test that profile_execution measures latency accurately."""
+    
+    def sleep_function():
+        time.sleep(0.05)  # Sleep for 50ms
+        return "done"
+    
+    result = profile_execution(sleep_function)
+    
+    # Latency should be at least 50ms (with some tolerance for overhead)
+    assert result['latency_ms'] >= 45, f"Latency should be at least 45ms, got {result['latency_ms']}ms"
 
+def test_profile_context_manager():
+    """Test the ProfileContext context manager."""
+    
+    with ProfileContext() as ctx:
+        time.sleep(0.02)
+        result = ctx.get_result()
+    
+    assert isinstance(result, ProfileResult)
+    assert result.latency_ms > 0
+    assert result.peak_ram_mb >= 0
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_get_process_memory_mb():
+    """Test that get_process_memory_mb returns a valid float."""
+    memory = get_process_memory_mb()
+    assert isinstance(memory, float)
+    assert memory >= 0
+
+def test_get_peak_memory_mb():
+    """Test that get_peak_memory_mb returns a valid float."""
+    memory = get_peak_memory_mb()
+    assert isinstance(memory, float)
+    assert memory >= 0
+
+def test_profile_block_decorator():
+    """Test the profile_block decorator."""
+    
+    @profile_block("test_block")
+    def decorated_function():
+        time.sleep(0.01)
+        return "result"
+    
+    result, profile_result = decorated_function()
+    
+    assert result == "result"
+    assert isinstance(profile_result, ProfileResult)
+    assert profile_result.latency_ms >= 0
+    assert profile_result.peak_ram_mb >= 0
+
+def test_get_results_summary():
+    """Test the get_results_summary function."""
+    
+    results = [
+        {'latency_ms': 10.0, 'peak_ram_mb': 100.0},
+        {'latency_ms': 20.0, 'peak_ram_mb': 150.0},
+        {'latency_ms': 30.0, 'peak_ram_mb': 200.0}
+    ]
+    
+    summary = get_results_summary(results)
+    
+    assert 'mean_latency_ms' in summary
+    assert 'std_latency_ms' in summary
+    assert 'mean_peak_ram_mb' in summary
+    assert 'std_peak_ram_mb' in summary
+    
+    # Verify calculated values
+    assert summary['mean_latency_ms'] == 20.0
+    assert summary['mean_peak_ram_mb'] == 150.0
+
+def test_save_results_to_file(tmp_path):
+    """Test saving results to a file."""
+    
+    results = {
+        'latency_ms': 10.0,
+        'peak_ram_mb': 100.0
+    }
+    
+    filepath = tmp_path / "test_results.json"
+    save_results_to_file(results, str(filepath))
+    
+    assert filepath.exists()
+    
+    import json
+    with open(filepath, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded == results

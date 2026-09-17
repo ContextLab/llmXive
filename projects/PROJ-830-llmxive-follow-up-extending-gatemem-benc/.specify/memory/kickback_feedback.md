@@ -4,9 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T037a` (rejected 1x): declared artifact(s) missing/empty/invalid: tests/unit/test_docs.py
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/profiling.py
-- `T015a` (rejected 1x): The required file `src/gatekeeper/rules.py` does not exist in the repository, so the core artifact—a regex‑based rule engine for role validation and deletion‑log checking—is missing. Without this file, the task’s specification is not satisfied.
+- `T008a` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- `T008b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- `T015b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/gatekeeper/rules.py
+- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: src/gatekeeper/metrics.py
+- `T020` (rejected 1x): No code, configuration, or test artifacts showing the added validation‑error logging, exclusion logic, or model‑load retry handling are present. The implementer provided no files or diff that demonstrate the required error‑handling changes, so the task’s requirement cannot be verified as satisfied.
+- `T012` (rejected 1x): The required artifact `data/processed/access_control_results.json` does not exist, and the schema file `results.schema.yaml` (or `schema.yaml`) is also missing, so there is no content to verify against the schema. Without these files, the contract test cannot be performed.
 
 ## Required change
 
