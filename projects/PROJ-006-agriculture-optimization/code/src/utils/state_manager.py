@@ -3,241 +3,202 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 import yaml
 
-from src.utils.io_helpers import setup_logging
+logger = logging.getLogger(__name__)
 
-logger = setup_logging("state_manager")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-006-agriculture-optimization.yaml"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 
-def compute_file_hash(file_path: Path) -> Optional[str]:
-    """
-    Compute SHA-256 hash of a file.
-
-    Args:
-        file_path: Path to the file.
-
-    Returns:
-        Hex digest of the file hash, or None if file does not exist.
-    """
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     if not file_path.exists():
-        logger.warning(f"File not found for hashing: {file_path}")
-        return None
+        raise FileNotFoundError(f"File not found: {file_path}")
 
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Error computing hash for {file_path}: {e}")
-        return None
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 
-def scan_directory_for_artifacts(directory: Path) -> Dict[str, str]:
-    """
-    Scan a directory for files and return a mapping of relative paths to hashes.
-
-    Args:
-        directory: Root directory to scan.
-
-    Returns:
-        Dictionary mapping relative file paths (str) to their SHA-256 hashes (str).
-    """
-    artifacts = {}
+def scan_directory_for_artifacts(directory: Path) -> List[Path]:
+    """Scan a directory recursively for all files."""
     if not directory.exists():
         logger.warning(f"Directory does not exist: {directory}")
-        return artifacts
-
-    for root, _, files in os.walk(directory):
-        for file in files:
-            file_path = Path(root) / file
-            rel_path = file_path.relative_to(directory)
-            file_hash = compute_file_hash(file_path)
-            if file_hash:
-                artifacts[str(rel_path)] = file_hash
-
-    return artifacts
+        return []
+    return list(directory.rglob("*"))
 
 
-def load_state(state_path: Path) -> Dict[str, Any]:
-    """
-    Load the state YAML file.
-
-    Args:
-        state_path: Path to the state YAML file.
-
-    Returns:
-        The state dictionary, or an empty dict if the file does not exist.
-    """
-    if not state_path.exists():
-        logger.info(f"State file not found, initializing new state: {state_path}")
+def load_state() -> Dict[str, Any]:
+    """Load the state file or return an empty structure if missing."""
+    if not STATE_FILE.exists():
+        logger.warning(f"State file not found: {STATE_FILE}. Initializing empty state.")
         return {
-            "project_id": state_path.parent.name,
+            "project_id": "PROJ-006-agriculture-optimization",
             "artifact_hashes": {
-                "data_raw": {},
-                "data_processed": {}
-            },
-            "last_updated": None
+                "data/raw": {},
+                "data/processed": {}
+            }
         }
 
     try:
-        with open(state_path, "r") as f:
-            state = yaml.safe_load(f)
-            if state is None:
-                state = {
-                    "project_id": state_path.parent.name,
-                    "artifact_hashes": {
-                        "data_raw": {},
-                        "data_processed": {}
-                    },
-                    "last_updated": None
-                }
-            return state
+        with open(STATE_FILE, "r") as f:
+            return yaml.safe_load(f)
     except Exception as e:
-        logger.error(f"Error loading state file {state_path}: {e}")
+        logger.error(f"Failed to load state file: {e}")
         return {
-            "project_id": state_path.parent.name,
+            "project_id": "PROJ-006-agriculture-optimization",
             "artifact_hashes": {
-                "data_raw": {},
-                "data_processed": {}
-            },
-            "last_updated": None
+                "data/raw": {},
+                "data/processed": {}
+            }
         }
 
 
-def save_state(state: Dict[str, Any], state_path: Path) -> None:
-    """
-    Save the state dictionary to a YAML file.
-
-    Args:
-        state: The state dictionary.
-        state_path: Path to save the YAML file.
-    """
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with open(state_path, "w") as f:
-            yaml.dump(state, f, default_flow_style=False)
-        logger.info(f"State saved to {state_path}")
-    except Exception as e:
-        logger.error(f"Error saving state file {state_path}: {e}")
-        raise
+def save_state(state: Dict[str, Any]) -> None:
+    """Save the state dictionary to the state file."""
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(STATE_FILE, "w") as f:
+        yaml.safe_dump(state, f, default_flow_style=False)
+    logger.info(f"State saved to {STATE_FILE}")
 
 
-def update_artifact_hashes(state: Dict[str, Any], project_root: Path) -> Dict[str, Any]:
-    """
-    Update artifact hashes in the state dictionary for data/raw and data/processed.
+def update_artifact_hashes() -> None:
+    """Scan data directories, compute hashes, and update the state file."""
+    state = load_state()
 
-    Args:
-        state: The current state dictionary.
-        project_root: Root path of the project.
+    # Ensure structure exists
+    if "artifact_hashes" not in state:
+        state["artifact_hashes"] = {"data/raw": {}, "data/processed": {}}
 
-    Returns:
-        Updated state dictionary.
-    """
-    import datetime
+    raw_hashes = {}
+    processed_hashes = {}
 
-    data_raw_path = project_root / "data" / "raw"
-    data_processed_path = project_root / "data" / "processed"
-
-    raw_hashes = scan_directory_for_artifacts(data_raw_path)
-    processed_hashes = scan_directory_for_artifacts(data_processed_path)
-
-    if not raw_hashes:
-        logger.info("No data to hash in data/raw")
-    if not processed_hashes:
-        logger.info("No data to hash in data/processed")
-
-    state["artifact_hashes"]["data_raw"] = raw_hashes
-    state["artifact_hashes"]["data_processed"] = processed_hashes
-    state["last_updated"] = datetime.datetime.now().isoformat()
-
-    return state
-
-
-def verify_artifacts(state: Dict[str, Any], project_root: Path) -> bool:
-    """
-    Verify that artifacts in the state still exist and match their hashes.
-
-    Args:
-        state: The state dictionary containing hashes.
-        project_root: Root path of the project.
-
-    Returns:
-        True if all artifacts match, False otherwise.
-    """
-    data_raw_path = project_root / "data" / "raw"
-    data_processed_path = project_root / "data" / "processed"
-
-    all_valid = True
-
-    for rel_path, stored_hash in state["artifact_hashes"]["data_raw"].items():
-        file_path = data_raw_path / rel_path
-        if not file_path.exists():
-            logger.warning(f"Artifact missing: {file_path}")
-            all_valid = False
-            continue
-        current_hash = compute_file_hash(file_path)
-        if current_hash != stored_hash:
-            logger.warning(f"Hash mismatch for {file_path}")
-            all_valid = False
-
-    for rel_path, stored_hash in state["artifact_hashes"]["data_processed"].items():
-        file_path = data_processed_path / rel_path
-        if not file_path.exists():
-            logger.warning(f"Artifact missing: {file_path}")
-            all_valid = False
-            continue
-        current_hash = compute_file_hash(file_path)
-        if current_hash != stored_hash:
-            logger.warning(f"Hash mismatch for {file_path}")
-            all_valid = False
-
-    return all_valid
-
-
-def main() -> None:
-    """
-    Main entry point for the state manager script.
-    Performs a dry-run hash calculation on a dummy file to verify the update mechanism.
-    """
-    project_root = Path(__file__).resolve().parents[3]
-    state_path = project_root / "state" / "projects" / "PROJ-006-agriculture-optimization.yaml"
-
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"State path: {state_path}")
-
-    # Ensure state file exists
-    state = load_state(state_path)
-
-    # Update hashes
-    state = update_artifact_hashes(state, project_root)
-
-    # Save updated state
-    save_state(state, state_path)
-
-    # Verify artifacts
-    is_valid = verify_artifacts(state, project_root)
-    if is_valid:
-        logger.info("Artifact verification passed.")
+    # Scan data/raw
+    if DATA_RAW_DIR.exists():
+        files = [f for f in DATA_RAW_DIR.rglob("*") if f.is_file()]
+        if not files:
+            logger.info("No data to hash in data/raw")
+        else:
+            for file_path in files:
+                try:
+                    rel_path = str(file_path.relative_to(DATA_RAW_DIR))
+                    file_hash = compute_file_hash(file_path)
+                    raw_hashes[rel_path] = file_hash
+                except Exception as e:
+                    logger.error(f"Error hashing {file_path}: {e}")
     else:
-        logger.warning("Artifact verification failed.")
+        logger.info("data/raw directory does not exist")
 
-    # Create dummy file for dry-run verification if it doesn't exist
-    dummy_file = project_root / "data" / "raw" / "dummy.txt"
-    if not dummy_file.exists():
-        dummy_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(dummy_file, "w") as f:
+    # Scan data/processed
+    if DATA_PROCESSED_DIR.exists():
+        files = [f for f in DATA_PROCESSED_DIR.rglob("*") if f.is_file()]
+        if not files:
+            logger.info("No data to hash in data/processed")
+        else:
+            for file_path in files:
+                try:
+                    rel_path = str(file_path.relative_to(DATA_PROCESSED_DIR))
+                    file_hash = compute_file_hash(file_path)
+                    processed_hashes[rel_path] = file_hash
+                except Exception as e:
+                    logger.error(f"Error hashing {file_path}: {e}")
+    else:
+        logger.info("data/processed directory does not exist")
+
+    state["artifact_hashes"]["data/raw"] = raw_hashes
+    state["artifact_hashes"]["data/processed"] = processed_hashes
+
+    save_state(state)
+
+
+def verify_artifacts() -> bool:
+    """Verify that current file hashes match the stored state."""
+    state = load_state()
+    current_hashes = {"data/raw": {}, "data/processed": {}}
+
+    # Re-scan and hash
+    if DATA_RAW_DIR.exists():
+        for file_path in DATA_RAW_DIR.rglob("*"):
+            if file_path.is_file():
+                rel_path = str(file_path.relative_to(DATA_RAW_DIR))
+                current_hashes["data/raw"][rel_path] = compute_file_hash(file_path)
+
+    if DATA_PROCESSED_DIR.exists():
+        for file_path in DATA_PROCESSED_DIR.rglob("*"):
+            if file_path.is_file():
+                rel_path = str(file_path.relative_to(DATA_PROCESSED_DIR))
+                current_hashes["data/processed"][rel_path] = compute_file_hash(file_path)
+
+    # Compare
+    stored_raw = state.get("artifact_hashes", {}).get("data/raw", {})
+    stored_processed = state.get("artifact_hashes", {}).get("data/processed", {})
+
+    if current_hashes["data/raw"] != stored_raw:
+        logger.warning("Hash mismatch in data/raw")
+        return False
+
+    if current_hashes["data/processed"] != stored_processed:
+        logger.warning("Hash mismatch in data/processed")
+        return False
+
+    logger.info("All artifacts verified successfully.")
+    return True
+
+
+def main() -> int:
+    """CLI entry point for state manager."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Manage project state and artifact hashes.")
+    parser.add_argument(
+        "--action",
+        choices=["update", "verify", "dry-run"],
+        default="update",
+        help="Action to perform: update hashes, verify existing, or dry-run"
+    )
+    parser.add_argument(
+        "--create-dummy",
+        action="store_true",
+        help="Create a dummy file in data/raw for testing"
+    )
+
+    args = parser.parse_args()
+
+    if args.create_dummy:
+        dummy_path = DATA_RAW_DIR / "dummy.txt"
+        dummy_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(dummy_path, "w") as f:
             f.write("Dummy file for state manager verification.")
-        logger.info(f"Created dummy file: {dummy_file}")
+        logger.info(f"Created dummy file: {dummy_path}")
 
-    # Re-scan to include dummy file
-    state = update_artifact_hashes(state, project_root)
-    save_state(state, state_path)
+    if args.action == "update":
+        update_artifact_hashes()
+    elif args.action == "verify":
+        if not verify_artifacts():
+            return 1
+    elif args.action == "dry-run":
+        # Just scan and log without saving
+        logger.info("Dry-run: Scanning directories...")
+        raw_files = scan_directory_for_artifacts(DATA_RAW_DIR)
+        processed_files = scan_directory_for_artifacts(DATA_PROCESSED_DIR)
+        logger.info(f"Found {len(raw_files)} files in data/raw")
+        logger.info(f"Found {len(processed_files)} files in data/processed")
 
-    logger.info("State manager dry-run completed successfully.")
+        # Compute hashes for logging
+        for f in raw_files[:5]:  # Log first 5
+            logger.info(f"  {f.name}: {compute_file_hash(f)[:16]}...")
+        for f in processed_files[:5]:
+            logger.info(f"  {f.name}: {compute_file_hash(f)[:16]}...")
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level=logging.INFO)
+    exit(main())

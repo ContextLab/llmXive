@@ -20,7 +20,8 @@ def test_required_directories_exist():
         'data/logs',
         'reports',
         'state',
-        'state/projects'
+        'state/projects',
+        'docs'
     ]
     for dir_path in required_dirs:
         full_path = root / dir_path

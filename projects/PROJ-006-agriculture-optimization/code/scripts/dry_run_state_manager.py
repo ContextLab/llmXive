@@ -7,63 +7,54 @@ import hashlib
 
 def main():
     """
-    Dry-run hash calculation on a dummy file to confirm the update mechanism works.
+    Dry-run verification of the state manager.
+    Creates a dummy file, updates state, and verifies the hash mechanism.
     """
-    # Create a temporary directory structure mimicking data/raw and data/processed
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        raw_dir = tmp_path / "data" / "raw"
-        proc_dir = tmp_path / "data" / "processed"
-        state_file = tmp_path / "state.yaml"
+    # Ensure project root is in path
+    project_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(project_root))
 
-        raw_dir.mkdir(parents=True)
-        proc_dir.mkdir(parents=True)
+    # Import constants relative to project
+    data_raw_dir = project_root / "data" / "raw"
+    state_file = project_root / "state" / "projects" / "PROJ-006-agriculture-optimization.yaml"
 
-        # Create a dummy file
-        dummy_file = raw_dir / "dummy.txt"
-        dummy_content = "dry_run_test_content"
-        dummy_file.write_text(dummy_content)
+    # Create dummy file if it doesn't exist
+    dummy_file = data_raw_dir / "dummy.txt"
+    if not dummy_file.exists():
+        data_raw_dir.mkdir(parents=True, exist_ok=True)
+        with open(dummy_file, "w") as f:
+            f.write("Dummy content for state manager verification.")
+        print(f"Created dummy file: {dummy_file}")
 
-        # Monkeypatch paths for the test
-        original_raw = state_manager.DATA_RAW_PATH
-        original_proc = state_manager.DATA_PROCESSED_PATH
-        original_state = state_manager.PROJECT_STATE_PATH
+    # Compute hash manually to verify
+    sha256_hash = hashlib.sha256()
+    with open(dummy_file, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    expected_hash = sha256_hash.hexdigest()
 
-        state_manager.DATA_RAW_PATH = raw_dir
-        state_manager.DATA_PROCESSED_PATH = proc_dir
-        state_manager.PROJECT_STATE_PATH = state_file
+    # Run state manager update
+    print("Updating state manager...")
+    state_manager.update_artifact_hashes()
 
-        try:
-            # Run update
-            project_id = "PROJ-006-agriculture-optimization"
-            print(f"Running dry-run update for project: {project_id}")
-            result = state_manager.update_artifact_hashes(project_id)
-
-            print(f"Updated state: {result}")
-
-            # Verify the state file was created and contains the hash
-            if state_file.exists():
-                print(f"State file created at: {state_file}")
-                with open(state_file, "r") as f:
-                    content = f.read()
-                    print(f"State file contents:\n{content}")
-
-                # Verify the hash matches
-                expected_hash = hashlib.sha256(dummy_content.encode()).hexdigest()
-                if result["data_raw"].get("dummy.txt") == expected_hash:
-                    print("SUCCESS: Hash calculation and state update verified.")
-                else:
-                    print("FAILURE: Hash mismatch detected.")
-                    sys.exit(1)
-            else:
-                print("FAILURE: State file was not created.")
-                sys.exit(1)
-
-        finally:
-            # Restore original paths
-            state_manager.DATA_RAW_PATH = original_raw
-            state_manager.DATA_PROCESSED_PATH = original_proc
-            state_manager.PROJECT_STATE_PATH = original_state
+    # Load state and verify
+    state = state_manager.load_state()
+    if "artifact_hashes" in state and "data/raw" in state["artifact_hashes"]:
+        raw_hashes = state["artifact_hashes"]["data/raw"]
+        if "dummy.txt" in raw_hashes:
+          stored_hash = raw_hashes["dummy.txt"]
+          if stored_hash == expected_hash:
+              print("SUCCESS: Hash matches expected value.")
+              return 0
+          else:
+              print(f"FAILURE: Hash mismatch. Expected {expected_hash}, got {stored_hash}")
+              return 1
+        else:
+            print("FAILURE: dummy.txt not found in state hashes.")
+            return 1
+    else:
+        print("FAILURE: State structure invalid.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

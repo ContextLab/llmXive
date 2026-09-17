@@ -1,199 +1,255 @@
 """
-CLI tool to validate data artifacts against schema contracts.
-Supports dataset, regression, and sensitivity schemas.
+CLI tool to enforce schema contracts on ingestion.
+
+Validates CSV or JSON artifacts against their respective YAML schema contracts.
+Supports dataset, regression, and sensitivity schema types.
 """
 import argparse
+import json
 import logging
 import sys
-import json
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 import pandas as pd
 import yaml
 
-# Import local utilities
-from src.utils.io_helpers import setup_logging, load_yaml, read_csv_strict
-from src.config.schemas import (
-    validate_dataset_schema,
-    validate_regression_output,
-    AnalysisDatasetRecord,
-    RegressionOutput
-)
+# Import logging helper from the project's utility module
+from src.utils.io_helpers import setup_logging
 
 logger = setup_logging("validate")
 
+
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load a YAML schema file."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+
 def validate_csv_artifact(
     file_path: Path,
+    schema_path: Path,
     schema_type: str,
-    schema_path: Optional[Path] = None,
-    no_strict: bool = False
+    strict: bool = True
 ) -> bool:
     """
-    Validate a CSV artifact against the specified schema.
-
+    Validate a CSV artifact against a dataset schema.
+    
     Args:
-        file_path: Path to the CSV file.
-        schema_type: One of 'dataset', 'regression', 'sensitivity'.
-        schema_path: Optional explicit path to a YAML schema file.
-        no_strict: If True, allow missing optional columns (not implemented for core types).
-
+        file_path: Path to the CSV file to validate.
+        schema_path: Path to the YAML schema definition.
+        schema_type: Type of schema ('dataset', 'regression', 'sensitivity').
+        strict: If True, fail on missing columns or type mismatches.
+        
     Returns:
         True if validation passes, False otherwise.
     """
+    if schema_type not in ['dataset', 'sensitivity']:
+        logger.error(f"Invalid schema_type for CSV: {schema_type}")
+        return False
+
+    logger.info(f"Validating CSV: {file_path} against schema: {schema_path}")
+    
     if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
+        logger.error(f"Input file not found: {file_path}")
         return False
 
     try:
-        if schema_type == "dataset":
-            # Load CSV and validate against Pydantic model
-            df = pd.read_csv(file_path)
-            
-            # Validate row by row or bulk if possible
-            # For large files, we might sample, but for validation we check all if feasible
-            # Using Pydantic's model_validate on dict records
-            errors = []
-            for idx, row in df.iterrows():
-                try:
-                    record = AnalysisDatasetRecord(**row.to_dict())
-                except Exception as e:
-                    errors.append(f"Row {idx}: {str(e)}")
-                    if len(errors) > 5:
-                        break
-            
-            if errors:
-                logger.error(f"Validation failed for {file_path} ({len(errors)} errors):")
-                for err in errors[:5]:
-                    logger.error(f"  - {err}")
-                return False
-            
-            logger.info(f"Dataset validation passed for {file_path} ({len(df)} rows)")
-            return True
-
-        elif schema_type == "regression":
-            # Regression output is JSON, but if CSV is passed, treat as error or specific format
-            # The task description implies validating the CSV dataset, but schema_type allows regression.
-            # If a CSV is passed for regression, it's likely a mismatch unless a specific CSV schema exists.
-            # Assuming JSON for regression based on T025 output.
-            logger.error(f"Regression validation expects JSON, received CSV: {file_path}")
-            return False
-
-        elif schema_type == "sensitivity":
-            # Sensitivity results are CSV with specific columns
-            df = pd.read_csv(file_path)
-            required_cols = ["threshold", "model", "coefficient", "p_value", "std_err"]
-            missing = [c for c in required_cols if c not in df.columns]
-            if missing:
-                logger.error(f"Sensitivity CSV missing columns: {missing}")
-                return False
-            logger.info(f"Sensitivity validation passed for {file_path}")
-            return True
-
-        else:
-            logger.error(f"Unknown schema type: {schema_type}")
-            return False
-
+        schema = load_schema(schema_path)
     except Exception as e:
-        logger.error(f"Error validating {file_path}: {str(e)}")
+        logger.error(f"Failed to load schema: {e}")
         return False
+
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        logger.error(f"Failed to read CSV: {e}")
+        return False
+
+    # Dataset schema validation logic
+    if schema_type == 'dataset':
+        required_columns = schema.get('required_columns', [])
+        column_types = schema.get('column_types', {})
+        
+        # Check columns
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            msg = f"Missing required columns: {missing_cols}"
+            if strict:
+                logger.error(msg)
+                return False
+            else:
+                logger.warning(msg)
+        
+        # Check types (basic check)
+        for col, expected_type in column_types.items():
+            if col in df.columns:
+                actual_type = str(df[col].dtype)
+                # Simple mapping check
+                type_map = {
+                    'int': ['int64', 'int32'],
+                    'float': ['float64', 'float32'],
+                    'str': ['object', 'string'],
+                    'bool': ['bool']
+                }
+                if expected_type in type_map:
+                    if actual_type not in type_map[expected_type]:
+                        msg = f"Column '{col}' expected {expected_type}, got {actual_type}"
+                        if strict:
+                            logger.error(msg)
+                            return False
+                        else:
+                            logger.warning(msg)
+        
+        logger.info(f"CSV validation passed: {len(df)} rows, {len(df.columns)} columns")
+        return True
+
+    # Sensitivity schema validation logic
+    elif schema_type == 'sensitivity':
+        required_columns = ['threshold', 'model', 'coefficient', 'p_value', 'std_err']
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            msg = f"Missing required columns for sensitivity: {missing_cols}"
+            if strict:
+                logger.error(msg)
+                return False
+            else:
+                logger.warning(msg)
+        else:
+            logger.info("Sensitivity CSV validation passed")
+            return True
+
+    return False
+
 
 def validate_json_artifact(
     file_path: Path,
+    schema_path: Path,
     schema_type: str,
-    schema_path: Optional[Path] = None
+    strict: bool = True
 ) -> bool:
     """
-    Validate a JSON artifact against the specified schema.
+    Validate a JSON artifact against a regression schema.
+    
+    Args:
+        file_path: Path to the JSON file to validate.
+        schema_path: Path to the YAML schema definition.
+        schema_type: Type of schema ('regression').
+        strict: If True, fail on missing keys or type mismatches.
+        
+    Returns:
+        True if validation passes, False otherwise.
     """
+    if schema_type != 'regression':
+        logger.error(f"Invalid schema_type for JSON: {schema_type}")
+        return False
+
+    logger.info(f"Validating JSON: {file_path} against schema: {schema_path}")
+    
     if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
+        logger.error(f"Input file not found: {file_path}")
         return False
 
     try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-
-        if schema_type == "regression":
-            try:
-                # Validate against Pydantic model
-                output = RegressionOutput(**data)
-                logger.info(f"Regression validation passed for {file_path}")
-                return True
-            except Exception as e:
-                logger.error(f"Regression validation failed: {str(e)}")
-                return False
-        
-        elif schema_type == "dataset":
-            # JSON dataset validation (if applicable)
-            logger.error("Dataset validation is primarily for CSV. Use CSV validation.")
-            return False
-
-        else:
-            logger.error(f"Unknown schema type for JSON: {schema_type}")
-            return False
-
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in {file_path}: {str(e)}")
-        return False
+        schema = load_schema(schema_path)
     except Exception as e:
-        logger.error(f"Error validating {file_path}: {str(e)}")
+        logger.error(f"Failed to load schema: {e}")
         return False
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to read JSON: {e}")
+        return False
+
+    # Regression schema validation logic
+    required_keys = ['coefficients', 'p_values', 'vif_scores', 'model_type', 'collinearity_warning', 'aggregation_warning']
+    missing_keys = [key for key in required_keys if key not in data]
+    
+    if missing_keys:
+        msg = f"Missing required keys in JSON: {missing_keys}"
+        if strict:
+            logger.error(msg)
+            return False
+        else:
+            logger.warning(msg)
+    else:
+        # Basic type checks
+        if not isinstance(data.get('coefficients'), dict):
+            if strict:
+                logger.error("'coefficients' must be a dictionary")
+                return False
+            else:
+                logger.warning("'coefficients' is not a dictionary")
+        
+        if not isinstance(data.get('model_type'), str):
+            if strict:
+                logger.error("'model_type' must be a string")
+                return False
+            else:
+                logger.warning("'model_type' is not a string")
+
+        logger.info("JSON validation passed")
+        return True
+
+    return False
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate data artifacts against schema contracts.")
+    """Main entry point for the validation CLI."""
+    parser = argparse.ArgumentParser(
+        description="Validate data artifacts against schema contracts."
+    )
+    parser.add_argument(
+        "--schema-type",
+        type=str,
+        required=True,
+        choices=['dataset', 'regression', 'sensitivity'],
+        help="Type of schema to validate against (dataset, regression, sensitivity)."
+    )
     parser.add_argument(
         "file_path",
         type=Path,
         help="Path to the file to validate (CSV or JSON)."
     )
     parser.add_argument(
-        "--schema-type",
-        type=str,
-        required=True,
-        choices=["dataset", "regression", "sensitivity"],
-        help="Type of schema to validate against."
-    )
-    parser.add_argument(
         "--contract",
         type=Path,
-        default=None,
-        help="Optional path to a specific YAML contract file (if not using built-in)."
+        required=True,
+        help="Path to the YAML schema contract file."
     )
     parser.add_argument(
         "--no-strict",
         action="store_true",
-        help="Allow missing optional columns (future implementation)."
+        help="Do not fail on warnings; only fail on critical errors."
     )
     parser.add_argument(
         "--log-level",
         type=str,
         default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Set logging level."
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help="Logging level."
     )
 
     args = parser.parse_args()
 
-    # Re-initialize logger with correct level
+    # Re-setup logging with user-specified level
     global logger
     logger = setup_logging("validate", level=args.log_level)
 
     if args.file_path.suffix.lower() == '.csv':
         success = validate_csv_artifact(
-            args.file_path,
-            args.schema_type,
-            args.contract,
-            args.no_strict
+            args.file_path, args.contract, args.schema_type, strict=not args.no_strict
         )
     elif args.file_path.suffix.lower() == '.json':
         success = validate_json_artifact(
-            args.file_path,
-            args.schema_type,
-            args.contract
+            args.file_path, args.contract, args.schema_type, strict=not args.no_strict
         )
     else:
-        logger.error(f"Unsupported file extension: {args.file_path.suffix}")
+        logger.error(f"Unsupported file type: {args.file_path.suffix}")
         sys.exit(1)
 
     if success:
@@ -202,6 +258,7 @@ def main():
     else:
         logger.error("Validation failed.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

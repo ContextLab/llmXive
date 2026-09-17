@@ -1,141 +1,138 @@
-#!/usr/bin/env python3
 """
-Task T060: Verify Spec Completeness
+Validate Spec Completeness for PROJ-006-agriculture-optimization.
 
-This script scans 'spec.md' and 'plan.md' for:
-1. Any '_TODO:' markers (indicating incomplete work).
-2. The presence of a 'Research Hypothesis' section with falsifiable statements.
-3. Quantifiable success criteria (e.g., "≥ 95% linkage").
+This script scans spec.md and plan.md for _TODO: markers,
+verifies the presence of a 'Research Hypothesis' section with falsifiable statements,
+and checks for quantifiable success criteria (e.g., "≥ 95% linkage").
 
 Exit Codes:
-0: All checks pass.
-1: One or more checks failed (TODOs found, missing hypothesis, missing criteria).
+  0: All checks pass.
+  1: One or more checks failed (TODOs found, missing hypothesis, or missing criteria).
 """
-import os
 import sys
 import re
 from pathlib import Path
 
-# Constants
-TODO_PATTERN = re.compile(r'_TODO:', re.IGNORECASE)
-HYPOTHESIS_PATTERN = re.compile(r'Research\s+Hypothesis', re.IGNORECASE)
-# Look for quantifiable criteria: numbers with units, percentages, or specific thresholds
-CRITERIA_PATTERN = re.compile(r'(≥\s*\d+%|≥\s*\d+|≤\s*\d+%|≤\s*\d+|target.*\d+|threshold.*\d+)', re.IGNORECASE)
+# Define project root relative to script location
+SCRIPT_DIR = Path(__file__).parent.resolve()
+PROJECT_ROOT = SCRIPT_DIR.parent
+SPECS_DIR = PROJECT_ROOT / "specs" / "001-climate-smart-eval"
 
-def get_project_root() -> Path:
-    """Determine the project root relative to this script."""
-    # Script is at scripts/validate_spec_completeness.py
-    # Project root is two levels up
-    return Path(__file__).resolve().parent.parent
+# Files to check
+SPEC_FILE = SPECS_DIR / "spec.md"
+PLAN_FILE = SPECS_DIR / "plan.md"
 
-def check_file_for_todos(file_path: Path) -> list[str]:
+# Patterns
+TODO_PATTERN = re.compile(r"_TODO:", re.IGNORECASE)
+HYPOTHESIS_PATTERN = re.compile(r"Research\s+Hypothesis", re.IGNORECASE)
+# Look for falsifiable indicators: "if X, then Y", "will increase/decrease", "correlation", "p <"
+FALSIFIABLE_PATTERN = re.compile(
+    r"(if.*then.*|will\s+(increase|decrease|improve|reduce)|correlation|p\s*[<>=]|hypothesis.*is)",
+    re.IGNORECASE
+)
+# Quantifiable success criteria: numbers with %, >=, <=, >, <, or specific counts
+CRITERIA_PATTERN = re.compile(
+    r"(≥|<=|>=|>|<|≥)\s*\d+%|linkage\s*(percentage|rate)?\s*≥?\s*\d+%|N\s*[>=<]\s*\d+|sample\s*size\s*[>=<]\s*\d+|\d+\s*rows?",
+    re.IGNORECASE
+)
+
+def check_file_for_todos(filepath: Path) -> list:
     """Check a file for _TODO: markers."""
-    if not file_path.exists():
-        return [f"File not found: {file_path}"]
-    
+    if not filepath.exists():
+        return [f"File not found: {filepath}"]
+
     issues = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         lines = f.readlines()
-    
+
     for i, line in enumerate(lines, 1):
         if TODO_PATTERN.search(line):
-            issues.append(f"Line {i}: Found _TODO: marker -> '{line.strip()}'")
-    
+            issues.append(f"{filepath.name}:{i}: Found _TODO: marker -> {line.strip()}")
+
     return issues
 
-def check_hypothesis_section(file_path: Path) -> list[str]:
-    """Check for the presence of a Research Hypothesis section."""
-    if not file_path.exists():
-        return [f"File not found: {file_path}"]
-    
+def check_research_hypothesis(filepath: Path) -> list:
+    """Check for a Research Hypothesis section with falsifiable statements."""
     issues = []
-    content = file_path.read_text(encoding='utf-8')
-    
+    if not filepath.exists():
+        return [f"File not found: {filepath}"]
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
     if not HYPOTHESIS_PATTERN.search(content):
-        issues.append(f"Missing 'Research Hypothesis' section in {file_path.name}")
-    else:
-        # Optional: Check if the section has content (falsifiable statements)
-        # Simple heuristic: look for directional words or specific claims after the header
-        hypothesis_match = HYPOTHESIS_PATTERN.search(content)
-        if hypothesis_match:
-            start_idx = hypothesis_match.end()
-            # Grab next ~500 chars to see if there's actual text
-            context = content[start_idx:start_idx+500]
-            if len(context.strip()) < 50:
-                issues.append(f"'Research Hypothesis' section in {file_path.name} appears empty or too short.")
-    
+        issues.append(f"{filepath.name}: Missing 'Research Hypothesis' section.")
+        return issues
+
+    # If section exists, check for falsifiable content nearby
+    # We'll do a simple heuristic: if the word "hypothesis" appears, check the next 200 chars for falsifiable patterns
+    matches = list(HYPOTHESIS_PATTERN.finditer(content))
+    found_falsifiable = False
+    for match in matches:
+        start = match.end()
+        end = min(start + 500, len(content))
+        snippet = content[start:end]
+        if FALSIFIABLE_PATTERN.search(snippet):
+            found_falsifiable = True
+            break
+
+    if not found_falsifiable:
+        issues.append(f"{filepath.name}: 'Research Hypothesis' section found but lacks falsifiable statements.")
+
     return issues
 
-def check_success_criteria(file_path: Path) -> list[str]:
+def check_quantifiable_criteria(filepath: Path) -> list:
     """Check for quantifiable success criteria."""
-    if not file_path.exists():
-        return [f"File not found: {file_path}"]
-    
     issues = []
-    content = file_path.read_text(encoding='utf-8')
-    
-    # We expect criteria in spec.md or plan.md. 
-    # If the pattern is found, we assume it's valid.
+    if not filepath.exists():
+        return [f"File not found: {filepath}"]
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
     if not CRITERIA_PATTERN.search(content):
-        issues.append(f"No quantifiable success criteria (e.g., percentages, thresholds) found in {file_path.name}")
-    
+        issues.append(f"{filepath.name}: Missing quantifiable success criteria (e.g., '≥ 95% linkage', 'N >= 300').")
+
     return issues
 
 def main():
-    project_root = get_project_root()
-    spec_path = project_root / "specs" / "001-climate-smart-eval" / "spec.md"
-    plan_path = project_root / "specs" / "001-climate-smart-eval" / "plan.md"
-    
-    # Fallback if specs are in root (legacy structure)
-    if not spec_path.exists():
-        spec_path = project_root / "spec.md"
-    if not plan_path.exists():
-        plan_path = project_root / "plan.md"
-
     all_issues = []
 
-    print(f"Checking spec completeness in: {project_root}")
-    print(f"Scanning: {spec_path.name}, {plan_path.name}")
+    print("=== Spec Completeness Validation ===")
+    print(f"Checking files in: {SPECS_DIR}")
     print("-" * 40)
 
-    # 1. Check for TODOs
-    print("1. Checking for _TODO: markers...")
-    for p in [spec_path, plan_path]:
-        if p.exists():
-            issues = check_file_for_todos(p)
-            if issues:
-                all_issues.extend(issues)
-        else:
-            print(f"   Warning: {p} not found, skipping TODO check.")
+    # Check for TODOs in both files
+    for f in [SPEC_FILE, PLAN_FILE]:
+        todos = check_file_for_todos(f)
+        if todos:
+            all_issues.extend(todos)
+            for t in todos:
+                print(f"[TODO FOUND] {t}")
 
-    # 2. Check for Hypothesis
-    print("2. Checking for 'Research Hypothesis' section...")
-    for p in [spec_path, plan_path]:
-        if p.exists():
-            issues = check_hypothesis_section(p)
-            if issues:
-                all_issues.extend(issues)
+    # Check Research Hypothesis (primarily in spec.md)
+    if SPEC_FILE.exists():
+        hypothesis_issues = check_research_hypothesis(SPEC_FILE)
+        if hypothesis_issues:
+            all_issues.extend(hypothesis_issues)
+            for h in hypothesis_issues:
+                print(f"[HYPOTHESIS ISSUE] {h}")
 
-    # 3. Check for Success Criteria
-    print("3. Checking for quantifiable success criteria...")
-    for p in [spec_path, plan_path]:
-        if p.exists():
-            issues = check_success_criteria(p)
-            if issues:
-                all_issues.extend(issues)
+    # Check Quantifiable Criteria (in both files, but especially spec.md)
+    for f in [SPEC_FILE, PLAN_FILE]:
+        criteria_issues = check_quantifiable_criteria(f)
+        if criteria_issues:
+            all_issues.extend(criteria_issues)
+            for c in criteria_issues:
+                print(f"[CRITERIA ISSUE] {c}")
 
-    # Report
     print("-" * 40)
     if all_issues:
-        print("❌ SPEC COMPLETENESS FAILED")
-        for issue in all_issues:
-            print(f"   - {issue}")
+        print(f"FAILED: {len(all_issues)} issue(s) found.")
+        print("Please resolve the issues above before proceeding.")
         sys.exit(1)
     else:
-        print("✅ SPEC COMPLETENESS PASSED")
-        print("   - No _TODO: markers found.")
-        print("   - Research Hypothesis section present.")
-        print("   - Quantifiable success criteria found.")
+        print("SUCCESS: Spec is complete. No _TODO: markers, hypothesis is present and falsifiable, and quantifiable criteria are defined.")
         sys.exit(0)
 
 if __name__ == "__main__":

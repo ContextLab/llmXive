@@ -1,26 +1,22 @@
-type: object
-properties:
+columns:
   household_id:
     type: integer
     description: Unique identifier for the household
   latitude:
-    type: number
-    format: float
+    type: float
     description: Latitude coordinate of the household
   longitude:
-    type: number
-    format: float
+    type: float
     description: Longitude coordinate of the household
   land_size:
-    type: number
-    format: float
-    description: Size of land owned or cultivated by the household (hectares)
+    type: float
+    description: Size of land owned/managed by the household in hectares
   education_level:
     type: integer
-    description: Education level of the household head (ordinal scale)
+    description: Education level of the household head (1=primary, 2=secondary, 3=tertiary)
   finance_access:
     type: boolean
-    description: Whether the household has access to financial services
+    description: Whether the household has access to formal financial services
   practice_mixed_farming:
     type: boolean
     description: Whether the household practices mixed farming
@@ -35,39 +31,19 @@ properties:
     description: Whether the household practices agroforestry
   extension_visits:
     type: integer
-    description: Number of agricultural extension visits received
+    description: Number of agricultural extension visits in the last year
   hlias:
     type: integer
-    description: Household Livelihood Asset Index Score (raw)
-  CSA_Index:
-    type: number
-    format: float
-    description: Composite Climate-Smart Agriculture adoption index
-  Stability_Score:
-    type: number
-    format: float
-    description: Yield stability score derived from NDVI time-series
-  HFIAS:
-    type: number
-    format: float
     description: Household Food Insecurity Access Scale score
+  CSA_Index:
+    type: float
+    description: Composite index of Climate-Smart Agriculture practices adopted
+  Stability_Score:
+    type: float
+    description: Yield stability score derived from NDVI time-series variability
+  HFIAS:
+    type: float
+    description: Household Food Insecurity Access Scale continuous score
   village_id:
     type: string
-    description: Derived village identifier based on spatial grid
-required:
-  - household_id
-  - latitude
-  - longitude
-  - land_size
-  - education_level
-  - finance_access
-  - practice_mixed_farming
-  - practice_terracing
-  - practice_conservation_tillage
-  - practice_agroforestry
-  - extension_visits
-  - hlias
-  - CSA_Index
-  - Stability_Score
-  - HFIAS
-  - village_id
+    description: Derived village identifier based on spatial clustering

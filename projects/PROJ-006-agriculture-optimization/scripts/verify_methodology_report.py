@@ -1,97 +1,123 @@
 """
 T062: Verify Methodology & Reporting
 
-Checks:
-1. `data-model.md` contains explicit contrast with standard OLS.
-2. `plan.md` contains the uncertainty visualization logic.
-3. `plan.md` contains the report disclaimer requirements.
+Logic:
+1. Checks `data-model.md` for explicit contrast with standard OLS.
+2. Checks `plan.md` for uncertainty visualization logic.
+3. Checks `plan.md` for report disclaimer requirements.
 
-Exit 0 if all checks pass, Exit 1 otherwise.
+Verification:
+- Exits 0 if all required sections and logic descriptions are present.
+- Exits 1 if any required section is missing or insufficient.
 """
 import sys
-import re
 from pathlib import Path
+import re
 
-def load_file(path: Path) -> str:
-    if not path.exists():
-        raise FileNotFoundError(f"Required file not found: {path}")
-    return path.read_text(encoding="utf-8")
+def get_project_root() -> Path:
+    """Returns the root directory of the project."""
+    return Path(__file__).resolve().parent.parent
 
-def check_ols_contrast(content: str) -> bool:
-    """Check for explicit contrast with standard OLS in data-model.md."""
-    # Look for keywords indicating contrast or methodological distinction
+def read_file(file_path: Path) -> str:
+    """Reads a file and returns its contents as a string."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return file_path.read_text(encoding="utf-8")
+
+def check_data_model_ols_contrast(content: str) -> bool:
+    """
+    Checks if data-model.md contains explicit contrast with standard OLS.
+    Looks for keywords like 'robust', 'cluster', 'heteroskedasticity', 'OLS', 'standard errors'.
+    """
+    # Pattern to detect discussion of OLS limitations or robust alternatives
+    # We look for a comparison or explicit mention of why we differ from standard OLS
     patterns = [
-        r"robust\s+standard\s+errors",
-        r"HC3",
-        r"cluster-robust",
-        r"different\s+from\s+standard\s+OLS",
-        r"contrast\s+with\s+OLS",
-        r"deviation\s+from\s+OLS",
-        r"alternative\s+to\s+OLS",
-        r"unlike\s+standard\s+OLS"
+        r'robust.*standard.*errors',
+        r'cluster.*robust',
+        r'heteroskedasticity',
+        r'different.*from.*standard.*OLS',
+        r'contrast.*with.*OLS',
+        r'HC\d',  # Matches HC0, HC1, HC2, HC3
+        r'statsmodels.*robust'
     ]
-    for pattern in patterns:
-        if re.search(pattern, content, re.IGNORECASE):
-            return True
-    return False
+    
+    combined_pattern = re.compile('|'.join(patterns), re.IGNORECASE)
+    return bool(combined_pattern.search(content))
 
-def check_uncertainty_logic(content: str) -> bool:
-    """Check for uncertainty visualization logic in plan.md."""
+def check_plan_uncertainty_visualization(content: str) -> bool:
+    """
+    Checks if plan.md contains uncertainty visualization logic.
+    Looks for keywords like 'plot', 'visualize', 'confidence', 'CI', 'sensitivity plot'.
+    """
     patterns = [
-        r"uncertainty\s+visualization",
-        r"confidence\s+interval",
-        r"error\s+bars",
-        r"sensitivity\s+plot",
-        r"coefficient\s+variation"
+        r'uncertainty.*visualization',
+        r'visualize.*uncertainty',
+        r'confidence.*interval.*plot',
+        r'sensitivity.*plot',
+        r'plot.*coefficient.*stability',
+        r'generate.*plot.*sensitivity'
     ]
-    for pattern in patterns:
-        if re.search(pattern, content, re.IGNORECASE):
-            return True
-    return False
+    
+    combined_pattern = re.compile('|'.join(patterns), re.IGNORECASE)
+    return bool(combined_pattern.search(content))
 
-def check_disclaimer_requirements(content: str) -> bool:
-    """Check for report disclaimer requirements in plan.md."""
+def check_plan_disclaimer_requirements(content: str) -> bool:
+    """
+    Checks if plan.md contains report disclaimer requirements.
+    Looks for keywords like 'associational', 'observational', 'disclaimer', 'causal'.
+    """
     patterns = [
-        r"associational\s+nature",
-        r"observational\s+design",
-        r"disclaimer",
-        r"not\s+causal",
-        r"correlation\s+does\s+not\s+imply\s+causation"
+        r'associational.*nature',
+        r'observational.*design',
+        r'disclaimer.*causal',
+        r'not.*causal.*inference',
+        r'limitation.*observational',
+        r'associational.*disclaimer'
     ]
-    for pattern in patterns:
-        if re.search(pattern, content, re.IGNORECASE):
-            return True
-    return False
+    
+    combined_pattern = re.compile('|'.join(patterns), re.IGNORECASE)
+    return bool(combined_pattern.search(content))
 
-def main():
-    project_root = Path(__file__).parent.parent
+def main() -> int:
+    project_root = get_project_root()
+    
     data_model_path = project_root / "data-model.md"
     plan_path = project_root / "plan.md"
-
+    
+    errors = []
+    
+    # Check data-model.md
     try:
-        data_model_content = load_file(data_model_path)
-        plan_content = load_file(plan_path)
+        data_model_content = read_file(data_model_path)
+        if not check_data_model_ols_contrast(data_model_content):
+            errors.append("data-model.md: Missing explicit contrast with standard OLS.")
     except FileNotFoundError as e:
-        print(f"FATAL: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    # Check 1: data-model.md OLS contrast
-    if not check_ols_contrast(data_model_content):
-        print("FAIL: data-model.md missing explicit contrast with standard OLS.", file=sys.stderr)
-        sys.exit(1)
-
-    # Check 2: plan.md uncertainty visualization
-    if not check_uncertainty_logic(plan_content):
-        print("FAIL: plan.md missing uncertainty visualization logic.", file=sys.stderr)
-        sys.exit(1)
-
-    # Check 3: plan.md report disclaimer
-    if not check_disclaimer_requirements(plan_content):
-        print("FAIL: plan.md missing report disclaimer requirements.", file=sys.stderr)
-        sys.exit(1)
-
-    print("SUCCESS: All methodology and reporting checks passed.")
-    sys.exit(0)
+        errors.append(str(e))
+    
+    # Check plan.md
+    try:
+        plan_content = read_file(plan_path)
+        
+        if not check_plan_uncertainty_visualization(plan_content):
+            errors.append("plan.md: Missing uncertainty visualization logic.")
+        
+        if not check_plan_disclaimer_requirements(plan_content):
+            errors.append("plan.md: Missing report disclaimer requirements.")
+            
+    except FileNotFoundError as e:
+        errors.append(str(e))
+    
+    if errors:
+        print("VERIFICATION FAILED: Methodology & Reporting checks did not pass.")
+        for error in errors:
+            print(f"  - {error}")
+        return 1
+    
+    print("VERIFICATION PASSED: Methodology & Reporting checks successful.")
+    print("  - data-model.md: Contains explicit contrast with standard OLS.")
+    print("  - plan.md: Contains uncertainty visualization logic.")
+    print("  - plan.md: Contains report disclaimer requirements.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

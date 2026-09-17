@@ -1,57 +1,40 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Output Schema"
-description: "Schema for regression analysis results"
+# Output Schema Contract for Regression Results
+# Defines the expected structure for data/processed/regression_results.json
 type: object
 properties:
-  model_1_stability:
+  coefficients:
     type: object
-    description: "Results for Model 1 (Stability_Score as dependent variable)"
-    properties:
-      coefficients:
-        type: object
-        additionalProperties:
-          type: number
-      p_values:
-        type: object
-        additionalProperties:
-          type: number
-      vif_scores:
-        type: object
-        additionalProperties:
-          type: number
-      cluster_se:
-        type: boolean
-        description: "Whether cluster-robust standard errors were used"
-  model_2_food_security:
-    type: object
-    description: "Results for Model 2 (HFIAS as dependent variable)"
-    properties:
-      coefficients:
-        type: object
-        additionalProperties:
-          type: number
-      p_values:
-        type: object
-        additionalProperties:
-          type: number
-      vif_scores:
-        type: object
-        additionalProperties:
-          type: number
-      cluster_se:
-        type: boolean
-  meta:
-    type: object
-    properties:
-      sample_size:
-        type: integer
-      bonferroni_alpha:
+    description: Regression coefficients for each model
+    additionalProperties:
+      type: object
+      additionalProperties:
         type: number
-        description: "Adjusted significance level"
-      timestamp:
-        type: string
-        format: date-time
+  p_values:
+    type: object
+    description: P-values for coefficients
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: number
+  vif_scores:
+    type: object
+    description: Variance Inflation Factor scores
+    additionalProperties:
+      type: number
+  model_type:
+    type: string
+    enum: [aggregated, clustered]
+    description: Type of model estimation used
+  collinearity_warning:
+    type: boolean
+    description: Flag if collinearity detected (VIF > 5)
+  aggregation_warning:
+    type: boolean
+    description: Flag if data was aggregated due to low linkage
 required:
-  - model_1_stability
-  - model_2_food_security
-  - meta
+  - coefficients
+  - p_values
+  - vif_scores
+  - model_type
+  - collinearity_warning
+  - aggregation_warning

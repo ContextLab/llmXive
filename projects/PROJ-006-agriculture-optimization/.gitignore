@@ -20,9 +20,11 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 *.manifest
@@ -34,12 +36,15 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
+.nox/
 .coverage
 .coverage.*
-cache/
+.cache
 nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -71,29 +76,25 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Data and logs
-data/raw/*.csv
-data/raw/*.parquet
-data/raw/*.zip
-data/raw/*.tar.gz
-data/processed/*.csv
-data/processed/*.parquet
-data/processed/*.json
-data/logs/*.log
-data/logs/*.json
-reports/*.pdf
-reports/*.png
-reports/*.csv
-reports/*.json
+# Pyre type checker
+.pyre/
+
+# Project specific
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+reports/*
+!reports/.gitkeep
+state/projects/*
+!state/projects/.gitkeep
+contracts/*.yaml
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Project specific
-state/
-contracts/*.yaml
-specs/
-docs/
-research.md

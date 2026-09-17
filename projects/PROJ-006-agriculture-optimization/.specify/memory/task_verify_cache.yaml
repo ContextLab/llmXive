@@ -1,12 +1,11 @@
 T002b:
   c: false
-  h: fb66edaaedf092bcade25c7c032e8682d82acf3a112f5aab2da883b3cf7fff13
-  r: "The repository contains a `state_manager.py` but the implementation is truncated\
-    \ and does not demonstrate updating `state/projects/PROJ-006-agriculture-optimization.yaml`\
-    \ with hashes for files in `data/raw/*` or `data/processed/*`. Moreover, the required\
-    \ dummy file `data/raw/dummy.txt` is absent, and the YAML file still shows an\
-    \ empty `artifact_hashes` section, indicating the update mechanism was never exercised.\
-    \ The task\u2019s verification step is therefore missing."
+  h: 303162f63def33a07cde474c44d0139835668c7a5c0c4ea30d71f2bc7778b799
+  r: The provided `src/utils/state_manager.py` is truncated and does not contain the
+    full implementation needed to compute hashes and update the YAML file. The required
+    dummy file `data/raw/dummy.txt` is absent, and the state YAML shows no artifact
+    hashes, indicating the verification step was never performed. The task therefore
+    remains unfinished.
 T010a:
   c: false
   h: bda6656e4ad51f329fb6089ebe187fb2b7d072e78997f63a6006ab15d6252c5b
@@ -44,3 +43,10 @@ T046:
     \ T029). No skeleton files or directory structure is present, so the verification\
     \ condition \u201Cassert files exist\u201D cannot be satisfied. The task remains\
     \ unfinished until those test files are created."
+T050a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were provided; thus the required artifact\
+    \ does not exist, and there is no evidence that placeholder citation markers are\
+    \ present. The implementer must supply a non\u2011empty `research.md` containing\
+    \ a literature review with the specified placeholder citations."

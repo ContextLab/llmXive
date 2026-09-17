@@ -2,7 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T000** — The provided `scripts/recovery_reset.py` exists but the shown code does not include a main entry that checks `research.md` and exits with the required status codes, nor does it demonstrate scanning the `tests/` directory or actually modifying `tasks.md` to reset tasks T015‑T035. Without these parts, the script does not fulfill the full specification. The next implementer should add the missing execution logic, ensure the script scans `tests/`, updates `tasks.md` as described, and returns the correct exit codes.
+- **T050a** — No `research.md` file or its contents were provided; thus the required artifact does not exist, and there is no evidence that placeholder citation markers are present. The implementer must supply a non‑empty `research.md` containing a literature review with the specified placeholder citations.
+- **T002b** — The provided `src/utils/state_manager.py` is truncated and does not contain the full implementation needed to compute hashes and update the YAML file. The required dummy file `data/raw/dummy.txt` is absent, and the state YAML shows no artifact hashes, indicating the verification step was never performed. The task therefore remains unfinished.
 - **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T008** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T010** — declared artifact(s) missing/empty/invalid: src/data/generators/structural_validation_generator.py, data/raw/structural_validation_data.csv, schema.yaml

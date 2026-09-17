@@ -1,5 +1,5 @@
 """
-I/O Helpers: Strict CSV/Parquet I/O, checksum verification, and robust logging setup.
+I/O Helper utilities for strict CSV/Parquet I/O and checksum verification.
 """
 import hashlib
 import json
@@ -7,282 +7,285 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, Optional, Union
 
 import pandas as pd
 import yaml
 
 
 class FatalError(Exception):
-    """Raised when a critical, non-recoverable error occurs."""
+    """Exception raised for fatal errors that should halt execution."""
     pass
 
 
 class IntegrityError(Exception):
-    """Raised when data integrity checks (checksums, schema) fail."""
+    """Exception raised for data integrity failures (e.g., checksum mismatch)."""
     pass
 
 
 def setup_logging(name: str, level: str = "INFO") -> logging.Logger:
     """
-    Configure and return a logger with the given name and level.
-    
+    Set up a logger with the given name and level.
+
     Args:
         name: The name of the logger (typically __name__).
-        level: Logging level string (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-    
+        level: The logging level as a string (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+
     Returns:
-        Configured logging.Logger instance.
-    
+        A configured logger instance.
+
     Raises:
-        ValueError: If the provided log level is invalid.
+        ValueError: If the provided level is invalid.
     """
     valid_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    level_upper = level.upper()
-    
-    if level_upper not in valid_levels:
+    if level.upper() not in valid_levels:
         raise ValueError(f"Invalid log level: {level}. Must be one of {valid_levels}")
-    
+
     logger = logging.getLogger(name)
-    if logger.handlers:
-        # Avoid duplicate handlers if called multiple times in same process
-        return logger
-    
-    logger.setLevel(level_upper)
-    
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level_upper)
-    
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    console_handler.setFormatter(formatter)
-    
-    logger.addHandler(console_handler)
+    logger.setLevel(level.upper())
+
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(level.upper())
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
     return logger
 
 
-def compute_file_hash(file_path: str, algorithm: str = "sha256") -> str:
+def compute_file_hash(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
     Compute the cryptographic hash of a file.
-    
+
     Args:
         file_path: Path to the file.
-        algorithm: Hash algorithm (default: sha256).
-    
+        algorithm: Hash algorithm to use (default: sha256).
+
     Returns:
-        Hexadecimal hash string.
-    
+        Hexadecimal string of the file hash.
+
     Raises:
         FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        FatalError: If the hash computation fails.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found for hashing: {file_path}")
-    
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for hash computation: {file_path}")
+
     hasher = hashlib.new(algorithm)
-    with open(path, 'rb') as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    
-    return hasher.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+    except Exception as e:
+        raise FatalError(f"Failed to compute hash for {file_path}: {e}")
 
 
-def read_csv_strict(
-    file_path: str,
-    expected_columns: Optional[List[str]] = None,
-    checksum: Optional[str] = None
-) -> pd.DataFrame:
+def read_csv_strict(file_path: Union[str, Path], expected_columns: Optional[list] = None) -> pd.DataFrame:
     """
     Read a CSV file with strict validation.
-    
+
     Args:
         file_path: Path to the CSV file.
-        expected_columns: Optional list of required column names.
-        checksum: Optional expected SHA256 checksum.
-    
+        expected_columns: Optional list of expected column names.
+
     Returns:
-        Pandas DataFrame.
-    
+        DataFrame containing the CSV data.
+
     Raises:
-        FileNotFoundError: If file missing.
-        IntegrityError: If checksum or column validation fails.
+        FileNotFoundError: If the file does not exist.
+        FatalError: If the file cannot be read or validation fails.
     """
-    path = Path(file_path)
-    if not path.exists():
+    file_path = Path(file_path)
+    if not file_path.exists():
         raise FileNotFoundError(f"CSV file not found: {file_path}")
-    
-    if checksum:
-        actual_hash = compute_file_hash(file_path)
-        if actual_hash != checksum:
-            raise IntegrityError(
-                f"Checksum mismatch for {file_path}. Expected: {checksum}, Got: {actual_hash}"
-            )
-    
-    df = pd.read_csv(file_path)
-    
+
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        raise FatalError(f"Failed to read CSV {file_path}: {e}")
+
     if expected_columns:
         missing = set(expected_columns) - set(df.columns)
         if missing:
-            raise IntegrityError(
-                f"CSV missing required columns: {missing}. Found: {list(df.columns)}"
-            )
-    
+            raise FatalError(f"CSV {file_path} missing expected columns: {missing}")
+
     return df
 
 
-def write_csv_strict(
-    df: pd.DataFrame,
-    file_path: str,
-    include_index: bool = False
-) -> str:
+def write_csv_strict(df: pd.DataFrame, file_path: Union[str, Path], index: bool = False) -> str:
     """
-    Write a DataFrame to CSV with strict directory creation.
-    
+    Write a DataFrame to a CSV file with integrity verification.
+
     Args:
         df: DataFrame to write.
-        file_path: Output path.
-        include_index: Whether to include index in output.
-    
+        file_path: Destination path.
+        index: Whether to write the index (default: False).
+
     Returns:
-        The computed SHA256 hash of the written file.
-    
+        The SHA256 hash of the written file.
+
     Raises:
-        IOError: If write fails.
+        FatalError: If the write fails or the file cannot be verified.
     """
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_csv(path, index=include_index)
+    file_path = Path(file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        df.to_csv(file_path, index=index)
+    except Exception as e:
+        raise FatalError(f"Failed to write CSV {file_path}: {e}")
+
+    if not file_path.exists():
+        raise FatalError(f"CSV write verification failed: {file_path} does not exist.")
+
     return compute_file_hash(file_path)
 
 
-def read_parquet_strict(
-    file_path: str,
-    expected_columns: Optional[List[str]] = None,
-    checksum: Optional[str] = None
-) -> pd.DataFrame:
+def read_parquet_strict(file_path: Union[str, Path], expected_columns: Optional[list] = None) -> pd.DataFrame:
     """
     Read a Parquet file with strict validation.
-    
+
     Args:
         file_path: Path to the Parquet file.
-        expected_columns: Optional list of required column names.
-        checksum: Optional expected SHA256 checksum.
-    
+        expected_columns: Optional list of expected column names.
+
     Returns:
-        Pandas DataFrame.
-    
+        DataFrame containing the Parquet data.
+
     Raises:
-        FileNotFoundError: If file missing.
-        IntegrityError: If checksum or column validation fails.
+        FileNotFoundError: If the file does not exist.
+        FatalError: If the file cannot be read or validation fails.
     """
-    path = Path(file_path)
-    if not path.exists():
+    file_path = Path(file_path)
+    if not file_path.exists():
         raise FileNotFoundError(f"Parquet file not found: {file_path}")
-    
-    if checksum:
-        actual_hash = compute_file_hash(file_path)
-        if actual_hash != checksum:
-            raise IntegrityError(
-                f"Checksum mismatch for {file_path}. Expected: {checksum}, Got: {actual_hash}"
-            )
-    
-    df = pd.read_parquet(file_path)
-    
+
+    try:
+        df = pd.read_parquet(file_path)
+    except Exception as e:
+        raise FatalError(f"Failed to read Parquet {file_path}: {e}")
+
     if expected_columns:
         missing = set(expected_columns) - set(df.columns)
         if missing:
-            raise IntegrityError(
-                f"Parquet missing required columns: {missing}. Found: {list(df.columns)}"
-            )
-    
+            raise FatalError(f"Parquet {file_path} missing expected columns: {missing}")
+
     return df
 
 
-def write_parquet_strict(df: pd.DataFrame, file_path: str) -> str:
+def write_parquet_strict(df: pd.DataFrame, file_path: Union[str, Path], index: bool = False) -> str:
     """
-    Write a DataFrame to Parquet with strict directory creation.
-    
+    Write a DataFrame to a Parquet file with integrity verification.
+
     Args:
         df: DataFrame to write.
-        file_path: Output path.
-    
+        file_path: Destination path.
+        index: Whether to write the index (default: False).
+
     Returns:
-        The computed SHA256 hash of the written file.
-    
+        The SHA256 hash of the written file.
+
     Raises:
-        IOError: If write fails.
+        FatalError: If the write fails or the file cannot be verified.
     """
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_parquet(path, index=False)
+    file_path = Path(file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        df.to_parquet(file_path, index=index)
+    except Exception as e:
+        raise FatalError(f"Failed to write Parquet {file_path}: {e}")
+
+    if not file_path.exists():
+        raise FatalError(f"Parquet write verification failed: {file_path} does not exist.")
+
     return compute_file_hash(file_path)
 
 
-def load_json_strict(file_path: str) -> Dict[str, Any]:
+def load_json_strict(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Load a JSON file strictly.
-    
+    Load a JSON file with strict validation.
+
     Args:
-        file_path: Path to JSON file.
-    
+        file_path: Path to the JSON file.
+
     Returns:
-        Parsed JSON object (dict).
-    
+        Parsed JSON data as a dictionary.
+
     Raises:
-        FileNotFoundError: If file missing.
-        json.JSONDecodeError: If invalid JSON.
+        FileNotFoundError: If the file does not exist.
+        FatalError: If the file cannot be read or parsed.
     """
-    path = Path(file_path)
-    if not path.exists():
+    file_path = Path(file_path)
+    if not file_path.exists():
         raise FileNotFoundError(f"JSON file not found: {file_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        raise FatalError(f"Invalid JSON in {file_path}: {e}")
+    except Exception as e:
+        raise FatalError(f"Failed to read JSON {file_path}: {e}")
 
 
-def write_json_strict(data: Dict[str, Any], file_path: str, indent: int = 2) -> str:
+def write_json_strict(data: Dict[str, Any], file_path: Union[str, Path], indent: int = 2) -> str:
     """
-    Write data to JSON with strict directory creation.
-    
+    Write data to a JSON file with integrity verification.
+
     Args:
         data: Dictionary to write.
-        file_path: Output path.
-        indent: JSON indentation level.
-    
+        file_path: Destination path.
+        indent: Indentation level for pretty printing.
+
     Returns:
-        The computed SHA256 hash of the written file.
+        The SHA256 hash of the written file.
+
+    Raises:
+        FatalError: If the write fails or the file cannot be verified.
     """
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=indent)
-    
+    file_path = Path(file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=indent)
+    except Exception as e:
+        raise FatalError(f"Failed to write JSON {file_path}: {e}")
+
+    if not file_path.exists():
+        raise FatalError(f"JSON write verification failed: {file_path} does not exist.")
+
     return compute_file_hash(file_path)
 
 
-def load_yaml(file_path: str) -> Any:
+def load_yaml(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
     Load a YAML file.
-    
+
     Args:
-        file_path: Path to YAML file.
-    
+        file_path: Path to the YAML file.
+
     Returns:
-        Parsed YAML object.
-    
+        Parsed YAML data.
+
     Raises:
-        FileNotFoundError: If file missing.
-        yaml.YAMLError: If invalid YAML.
+        FileNotFoundError: If the file does not exist.
+        FatalError: If the file cannot be read or parsed.
     """
-    path = Path(file_path)
-    if not path.exists():
+    file_path = Path(file_path)
+    if not file_path.exists():
         raise FileNotFoundError(f"YAML file not found: {file_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        raise FatalError(f"Invalid YAML in {file_path}: {e}")
+    except Exception as e:
+        raise FatalError(f"Failed to read YAML {file_path}: {e}")

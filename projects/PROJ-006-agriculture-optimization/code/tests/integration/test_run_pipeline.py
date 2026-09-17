@@ -1,187 +1,125 @@
 """
-Integration tests for the pipeline orchestrator (run_pipeline.py).
-Tests the automatic synthetic data fallback mechanism.
+Integration tests for the CLI Orchestrator (run_pipeline.py).
+Verifies the orchestration logic, citation gate, and synthetic fallback.
 """
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
+import sys
 
-from src.cli.run_pipeline import check_and_generate_synthetic_data, run_pipeline, main
-from src.utils.io_helpers import FatalError
-from src.data.generators.synthetic_generator import SyntheticDataGenerator
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
+from src.cli.run_pipeline import main as run_pipeline_main
+from src.cli.validate_citations import main as validate_citations_main
+from src.data.generators.structural_validation_generator import main as generate_structural_main
+from src.data.processing.feature_engineering import main as feature_engineering_main
 
 class TestPipelineSyntheticFallback:
-    """Tests for automatic synthetic data fallback in CI environments."""
+    """Tests for synthetic data fallback logic."""
 
     @pytest.fixture
-    def temp_project_root(self):
-        """Create a temporary project root with required directory structure."""
+    def temp_workspace(self):
+        """Create a temporary workspace mimicking project structure."""
         temp_dir = tempfile.mkdtemp()
-        project_root = Path(temp_dir)
-        
-        # Create required directories
-        (project_root / "data" / "raw").mkdir(parents=True)
-        (project_root / "data" / "processed").mkdir(parents=True)
-        (project_root / "data" / "logs").mkdir(parents=True)
-        (project_root / "state" / "projects").mkdir(parents=True)
-        
-        yield project_root
-        
-        # Cleanup
+        # Create necessary directories
+        (Path(temp_dir) / "data" / "raw").mkdir(parents=True)
+        (Path(temp_dir) / "data" / "processed").mkdir(parents=True)
+        (Path(temp_dir) / "src" / "cli").mkdir(parents=True)
+        (Path(temp_dir) / "src" / "data" / "generators").mkdir(parents=True)
+        (Path(temp_dir) / "src" / "data" / "processing").mkdir(parents=True)
+        # Create a dummy research.md with valid citations to pass the gate
+        (Path(temp_dir) / "research.md").write_text(
+            "This is a test.\nCitation: (Smith et al., 2023)\n"
+        )
+        yield temp_dir
         shutil.rmtree(temp_dir)
 
-    def test_real_data_exists_no_synthetic(self, temp_project_root):
-        """Test that synthetic data is NOT generated when real data exists."""
-        # Create a dummy real data file
-        real_data_file = temp_project_root / "data" / "raw" / "survey_data.csv"
-        real_data_file.write_text("household_id,latitude,longitude\n1,12.3,45.6\n")
+    @patch('src.cli.run_pipeline.validate_citations_main')
+    @patch('src.cli.run_pipeline.generate_structural_main')
+    @patch('src.cli.run_pipeline.feature_engineering_main')
+    def test_ci_mode_invokes_generator_when_no_data(
+        self, mock_fe, mock_gen, mock_citations, temp_workspace
+    ):
+        """
+        When CI=true and data/raw/ is empty, the generator MUST be invoked.
+        """
+        # Set CI environment
+        os.environ["CI"] = "true"
         
-        # Mock the check_real_data_exists function to return True
-        with patch('src.cli.run_pipeline.check_real_data_exists', return_value=True):
-            result = check_and_generate_synthetic_data(temp_project_root, no_synthetic=False)
+        # Ensure data/raw is empty (fixture creates it empty)
+        data_raw = Path(temp_workspace) / "data" / "raw"
+        assert not any(data_raw.iterdir())
+
+        # Mock the citation validator to succeed (exit 0)
+        mock_citations.side_effect = SystemExit(0)
+
+        # Change CWD to temp_workspace to simulate project root
+        old_cwd = os.getcwd()
+        os.chdir(temp_workspace)
+
+        try:
+            # Run with ingest stage
+            with pytest.raises(SystemExit) as exc_info:
+                run_pipeline_main()
             
-            assert result is False, "Should return False when real data exists"
+            # Should exit 0 on success
+            assert exc_info.value.code == 0
 
-    def test_missing_data_ci_no_flag(self, temp_project_root):
-        """Test automatic synthetic generation in CI when data is missing and no --no-synthetic flag."""
-        # Ensure no real data exists
-        assert not (temp_project_root / "data" / "raw").glob("*")
-        
-        with patch('src.cli.run_pipeline.check_real_data_exists', return_value=False):
-            with patch('src.cli.run_pipeline.SyntheticDataGenerator.generate') as mock_generate:
-                # Set CI environment variable
-                with patch.dict(os.environ, {"CI": "true"}):
-                    result = check_and_generate_synthetic_data(temp_project_root, no_synthetic=False)
-                    
-                    assert result is True, "Should return True when synthetic data is generated"
-                    mock_generate.assert_called_once_with(temp_project_root)
+            # Verify generator was called
+            assert mock_gen.called, "Generator should be invoked in CI mode when data is missing"
+            # Verify feature engineering was called
+            assert mock_fe.called, "Feature engineering should be invoked after generation"
+        finally:
+            os.chdir(old_cwd)
+            del os.environ["CI"]
 
-    def test_missing_data_ci_no_synthetic_flag(self, temp_project_root):
-        """Test that FatalError is raised in CI when data is missing and --no-synthetic flag is provided."""
-        assert not (temp_project_root / "data" / "raw").glob("*")
+    @patch('src.cli.run_pipeline.validate_citations_main')
+    def test_citation_gate_aborts_on_failure(self, mock_citations, temp_workspace):
+        """
+        If citation validation fails, the pipeline MUST abort immediately.
+        """
+        os.environ["CI"] = "true"
         
-        with patch('src.cli.run_pipeline.check_real_data_exists', return_value=False):
-            with patch.dict(os.environ, {"CI": "true"}):
-                with pytest.raises(FatalError) as exc_info:
-                    check_and_generate_synthetic_data(temp_project_root, no_synthetic=True)
-                
-                assert "no-synthetic" in str(exc_info.value).lower()
+        # Mock citation validator to fail (exit 1)
+        mock_citations.side_effect = SystemExit(1)
 
-    def test_missing_data_not_ci_no_flag(self, temp_project_root):
-        """Test that FatalError is raised when data is missing, not in CI, and no --no-synthetic flag."""
-        assert not (temp_project_root / "data" / "raw").glob("*")
-        
-        with patch('src.cli.run_pipeline.check_real_data_exists', return_value=False):
-            with patch.dict(os.environ, {}, clear=True):
-                with pytest.raises(FatalError) as exc_info:
-                    check_and_generate_synthetic_data(temp_project_root, no_synthetic=False)
-                
-                assert "real data is missing" in str(exc_info.value).lower()
+        old_cwd = os.getcwd()
+        os.chdir(temp_workspace)
 
-    def test_missing_data_not_ci_no_synthetic_flag(self, temp_project_root):
-        """Test that FatalError is raised when data is missing, not in CI, and --no-synthetic flag is provided."""
-        assert not (temp_project_root / "data" / "raw").glob("*")
-        
-        with patch('src.cli.run_pipeline.check_real_data_exists', return_value=False):
-            with patch.dict(os.environ, {}, clear=True):
-                with pytest.raises(FatalError) as exc_info:
-                    check_and_generate_synthetic_data(temp_project_root, no_synthetic=True)
-                
-                assert "real data is missing" in str(exc_info.value).lower()
-
-    def test_dry_run_mode(self, temp_project_root):
-        """Test that dry run mode validates data availability without processing."""
-        # Create dummy real data
-        real_data_file = temp_project_root / "data" / "raw" / "survey_data.csv"
-        real_data_file.write_text("household_id,latitude,longitude\n1,12.3,45.6\n")
-        
-        success = run_pipeline(
-            project_root=temp_project_root,
-            dry_run=True,
-            no_synthetic=False,
-            skip_ingestion=False,
-            skip_analysis=False
-        )
-        
-        assert success is True
-
-    def test_pipeline_execution_flow(self, temp_project_root):
-        """Test the full pipeline execution flow with synthetic data generation."""
-        assert not (temp_project_root / "data" / "raw").glob("*")
-        
-        with patch('src.cli.run_pipeline.check_real_data_exists', return_value=False):
-            with patch('src.cli.run_pipeline.SyntheticDataGenerator.generate') as mock_generate:
-                with patch.dict(os.environ, {"CI": "true"}):
-                    success = run_pipeline(
-                        project_root=temp_project_root,
-                        dry_run=False,
-                        no_synthetic=False,
-                        skip_ingestion=False,
-                        skip_analysis=False
-                    )
-                    
-                    assert success is True
-                    mock_generate.assert_called_once_with(temp_project_root)
-
+        try:
+            with pytest.raises(SystemExit) as exc_info:
+                run_pipeline_main()
+            
+            # Should exit 1 due to citation failure
+            assert exc_info.value.code == 1
+        finally:
+            os.chdir(old_cwd)
+            del os.environ["CI"]
 
 class TestPipelineCLI:
-    """Tests for the CLI argument parsing and main function."""
+    """Tests for CLI argument parsing and dry-run."""
 
-    @pytest.fixture
-    def temp_project_root(self):
-        """Create a temporary project root."""
-        temp_dir = tempfile.mkdtemp()
-        project_root = Path(temp_dir)
-        (project_root / "data" / "raw").mkdir(parents=True)
-        yield project_root
-        shutil.rmtree(temp_dir)
-
-    def test_main_with_dry_run(self, temp_project_root, capsys):
-        """Test main function with --dry-run flag."""
-        with patch('sys.argv', ['run_pipeline.py', '--dry-run', '--project-root', str(temp_project_root)]):
-            with patch('src.cli.run_pipeline.run_pipeline', return_value=True) as mock_run:
-                main()
-                
-                mock_run.assert_called_once()
-                call_args = mock_run.call_args[1]
-                assert call_args['dry_run'] is True
-
-    def test_main_with_no_synthetic(self, temp_project_root):
-        """Test main function with --no-synthetic flag."""
-        with patch('sys.argv', ['run_pipeline.py', '--no-synthetic', '--project-root', str(temp_project_root)]):
-            with patch('src.cli.run_pipeline.run_pipeline', return_value=True) as mock_run:
-                main()
-                
-                mock_run.assert_called_once()
-                call_args = mock_run.call_args[1]
-                assert call_args['no_synthetic'] is True
-
-    def test_main_with_invalid_project_root(self, tmp_path):
-        """Test main function with non-existent project root."""
-        invalid_path = tmp_path / "nonexistent"
+    @patch('src.cli.run_pipeline.validate_citations_main')
+    def test_dry_run_validates_imports(self, mock_citations, temp_workspace):
+        """
+        Dry run should validate imports and exit 0.
+        """
+        mock_citations.side_effect = SystemExit(0)
         
-        with patch('sys.argv', ['run_pipeline.py', '--project-root', str(invalid_path)]):
-            with pytest.raises(SystemExit) as exc_info:
-                main()
-            
-            assert exc_info.value.code == 1
+        old_cwd = os.getcwd()
+        os.chdir(temp_workspace)
 
-    def test_main_with_skip_flags(self, temp_project_root):
-        """Test main function with --skip-ingestion and --skip-analysis flags."""
-        with patch('sys.argv', [
-            'run_pipeline.py', 
-            '--skip-ingestion', 
-            '--skip-analysis', 
-            '--project-root', str(temp_project_root)
-        ]):
-            with patch('src.cli.run_pipeline.run_pipeline', return_value=True) as mock_run:
-                main()
+        try:
+            # Simulate command line args
+            with patch('sys.argv', ['run_pipeline.py', '--dry-run']):
+                with pytest.raises(SystemExit) as exc_info:
+                    run_pipeline_main()
                 
-                mock_run.assert_called_once()
-                call_args = mock_run.call_args[1]
-                assert call_args['skip_ingestion'] is True
-                assert call_args['skip_analysis'] is True
+                assert exc_info.value.code == 0
+        finally:
+            os.chdir(old_cwd)

@@ -1,234 +1,226 @@
 """
-Structural Validation Generator for PROJ-006.
+Structural Validation Data Generator
 
-Generates a dataset for Structural Validation Mode when real data is unavailable.
+Generates a synthetic dataset for Structural Validation Mode when real data is unavailable.
 Uses Multivariate Normal distributions for continuous variables and Bernoulli for binary variables.
-Generates raw fields AND derived metrics (CSA_Index, Stability_Score) to ensure the pipeline is executable.
+Generates both raw fields and derived metrics (CSA_Index, Stability_Score) to ensure pipeline executability.
 Strictly decoupled from analysis logic (fixed seed, independent RNG).
 """
-
 import argparse
 import logging
 import sys
 import os
 import random
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-
+from typing import Dict, Any, List, Tuple
 import numpy as np
 import pandas as pd
 
-# Import local helpers using the exact API surface provided
-# The API surface lists: setup_logging, FatalError, IntegrityError, etc.
-# We assume the logger name is the module name or a generic 'structural_validation'
-# The error in the logs was "Invalid log level: synthetic_generator", implying the function
-# expects a valid log level string (e.g., 'INFO'), not a module name.
-# We will implement a robust logging setup or import the fixed helper.
+# Import logging helper from project utils
+# Note: The error log indicated 'Invalid log level: synthetic_generator' when passing module name directly.
+# We will pass a valid log level string (e.g., 'INFO') or handle the setup correctly.
+# Based on the error: setup_logging("synthetic_generator") raised ValueError.
+# We assume setup_logging expects a valid log level string like "INFO", "DEBUG", etc., or we must fix io_helpers.
+# However, per constraints, we must extend existing files if needed.
+# The error came from io_helpers.py:25: `raise ValueError(f"Invalid log level: {level}")`.
+# This implies `setup_logging` expects a level string, not a name.
+# We will import and use it correctly here: setup_logging("INFO").
+from src.utils.io_helpers import setup_logging, write_csv_strict, FatalError
 
-# Since we cannot edit io_helpers.py in this task (it's not T010), we must handle logging
-# safely here or assume the fix in T010a will handle the import.
-# However, to ensure this script runs standalone, we will implement a local logging setup
-# that mimics the expected behavior, or import if available.
-# Given the constraint "Extend, don't re-author", and the fact that io_helpers.py exists,
-# we will try to import. If it fails due to the specific bug mentioned in the execution log,
-# we will catch it and use a fallback to ensure the script runs (as the bug is in the helper, not this logic).
-# BUT, the instruction says "If a name does not exist there, either add it to the appropriate file...".
-# We are allowed to add artifacts. We should probably fix the import or provide a safe wrapper.
-# Let's try to import and if the specific error occurs, we'll handle it gracefully or assume the
-# user has fixed io_helpers.py (since T009 is marked done, but the log shows a crash).
-# Actually, the log shows T009 is done but the code crashes. This implies the code in io_helpers.py
-# is buggy. Since I cannot edit io_helpers.py in T010 (it's a different task), I must ensure
-# this script doesn't crash on import if the bug exists.
-# Strategy: Try to import. If it fails, use a simple fallback logger.
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+OUTPUT_PATH = PROJECT_ROOT / "data" / "raw" / "structural_validation_data.csv"
+DEFAULT_N_HOUSEHOLDS = 500
+RANDOM_SEED = 42
 
-def _get_logger(name: str) -> logging.Logger:
-    """Safely get a logger, falling back to standard setup if the project helper fails."""
-    try:
-        from src.utils.io_helpers import setup_logging
-        # The error was "Invalid log level: synthetic_generator".
-        # This implies setup_logging takes (name) and tries to parse it as a level?
-        # Or maybe it takes (name, level) and the caller passed the wrong args?
-        # The log says: logger = setup_logging("synthetic_generator") -> ValueError: Invalid log level: synthetic_generator
-        # This implies setup_logging expects a log level string, not a name?
-        # Or it expects a name and internally fails?
-        # To be safe, we will use standard logging.
-        logger = logging.getLogger(name)
-        if not logger.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel(logging.INFO)
-        return logger
-    except Exception:
-        logger = logging.getLogger(name)
-        if not logger.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel(logging.INFO)
-        return logger
+# Initialize logger
+# Passing "INFO" to avoid the ValueError seen in execution logs
+logger = setup_logging("INFO")
 
-logger = _get_logger("structural_validation_generator")
-
-# Constants for generation
-SEED = 42
-NUM_RECORDS = 500  # Ensure > 300 for validation
-CONTINUOUS_MEAN = 0.0
-CONTINUOUS_STD = 0.5
-BINARY_PROB = 0.5
 
 class StructuralValidationGenerator:
-    """Generates structural validation data for the agriculture optimization pipeline."""
+    """
+    Generates structural validation data with specific statistical properties.
+    """
 
-    def __init__(self, seed: int = SEED):
+    def __init__(self, n_households: int = DEFAULT_N_HOUSEHOLDS, seed: int = RANDOM_SEED):
+        self.n_households = n_households
         self.seed = seed
-        self.rng = np.random.default_rng(seed)
+        self._rng = np.random.default_rng(seed)
         random.seed(seed)
-        logger.info(f"Initialized StructuralValidationGenerator with seed {seed}")
+        logger.info(f"Initialized StructuralValidationGenerator with N={n_households}, Seed={seed}")
 
-    def _generate_continuous(self, shape: tuple, mean: float = CONTINUOUS_MEAN, scale: float = CONTINUOUS_STD) -> np.ndarray:
-        """Generate multivariate normal data."""
-        return self.rng.normal(loc=mean, scale=scale, size=shape)
+    def _generate_coordinates(self) -> Tuple[np.ndarray, np.ndarray]:
+        """Generate random latitude/longitude around a central point (e.g., Malawi region)."""
+        # Center around Malawi (approx -13.5, 34.5)
+        lat_center = -13.5
+        lon_center = 34.5
+        # Spread ~1 degree for diversity
+        lats = self._rng.normal(loc=lat_center, scale=0.5, size=self.n_households)
+        lons = self._rng.normal(loc=lon_center, scale=0.5, size=self.n_households)
+        return lats, lons
 
-    def _generate_binary(self, shape: tuple, prob: float = BINARY_PROB) -> np.ndarray:
-        """Generate Bernoulli data."""
-        return self.rng.random(shape) < prob
-
-    def generate(self, num_records: int = NUM_RECORDS) -> pd.DataFrame:
+    def _generate_continuous_vars(self) -> Dict[str, np.ndarray]:
         """
-        Generate the full dataset with raw fields and derived metrics.
-        
-        Columns:
-        - household_id (int)
-        - latitude, longitude (float)
-        - land_size (float)
-        - education_level (int)
-        - finance_access (bool)
-        - practice_mixed_farming, practice_terracing, practice_conservation_tillage, practice_agroforestry (bool)
-        - extension_visits (int)
-        - hlias (int)
-        - CSA_Index (float) - Derived
-        - Stability_Score (float) - Derived
-        - village_id (str) - Derived
+        Generate continuous variables using Multivariate Normal.
+        Mean=0, Cov=I scaled by 0.5 as per requirements.
+        Then shift/scale to realistic ranges.
         """
-        logger.info(f"Generating {num_records} records...")
+        # Define correlation structure (identity scaled by 0.5)
+        mean = np.zeros(4) # land_size, education_level, extension_visits, hlias
+        cov = np.eye(4) * 0.5
 
-        # 1. Raw Fields
-        household_ids = list(range(1, num_records + 1))
-        
-        # Coordinates (simulating a region)
-        lats = self._generate_continuous((num_records,), mean=0.0, scale=0.1) + 10.0 # Base lat
-        lons = self._generate_continuous((num_records,), mean=0.0, scale=0.1) + 30.0 # Base lon
-        
-        land_size = np.abs(self._generate_continuous((num_records,), mean=2.0, scale=1.0)) # Positive land size
-        education_level = self.rng.integers(low=1, high=13, size=num_records) # 1-12
-        
-        finance_access = self._generate_binary((num_records,)).astype(int)
-        
-        # Practices
-        practice_mixed_farming = self._generate_binary((num_records,)).astype(int)
-        practice_terracing = self._generate_binary((num_records,)).astype(int)
-        practice_conservation_tillage = self._generate_binary((num_records,)).astype(int)
-        practice_agroforestry = self._generate_binary((num_records,)).astype(int)
-        
-        extension_visits = self.rng.integers(low=0, high=10, size=num_records)
-        hlias = self.rng.integers(low=0, high=28, size=num_records) # HFIAS score 0-28
+        raw_data = self._rng.multivariate_normal(mean, cov, size=self.n_households)
 
-        # 2. Derived Metrics
-        # CSA_Index: Sum of binary practice indicators (0 to 4)
-        # Map practice_* to CSA_Index
+        # Map to realistic ranges
+        # land_size: 0.5 to 10 hectares
+        land_size = 0.5 + (raw_data[:, 0] * 2 + 4) # Center ~4, scale ~2
+        land_size = np.clip(land_size, 0.5, 10.0)
+
+        # education_level: 0 to 12 years (integer)
+        education_level = np.round(raw_data[:, 1] * 3 + 6).astype(int)
+        education_level = np.clip(education_level, 0, 12)
+
+        # extension_visits: 0 to 20 (integer)
+        extension_visits = np.round(raw_data[:, 2] * 4 + 8).astype(int)
+        extension_visits = np.clip(extension_visits, 0, 20)
+
+        # hlias: 0 to 50 (Food insecurity score)
+        hlias = np.round(raw_data[:, 3] * 10 + 25).astype(int)
+        hlias = np.clip(hlias, 0, 50)
+
+        return {
+            "land_size": land_size,
+            "education_level": education_level,
+            "extension_visits": extension_visits,
+            "hlias": hlias
+        }
+
+    def _generate_binary_vars(self) -> Dict[str, np.ndarray]:
+        """Generate binary practice indicators using Bernoulli distribution."""
+        # Probabilities for practices (approx 30-50% adoption)
+        p_mixed = 0.4
+        p_terracing = 0.3
+        p_tillage = 0.35
+        p_agroforestry = 0.25
+
+        return {
+            "practice_mixed_farming": self._rng.binomial(1, p_mixed, self.n_households).astype(bool),
+            "practice_terracing": self._rng.binomial(1, p_terracing, self.n_households).astype(bool),
+            "practice_conservation_tillage": self._rng.binomial(1, p_tillage, self.n_households).astype(bool),
+            "practice_agroforestry": self._rng.binomial(1, p_agroforestry, self.n_households).astype(bool),
+            "finance_access": self._rng.binomial(1, 0.6, self.n_households).astype(bool) # 60% access
+        }
+
+    def _generate_derived_metrics(self, practices: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Calculate derived metrics:
+        CSA_Index: Sum of binary practice indicators.
+        Stability_Score: Derived from a synthetic NDVI time-series simulation.
+        """
+        # CSA Index: Sum of practices (0 to 4)
         csa_index = (
-            practice_mixed_farming + 
-            practice_terracing + 
-            practice_conservation_tillage + 
-            practice_agroforestry
-        )
+            practices["practice_mixed_farming"].astype(int) +
+            practices["practice_terracing"].astype(int) +
+            practices["practice_conservation_tillage"].astype(int) +
+            practices["practice_agroforestry"].astype(int)
+        ).astype(float)
 
-        # Stability_Score: Derived from synthetic NDVI proxy.
-        # Since we don't have real NDVI, we simulate a stability score based on land size and practices.
-        # Higher practices -> higher stability.
-        # Normalized 0-100.
-        stability_base = 50.0
-        stability_bonus = (csa_index * 10.0) + (extension_visits * 2.0)
-        stability_noise = self._generate_continuous((num_records,), mean=0, scale=5.0)
-        stability_score = stability_base + stability_bonus + stability_noise
-        stability_score = np.clip(stability_score, 0, 100)
+        # Stability Score: Simulate from NDVI variance
+        # We generate a synthetic NDVI time series for each household (e.g., 12 months)
+        # Then calculate CV (Coefficient of Variation) and set Stability = 1 / (CV + epsilon)
+        n_months = 12
+        ndvi_mean = 0.5
+        ndvi_std = 0.1
 
-        # Village ID: Derived from coordinates (grid resolution 0.1)
-        # Formula: village_id = f'{int(lat / grid_resolution) * grid_resolution}_{int(lon / grid_resolution) * grid_resolution}'
-        grid_res = 0.1
-        village_ids = [
-            f"{int(lat / grid_res) * grid_res}_{int(lon / grid_res) * grid_res}" 
-            for lat, lon in zip(lats, lons)
-        ]
+        # Generate NDVI time series: shape (n_households, n_months)
+        ndvi_series = self._rng.normal(loc=ndvi_mean, scale=ndvi_std, size=(self.n_households, n_months))
+        ndvi_series = np.clip(ndvi_series, 0, 1) # NDVI range [0, 1]
+
+        # Calculate mean and std per household
+        ndvi_mean_per_household = np.mean(ndvi_series, axis=1)
+        ndvi_std_per_household = np.std(ndvi_series, axis=1)
+
+        # Avoid division by zero
+        epsilon = 1e-6
+        cv = ndvi_std_per_household / (ndvi_mean_per_household + epsilon)
+        stability_score = 1.0 / (cv + epsilon)
+
+        # Normalize stability score to a reasonable range (e.g., 0-100)
+        # Just scaling for visualization, keeping relative order
+        stability_score = (stability_score - stability_score.min()) / (stability_score.max() - stability_score.min() + epsilon) * 100.0
+
+        return csa_index, stability_score
+
+    def generate(self) -> pd.DataFrame:
+        """Generate the full dataset."""
+        logger.info("Generating coordinates...")
+        lats, lons = self._generate_coordinates()
+
+        logger.info("Generating continuous variables...")
+        cont_vars = self._generate_continuous_vars()
+
+        logger.info("Generating binary variables...")
+        bin_vars = self._generate_binary_vars()
+
+        logger.info("Calculating derived metrics (CSA_Index, Stability_Score)...")
+        csa_index, stability_score = self._generate_derived_metrics(bin_vars)
 
         # Construct DataFrame
         data = {
-            'household_id': household_ids,
-            'latitude': lats,
-            'longitude': lons,
-            'land_size': land_size,
-            'education_level': education_level,
-            'finance_access': finance_access,
-            'practice_mixed_farming': practice_mixed_farming,
-            'practice_terracing': practice_terracing,
-            'practice_conservation_tillage': practice_conservation_tillage,
-            'practice_agroforestry': practice_agroforestry,
-            'extension_visits': extension_visits,
-            'hlias': hlias,
-            'CSA_Index': csa_index,
-            'Stability_Score': stability_score,
-            'village_id': village_ids
+            "household_id": np.arange(1, self.n_households + 1),
+            "latitude": lats,
+            "longitude": lons,
+            "land_size": cont_vars["land_size"],
+            "education_level": cont_vars["education_level"],
+            "finance_access": bin_vars["finance_access"],
+            "practice_mixed_farming": bin_vars["practice_mixed_farming"],
+            "practice_terracing": bin_vars["practice_terracing"],
+            "practice_conservation_tillage": bin_vars["practice_conservation_tillage"],
+            "practice_agroforestry": bin_vars["practice_agroforestry"],
+            "extension_visits": cont_vars["extension_visits"],
+            "hlias": cont_vars["hlias"], # Note: task spec says 'hlias' in schema, 'HFIAS' in description. Using 'hlias' as per schema T007.
+            "CSA_Index": csa_index,
+            "Stability_Score": stability_score,
+            "village_id": [f"{int(lat/0.1)*0.1}_{int(lon/0.1)*0.1}" for lat, lon in zip(lats, lons)]
         }
 
         df = pd.DataFrame(data)
-        logger.info(f"Generated DataFrame with shape {df.shape}")
+
+        # Ensure HFIAS column exists if schema expects 'HFIAS' (Task T007 says 'hlias', description says 'HFIAS')
+        # T007 explicitly lists 'hlias' (int). We keep 'hlias'.
+        # If T018b expects 'HFIAS', we might need an alias, but T007 is the contract.
+        # We will add 'HFIAS' as an alias to be safe for downstream tasks if they expect it,
+        # but primary is 'hlias' as per T007.
+        df["HFIAS"] = df["hlias"].astype(float)
+
         return df
 
-    def save(self, df: pd.DataFrame, output_path: str) -> None:
-        """Save the dataset to CSV."""
-        path = Path(output_path)
+    def save(self, df: pd.DataFrame, path: Path) -> None:
+        """Save DataFrame to CSV."""
         path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(path, index=False)
-        logger.info(f"Saved dataset to {output_path}")
+        logger.info(f"Saving dataset to {path}")
+        write_csv_strict(df, str(path))
+        logger.info("Save complete.")
 
-def main():
+
+def main() -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Generate structural validation data.")
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/raw/structural_validation_data.csv",
-        help="Output file path."
-    )
-    parser.add_argument(
-        "--seed", 
-        type=int, 
-        default=SEED, 
-        help="Random seed."
-    )
-    parser.add_argument(
-        "--num-records", 
-        type=int, 
-        default=NUM_RECORDS, 
-        help="Number of records to generate."
-    )
-
+    parser = argparse.ArgumentParser(description="Generate structural validation dataset.")
+    parser.add_argument("--n-households", type=int, default=DEFAULT_N_HOUSEHOLDS, help="Number of households to generate.")
+    parser.add_argument("--seed", type=int, default=RANDOM_SEED, help="Random seed.")
+    parser.add_argument("--output", type=str, default=str(OUTPUT_PATH), help="Output file path.")
     args = parser.parse_args()
 
     try:
-        generator = StructuralValidationGenerator(seed=args.seed)
-        df = generator.generate(num_records=args.num_records)
-        generator.save(df, args.output)
-        logger.info("Structural validation generation completed successfully.")
-        sys.exit(0)
+        generator = StructuralValidationGenerator(n_households=args.n_households, seed=args.seed)
+        df = generator.generate()
+        generator.save(df, Path(args.output))
+        logger.info("Structural validation generation successful.")
     except Exception as e:
         logger.error(f"Generation failed: {e}")
-        sys.exit(1)
+        raise FatalError(f"Structural validation generation failed: {e}")
+
 
 if __name__ == "__main__":
     main()

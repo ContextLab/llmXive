@@ -1,3 +1,10 @@
+"""
+CLI Orchestrator for the Climate-Smart Agriculture Optimization Pipeline.
+
+This script coordinates the execution of data ingestion, processing, analysis,
+and reporting stages. It handles synthetic data generation for CI environments
+when real data is unavailable and enforces citation validation gates.
+"""
 import argparse
 import logging
 import os
@@ -5,156 +12,177 @@ import sys
 import shutil
 from pathlib import Path
 
-# Add project root to path
+# Add project root to path for imports
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
-from src.data.generators.synthetic_generator import SyntheticDataGenerator
-from src.data.processing.spatial_join import verify_linkage_and_trigger_aggregation
-from src.data.processing.feature_engineering import generate_final_dataset
-from src.analysis.run_regression import run_regression_models
-from src.utils.io_helpers import setup_logging, write_json_strict
-from src.config.constants import LOG_LEVEL
+from src.cli.validate_citations import main as validate_citations_main
+from src.data.generators.structural_validation_generator import main as generate_structural_main
+from src.data.processing.feature_engineering import main as feature_engineering_main
+from src.utils.io_helpers import setup_logging, FatalError
+
+# Configure logging
+logger = setup_logging("run_pipeline")
 
 def check_and_generate_synthetic_data():
-    """Check if real data exists, if not generate synthetic data."""
-    raw_data_dir = project_root / 'data' / 'raw'
-    processed_data_dir = project_root / 'data' / 'processed'
-    
-    # Ensure directories exist
-    raw_data_dir.mkdir(parents=True, exist_ok=True)
-    processed_data_dir.mkdir(parents=True, exist_ok=True)
+    """
+    Check for real data in data/raw/. If missing and in CI mode,
+    invoke the structural validation generator.
+    """
+    data_raw_dir = project_root / "data" / "raw"
+    has_real_data = any(data_raw_dir.iterdir()) if data_raw_dir.exists() else False
 
-    # Check for real data (simplified check for existence of any csv in raw)
-    # In a real scenario, we'd check for specific files like LSMS-ISA
-    real_data_exists = False
-    if raw_data_dir.exists():
-        # Check for specific expected files or any csv
-        if list(raw_data_dir.glob('*.csv')) or list(raw_data_dir.glob('*.parquet')):
-            # Heuristic: if there's data, assume it's real
-            # A more robust check would verify schema
-            real_data_exists = True
+    ci_mode = os.environ.get("CI", "false").lower() == "true"
 
-    if not real_data_exists:
-        logging.warning("No real data found in data/raw/. Invoking synthetic generator.")
-        generator = SyntheticDataGenerator(n_samples=500) # Generate 500 samples
-        generator.generate()
-        logging.info("Synthetic data generation complete.")
-        return True
+    if not has_real_data:
+        if ci_mode:
+            logger.info("CI mode active: No real data found. Invoking structural validation generator.")
+            try:
+                generate_structural_main()
+                logger.info("Structural validation data generated successfully.")
+            except Exception as e:
+                logger.error(f"Failed to generate structural validation data: {e}")
+                raise FatalError("Synthetic data generation failed in CI mode.")
+        else:
+            logger.warning("No real data found and CI=false. Proceeding with synthetic data for local testing.")
+            try:
+                generate_structural_main()
+                logger.info("Structural validation data generated for local testing.")
+            except Exception as e:
+                logger.error(f"Failed to generate structural validation data: {e}")
+                raise FatalError("Synthetic data generation failed.")
     else:
-        logging.info("Real data detected. Skipping synthetic generation.")
-        return False
+        logger.info("Real data detected in data/raw/. Skipping synthetic generation.")
 
 def run_pipeline_stage_ingest():
-    """Run the ingestion stage."""
-    logging.info("Starting Ingestion Stage...")
+    """
+    Execute the ingestion stage.
+    This includes generating synthetic data if needed and running feature engineering.
+    """
+    logger.info("Starting Ingestion Stage.")
     
-    # Step 1: Ensure data exists (synthetic if needed)
+    # Step 1: Ensure data exists (generate if missing/CI)
     check_and_generate_synthetic_data()
 
-    # Step 2: Spatial Join (Mocked for synthetic flow if real collectors not run)
-    # In a full run, SurveyCollector and RemoteSensingCollector would run here.
-    # For synthetic flow, we assume the synthetic generator created the base survey data
-    # and we skip the actual satellite fetch, proceeding to feature engineering which
-    # can work with the synthetic data directly or mock the satellite join.
-    
-    # The synthetic generator in T010 creates the base dataset.
-    # We need to ensure the 'analysis_dataset.csv' is created or updated.
-    # For this specific task T041b, we need to ensure the file exists.
-    # The synthetic generator should have created it, or we create it here.
-    
-    data_path = project_root / 'data' / 'processed' / 'analysis_dataset.csv'
-    if not data_path.exists():
-        logging.warning("Analysis dataset not found after ingestion. Generating from synthetic source.")
-        # Re-trigger generator logic if needed, or assume it was done
-        generator = SyntheticDataGenerator(n_samples=500)
-        generator.generate()
-    
-    logging.info("Ingestion Stage complete.")
+    # Step 2: Run Feature Engineering to derive metrics
+    # Note: The structural validation generator creates raw CSVs.
+    # Feature engineering reads them and creates the analysis dataset.
+    try:
+        feature_engineering_main()
+        logger.info("Feature engineering completed.")
+    except Exception as e:
+        logger.error(f"Feature engineering failed: {e}")
+        raise
 
 def run_pipeline_stage_analysis():
-    """Run the analysis stage."""
-    logging.info("Starting Analysis Stage...")
-    
-    data_path = project_root / 'data' / 'processed' / 'analysis_dataset.csv'
-    if not data_path.exists():
-        logging.error("Analysis dataset not found. Run ingestion first.")
-        sys.exit(1)
-
-    # Run regression
-    results = run_regression_models(data_path)
-    
-    output_path = project_root / 'data' / 'processed' / 'regression_results.json'
-    write_json_strict(results, output_path)
-    logging.info(f"Regression results saved to {output_path}")
-    logging.info("Analysis Stage complete.")
+    """
+    Execute the analysis stage (regression).
+    """
+    logger.info("Starting Analysis Stage.")
+    # Import here to avoid circular dependencies if not needed for ingest
+    from src.analysis.run_regression import main as run_regression_main
+    try:
+        run_regression_main()
+        logger.info("Regression analysis completed.")
+    except Exception as e:
+        logger.error(f"Regression analysis failed: {e}")
+        raise
 
 def run_pipeline_stage_full():
-    """Run the full pipeline."""
+    """
+    Execute the full pipeline: Ingest -> Analysis -> Sensitivity -> Report.
+    """
+    logger.info("Starting Full Pipeline.")
     run_pipeline_stage_ingest()
     run_pipeline_stage_analysis()
+    
+    # Sensitivity Check
+    logger.info("Starting Sensitivity Analysis.")
+    from src.analysis.sensitivity_check import main as sensitivity_main
+    try:
+        sensitivity_main()
+        logger.info("Sensitivity analysis completed.")
+    except Exception as e:
+        logger.error(f"Sensitivity analysis failed: {e}")
+        raise
+
+    # Report Generation
+    logger.info("Generating Final Report.")
+    from src.services.report_generator import main as report_main
+    try:
+        report_main()
+        logger.info("Final report generated.")
+    except Exception as e:
+        logger.error(f"Report generation failed: {e}")
+        raise
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the Agriculture Optimization Pipeline.")
-    # Remove --stage, --use-synthetic as per execution failure report
-    # We will use flags that match the script's real usage
-    parser.add_argument('--no-synthetic', action='store_true', help='Fail if real data is missing.')
-    parser.add_argument('--dry-run', action='store_true', help='Run without generating data or writing files.')
-    parser.add_argument('--log-level', type=str, default=LOG_LEVEL, 
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                        help='Set the logging level.')
-    
+    parser = argparse.ArgumentParser(
+        description="CLI Orchestrator for Climate-Smart Agriculture Pipeline"
+    )
+    parser.add_argument(
+        "--stage",
+        type=str,
+        choices=["ingest", "analysis", "full", "dry-run"],
+        default="dry-run",
+        help="Pipeline stage to execute."
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Perform a dry run (validate setup without full execution)."
+    )
+    parser.add_argument(
+        "--no-citation-check",
+        action="store_true",
+        help="Skip the citation validation gate (not recommended)."
+    )
+
     args = parser.parse_args()
 
-    setup_logging(level=args.log_level)
+    # CRITICAL GATE: Citation Validation
+    # This check is independent of data availability.
+    if not args.no_citation_check:
+        logger.info("Running Citation Validation Gate...")
+        try:
+            # validate_citations_main returns 0 on success, non-zero on failure
+            # We need to capture the exit code logic. 
+            # The function likely sys.exits, so we wrap in try/except SystemExit
+            try:
+                validate_citations_main()
+            except SystemExit as e:
+                if e.code != 0:
+                    logger.error("Citation validation failed. Aborting pipeline.")
+                    sys.exit(1)
+                # If exit code is 0, continue
+        except Exception as e:
+            logger.error(f"Citation validation check encountered an error: {e}")
+            sys.exit(1)
+        logger.info("Citation validation passed.")
 
     if args.dry_run:
-        logging.info("Running in dry-run mode.")
-        # Just validate structure
-        return
+        logger.info("Dry run mode: Validating pipeline configuration and dependencies.")
+        # Check imports
+        try:
+            from src.data.generators.structural_validation_generator import StructuralValidationGenerator
+            from src.data.processing.feature_engineering import check_and_aggregate_if_needed
+            from src.analysis.run_regression import run_regression_models
+            logger.info("All required modules imported successfully.")
+            logger.info("Dry run complete. Exiting.")
+            sys.exit(0)
+        except ImportError as e:
+            logger.error(f"Import error during dry run: {e}")
+            sys.exit(1)
 
-    # If --no-synthetic is set, we would check for real data and fail if missing.
-    # The current logic in check_and_generate_synthetic_data handles the fallback.
-    # We can add a check here if needed, but the synthetic generator handles the CI case.
-    
-    # Run full pipeline by default if no stage specified? 
-    # The execution report showed commands like `--stage ingest` failing.
-    # We need to support the commands that the quickstart.md (or the user) expects.
-    # Since the quickstart.md is likely the source of truth for the user, 
-    # and the execution failed because the script didn't accept `--stage`,
-    # we must EITHER update quickstart.md to use the new flags OR update the script.
-    # The prompt says: "Reconcile them — either change the quickstart command to match the script's real usage, 
-    # OR change the script's argparse to accept the quickstart's arguments".
-    # The execution report shows the script usage as `[-h] [--no-synthetic] [--dry-run]`.
-    # The quickstart commands were `--stage ingest`, `--stage full`.
-    # To make the pipeline runnable as intended by the design (which likely expects stages),
-    # we should update the script to accept `--stage` and `--use-synthetic` (or similar).
-    # However, the task T041b is about verifying artifacts. The immediate blocker is the CLI mismatch.
-    # I will update the CLI to accept the `--stage` argument to match the expected workflow, 
-    # and handle the synthetic flag appropriately.
-
-    # Re-parsing arguments to support --stage for compatibility with quickstart expectations
-    # We will modify the parser to accept --stage
-    parser.add_argument('--stage', type=str, choices=['ingest', 'analysis', 'full'], 
-                        help='Run a specific stage of the pipeline.')
-    parser.add_argument('--use-synthetic', action='store_true', 
-                        help='Force use of synthetic data even if real data exists.')
-
-    args = parser.parse_args()
-
-    # If --use-synthetic is passed, we force the synthetic generator
-    if args.use_synthetic:
-        logging.info("Force synthetic data generation requested.")
-        # We can't easily force it without modifying check_and_generate_synthetic_data
-        # but we can simulate it by clearing data or just letting the generator run if it detects no data.
-        # For simplicity, we assume the generator logic is robust.
-        pass
-
-    if args.stage == 'ingest' or args.stage == 'full' or not args.stage:
+    if args.stage == "ingest":
         run_pipeline_stage_ingest()
-    
-    if args.stage == 'analysis' or args.stage == 'full':
+    elif args.stage == "analysis":
         run_pipeline_stage_analysis()
+    elif args.stage == "full":
+        run_pipeline_stage_full()
+    else:
+        logger.warning("No valid stage specified. Exiting.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
