@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E501, W503
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    *.egg-info,
+per-file-ignores =
+    # Allow complex comprehensions in streaming loader for performance
+    code/data/streaming_loader.py: C408
+    # Allow single letter variables in math contexts
+    code/analysis/statistical_test.py: E741

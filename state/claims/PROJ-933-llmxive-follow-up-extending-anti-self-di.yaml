@@ -1,0 +1,104 @@
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: Pipeline ingests UltraFeedback and Dolly datasets
+  claim_id: c_736a9afb
+  context: "The pipeline ingests UltraFeedback and Dolly datasets. It filters for\
+    \ prompts with \u22654 distinct reasoning traces and simulates context splits."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_ingests_UltraFeedback_and_Dolly_datasets
+  kind: entity_fact
+  raw_text: The pipeline ingests UltraFeedback and Dolly datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T17:58:42Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: Pipeline filters prompts with at least 4 distinct reasoning traces
+  claim_id: c_0167f4f6
+  context: "The pipeline ingests UltraFeedback and Dolly datasets. It filters for\
+    \ prompts with \u22654 distinct reasoning traces and simulates context splits."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_filters_prompts_with_at_least_4_distinct_reasoning
+  kind: magnitude
+  raw_text: "The pipeline filters for prompts with \u22654 distinct reasoning traces."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T17:58:58Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: Validation requires at least 30 valid prompts in context splits
+  claim_id: c_44e8efdb
+  context: 'Validation: Ensure data/context_splits.json contains at least 30 valid
+    prompts (Power Analysis requirement).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_at_least_30_valid_prompts_in_context_spl
+  kind: magnitude
+  raw_text: The script expects the data/context_splits.json file to contain at least
+    30 valid prompts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T17:59:34Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: Inference-only pass duration is 1 to 2 hours for full dataset subset
+  claim_id: c_5ee5f802
+  context: 'Note: This step is CPU-optimized. Expect ~1-2 hours for the full dataset
+    subset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference-only pass is expected to take ~1-2 hours for the full dataset
+    subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T18:00:00Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: Training script enforces 5.5-hour timeout
+  claim_id: c_9d06acbb
+  context: 'Timeout: The script enforces a hard 5.5-hour timeout. If exceeded, it
+    saves partial results and exits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script enforces a hard 5.5-hour timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T18:01:17Z'
+- artifact_path: projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/quickstart.md
+  attempts: 1
+  canonical: Human evaluation uses 3 independent raters
+  claim_id: c_28d4539c
+  context: 1. Open docs/rater.html in a browser. 2. Collect scores from 3 independent
+    raters. 3. Save results to data/human_scores.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The human evaluation proxy collects scores from 3 independent raters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T18:02:01Z'

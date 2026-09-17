@@ -18,7 +18,7 @@ The implementation targets a **CPU-only** GitHub Actions runner (2 vCPU, 7GB RAM
 **Project Type**: Computational Research / Machine Learning Pipeline.  
 **Performance Goals**: Complete training and analysis within 6 hours; peak RAM < 6.5 GB.  
 **Constraints**: No GPU available for primary training; must use streaming or sampling for large datasets; strict 5.5h timeout.  
-**Scale/Scope**: Processing ~30-50 prompts with 250 training steps each; generating ~1500 trajectories total.
+**Scale/Scope**: Processing a moderate number of prompts with 250 training steps each; generating ~1500 trajectories total.
 
 ## Constitution Check
 
@@ -78,7 +78,7 @@ projects/PROJ-933-llmxive-followup-extending-anti-self-di/code/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
 | **Custom Training Loop** | FR-008 requires token-level gradient inversion (ascending JS divergence) which standard RL libraries (e.g., `stable-baselines3`) do not support out-of-the-box. | Using a pre-built RL library would require complex hacking or would fail to implement the specific "AntiSD" gradient inversion logic defined in the spec. |
-| **Streaming/Sampling** | Datasets (UltraFeedback) exceed the 7GB RAM limit if fully loaded. | Loading the full dataset would cause OOM crashes on the free-tier runner. Streaming or strict sampling is the only feasible path. |
+| **Streaming/Sampling** | Datasets (UltraFeedback) exceed the available RAM limit if fully loaded. | Loading the full dataset would cause OOM crashes on the free-tier runner. Streaming or strict sampling is the only feasible path. |
 | **Wilcoxon Test** | FR-017 mandates non-parametric testing due to likely non-normal distributions. | A t-test assumes normality which cannot be guaranteed for small sample sizes of complex LLM outputs. |
 
 ## Phase Breakdown

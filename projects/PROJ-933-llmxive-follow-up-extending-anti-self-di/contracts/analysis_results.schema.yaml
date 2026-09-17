@@ -1,0 +1,148 @@
+# Analysis Results Schema for llmXive Anti-Self-Distillation
+# Defines the structure of statistical analysis and evaluation results
+$schema: http://json-schema.org/draft-07/schema#
+title: llmXive Analysis Results Schema
+type: object
+required:
+  - analysis_id
+  - statistical_tests
+  - diversity_metrics
+  - quality_metrics
+  - power_analysis
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run
+  statistical_tests:
+    type: object
+    required:
+      - wilcoxon_diversity
+      - wilcoxon_quality
+      - correlation_deliberation_quality
+    properties:
+      wilcoxon_diversity:
+        type: object
+        required:
+          - statistic
+          - p_value
+          - effect_size
+          - alternative
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          effect_size:
+            type: number
+            description: Cohen's d or similar effect size
+          alternative:
+            type: string
+            enum:
+              - two-sided
+              - less
+              - greater
+      wilcoxon_quality:
+        type: object
+        required:
+          - statistic
+          - p_value
+          - effect_size
+          - alternative
+      correlation_deliberation_quality:
+        type: object
+        required:
+          - pearson_r
+          - p_value
+          - n_samples
+        properties:
+          pearson_r:
+            type: number
+            minimum: -1
+            maximum: 1
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          n_samples:
+            type: integer
+            minimum: 1
+  diversity_metrics:
+    type: object
+    required:
+      - avg_bleu
+      - avg_semantic_similarity
+      - std_bleu
+      - std_semantic_similarity
+    properties:
+      avg_bleu:
+        type: number
+        minimum: 0
+        maximum: 100
+      avg_semantic_similarity:
+        type: number
+        minimum: 0
+        maximum: 1
+      std_bleu:
+        type: number
+        minimum: 0
+      std_semantic_similarity:
+        type: number
+        minimum: 0
+      deliberation_token_frequency:
+        type: number
+        description: Frequency of deliberation tokens per 100 tokens
+  quality_metrics:
+    type: object
+    required:
+      - human_proxy_score
+      - avg_quality_score
+    properties:
+      human_proxy_score:
+        type: number
+        description: Aggregated score from human evaluation proxy
+        minimum: 0
+        maximum: 1
+      avg_quality_score:
+        type: number
+        minimum: 0
+        maximum: 1
+      quality_std:
+        type: number
+        minimum: 0
+  power_analysis:
+    type: object
+    required:
+      - observed_power
+      - effect_size_used
+      - alpha
+      - sample_size
+    properties:
+      observed_power:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Observed statistical power (1 - beta)
+      effect_size_used:
+        type: number
+        description: Effect size used for power calculation
+      alpha:
+        type: number
+        const: 0.05
+      sample_size:
+        type: integer
+        minimum: 1
+  human_evaluation:
+    type: object
+    properties:
+      num_raters:
+        type: integer
+        const: 3
+      avg_inter_rater_agreement:
+        type: number
+        description: Cohen's kappa or similar
+      raw_scores_file:
+        type: string
+        description: Path to data/human_scores.csv
+additionalProperties: false

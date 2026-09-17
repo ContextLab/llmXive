@@ -1,0 +1,12 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory structure or file listing was provided as evidence; the claim that `mkdir -p projects/PROJ-933-llmxive-follow-up-extending-anti-self-di/code/{data,models,analysis,config} data/ results/` was executed cannot be verified. The required folders are missing from the supplied artifacts.
+- **T004** — No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml with black/isort settings, or related setup scripts) are present in the provided evidence, so the requirement to configure ruff/flake8 and black/isort is not satisfied.
+- **T007** — No code, tests, or documentation were provided that implements or demonstrates error handling for data fetch failures, nor any evidence that such failures raise exceptions instead of falling back to synthetic data. The required artifact is missing.
+- **T008** — No code, configuration file, or documentation for managing HuggingFace token and dataset path environment variables is present; the only artifacts relate to dataset loading and training, not to setting up environment variables. Consequently the required artifact is missing.
+- **T009** — No code, scripts, or documentation for streaming dataset loading or chunked processing utilities were provided; the evidence contains only the task description and requirements, with no actual artifacts to verify. The required utility functions are missing.
+- **T010** — No `quickstart.md` file or its contents were provided; the implementer only supplied the task description and specifications, without the required documentation artifact. The missing markdown file must be created to satisfy the task.
+- **T011** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T012** — No code, files, or documentation for validation logic in `code/data/` were presented. The implementer’s response contains only the feature specification and user stories, but no actual implementation artifact to verify schema‑compliance validation. The required artifact is missing.

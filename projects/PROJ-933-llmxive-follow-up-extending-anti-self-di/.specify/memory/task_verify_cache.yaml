@@ -1,0 +1,15 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, files, or documentation for validation logic in `code/data/` were presented.\
+    \ The implementer\u2019s response contains only the feature specification and\
+    \ user stories, but no actual implementation artifact to verify schema\u2011compliance\
+    \ validation. The required artifact is missing."
+T017:
+  c: false
+  h: 9960b5a51d8e5437808d7c7fc6be28a5fd649b46584aaa3bef135137eab750b1
+  r: "The repository includes a partially\u2011implemented `simulate_context_split`\
+    \ function in `code/data/preprocess.py`, but there is no code that iterates over\
+    \ the dataset and writes the resulting splits to `data/context_splits.json`. Moreover,\
+    \ the required `data/context_splits.json` file is absent. The task\u2019s core\
+    \ output is therefore missing."
