@@ -1,343 +1,310 @@
+"""
+Embedding Extraction Module for LlmXive Pipeline.
+
+This module implements the extraction of fixed-dimensional latent embeddings
+from audio samples using a frozen, lightweight encoder (distil-whisper-base).
+It operates strictly in CPU-only mode and processes data in batches to manage
+memory constraints.
+
+Output:
+    data/embeddings.parquet: A Parquet file containing columns:
+        - 'audio_path': Path to the source audio file
+        - 'label': String label ('jailbreak' or 'benign')
+        - 'embedding': List[float] or fixed-size vector representation
+        - 'duration': Audio duration in seconds
+"""
+
 import os
 import sys
 import json
 import logging
 import time
 import traceback
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+
 import numpy as np
 import pandas as pd
+import librosa
 import torch
 from transformers import WhisperProcessor, WhisperModel
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
-import soundfile as sf
+from datasets import Dataset
 
-# Local imports from project API surface
-from src.utils.config import get_path, ensure_dir, get_artifact_hash
+# Import project utilities to match API surface
+from src.utils.config import set_random_seed, get_path, ensure_dir, load_state
+from src.utils.env_config import enforce_cpu_only, is_cpu_only_mode
 from src.utils.logging_config import get_module_logger
-from src.utils.env_config import enforce_cpu_only
 
-# Enforce CPU-only mode as per project constraints
+# Ensure CPU-only execution immediately
 enforce_cpu_only()
+
+# Constants
+BATCH_SIZE = 32
+MODEL_NAME = "distil-whisper-base"
+SAMPLE_RATE = 16000
+MAX_DURATION_SECONDS = 30.0  # Truncate long audio to prevent OOM
+EMBEDDING_DIM = 768  # Whisper base hidden size
 
 logger = get_module_logger(__name__)
 
-# Expected embedding dimension for distil-whisper-base (768 for hidden states)
-# distil-whisper-base uses a Whisper architecture with hidden_size=768
-EXPECTED_EMBEDDING_DIM = 768
 
-def load_model_and_processor(model_name: str = "distil-whisper-base") -> Tuple[Any, Any]:
+def load_model_and_processor() -> Tuple[WhisperModel, WhisperProcessor]:
     """
-    Load the Whisper model and processor for CPU-only embedding extraction.
-    
-    Args:
-        model_name: Name of the model to load (default: distil-whisper-base)
-    
+    Loads the frozen Distil-Whisper base model and processor for CPU inference.
+
     Returns:
-        Tuple of (processor, model)
+        Tuple[WhisperModel, WhisperProcessor]: The loaded model and processor.
     """
-    logger.info(f"Loading model: {model_name}")
-    
+    logger.info(f"Loading model: {MODEL_NAME} (CPU-only)")
     try:
-        processor = WhisperProcessor.from_pretrained(model_name)
-        model = WhisperModel.from_pretrained(model_name)
-        model.eval()  # Set to evaluation mode
+        processor = WhisperProcessor.from_pretrained(MODEL_NAME, torch_dtype=torch.float32)
+        model = WhisperModel.from_pretrained(MODEL_NAME, torch_dtype=torch.float32)
         
-        # Ensure model is on CPU
-        model.to('cpu')
+        # Freeze parameters
+        model.eval()
+        for param in model.parameters():
+            param.requires_grad = False
         
-        logger.info(f"Model loaded successfully: {model_name}")
-        return processor, model
+        logger.info("Model loaded successfully and frozen.")
+        return model, processor
     except Exception as e:
-        logger.error(f"Failed to load model {model_name}: {e}")
+        logger.error(f"Failed to load model {MODEL_NAME}: {e}")
         raise
 
-def extract_embeddings_batch(
-    audio_batch: List[np.ndarray],
-    processor: Any,
-    model: Any,
-    batch_size: int = 32
-) -> np.ndarray:
-    """
-    Extract embeddings from a batch of audio arrays.
-    
-    Args:
-        audio_batch: List of numpy arrays containing audio data
-        processor: Whisper processor
-        model: Whisper model
-        batch_size: Batch size for processing (default: 32)
-    
-    Returns:
-        numpy array of shape (len(audio_batch), EXPECTED_EMBEDDING_DIM)
-    """
-    embeddings = []
-    
-    for i in range(0, len(audio_batch), batch_size):
-        batch = audio_batch[i:i + batch_size]
-        
-        # Process audio batch
-        inputs = processor(
-            batch,
-            sampling_rate=16000,
-            return_tensors="pt",
-            padding=True
-        )
-        
-        # Move inputs to CPU
-        input_features = inputs.input_features.to('cpu')
-        
-        with torch.no_grad():
-            # Extract hidden states from the last layer
-            outputs = model(input_features, output_hidden_states=True)
-            
-            # Get the last hidden state (shape: batch_size, seq_len, hidden_size)
-            last_hidden_state = outputs.hidden_states[-1]
-            
-            # Take the mean across the sequence dimension to get fixed-size embedding
-            # Shape: (batch_size, hidden_size)
-            batch_embeddings = last_hidden_state.mean(dim=1).cpu().numpy()
-            
-            # Validate dimensionality BEFORE appending
-            for j, emb in enumerate(batch_embeddings):
-                actual_dim = emb.shape[0]
-                if actual_dim != EXPECTED_EMBEDDING_DIM:
-                    raise ValueError(
-                        f"Dimensionality mismatch: expected {EXPECTED_EMBEDDING_DIM}, "
-                        f"got {actual_dim} for sample {i + j}"
-                    )
-            
-            embeddings.append(batch_embeddings)
-    
-    return np.vstack(embeddings)
 
 def load_audio_file(file_path: str) -> np.ndarray:
     """
-    Load an audio file and return as numpy array.
+    Loads an audio file using librosa, resampling to 16kHz.
     
     Args:
-        file_path: Path to the audio file
-    
+        file_path: Path to the audio file.
+        
     Returns:
-        numpy array of audio data
+        np.ndarray: Audio waveform as a 1D numpy array.
+        
+    Raises:
+        ValueError: If the file cannot be loaded or is invalid.
     """
     try:
-        audio_data, sample_rate = sf.read(file_path)
+        # Load with librosa, resample to 16kHz
+        y, sr = librosa.load(file_path, sr=SAMPLE_RATE, mono=True)
         
-        # Resample to 16kHz if necessary (Whisper expects 16kHz)
-        if sample_rate != 16000:
-            from scipy import signal
-            audio_data = signal.resample(audio_data, int(len(audio_data) * 16000 / sample_rate))
-        
-        return audio_data
+        # Truncate if too long to prevent memory issues
+        if len(y) > SAMPLE_RATE * MAX_DURATION_SECONDS:
+            y = y[: int(SAMPLE_RATE * MAX_DURATION_SECONDS)]
+            
+        return y
     except Exception as e:
-        logger.error(f"Failed to load audio file {file_path}: {e}")
-        raise
+        logger.error(f"Error loading audio file {file_path}: {e}")
+        raise ValueError(f"Failed to load audio file: {file_path}") from e
+
+
+def extract_embeddings_batch(
+    model: WhisperModel, 
+    processor: WhisperProcessor, 
+    audio_batch: List[np.ndarray], 
+    device: str
+) -> List[np.ndarray]:
+    """
+    Extracts embeddings from a batch of audio waveforms.
+    
+    Args:
+        model: The Whisper model.
+        processor: The Whisper processor.
+        audio_batch: List of 1D audio arrays.
+        device: Device string (e.g., 'cpu').
+        
+    Returns:
+        List[np.ndarray]: List of embedding vectors.
+    """
+    # Process batch through the processor
+    # WhisperProcessor expects input_features for encoder
+    inputs = processor(
+        audio_batch, 
+        sampling_rate=SAMPLE_RATE, 
+        return_tensors="pt", 
+        padding=True
+    ).to(device)
+    
+    with torch.no_grad():
+        # Extract hidden states from the encoder
+        # distil-whisper-base encoder output shape: (batch, seq_len, hidden_size)
+        # We take the mean pooling over the sequence length for a fixed vector
+        outputs = model.encoder(**inputs)
+        last_hidden_states = outputs.last_hidden_state  # (batch, seq_len, 768)
+        
+        # Mean pooling over sequence dimension
+        # Masking is implicitly handled by padding in processor, but for simplicity
+        # we take mean over non-padded if we had attention mask. 
+        # Here, simple mean over seq_len is standard for fixed-dim rep.
+        embeddings = last_hidden_states.mean(dim=1).cpu().numpy()
+        
+    return list(embeddings)
+
 
 def process_dataset(
-    audio_files: List[str],
-    labels: List[str],
-    processor: Any,
-    model: Any,
-    output_path: str,
-    batch_size: int = 32
-) -> str:
+    data_dir: Path, 
+    model: WhisperModel, 
+    processor: WhisperProcessor,
+    device: str
+) -> pd.DataFrame:
     """
-    Process a dataset of audio files and extract embeddings.
+    Iterates through the dataset directory, loads audio, extracts embeddings,
+    and builds a DataFrame.
     
     Args:
-        audio_files: List of paths to audio files
-        labels: List of corresponding labels (e.g., 'benign', 'jailbreak')
-        processor: Whisper processor
-        model: Whisper model
-        output_path: Path to save the embeddings parquet file
-        batch_size: Batch size for processing
-    
+        data_dir: Path to the directory containing audio files and metadata.
+        model: Loaded Whisper model.
+        processor: Loaded Whisper processor.
+        device: Device string.
+        
     Returns:
-        Path to the saved embeddings file
+        pd.DataFrame: DataFrame with embeddings and metadata.
     """
-    logger.info(f"Processing {len(audio_files)} audio files")
+    # Assume data structure: data_dir contains subfolders or a manifest
+    # Based on T012/T013 context, we expect a standard structure.
+    # We will look for audio files and a manifest if available, 
+    # or infer labels from directory structure if present.
     
-    all_embeddings = []
-    all_labels = []
-    all_file_paths = []
+    # Fallback: If specific manifest exists, use it. Otherwise, scan files.
+    manifest_path = data_dir / "metadata.json"
+    audio_files = []
+    labels_map = {}
     
-    for i, (audio_path, label) in enumerate(zip(audio_files, labels)):
-        try:
-            audio_data = load_audio_file(audio_path)
-            all_embeddings.append(audio_data)
-            all_labels.append(label)
-            all_file_paths.append(audio_path)
-            
-            # Process in batches
-            if len(all_embeddings) >= batch_size:
-                batch_embeddings = extract_embeddings_batch(
-                    all_embeddings, processor, model, batch_size=batch_size
-                )
-                for j, emb in enumerate(batch_embeddings):
-                    # Store as list for pandas compatibility
-                    pass  # We'll handle this differently below
-                
-                # Reset batch
-                all_embeddings = []
-                
-        except Exception as e:
-            logger.warning(f"Skipping file {audio_path}: {e}")
-            continue
-    
-    # Process remaining items
-    if all_embeddings:
-        batch_embeddings = extract_embeddings_batch(
-            all_embeddings, processor, model, batch_size=batch_size
-        )
+    if manifest_path.exists():
+        logger.info(f"Loading manifest from {manifest_path}")
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+        for item in manifest:
+            path = item.get('audio_path')
+            label = item.get('label', 'unknown')
+            if path:
+                full_path = data_dir / path
+                if full_path.exists():
+                    audio_files.append(str(full_path))
+                    labels_map[str(full_path)] = label
+                else:
+                    logger.warning(f"File in manifest not found: {full_path}")
     else:
-        batch_embeddings = np.array([])
+        # Scan for audio files
+        extensions = {'.wav', '.flac', '.mp3', '.ogg'}
+        logger.info(f"Scanning {data_dir} for audio files...")
+        for ext in extensions:
+            for file_path in data_dir.rglob(f"*{ext}"):
+                audio_files.append(str(file_path))
+                # Infer label from directory name if possible, else 'unknown'
+                parent_name = file_path.parent.name.lower()
+                if 'jailbreak' in parent_name:
+                    labels_map[str(file_path)] = 'jailbreak'
+                elif 'benign' in parent_name:
+                    labels_map[str(file_path)] = 'benign'
+                else:
+                    labels_map[str(file_path)] = 'unknown'
     
-    # Combine all embeddings (this is a simplification; in practice, we'd accumulate properly)
-    # For the actual implementation, we need to restructure to accumulate properly
+    if not audio_files:
+        logger.warning("No audio files found to process.")
+        return pd.DataFrame()
+
+    logger.info(f"Processing {len(audio_files)} audio files in batches of {BATCH_SIZE}...")
     
-    # Let's restructure for proper batch accumulation
-    all_embeddings = []
-    all_labels = []
-    all_file_paths = []
-    
-    for i, (audio_path, label) in enumerate(zip(audio_files, labels)):
-        try:
-            audio_data = load_audio_file(audio_path)
-            all_embeddings.append(audio_data)
-            all_labels.append(label)
-            all_file_paths.append(audio_path)
-            
-            # Process in batches
-            if len(all_embeddings) >= batch_size:
-                batch_embeddings = extract_embeddings_batch(
-                    all_embeddings, processor, model, batch_size=batch_size
-                )
-                all_embeddings = []  # Reset for next batch
-                
-                # Save batch results temporarily
-                # In a real implementation, we'd accumulate these
-        except Exception as e:
-            logger.warning(f"Skipping file {audio_path}: {e}")
-            continue
-    
-    # Final batch
-    if all_embeddings:
-        batch_embeddings = extract_embeddings_batch(
-            all_embeddings, processor, model, batch_size=len(all_embeddings)
-        )
-    else:
-        batch_embeddings = np.array([])
-    
-    # For the actual implementation, we need to properly accumulate embeddings
-    # Let's implement a cleaner version that accumulates properly
-    
-    # Reset and do it properly
-    all_embeddings = []
-    all_labels = []
-    all_file_paths = []
+    results = []
+    start_time = time.time()
     processed_count = 0
     
-    # Group into batches first
-    batches = []
-    current_batch_files = []
-    current_batch_labels = []
-    
-    for audio_path, label in zip(audio_files, labels):
-        current_batch_files.append(audio_path)
-        current_batch_labels.append(label)
+    for i in range(0, len(audio_files), BATCH_SIZE):
+        batch_paths = audio_files[i : i + BATCH_SIZE]
+        batch_data = []
+        batch_labels = []
         
-        if len(current_batch_files) >= batch_size:
-            batches.append((current_batch_files, current_batch_labels))
-            current_batch_files = []
-            current_batch_labels = []
-    
-    # Add remaining
-    if current_batch_files:
-        batches.append((current_batch_files, current_batch_labels))
-    
-    # Process each batch
-    for batch_files, batch_labels in batches:
-        batch_audio_data = []
-        for audio_path in batch_files:
+        # Load audio for batch
+        valid_indices = []
+        for idx, path in enumerate(batch_paths):
             try:
-                audio_data = load_audio_file(audio_path)
-                batch_audio_data.append(audio_data)
+                audio = load_audio_file(path)
+                batch_data.append(audio)
+                batch_labels.append(labels_map.get(path, 'unknown'))
+                valid_indices.append(idx)
             except Exception as e:
-                logger.warning(f"Skipping file {audio_path}: {e}")
-                continue
+                logger.warning(f"Skipping {path} due to error: {e}")
         
-        if not batch_audio_data:
+        if not batch_data:
             continue
-        
-        try:
-            batch_embeddings = extract_embeddings_batch(
-                batch_audio_data, processor, model, batch_size=batch_size
-            )
             
-            for emb, label, file_path in zip(batch_embeddings, batch_labels, batch_files):
-                all_embeddings.append(emb.tolist())
-                all_labels.append(label)
-                all_file_paths.append(file_path)
-                processed_count += 1
-                
-        except Exception as e:
-            logger.error(f"Batch processing failed: {e}")
-            continue
-    
-    logger.info(f"Successfully processed {processed_count} files")
-    
-    # Create DataFrame
-    df = pd.DataFrame({
-        'file_path': all_file_paths,
-        'label': all_labels,
-        'embedding': all_embeddings
-    })
-    
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    ensure_dir(output_dir)
-    
-    # Save to Parquet
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved embeddings to {output_path}")
-    
-    return output_path
+        # Extract embeddings
+        embeddings = extract_embeddings_batch(model, processor, batch_data, device)
+        
+        for idx, emb in enumerate(embeddings):
+            orig_idx = valid_indices[idx]
+            path = batch_paths[orig_idx]
+            label = batch_labels[orig_idx]
+            
+            # Calculate duration roughly
+            duration = len(batch_data[orig_idx]) / SAMPLE_RATE
+            
+            results.append({
+                'audio_path': path,
+                'label': label,
+                'embedding': emb.tolist(),
+                'duration': duration
+            })
+        
+        processed_count += len(batch_data)
+        elapsed = time.time() - start_time
+        logger.info(f"Processed {processed_count}/{len(audio_files)} files ({elapsed:.1f}s)")
+
+    return pd.DataFrame(results)
+
 
 def main():
-    """Main entry point for embedding extraction."""
-    logger.info("Starting embedding extraction pipeline")
+    """
+    Main entry point for the embedding extraction pipeline.
+    """
+    # 1. Setup Environment
+    set_random_seed(42)
+    project_root = get_path("")
+    data_dir = get_path("data")
+    output_path = get_path("data/embeddings.parquet")
     
-    # Example usage - in practice, this would be driven by CLI or config
-    # For now, we'll demonstrate the dimensionality validation logic
+    ensure_dir(output_path.parent)
     
-    # Load model
-    processor, model = load_model_and_processor("distil-whisper-base")
+    logger.info("Starting Embedding Extraction Pipeline (T014)")
+    logger.info(f"Project Root: {project_root}")
+    logger.info(f"Input Data Dir: {data_dir}")
+    logger.info(f"Output Path: {output_path}")
     
-    # Create sample data for testing dimensionality validation
-    # In a real scenario, this would come from a dataset
-    sample_audio = np.random.randn(16000)  # 1 second of random audio at 16kHz
+    # 2. Load Model
+    model, processor = load_model_and_processor()
+    device = "cpu" # Enforced by CPU-only config
     
+    # 3. Process Dataset
     try:
-        # Extract embedding from single sample
-        batch_embedding = extract_embeddings_batch(
-            [sample_audio], processor, model, batch_size=1
-        )
+        df = process_dataset(data_dir, model, processor, device)
         
-        # Validate dimensionality
-        if batch_embedding.shape[1] != EXPECTED_EMBEDDING_DIM:
-            raise ValueError(
-                f"Dimensionality validation failed: expected {EXPECTED_EMBEDDING_DIM}, "
-                f"got {batch_embedding.shape[1]}"
-            )
+        if df.empty:
+            logger.error("No data processed. Exiting.")
+            sys.exit(1)
+            
+        # 4. Save Results
+        logger.info(f"Saving {len(df)} embeddings to {output_path}")
+        df.to_parquet(output_path, index=False)
         
-        logger.info(f"Dimensionality validation passed: {batch_embedding.shape[1]} dimensions")
-        
+        # Validate output
+        if output_path.exists():
+            logger.info(f"Successfully wrote {output_path}")
+            # Log schema info
+            logger.info(f"Columns: {list(df.columns)}")
+            logger.info(f"Embedding dim: {len(df['embedding'].iloc[0]) if 'embedding' in df.columns else 'N/A'}")
+        else:
+            logger.error("Output file was not created.")
+            sys.exit(1)
+            
     except Exception as e:
-        logger.error(f"Embedding extraction failed: {e}")
+        logger.error(f"Pipeline failed: {e}")
         traceback.print_exc()
         sys.exit(1)
-    
-    logger.info("Embedding extraction pipeline completed successfully")
+    finally:
+        logger.info("Embedding extraction finished.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-statistical-cognitive-decline"
 version = "0.1.0"
 description = "Statistical analysis of publicly available textual data for detecting cognitive decline"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0.0",
@@ -18,25 +17,38 @@ dependencies = [
     "scipy>=1.10.0",
     "pyyaml>=6.0",
     "tqdm>=4.65.0",
-    "requests>=2.31.0",
-    "urllib3>=2.0.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-src = ["code", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "C4", "UP"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = "test_*.py"
 addopts = "-v --tb=short"

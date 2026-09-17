@@ -85,16 +85,16 @@
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
+- [X] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
 - [X] T011 [P] [US1] Integration test for error handling (corrupted files) in `tests/integration/test_error_handling.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005)
-- [ ] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
+- [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005) <!-- FAILED: unspecified -->
+- [X] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
 - [ ] T014 [US1] Implement `src/data/embed.py` to load `distil-whisper-base` (CPU-only), extract embeddings in batches (size=32), and save to `data/embeddings.parquet` (Parquet format) (FR-001)
-- [~] T015 [US1] Add dimensionality validation logic to ensure encoder output matches expected `AudioEmbedding` shape before saving
-- [~] T016 [US1] Implement resource logging for embedding extraction phase (time per batch, peak RAM)
+- [ ] T015 [US1] Add dimensionality validation logic to ensure encoder output matches expected `AudioEmbedding` shape before saving
+- [ ] T016 [US1] Implement resource logging for embedding extraction phase (time per batch, peak RAM)
 
 **Checkpoint**: Embeddings extracted successfully; US1 functional and testable independently
 
@@ -117,7 +117,7 @@
 - [ ] T021 [US2] Implement `src/models/train.py` to train `LogisticRegression` (CPU, no GPU) on the training split (FR-002)
 - [ ] T022 [US2] Implement `src/models/train.py` to calculate benign centroid ($\mu_{benign}$) and covariance ($\Sigma$) **only** from the Training Set's benign samples
 - [ ] T022b [US2] Implement `src/models/train.py` to calculate Mahalanobis distance for **ALL samples** (train and test) using the benign centroid/covariance and save the unified AnomalyScore report to `data/anomaly_scores.parquet` (FR-006)
-- [~] T023 [US2] Generate synthetic random noise baseline (Gaussian, same dim) and calculate its distance to $\mu_{benign}$ for comparison
+- [ ] T023 [US2] Generate synthetic random noise baseline (Gaussian, same dim) and calculate its distance to $\mu_{benign}$ for comparison
 - [ ] T024 [US2] Save trained model artifact and prediction probabilities to `results/predictions.csv`
 
 **Checkpoint**: Classifier trained and evaluated; US2 functional and testable independently
@@ -137,9 +137,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `src/models/eval.py` to calculate Precision, Recall, F1-score and compare against stratified random baseline (FR-003)
+- [X] T027 [P] [US3] Implement `src/models/eval.py` to calculate Precision, Recall, F1-score and compare against stratified random baseline (FR-003)
 - [ ] T027b [US3] Implement `src/models/eval.py` to read `data/anomaly_scores.parquet` (from T022b), calculate Pearson correlation (r) between Mahalanobis distance and jailbreak labels, **perform hypothesis test**, and verify threshold (p < 0.05 or r > 0.3) as required by SC-005; save results to `results/correlation.json`
-- [ ] T028 [US3] Implement `src/models/eval.py` to profile RAM usage (`tracemalloc`/`psutil`) and total wall-clock time (FR-004)
+- [X] T028 [US3] Implement `src/models/eval.py` to profile RAM usage (`tracemalloc`/`psutil`) and total wall-clock time (FR-004)
 - [ ] T029 [US3] Generate `results/report.md` containing all metrics and `results/resource_log.json`
 - [X] T030 [US3] Implement state update logic to compute SHA-256 hashes for all artifacts and update `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml`
 

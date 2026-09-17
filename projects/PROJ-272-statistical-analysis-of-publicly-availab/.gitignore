@@ -64,19 +64,16 @@ venv.bak/
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# OS
+.DS_Store
+Thumbs.db
 
-# Data files (generated)
-data/raw/
-data/processed/
-data/interim/
-data/results/
-data/ingestion_amendment.log
-data/raw/checksums.json
-
-# Logs
-*.log
-
-# Secrets
+# Project specific
+data/raw/*.zip
+data/raw/*.tar.gz
+data/raw/*.tar
+data/processed/*.npy
+data/processed/*.csv
+data/results/*.json
+logs/
 .secrets.baseline

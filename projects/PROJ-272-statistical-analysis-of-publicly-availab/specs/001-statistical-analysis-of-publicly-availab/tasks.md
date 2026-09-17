@@ -75,12 +75,12 @@
 
 - [X] T012 [FR-001] [US1] Implement data download utility in `code/ingestion.py` to fetch ADReSS raw files from canonical GitHub URL; Compute SHA-256 hash upon download and log it (Depends on T004)
 - [X] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected in config (Depends on T004)
-- [X] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available) [UNRESOLVED-CLAIM: c_2f8656a1 — status=not_enough_info]; Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
+- [X] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available); Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
 - [X] T012c [FR-001] [US1] Document Spec Amendment in `data/ingestion_amendment.log`: Record that FR-001 is satisfied by ADReSS-only ingestion due to verified-source constraints; Log that DementiaBank is excluded as primary source (Depends on T012a)
-- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group [UNRESOLVED-CLAIM: c_cea44339 — status=not_enough_info]; Fail pipeline with specific error if threshold not met (Depends on T012)
+- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group [UNRESOLVED-CLAIM: c_b44884a3 — status=not_enough_info]; Fail pipeline with specific error if threshold not met (Depends on T012)
 - [X] T012e [US1] Record computed SHA-256 checksum in `data/raw/checksums.json` with filename and hash (Depends on T012)
 - [X] T013 [US1] Implement text cleaning pipeline in `code/ingestion.py`: remove non-verbal annotations, normalize to UTF-8 (Depends on T012)
-- [X] T014 [US1] Implement record filtering in `code/ingestion.py`: exclude transcripts < 50 words and missing labels (Depends on T013)
+- [X] T014 [US1] Implement record filtering in `code/ingestion.py`: {{claim:c_91ebad87}} and missing labels (Depends on T013)
 - [X] T015 [US1] Implement metadata extraction in `code/ingestion.py` to parse cognitive status (Control, MCI, AD) from ADReSS headers and generate specific reason codes for excluded records (Depends on T013)
 - [X] T016 [US1] Create intermediate cleaned dataset in `data/interim/cleaned_adress.csv` with derivation log (Depends on T014, T015)
 - [ ] T017 [US1] Add logging for excluded records with specific reason codes, ensuring the logging logic parses the cognitive status metadata extraction result (Depends on T015)
@@ -110,7 +110,7 @@
 - [X] T023 [US2] Implement syntactic feature extraction (Mean Clause Length, T-unit Count) using spaCy in `code/features.py` (Depends on T016)
 - [ ] T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine Similarity) using `all-MiniLM-L6-v2` in `code/features.py` (CPU-only); Save embeddings to `data/processed/embeddings.npy` with shape [N, 384], dtype float32 (Depends on T016)
 - [ ] T025 [US2] Save processed feature matrix to `data/processed/features.csv` with metadata (Depends on T022, T023, T024)
-- [ ] T026 [US2] Implement statistical testing module in `code/stats.py`: Mann-Whitney U for Control vs AD and Control vs MCI (Depends on T025)
+- [X] T026 [US2] Implement statistical testing module in `code/stats.py`: Mann-Whitney U for Control vs AD and Control vs MCI (Depends on T025)
 - [ ] T027 [US2] Implement Bonferroni correction logic in `code/stats.py` to report raw and adjusted p-values; Persist results to `data/results/statistical_metrics.json` (Depends on T026)
 - [ ] T028 [US2] Calculate Cohen's d effect sizes for all significant features and persist to `data/results/statistical_metrics.json` (Depends on T026)
 - [ ] T029 [US2] Handle edge case: flag and exclude records with identical feature vectors (collinearity) before ranking (Depends on T025)
@@ -130,16 +130,16 @@
 
 **Goal**: Train Logistic Regression and Random Forest classifiers for preliminary sanity checks and perform nested 5-fold cross-validation for primary validation.
 
-**Independent Test**: Train model on split data, verify AUC >= 0.70 on test set (preliminary) and mean AUC > 0.5 (p<0.05) on nested CV.
+**Independent Test**: Train model on split data, verify AUC >= 0.70 on test set [UNRESOLVED-CLAIM: c_fd8704f0 — status=not_enough_info] (preliminary) and mean AUC > 0.5 (p<0.05) on nested CV.
 
 ### Implementation for User Story 3
 
 - [ ] T033 [US3] Implement data splitting utility in `code/modeling.py`: enforce a stratified train/validation/test split with a dominant training portion for preliminary check; Validate minimum sample size before splitting to prevent empty folds (Depends on T025)
 - [ ] T034 [US3] Implement Logistic Regression training and evaluation in `code/modeling.py` (Preliminary Sanity Check) (Depends on T033)
 - [ ] T035 [US3] Implement Random Forest training and evaluation in `code/modeling.py` (Preliminary Sanity Check) (Depends on T033)
-- [ ] T036 [US3] Report preliminary metrics (AUC, Accuracy, F1) for both classifiers on held-out test set (Depends on T034, T035)
+- [ ] T036 [US3] {{claim:c_e7077b9b}} (Depends on T034, T035)
 - [ ] T037 [US3] Implement a nested k-fold cross-validation loop in `code/modeling.py` for primary validation (Depends on T025)
-- [ ] T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints (< 7 GB) (Depends on T037)
+- [ ] T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints (< 7 GB) [UNRESOLVED-CLAIM: c_8dff6693 — status=not_enough_info] (Depends on T037)
 - [ ] T039 [US3] Calculate mean AUC and standard deviation across outer folds; save results to `data/results/cv_metrics.json` (Depends on T037)
 - [ ] T040 [US3] Generate final results report in `data/results/model_performance.json` (Depends on T036, T039)
 

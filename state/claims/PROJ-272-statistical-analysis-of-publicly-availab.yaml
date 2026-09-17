@@ -500,43 +500,6 @@
   updated_at: '2026-08-01T15:34:19Z'
 - artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
-  canonical: ADReSS dataset contains at least 500 participants per group
-  claim_id: c_b44884a3
-  context: "T012d [US1] Validate dataset size in code/ingestion.py: Check if ADReSS\
-    \ dataset contains \u2265 500 participants per group; Fail pipeline with specific\
-    \ error if threshold not met"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/ADReSS_dataset_contains_at_least_500_participants_per_group
-  kind: magnitude
-  raw_text: "Check if ADReSS dataset contains \u2265 500 participants per group"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T15:35:35Z'
-- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  attempts: 1
-  canonical: Embeddings saved with shape N by 384 and dtype float32
-  claim_id: c_dbb3663a
-  context: T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine
-    Similarity) using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings
-    to data/processed/embeddings.npy with shape [N, 384], dtype float32
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Save embeddings to data/processed/embeddings.npy with shape [N, 384],
-    dtype float32
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T15:35:35Z'
-- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  attempts: 1
   canonical: Mean AUC greater than 0.5 on nested cross-validation
   claim_id: c_03512e4b
   context: 'Independent Test: Train model on split data, verify AUC >= 0.70 on test
@@ -660,46 +623,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T15:41:03Z'
-- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  attempts: 1
-  canonical: Memory usage is less than or equal to 7 GB
-  claim_id: c_dc9b443f
-  context: "T046 {{claim:c_864f1b79}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar)\
-    \ AND memory usage \u2264 7 GB using tracemalloc; Generate data/results/runtime_log.json\
-    \ with total_seconds and data/results/memory_profile.json with peak_rss_gb"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Memory_usage_is_less_than_or_equal_to_7_GB
-  kind: magnitude
-  raw_text: "memory usage \u2264 7 GB using tracemalloc"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T15:41:04Z'
-- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  attempts: 1
-  canonical: DementiaBank excluded as primary source unless ADReSS fails
-  claim_id: c_459a4712
-  context: 'T012a [FR-001] [US1] Implement scope validation in code/ingestion.py:
-    Validate that the configuration explicitly excludes DementiaBank and that no attempt
-    is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected
-    in config (Depends on T004)'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/DementiaBank_excluded_as_primary_source_unless_ADReSS_fails
-  kind: entity_fact
-  raw_text: Validate that the configuration explicitly excludes DementiaBank and that
-    no attempt is made to fetch it unless ADReSS fails
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-01T15:42:52Z'
 - artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
   canonical: ADReSS dataset contains 500 participants per group
@@ -982,3 +905,411 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T04:23:21Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sentence embeddings have shape N by 384 with float32 dtype
+  claim_id: c_aa311970
+  context: T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine
+    Similarity) using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings
+    to data/processed/embeddings.npy with shape [N, 384], dtype float32
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save embeddings to data/processed/embeddings.npy with shape [N, 384],
+    dtype float32
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:48:48Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Preliminary metrics include AUC, Accuracy, and F1 for classifiers
+  claim_id: c_e7077b9b
+  context: T036 [US3] Report preliminary metrics (AUC, Accuracy, F1) for both classifiers
+    on held-out test set
+  evidence:
+    entailment_evidence: Preliminary metrics include AUC, Accuracy, and F1 for classi
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Preliminary_metrics_include_AUC,_Accuracy,_and_F1_for_classi
+  kind: entity_fact
+  raw_text: Report preliminary metrics (AUC, Accuracy, F1) for both classifiers on
+    held-out test set
+  resolved_value: Preliminary metrics include AUC, Accuracy, and F1 for classifiers
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:48:53Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Nested cross-validation models respect memory constraints under 7 GB
+  claim_id: c_3dec0711
+  context: T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints
+    (< 7 GB)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure nested CV uses CPU-only models and respects memory constraints
+    (< 7 GB)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:48:53Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory profile reports peak_rss_gb and runtime log reports total_seconds
+  claim_id: c_8cfa49c4
+  context: "T046 {{claim:c_864f1b79}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar)\
+    \ AND memory usage \u2264 7 GB using tracemalloc; Generate data/results/runtime_log.json\
+    \ with total_seconds and data/results/memory_profile.json with peak_rss_gb"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_profile_reports_peak_rss_gb_and_runtime_log_reports_t
+  kind: entity_fact
+  raw_text: Generate data/results/runtime_log.json with total_seconds and data/results/memory_profile.json
+    with peak_rss_gb
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:49:02Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: Memory usage is less than or equal to 7 GB
+  claim_id: c_dc9b443f
+  context: "T046 {{claim:c_864f1b79}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar)\
+    \ AND memory usage \u2264 7 GB using tracemalloc; Generate data/results/runtime_log.json\
+    \ with total_seconds and data/results/memory_profile.json with peak_rss_gb"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_is_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "memory usage \u2264 7 GB using tracemalloc"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:49:23Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: ADReSS dataset contains 500 participants per group
+  claim_id: c_bd8e0db8
+  context: "T012d [US1] Validate dataset size in code/ingestion.py: Check if ADReSS\
+    \ dataset contains \u2265 500 participants per group; Fail pipeline with specific\
+    \ error if threshold not met"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check if ADReSS dataset contains \u2265 500 participants per group"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:50:29Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sentence embeddings shape 384 with float32 dtype
+  claim_id: c_a5d8b0f4
+  context: T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine
+    Similarity) using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings
+    to data/processed/embeddings.npy with shape [N, 384], dtype float32
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save embeddings to data/processed/embeddings.npy with shape [N, 384],
+    dtype float32
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:50:29Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Model AUC is 0.70 on test set
+  claim_id: c_8efa4a01
+  context: 'Independent Test: Train model on split data, verify AUC >= 0.70 on test
+    set (preliminary) and mean AUC > 0.5 (p<0.05) on nested CV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify AUC >= 0.70 on test set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:50:54Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage is 7 GB
+  claim_id: c_08cd8f3d
+  context: "T046 ... AND memory usage \u2264 7 GB using tracemalloc; Generate data/results/runtime_log.json\
+    \ with total_seconds and data/results/memory_profile.json with peak_rss_gb"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Memory usage \u2264 7 GB using tracemalloc"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:50:54Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 0
+  canonical: Transcripts with fewer than 50 words are excluded
+  claim_id: c_91ebad87
+  context: 'T014 [US1] Implement record filtering in code/ingestion.py: exclude transcripts
+    < 50 words and missing labels (Depends on T013)'
+  evidence:
+    entailment_evidence: Transcripts with fewer than 50 words are excluded
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Transcripts_with_fewer_than_50_words_are_excluded
+  kind: magnitude
+  raw_text: exclude transcripts < 50 words
+  resolved_value: Transcripts with fewer than 50 words are excluded
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:52:04Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: DementiaBank excluded as primary source unless ADReSS fails
+  claim_id: c_459a4712
+  context: 'T012a [FR-001] [US1] Implement scope validation in code/ingestion.py:
+    Validate that the configuration explicitly excludes DementiaBank and that no attempt
+    is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected
+    in config (Depends on T004)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DementiaBank_excluded_as_primary_source_unless_ADReSS_fails
+  kind: entity_fact
+  raw_text: Validate that the configuration explicitly excludes DementiaBank and that
+    no attempt is made to fetch it unless ADReSS fails
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:52:36Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: ADReSS dataset contains at least 500 participants per group
+  claim_id: c_0af856fa
+  context: "T012d [US1] Validate dataset size in code/ingestion.py: Check if ADReSS\
+    \ dataset contains \u2265 500 participants per group; Fail pipeline with specific\
+    \ error if threshold not met (Depends on T012)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ADReSS_dataset_contains_at_least_500_participants_per_group
+  kind: magnitude
+  raw_text: "Check if ADReSS dataset contains \u2265 500 participants per group"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:52:38Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sentence embeddings saved with shape N x 384 and dtype float32
+  claim_id: c_ef65c0da
+  context: T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine
+    Similarity) using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings
+    to data/processed/embeddings.npy with shape [N, 384], dtype float32 (Depends on
+    T016)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save embeddings to data/processed/embeddings.npy with shape [N, 384],
+    dtype float32
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:52:38Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Preliminary test set AUC greater than or equal to 0.70
+  claim_id: c_1cf51687
+  context: 'Independent Test: Train model on split data, verify AUC >= 0.70 on test
+    set (preliminary) and mean AUC > 0.5 (p<0.05) on nested CV.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preliminary_test_set_AUC_greater_than_or_equal_to_0.70
+  kind: magnitude
+  raw_text: verify AUC >= 0.70 on test set (preliminary)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:52:40Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Nested cross-validation memory usage less than 7 GB
+  claim_id: c_590cb74a
+  context: T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints
+    (< 7 GB) (Depends on T037)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Nested_cross-validation_memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: respects memory constraints (< 7 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:53:06Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage less than or equal to 7 GB measured by tracemalloc
+  claim_id: c_6cf477a7
+  context: "T046 {{claim:c_864f1b79}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar)\
+    \ AND memory usage \u2264 7 GB using tracemalloc; Generate data/results/runtime_log.json\
+    \ with total_seconds and data/results/memory_profile.json with peak_rss_gb (Depends\
+    \ on T040)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_or_equal_to_7_GB_measured_by_tracemal
+  kind: magnitude
+  raw_text: "memory usage \u2264 7 GB using tracemalloc"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:53:08Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 3
+  canonical: ADReSS dataset contains at least 500 participants per group
+  claim_id: c_b44884a3
+  context: "T012d [US1] Validate dataset size in code/ingestion.py: Check if ADReSS\
+    \ dataset contains \u2265 500 participants per group; Fail pipeline with specific\
+    \ error if threshold not met"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ADReSS_dataset_contains_at_least_500_participants_per_group
+  kind: magnitude
+  raw_text: "Check if ADReSS dataset contains \u2265 500 participants per group"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:56:09Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: Embeddings saved with shape N by 384 and dtype float32
+  claim_id: c_dbb3663a
+  context: T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine
+    Similarity) using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings
+    to data/processed/embeddings.npy with shape [N, 384], dtype float32
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save embeddings to data/processed/embeddings.npy with shape [N, 384],
+    dtype float32
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:56:09Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Preliminary model validation requires AUC greater than or equal to 0.70
+  claim_id: c_fd8704f0
+  context: 'Independent Test: Train model on split data, verify AUC >= 0.70 on test
+    set (preliminary) and mean AUC > 0.5 (p<0.05) on nested CV.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preliminary_model_validation_requires_AUC_greater_than_or_eq
+  kind: magnitude
+  raw_text: Train model on split data, verify AUC >= 0.70 on test set
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:56:54Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Nested cross-validation memory constraint is less than 7 GB
+  claim_id: c_8dff6693
+  context: T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints
+    (< 7 GB) (Depends on T037)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Nested_cross-validation_memory_constraint_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure nested CV uses CPU-only models and respects memory constraints
+    (< 7 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:57:19Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage is less than or equal to 7 GB
+  claim_id: c_b2f4a706
+  context: "T046 ... AND memory usage \u2264 7 GB using tracemalloc; Generate data/results/runtime_log.json\
+    \ with total_seconds and data/results/memory_profile.json with peak_rss_gb"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_is_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "Memory usage \u2264 7 GB using tracemalloc"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-17T21:57:22Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sentence embeddings are generated using the all-MiniLM-L6-v2 model
+  claim_id: c_0fb1c4de
+  context: 'Constraint Reminder: All models must run on CPU only (no CUDA, no 8-bit
+    quantization). Use all-MiniLM-L6-v2 for embeddings.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: Use all-MiniLM-L6-v2 for embeddings
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-17T21:57:49Z'

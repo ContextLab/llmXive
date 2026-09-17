@@ -9,15 +9,15 @@ This project investigates whether the "reverse-perplexity" curriculum used to tr
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3  
 **Primary Dependencies**: `transformers` (v4.40+), `torch` (CPU-only build), `datasets` (v2.19+), `pandas`, `scipy`, `statsmodels`, `pyyaml`, `huggingface_hub`  
-**Storage**: Local file system (JSONL/Parquet), GitHub Actions ephemeral storage (~14 GB)  
+**Storage**: Local file system (JSONL/Parquet), GitHub Actions ephemeral storage (~ GB)  
 **Testing**: `pytest` (unit tests for data parsing, scoring logic, statistical functions)  
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner, CPU-only)  
 **Project Type**: Research pipeline / CLI  
 **Performance Goals**: Complete full inference and analysis within 6 hours; peak RAM usage < 7 GB; no CUDA dependencies.  
-**Constraints**: CPU-only inference; strict token limits to prevent timeouts; quantized models (INT4) for scoring to fit RAM; no proprietary data access.  
-**Scale/Scope**: ~500 OpenSci prompts (ScienceQA derived), full IMO test set (subset if necessary), N=50 gold standard validation set.
+**Constraints**: CPU-only inference; strict token limits to prevent timeouts; quantized models for scoring to fit RAM; no proprietary data access.  
+**Scale/Scope**: A set of OpenSci prompts (ScienceQA derived), full IMO test set (subset if necessary), N=50 gold standard validation set.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -61,7 +61,7 @@ projects/PROJ-921-llmxive-follow-up-extending-achieving-go/
 │   │   ├── runner.py             # CPU-only inference loop (SU-01 & Baseline)
 │   │   └── config.py             # Token limits, seeds, temperature
 │   ├── scoring/
-│   │   ├── proxy_model.py        # Llama-3-8B-INT4 scoring logic
+│   │   ├── proxy_model.py        # Llama-8B-INT4 scoring logic
 │   │   └── validator.py          # Correlation check against gold standard
 │   ├── analysis/
 │   │   ├── stats.py              # LME model, dimension independence, power analysis
@@ -91,7 +91,7 @@ projects/PROJ-921-llmxive-follow-up-extending-achieving-go/
 |-----------|------------|-------------------------------------|
 | **Dual-dataset approach** | Required to test the specific hypothesis (Olympiad vs. OpenSci). | A single dataset cannot distinguish between "rigid" and "creative" reasoning modes as the hypothesis posits a trade-off. |
 | **Proxy LLM Scoring** | Human evaluation is infeasible for CI; automated scoring is required for reproducibility. | Simple keyword matching or binary classification fails to capture the nuance of "Novelty" and "Feasibility" in ill-structured problems. |
-| **Quantized Model (INT4)** | Required to fit Llama-3-8B into 7GB RAM on CPU-only runner. | Running a full precision model would cause OOM errors, failing the compute feasibility constraint. |
+| **Quantized Model (INT4)** | Required to fit a medium-sized Llama model into limited RAM on a CPU-only runner. | Running a full precision model would cause OOM errors, failing the compute feasibility constraint. |
 | **Gold Standard Validation** | Required to ensure the proxy model is not hallucinating scores (FR-008). | Using the proxy model without validation risks measuring model bias rather than actual creativity. |
 | **Linear Mixed Effects (LME)** | Required to handle nested data structure (responses within prompts) and test interaction effects. | Simple correlation or t-test fails to account for prompt difficulty variance and circularity of same-model metrics. |
 

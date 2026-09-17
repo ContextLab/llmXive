@@ -130,7 +130,7 @@ projects/PROJ-354-investigating-the-correlation-between-gu/
 - [ ] **T014**: Implement `code/pipelines/download.py` (Synthetic Generator). *Evidence: Script + sample output.*
 - [ ] **T015**: Implement `code/utils/seeding.py`.
 - [ ] **T016**: Implement `code/utils/streaming.py`.
-- [ ] **T017**: Generate `data/raw/synthetic_ukb.parquet` (Seed 42).
+- [ ] **T017**: Generate `data/raw/synthetic_ukb.parquet` with a fixed random seed..
 - [ ] **T018**: Implement `code/pipelines/preprocess.py` (ILR Transformation).
 
 ### Phase 2: Validation Gate (Mock)
@@ -150,7 +150,7 @@ projects/PROJ-354-investigating-the-correlation-between-gu/
 
 ### Phase 4: Visualization & Sensitivity
 - [ ] **T028a**: Generate Manhattan-style plots.
-- [ ] **T029a**: Perform Threshold Sweep (p-value cutoffs: 0.01, 0.05, 0.1).
+- [ ] **T029a**: Perform Threshold Sweep (p-value cutoffs: standard significance levels).
 - [ ] **T033**: Generate Interaction Comparison Report.
 
 ### Phase 5: Documentation & Verification

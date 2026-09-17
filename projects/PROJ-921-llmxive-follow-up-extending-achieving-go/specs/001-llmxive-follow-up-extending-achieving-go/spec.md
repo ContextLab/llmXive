@@ -56,7 +56,7 @@ The researcher MUST be able to compute the Point-Biserial correlation between Ol
 
 - What happens when the "OpenSci-Reason" dataset contains prompts that are too ambiguous for the scoring model to evaluate? The system MUST flag these as "low-confidence" if the variance of the 3 creativity scores exceeds 1.5 or if the mean entropy of the scoring model's output logits exceeds 2.0, and exclude them from the final correlation calculation.
 - How does the system handle inference timeouts on the GitHub Actions free tier if a specific prompt generates an excessively long reasoning chain? The system MUST enforce a hard token limit (e.g., 2048 output tokens) and record the truncation as a "generation failure" rather than crashing.
-- What if the frozen scoring model (Llama-3-8B) fails to fit in 7GB RAM due to OS overhead? The system MUST fallback to a smaller quantized model (e.g., Llama-3-8B-INT4) or a distilled 3B model, recording the model change in the assumptions log.
+- What if the frozen scoring model (Llama-8B) fails to fit in 7GB RAM due to OS overhead? The system MUST fallback to a smaller quantized model or a distilled model, recording the model change in the assumptions log.
 - What happens if a prompt fails to generate 3 distinct valid responses? The system MUST flag the prompt as "incomplete" and exclude it from the per-prompt statistical analysis, recording the failure count.
 
 ## Requirements
@@ -97,7 +97,7 @@ The researcher MUST be able to compute the Point-Biserial correlation between Ol
 ## Assumptions
 
 - The "OpenSci-Reason" dataset can be constructed entirely from text-only sources (NSF/ERC abstracts, open physics challenges) without requiring proprietary data or complex formatting.
-- The pre-fine-tuned scoring model (e.g., `meta-llama/Meta-Llama-3-8B-Instruct` at INT4) can run within the 7GB RAM limit on the GitHub Actions free tier.
+- The pre-fine-tuned scoring model (e.g., `meta-llama/Meta-Llama-8B-Instruct` at INT4) can run within the 7GB RAM limit on the GitHub Actions free tier.
 - The SU-01 model weights are available via HuggingFace or the original repository in a format compatible with `transformers` on CPU.
 - The "reverse-perplexity" curriculum is the primary differentiator between the SU-01 model and the baseline model, with no other significant architectural changes.
 - The proxy expert model, fine-tuned on diverse general scientific literature, is sufficiently calibrated to distinguish between "rigid" and "creative" responses without requiring domain-specific fine-tuning on Olympiad data.

@@ -1,0 +1,46 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation for a global logger with both file
+    and console handlers was provided; the evidence consists only of the task description
+    and project spec, which do not demonstrate that the required logging infrastructure
+    has been implemented. The implementer must supply the actual logger setup (e.g.,
+    a Python module configuring `logging`, a config file, or similar) to satisfy T008.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a script, notebook, Dockerfile, or documentation) was provided\
+    \ that actually sets `os.environ[\"CUDA_VISIBLE_DEVICES\"] = \"\"` or otherwise\
+    \ enforces CPU\u2011only execution. Without such evidence the requirement is not\
+    \ demonstrated. The implementer must add a concrete file or code snippet showing\
+    \ the environment variable being set."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation showing that dimensionality validation logic\
+    \ was added to the encoder output pipeline is present. The required artifact\u2014\
+    a change that checks the shape of the `AudioEmbedding` before saving and raises\
+    \ an error or handles mismatches\u2014is missing, so the task is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files were presented that record per\u2011batch execution\
+    \ time or peak RAM usage during the embedding extraction phase. Consequently,\
+    \ the required resource\u2011logging functionality is not demonstrated. The implementer\
+    \ must add and provide the logging implementation (e.g., timestamps, batch\u2011\
+    level timing, memory\u2011usage metrics) and show the resulting logs or code excerpts."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no code, data file, or computed result showing a Gaussian\u2011\
+    distributed synthetic noise vector of the same dimensionality as the embeddings,\
+    \ nor any reported distance between that noise and the benign mean\u202F\u03BC\
+    \u208Dbenign\u208E. Without these artifacts, the task requirement is not satisfied."
+T027b:
+  c: false
+  h: bf372bb120db0ecb0467cb64bac28508fe3264840d05500a8285d25ff0cb536a
+  r: The required input `data/anomaly_scores.parquet` does not exist, and the expected
+    output `results/correlation.json` was never created. Moreover, the provided `src/models/eval.py`
+    snippet shows only loading functions and no implementation of Pearson correlation,
+    hypothesis testing, threshold verification, or JSON saving. The task therefore
+    remains unfinished.

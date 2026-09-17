@@ -1,97 +1,101 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Linguistic Feature Matrix Schema
 description: >-
-  Schema for the processed feature matrix containing lexical, syntactic, 
-  and semantic features extracted from the cleaned transcripts.
-  Used as input for statistical testing and modeling (User Story 2 & 3).
+  Schema for the extracted feature matrix used in statistical analysis
+  and modeling. Includes lexical, syntactic, and semantic features.
 type: object
 required:
   - participant_id
   - label
-  - lexical_features
-  - syntactic_features
-  - semantic_features
+  - features
 properties:
   participant_id:
     type: string
-    description: >-
-      Unique identifier matching the source dataset.
-    pattern: "^[pc]\\d{3,}$"
+    description: Reference to the participant in the dataset schema.
+    pattern: '^[a-z][0-9]+$'
   label:
     type: string
-    description: >-
-      Cognitive status classification.
+    description: Cognitive status label.
     enum:
       - Control
       - MCI
       - AD
-  lexical_features:
+  features:
     type: object
     description: >-
-      Vocabulary richness and complexity metrics.
-    required:
-      - ttr
-      - mtld
-      - noun_ratio
-      - verb_ratio
+      Dictionary of extracted linguistic features. Keys are feature names,
+      values are numeric.
     properties:
-      ttr:
-        type: number
-        description: Type-Token Ratio (vocabulary diversity).
-        minimum: 0.0
-        maximum: 1.0
-      mtld:
-        type: number
-        description: >-
-          Measure of Textual Lexical Diversity (MTLD).
-          Higher values indicate greater lexical diversity.
-        minimum: 0.0
-      noun_ratio:
-        type: number
-        description: Ratio of nouns to total words.
-        minimum: 0.0
-        maximum: 1.0
-      verb_ratio:
-        type: number
-        description: Ratio of verbs to total words.
-        minimum: 0.0
-        maximum: 1.0
-  syntactic_features:
+      lexical:
+        type: object
+        description: Lexical complexity metrics.
+        properties:
+          ttr:
+            type: number
+            description: Type-Token Ratio.
+            minimum: 0.0
+            maximum: 1.0
+          mtld:
+            type: number
+            description: Measure of Textual Lexical Diversity.
+            minimum: 0.0
+          noun_verb_ratio:
+            type: number
+            description: Ratio of nouns to verbs.
+            minimum: 0.0
+        required:
+          - ttr
+          - mtld
+          - noun_verb_ratio
+        additionalProperties: true
+      syntactic:
+        type: object
+        description: Syntactic complexity metrics.
+        properties:
+          mean_clause_length:
+            type: number
+            description: Average number of words per clause.
+            minimum: 0.0
+          t_unit_count:
+            type: integer
+            description: Total number of T-units.
+            minimum: 0
+        required:
+          - mean_clause_length
+          - t_unit_count
+        additionalProperties: true
+      semantic:
+        type: object
+        description: Semantic coherence metrics.
+        properties:
+          embedding_cosine_similarity:
+            type: number
+            description: Mean cosine similarity of sentence embeddings.
+            minimum: -1.0
+            maximum: 1.0
+        required:
+          - embedding_cosine_similarity
+        additionalProperties: true
+    required:
+      - lexical
+      - syntactic
+      - semantic
+    additionalProperties: true
+  stats:
     type: object
-    description: >-
-      Structural complexity metrics derived from spaCy parsing.
-    required:
-      - mean_clause_length
-      - t_unit_count
-      - avg_sentence_length
+    description: Optional statistical test results associated with features.
     properties:
-      mean_clause_length:
+      mann_whitney_u:
         type: number
-        description: Average number of words per clause.
+      p_value_raw:
+        type: number
         minimum: 0.0
-      t_unit_count:
-        type: integer
-        description: Total number of T-units in the transcript.
-        minimum: 0
-      avg_sentence_length:
-        type: number
-        description: Average number of words per sentence.
-        minimum: 0.0
-  semantic_features:
-    type: object
-    description: >-
-      Semantic coherence metrics based on sentence embeddings.
-    required:
-      - cosine_similarity_mean
-      - cosine_similarity_std
-    properties:
-      cosine_similarity_mean:
-        type: number
-        description: Mean cosine similarity between consecutive sentence embeddings.
-        minimum: -1.0
         maximum: 1.0
-      cosine_similarity_std:
+      p_value_adjusted:
         type: number
-        description: Standard deviation of cosine similarities.
         minimum: 0.0
+        maximum: 1.0
+      cohens_d:
+        type: number
+    additionalProperties: true
 additionalProperties: false

@@ -1,9 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: ADReSS Cleaned Dataset Schema
+title: Cognitive Decline Analysis Dataset
 description: >-
-  Schema for the intermediate cleaned dataset derived from the ADReSS Challenge.
-  Contains participant metadata, cognitive status labels, and preprocessed text.
-  Used as input for feature extraction (User Story 2).
+  Schema for the cleaned and preprocessed dataset derived from the ADReSS
+  challenge. Contains participant transcripts, labels, and metadata.
 type: object
 required:
   - participant_id
@@ -13,34 +12,45 @@ properties:
   participant_id:
     type: string
     description: >-
-      Unique identifier for the participant. 
-      Derived from the original filename (e.g., "p001", "c001").
-    pattern: "^[pc]\\d{3,}$"
-    examples:
-      - "p001"
-      - "c042"
+      Unique identifier for the participant. Derived from the original
+      ADReSS transcript filename (e.g., 'p01', 'c05').
+    pattern: '^[a-z][0-9]+$'
+    minLength: 2
+    maxLength: 10
   label:
     type: string
     description: >-
-      Cognitive status classification.
-      Must be one of the validated classes.
+      Cognitive status label. Must be one of the controlled vocabulary
+      defined in the project specification.
     enum:
       - Control
       - MCI
       - AD
-    examples:
-      - "Control"
-      - "MCI"
-      - "AD"
+    minLength: 3
   text:
     type: string
     description: >-
-      The cleaned transcript text.
-      - Non-verbal annotations (e.g., <laughter>, <pause>) removed.
-      - Normalized to UTF-8.
-      - Whitespace normalized (single spaces between words).
-      - Minimum length enforced (>= 50 words).
+      Cleaned transcript text. Non-verbal annotations (e.g., <laughter>,
+      <pause>) have been removed. Normalized to UTF-8.
     minLength: 50
-    examples:
-      - "The patient described the picture by saying that the man is fishing..."
+    maxLength: 100000
+  source:
+    type: string
+    description: Source dataset identifier.
+    const: ADReSS
+  version:
+    type: string
+    description: Schema version for the dataset.
+    const: "1.0"
+  metadata:
+    type: object
+    description: Optional additional metadata fields.
+    properties:
+      word_count:
+        type: integer
+        minimum: 50
+      duration_seconds:
+        type: number
+        minimum: 0.0
+    additionalProperties: true
 additionalProperties: false
