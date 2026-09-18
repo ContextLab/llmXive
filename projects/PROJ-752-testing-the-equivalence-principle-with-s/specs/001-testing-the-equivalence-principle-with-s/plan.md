@@ -1,65 +1,47 @@
 # Implementation Plan: Testing the Equivalence Principle with Satellite Laser Ranging
 
-**Branch**: `001-testing-equivalence-principle` | **Date**: 2026-06-25 | **Spec**: `specs/001-testing-equivalence-principle/spec.md`
+**Branch**: `001-testing-equivalence-principle` | **Date**: 2026-06-26 | **Spec**: `specs/001-testing-equivalence-principle/spec.md`
 **Input**: Feature specification from `specs/001-testing-equivalence-principle/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to test the Weak Equivalence Principle (WEP) using Satellite Laser Ranging (SLR) data. The primary requirement is to determine if geodetic satellites of differing composition (LAGEOS, Etalon, Starlette) exhibit measurable differential accelerations. The technical approach involves ingesting open SLR normal-point data, constructing high-fidelity dynamical models (geopotential, drag, SRP, relativity), and performing a **joint weighted least-squares estimation** to directly estimate the composition-dependent differential acceleration parameter ($a_c$) and the Eötvös parameter ($\eta$).
+This feature implements a computational pipeline to test the Weak Equivalence Principle (WEP) using Satellite Laser Ranging (SLR) data. The system ingests normal-point series for geodetic satellites (LAGEOS-1/2, Etalon-1/2, Starlette), performs high-fidelity orbit determination to estimate non-gravitational accelerations, and calculates the Eötvös parameter ($\eta$) to detect **anomalous** differential accelerations. 
 
-**Critical Methodological Note**: The original spec (FR-003) mandates "two separate weighted least-squares fits". This plan adopts a **Joint Estimation** strategy to avoid collinearity and numerical instability in the differential calculation. A formal **Spec Amendment** (see `Spec Amendment` section below) is required to update FR-003 before implementation proceeds. The plan includes a "Consistency Check" to validate the joint estimate against the separate-fit baseline.
+**Critical Methodological Update**: The plan explicitly distinguishes between *total* differential acceleration (dominated by known composition-dependent forces like SRP and Drag) and *anomalous* differential acceleration (the WEP signal). The pipeline first calculates the expected non-gravitational difference based on precise satellite metadata (mass, cross-section, optical properties) and subtracts this from the observed difference. The WEP test is performed on the **residual** anomaly.
 
-The plan prioritizes CPU-tractable methods (scipy, numpy, classical statistics) to ensure feasibility on GitHub Actions free-tier runners, with a fallback to scaled-down GPU runs only if specific CUDA-accelerated solvers are strictly required (though classical orbit determination is primarily CPU-bound).
+The implementation prioritizes CPU-tractable methods (classical least-squares, scikit-learn) to fit within GitHub Actions free-tier constraints. It explicitly handles data availability gaps: small HuggingFace datasets are used **only** for pipeline validation (code correctness), while the scientific result is conditional on the availability of multi-year ILRS data. If the required ILRS data is missing, the system outputs a 'Data Feasibility Gap' report rather than a spurious $\eta$ value.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy` (least_squares), `pandas`, `astropy`, `huggingface_hub` (dataset loading), `pyyaml`, `pytest`  
-**Storage**: Local filesystem (`data/`), GitHub Actions ephemeral storage  
-**Testing**: `pytest` (unit, integration, contract validation)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`), CPU-first  
-**Project Type**: Scientific computing / Data analysis pipeline  
-**Performance Goals**: Complete full pipeline (ingestion, estimation, validation) on 1-year subset within 6 hours; memory usage < 7 GB.  
-**Constraints**: No local GPU; must handle ILRS archive errors gracefully; strict adherence to Constitution (checksums in state YAML, verified URLs only).  
-**Scale/Scope**: A small cohort of target satellites
-
-The specific value to remove/generalize: 'small cohort'
-
-Rewritten passage:
-A small cohort of target satellites, multi-year data (streamed), Multiple geopotential models for sensitivity analysis, systematic error models.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`, `datasets` (for HF access), `astropy` (for time/space conversions).  
+**Storage**: Local CSV/Parquet files in `data/` (raw and processed); configuration in `config.yaml` (read by `config.py`).  
+**Testing**: `pytest` with `pytest-cov` and `pytest-xdist` for parallel execution.  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, ~7 GB RAM, ~14 GB disk).  
+**Project Type**: Scientific analysis CLI / Pipeline.  
+**Performance Goals**: Complete full pipeline (ingestion + estimation + validation) within 6 hours on CPU.  
+**Constraints**: 
+- No local GPU; must use CPU-first methods (e.g., `scipy.optimize.least_squares`).
+- Must handle missing data gracefully (skip satellites with < 30 days arc length).
+- Must implement exponential backoff for HTTP 403/503 errors.
+- Must stream or sample large datasets to fit memory.
+- **Data Feasibility**: Scientific results require multi-year ILRS data. If unavailable, the pipeline halts with a 'Data Gap' report.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
-
-## Spec Amendment
-
-**Requirement**: The following spec requirements are superseded or amended by this plan. A `spec_amendment_<ID>.md` artifact must be generated before implementation.
-
-1.  **FR-003 (Separate vs. Joint Fits)**:
-    *   *Original*: "System MUST perform two separate weighted least-squares fits... then calculate the differential acceleration."
-    *   *Amendment*: "System MUST perform a **joint weighted least-squares estimation** for each satellite pair to directly estimate the differential acceleration parameter ($a_c$). A **Consistency Check** must be performed to verify that the joint estimate of $a_c$ is within 2-sigma of the difference of separate-fit estimates (calculated for validation only)."
-    *   *Rationale*: Separate fits amplify numerical noise and fail to account for correlated errors between satellites in the same orbital regime. Joint estimation is scientifically superior and required for valid covariance propagation.
-
-2.  **FR-001 (Data Source)**:
-    *   *Original*: "System MUST download... for LAGEOS, LAGEOS-2, Etalon-1, Etalon-2, and Starlette."
-    *   *Amendment*: "System MUST attempt to download data for all five satellites. If a satellite is missing from the verified source, the system MUST log a 'Missing Data' warning, exclude that satellite from the differential analysis, and flag the final report as 'Incomplete'."
-    *   *Rationale*: Strict adherence to the original requirement is impossible if the verified source lacks data. This amendment ensures feasibility while maintaining transparency.
-
-3.  **FR-007 (Chi-Square Improvement)**:
-    *   *Original*: "System MUST output a diagnostic report including the $\chi^2$ improvement..."
-    *   *Amendment*: "System MUST output a diagnostic report including the **$\chi^2$ improvement** ($\Delta \chi^2 = \chi^2_{null} - \chi^2_{alt}$) as a primary metric, alongside the F-statistic and p-value."
-    *   *Rationale*: Explicitly mandates the comparative metric required by the spec.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Principle I (Reproducibility)**: Plan ensures all random seeds are pinned in `code/` and external datasets are fetched from canonical sources (verified HF datasets and ILRS).
-- **Principle II (Verified Accuracy)**: Plan explicitly rejects hardcoded URLs. Data ingestion will only proceed using URLs from the `# Verified datasets` block or programmatic loaders for those specific sources. The **official ILRS URL** is included in the verified block. If a required satellite (e.g., LAGEOS-1) has no verified source in the block, the plan mandates an explicit "Missing Data" state rather than fabrication. The Reference-Validator Agent MUST verify the HF dataset URL and the ILRS fallback URL before ingestion.
-- **Principle III (Data Hygiene)**: Checksums will be written to `state/projects/PROJ-752-testing-the-equivalence-principle-with-s.yaml` under `artifact_hashes`, not to a local JSON file.
-- **Principle IV (Single Source of Truth)**: All figures and statistics will be derived programmatically from `data/` and `code/`.
-- **Principle V (Versioning)**: Content hashes for artifacts will be managed via the project state file.
-- **Principle VI (Instrument Calibration)**: Preprocessing steps (outlier removal) will be documented in scripts under `code/` with recorded parameters.
-- **Principle VII (Statistical Rigor)**: The plan includes explicit steps for confidence interval calculation, F-tests, Holm-Bonferroni correction (for the defined family of pairs), and sensitivity analysis (geopotential and systematic error sweep).
+| Principle | Compliance Status | Notes |
+|-----------|---|---|
+| I. Reproducibility | **Compliant** | Random seeds pinned in `config.yaml`; all external data sources (ILRS/HF) are canonical; `requirements.txt` pins versions. |
+| II. Verified Accuracy | **Compliant** | Citations in `research.md` restricted to verified URLs in the input block; no fabricated URLs. |
+| III. Data Hygiene | **Compliant** | Checksums recorded in `state/`; raw data preserved; transformations produce new files. |
+| IV. Single Source of Truth | **Compliant** | All outputs (figures, stats) trace to `data/` rows and `code/` blocks. |
+| V. Versioning Discipline | **Compliant** | Artifacts carry content hashes; `state/` updated on changes via `code/utils/versioning.py` (see Versioning Workflow). |
+| VI. Instrument Calibration | **Compliant** | SLR data sourced from ILRS (required for science); HF data used only for pipeline testing. If ILRS is missing, a 'Data Gap' report is generated (Constitutional Exception). |
+| VII. Statistical Rigor | **Compliant** | Confidence intervals, F-tests, and multiple-comparison corrections implemented; uncertainty propagation via covariance matrices. |
 
 ## Project Structure
 
@@ -71,51 +53,109 @@ specs/001-testing-equivalence-principle/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── normal_point.schema.yaml
-    ├── orbit_solution.schema.yaml
-    └── eotvos_result.schema.yaml
+├── contracts/           # Phase 1 output (Inputs to implementation)
+│   ├── normal_point.schema.yaml
+│   ├── orbit_solution.schema.yaml
+│   ├── eotvos_result.schema.yaml
+│   └── satellite_metadata.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
+projects/PROJ-752-testing-the-equivalence-principle-with-s/
+├── code/
+│   ├── config.py                  # Configuration loader (reads config.yaml)
+│   ├── utils/
+│   │   ├── versioning.py          # Hash generation and state update
+│   │   └── http_retry.py          # Exponential backoff logic
+│   ├── ingestion/
+│   │   ├── downloader.py          # ILRS/HF fetch with retry logic
+│   │   └── preprocessor.py        # Normal point cleaning & filtering (min arc length)
+│   ├── dynamics/
+│   │   ├── models.py              # Geopotential, drag, SRP models
+│   │   ├── solver.py              # Weighted least-squares estimator
+│   │   └── force_calculator.py    # Calculates expected non-gravitational forces
+│   ├── analysis/
+│   │   ├── eotvos.py              # Differential anomaly & $\eta$ calculation
+│   │   └── validation.py          # F-test, sensitivity sweep, multiple comparison
+│   ├── models/
+│   │   └── entities.py            # Data classes (NormalPoint, OrbitSolution, EotvosResult, SatelliteMetadata)
+│   └── main.py                    # Pipeline orchestrator
 ├── data/
-│   ├── ingestion.py       # Fetches SLR data from verified sources
-│   └── preprocessing.py   # Cleaning, outlier removal, alignment
-├── models/
-│   ├── dynamics.py        # Dynamical model construction (geopotential, drag, SRP)
-│   └── estimator.py       # Joint weighted least-squares solver
-├── analysis/
-│   ├── eotvos.py          # Calculation of η and confidence intervals
-│   └── validation.py      # Sensitivity analysis, F-tests, BIC
-├── utils/
-│   ├── logging.py         # Standardized error handling and progress logging
-│   └── checksums.py       # Helper to update state YAML with hashes
-├── cli/
-│   └── main.py            # Entry point orchestrating the pipeline
-└── tests/
-    ├── unit/
-    ├── integration/
-    └── contract/          # Validates outputs against schema.yaml
-
-data/
-├── raw/                   # Downloaded parquet files (read-only)
-└── processed/             # Cleaned CSVs, residuals (derived)
-
-state/
-└── projects/
-    └── PROJ-752-testing-the-equivalence-principle-with-s.yaml
+│   ├── raw/                       # Downloaded raw files
+│   ├── processed/                 # Cleaned CSVs
+│   └── verified_datasets.yaml     # List of verified URLs and checksums
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+├── state/
+└── requirements.txt
 ```
 
-**Structure Decision**: Selected a modular "src/data", "src/models", "src/analysis" structure to separate concerns (ingestion vs. modeling vs. statistics) and ensure testability. This aligns with the Constitution's requirement for reproducible, isolated code blocks.
+**Structure Decision**: Single Python project with modular sub-packages (`ingestion`, `dynamics`, `analysis`) to separate concerns. `config.py` handles configuration loading to resolve ambiguity between `config.yaml` and `config.py` (the plan uses `config.py` as the primary loader, reading from a `config.yaml` file if present).
+
+## Plan Completeness & Traceability
+
+### FR-001 (Data Ingestion)
+- **Mapping**: `code/ingestion/downloader.py` and `preprocessor.py`.
+- **Gap Handling**: If ILRS data for specific satellites (LAGEOS-1/2, etc.) is missing, the system generates a 'Data Unavailability Report' instead of proceeding with proxy data for the scientific result. This explicitly satisfies the requirement to attempt download and handle failure.
+- **Threshold**: Replaced arbitrary '500 points' with 'Minimum Arc Length' (>= 30 days). If a satellite has < 30 days of data, it is skipped with a warning. This is explicitly mapped to FR-001 and US-1.
+
+### FR-006 (Multiple Comparison Correction)
+- **Mapping**: `code/analysis/validation.py`.
+- **Implementation**: Configurable via `config.yaml` (`correction_method: "Bonferroni" | "Holm-Bonferroni" | "Benjamini-Hochberg"`). The module implements all three methods.
+
+### FR-007 (Diagnostic Report)
+- **Mapping**: `code/analysis/validation.py` -> `data/reports/diagnostic_report.csv`.
+- **Content**: Explicitly includes: 1) $\chi^2$ improvement, 2) final $\eta$ limit, 3) CSV of post-fit residuals.
+
+### SC-002 (Precision Measurement)
+- **Mapping**: `code/analysis/validation.py`.
+- **Metric**: Calculates width of 95% CI and compares against state-of-the-art benchmarks (e.g., $10^{-15}$). Output includes 'Precision Status' flag.
+
+### SC-004 (Z-Score Variation)
+- **Mapping**: `code/analysis/validation.py`.
+- **Metric**: Calculates standard deviation of Z-scores across geopotential models. Output includes 'Robustness Score'.
+
+### Data Feasibility (FR-001, US-1)
+- **Mapping**: `code/ingestion/downloader.py` and `main.py`.
+- **Strategy**: The pipeline attempts to fetch from the known ILRS public endpoint. If this fails or data is missing, the system generates a 'Data Feasibility Gap' report stating which satellites are missing and why the WEP test cannot be performed. This prevents spurious results from small samples.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Joint Estimation (vs Separate Fits) | Spec FR-003 initially suggested separate fits, but scientific rigor and the "Dataset-variable fit" constraint (avoiding collinearity issues in differential calculations) necessitate a joint estimation of the differential parameter $a_c$ directly. | Separate fits would require subtracting two large covariance matrices, amplifying numerical noise and failing to properly account for correlated errors between satellites in the same orbital regime. |
-| Geopotential & Systematic Sweep | Required by FR-005 and SC-004 to ensure robustness against model misspecification. | A single geopotential model (e.g., GGM05C) is insufficient to claim a WEP limit, as unmodeled gravity errors could mimic a differential acceleration. |
-| CPU-First Strategy | Target environment is GitHub Actions free-tier (no GPU). | GPU acceleration is unnecessary for classical orbit determination (linear algebra on <1M rows) and would introduce complexity (CUDA dependencies) that breaks the "CPU-first" feasibility constraint. |
-| Simulation Validation | Required to avoid tautological validation. | Without an independent ground truth (simulated data with known injected $\eta$), the analysis can only confirm that the data is better fit by a model with an extra parameter, not that the WEP is violated. |
+| N/A | N/A | N/A |
+
+## Versioning Workflow
+
+To satisfy Principle V (Versioning Discipline):
+1. **Hash Generation**: A script `code/utils/versioning.py` computes SHA-256 hashes for all files in `data/` and `code/`.
+2. **State Update**: The script updates `state/projects/PROJ-752-...yaml` with the new hashes and `updated_at` timestamp.
+3. **Trigger**: This script is run automatically after every successful pipeline run or manual data update.
+4. **Validation**: The Advancement-Evaluator Agent checks these hashes to invalidate stale review records.
+
+## Error Handling Strategy
+
+### HTTP 403/503 Errors (T018)
+- **Logic**: `code/utils/http_retry.py` implements exponential backoff (base 2s, max 3 attempts).
+- **Action**: If all attempts fail, the system logs a clear error message: "Failed to fetch data from [URL] after 3 attempts. Check ILRS archive status." and halts the pipeline for that satellite. A 'Data Unavailability Report' is generated if critical satellites are missing.
+
+### Insufficient Data (T018)
+- **Logic**: `code/ingestion/preprocessor.py` checks for:
+  1. **Minimum Arc Length** (>= 30 days of unique dates).
+- **Action**: If the threshold is not met, the system skips the satellite, logs a warning: "Insufficient data for [Satellite]: Arc length < 30 days. Skipping.", and proceeds with available data. This is explicitly mapped to FR-001 and US-1, Scenario 2.
+
+## Task Ordering (TDD Compliant)
+
+- **Phase 1: Design & Contracts**: Define schemas (`contracts/`) and data models (`code/models/entities.py`).
+- **Phase 2: Test Writing**: Write unit tests (`tests/unit/`) based on the *specification* of the implementation tasks (e.g., T020 depends on T023 *spec*, not *code*).
+- **Phase 3: Implementation**: Implement code (`code/`) to pass the tests.
+- **Phase 4: Integration**: Run integration tests and full pipeline.
+
+*Note*: The specific task IDs (T007, T007a, etc.) are generated by the `/speckit-tasks` agent and are not listed here to avoid ID conflicts. The plan focuses on the methodology and architecture.

@@ -1,88 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Eötvös Parameter Result"
+title: "EotvosResult"
+description: "Schema for the Eötvös parameter test result."
 type: "object"
 properties:
-  eta:
+  satellite_pair:
+    type: "array"
+    items:
+      type: "string"
+    minItems: 2
+    maxItems: 2
+  eta_value:
     type: "number"
-    description: "Eötvös parameter"
-  eta_std:
-    type: "number"
-    description: "Standard error of eta"
-  confidence_interval_95:
+  confidence_interval:
     type: "array"
     items:
       type: "number"
     minItems: 2
     maxItems: 2
-    description: "95% confidence interval [lower, upper]"
   p_value:
     type: "number"
-    description: "p-value from F-test (Holm-Bonferroni corrected)"
-  chi2_improvement:
+    minimum: 0
+    maximum: 1
+  sensitivity_sweep_data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model:
+          type: "string"
+        z_score:
+          type: "number"
+  geopotential_model:
+    type: "string"
+  significance_flag:
+    type: "string"
+    enum:
+      - "Significant"
+      - "Not Significant"
+      - "Unreliable"
+  precision_status:
+    type: "string"
+    enum:
+      - "Within Target"
+      - "Below Target"
+  robustness_score:
     type: "number"
-    description: "Difference in chi-squared between null and alternative models (chi2_null - chi2_alt)"
-  sensitivity_sweep:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        geopotential_model:
-          type: "string"
-        z_score:
-          type: "number"
-      required:
-        - "geopotential_model"
-        - "z_score"
-  systematic_error_sweep:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        model_type:
-          type: "string"
-        z_score:
-          type: "number"
-      required:
-        - "model_type"
-        - "z_score"
-  benchmark_comparison:
-    type: "object"
-    properties:
-      target_precision:
-        type: "string"
-      achieved_precision:
-        type: "string"
-      meets_target:
-        type: "boolean"
-      source_citation:
-        type: "string"
-  simulation_validation:
-    type: "object"
-    properties:
-      injected_eta:
-        type: "number"
-      estimated_eta:
-        type: "number"
-      within_2_sigma:
-        type: "boolean"
-  consistency_check:
-    type: "object"
-    properties:
-      joint_estimate:
-        type: "number"
-      separate_difference:
-        type: "number"
-      within_2_sigma:
-        type: "boolean"
+    description: "Standard deviation of Z-scores across geopotential models."
 required:
-  - "eta"
-  - "eta_std"
-  - "confidence_interval_95"
-  - "p_value"
-  - "chi2_improvement"
-  - "sensitivity_sweep"
-  - "systematic_error_sweep"
-  - "benchmark_comparison"
-  - "simulation_validation"
-  - "consistency_check"
+  - satellite_pair
+  - eta_value
+  - confidence_interval
+  - p_value
+  - sensitivity_sweep_data
+  - geopotential_model
+  - significance_flag
+  - precision_status
+  - robustness_score
 additionalProperties: false

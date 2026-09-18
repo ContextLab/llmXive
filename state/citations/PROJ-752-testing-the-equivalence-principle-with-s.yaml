@@ -1,17 +1,28 @@
-- artifact_hash: 9d66ac7ff3a55d4680a6672f8592edaa3bbf3a0172f1eb7ee17ab288cb373fa4
+- artifact_hash: 84b1c030959ac7affba57bb8dc280eeddb44624bdeb757a27c3190928b83d25d
   artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00012-2889c55886b1f612.parquet
+  fetched_title: 100.csv
   kind: url
-  value: https://huggingface.co/datasets/vrclc/imasc_slr/resolve/main/data/train-00000-of-00012-2889c55886b1f612.parquet`
+  value: https://huggingface.co/datasets/vennsa/SLR-NoteSense/resolve/main/100.csv`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6552fd4386270cc7f8ce1aeb/f801aeff9a80d977366ba18bfc11b4d8b2667ff920099a96d77b00080ff01324?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00012-2889c55886b1f612.parquet%3B+filename%3D%22train-00000-of-00012-2889c55886b1f612.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1788745435&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU1MmZkNDM4NjI3MGNjN2Y4Y2UxYWViL2Y4MDFhZWZmOWE4MGQ5NzczNjZiYTE4YmZjMTFiNGQ4YjI2NjdmZjkyMDA5OWE5NmQ3N2IwMDA4MGZmMDEzMjRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMTItMjg4OWM1NTg4NmIxZjYxMi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMTItMjg4OWM1NTg4NmIxZjYxMi5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODg3NDU0MzV9fX1dfQ__&Signature=MEUCIQD7uW-knNsgIdwYpelFWneDbIje%7EMzEwoS8jAlfaCiIuwIgTEDyK5PDpgZ8ojeWOHJBC43qMIhXhH5Z-kEKVn17uMs_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-09-07T00:43:55.772252Z'
-- artifact_hash: 9d66ac7ff3a55d4680a6672f8592edaa3bbf3a0172f1eb7ee17ab288cb373fa4
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/vennsa/SLR-NoteSense/bf302afeed8264f3039f98de812bedc28686fb4a/100.csv?%2Fdatasets%2Fvennsa%2FSLR-NoteSense%2Fresolve%2Fmain%2F100.csv=&etag=%2269d276f42e80aaeb76ea69780b4d32a363f28b3b%22
+  verified_at: '2026-09-18T06:56:05.420557Z'
+- artifact_hash: 84b1c030959ac7affba57bb8dc280eeddb44624bdeb757a27c3190928b83d25d
   artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/research.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: TR.zip
+  kind: url
+  value: https://huggingface.co/datasets/emre/Open_SLR108_Turkish_10_hours/resolve/main/TR.zip`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1832d1/1da2490b35c2f9ce63ccdddd30eadea67c80075db5a5df803bc8bb2c9cebefc4?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27TR.zip%3B+filename%3D%22TR.zip%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&Expires=1789718165&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzMmQxLzFkYTI0OTBiMzVjMmY5Y2U2M2NjZGRkZDMwZWFkZWE2N2M4MDA3NWRiNWE1ZGY4MDNiYzhiYjJjOWNlYmVmYzRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VFIuemlwJTNCK2ZpbGVuYW1lJTNEJTIyVFIuemlwJTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRnppcCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg5NzE4MTY1fX19XX0_&Signature=MEYCIQCsNS1p1dPGLFL1d8u7JCi%7EYavODwKMpjm3R4f9S7uXgAIhAKDQ-b2EpV%7E5jinTbqxDs7x77CAYyJakbyaLmwvvCFjF&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-18T06:56:05.420557Z'
+- artifact_hash: 84b1c030959ac7affba57bb8dc280eeddb44624bdeb757a27c3190928b83d25d
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: ILRS Home Page
@@ -19,4 +30,37 @@
   value: https://ilrs.cddis.eosdis.nasa.gov/`
   verification_status: pending
   verified_against_url: https://ilrs.cddis.eosdis.nasa.gov/
-  verified_at: '2026-09-07T00:43:55.772252Z'
+  verified_at: '2026-09-18T06:56:05.420557Z'
+- artifact_hash: 14793fa50af8dec4e930df483ee1ff6eb4d5d5295516fb1ca9f48f80993d1a43
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 100.csv
+  kind: url
+  value: https://huggingface.co/datasets/vennsa/SLR-NoteSense/resolve/main/100.csv
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/vennsa/SLR-NoteSense/bf302afeed8264f3039f98de812bedc28686fb4a/100.csv?%2Fdatasets%2Fvennsa%2FSLR-NoteSense%2Fresolve%2Fmain%2F100.csv=&etag=%2269d276f42e80aaeb76ea69780b4d32a363f28b3b%22
+  verified_at: '2026-09-18T06:56:51.983189Z'
+- artifact_hash: 14793fa50af8dec4e930df483ee1ff6eb4d5d5295516fb1ca9f48f80993d1a43
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: TR.zip
+  kind: url
+  value: https://huggingface.co/datasets/emre/Open_SLR108_Turkish_10_hours/resolve/main/TR.zip
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1832d1/1da2490b35c2f9ce63ccdddd30eadea67c80075db5a5df803bc8bb2c9cebefc4?response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27TR.zip%3B+filename%3D%22TR.zip%22%3B&user_id=public&Expires=1789718212&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzMmQxLzFkYTI0OTBiMzVjMmY5Y2U2M2NjZGRkZDMwZWFkZWE2N2M4MDA3NWRiNWE1ZGY4MDNiYzhiYjJjOWNlYmVmYzRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN1RSLnppcCUzQitmaWxlbmFtZSUzRCUyMlRSLnppcCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg5NzE4MjEyfX19XX0_&Signature=MEUCIHeOqFui938CvVpxMIAZUflX9YM1l5JLzm73pCLNWyoUAiEA%7ESIvn6olXxizic%7E9pGczJYPzEShmoUUzRJPn9LEOqiQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-18T06:56:51.983189Z'
+- artifact_hash: 14793fa50af8dec4e930df483ee1ff6eb4d5d5295516fb1ca9f48f80993d1a43
+  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/quickstart.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: ILRS Home Page
+  kind: url
+  value: https://ilrs.cddis.eosdis.nasa.gov/
+  verification_status: pending
+  verified_against_url: https://ilrs.cddis.eosdis.nasa.gov/
+  verified_at: '2026-09-18T06:56:51.983189Z'

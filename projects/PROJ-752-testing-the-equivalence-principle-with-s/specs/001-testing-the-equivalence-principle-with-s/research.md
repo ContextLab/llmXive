@@ -2,73 +2,89 @@
 
 ## Scientific Background
 
-The Weak Equivalence Principle (WEP) states that the trajectory of a test body in a gravitational field depends only on its initial position and velocity, independent of its composition. A violation would manifest as a composition-dependent differential acceleration ($a_c$) between two bodies in the same gravitational field. The Eötvös parameter $\eta = 2|a_1 - a_2| / |a_1 + a_2|$ quantifies this violation.
+The Weak Equivalence Principle (WEP) states that the trajectory of a freely falling test body is independent of its internal structure and composition. In the context of geodetic satellites, a violation would manifest as a differential acceleration ($a_{anom}$) between two satellites of different composition (e.g., LAGEOS vs. Starlette) in the same gravitational field, *after* accounting for all known forces. The Eötvös parameter $\eta$ quantifies this violation:
 
-Satellite Laser Ranging (SLR) provides millimeter-level precision in measuring the distance to geodetic satellites. By analyzing the orbits of satellites with distinct compositions (e.g., LAGEOS-1/2: Aluminum/Titanium vs. Etalon: Steel vs. Starlette: Steel), one can constrain $\eta$ to extremely low levels.
+$$ \eta = \frac{2 |a_{anom, 1} - a_{anom, 2}|}{|a_{anom, 1} + a_{anom, 2}|} \approx \frac{|a_{anom}|}{g} $$
+
+where $a_{anom}$ is the **anomalous** differential acceleration (total observed difference minus expected non-gravitational difference) and $g$ is the local gravitational acceleration. Current state-of-the-art limits (e.g., from MICROSCOPE) are at the level of extreme precision. This project aims to replicate similar precision using SLR data, acknowledging the observational nature of the study.
+
+**Critical Distinction**: The 'differential acceleration' ($a_c$) in the spec is redefined here as the **residual anomaly**. The total difference in non-gravitational forces (SRP, Drag) is expected to be large and composition-dependent. The WEP test is performed on the *residual* after subtracting the expected difference.
 
 ## Dataset Strategy
 
-The project relies on SLR normal-point data. The `# Verified datasets` block below contains the following sources:
+The plan relies on **open, directly-downloadable datasets** to ensure CI feasibility. The spec requires SLR normal-point series for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette.
 
-1. **SLR (parquet)**: `
- * **Status**: Verified.
- * **Usage**: This dataset contains SLR observations. It will be used as the primary source for normal points if it includes the target satellites (LAGEOS, Etalon, Starlette).
- * **Metadata Check**: The pipeline will verify the presence of `mass` and `composition` columns. If missing, it will merge with `satellite_constants.yaml` (see below).
-2. **ILRS Archive (Canonical Fallback)**: `
- * **Status**: Verified (Official Source).
- * **Usage**: If the HF dataset lacks required satellites or metadata, the system will attempt to fetch data from the official ILRS archive. The Reference-Validator Agent MUST verify this URL before ingestion.
- * **Note**: This is the canonical source for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette data.
+### Verified Datasets
 
-**Critical Gap & Mitigation**:
-* **Selection Bias**: If the HF dataset only contains 'clean' subsets, the resulting $\eta$ estimate may underestimate variance.
- * **Mitigation**: The pipeline will compare the distribution of station IDs and epochs in the HF dataset against the full ILRS archive metadata. If deviation >10% is detected, a 'Bias Warning' is issued, and a stratified resampling step is applied.
-* **Missing Metadata**: If the HF dataset lacks `mass` or `composition` columns.
- * **Mitigation**: The pipeline will automatically fetch these from `satellite_constants.yaml` (see below) and merge them. If constants are missing there, the satellite is excluded with a "Missing Metadata" flag.
+| Dataset Name | Source URL | Status | Notes |
+|--------------|------------|--------|-------|
+| SLR NoteSense | ` | **Available** | Contains SLR normal points. **Usage**: Pipeline Validation (code correctness) ONLY. Not sufficient for scientific results. |
+| Open SLR Turkish | ` | **Available** | Contains SLR data. **Usage**: Pipeline Validation ONLY. |
+| ILRS Archive (LAGEOS-1/2, Etalon, Starlette) | ` (Programmatic access) | **Required** | **Usage**: Scientific Validation. **Gap**: No verified direct download URL in input block. **Strategy**: The pipeline attempts to fetch from the known ILRS public endpoint. If this fails or data is missing, the system generates a 'Data Feasibility Gap' report and halts scientific analysis. |
 
-**Physical Constants Source**:
-* **Source**: `satellite_constants.yaml` (to be created in `data/`).
-* **Citations**: Values for mass, cross-sectional area, and drag coefficients will be sourced from specific ILRS mission documents or peer-reviewed papers (e.g., Coulot et al.; Appleby et al.).
+### Pipeline vs. Scientific Data
 
-## Methodological Rigor
+- **Pipeline Validation**: Small HF datasets (100 entries, 10 hours) are used **only** to verify that the code runs, the schemas are valid, and the error handling works. These datasets are insufficient for scientific results (statistically insignificant).
+- **Scientific Validation**: The scientific claim relies on multi-year ILRS data. If the ILRS data for the required satellites is not available (e.g., missing from the archive, access blocked), the project **does not** produce a scientific result. Instead, it outputs a 'Data Feasibility Gap' report stating which satellites are missing and why the WEP test cannot be performed. This prevents spurious results from small samples.
 
-### Power Analysis
-* **Target Precision**: $10^{-14}$ for $\eta$.
-* **Required Sample Size**: Based on standard SLR noise models (1-2 mm) and orbital decay rates, a minimum of **[deferred] normal points per satellite** is estimated to achieve sufficient power.
-* **Feasibility Check**: The pipeline will verify N >= 10,000 per satellite. If N < 10,000, the run is flagged as "Underpowered" and the 6-hour constraint is re-evaluated.
+### Data Availability & Fit
 
-### Statistical Framework
-* **Model**: The differential acceleration $a_c$ is estimated as a parameter in a **joint least-squares fit**.
- * **Correlation Structure**: The joint model includes a shared error term for atmospheric drag and SRP, modeled as a block-diagonal covariance matrix where off-diagonal blocks represent the correlation coefficient ($\rho$) between satellites in similar orbital regimes. $\rho$ is estimated from the residuals of a preliminary fit.
-* **Hypothesis Testing**:
- * $H_0$: $a_c = 0$ (WEP holds).
- * $H_1$: $a_c \neq 0$.
-* **Multiple Comparisons**: The "family of tests" is defined as the **10 unique pairs** formed by the 5 target satellites (L1-L2, L1-E1, etc.). **Holm-Bonferroni** correction will be applied to control Family-Wise Error Rate (FWER) for this fixed family.
-* **Sensitivity Analysis**:
- * **Geopotential Sweep**: Vary geopotential models (GGM05C, EGM2008, GOCO06s).
- * **Systematic Error Sweep**: Vary station bias models and atmospheric drag coefficients (e.g., Jacchia vs. NRLMSISE-00).
- * **Output**: Report Z-score variation across these models. If Z-score varies by >20%, flag as "Unreliable due to model uncertainty".
+- **Gap Analysis**: The verified HF datasets are small samples. The plan explicitly states that scientific results are conditional on the availability of the multi-year ILRS dataset.
+- **Variable Fit**: The HF datasets must contain `timestamp`, `range`, `satellite_id`, and `station_id`. If composition metadata (mass, material) is missing, the system logs a warning and excludes the satellite from differential analysis (as per spec edge cases).
+- **Feasibility**: The small HF datasets are fully CPU-tractable. The full ILRS archive (if accessible) would require streaming to fit memory. The plan implements a `streaming=True` flag in the data loader to handle both cases.
+- **Constitutional Exception**: While Principle VI requires ILRS sourcing, the plan acknowledges that if the ILRS archive is inaccessible, a 'Data Feasibility Gap' report is generated rather than using proxies for scientific claims.
 
-### Benchmark Retrieval
-* **Source**: `benchmarks.yaml` (to be created in `data/`).
-* **Content**: State-of-the-art values (e.g., Müller et al., year) with citations.
-* **Logic**: The `analysis/eotvos.py` module will load this file and compute the comparison logic, ensuring the `benchmark_comparison` field in the output is populated.
+## Methodology & Statistical Rigor
 
-### Simulation Validation
-* **Purpose**: To avoid tautological validation.
-* **Method**: Generate a simulated dataset with a known injected $\eta$ (e.g., $10^{-13}$) using the same dynamical model.
-* **Test**: Run the pipeline on this simulated data. The estimated $\eta$ must match the injected value within 2-sigma. This provides an independent ground truth.
+### Orbit Determination
 
-### Consistency Check (Joint vs. Separate)
-* **Purpose**: To validate the joint model against the separate-fit baseline (as per amended FR-003).
-* **Method**: Compute separate-fit estimates for $a_c$ for each satellite pair. Compare to the joint-fit estimate.
-* **Criterion**: The difference must be within 2-sigma of the combined covariance bounds. If not, flag the joint model as potentially biased.
+- **Method**: Weighted Least-Squares (WLS) using `scipy.optimize.least_squares`.
+- **Dynamics**:
+ - Geopotential: GGM05C (or EGM2008/GOCO06s for sensitivity).
+ - Drag: Jacchia model.
+ - SRP: Box-wing model.
+ - Relativity: Standard post-Newtonian corrections.
+- **Parameters**: Orbital elements, non-gravitational acceleration coefficients ($C_r$, $C_{dr}$), and the **anomalous** differential acceleration term $a_{anom}$ (if estimating jointly).
+- **Convergence**: Solver stops when residuals reach a sufficiently small threshold or max iterations reached.
 
-### Definition of 'g'
-* **Decoupling**: The denominator 'g' in $\eta = |a_c| / g$ is derived from a **standard geopotential model** (e.g., EGM2008) and **NOT** from the estimated orbital parameters. This avoids circularity where the estimated parameters assume a specific g to calculate the parameter that tests g.
+### Differential Anomaly Estimation (Revised)
+
+1. **Step 1**: Fit independent orbits for Satellite A and Satellite B.
+2. **Step 2**: Extract non-gravitational acceleration residuals ($a_{ng, A}$, $a_{ng, B}$) and the empirical scaling factors ($C_{r, A}$, $C_{r, B}$, etc.).
+3. **Step 3**: **Calculate Expected Non-Gravitational Difference**: Using precise satellite metadata (mass, cross-section, optical properties), calculate the *expected* difference in SRP and Drag forces ($\Delta a_{expected}$) due to composition.
+4. **Step 4**: Calculate **Anomalous Acceleration**: $a_{anom} = |a_{ng, A} - a_{ng, B}| - \Delta a_{expected}$.
+5. **Step 5**: Compute $\eta = a_{anom} / g$.
+6. **Uncertainty**: Propagate covariance matrices from the WLS fits to derive the standard error of $\eta$ ($SE_\eta$).
+7. **Confidence Interval**: A confidence interval for $\eta$ is constructed as $\eta \pm z \times SE_\eta$, where $z$ corresponds to the critical value for the desired confidence level.
+
+### Statistical Validation
+
+- **Hypothesis Test**: Null hypothesis $H_0: a_{anom} = 0$ (no anomalous acceleration after subtracting expected forces). Use F-test to compare the null model (only known forces) vs. the alternative model (known forces + $a_{anom}$).
+- **Multiple Comparisons**: If testing multiple satellite pairs, apply configurable correction (Bonferroni, Holm-Bonferroni, Benjamini-Hochberg).
+- **Sensitivity Analysis**: Sweep geopotential models (GGM05C, EGM2008, GOCO06s). Report Z-score ($\eta / SE_\eta$) variation. Flag if variation > 20%.
+- **Precision Measurement**: Calculate the width of the 95% CI and compare against state-of-the-art benchmarks (e.g., $10^{-15}$). Report 'Precision Status'.
+- **Robustness Score**: Calculate the standard deviation of Z-scores across geopotential models.
 
 ## Compute Feasibility
-* **Environment**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM).
-* **Strategy**:
- * **Streaming**: Large parquet files will be streamed using `datasets.load_dataset(..., streaming=True)` to avoid loading >7GB into RAM.
- * **Sampling**: If the full dataset exceeds compute limits, a fixed-seed random sample (e.g., first k points) will be used for the initial run, with a note on power limitations.
- * **No GPU Required**: Classical orbit determination does not require CUDA.
+
+- **CPU-First**: All methods (WLS, matrix operations) are CPU-tractable. No GPU required.
+- **Memory**: Streaming data ensures < 7 GB RAM usage.
+- **Runtime**: Small HF datasets will run in minutes. Full ILRS data (if streamed) estimated at < 6 hours for 5 satellites.
+- **Escape Hatch**: Not required for this study, but the code supports `device="cuda"` if future models (e.g., deep learning orbit predictors) are added.
+
+## Decision Rationale
+
+- **Why HF datasets?** They are the only verified, open sources. The plan treats them as a "minimum viable dataset" for pipeline validation, **not** for scientific claims.
+- **Why WLS?** It is the standard for orbit determination and is robust for this scale.
+- **Why Bonferroni?** Conservative control of family-wise error for a small number of tests (5 satellites).
+- **Why streaming?** To ensure the plan works for both small samples and large archives without memory overflow.
+- **Why subtract expected forces?** To isolate the WEP signal from the dominant, known composition-dependent non-gravitational forces. Without this step, the test would trivially reject the null hypothesis due to known physical differences, not a WEP violation.
+
+## Assumptions
+
+- **Assumption about data availability**: The ILRS public archive contains sufficient multi-year normal-point data for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette to perform a statistically significant test (minimum 500 points per satellite).
+- **Assumption about compute environment**: The analysis will run on a GitHub Actions free-tier runner (CPU, sufficient RAM) using CPU-tractable methods (scikit-learn, classical statistics) without GPU acceleration or large-model inference, with a a hard limit on the runtime per run.
+- **Assumption about dynamical models**: The GGM05C Earth gravity field model and standard atmospheric drag models (e.g., Jacchia) are sufficient to model non-compositional forces to the required precision.
+- **Assumption about statistical framing**: Since the study is observational (no random assignment of satellite composition), all findings regarding $\eta$ will be framed as associational limits or upper bounds, not causal proofs of WEP violation, unless a specific identification strategy is introduced later.
+- **Assumption about target precision**: The target research precision for the Eötvös parameter is high sensitivity levels, based on current state-of-the-art benchmarks (e.g., Müller et al.).
+- **Assumption about dataset-variable fit**: The SLR normal points and satellite metadata (mass, composition) provided by ILRS contain all necessary variables to compute the differential acceleration; if a specific composition variable is missing for a satellite, that satellite will be excluded from the differential analysis.

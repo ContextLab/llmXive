@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Orbit Solution"
+title: "OrbitSolution"
+description: "Schema for a fitted orbit determination solution."
 type: "object"
 properties:
   satellite_id:
@@ -7,42 +8,42 @@ properties:
   orbital_elements:
     type: "object"
     properties:
-      semi_major_axis: { "type": "number" }
-      eccentricity: { "type": "number" }
-      inclination: { "type": "number" }
+      a: { type: "number" }
+      e: { type: "number" }
+      i: { type: "number" }
+      Omega: { type: "number" }
+      omega: { type: "number" }
+      M: { type: "number" }
     required:
-      - "semi_major_axis"
-      - "eccentricity"
-      - "inclination"
+      - a
+      - e
+      - i
+      - Omega
+      - omega
+      - M
   non_gravitational_acceleration:
     type: "object"
-    properties:
-      drag_coefficient: { "type": "number" }
-      srp_coefficient: { "type": "number" }
-    required:
-      - "drag_coefficient"
-      - "srp_coefficient"
-  differential_acceleration:
-    type: "number"
-    description: "Estimated composition-dependent acceleration a_c (m/s^2)"
-  chi_squared:
-    type: "number"
-  residuals:
-    type: "array"
-    items:
-      type: "number"
+    description: "Non-gravitational acceleration components."
   covariance_matrix:
     type: "array"
     items:
       type: "array"
       items:
         type: "number"
+  chi_squared:
+    type: "number"
+  residuals:
+    type: "array"
+    items:
+      type: "number"
+  converged:
+    type: "boolean"
 required:
-  - "satellite_id"
-  - "orbital_elements"
-  - "non_gravitational_acceleration"
-  - "differential_acceleration"
-  - "chi_squared"
-  - "residuals"
-  - "covariance_matrix"
+  - satellite_id
+  - orbital_elements
+  - non_gravitational_acceleration
+  - covariance_matrix
+  - chi_squared
+  - residuals
+  - converged
 additionalProperties: false
