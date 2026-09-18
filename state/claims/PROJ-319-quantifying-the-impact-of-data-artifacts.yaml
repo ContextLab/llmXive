@@ -2646,3 +2646,465 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T21:42:52Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Gaussian noise injection introduces statistically significant positive
+    bias in measured ellipticity
+  claim_id: c_219162a8
+  context: 'Key Findings: 1. Noise Bias: Gaussian noise injection introduces a statistically
+    significant positive bias in measured ellipticity (p < 0.05).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gaussian_noise_injection_introduces_statistically_significan
+  kind: entity_fact
+  raw_text: Gaussian noise injection introduces a statistically significant positive
+    bias in measured ellipticity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:38:50Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Ellipticity bias scales linearly with noise standard deviation
+  claim_id: c_13e3d588
+  context: "The bias scales linearly with noise standard deviation (\u03C3)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ellipticity_bias_scales_linearly_with_noise_standard_deviati
+  kind: entity_fact
+  raw_text: The bias scales linearly with noise standard deviation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:40:56Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Pixel saturation introduces non-linear bias in Conselice asymmetry index
+  claim_id: c_0f108009
+  context: 'Saturation Bias: Pixel saturation introduces a non-linear bias in the
+    Conselice asymmetry index (A).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pixel_saturation_introduces_non-linear_bias_in_Conselice_asy
+  kind: entity_fact
+  raw_text: Pixel saturation introduces a non-linear bias in the Conselice asymmetry
+    index.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:01Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Saturation bias becomes significant and positive at fractions greater
+    than 0.20
+  claim_id: c_aea5e8ef
+  context: At saturation fractions >0.20, the bias becomes significant and positive,
+    artificially inflating asymmetry measurements.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Saturation_bias_becomes_significant_and_positive_at_fraction
+  kind: magnitude
+  raw_text: At saturation fractions greater than 0.20, the bias becomes significant
+    and positive.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:11Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Inverse correction functions reduce residual bias to non-significant
+    levels on training set
+  claim_id: c_3df414a7
+  context: Application of the inverse correction functions reduces the residual bias
+    to non-significant levels (p > 0.10) on the training set.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inverse_correction_functions_reduce_residual_bias_to_non-sig
+  kind: entity_fact
+  raw_text: Application of the inverse correction functions reduces the residual bias
+    to non-significant levels on the training set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:26Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Sample size of 50 sufficient for detecting effect sizes with Cohen's
+    d greater than 0.8
+  claim_id: c_ac61fa47
+  context: Power analysis indicates that while n=50 is sufficient for detecting large
+    effect sizes (Cohen's d > 0.8), the Minimum Detectable Effect Size (MDES) for
+    smaller biases is limited.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_of_50_sufficient_for_detecting_effect_sizes_with
+  kind: magnitude
+  raw_text: A sample size of 50 is sufficient for detecting large effect sizes with
+    Cohen's d greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:39Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Qualitative validation on HST data NGC 7009 and NGC 6543 confirmed morphological
+    plausibility of synthetic models
+  claim_id: c_5eb1131d
+  context: Qualitative validation on real HST data (NGC 7009, NGC 6543) confirms the
+    morphological plausibility of the synthetic models but does not provide a ground-truth
+    quantitative baseline for the full pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qualitative validation on real HST data confirmed the morphological plausibility
+    of the synthetic models for NGC 7009 and NGC 6543.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:42Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: 50 synthetic planetary nebulae generated with known ground-truth ellipticity
+    and asymmetry
+  claim_id: c_4647aaf9
+  context: 'Parameters: N=50 synthetic planetary nebulae generated with known ground-truth
+    ellipticity (e_true) and asymmetry (A_true).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=50 synthetic planetary nebulae were generated with known ground-truth
+    ellipticity and asymmetry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:45Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Noise level 0.05 resulted in mean ellipticity bias of 0.0085 with p-value
+    0.03
+  claim_id: c_0fa521c2
+  context: Analysis of data/processed/noise_sweep_data.csv reveals a linear relationship
+    between injected noise and ellipticity bias. | 0.05 | 0.0085 | 0.03 | Yes |
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a noise level of 0.05, the mean ellipticity bias was 0.0085 with a
+    p-value of 0.03.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:54Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Noise level 0.10 resulted in mean ellipticity bias of 0.0194 with p-value
+    less than 0.01
+  claim_id: c_f0567228
+  context: Analysis of data/processed/noise_sweep_data.csv reveals a linear relationship
+    between injected noise and ellipticity bias. | 0.10 | 0.0194 | <0.01 | Yes |
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Noise_level_0.10_resulted_in_mean_ellipticity_bias_of_0.0194
+  kind: magnitude
+  raw_text: At a noise level of 0.10, the mean ellipticity bias was 0.0194 with a
+    p-value less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:43:57Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Ellipticity bias regression equation delta e equals 0.19 sigma plus 0.0001
+  claim_id: c_71446a0d
+  context: "Regression Equation: \u0394e \u2248 0.19 \xB7 \u03C3 + 0.0001 (R\xB2 =\
+    \ 0.94)"
+  evidence:
+    asserted: '0.19'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: The regression equation for ellipticity bias is approximately delta e
+    equals 0.19 times sigma plus 0.0001.
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T03:43:58Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: R-squared value for ellipticity bias regression was 0.94
+  claim_id: c_d25b797c
+  context: "Regression Equation: \u0394e \u2248 0.19 \xB7 \u03C3 + 0.0001 (R\xB2 =\
+    \ 0.94)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The R-squared value for the ellipticity bias regression was 0.94.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:47:13Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Saturation fraction 0.20 resulted in mean asymmetry bias of 0.0089 with
+    p-value 0.04
+  claim_id: c_4e8d35f5
+  context: Analysis of data/processed/saturation_sweep.csv shows a non-linear increase
+    in asymmetry bias. | 0.20 | 0.0089 | 0.04 | Yes |
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a saturation fraction of 0.20, the mean asymmetry bias was 0.0089 with
+    a p-value of 0.04.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:47:58Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Saturation fraction 0.30 resulted in mean asymmetry bias of 0.0215 with
+    p-value less than 0.01
+  claim_id: c_3ea880fc
+  context: Analysis of data/processed/saturation_sweep.csv shows a non-linear increase
+    in asymmetry bias. | 0.30 | 0.0215 | <0.01 | Yes |
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Saturation_fraction_0.30_resulted_in_mean_asymmetry_bias_of
+  kind: magnitude
+  raw_text: At a saturation fraction of 0.30, the mean asymmetry bias was 0.0215 with
+    a p-value less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:48:57Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Saturation fraction 0.50 resulted in mean asymmetry bias of 0.0450 with
+    p-value less than 0.01
+  claim_id: c_75844de3
+  context: Analysis of data/processed/saturation_sweep.csv shows a non-linear increase
+    in asymmetry bias. | 0.50 | 0.0450 | <0.01 | Yes |
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Saturation_fraction_0.50_resulted_in_mean_asymmetry_bias_of
+  kind: magnitude
+  raw_text: At a saturation fraction of 0.50, the mean asymmetry bias was 0.0450 with
+    a p-value less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:49:34Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Asymmetry bias regression equation delta A equals 0.15 f squared plus
+    0.02 f minus 0.001
+  claim_id: c_9e50eb0c
+  context: "Regression Equation (Quadratic fit selected via AIC): \u0394A \u2248 0.15\
+    \ \xB7 f\xB2 + 0.02 \xB7 f - 0.001 (R\xB2 = 0.98)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression equation for asymmetry bias is approximately delta A equals
+    0.15 times f squared plus 0.02 times f minus 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:50:43Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: R-squared value for asymmetry bias regression was 0.98
+  claim_id: c_debeba3f
+  context: "Regression Equation (Quadratic fit selected via AIC): \u0394A \u2248 0.15\
+    \ \xB7 f\xB2 + 0.02 \xB7 f - 0.001 (R\xB2 = 0.98)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The R-squared value for the asymmetry bias regression was 0.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:51:16Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Ellipticity residual bias after correction was 0.0003 with p-value 0.62
+  claim_id: c_9a24423d
+  context: "Application of these corrections to the test set resulted in: - Ellipticity\
+    \ Residual Bias: 0.0003 \xB1 0.0005 (p = 0.62, non-significant)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ellipticity residual bias after correction was 0.0003 with a p-value
+    of 0.62.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:51:36Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Asymmetry residual bias after correction was 0.0008 with p-value 0.45
+  claim_id: c_1076c383
+  context: "Application of these corrections to the test set resulted in: - Asymmetry\
+    \ Residual Bias: 0.0008 \xB1 0.0012 (p = 0.45, non-significant)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The asymmetry residual bias after correction was 0.0008 with a p-value
+    of 0.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:52:02Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Observed effect size for noise was Cohen's d of 1.2
+  claim_id: c_5a9c8bee
+  context: 'Observed Effect Size (Cohen''s d): 1.2 (Large) for Noise, 1.5 (Large)
+    for Saturation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The observed effect size for noise was Cohen's d of 1.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:54:18Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Observed effect size for saturation was Cohen's d of 1.5
+  claim_id: c_c4346f75
+  context: 'Observed Effect Size (Cohen''s d): 1.2 (Large) for Noise, 1.5 (Large)
+    for Saturation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The observed effect size for saturation was Cohen's d of 1.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:56:21Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Calculated power for detecting noise and saturation artifacts at n=50
+    was greater than 99%
+  claim_id: c_bda3dcf1
+  context: 'Calculated Power: >99% for both artifacts at n=50.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculated_power_for_detecting_noise_and_saturation_artifact
+  kind: magnitude
+  raw_text: The calculated power for detecting noise and saturation artifacts at n=50
+    was greater than 99%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:56:44Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Minimum Detectable Effect Size was 0.55 at 80% power
+  claim_id: c_4c7b39f9
+  context: 'Minimum Detectable Effect Size (MDES): 0.55 (Medium) at 80% power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Minimum Detectable Effect Size (MDES) was 0.55 at 80% power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:57:47Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Study underpowered to detect biases with Cohen's d less than 0.55
+  claim_id: c_49869293
+  context: 'Limitation: The study is underpowered to detect small biases (Cohen''s
+    d < 0.55).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Study_underpowered_to_detect_biases_with_Cohen's_d_less_than
+  kind: magnitude
+  raw_text: The study is underpowered to detect small biases with Cohen's d less than
+    0.55.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:58:30Z'
+- artifact_path: projects/PROJ-319-quantifying-the-impact-of-data-artifacts/docs/reports/001-final-bias-analysis.md
+  attempts: 1
+  canonical: Synthetic models replicated bipolar and elliptical morphology observed
+    in real nebulae
+  claim_id: c_5eb7eb2d
+  context: 'Result: The synthetic models successfully replicate the bipolar/elliptical
+    morphology observed in real nebulae.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_models_replicated_bipolar_and_elliptical_morpholog
+  kind: entity_fact
+  raw_text: The synthetic models successfully replicated the bipolar and elliptical
+    morphology observed in real nebulae.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:58:56Z'

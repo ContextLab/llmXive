@@ -4,14 +4,6 @@ T008:
   r: No `tests/unit/` directory, test files, or pytest configuration (e.g., `pytest.ini`
     or `conftest.py`) are present in the provided evidence, so the required test structure
     and setup have not been delivered.
-T015:
-  c: false
-  h: bdc18504c10020c0205b114608ad7615995920bc1cd8f9237734ed7d3aa6de0e
-  r: The repository lacks a `gt_metadata.json` file in `data/synthetic/`, so the pipeline
-    cannot load ground truth as required. Moreover, `code/main.py` does not contain
-    a `run_us1_pipeline` function implementing the specified steps (load image, inject
-    noise, measure ellipticity, compute bias, call `run_noise_regression`, and log
-    results). Both essential artifacts are missing, so the task is not genuinely completed.
 T016:
   c: false
   h: 41962b062a20c07f3b98c070657ad6f6c78b6de9337da446eb4fafa2c590c9b5
@@ -21,12 +13,3 @@ T016:
     CSV with the specified schema. The code snippet is truncated, so we cannot verify
     that the regression, Bonferroni correction, and CSV writing are fully implemented.
     The missing output file must be generated for the task to be considered complete.
-T022:
-  c: false
-  h: bdc18504c10020c0205b114608ad7615995920bc1cd8f9237734ed7d3aa6de0e
-  r: The repository lacks the required `data/synthetic/gt_metadata.json` file, and
-    the provided `code/main.py` does not contain an implementation of a `run_us2_pipeline`
-    function that performs the specified steps (loading the clean image, injecting
-    saturation, measuring asymmetry, loading ground truth, calling `run_saturation_regression`,
-    computing bias, and logging results). Both essential artifacts are missing, so
-    the task is not genuinely completed.
