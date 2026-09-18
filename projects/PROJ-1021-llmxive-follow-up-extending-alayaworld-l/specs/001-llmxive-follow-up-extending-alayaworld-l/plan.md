@@ -32,7 +32,7 @@ This project implements a hybrid video generation pipeline that combines a froze
 | **III. Data Hygiene** | **PASS** | Checksums recorded for all downloaded/processed data. Raw data immutable. Annotations stored in `data/annotations/`. |
 | **IV. Single Source of Truth** | **PASS** | All metrics derived from `data/results/` JSON logs. |
 | **V. Versioning Discipline** | **PASS** | Artifact hashes tracked in `state/` YAML. |
-| **VI. Deterministic Symbolic Grounding** | **PASS** | Symbolic engine implemented in pure Python with fixed seed (42). No stochastic elements. |
+| **VI. Deterministic Symbolic Grounding** | **PASS** | Symbolic engine implemented in pure Python with a fixed random seed. No stochastic elements. |
 | **VII. Edge-Device Inference Constraints** | **PASS** | Pipeline designed for CPU-only, quantized inference. Memory and time constraints explicitly monitored. |
 
 ## Project Structure
@@ -135,7 +135,7 @@ projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/
 ### Statistical Test Selection
 - **Primary Test**: Wilcoxon Signed-Rank Test (paired, non-parametric).
 - **Pre-check 1 (Normality)**: Shapiro-Wilk test on the *paired differences* (Baseline - Hybrid). If p > 0.05, data is non-normal, justifying Wilcoxon.
-- **Pre-check 2 (Variance Stability)**: Calculate rolling variance of frame-level error series. If variance > threshold (e.g., 0.5), flag as "High Variance" but proceed (Wilcoxon is robust to variance).
+- **Pre-check 2 (Variance Stability)**: Calculate rolling variance of frame-level error series. If variance > threshold (e.g., a predetermined significance level), flag as "High Variance" but proceed (Wilcoxon is robust to variance).
 - **Removed**: Augmented Dickey-Fuller (ADF) test. It is statistically invalid for bounded, discrete frame-level error series and is not required for the Wilcoxon test.
 
 ### Correction Token Mechanism (FR-004)

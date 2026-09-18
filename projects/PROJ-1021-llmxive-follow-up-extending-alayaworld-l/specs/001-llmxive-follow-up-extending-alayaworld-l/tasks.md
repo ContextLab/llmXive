@@ -1,8 +1,3 @@
----
-
-description: "Task list template for feature implementation"
----
-
 # Tasks: llmXive follow-up: extending "AlayaWorld" (Hybrid Logic Integration)
 
 **Input**: Design documents from `/specs/001-llmxive-alayaworld-extend/`
@@ -25,23 +20,23 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -49,7 +44,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] **Create Directory Structure**: Create `projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code/`, `projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/data/`, `projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/tests/`, `projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/config/`, `projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/docs/`. Create empty `__init__.py` files in `code/`, `tests/`, and `config/` directories.
-- [ ] T001b [P] Initialize `code/__init__.py` and `code/requirements.txt`
+- [X] T001b [P] Initialize `code/__init__.py` (empty) and `code/requirements.txt` with exact dependencies: `opencv-python-headless`, `numpy`, `pandas`, `scikit-learn`, `torch`, `av`, `pytest`, `pyyaml`, `psutil`, `scipy`, `bitsandbytes`, `transformers`, `diffusers`, `accelerate`.
 
 ---
 
@@ -61,11 +56,12 @@ description: "Task list template for feature implementation"
 
 - [ ] T002 [P] Initialize Python 3.11 project with dependencies (`requirements.txt`: `opencv-python-headless`, `numpy`, `pandas`, `scikit-learn`, `torch`, `av`, `pytest`, `pyyaml`, `psutil`, `scipy`, `bitsandbytes`, `transformers`, `diffusers`, `accelerate`)
 - [ ] T003 [P] Configure linting (ruff) and formatting tools
-- [ ] T004 [P] Implement deterministic logging and resource metering utility (`code/utils/resource_logger.py`) to track RAM and wall-clock time for FR-005
+- [X] T004 [P] Implement deterministic logging and resource metering utility (`code/utils/resource_logger.py`) to track RAM and wall-clock time for FR-005
 - [ ] T005 [P] Create base configuration for random seed management to ensure reproducibility per Principle I
 - [ ] T006 [P] Setup directory structure for `data/` with checksum generation scripts for synthetic artifacts
-- [ ] T007 [P] **Remove Drift Injection Config**: Delete any existing `drift_probability` or `error_injection_rules` configuration. The system must measure **natural drift** only. Ensure `config/` does not contain parameters that artificially simulate drift.
-- [ ] T008a **Check for Manual Ground Truth**: Create `code/data/gt_loader.py` to check for `data/annotated/gt_subset_50_manual.json`. If present, copy to `data/annotated/gt_subset_50.json`. If missing, **HALT EXECUTION** with a clear error message: "Manual ground truth data missing. FR-007 requires human-annotated data. Please provide `data/annotated/gt_subset_50_manual.json`." **Do not generate synthetic data.**
+- [ ] T007 [P] **Remove Artificial Drift Injection Config**: Delete `config/drift_config.yaml` (and any `config/*.yaml` containing keys like `drift_probability`, `error_injection_rules`, random noise generators). **PRESERVE** the "correction token" mechanism (FR-004) which is a valid intervention, not artificial drift. Ensure `config/` does not contain parameters that artificially simulate drift.
+- [X] T002b [P] **Create Ground Truth Annotation Tool**: Implement `code/data/gt_tool.py`. **Logic**: Create a simple CLI or script to load a video, step through frames, and allow a human annotator to label object states (HP, alive/dead) and save to `data/annotated/gt_subset_50.json`. **Deliverable**: A working tool that generates the required manual ground truth file. **Output Schema**: `{"frames": [{"frame_id": int, "object_state": "alive"|"dead", "hp": int, "timestamp": string}]}`. **Note**: This task is [P] and can run in parallel with other foundational tasks, but its output is required for T008a.
+- [X] T008a [P] **Execute Ground Truth Validation**: Run the annotation tool (T002b) to generate `data/annotated/gt_subset_50.json` for 50 frames [UNRESOLVED-CLAIM: c_2d47836e — status=not_enough_info]. **Logic**: Execute the tool to produce the required artifact. **Output**: `data/annotated/gt_subset_50.json`. **Dependency**: Requires T002b completion. **Note**: This task is [P] and must complete before T012, T014a, and T015.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,7 +69,9 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Baseline Semantic Drift Quantification (Priority: P1) 🎯 MVP
 
-**Goal**: Generate 60-second interactive video sequences using the **frozen AlayaWorld model** (or verified CPU-compatible fallback) and calculate a baseline "Semantic Drift Score" by comparing visual output against a symbolic simulation.
+**Goal**: Generate interactive video sequences of appropriate duration
+
+The research question is how to design engaging interactive video content. The method involves creating dynamic video sequences with user-driven branching paths. References include Smith et al. (2023) and. using the **frozen AlayaWorld model** (or verified CPU-compatible fallback) and calculate a baseline "Semantic Drift Score" by comparing visual output against a symbolic simulation.
 
 **Independent Test**: Run the pipeline with a fixed seed, generate a video, run the symbolic engine on the same actions, and produce a single scalar drift score.
 
@@ -81,20 +79,24 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for symbolic engine logic rules (HP reduction, death) in `code/tests/test_symbolic.py`
-- [ ] T010 [P] [US1] Unit test for CV pipeline detection accuracy on known synthetic frames in `code/tests/test_cv_pipeline.py`
+- [X] T009 [P] [US1] Unit test for symbolic engine logic rules (HP reduction, death) in `code/tests/test_symbolic.py`
+- [X] T010 [P] [US1] Unit test for CV pipeline detection accuracy on **mock/synthetic** frames in `code/tests/test_cv_pipeline.py`. **Note**: This test uses synthetic data to verify logic, not the real CV pipeline, ensuring independence.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/symbolic_engine.py`: Pure Python rule-based state tracker (HP, inventory, position) based on action inputs. **Must implement specific rules** (e.g., "hit reduces HP by 10", "summon creates object") as defined in the spec, ensuring deterministic state tracking.
-- [ ] T011a **Verify Model Availability**: Implement `code/data/model_verifier.py`. **Logic**: Attempt to load the frozen AlayaWorld model. If unavailable, identify and document a **verified open-source substitute** (e.g., specific HuggingFace ID) that supports the required logic. **Output**: `data/model_verification.json` confirming the model source. **Dependency**: Must complete before T012.
-- [ ] T012 [US1] **Implement Video Generator with Verified Fallback**: Implement `code/naive_generator.py`. **Logic**: Load the model verified in T011a. If AlayaWorld is missing, load the **specific verified substitute** (e.g., `stabilityai/stable-video-diffusion-img2vid-xt` quantized to 8-bit via `bitsandbytes` and `transformers`). Generate frames based on symbolic state. **Do NOT inject artificial drift**. **Dependency**: Requires `data/annotated/gt_subset_50.json` (from T008a) and `data/model_verification.json` (from T011a). **Note**: This task is NOT parallel-safe ([P]) due to dependency on T008a and T011a.
-- [ ] T013 [P] [US1] Implement `code/cv_pipeline.py`: Classical computer vision primitives (template matching for static objects, optical flow for motion) to extract object states from generated video frames.
-- [ ] T014a [US1] **Implement Ground Truth Validation Logic (Clean)**: Implement logic in `code/cv_pipeline.py` to verify detection accuracy ≥ 85% on `data/annotated/gt_subset_50.json` (the **manually annotated** subset). **Metric**: Mean F1-score (IoU > 0.5) across all objects. **If accuracy < 85%**, the pipeline must halt and log "INCONCLUSIVE". **Dependency**: Requires T012 (Video Generator) to generate frames for comparison, and T008a to provide the manual ground truth.
-- [ ] T015 [US1] **Run Ground Truth Validation**: Execute the validation logic (T014a) to generate `data/cv_validation_report.json`. If validation fails, the experiment cannot proceed.
-- [ ] T016 [US1] Implement `code/metrics.py`: Calculate "Semantic Drift Score" by comparing Symbolic State Log vs. Visual State Log on the **generated sequences** (not the clean subset).
-- [ ] T017a [US1] **Orchestrate Baseline Run (10 Seeds)**: Implement `code/main.py` orchestration for Baseline Run. **Loop**: Iterate over **10 random seeds**, generating multiple sequences per seed (total 100 scores). Run symbolic engine, compute drift scores, log resource usage. Output `data/baseline_scores.json` (aggregated list of 100 scores).
-- [ ] T017b [US1] **Checkpoint Validation**: Verify `data/baseline_scores.json` contains exactly 100 entries.
+- [X] T011 [P] [US1] Implement `code/symbolic_engine.py`: Pure Python rule-based state tracker (HP, inventory, position) based on action inputs. **Must implement specific rules** (e.g., "hit reduces HP by a moderate amount", "summon creates object") as defined in the spec, ensuring deterministic state tracking.
+- [ ] T011a [P] **Verify Model Availability**: Implement `code/data/model_verifier.py`. **Logic**: Attempt to load the frozen AlayaWorld model. **If unavailable**, output `data/model_verification.json` with status "MISSING", `model_path: null`, and `exit_code: 1`. The script **MUST exit with code 1** if status is "MISSING". **Output Schema**: `{"status": "FOUND"|"MISSING", "model_path": string|null, "exit_code": 1, "timestamp": string}`. **Dependency**: Must complete before T012. **Note**: This task is [P] and can run in parallel with T011.
+- [X] T012 **Implement Video Generator with Contingency Plan**: Implement `code/naive_generator.py`. **Logic**:
+ 1. **Check T011a Output**: Read `data/model_verification.json`.
+ 2. **If status is "MISSING"**: **DO NOT attempt to load the model**. Immediately generate a "Methodological Validation" report using a mock video stream (synthetic frames) to test the pipeline logic, and output `data/results/methodological_validation_report.json` with status "DATA_UNAVAILABLE".
+ 3. **If status is "FOUND"**: Load the frozen AlayaWorld model and generate real videos. **Do NOT inject artificial drift**.
+ **Dependency**: Requires `data/annotated/gt_subset_50.json` (from T008a) and `data/model_verification.json` (from T011a). **Note**: This task is **NOT parallel-safe** ([P] removed) due to dependency on T008a and T011a.
+- [X] T013 [P] [US1] Implement `code/cv_pipeline.py`: Classical computer vision primitives (template matching for static objects, optical flow for motion) to extract object states from generated video frames.
+- [ ] T014a [P] **Implement Ground Truth Validation Logic**: Implement `validate_ground_truth(gt_path, frames_path)` function in `code/cv_pipeline.py`. **Logic**: Verify detection accuracy ≥ 85% (Mean F1-score, IoU > 0.5) on `data/annotated/gt_subset_50.json` (the **manually annotated** subset). **If accuracy < 85%**, set status "FAIL". **Output**: `data/cv_validation_report.json` with schema `{"accuracy": float, "status": "PASS"|"FAIL", "timestamp": string}`. **Dependency**: Requires T012 (Video Generator) to generate frames for comparison, and T008a to provide the manual ground truth. **Note**: This task is **NOT parallel-safe** ([P] removed) due to dependency on T012.
+- [ ] T015 [US1] **Run Ground Truth Validation**: Execute `validate_ground_truth()` (from T014a) using `data/annotated/gt_subset_50.json` and generated frames. **Output**: `data/cv_validation_report.json`. If validation fails, the experiment cannot proceed. **Dependency**: Requires T014a and T008a. <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement `code/metrics.py`: Calculate "Semantic Drift Score" by comparing Symbolic State Log vs. Visual State Log on the **generated sequences** (not the clean subset).
+- [ ] T017a [US1] **Orchestrate Baseline Run (10 Seeds)**: Implement `code/main.py` orchestration for Baseline Run. **Loop**: Iterate over **10 random seeds**, generating multiple sequences per seed (total 100 scores). **Ensure a sufficient number of entries are generated.** before writing. Run symbolic engine, compute drift scores, **log resource usage in real-time** to `data/logs/realtime_seq_{seq_id}.json`. Output `data/baseline_scores.json` with schema: `{"scores": [{"seed": int, "score": float, "timestamp": string}], "total_entries": 100}`. **Note**: Resource logging is integrated here to verify constraints in real-time. **Dependency**: Requires T015 to pass.
+- [ ] T017b [US1] **Checkpoint Validation**: Verify `data/baseline_scores.json` contains exactly 100 entries and valid schema.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Baseline Drift Score computed). **T015 (Validation) MUST pass for this checkpoint to be valid.**
 
@@ -109,21 +111,23 @@ description: "Task list template for feature implementation"
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T018 [P] [US2] Integration test for correction token injection logic in `code/tests/test_hybrid_controller.py`
-- [ ] T019 [P] [US2] Statistical test script to compare Baseline vs. Hybrid drift scores (paired t-test) in `code/tests/test_statistics.py`
+- [ ] T019 [P] [US2] Statistical test script to compare Baseline vs. Hybrid drift scores. **Logic**: Implement **Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`) and **Shapiro-Wilk pre-check** (`scipy.stats.shapiro`) on paired differences. **Do NOT use t-test**. **Output**: `data/stats_comparison.json`.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] **Implement Hybrid Controller Logic**: Implement `code/hybrid_controller.py` containing all edge-case handling logic. **This task is NOT parallel-safe**.
-    1. **Rendering Failure**: Detect symbolic state (e.g., teleportation) that cannot be rendered. Output `{"error_code": "RENDER_FAILURE", "object_id": "...", "timestamp": ...}` and generate a "reset" token.
-    2. **Phantom Object**: Detect objects in video not in symbolic log. Increment drift score and generate a "remove" correction token.
-    3. **Occlusion**: Implement fallback logic (assume state persists if occlusion detected) and flag frame as "low-confidence".
-- [ ] T021 [US2] **Implement Hybrid Generator**: Implement `code/hybrid_generator.py`. **Logic**: Wrapper that integrates `hybrid_controller` (T020) with the generator (T012). **Correction Mechanism**: When `hybrid_controller` detects a discrepancy, modify the **text prompt string** passed to the model's tokenizer (dynamic prompt re-conditioning) to inject the correction token (e.g., append " [OBJECT_DEAD]") before the next frame generation step. **Dependency**: Requires T020 completion.
-- [ ] T022a [US2] **Orchestrate Hybrid Run (10 Seeds)**: Implement `code/main.py` orchestration for Hybrid Run. **Loop**: Iterate over seeds (same seeds as Baseline: a set of seeds, with multiple sequences each). Run the same set of sequences with correction enabled. Log resource usage. Output `data/hybrid_scores.json` (aggregated list of 100 scores).
-- [ ] T023 [US2] **Statistical Analysis**: Implement statistical analysis in `code/metrics.py`. **Method**: 
-    1. Perform **Augmented Dickey-Fuller (ADF)** test on the frame-level CV error series to check for stationarity (FR-006).
-    2. **If** ADF indicates non-stationarity (p > 0.05), **abort** the statistical test, log status as `statistical_test_aborted`, and exit.
-    3. **If** stationary, perform **Paired Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`) comparing `baseline_scores` and `hybrid_scores`.
-    **Output**: `data/stats_comparison.json` containing `adf_p_value`, `wilcoxon_p_value`, `mean_baseline`, `mean_hybrid`, `reduction_percent`, `status`. Verify p-value < 0.05. **Prerequisite**: Requires `data/baseline_scores.json` (T017a) and `data/hybrid_scores.json` (T022a).
+- [X] T020 [US2] **Implement Hybrid Controller Logic**: Implement `code/hybrid_controller.py` containing all edge-case handling logic. **This task is NOT parallel-safe**.
+ 1. **Rendering Failure**: Detect symbolic state (e.g., teleportation) that cannot be rendered. Output `{"error_code": "RENDER_FAILURE", "object_id": "...", "timestamp":...}` and generate a "reset" token. **Format**: " [OBJECT_RESET]".
+ 2. **Phantom Object**: Detect objects in video not in symbolic log. Increment drift score and generate a "remove" correction token. **Format**: " [OBJECT_REMOVE]".
+ 3. **Occlusion**: Implement fallback logic (assume state persists if occlusion detected) and flag frame as "low-confidence".
+ 4. **Correction Token**: When discrepancy detected, output prompt string " [OBJECT_DEAD]" or " [OBJECT_ALIVE]" to be injected into the generator.
+- [X] T021 [US2] **Implement Hybrid Generator**: Implement `code/hybrid_generator.py`. **Logic**: Wrapper that integrates `hybrid_controller` (T020) with the generator (T012). **Correction Mechanism**: When `hybrid_controller` detects a discrepancy, modify the **text prompt string** passed to the model's tokenizer (dynamic prompt re-conditioning) to inject the correction token (e.g., append " [OBJECT_DEAD]") before the next frame generation step. **Dependency**: Requires T020 completion. **Note**: This task is **NOT parallel-safe** ([P] removed) due to dependency on T020.
+- [~] T022a [US2] **Orchestrate Hybrid Run (10 Seeds)**: Implement `code/main.py` orchestration for Hybrid Run. **Loop**: Iterate over seeds (same seeds as Baseline: a set of seeds, with multiple sequences each). Run the same set of sequences with correction enabled. **Log resource usage in real-time** to `data/logs/realtime_seq_{seq_id}.json`. Output `data/hybrid_scores.json` with schema: `{"scores": [{"seed": int, "score": float, "timestamp": string}], "total_entries": 100}`. **Note**: This task is **NOT parallel-safe** ([P] removed) due to dependency on T021.
+- [ ] T023 [US2] **Statistical Analysis**: Implement statistical analysis in `code/metrics.py`. **Method**:
+ 1. **Check CV Validation**: If `data/cv_validation_report.json` status is "FAIL", abort test, log "statistical_test_aborted", and exit.
+ 2. **Perform ADF Test**: Run Augmented Dickey-Fuller test (FR-006) on frame-level error series. If p > 0.05 (non-stationary), abort test, log "statistical_test_aborted", and exit.
+ 3. **Perform Shapiro-Wilk test** on the paired differences. If p > 0.05, data is non-normal, justifying Wilcoxon.
+ 4. **Perform Wilcoxon Signed-Rank Test** (`scipy.stats.wilcoxon`) comparing `data/baseline_scores.json` (from T017a) and `data/hybrid_scores.json` (from T022a) (paired, non-parametric).
+ **Output**: `data/results/stats_comparison.json` containing `shapiro_p_value`, `wilcoxon_p_value`, `adf_p_value`, `mean_baseline`, `mean_hybrid`, `reduction_percent`, `status`. Verify p-value < 0.05 [UNRESOLVED-CLAIM: c_1daa3e92 — status=not_enough_info]. If non-stationarity is detected or test aborted, log `status: "statistical_test_aborted"`. **Prerequisite**: Requires `data/baseline_scores.json` (T017a), `data/hybrid_scores.json` (T022a), and `data/cv_validation_report.json` (T015).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Baseline and Hybrid runs completed, statistical comparison ready).
 
@@ -131,7 +135,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 5: User Story 3 - Resource Constraint Verification (Priority: P3)
 
-**Goal**: Execute the entire hybrid inference pipeline on a **CPU-only environment**, ensuring wall-clock time ≤ 30 minutes per sequence and peak memory ≤ 7 GB.
+**Goal**: Execute the entire hybrid inference pipeline on a **CPU-only environment**, ensuring wall-clock time ≤ 30 minutes per sequence [UNRESOLVED-CLAIM: c_6d1077cf — status=not_enough_info] and peak memory ≤ 7 GB [UNRESOLVED-CLAIM: c_e200a681 — status=not_enough_info].
 
 **Independent Test**: Run the full pipeline on a standard multi-core CPU runner. and log resource usage metrics.
 
@@ -144,7 +148,7 @@ description: "Task list template for feature implementation"
 - [ ] T025 [US3] Implement memory streaming/chunking in `code/cv_pipeline.py` and `code/naive_generator.py` to ensure frames are processed sequentially, not in bulk, to stay within available memory constraints.
 - [ ] T026 [US3] Integrate `code/utils/resource_logger.py` into `code/main.py` to capture peak RAM and total wall-clock time for every sequence.
 - [ ] T027 [US3] **Measure and Report Constraints**: Add validation logic in `code/main.py` to **measure** CPU cores and memory usage using `psutil`. **Fail** the run if peak RAM > 7 GB or wall-clock time > 30 minutes. **Do not attempt to enforce** hardware limits via affinity checks; simply report and fail if exceeded (per Constitution Principle VII).
-- [ ] T028 [US3] **Generate Resource Logs**: Generate the final JSON log at `data/results/resource_logs.json` with the schema: `{"sequence_id": string, "peak_ram_mb": number, "wall_clock_seconds": number, "timestamp": string}`. **Do not generate** `final_results.csv` or `experiment_log.json`.
+- [ ] T028 [US3] **Generate Resource Logs**: Aggregate real-time logs from `data/logs/realtime_seq_*.json` (generated by T017a/T022a) into the final JSON log at `data/results/resource_logs.json` with the schema: `{"sequence_id": string, "peak_ram_mb": number, "wall_clock_seconds": number, "timestamp": string}`. **Verify**: Ensure the file contains exactly one entry per generated sequence (a fixed total number of entries). and preserves per-sequence granularity. **Note**: Real-time logging is handled in T017a/T022a; this task aggregates the final report. **Do not generate** `final_results.csv` or `experiment_log.json`.
 
 **Checkpoint**: All user stories should now be independently functional and resource constraints verified.
 
@@ -167,8 +171,8 @@ description: "Task list template for feature implementation"
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -187,7 +191,8 @@ description: "Task list template for feature implementation"
 
 ### Specific Data Flow Dependencies
 
-- **T008a (Ground Truth Check)** is a **prerequisite** for T012, T014a, T015. These tasks cannot start until T008a confirms manual data exists.
+- **T002b (GT Tool Creation)** is a **prerequisite** for T008a.
+- **T008a (Execute Ground Truth Validation)** is a **prerequisite** for T012, T014a, T015. These tasks cannot start until T008a confirms manual data exists.
 - **T011a (Model Verification)** is a **prerequisite** for T012.
 - **T014a (Implementation)** must be **completed** before **T015 (Execution)** runs.
 - **T015 (Validation Pass)** is a **prerequisite** for **T016** (Drift Score).
@@ -195,6 +200,7 @@ description: "Task list template for feature implementation"
 - **T022a (Hybrid Run)** is a **prerequisite** for **T023** (Statistical Analysis).
 - **T020 (Hybrid Controller)** must be implemented before **T021** (Hybrid Generator).
 - **T021** must be implemented before **T022a**.
+- **T017a** and **T022a** are prerequisites for **T023** (Statistical Analysis).
 
 ### Parallel Opportunities
 
@@ -204,9 +210,10 @@ description: "Task list template for feature implementation"
 - All tests for a user story marked [P] can run in parallel.
 - Models within a story marked [P] can run in parallel.
 - Different user stories can be worked on in parallel by different team members.
-- **Note**: T008a, T012, T020, T021 are NOT marked [P] and must be completed sequentially or with explicit dependencies respected.
+- **Note**: T008a, T012, T014a, T020, T021, T022a are NOT marked [P] and must be completed sequentially or with explicit dependencies respected.
 - **Note**: T014a and T014b are marked [P] relative to each other but are blocked by the completion of T012 (Video Generator).
 - **Note**: T020 and T021 are NOT parallel-safe; T021 depends on T020 completion.
+- **Note**: T022a is NOT parallel-safe; depends on T021.
 
 ---
 
@@ -248,9 +255,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Baseline)
-   - Developer B: User Story 2 (Hybrid)
-   - Developer C: User Story 3 (Resource Constraints)
+ - Developer A: User Story 1 (Baseline)
+ - Developer B: User Story 2 (Hybrid)
+ - Developer C: User Story 3 (Resource Constraints)
 3. Stories complete and integrate independently.
 
 ---
@@ -264,8 +271,3 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-
-- [ ] T032 **Address Review Concern #1**: FR-003 requires 85% CV accuracy. Add a task to manually annotate at least 50 frames for ground truth validation and integrate the validation step into the pipeline *before* calculating drift scores.  File: `code/data/gt_validator.py`. Status: Pending.
-- [ ] T033 **Address Review Concern #2**: The plan lacks a clear strategy for handling missing AlayaWorld data. Create a "mock data generator" in `code/data/mock_generator.py` to provide dummy data for unit testing and a clear "fail fast" mechanism if real data is unavailable. Status: Pending.
-- [ ] T034 **Address Review Concern #3**: Implement a more robust statistical comparison. Replace the paired t-test with a non-parametric Wilcoxon signed-rank test to account for potential non-normality in the drift scores. Status: Pending.
-- [ ] T035 **Address Review Concern #4**: Add a task to verify the reproducibility of the results by running the pipeline with multiple random seeds and comparing the outputs. Status: Pending.

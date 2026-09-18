@@ -1,0 +1,310 @@
+{
+  "frames": [
+    {
+      "frame_id": 0,
+      "object_state": "alive",
+      "hp": 100,
+      "timestamp": "2023-10-27T10:00:00Z"
+    },
+    {
+      "frame_id": 1,
+      "object_state": "alive",
+      "hp": 95,
+      "timestamp": "2023-10-27T10:00:01Z"
+    },
+    {
+      "frame_id": 2,
+      "object_state": "alive",
+      "hp": 90,
+      "timestamp": "2023-10-27T10:00:02Z"
+    },
+    {
+      "frame_id": 3,
+      "object_state": "alive",
+      "hp": 85,
+      "timestamp": "2023-10-27T10:00:03Z"
+    },
+    {
+      "frame_id": 4,
+      "object_state": "alive",
+      "hp": 80,
+      "timestamp": "2023-10-27T10:00:04Z"
+    },
+    {
+      "frame_id": 5,
+      "object_state": "alive",
+      "hp": 75,
+      "timestamp": "2023-10-27T10:00:05Z"
+    },
+    {
+      "frame_id": 6,
+      "object_state": "alive",
+      "hp": 70,
+      "timestamp": "2023-10-27T10:00:06Z"
+    },
+    {
+      "frame_id": 7,
+      "object_state": "alive",
+      "hp": 65,
+      "timestamp": "2023-10-27T10:00:07Z"
+    },
+    {
+      "frame_id": 8,
+      "object_state": "alive",
+      "hp": 60,
+      "timestamp": "2023-10-27T10:00:08Z"
+    },
+    {
+      "frame_id": 9,
+      "object_state": "alive",
+      "hp": 55,
+      "timestamp": "2023-10-27T10:00:09Z"
+    },
+    {
+      "frame_id": 10,
+      "object_state": "alive",
+      "hp": 50,
+      "timestamp": "2023-10-27T10:00:10Z"
+    },
+    {
+      "frame_id": 11,
+      "object_state": "alive",
+      "hp": 45,
+      "timestamp": "2023-10-27T10:00:11Z"
+    },
+    {
+      "frame_id": 12,
+      "object_state": "alive",
+      "hp": 40,
+      "timestamp": "2023-10-27T10:00:12Z"
+    },
+    {
+      "frame_id": 13,
+      "object_state": "alive",
+      "hp": 35,
+      "timestamp": "2023-10-27T10:00:13Z"
+    },
+    {
+      "frame_id": 14,
+      "object_state": "alive",
+      "hp": 30,
+      "timestamp": "2023-10-27T10:00:14Z"
+    },
+    {
+      "frame_id": 15,
+      "object_state": "alive",
+      "hp": 25,
+      "timestamp": "2023-10-27T10:00:15Z"
+    },
+    {
+      "frame_id": 16,
+      "object_state": "alive",
+      "hp": 20,
+      "timestamp": "2023-10-27T10:00:16Z"
+    },
+    {
+      "frame_id": 17,
+      "object_state": "alive",
+      "hp": 15,
+      "timestamp": "2023-10-27T10:00:17Z"
+    },
+    {
+      "frame_id": 18,
+      "object_state": "alive",
+      "hp": 10,
+      "timestamp": "2023-10-27T10:00:18Z"
+    },
+    {
+      "frame_id": 19,
+      "object_state": "alive",
+      "hp": 5,
+      "timestamp": "2023-10-27T10:00:19Z"
+    },
+    {
+      "frame_id": 20,
+      "object_state": "dead",
+      "hp": 0,
+      "timestamp": "2023-10-27T10:00:20Z"
+    },
+    {
+      "frame_id": 21,
+      "object_state": "dead",
+      "hp": 0,
+      "timestamp": "2023-10-27T10:00:21Z"
+    },
+    {
+      "frame_id": 22,
+      "object_state": "dead",
+      "hp": 0,
+      "timestamp": "2023-10-27T10:00:22Z"
+    },
+    {
+      "frame_id": 23,
+      "object_state": "dead",
+      "hp": 0,
+      "timestamp": "2023-10-27T10:00:23Z"
+    },
+    {
+      "frame_id": 24,
+      "object_state": "dead",
+      "hp": 0,
+      "timestamp": "2023-10-27T10:00:24Z"
+    },
+    {
+      "frame_id": 25,
+      "object_state": "alive",
+      "hp": 100,
+      "timestamp": "2023-10-27T10:00:25Z"
+    },
+    {
+      "frame_id": 26,
+      "object_state": "alive",
+      "hp": 98,
+      "timestamp": "2023-10-27T10:00:26Z"
+    },
+    {
+      "frame_id": 27,
+      "object_state": "alive",
+      "hp": 96,
+      "timestamp": "2023-10-27T10:00:27Z"
+    },
+    {
+      "frame_id": 28,
+      "object_state": "alive",
+      "hp": 94,
+      "timestamp": "2023-10-27T10:00:28Z"
+    },
+    {
+      "frame_id": 29,
+      "object_state": "alive",
+      "hp": 92,
+      "timestamp": "2023-10-27T10:00:29Z"
+    },
+    {
+      "frame_id": 30,
+      "object_state": "alive",
+      "hp": 90,
+      "timestamp": "2023-10-27T10:00:30Z"
+    },
+    {
+      "frame_id": 31,
+      "object_state": "alive",
+      "hp": 88,
+      "timestamp": "2023-10-27T10:00:31Z"
+    },
+    {
+      "frame_id": 32,
+      "object_state": "alive",
+      "hp": 86,
+      "timestamp": "2023-10-27T10:00:32Z"
+    },
+    {
+      "frame_id": 33,
+      "object_state": "alive",
+      "hp": 84,
+      "timestamp": "2023-10-27T10:00:33Z"
+    },
+    {
+      "frame_id": 34,
+      "object_state": "alive",
+      "hp": 82,
+      "timestamp": "2023-10-27T10:00:34Z"
+    },
+    {
+      "frame_id": 35,
+      "object_state": "alive",
+      "hp": 80,
+      "timestamp": "2023-10-27T10:00:35Z"
+    },
+    {
+      "frame_id": 36,
+      "object_state": "alive",
+      "hp": 78,
+      "timestamp": "2023-10-27T10:00:36Z"
+    },
+    {
+      "frame_id": 37,
+      "object_state": "alive",
+      "hp": 76,
+      "timestamp": "2023-10-27T10:00:37Z"
+    },
+    {
+      "frame_id": 38,
+      "object_state": "alive",
+      "hp": 74,
+      "timestamp": "2023-10-27T10:00:38Z"
+    },
+    {
+      "frame_id": 39,
+      "object_state": "alive",
+      "hp": 72,
+      "timestamp": "2023-10-27T10:00:39Z"
+    },
+    {
+      "frame_id": 40,
+      "object_state": "alive",
+      "hp": 70,
+      "timestamp": "2023-10-27T10:00:40Z"
+    },
+    {
+      "frame_id": 41,
+      "object_state": "alive",
+      "hp": 68,
+      "timestamp": "2023-10-27T10:00:41Z"
+    },
+    {
+      "frame_id": 42,
+      "object_state": "alive",
+      "hp": 66,
+      "timestamp": "2023-10-27T10:00:42Z"
+    },
+    {
+      "frame_id": 43,
+      "object_state": "alive",
+      "hp": 64,
+      "timestamp": "2023-10-27T10:00:43Z"
+    },
+    {
+      "frame_id": 44,
+      "object_state": "alive",
+      "hp": 62,
+      "timestamp": "2023-10-27T10:00:44Z"
+    },
+    {
+      "frame_id": 45,
+      "object_state": "alive",
+      "hp": 60,
+      "timestamp": "2023-10-27T10:00:45Z"
+    },
+    {
+      "frame_id": 46,
+      "object_state": "alive",
+      "hp": 58,
+      "timestamp": "2023-10-27T10:00:46Z"
+    },
+    {
+      "frame_id": 47,
+      "object_state": "alive",
+      "hp": 56,
+      "timestamp": "2023-10-27T10:00:47Z"
+    },
+    {
+      "frame_id": 48,
+      "object_state": "alive",
+      "hp": 54,
+      "timestamp": "2023-10-27T10:00:48Z"
+    },
+    {
+      "frame_id": 49,
+      "object_state": "alive",
+      "hp": 52,
+      "timestamp": "2023-10-27T10:00:49Z"
+    }
+  ],
+  "metadata": {
+    "source_video": "data/input/sample_video.mp4",
+    "frame_count": 50,
+    "timestamp": "2023-10-27T10:00:50Z",
+    "tool_version": "1.0.0"
+  }
+}

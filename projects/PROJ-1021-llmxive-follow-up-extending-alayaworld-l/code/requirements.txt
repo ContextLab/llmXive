@@ -1,0 +1,14 @@
+opencv-python-headless
+numpy
+pandas
+scikit-learn
+torch
+av
+pytest
+pyyaml
+psutil
+scipy
+bitsandbytes
+transformers
+diffusers
+accelerate

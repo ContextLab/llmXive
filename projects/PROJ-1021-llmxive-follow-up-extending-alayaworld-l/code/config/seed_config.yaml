@@ -1,0 +1,38 @@
+# Base configuration for random seed management (Principle I: Reproducibility)
+# This file defines the global seed and related settings for the experiment.
+# All random number generators (numpy, torch, python random) should be initialized
+# using the seed value found here to ensure deterministic results.
+
+experiment:
+  name: "llmXive-follow-up-extending-alayaworld-l"
+  version: "1.0.0"
+
+reproducibility:
+  # Global random seed for all RNGs
+  base_seed: 42
+  
+  # Flag to enable/disable reproducibility (for debugging or stochastic runs)
+  force_reproducible: true
+  
+  # List of seeds to run if multiple experiments are needed (e.g., for T017a)
+  # If base_seed is used, this list is ignored unless explicitly overridden.
+  seed_sequence:
+    - 42
+    - 123
+    - 456
+    - 789
+    - 101112
+    - 131415
+    - 161718
+    - 192021
+    - 222324
+    - 252627
+
+paths:
+  # Directory where seed-specific logs and artifacts will be stored
+  output_base: "data/outputs"
+  log_base: "data/logs"
+
+notes:
+  - "Setting this seed ensures that random actions, model initializations (if applicable), and data shuffling are deterministic."
+  - "Use `python code/utils/seed_manager.py` to apply these settings at runtime."

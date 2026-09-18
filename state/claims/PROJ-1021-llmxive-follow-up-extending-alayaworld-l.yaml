@@ -1,0 +1,503 @@
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: CV pipeline detection accuracy threshold of 85% Mean F1-score with IoU
+    > 0.5 on manually annotated subset
+  claim_id: c_8da3611d
+  context: "T014a [P] Implement Ground Truth Validation Logic: Implement validate_ground_truth(gt_path,\
+    \ frames_path) function in code/cv_pipeline.py. Logic: Verify detection accuracy\
+    \ \u2265 85% (Mean F1-score, IoU > 0.5) on data/annotated/gt_subset_50.json (the\
+    \ manually annotated subset). If accuracy < 85%, set status FAIL."
+  evidence:
+    asserted: '85.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement validate_ground_truth(gt_path, frames_path) function in code/cv_pipeline.py.\
+    \ Logic: Verify detection accuracy \u2265 85% (Mean F1-score, IoU > 0.5) on data/annotated/gt_subset_50.json\
+    \ (the manually annotated subset)."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T22:39:55Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Baseline run iterates over 10 random seeds generating 100 total scores
+  claim_id: c_bf8a5437
+  context: 'T017a [US1] Orchestrate Baseline Run (10 Seeds): Implement code/main.py
+    orchestration for Baseline Run. Loop: Iterate over 10 random seeds, generating
+    multiple sequences per seed (total 100 scores). Ensure a sufficient number of
+    entries are generated before writing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Orchestrate Baseline Run (10 Seeds): Implement code/main.py orchestration
+    for Baseline Run. Loop: Iterate over 10 random seeds, generating multiple sequences
+    per seed (total 100 scores).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:40:09Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Baseline scores JSON contains exactly 100 entries
+  claim_id: c_7f69f576
+  context: 'T017b [US1] Checkpoint Validation: Verify data/baseline_scores.json contains
+    exactly 100 entries and valid schema.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/baseline_scores.json contains exactly 100 entries and valid
+    schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:40:21Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Hybrid run iterates over same 10 seeds as baseline generating 100 total
+    scores
+  claim_id: c_7fd4114b
+  context: 'T022a [US2] Orchestrate Hybrid Run (10 Seeds): Implement code/main.py
+    orchestration for Hybrid Run. Loop: Iterate over seeds (same seeds as Baseline:
+    a set of seeds, with multiple sequences each). Run the same set of sequences with
+    correction enabled. Log resource usage in real-time to data/logs/realtime_seq_{seq_id}.json.
+    Output data/hybrid_scores.json with schema: {scores: [{seed: int, score: float,
+    timestamp: string}], total_entries: 100}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Orchestrate Hybrid Run (10 Seeds): Implement code/main.py orchestration
+    for Hybrid Run. Loop: Iterate over seeds (same seeds as Baseline: a set of seeds,
+    with multiple sequences each). Run the same set of sequences with correction enabled.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:40:42Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Statistical analysis requires p-value less than 0.05
+  claim_id: c_b593f998
+  context: 'T023 [US2] Statistical Analysis: ... Perform Wilcoxon Signed-Rank Test
+    (scipy.stats.wilcoxon) comparing data/baseline_scores.json (from T017a) and data/hybrid_scores.json
+    (from T022a) (paired, non-parametric). Output: data/results/stats_comparison.json
+    containing shapiro_p_value, wilcoxon_p_value, adf_p_value, mean_baseline, mean_hybrid,
+    reduction_percent, status. Verify p-value < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_requires_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: Verify p-value < 0.05 in statistical analysis comparing baseline and hybrid
+    drift scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:41:06Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Hybrid inference pipeline on CPU must complete in 30 minutes with peak
+    memory under 7 GB
+  claim_id: c_9cec1981
+  context: "Phase 5: User Story 3 - Resource Constraint Verification (Priority: P3).\
+    \ Goal: Execute the entire hybrid inference pipeline on a CPU-only environment,\
+    \ ensuring wall-clock time \u2264 30 minutes per sequence and peak memory \u2264\
+    \ 7 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the entire hybrid inference pipeline on a CPU-only environment,\
+    \ ensuring wall-clock time \u2264 30 minutes per sequence and peak memory \u2264\
+    \ 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:41:06Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Run fails if peak RAM exceeds 7 GB or wall-clock time exceeds 30 minutes
+  claim_id: c_40f9fe50
+  context: 'T027 [US3] Measure and Report Constraints: Add validation logic in code/main.py
+    to measure CPU cores and memory usage using psutil. Fail the run if peak RAM >
+    7 GB or wall-clock time > 30 minutes. Do not attempt to enforce hardware limits
+    via affinity checks; simply report and fail if exceeded (per Constitution Principle
+    VII).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the run if peak RAM > 7 GB or wall-clock time > 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:41:06Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 cited as reference for interactive video content design
+  claim_id: c_d0cd0ec0
+  context: The research question is how to design engaging interactive video content.
+    The method involves creating dynamic video sequences with user-driven branching
+    paths. References include Smith et al. (2023) and. using the frozen AlayaWorld
+    model (or verified CPU-compatible fallback) and calculate a baseline Semantic
+    Drift Score by comparing visual output against a symbolic simulation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: References include Smith et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:41:24Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Research question on designing engaging interactive video content
+  claim_id: c_5d2be330
+  context: The research question is how to design engaging interactive video content.
+    The method involves creating dynamic video sequences with user-driven branching
+    paths.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_on_designing_engaging_interactive_video_co
+  kind: entity_fact
+  raw_text: The research question is how to design engaging interactive video content.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:50:17Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Reference to Smith et al. 2023
+  claim_id: c_736e9a2b
+  context: References include Smith et al. (2023) and. using the frozen AlayaWorld
+    model (or verified CPU-compatible fallback) and calculate a baseline Semantic
+    Drift Score.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: References include Smith et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:50:17Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Ground truth annotation dataset of 50 frames
+  claim_id: c_351f9339
+  context: Run the annotation tool (T002b) to generate data/annotated/gt_subset_50.json
+    for 50 frames.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires generating a dataset for 50 frames.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:50:36Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Baseline run uses 10 random seeds
+  claim_id: c_2d7e062e
+  context: 'Loop: Iterate over 10 random seeds, generating multiple sequences per
+    seed (total 100 scores).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline run iterates over 10 random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:51:19Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Baseline run generates 100 scores
+  claim_id: c_b7eb55d2
+  context: 'Loop: Iterate over 10 random seeds, generating multiple sequences per
+    seed (total 100 scores).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline run generates a total of 100 scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:51:57Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Hybrid run uses same seeds as baseline
+  claim_id: c_e5a54ed0
+  context: 'Loop: Iterate over seeds (same seeds as Baseline: a set of seeds, with
+    multiple sequences each).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hybrid_run_uses_same_seeds_as_baseline
+  kind: entity_fact
+  raw_text: The hybrid run uses the same set of seeds as the baseline run.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:52:18Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Hybrid run generates 100 scores
+  claim_id: c_c3c251b4
+  context: 'Output data/hybrid_scores.json with schema: {"scores": [{"seed": int,
+    "score": float, "timestamp": string}], "total_entries": 100}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hybrid run generates a total of 100 scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:52:38Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Wall-clock time limit of 30 minutes per sequence
+  claim_id: c_9612ab0e
+  context: "Goal: Execute the entire hybrid inference pipeline on a CPU-only environment,\
+    \ ensuring wall-clock time \u2264 30 minutes per sequence and peak memory \u2264\
+    \ 7 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wall-clock_time_limit_of_30_minutes_per_sequence
+  kind: magnitude
+  raw_text: The resource constraint verification requires wall-clock time to be less
+    than or equal to 30 minutes per sequence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:53:33Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Peak memory limit of 7 GB
+  claim_id: c_b96597cf
+  context: "Goal: Execute the entire hybrid inference pipeline on a CPU-only environment,\
+    \ ensuring wall-clock time \u2264 30 minutes per sequence and peak memory \u2264\
+    \ 7 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_limit_of_7_GB
+  kind: magnitude
+  raw_text: The resource constraint verification requires peak memory to be less than
+    or equal to 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:53:51Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold of p < 0.05
+  claim_id: c_ff9ff9b2
+  context: 'Verify p-value < 0.05. If non-stationarity is detected or test aborted,
+    log status: "statistical_test_aborted".'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_threshold_of_p_%3C_0.05
+  kind: magnitude
+  raw_text: The statistical analysis requires a p-value less than 0.05 to verify significance.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:54:45Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: CV accuracy threshold of 85% Mean F1-score with IoU > 0.5
+  claim_id: c_3908876d
+  context: "Verify detection accuracy \u2265 85% (Mean F1-score, IoU > 0.5) on data/annotated/gt_subset_50.json\
+    \ (the manually annotated subset)."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The CV pipeline detection accuracy validation requires a Mean F1-score
+    of at least 85% with IoU > 0.5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T22:54:45Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: 10 random seeds and 100 total scores generated for baseline run
+  claim_id: c_e1e4bbd6
+  context: 'T017a [US1] **Orchestrate Baseline Run (10 Seeds)**: Implement `code/main.py`
+    orchestration for Baseline Run. **Loop**: Iterate over **10 random seeds**, generating
+    multiple sequences per seed (total 100 scores).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over 10 random seeds, generating multiple sequences per seed (total
+    100 scores).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:57:05Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Baseline scores JSON contains 100 total entries
+  claim_id: c_28172b78
+  context: 'Output `data/baseline_scores.json` with schema: `{"scores": [{"seed":
+    int, "score": float, "timestamp": string}], "total_entries": 100}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'total_entries: 100'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:57:30Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Ground truth validation requires 85% detection accuracy with IoU > 0.5
+  claim_id: c_eda0a31d
+  context: "T014a [P] **Implement Ground Truth Validation Logic**: ... **Logic**:\
+    \ Verify detection accuracy \u2265 85% (Mean F1-score, IoU > 0.5) on `data/annotated/gt_subset_50.json`\
+    \ (the **manually annotated** subset)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify detection accuracy \u2265 85% (Mean F1-score, IoU > 0.5) on `data/annotated/gt_subset_50.json`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:57:30Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Resource constraint requires wall-clock time under 30 minutes per sequence
+  claim_id: c_6d1077cf
+  context: "Goal**: Execute the entire hybrid inference pipeline on a **CPU-only environment**,\
+    \ ensuring wall-clock time \u2264 30 minutes per sequence and peak memory \u2264\
+    \ 7 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "wall-clock time \u2264 30 minutes per sequence"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:57:30Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Resource constraint requires peak memory under 7 GB
+  claim_id: c_e200a681
+  context: "Goal**: Execute the entire hybrid inference pipeline on a **CPU-only environment**,\
+    \ ensuring wall-clock time \u2264 30 minutes per sequence and peak memory \u2264\
+    \ 7 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak memory \u2264 7 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:57:30Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Statistical analysis requires p-value less than 0.05
+  claim_id: c_1daa3e92
+  context: 'Verify p-value < 0.05. If non-stationarity is detected or test aborted,
+    log `status: \"statistical_test_aborted\"`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_requires_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: Verify p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:57:56Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Ground truth annotation file contains 50 frames
+  claim_id: c_2d47836e
+  context: 'T008a [P] **Execute Ground Truth Validation**: Run the annotation tool
+    (T002b) to generate `data/annotated/gt_subset_50.json` for 50 frames.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate `data/annotated/gt_subset_50.json` for 50 frames
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:58:18Z'
+- artifact_path: projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/specs/001-llmxive-follow-up-extending-alayaworld-l/tasks.md
+  attempts: 1
+  canonical: Ground truth validation performed on 50-frame subset
+  claim_id: c_55b69535
+  context: 'T014a [P] **Implement Ground Truth Validation Logic**: ... on `data/annotated/gt_subset_50.json`
+    (the **manually annotated** subset).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `validate_ground_truth(gt_path, frames_path)` function ...\
+    \ Verify detection accuracy \u2265 85% ... on `data/annotated/gt_subset_50.json`"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T22:58:18Z'
