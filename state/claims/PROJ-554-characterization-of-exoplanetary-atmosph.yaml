@@ -428,3 +428,218 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T17:56:55Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: target unique planet count several tens
+  claim_id: c_c70ce1b6
+  context: The total count of unique planets is a *target* range of several tens.;
+    if the actual count is outside this range, the pipeline logs a warning but proceeds,
+    as per FR-001's requirement to download ALL available spectra.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_unique_planet_count_several_tens
+  kind: entity_fact
+  raw_text: The total count of unique planets is a target range of several tens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:38:11Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: hot jupiter threshold T_eq > 1000K super-earth threshold R < 1.6 R_E
+    T_eq < 1000K
+  claim_id: c_5e787f5b
+  context: 'Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6 R_E
+    (and T_eq < 1000K) for Super-Earths.'
+  evidence:
+    asserted: '1000.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6 R_E
+    (and T_eq < 1000K) for Super-Earths.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T00:38:11Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: super-earth threshold R < 1.6 R_E
+  claim_id: c_feb5f58f
+  context: 'Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6 R_E
+    (and T_eq < 1000K) for Super-Earths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use specific thresholds: R < 1.6 R_E for Super-Earths.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:38:11Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42
+  claim_id: c_c01f3db9
+  context: 'Logic: Run exactly 1000 iterations with random seed SEED=42. For each
+    iteration, resample the dataset (with replacement) and recompute Kendall''s tau.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run exactly 1000 iterations with random seed SEED=42 for bootstrap resampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:38:35Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: verify water mixing ratio 95% CI width <= 0.2 dex
+  claim_id: c_17818abf
+  context: 'Logic: Explicitly verify if width <= 0.2 (dex). Set threshold_met boolean.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify if 95% CI width of water mixing ratio distribution is <= 0.2 dex.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:38:59Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: verify kendall tau 95% CI width <= 0.2
+  claim_id: c_069f46c8
+  context: 'Logic: Explicitly verify if width <= 0.2 (or report the width).'
+  evidence:
+    asserted: '95.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: Verify if 95% CI width of Kendall's tau coefficient is <= 0.2.
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T00:39:00Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: check VIF > 5 for Tobit regression
+  claim_id: c_45c43ec7
+  context: Check VIF > 5. If VIF > 5, automatically switch to Tobit Regression with
+    Ridge Regularization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check VIF > 5 for Tobit regression model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:39:00Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: estimate power to detect |tau| >= 0.3 at alpha=0.05
+  claim_id: c_3098e336
+  context: 'Logic: Generate 1000 bootstrap samples of the censored data, compute Kendall''s
+    tau for each, and estimate the power to detect |tau| >= 0.3 at alpha=0.05.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3 at alpha=0.05'
+    relation: tau
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/estimate_power_to_detect_tau_%3E=_0.3_at_alpha=0.05
+    source_value: https://en.wikipedia.org/wiki/estimate_power_to_detect_tau_>=_0.3_at_alpha=0.05
+    subject: estimate power to detect
+  kind: relational
+  raw_text: Estimate power to detect |tau| >= 0.3 at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:39:40Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: report power_sufficient if power >= 0.8
+  claim_id: c_7a1fcd3b
+  context: Report power_sufficient (boolean) if power >= 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report power_sufficient (boolean) if power >= 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:40:04Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: flag instrument with SNR variance > 20%
+  claim_id: c_b5c0918c
+  context: Flag any instrument with high variance (>20%) as a potential confounding
+    factor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag any instrument with SNR variance > 20% as a potential confounding
+    factor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:40:04Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: count detections > 3-sigma above MDC
+  claim_id: c_fa953977
+  context: Explicitly count how many detections are >3-sigma above the MDC and how
+    many are consistent with noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Count how many detections are >3-sigma above the MDC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:40:04Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: flag instrument/date with residual variance > 2x median
+  claim_id: c_c92456cf
+  context: Flag any instrument/date combination with residual variance > 2x the median.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/flag_instrument/date_with_residual_variance_%3E_2x_median
+  kind: entity_fact
+  raw_text: Flag any instrument/date combination with residual variance > 2x the median.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T00:40:45Z'

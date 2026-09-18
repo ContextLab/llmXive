@@ -1,138 +1,197 @@
-"""
-Utility functions for the exoplanetary atmosphere characterization pipeline.
-Includes logging setup, error handling, and censored data helpers.
-"""
 import logging
 import time
 import random
 from functools import wraps
 from typing import Callable, Type, Optional, Tuple, Any, Union, List
 import numpy as np
+import pandas as pd
 
 class PipelineError(Exception):
     """Base exception for pipeline errors."""
     pass
 
 class DataFetchError(PipelineError):
-    """Error raised when data fetching fails."""
+    """Error during data fetching."""
     pass
 
 class ParsingError(PipelineError):
-    """Error raised when data parsing fails."""
+    """Error during data parsing."""
     pass
 
 class RetrievalError(PipelineError):
-    """Error raised when retrieval process fails."""
+    """Error during atmospheric retrieval."""
     pass
 
 class CensoredDataError(PipelineError):
-    """Error raised when handling censored data fails."""
+    """Error related to censored data handling."""
     pass
 
 class ConfigurationError(PipelineError):
-    """Error raised when configuration is invalid."""
+    """Error related to configuration."""
     pass
 
-def setup_logging(level: str = 'INFO', log_file: Optional[str] = None) -> logging.Logger:
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
     Configure logging for the pipeline.
-    Sets up console and optionally file handlers.
+
+    Args:
+        log_file: Path to log file. If None, logs to console only.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+
+    Returns:
+        Configured logger instance.
     """
-    log_level = getattr(logging, level.upper(), logging.INFO)
+    logger = logging.getLogger("exoplanet_pipeline")
+    logger.setLevel(level)
 
-    logger = logging.getLogger()
-    logger.setLevel(log_level)
+    # Avoid duplicate handlers if called multiple times
+    if logger.handlers:
+        return logger
 
-    # Clear existing handlers
-    logger.handlers = []
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
     # Console handler
     ch = logging.StreamHandler()
-    ch.setLevel(log_level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
+    # File handler if specified
     if log_file:
         fh = logging.FileHandler(log_file)
-        fh.setLevel(log_level)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
     return logger
 
-def retry_on_failure(max_retries: int = 3, delay: float = 1.0, exceptions: Tuple[Type[Exception], ...] = (Exception,)):
+def retry_on_failure(max_retries: int = 3, delay: float = 1.0, backoff: float = 2.0):
     """
     Decorator to retry a function on failure.
+
+    Args:
+        max_retries: Maximum number of retry attempts.
+        delay: Initial delay between retries in seconds.
+        backoff: Multiplier for delay after each retry.
+
+    Returns:
+        Decorator function.
     """
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
-            retries = 0
-            while retries < max_retries:
+            current_delay = delay
+            for attempt in range(max_retries):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as e:
-                    retries += 1
-                    if retries == max_retries:
+                except Exception as e:
+                    if attempt == max_retries - 1:
                         raise
-                    logger = logging.getLogger(__name__)
-                    logger.warning(f"Attempt {retries} failed: {e}. Retrying in {delay}s...")
-                    time.sleep(delay)
+                    logging.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {current_delay}s...")
+                    time.sleep(current_delay)
+                    current_delay *= backoff
             return None
         return wrapper
     return decorator
 
-def safe_execute(func: Callable, default: Any = None, exceptions: Tuple[Type[Exception], ...] = (Exception,)) -> Callable:
+def safe_execute(func: Callable, default: Any = None, log_error: bool = True) -> Any:
     """
-    Decorator to safely execute a function, returning a default value on exception.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except exceptions as e:
-            logger = logging.getLogger(__name__)
-            logger.warning(f"Function {func.__name__} failed with {e}. Returning default.")
-            return default
-    return wrapper
+    Safely execute a function and return a default value on failure.
 
-def is_censored_value(value: Optional[float], threshold: Optional[float] = None) -> bool:
+    Args:
+        func: Function to execute.
+        default: Default value to return on failure.
+        log_error: Whether to log the error.
+
+    Returns:
+        Function result or default value.
     """
-    Check if a value is considered censored (e.g., an upper limit).
-    If threshold is provided, checks if value is below threshold.
+    try:
+        return func()
+    except Exception as e:
+        if log_error:
+            logging.error(f"Error executing {func.__name__}: {e}")
+        return default
+
+def is_censored_value(value: Optional[float], threshold: float = -999.0) -> bool:
+    """
+    Check if a value represents a censored measurement (upper limit).
+
+    Args:
+        value: The value to check.
+        threshold: Sentinel value indicating censorship (default -999.0).
+
+    Returns:
+        True if the value is censored, False otherwise.
     """
     if value is None:
         return True
-    if threshold is not None and value < threshold:
-        return True
-    return False
+    return np.isclose(value, threshold)
 
 def create_censored_series(data: List[Optional[float]], is_censored: List[bool]) -> pd.Series:
     """
-    Create a pandas Series with censored data handling.
-    Requires pandas import.
-    """
-    import pandas as pd
-    return pd.Series(data)
+    Create a pandas Series representing censored data.
 
-def calculate_censored_mean(data: List[float], is_censored: List[bool]) -> float:
-    """
-    Calculate a mean for censored data (simplified approach).
-    In a full implementation, this would use Kaplan-Meier or similar.
-    """
-    # Simple placeholder: filter out censored values for mean calculation
-    uncensored_values = [v for v, c in zip(data, is_censored) if not c]
-    if not uncensored_values:
-        return np.nan
-    return np.mean(uncensored_values)
+    Args:
+        data: List of values (None or sentinel for censored).
+        is_censored: List of booleans indicating if each value is censored.
 
-def handle_non_convergent_retrieval(retrieval_result: Dict[str, Any], fallback_value: float = -10.0) -> Dict[str, Any]:
+    Returns:
+        Pandas Series with values, replacing censored entries with np.nan.
     """
-    Handle cases where retrieval did not converge.
-    Sets values to fallback and flags as upper limit.
+    if len(data) != len(is_censored):
+        raise ValueError("data and is_censored must have the same length")
+
+    processed_data = []
+    for val, censored in zip(data, is_censored):
+        if censored or val is None:
+            processed_data.append(np.nan)
+        else:
+            processed_data.append(val)
+
+    return pd.Series(processed_data)
+
+def calculate_censored_mean(data: List[Optional[float]], is_censored: List[bool]) -> Optional[float]:
     """
-    retrieval_result['converged'] = False
-    retrieval_result['water_mixing_ratio'] = fallback_value
-    retrieval_result['is_upper_limit'] = True
-    return retrieval_result
+    Calculate the mean of non-censored values.
+
+    Args:
+        data: List of values.
+        is_censored: List of booleans indicating censorship.
+
+    Returns:
+        Mean of non-censored values, or None if all are censored.
+    """
+    valid_values = [v for v, c in zip(data, is_censored) if not c and v is not None]
+    if not valid_values:
+        return None
+    return float(np.mean(valid_values))
+
+def handle_non_convergent_retrieval(planet_name: str, error: Exception, logger: Optional[logging.Logger] = None) -> Dict[str, Any]:
+    """
+    Handle non-convergent retrieval results by creating a fallback record.
+
+    Args:
+        planet_name: Name of the planet.
+        error: The exception that occurred.
+        logger: Logger instance (optional).
+
+    Returns:
+        Dictionary representing a fallback retrieval result (upper limit).
+    """
+    result = {
+        "planet_name": planet_name,
+        "water_mixing_ratio": np.nan,
+        "uncertainty": np.nan,
+        "is_upper_limit": True,
+        "convergence_status": "failed",
+        "error_message": str(error)
+    }
+
+    log_msg = f"Retrieval failed for {planet_name}: {error}. Marking as upper limit."
+    if logger:
+        logger.warning(log_msg)
+    else:
+        logging.warning(log_msg)
+
+    return result

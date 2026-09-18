@@ -1,11 +1,13 @@
 status: none
-intent: NASA Exoplanet Archive transmission spectra download python package
+intent: NASA Exoplanet Archive transmission spectra MAST python package dataset
 required_fields:
 - planet_name
-- planet_category
 - equilibrium_temperature_K
-- host_star_metallicity_Fe_H
-- spectrum_download_url
-cache_key: e1b85b3e73ce9d60b4610a26282c79428adbb6509ccc5ef01f6e16312d9e7753
-searched_at: '2026-08-20T23:36:02.765089+00:00'
+- host_star_metallicity_fe_h
+- planet_category
+- spectrum_file_path
+- wavelength_nm
+- transit_depth_ppm
+cache_key: 38be9f8bb2b9d7b7becfc0eccae6d1a8917f03e74a9ccec3d3fd6b99a8243b63
+searched_at: '2026-09-18T00:34:17.404346+00:00'
 retry_count: 1
