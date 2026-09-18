@@ -1,97 +1,77 @@
 # Research: Interdisciplinary Bridging Coefficient Analysis
 
-## 1. Problem Statement & Hypothesis
+## Problem Statement & Hypothesis
 
-**Hypothesis**: Higher density of cross-disciplinary connections (measured by the Interdisciplinary Bridging Coefficient) in a scientific knowledge graph is **associated** with higher future citation accumulation and higher novelty scores.
+**Hypothesis**: Nodes in a scientific knowledge graph with a higher "bridging coefficient" (ratio of edges connecting to different structural communities) will exhibit higher future citation counts and higher novelty scores (semantic distance from the nearest *other* topic cluster).
 
-**Variables**:
-- **Predictor (X)**: `bridging_coefficient` (Topological metric: ratio of inter-cluster edges to total degree).
-- **Outcomes (Y)**:
- 1. `citation_count` (Historical metadata, lagged by publication year).
- 2. `novelty_score` (Semantic distance via k-NN average similarity).
-- **Controls**: `publication_year`, `average_abstract_similarity` (to control for semantic overlap driving both graph and text).
+**Rationale**: Interdisciplinary work often bridges disparate communities. If such work is novel and impactful, the topological metric of "bridging" should correlate with outcome metrics of "impact" (citations) and "novelty" (semantic distance to other clusters).
 
-**Methodological Rigor**:
-- **Observational Nature**: The study is observational. All correlations will be explicitly framed as "associational" (Constitution Principle VII, Spec FR-007).
-- **Independence**: Predictor (graph topology) and Outcome (text semantics) are derived from strictly independent data sources to prevent circular validation.
-- **Multiplicity Correction**: Multiple-comparison correction (Bonferroni or Benjamini-Hochberg) will be applied to p-values (Spec FR-006).
-- **Temporal Validity**: The analysis includes `publication_year` and `citation_year` to ensure the "future impact" claim is temporally valid.
-- **Power & Sample**: A power analysis is conducted to determine the minimum sample size for [deferred] power at rho=0.1. If compute constraints prevent this, the study is framed as an **exploratory pilot**.
+## Dataset Strategy
 
-## 2. Dataset Strategy
+The study relies on an **OpenAlex-derived Subgraph**. As noted in the project inputs, no verified URL for a direct download of the full "PubGraph" dataset exists.
 
-**Primary Dataset**: OpenAlex
-- **Source**: ` Name or service not known)"))] (Verified URL).
-- **Strategy**: Use the `pyalex` library to query the OpenAlex API for a representative subgraph of scientific publications.
- - **Filter**: Select works with `cited_by_count` > 0 and `title` not null.
- - **Edges**: Use the `cited_by` relationship to construct the graph.
- - **Metadata**: Extract `title`, `abstract`, `cited_by_count`, `publication_year`.
-- **Variable Fit Check**:
- - *Required*: Node ID, Title, Abstract, Citation Count, Edge List, Publication Year.
- - *Status*: OpenAlex provides all required fields. The implementation will validate presence during ingestion.
+**Strategy**:
+1.  **Primary Source**: The implementation will fetch publication metadata and citation links via the OpenAlex API (`pyalex`).
+    *   **Reconstruction Algorithm**: The graph will be constructed by:
+        *   **Nodes**: Papers from OpenAlex with titles and citation counts.
+        *   **Edges**: Directed citation links (`cites`) between papers. Self-citations and intra-cluster citations (post-clustering) will be filtered out to ensure valid "bridging" potential.
+        *   **Attributes**: `title`, `cited_by_count`, `publication_year`.
+2.  **Sampling**: To ensure feasibility and preserve local topology, a **snowball sampling** strategy will be used. Starting from a random seed set of nodes, neighbors are recursively added until the target size is reached. This preserves the local neighborhood structure critical for accurate bridging coefficient estimation, unlike degree-stratified random sampling which artificially constrains local edge topology.
+3.  **Fallback**: If OpenAlex streaming fails, the pipeline will fall back to a local file if provided in `data/raw/` (checksummed).
 
-**Verified Datasets (Cited Only)**:
-- **OpenAlex**: ` Name or service not known)"))] (Source of truth for scientific metadata and graph structure).
+**Verified Datasets Reference**:
+*   *OpenAlex-derived Subgraph*: Source is the OpenAlex API (public, programmatic). No static URL exists; reconstruction is defined in the plan.
+*   *Embeddings Model*: `sentence-transformers/all-MiniLM-L6-v2` (Source: arXiv 2607.07974).
 
-## 3. Methodology & Statistical Plan
+## Methodological Rigor & Statistical Plan
 
-### Phase 1: Data Ingestion & Preprocessing
-1. **Load Graph**: Query OpenAlex API for a subgraph (degree-stratified sampling).
-2. **Filter**: Remove nodes with missing `title` or `abstract`.
-3. **Sample**: If the graph exceeds memory limits, apply **degree-stratified random sampling** to ensure representative coverage of hubs while fitting 7GB RAM.
+### 1. Predictor: Bridging Coefficient
+*   **Definition**: For a node $i$, $BC_i = \frac{E_{inter}}{E_{total}}$, where $E_{inter}$ is the number of edges connecting $i$ to nodes in a *different* structural cluster, and $E_{total}$ is the total degree.
+*   **Cluster Definition**: Structural clusters are defined via the **Louvain algorithm** applied to the graph topology. This represents "disciplines" or "communities" based on connectivity.
+*   **Edge Cases**: Nodes with degree 0 are assigned $BC = 0.0$ (or excluded if they cannot contribute to edge analysis).
+*   **Validity**: This metric is purely topological and independent of text content.
 
-### Phase 2: Predictor Derivation (Topology)
-1. **Community Detection**: Run **Louvain Algorithm** (`networkx.community.louvain_communities`) with resolution parameter `r=1.0` and **Leiden Algorithm** as a robustness check.
- - *Rationale*: Louvain/Leiden optimize modularity, grouping nodes by structural connectivity.
- - *Robustness*: Results will be compared across resolution parameters (0.5, 1.0, 2.0) to ensure the bridging coefficient is not an artifact of the clustering resolution.
-2. **Bridging Coefficient**: For each node $i$:
- $$ BC_i = \frac{\text{Count of edges connecting } i \text{ to nodes in } \neq \text{Cluster}_i}{\text{Total Degree}(i)} $$
- - *Edge Case*: Nodes with degree 0 are assigned $BC = 0.0$ or excluded.
+### 2. Outcome: Novelty Score
+*   **Definition**: The **minimum cosine distance** between a node's title embedding and the centroid of any **other** text-based topic cluster (excluding its assigned cluster).
+*   **Rationale**: This metric distinguishes "bridging" (being far from the nearest *other* cluster) from simple "outlier-ness" (being far from the assigned centroid). A node that is simply "weird" within its own cluster will have a high distance to its assigned centroid but might be close to another cluster. The "distance to nearest other" metric specifically captures the potential to bridge.
+*   **Cluster Definition**: Text clusters are defined via **K-Means** on title embeddings (using `all-MiniLM-L6-v2`).
+*   **Independence**: This ensures the outcome is derived *only* from text, preventing circular validation with the topological predictor. The metric is not a tautology of the clustering loss because it measures distance to a *different* cluster, not the assigned one.
+*   **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2`. This model is small enough for CPU inference (~80MB) and fast (<50ms/node).
 
-### Phase 3: Outcome Derivation (Text & Metadata)
-1. **Embedding**: Generate embeddings for node **abstracts** (not just titles) using `sentence-transformers/all-MiniLM-L6-v2` (CPU-compatible).
- - *Batching*: Process in batches of [deferred] to manage RAM.
-2. **Novelty Score**: Calculate **k-NN average similarity**.
- - For each node, find its $k=10$ nearest neighbors in the embedding space.
- - Compute the average cosine distance to these neighbors.
- - *Rationale*: This avoids the tautology of measuring distance from a cluster centroid derived from the same data. High distance implies semantic outlier status.
-3. **Temporal Lag**: Record `publication_year` and calculate `citation_accumulation` (citations per year since publication).
+### 3. Outcome: Citation Impact
+*   **Metric**: Raw citation count from metadata.
+*   **Handling**: Log-transformed (`log1p`) for regression to handle heavy-tailed distribution.
 
-### Phase 4: Statistical Analysis
-1. **Correlation**:
- - Compute **Spearman's Rank Correlation** ($\rho$) between `bridging_coefficient` and `citation_count`.
- - Compute **Spearman's Rank Correlation** ($\rho$) between `bridging_coefficient` and `novelty_score`.
-2. **Non-Linear Analysis (Binned)**:
- - Bin `bridging_coefficient` into 10 quantiles.
- - Calculate mean `citation_count` per bin.
- - Fit a **quadratic regression** to detect inverted U-shape relationships.
-3. **Regression with Controls**:
- - Fit linear models controlling for `publication_year` and `average_abstract_similarity`.
-4. **Multiplicity Correction**:
- - Apply **Bonferroni** or **Benjamini-Hochberg** correction to the p-values of the primary tests.
- - *Threshold*: Adjusted $\alpha = 0.05 / 2 = 0.025$ (Bonferroni).
-5. **Reporting**:
- - Output $\rho$, raw p-value, adjusted p-value, and binning trend.
- - Explicitly state: "Results are associational; no causal claims are made."
+### 4. Statistical Analysis
+*   **Correlation**: Spearman rank correlation ($\rho$) between $BC$ and (Citations, Novelty).
+*   **Regression**: Linear regression (Citations ~ BC, Novelty ~ BC) **with covariates**: `publication_year` (to control for age bias) and `cluster_size` (to control for the "rich-get-richer" effect in large communities). Robust standard errors will be used.
+*   **Multiplicity Correction**: **Benjamini-Hochberg (FDR)** correction applied to all p-values to control the false discovery rate, as multiple hypotheses (Citations vs BC, Novelty vs BC) are tested.
+*   **Causal Framing**: All results will be explicitly labeled as **associational**. No causal claims will be made due to the observational nature of the data (lack of randomization).
 
-## 4. Compute Feasibility & Constraints
+## Edge Filtering Logic
+To ensure valid "bridging" definition:
+*   **Self-Citations**: Removed (a paper cannot bridge to itself).
+*   **Intra-Cluster Citations**: Filtered out *after* Louvain clustering to ensure only edges crossing cluster boundaries contribute to the "inter-cluster" count.
 
-- **Hardware**: 2 CPU cores, 7GB RAM, No GPU.
-- **Memory Management**:
- - Graph: `networkx` is memory intensive. **Degree-stratified sampling** ensures the subgraph fits 7GB RAM.
- - Embeddings: `all-MiniLM-L6-v2` is small (~80MB). Processing will be batched.
-- **Runtime**:
- - Embedding generation: Targeting low-latency performance per node.
- - Louvain/K-Means: Linear/Log-linear in edges/nodes.
- - Total target: < 6 hours.
+## Feasibility Check
+*   **Size Estimation**: The reconstructed OpenAlex subgraph is expected to be of substantial size if fully streamed. Snowball sampling will limit the active graph to [deferred] nodes.
+*   **Streaming**: `pyalex` with `chunk_size=1000` and `streaming=True` will be used to avoid OOM.
+*   **Memory**: Peak memory will be monitored; if >7GB, the sample size will be reduced.
 
-## 5. Decision Log & Rationale
+## Compute Feasibility (CPU-First)
+
+*   **Ingestion**: Streaming via `pyalex` or `datasets` with `streaming=True`. No full graph load.
+*   **Graph Processing**: `networkx` on the sampled subgraph. With [deferred] nodes, memory usage is projected < 2GB.
+*   **Embeddings**: Batched inference (batch size ~32-64) using CPU. Estimated time: [deferred] nodes * 50ms = [deferred] hours. Fits within 6h limit if sample size is < 40,000 nodes.
+*   **Clustering**: Louvain (fast) and K-Means (scales linearly with nodes). CPU-tractable.
+*   **GPU Escape Hatch**: Not required. The `all-MiniLM-L6-v2` model runs efficiently on CPU. If the sample size exceeds limits, the sampling strategy will be adjusted, not the hardware.
+
+## Decision Rationale
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Use OpenAlex** | Verified, programmatic API with full metadata (title, abstract, citations, edges). Satisfies reproducibility. |
-| **Use k-NN Novelty** | Avoids the tautology of centroid distance. Measures semantic outlier status directly. |
-| **Binned Analysis** | Detects non-monotonic (inverted U) relationships that Spearman correlation might miss. |
-| **Louvain + Leiden** | Robustness check for clustering artifacts. |
-| **Spearman + Quadratic** | Robust to non-normal distributions and non-linear trends. |
-| **Degree-Stratified Sampling** | Ensures structural hubs (critical for bridging) are not under-represented. |
+|----------|-----------|
+| **Snowball Sampling** | Preserves local neighborhood topology, avoiding selection bias in bridging coefficient. |
+| **Distance to Nearest Other Cluster** | Distinguishes "bridging" from "outlier-ness", avoiding tautology. |
+| **Covariates in Regression** | Controls for age and cluster size confounds to prevent spurious correlations. |
+| **Benjamini-Hochberg** | Preferred over Bonferroni for power in exploratory research with multiple correlated tests. |
+| **CPU-Only** | The chosen models and sample size fit within the 6h/7GB constraint. No GPU needed. |

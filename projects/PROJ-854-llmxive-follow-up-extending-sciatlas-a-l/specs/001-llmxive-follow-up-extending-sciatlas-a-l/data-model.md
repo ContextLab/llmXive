@@ -1,60 +1,77 @@
 # Data Model: Interdisciplinary Bridging Coefficient Analysis
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used throughout the pipeline, from raw ingestion to final analysis. All data is stored in local files (`data/`) and processed in memory using Pandas DataFrames and NetworkX Graphs.
+This document defines the data structures used throughout the pipeline. All data is stored in **Parquet** format for efficiency and type safety. The model ensures strict separation between raw inputs, derived graph metrics, and final analysis datasets.
 
-## 2. Entity Definitions
+## Entity Definitions
 
-### Node
-Represents a scientific publication.
-- **Attributes**:
-  - `id`: Unique string identifier (OpenAlex ID).
-  - `title`: String (required for novelty analysis).
-  - `abstract`: String (required for embedding).
-  - `citation_count`: Integer (non-negative).
-  - `publication_year`: Integer (required for temporal lag).
-  - `primary_cluster`: Integer (assigned by Louvain).
-  - `topic_cluster`: Integer (assigned by K-Means).
-  - `bridging_coefficient`: Float (0.0 to 1.0).
-  - `novelty_score`: Float (k-NN average cosine distance).
-  - `embedding_vector`: Array of floats (normalized).
-  - `average_abstract_similarity`: Float (control variable).
+### 1. Node (Publication)
+Represents a scientific publication in the graph.
+*   **`id`**: `string` (Unique identifier, e.g., OpenAlex ID).
+*   **`title`**: `string` (Publication title).
+*   **`abstract`**: `string` (Optional).
+*   **`publication_year`**: `int16`.
+*   **`citation_count`**: `int32` (Non-negative).
+*   **`embedding_vector`**: `list[float32]` (384 dimensions from `all-MiniLM-L6-v2`).
+*   **`primary_cluster`**: `int32` (Cluster ID from Louvain algorithm).
+*   **`topic_cluster`**: `int32` (Cluster ID from K-Means on embeddings).
+*   **`bridging_coefficient`**: `float32` (Ratio of inter-cluster edges / total degree). Range [0.0, 1.0].
+*   **`novelty_score`**: `float32` (Cosine distance to topic centroid). Range [0.0, 2.0].
+*   **`degree`**: `int32` (Total number of edges).
 
-### Edge
-Represents a relationship between publications.
-- **Attributes**:
-  - `source_id`: String.
-  - `target_id`: String.
-  - `type`: String (e.g., "cites").
+### 2. Edge (Relationship)
+Represents a citation or connection between two nodes.
+*   **`source_id`**: `string`.
+*   **`target_id`**: `string`.
+*   **`type`**: `string` (e.g., "cites", "references").
 
-### Analysis Result
-Aggregated statistical findings.
-- **Attributes**:
-  - `test_name`: String (e.g., "Bridging vs Citations").
-  - `correlation_coefficient`: Float.
-  - `p_value_raw`: Float.
-  - `p_value_adjusted`: Float.
-  - `method`: String (e.g., "Spearman", "Quadratic Regression").
-  - `sample_size`: Integer.
-  - `bin_trend`: String (e.g., "linear", "inverted_u", "none").
+### 3. Cluster (Community)
+*   **`cluster_id`**: `int32`.
+*   **`type`**: `string` ("topological" or "textual").
+*   **`node_count`**: `int32`.
+*   **`centroid_embedding`**: `list[float32]` (Only for textual clusters).
 
-## 3. Data Flow
+## File Artifacts
 
-1. **Raw Input**: `data/raw/openalex_subset.parquet` (queried from API).
-2. **Ingested**: `data/intermediate/nodes.csv`, `data/intermediate/edges.csv`.
-3. **Processed**: `data/processed/analysis_dataset.parquet` (includes all derived metrics).
-4. **Output**: `data/results/statistical_summary.json`.
+### `data/raw/openalex_stream.parquet`
+*   **Source**: OpenAlex API (streamed).
+*   **Content**: Raw node and edge metadata for the sampled IDs.
+*   **Schema**: `id`, `title`, `cited_by_count`, `publication_year`, `references` (list of IDs).
 
-## 4. Constraints & Validation
+### `data/processed/subgraph_with_clusters.parquet`
+*   **Source**: Ingested data + Louvain clustering.
+*   **Content**: Nodes with `primary_cluster` and `bridging_coefficient`.
+*   **Schema**: `id`, `primary_cluster`, `bridging_coefficient`, `degree`.
 
-- **Bridging Coefficient**: Must be in range $[0.0, 1.0]$.
-- **Citation Count**: Must be $\ge 0$.
-- **Novelty Score**: Must be $\ge 0$ (Cosine distance is non-negative).
-- **Clustering**: Every node must have a valid `primary_cluster` and `topic_cluster` (unless excluded).
-- **Missing Data**: Nodes missing `title` or `abstract` are excluded from novelty analysis but may be retained for citation analysis if `citation_count` exists.
-- **Temporal**: `publication_year` must be $\le$ current year.
+### `data/processed/nodes_with_embeddings.parquet`
+*   **Source**: Subgraph + Embedding inference + K-Means.
+*   **Content**: Nodes with `embedding_vector`, `topic_cluster`, `novelty_score`.
+*   **Schema**: `id`, `embedding_vector`, `topic_cluster`, `novelty_score`.
 
-## 5. Schema Contracts
+### `data/processed/final_analysis_dataset.parquet`
+*   **Source**: Join of all processed files.
+*   **Content**: Complete feature set for statistical analysis.
+*   **Schema**: All fields from `Node` entity.
 
-The following YAML schemas define the strict structure of the output data, used for automated validation.
+### `artifacts/results/statistical_outputs.json`
+*   **Content**: Correlation coefficients, p-values, FDR-adjusted p-values, regression coefficients.
+*   **Schema**:
+    ```json
+    {
+      "correlation_citations": { "rho": 0.0, "p_value": 0.0, "p_adj": 0.0 },
+      "correlation_novelty": { "rho": 0.0, "p_value": 0.0, "p_adj": 0.0 },
+      "regression_citations": { "coef": 0.0, "p_value": 0.0 },
+      "regression_novelty": { "coef": 0.0, "p_value": 0.0 }
+    }
+    ```
+
+## Data Flow
+
+1.  **Ingest**: `data/raw/openalex_stream.parquet` (Raw)
+2.  **Graph Construction**: Build NetworkX graph from raw edges.
+3.  **Topological Analysis**: Compute `primary_cluster` (Louvain) and `bridging_coefficient`. Save to `subgraph_with_clusters.parquet`.
+4.  **Embedding**: Compute `embedding_vector` for all nodes.
+5.  **Text Clustering**: Compute `topic_cluster` (K-Means) and `novelty_score`. Save to `nodes_with_embeddings.parquet`.
+6.  **Merge**: Join results into `final_analysis_dataset.parquet`.
+7.  **Analysis**: Compute statistics and save to `statistical_outputs.json`.

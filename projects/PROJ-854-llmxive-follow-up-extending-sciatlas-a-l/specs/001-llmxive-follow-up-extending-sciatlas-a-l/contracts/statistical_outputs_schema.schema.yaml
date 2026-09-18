@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Outputs Schema"
+description: "Schema for artifacts/results/statistical_outputs.json"
+type: "object"
+properties:
+  correlation_citations:
+    type: "object"
+    properties:
+      rho:
+        type: "number"
+        description: "Spearman correlation coefficient"
+      p_value:
+        type: "number"
+        description: "Raw p-value"
+      p_adj:
+        type: "number"
+        description: "FDR-adjusted p-value"
+    required:
+      - rho
+      - p_value
+      - p_adj
+  correlation_novelty:
+    type: "object"
+    properties:
+      rho:
+        type: "number"
+        description: "Spearman correlation coefficient"
+      p_value:
+        type: "number"
+        description: "Raw p-value"
+      p_adj:
+        type: "number"
+        description: "FDR-adjusted p-value"
+    required:
+      - rho
+      - p_value
+      - p_adj
+  regression_citations:
+    type: "object"
+    properties:
+      coef:
+        type: "number"
+        description: "Regression coefficient for bridging coefficient"
+      p_value:
+        type: "number"
+        description: "P-value for the coefficient"
+    required:
+      - coef
+      - p_value
+  regression_novelty:
+    type: "object"
+    properties:
+      coef:
+        type: "number"
+        description: "Regression coefficient for bridging coefficient"
+      p_value:
+        type: "number"
+        description: "P-value for the coefficient"
+    required:
+      - coef
+      - p_value
+required:
+  - correlation_citations
+  - correlation_novelty
+  - regression_citations
+  - regression_novelty
+additionalProperties: false

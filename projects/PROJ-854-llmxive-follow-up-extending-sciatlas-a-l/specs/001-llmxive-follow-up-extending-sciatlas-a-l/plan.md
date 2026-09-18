@@ -1,23 +1,23 @@
-# Implementation Plan: llmXive Follow-up: Interdisciplinary Bridging Coefficient Analysis
+# Implementation Plan: Interdisciplinary Bridging Coefficient Analysis
 
 **Branch**: `001-bridging-coefficient-analysis` | **Date**: 2026-07-13 | **Spec**: `specs/001-bridging-coefficient-analysis/spec.md`
 **Input**: Feature specification from `specs/001-bridging-coefficient-analysis/spec.md`
 
 ## Summary
 
-This feature implements a statistical analysis pipeline to determine if the density of cross-disciplinary connections (interdisciplinary bridging coefficient) in a scientific knowledge graph predicts future citation impact and novelty. The approach involves downloading the **OpenAlex** dataset, performing community detection (Louvain/Leiden) to define structural clusters, calculating the bridging coefficient for each node, deriving novelty scores via **k-NN average similarity** (independent of topology), and performing Spearman correlation with **binned non-linear analysis** and multiple-comparison correction. The entire pipeline is constrained to run on a CPU-only GitHub Actions runner (2 cores, 7GB RAM) within 6 hours.
+This feature implements a statistical analysis pipeline to test whether the density of cross-disciplinary connections (interdisciplinary bridging coefficient) in a scientific knowledge graph predicts future citation impact and novelty. The approach involves ingesting a representative subgraph of the OpenAlex-derived dataset, assigning structural communities via Louvain, computing a bridging coefficient for each node, deriving novelty scores from text embeddings (independent of topology), and performing Spearman correlation and linear regression with multiple-comparison correction. The pipeline is designed to run entirely on CPU within the 6-hour, 7GB RAM constraint of the GitHub Actions free tier, utilizing streaming for data ingestion and batched processing for embeddings.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `networkx` (graph processing), `scikit-learn` (clustering, embeddings, regression), `sentence-transformers` (CPU-compatible embeddings), `pandas`, `numpy`, `scipy` (statistics), `pyalex` (OpenAlex API).
-**Storage**: Local filesystem (`data/` for raw/processed data, `artifacts/` for outputs). No external database.
-**Testing**: `pytest` with contract tests against YAML schemas.
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, No GPU).
-**Project Type**: Computational research pipeline / CLI.
-**Performance Goals**: Peak RAM ≤ 7GB; Runtime ≤ 6h; Embedding inference ≤ 50ms/node (batched).
-**Constraints**: No GPU usage; no 8-bit quantization; strict separation of topological (predictor) and text-based (outcome) variables; all statistical claims must be labeled "associational"; temporal lag variables included for validity.
-**Scale/Scope**: Subgraph of OpenAlex (sampled via **degree-stratified random sampling** to [deferred] nodes); A set of text clusters; primary hypothesis tests + binned analysis.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `networkx` (graph analysis), `sentence-transformers` (embeddings), `scikit-learn` (clustering, regression), `pandas`/`polars` (data manipulation), `pyarrow` (parquet I/O), `datasets` (Hugging Face streaming), `pyalex` (OpenAlex API).  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `artifacts/results/`) using Parquet for intermediate and final datasets.  
+**Testing**: `pytest` with unit tests for sampling logic, edge cases (degree-0 nodes), and statistical correctness.  
+**Target Platform**: Linux (GitHub Actions runner: CPU, 7GB RAM).  
+**Project Type**: Data analysis pipeline / Research tool.  
+**Performance Goals**: Embedding inference < 50ms/node; Total runtime < 6 hours; Peak memory < 7GB.  
+**Constraints**: No GPU; streaming ingestion required for large datasets; strict independence between topological clusters (predictor) and text clusters (novelty outcome).  
+**Scale/Scope**: Representative subgraph of [deferred] nodes (targeted to fit memory); k=100 clusters for k-means.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -25,15 +25,36 @@ This feature implements a statistical analysis pipeline to determine if the dens
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Note |
-|:--- |:--- |:--- |
-| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; data fetched from **OpenAlex API** (canonical source); `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | PASS | Dataset source is **OpenAlex** (verified URL: ` Name or service not known)"))]). All citations in `research.md` cite this canonical source. |
-| **III. Data Hygiene** | PASS | Raw data checksummed; derivations written to new files; PII scan enforced via `pytest`. |
-| **IV. Single Source of Truth** | PASS | Figures/stats in output trace to `data/` rows and `code/` blocks. No hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | Artifact hashes tracked via `sha256sum` in `data/`; `state/projects/...yaml` `updated_at` timestamp updated automatically upon artifact change. |
-| **VI. Compute Feasibility** | PASS | `sentence-transformers/all-MiniLM-L6-v2` used (CPU-optimized); `networkx` with **degree-stratified sampling**; subgraph sampling ensures RAM < 7GB. |
-| **VII. Non-Circular Validation** | PASS | `primary_cluster` (Louvain) and `topic_cluster` (K-Means on text) are computed independently; novelty score derived *only* from text (k-NN), bridging *only* from graph. |
+- **Principle I (Reproducibility)**: Plan mandates pinned `requirements.txt`, random seed setting (`np.random.seed`, `torch.manual_seed`), and deterministic sampling logic (snowball) to ensure identical results on re-run.
+- **Principle II (Verified Accuracy)**: All dataset references are restricted to the defined 'OpenAlex-derived Subgraph' source. No external citations will be used without verification.
+- **Principle III (Data Hygiene)**: Plan specifies checksumming of raw downloads and writing derived data to new files (`data/processed/`) without modifying raw inputs.
+- **Principle IV (Single Source of Truth)**: Statistical outputs will be saved to JSON/Parquet artifacts; the final report will programmatically read these files, preventing hand-typed numbers.
+- **Principle V (Versioning)**: Artifacts will include content hashes in the `state` YAML. The mechanism is: `sha256sum` of raw/processed files generated by `verify_hashes.py` and written to `projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/state/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l.yaml`. The pipeline will fail if input data hashes mismatch expected values.
+- **Principle VI (Resource Constraints)**: Plan explicitly uses streaming (`datasets.load_dataset(..., streaming=True)`) and batched embedding inference to stay under 7GB RAM and 6 hours. CPU-only execution is enforced.
+- **Principle VII (Non-Circular Validation)**: The plan strictly separates the `primary_cluster` (Louvain on graph topology) from the `topic_cluster` (K-Means on text embeddings) to ensure the predictor and outcome are mathematically independent.
+
+## Spec Traceability
+
+| Requirement | Plan Element | Status |
+|-------------|--------------|--------|
+| **FR-001** (Ingest PubGraph) | Phase 0.1: OpenAlex Reconstruction (Defined as 'OpenAlex-derived Subgraph') | Mapped |
+| **FR-002** (Louvain) | Phase 1.2: Louvain Community Detection | Mapped |
+| **FR-008** (K-Means k=100) | Phase 1.5: K-Means Clustering (k=100) | Mapped |
+| **FR-006** (Correction) | Phase 3.3: Multiple-Comparison Correction | Mapped |
+| **FR-007** (Associational Label) | Phase 4.2: Report Generation | Mapped |
+| **SC-003** (Runtime <= 6h) | Phase 5.3: Runtime Validation | Mapped |
+| **SC-004** (Memory <= 7GB) | Phase 5.4: Memory Profiling | Mapped |
+| **SC-005** (Embedding <= 50ms) | Phase 5.5: Embedding Latency Check | Mapped |
+
+## Contract Traceability
+
+| Contract File | Validates | User Story |
+|---------------|-----------|------------|
+| `subgraph_schema.schema.yaml` | Graph topology, clusters, bridging coefficient | US-1 (Data Ingestion) |
+| `final_dataset_schema.schema.yaml` | Final merged dataset with all metrics | US-2 (Outcome Derivation) |
+| `statistical_outputs_schema.schema.yaml` | Correlation, regression, p-values | US-3 (Statistical Validation) |
+| `node.schema.yaml` | Individual node record structure | US-1, US-2 |
+| `analysis_output.schema.yaml` | Final report structure | US-3 |
 
 ## Project Structure
 
@@ -41,56 +62,90 @@ This feature implements a statistical analysis pipeline to determine if the dens
 
 ```text
 specs/001-bridging-coefficient-analysis/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-└── contracts/ # Phase 1 output
- ├── node.schema.yaml
- └── analysis_output.schema.yaml
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 src/
-├── models/
-│ ├── node.py # Node dataclass
-│ └── graph_utils.py # Louvain, bridging calc
 ├── services/
-│ ├── ingest.py # Data download/parsing (OpenAlex)
-│ ├── embeddings.py # Text embedding service
-│ ├── clustering.py # Topological & Text clustering
-│ └── analysis.py # Correlation, Regression, Binned Analysis
-├── cli/
-│ └── main.py # Entry point for pipeline
-└── lib/
- └── config.py # Constants, seeds, paths
+│   ├── ingest.py           # Streaming ingestion, snowball sampling, graph construction
+│   ├── clustering.py       # Louvain (topology) and K-Means (text)
+│   ├── embeddings.py       # Sentence transformer inference (batched)
+│   ├── metrics.py          # Bridging coefficient, novelty score calculation
+│   └── analysis.py         # Spearman, regression, FDR correction, covariates
+├── models/
+│   └── schemas.py          # Pydantic models for validation
+├── utils/
+│   └── verify_hashes.py    # Hash generation and verification
+└── cli/
+    └── main.py             # Orchestration script
 
 tests/
+├── unit/
+│   ├── test_ingest.py      # Sampling logic, degree distribution
+│   ├── test_metrics.py     # Edge cases (degree-0), coefficient bounds
+│   └── test_analysis.py    # Statistical correctness
 ├── contract/
-│ └── test_schemas.py # Validates against contracts/
-├── integration/
-│ └── test_pipeline.py # End-to-end on sample
-└── unit/
- └── test_metrics.py # Unit tests for bridging/novelty
+│   └── test_schemas.py     # Schema validation against Parquet/JSON
+└── integration/
+    └── test_pipeline.py    # End-to-end run on small sample
+
+data/
+├── raw/                    # Downloaded parquet/streaming cache
+└── processed/              # Derived subgraphs, embeddings, final dataset
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Ingest -> Process -> Analyze) and fits a monolithic `src/` layout. `services` encapsulates the distinct logic (graph vs. text) to enforce the Non-Circular Validation principle.
+**Structure Decision**: Single project structure selected to minimize overhead for a data analysis pipeline. `src/services` encapsulates the logical steps defined in the User Stories (Ingestion, Clustering, Metrics, Analysis). `tests/unit` focuses on the specific algorithmic correctness required by the acceptance criteria (e.g., snowball sampling, division-by-zero handling).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Dual Clustering** (Louvain + K-Means) | Required by Spec to separate topology (predictor) from text (outcome) to avoid circularity. | Using a single clustering method would violate Constitution Principle VII (Non-Circular Validation). |
-| **Batched Embedding** | Required to fit 7GB RAM limit on [deferred] nodes. | Loading all embeddings at once would exceed memory constraints on the free-tier runner. |
-| **Binned Analysis** | Required to detect non-monotonic (inverted U) relationships. | Simple Spearman correlation may miss complex non-linear effects. |
-| **Degree-Stratified Sampling** | Required to ensure the subgraph is representative of high-degree (hub) nodes which are critical for bridging. | Random sampling might under-represent the structural hubs needed for the analysis. |
+| Snowball Sampling | Preserves local neighborhood topology to avoid selection bias in bridging coefficient. | Degree-stratified random sampling artificially constrains local edge structure, invalidating the metric. |
+| Streaming Ingestion | The full OpenAlex-derived dataset exceeds substantial RAM capacity. | Loading the full graph into memory would crash the runner. Streaming allows processing without holding the entire dataset. |
+| Batched Embeddings | Embedding [deferred] nodes sequentially is too slow; loading all at once exceeds RAM. | Sequential processing risks timeout; full batch risks OOM. Batching balances speed and memory. |
+| Two-Stage Clustering (Louvain + K-Means) | Required to ensure independence between predictor (topology) and outcome (text). | Using a single clustering method for both would introduce circular validation, violating Constitution Principle VII. |
+| Covariates in Regression | Controls for age (publication year) and cluster size confounds. | Without covariates, correlation may be spurious due to 'rich-get-richer' effects. |
 
-## Revised Assumptions & Constraints
+## Implementation Phases
 
-- **Dataset**: The study uses **OpenAlex** as the primary data source, accessible via ` Name or service not known)"))].
-- **Sampling**: The subgraph is sampled using **degree-stratified random sampling** to ensure representative coverage of structural hubs.
-- **Non-Linearity**: The relationship between bridging and impact may be non-monotonic; the plan includes binned analysis to detect this.
-- **Temporal Validity**: The analysis includes publication year and citation year to validate the "future impact" claim.
-- **Power**: If the sample size required for [deferred] power (rho=0.1) exceeds compute limits, the study is framed as an **exploratory pilot**.
+### Phase 0: Data Acquisition & Validation
+- **0.1**: Implement OpenAlex reconstruction (streaming, edge filtering).
+- **0.2**: Implement snowball sampling to preserve local topology.
+- **0.3**: **Topology Equivalence Check**: Verify statistical similarity of reconstructed graph to reference PubGraph (if available) or expected distribution.
+- **0.4**: Validate sample representativeness (degree distribution, cluster sizes).
+
+### Phase 1: Feature Engineering
+- **1.1**: Construct graph from sampled data.
+- **1.2**: **Louvain Community Detection**: Assign `primary_cluster` labels.
+- **1.3**: Compute `bridging_coefficient` (handle degree-0 nodes).
+- **1.4**: Generate title embeddings (batched).
+- **1.5**: **K-Means Clustering (k=100)**: Assign `topic_cluster` labels.
+- **1.6**: Compute `novelty_score` (min distance to *other* cluster centroid).
+
+### Phase 2: Data Merging
+- **2.1**: Join topology and text features into final dataset.
+- **2.2**: Validate schema against `final_dataset_schema.schema.yaml`.
+
+### Phase 3: Statistical Analysis
+- **3.1**: Compute Spearman correlations.
+- **3.2**: Perform Linear Regression with covariates (age, cluster size).
+- **3.3**: **Multiple-Comparison Correction**: Apply Benjamini-Hochberg.
+
+### Phase 4: Reporting
+- **4.1**: Generate binned analysis plots.
+- **4.2**: **Report Generation**: Explicitly label results as "associational".
+
+### Phase 5: Validation & Compliance
+- **5.1**: Verify hash integrity (Principle V).
+- **5.2**: Run unit tests.
+- **5.3**: **Runtime Validation**: Measure total time (SC-003).
+- **5.4**: **Memory Profiling**: Measure peak RAM (SC-004).
+- **5.5**: **Embedding Latency Check**: Measure ms/node (SC-005).

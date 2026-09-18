@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Analysis Dataset Schema"
+description: "Schema for data/processed/final_analysis_dataset.parquet"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the node"
+  title:
+    type: "string"
+    description: "Publication title"
+  publication_year:
+    type: "integer"
+    description: "Year of publication"
+  citation_count:
+    type: "integer"
+    description: "Number of citations (non-negative)"
+    minimum: 0
+  embedding_vector:
+    type: "array"
+    items:
+      type: "number"
+    description: "384-dimensional embedding vector"
+    minItems: 384
+    maxItems: 384
+  primary_cluster:
+    type: "integer"
+    description: "Topological cluster ID (Louvain)"
+  topic_cluster:
+    type: "integer"
+    description: "Text-based cluster ID (K-Means)"
+  bridging_coefficient:
+    type: "number"
+    description: "Interdisciplinary bridging coefficient"
+    minimum: 0.0
+    maximum: 1.0
+  novelty_score:
+    type: "number"
+    description: "Cosine distance to topic centroid"
+    minimum: 0.0
+    maximum: 2.0
+  degree:
+    type: "integer"
+    description: "Total degree of the node"
+required:
+  - id
+  - title
+  - citation_count
+  - embedding_vector
+  - primary_cluster
+  - topic_cluster
+  - bridging_coefficient
+  - novelty_score
+  - degree
+additionalProperties: false
