@@ -1,12 +1,14 @@
 status: none
-intent: OpenKIM and NIST ThermoML diffusion coefficient dataset python package dataset
+intent: download experimental diffusion coefficients water ethanol acetone NIST Chemistry
+  WebBook OpenKIM python package dataset
 required_fields:
-- compound
+- molecule_name
 - temperature_K
 - diffusion_coefficient_cm2_per_s
 - pressure_atm
-- reference
-- measurement_method
-cache_key: c0e58d85f820813f318e13891740e667385515ad6c73c076f59aeb0e66cf8946
-searched_at: '2026-08-31T09:57:29.401817+00:00'
+- uncertainty
+- source_database
+- reference_id_or_DOI
+cache_key: c7cc75d2314f393844a71b24bbbc81f17e6cd44369adfbb8ba7ee3e2156f5388
+searched_at: '2026-09-18T18:24:00.864113+00:00'
 retry_count: 1

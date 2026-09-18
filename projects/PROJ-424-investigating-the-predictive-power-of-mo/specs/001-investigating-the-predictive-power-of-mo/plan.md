@@ -14,7 +14,7 @@ This feature implements a computational pipeline to evaluate the predictive accu
 **Testing**: `pytest` (unit tests for MSD extraction, bootstrap logic; integration tests for pipeline execution)  
 **Target Platform**: Linux (GitHub Actions runner: CPU cores, ~7 GB RAM)  
 **Project Type**: Computational Science / CLI Tool  
-**Performance Goals**: Complete full batch (3 solvents × 3 timescales + analysis) in ≤ 6 hours  
+**Performance Goals**: Complete full batch (solvents × 3 timescales + analysis) in ≤ 6 hours  
 **Constraints**: CPU-only execution; no GPU available on CI; memory < 7 GB; disk < 14 GB; no external credentials  
 **Scale/Scope**: simulation runs; A sufficient number of bootstrap iterations; Several experimental references  
 
@@ -106,8 +106,8 @@ projects/PROJ-424-investigating-the-predictive-power-of-mo/
 ### Phase 0: Research & Feasibility
 - [ ] **FR-001 (Spec Contradiction)**: Confirm NIST API unavailability. **Action**: Curate `data/raw/nist_refs.json` with checksum. **Kickback**: Flag FR-001 in spec for update to 'use curated reference'.
 - [ ] **FR-007**: Validate MARTINI parameters for water/ethanol/acetone; confirm solvent-specific scaling factors from literature.
-- [ ] **FR-002**: Test GROMACS/LAMMPS installation on CI; benchmark 1 ns water simulation time.
-- [ ] **FR-008 (Spec Contradiction)**: Define MSD linearity check logic ($R^ \ge 0.95$). **Kickback**: Flag FR-008 (0.99) in spec for update to align with Constitution Principle VI (0.95).
+- [ ] **FR-002**: Test GROMACS/LAMMPS installation on CI; benchmark short water simulation time.
+- [ ] **FR-008 (Spec Contradiction)**: Define MSD linearity check logic ($R^ \ge $). **Kickback**: Flag FR-008 (0.99) in spec for update to align with Constitution Principle VI (0.95).
 - [ ] **Density Convergence**: Implement density stability check (±1% over 200 ps NPT) to prevent drift bias.
 
 ### Phase 1: Data Model & Contracts

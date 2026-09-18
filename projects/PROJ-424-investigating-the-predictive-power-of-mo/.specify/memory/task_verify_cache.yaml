@@ -1,3 +1,10 @@
+T006c:
+  c: true
+  h: dc3dc5095d96bea6c2d95f520244c8c6a6e2fc7051cee21de5891445f1731b32
+  r: "The `code/utils/data_fetcher.py` file exists, contains full validation logic\
+    \ for existence and checksum, and raises `DataValidationError` with a message\
+    \ that points to Task\u202FT006b when the file is missing. This satisfies the\
+    \ task\u2019s specification."
 T019:
   c: false
   h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4

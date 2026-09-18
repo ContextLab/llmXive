@@ -1,400 +1,267 @@
-"""
-Main pipeline entry point for the MD Diffusion Predictive Power investigation.
-
-Orchestrates the full workflow:
-1. Topology generation (T014)
-2. Simulation execution (T015)
-3. MSD extraction & Diffusion calculation (T016)
-4. MAE calculation against NIST refs
-5. Plotting (T017)
-
-Implements T018: Orchestration of the full pipeline.
-"""
 import argparse
 import logging
 import sys
 import time
+import json
+import os
+import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 
-# Import configuration and data models
-from config import Solvent, SimulationConfig, AnalysisConfig
-from utils.logging import setup_logger, get_logger, log_event
+# Add code directory to path
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
+
+from config import (
+    Solvent, 
+    SIMULATION_CONFIG, 
+    ANALYSIS_CONFIG, 
+    NIST_REFS_PATH, 
+    MANIFEST_PATH,
+    DATA_PROCESSED_DIR,
+    DATA_INTERIM_DIR
+)
+from utils.logging import setup_logger, get_logger
 from utils.data_fetcher import validate_nist_refs
-from utils.checksums import calculate_sha256
-from simulation.topology import generate_topology, TopologyConfig
-from simulation.runner import run_simulation, load_topology_files
-from analysis.msd import analyze_msd, load_trajectory_timeseries, perform_linear_regression, calculate_diffusion_coefficient, validate_linearity
-from reporting.plots import generate_timescale_accuracy_plot, load_diffusion_results, PlotConfig
+from simulation.topology import generate_topology
+from simulation.runner import run_simulation
+from analysis.msd import analyze_msd, save_analysis_results
+from analysis.sensitivity import run_sensitivity_sweep, save_sensitivity_report
+from analysis.bootstrap import perform_bootstrap, save_bootstrap_stats
+from reporting.plots import generate_timescale_accuracy_plot, generate_multi_solvent_comparison
+from reporting.tables import generate_summary_table
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-FIGURES_DIR = PROJECT_ROOT / "figures"
-LOGS_DIR = PROJECT_ROOT / "logs"
-
-# Ensure directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+logger = get_logger(__name__)
 
 def load_nist_references() -> Dict[str, float]:
-    """
-    Load experimental diffusion coefficients from the curated NIST references file.
+    """Load NIST reference diffusion coefficients."""
+    validate_nist_refs()
     
-    Returns:
-        Dict mapping solvent names to diffusion coefficients (m²/s)
-        
-    Raises:
-        FileNotFoundError: If nist_refs.json is missing
-        ValueError: If file format is invalid
-    """
-    nist_file = DATA_RAW_DIR / "nist_refs.json"
-    
-    # Validate existence and checksum before loading
-    try:
-        validate_nist_refs()
-    except Exception as e:
-        logger = get_logger()
-        logger.error(f"NIST references validation failed: {e}")
-        raise
-    
-    logger = get_logger()
-    logger.info(f"Loading NIST references from {nist_file}")
-    
-    import json
-    with open(nist_file, 'r') as f:
+    with open(NIST_REFS_PATH, 'r') as f:
         data = json.load(f)
     
-    # Extract diffusion coefficients
     refs = {}
-    for solvent_name, solvent_data in data.items():
-        if 'diffusion_coefficient' in solvent_data:
-            refs[solvent_name] = solvent_data['diffusion_coefficient']
-        else:
-            logger.warning(f"Missing diffusion_coefficient for {solvent_name}, skipping")
+    for solvent_name, info in data['solvents'].items():
+        refs[solvent_name] = info['value']
     
-    if not refs:
-        raise ValueError("No valid diffusion coefficients found in NIST references")
-        
     return refs
 
-def calculate_mae(predicted: Dict[str, float], actual: Dict[str, float]) -> float:
-    """
-    Calculate Mean Absolute Error between predicted and actual diffusion coefficients.
-    
-    Args:
-        predicted: Dict of solvent -> predicted D (m²/s)
-        actual: Dict of solvent -> actual D (m²/s)
-        
-    Returns:
-        MAE value (m²/s)
-    """
-    errors = []
-    for solvent in actual:
-        if solvent in predicted:
-            error = abs(predicted[solvent] - actual[solvent])
-            errors.append(error)
-        else:
-            logger = get_logger()
-            logger.warning(f"Missing prediction for {solvent}, skipping in MAE calculation")
-    
-    if not errors:
-        return float('nan')
-        
-    return sum(errors) / len(errors)
+def calculate_mae(simulated: float, experimental: float) -> float:
+    """Calculate Mean Absolute Error."""
+    return abs(simulated - experimental)
 
 def run_single_solvent_pipeline(
-    solvent: Solvent,
-    timescale: str,
-    simulation_config: SimulationConfig,
-    analysis_config: AnalysisConfig,
-    nist_refs: Dict[str, float]
+    solvent: Solvent, 
+    timescale: float, 
+    full_batch: bool = False
 ) -> Optional[Dict[str, Any]]:
     """
     Run the full pipeline for a single solvent and timescale.
-    
-    Args:
-        solvent: Solvent to simulate
-        timescale: Simulation duration (e.g., "1ns", "5ns")
-        simulation_config: Configuration for simulation
-        analysis_config: Configuration for analysis
-        nist_refs: Reference diffusion coefficients
-        
-    Returns:
-        Dictionary with results or None if pipeline fails
+    Returns a dictionary with results or None if skipped/failed.
     """
-    logger = get_logger()
-    logger.info(f"Starting pipeline for {solvent.value} at {timescale}")
-    
+    start_time = time.time()
+    solvent_name = solvent.value
+    logger.info(f"Starting pipeline for {solvent_name} at {timescale}ns")
+
+    # 1. Generate Topology
+    logger.info(f"Generating topology for {solvent_name}...")
     try:
-        # Step 1: Generate Topology
-        logger.info(f"Generating topology for {solvent.value}")
-        topology_config = TopologyConfig(
-            solvent=solvent,
-            timescale=timescale,
-            force_field=simulation_config.force_field
-        )
-        topology_files = generate_topology(topology_config)
-        
-        if not topology_files or not all(f.exists() for f in topology_files.values()):
-            logger.error(f"Topology generation failed for {solvent.value}")
-            return None
-        
-        # Step 2: Run Simulation
-        logger.info(f"Running simulation for {solvent.value} at {timescale}")
+        topology_files = generate_topology(solvent, SIMULATION_CONFIG)
+    except Exception as e:
+        logger.error(f"Failed to generate topology: {e}")
+        return None
+
+    # 2. Run Simulation
+    logger.info(f"Running simulation for {solvent_name}...")
+    try:
         sim_result = run_simulation(
-            topology_files=topology_files,
-            config=simulation_config,
-            timescale=timescale
+            solvent, 
+            timescale, 
+            SIMULATION_CONFIG,
+            topology_files
         )
-        
         if not sim_result.success:
-            logger.error(f"Simulation failed for {solvent.value}: {sim_result.error_message}")
+            logger.warning(f"Simulation failed or flagged as invalid for {solvent_name}. Skipping.")
             return None
-        
-        # Step 3: MSD Extraction and Diffusion Calculation
-        logger.info(f"Analyzing MSD for {solvent.value}")
+    except Exception as e:
+        logger.error(f"Simulation execution failed: {e}")
+        return None
+
+    # 3. Analyze MSD
+    logger.info(f"Analyzing MSD for {solvent_name}...")
+    try:
         msd_result = analyze_msd(
-            trajectory_path=sim_result.trajectory_path,
-            config=analysis_config
+            sim_result.trajectory_path,
+            SIMULATION_CONFIG.scaling_factors[solvent],
+            ANALYSIS_CONFIG.r_squared_threshold
         )
         
         if not msd_result.is_valid:
-            logger.error(f"MSD analysis failed for {solvent.value}: {msd_result.error_message}")
+            logger.warning(f"MSD linearity validation failed for {solvent_name}. Skipping.")
             return None
-        
-        # Step 4: Compare to NIST and calculate MAE
-        predicted_d = msd_result.diffusion_coefficient
-        solvent_name = solvent.value.lower()
-        
-        if solvent_name not in nist_refs:
-            logger.warning(f"No NIST reference for {solvent_name}, skipping MAE calculation")
-            return {
-                "solvent": solvent_name,
-                "timescale": timescale,
-                "predicted_d": predicted_d,
-                "actual_d": None,
-                "mae": None,
-                "r_squared": msd_result.r_squared
-            }
-        
-        actual_d = nist_refs[solvent_name]
-        mae = abs(predicted_d - actual_d)
-        
-        logger.info(
-            f"{solvent.value} ({timescale}): Predicted D={predicted_d:.2e}, "
-            f"Actual D={actual_d:.2e}, MAE={mae:.2e}, R²={msd_result.r_squared:.3f}"
-        )
-        
-        return {
-            "solvent": solvent_name,
-            "timescale": timescale,
-            "predicted_d": predicted_d,
-            "actual_d": actual_d,
-            "mae": mae,
-            "r_squared": msd_result.r_squared,
-            "simulation_time": sim_result.simulation_time
-        }
-        
     except Exception as e:
-        logger.error(f"Pipeline failed for {solvent.value} at {timescale}: {str(e)}", exc_info=True)
+        logger.error(f"MSD analysis failed: {e}")
         return None
 
-def run_pipeline(
-    solvents: List[Solvent],
-    timescales: List[str],
-    simulation_config: SimulationConfig,
-    analysis_config: AnalysisConfig
-) -> List[Dict[str, Any]]:
-    """
-    Run the full pipeline for all solvent-timescale combinations.
-    
-    Args:
-        solvents: List of solvents to simulate
-        timescales: List of simulation durations
-        simulation_config: Simulation configuration
-        analysis_config: Analysis configuration
-        
-    Returns:
-        List of result dictionaries
-    """
-    logger = get_logger()
-    logger.info("Starting full pipeline execution")
-    
-    # Validate NIST references
+    # 4. Sensitivity Analysis (if not full batch or specifically requested)
+    sensitivity_report = None
+    if not full_batch:
+        logger.info(f"Running sensitivity analysis for {solvent_name}...")
+        try:
+            sensitivity_report = run_sensitivity_sweep(
+                sim_result.trajectory_path,
+                SIMULATION_CONFIG.scaling_factors[solvent],
+                ANALYSIS_CONFIG.sensitivity_start_fractions,
+                ANALYSIS_CONFIG.r_squared_threshold
+            )
+            save_sensitivity_report(sensitivity_report, solvent_name, timescale)
+        except Exception as e:
+            logger.warning(f"Sensitivity analysis failed: {e}")
+            # Continue even if sensitivity fails
+
+    # 5. Calculate MAE
     nist_refs = load_nist_references()
-    logger.info(f"Loaded {len(nist_refs)} NIST references")
-    
+    if solvent_name not in nist_refs:
+        logger.warning(f"No NIST reference found for {solvent_name}. Skipping MAE calculation.")
+        return None
+
+    experimental_d = nist_refs[solvent_name]
+    simulated_d = msd_result.diffusion_coefficient
+    mae = calculate_mae(simulated_d, experimental_d)
+
+    result = {
+        "solvent": solvent_name,
+        "timescale_ns": timescale,
+        "experimental_d_m2s": experimental_d,
+        "simulated_d_m2s": simulated_d,
+        "mae": mae,
+        "r_squared": msd_result.r_squared,
+        "is_valid": msd_result.is_valid,
+        "runtime_seconds": time.time() - start_time
+    }
+
+    logger.info(f"Completed {solvent_name} at {timescale}ns: D={simulated_d:.2e} m²/s, MAE={mae:.2e}")
+    return result
+
+def run_pipeline(full_batch: bool = False) -> List[Dict[str, Any]]:
+    """
+    Run the full batch analysis over all solvents and timescales.
+    """
+    logger.info("Starting full batch pipeline...")
     results = []
-    total_combinations = len(solvents) * len(timescales)
-    completed = 0
     
+    solvents = [Solvent.WATER, Solvent.ETHANOL, Solvent.ACETONE]
+    timescales = SIMULATION_CONFIG.time_steps
+
     for solvent in solvents:
         for timescale in timescales:
-            result = run_single_solvent_pipeline(
-                solvent=solvent,
-                timescale=timescale,
-                simulation_config=simulation_config,
-                analysis_config=analysis_config,
-                nist_refs=nist_refs
-            )
-            
+            result = run_single_solvent_pipeline(solvent, timescale, full_batch)
             if result:
                 results.append(result)
-                completed += 1
-            
-            logger.info(f"Progress: {completed}/{total_combinations} combinations completed")
-    
-    # Save results
-    results_file = DATA_PROCESSED_DIR / "pipeline_results.json"
-    import json
-    with open(results_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Saved pipeline results to {results_file}")
-    
-    # Calculate overall MAE
-    valid_results = [r for r in results if r['mae'] is not None]
-    if valid_results:
-        overall_mae = calculate_mae(
-            {r['solvent']: r['predicted_d'] for r in valid_results},
-            {r['solvent']: r['actual_d'] for r in valid_results}
-        )
-        logger.info(f"Overall MAE across all solvents: {overall_mae:.2e} m²/s")
-    else:
-        logger.warning("No valid results for MAE calculation")
-    
+
     return results
 
 def generate_final_plots(results: List[Dict[str, Any]]):
-    """
-    Generate timescale-accuracy curves and multi-solvent comparison plots.
-    
-    Args:
-        results: List of pipeline result dictionaries
-    """
-    logger = get_logger()
-    logger.info("Generating final plots")
-    
+    """Generate final plots from the results."""
+    logger.info("Generating final plots...")
+    generate_timescale_accuracy_plot(results)
+    generate_multi_solvent_comparison(results)
+
+def run_bootstrap_analysis(results: List[Dict[str, Any]]):
+    """Perform bootstrap analysis on the MAE distribution."""
+    logger.info("Running bootstrap analysis...")
     if not results:
-        logger.warning("No results to plot")
+        logger.warning("No results to analyze for bootstrap.")
         return
+
+    # Extract MAE values
+    mae_values = [r['mae'] for r in results]
     
-    # Generate timescale-accuracy plot
-    plot_config = PlotConfig(
-        output_dir=FIGURES_DIR,
-        style='seaborn-v0_8-whitegrid',
-        dpi=300
+    # Run bootstrap
+    bootstrap_result = perform_bootstrap(
+        mae_values,
+        target_iterations=ANALYSIS_CONFIG.bootstrap_target_iterations,
+        time_limit_seconds=ANALYSIS_CONFIG.bootstrap_time_limit_seconds,
+        min_iterations=ANALYSIS_CONFIG.bootstrap_min_iterations
     )
     
-    try:
-        generate_timescale_accuracy_plot(results, plot_config)
-        logger.info("Timescale-accuracy plot generated")
-    except Exception as e:
-        logger.error(f"Failed to generate timescale-accuracy plot: {e}", exc_info=True)
+    save_bootstrap_stats(bootstrap_result)
+    logger.info("Bootstrap analysis complete.")
+
+def generate_summary_report(results: List[Dict[str, Any]]):
+    """Generate the final summary table and report."""
+    logger.info("Generating summary report...")
+    if not results:
+        logger.warning("No results to summarize.")
+        return
+
+    generate_summary_table(results)
     
-    try:
-        generate_multi_solvent_comparison(results, plot_config)
-        logger.info("Multi-solvent comparison plot generated")
-    except Exception as e:
-        logger.error(f"Failed to generate multi-solvent comparison plot: {e}", exc_info=True)
+    # Write final report markdown
+    report_path = Path(DATA_PROCESSED_DIR) / "final_report.md"
+    with open(report_path, 'w') as f:
+        f.write("# Final Report: MD Predictive Power Analysis\n\n")
+        f.write(f"Generated at: {datetime.utcnow().isoformat()}\n\n")
+        f.write("## Summary Statistics\n")
+        f.write(f"Total entries analyzed: {len(results)}\n\n")
+        
+        # Simple trend analysis
+        water_results = [r for r in results if r['solvent'] == 'water']
+        if len(water_results) >= 2:
+            sorted_w = sorted(water_results, key=lambda x: x['timescale_ns'])
+            early_mae = sorted_w[0]['mae']
+            late_mae = sorted_w[-1]['mae']
+            trend = "Improving" if late_mae < early_mae else "Worsening"
+            f.write(f"## Water Trend Analysis\n")
+            f.write(f"1ns MAE: {early_mae:.2e}\n")
+            f.write(f"10ns MAE: {late_mae:.2e}\n")
+            f.write(f"Trend: {trend}\n")
+
+    logger.info(f"Final report written to {report_path}")
 
 def main():
-    """Main entry point for the pipeline."""
-    parser = argparse.ArgumentParser(
-        description="MD Diffusion Predictive Power Pipeline"
-    )
-    parser.add_argument(
-        "--solvents",
-        type=str,
-        nargs='+',
-        default=['water', 'ethanol', 'acetone'],
-        help="Solvents to simulate"
-    )
-    parser.add_argument(
-        "--timescales",
-        type=str,
-        nargs='+',
-        default=['1ns', '5ns', '10ns'],
-        help="Simulation timescales"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default='INFO',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-        help="Logging level"
-    )
+    parser = argparse.ArgumentParser(description="MD Diffusion Coefficient Prediction Pipeline")
+    parser.add_argument("--full-batch", action="store_true", help="Run full batch analysis")
+    parser.add_argument("--solvent", type=str, help="Specific solvent to run (water, ethanol, acetone)")
+    parser.add_argument("--timescale", type=float, help="Specific timescale to run (ns)")
+    parser.add_argument("--sensitivity", action="store_true", help="Run sensitivity analysis only")
     
     args = parser.parse_args()
-    
+
     # Setup logging
-    log_file = LOGS_DIR / f"pipeline_{time.strftime('%Y%m%d_%H%M%S')}.log"
-    logger = setup_logger(
-        level=args.log_level.upper(),
-        log_file=log_file
-    )
-    
-    logger.info("Starting MD Diffusion Predictive Power Pipeline")
-    logger.info(f"Solvents: {args.solvents}")
-    logger.info(f"Timescales: {args.timescales}")
-    
+    setup_logger()
+
+    # Validate data
     try:
-        # Parse solvents
-        solvent_map = {s.value.lower(): s for s in Solvent}
-        selected_solvents = []
-        for s_name in args.solvents:
-            if s_name.lower() in solvent_map:
-                selected_solvents.append(solvent_map[s_name.lower()])
-            else:
-                logger.warning(f"Unknown solvent {s_name}, skipping")
-        
-        if not selected_solvents:
-            logger.error("No valid solvents specified")
-            sys.exit(1)
-        
-        # Configuration
-        simulation_config = SimulationConfig(
-            force_field="MARTINI",
-            temperature=300,
-            pressure=1.0,
-            time_step=0.02,  # 20 fs
-            max_runtime=21600  # 6 hours in seconds
-        )
-        
-        analysis_config = AnalysisConfig(
-            r_squared_threshold=0.95,
-            scaling_factors={
-                "water": 1.0,
-                "ethanol": 1.0,
-                "acetone": 1.0
-            }
-        )
-        
-        # Run pipeline
-        results = run_pipeline(
-            solvents=selected_solvents,
-            timescales=args.timescales,
-            simulation_config=simulation_config,
-            analysis_config=analysis_config
-        )
-        
-        # Generate plots
-        generate_final_plots(results)
-        
-        logger.info("Pipeline completed successfully")
-        
-        # Log summary
-        logger.info(f"Total combinations processed: {len(results)}")
-        valid_count = sum(1 for r in results if r['mae'] is not None)
-        logger.info(f"Successful MAE calculations: {valid_count}/{len(results)}")
-        
+        validate_nist_refs()
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {str(e)}", exc_info=True)
+        logger.critical(f"Data validation failed: {e}")
         sys.exit(1)
+
+    if args.solvent and args.timescale:
+        # Single run
+        solvent_enum = Solvent(args.solvent)
+        result = run_single_solvent_pipeline(solvent_enum, args.timescale, full_batch=False)
+        if not result:
+            sys.exit(1)
+    elif args.sensitivity and args.solvent and args.timescale:
+        # Sensitivity run (handled inside single pipeline call usually, but explicit here)
+        solvent_enum = Solvent(args.solvent)
+        run_single_solvent_pipeline(solvent_enum, args.timescale, full_batch=False)
+    else:
+        # Full batch
+        results = run_pipeline(full_batch=True)
+        
+        if results:
+            generate_final_plots(results)
+            run_bootstrap_analysis(results)
+            generate_summary_report(results)
+            logger.info("Pipeline completed successfully.")
+        else:
+            logger.warning("No results generated. Check logs for errors.")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

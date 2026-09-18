@@ -1,93 +1,55 @@
 """
 Configuration parameters for the MD diffusion predictive power investigation.
 
-This module defines all static configuration used across the pipeline,
-including solvents, simulation timescales, force field settings, and
-analysis thresholds.
-
-Key Principles:
-- R² threshold set to 0.95 per Constitution Principle VI (T008a tracks spec update).
-- Scaling factors are solvent-specific multipliers for MARTINI diffusion.
+Defines solvents, timescales, force fields, and analysis thresholds.
 """
-
-from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from dataclasses import dataclass, field
+from typing import List, Dict, Tuple, Optional
 from enum import Enum
+import os
 
-
-class Solvent(str, Enum):
+class Solvent(Enum):
+    """Supported solvents for simulation and analysis."""
     WATER = "water"
     ETHANOL = "ethanol"
     ACETONE = "acetone"
 
-
 @dataclass(frozen=True)
 class SimulationConfig:
-    """Configuration for a single simulation run."""
-    solvent: Solvent
-    duration_ns: float
+    """Configuration for MD simulations."""
     force_field: str = "MARTINI"
-    # NPT equilibration parameters
-    npt_temp_k: float = 300.0
-    npt_pressure_bar: float = 1.0
-    npt_duration_ps: float = 200.0
-    # Production parameters
-    prod_dt_fs: int = 20
-    prod_freq_xtc: int = 100
-    prod_freq_edr: int = 1000
-
+    temperature: float = 300.0  # Kelvin
+    pressure: float = 1.0  # bar
+    time_step: float = 0.02  # ns
+    density_tolerance: float = 0.01  # ±1%
+    density_window: float = 0.2  # 200ps
+    timeout_seconds: int = 3600
+    scaling_factors: Dict[str, float] = field(default_factory=lambda: {
+        "water": 1.0,
+        "ethanol": 1.2,
+        "acetone": 0.9
+    })
 
 @dataclass(frozen=True)
 class AnalysisConfig:
-    """Configuration for post-simulation analysis."""
-    # Linearity threshold for MSD regression (R² >= threshold)
-    # Set to 0.95 per Constitution Principle VI. T008a tracks spec alignment.
-    msd_r2_threshold: float = 0.95
-    # Solvent-specific scaling factors for MARTINI diffusion coefficients
-    # (MARTINI typically overestimates diffusion, so factors < 1.0)
-    scaling_factors: Dict[Solvent, float]
-    # Bootstrap configuration
-    bootstrap_n_iterations: int = 1000
-    bootstrap_wall_clock_limit_seconds: float = 5.5 * 3600  # 5.5 hours
-    bootstrap_fallback_iterations: int = 100
-    # Variance threshold for sensitivity analysis
-    sensitivity_variance_threshold: float = 0.05  # 5%
+    """Configuration for analysis and reporting."""
+    r_squared_threshold: float = 0.95
+    sensitivity_start_times: List[float] = field(default_factory=lambda: [0.1, 0.2, 0.3])
+    bootstrap_target_iterations: int = 1000
+    bootstrap_min_iterations: int = 100
+    bootstrap_time_limit_hours: float = 5.5
+    variance_threshold_percent: float = 5.0
+    nist_refs_path: str = os.path.join("data", "raw", "nist_refs.json")
+    manifest_path: str = os.path.join("data", "raw", "manifest.json")
 
+# Global configuration instances
+SIMULATION_CONFIG = SimulationConfig()
+ANALYSIS_CONFIG = AnalysisConfig()
 
-# Define all solvents to be simulated
-SOLVENTS: List[Solvent] = [
-    Solvent.WATER,
-    Solvent.ETHANOL,
-    Solvent.ACETONE,
-]
-
-# Define simulation timescales (in nanoseconds)
-TIMESCALES_NS: List[float] = [1.0, 5.0, 10.0]
-
-# Default force field
-FORCE_FIELD: str = "MARTINI"
-
-# Analysis configuration with solvent-specific scaling factors
-# Source: Literature values for MARTINI water/ethanol/acetone diffusion correction
-ANALYSIS_CONFIG = AnalysisConfig(
-    msd_r2_threshold=0.95,  # Per Constitution Principle VI
-    scaling_factors={
-        Solvent.WATER: 0.5,      # Approximate correction for MARTINI water
-        Solvent.ETHANOL: 0.6,    # Approximate correction for MARTINI ethanol
-        Solvent.ACETONE: 0.55,   # Approximate correction for MARTINI acetone
-    },
-    bootstrap_n_iterations=1000,
-    bootstrap_wall_clock_limit_seconds=5.5 * 3600,
-    bootstrap_fallback_iterations=100,
-    sensitivity_variance_threshold=0.05,
-)
-
-# NIST reference file path
-NIST_REFS_PATH = "data/raw/nist_refs.json"
+# Timescales in nanoseconds
+TIMESCALES: List[float] = [1.0, 5.0, 10.0]
 
 # Output paths
 OUTPUT_DIR = "data/processed"
 FIGURES_DIR = "figures"
-
-# Log file path
-LOG_FILE = "data/pipeline.log"
+LOGS_DIR = "logs"

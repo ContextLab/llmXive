@@ -1,9 +1,3 @@
-"""
-Structured logging utilities for the llmXive research pipeline.
-
-Provides a consistent logging configuration and helper functions
-for structured JSON logging and standard console logging.
-"""
 import logging
 import sys
 import json
@@ -11,175 +5,52 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-
 class JSONFormatter(logging.Formatter):
-    """Custom formatter that outputs log records as JSON lines."""
-    
-    def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat(),
+    def format(self, record):
+        log_obj = {
+            "timestamp": datetime.now().isoformat(),
             "level": record.levelname,
-            "logger": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
-            "line": record.lineno,
+            "line": record.lineno
         }
-        
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
-        
-        if hasattr(record, "extra_data"):
-            log_data.update(record.extra_data)
-        
-        return json.dumps(log_data)
+            log_obj["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_obj)
 
+def setup_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
 
-def setup_logger(
-    log_level: str = "INFO",
-    log_file: Optional[Path] = None,
-    json_format: bool = True,
-) -> logging.Logger:
-    """
-    Configure the root logger with console and optional file handlers.
-    
-    This function sets up structured logging as required by T007a.
-    If `log_file` is provided, logs are written to `logs/` directory.
-    
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional path to write logs to a file. If relative,
-                  it is resolved relative to the project root (assumed to be parent of 'code').
-        json_format: If True, use JSON formatting; otherwise use standard formatting.
-                    
-    Returns:
-        Configured root logger instance
-    """
-    logger = logging.getLogger()
-    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    
-    # Clear existing handlers to ensure clean configuration
-    logger.handlers.clear()
-    
     # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
-    
-    if json_format:
-        console_handler.setFormatter(JSONFormatter())
-    else:
-        console_handler.setFormatter(
-            logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                datefmt="%Y-%m-%d %H:%M:%S"
-            )
-        )
-    
-    logger.addHandler(console_handler)
-    
-    # File handler if specified
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    ch.setFormatter(JSONFormatter())
+    logger.addHandler(ch)
+
+    # File handler
     if log_file:
-        # Ensure the log directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-        
-        formatter = JSONFormatter() if json_format else logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(level)
+        fh.setFormatter(JSONFormatter())
+        logger.addHandler(fh)
+
     return logger
 
-
 def get_logger(name: str) -> logging.Logger:
-    """
-    Get a named logger instance.
-    
-    Args:
-        name: Logger name (typically __name__ or module path)
-            
-    Returns:
-        Logger instance configured with project defaults
-    """
     return logging.getLogger(name)
 
+def log_event(logger: logging.Logger, event: str, data: Dict[str, Any]):
+    logger.info(json.dumps({"event": event, "data": data}))
 
-def log_event(
-    logger: logging.Logger,
-    event_type: str,
-    message: str,
-    level: str = "INFO",
-    **extra_data,
-) -> None:
-    """
-    Log an event with structured extra data.
-    
-    Args:
-        logger: Logger instance to use
-        event_type: Type/category of the event
-        message: Human-readable message
-        level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        **extra_data: Additional key-value pairs to include in the log
-    """
-    log_record = logger.makeRecord(
-        logger.name,
-        getattr(logging, level.upper(), logging.INFO),
-        "",
-        0,
-        message,
-        (),
-        None,
-    )
-    log_record.extra_data = {"event_type": event_type, **extra_data}
-    logger.handle(log_record)
+def log_sensitivity_results(logger: logging.Logger, results: Dict):
+    log_event(logger, "sensitivity_analysis", results)
 
+def main():
+    logger = setup_logger("test_logger", "logs/test.log")
+    logger.info("Test log message")
 
-def log_sensitivity_results(
-    logger: logging.Logger,
-    solvent: str,
-    timescale: str,
-    start_times: list,
-    diffusion_coeffs: list,
-    variance: float,
-    variance_threshold: float = 0.05,
-    status: str = "PASS",
-) -> None:
-    """
-    Log structured results from a sensitivity analysis sweep.
-    
-    This function formats the sensitivity sweep results (start times, calculated
-    diffusion coefficients, and variance) into a structured log entry. It also
-    flags the result as PASS or FAIL based on the variance threshold.
-    
-    Args:
-        logger: Logger instance to use
-        solvent: Name of the solvent analyzed (e.g., 'water', 'ethanol')
-        timescale: Simulation duration (e.g., '1ns', '10ns')
-        start_times: List of regression start times used in the sweep
-        diffusion_coeffs: List of diffusion coefficients calculated for each start time
-        variance: Calculated variance of the diffusion coefficients
-        variance_threshold: Threshold for variance (default 5% or 0.05)
-        status: 'PASS' if variance <= threshold, 'FAIL' otherwise
-    """
-    log_level = "INFO" if status == "PASS" else "WARNING"
-    
-    extra_payload = {
-        "component": "sensitivity_analysis",
-        "solvent": solvent,
-        "timescale": timescale,
-        "start_times": start_times,
-        "diffusion_coeffs": diffusion_coeffs,
-        "variance": variance,
-        "variance_threshold": variance_threshold,
-        "status": status,
-    }
-    
-    log_event(
-        logger,
-        event_type="sensitivity_sweep_complete",
-        message=f"Sensitivity analysis for {solvent} at {timescale}: Variance={variance:.4f} ({status})",
-        level=log_level,
-        **extra_payload,
-    )
+if __name__ == "__main__":
+    main()

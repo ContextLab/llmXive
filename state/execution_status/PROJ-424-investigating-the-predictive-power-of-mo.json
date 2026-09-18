@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulation/runner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026time}s\\n\")             # Generate synthetic but deterministic densit\u2026\u201d; 3 command(s) failed: python code/main.py --full-batch (rc=1); python code/main.py --solvent water --timescale 1.0 (rc=1); python code/main.py --sensitivity --solvent ethanol --timescale 10.0 (rc=1); 2 declared deliverable(s) absent: data/raw/manifest.json; data/raw/nist_refs.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --full-batch -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/main.py\", line 21, in <module>\n    from config import Solvent, SimulationConfig, AnalysisConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py\", line 40, in <module>\n    @dataclass(frozen=True)\n     ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/dataclasses.py\", line 1222, in wrap\n    return _process_clas",
+    "python code/main.py --solvent water --timescale 1.0 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/main.py\", line 21, in <module>\n    from config import Solvent, SimulationConfig, AnalysisConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py\", line 40, in <module>\n    @dataclass(frozen=True)\n     ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/dataclasses.py\", line 1222, in wrap\n    r",
+    "python code/main.py --sensitivity --solvent ethanol --timescale 10.0 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/main.py\", line 21, in <module>\n    from config import Solvent, SimulationConfig, AnalysisConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py\", line 40, in <module>\n    @dataclass(frozen=True)\n     ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/dataclasses.py\", line 12"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-18T18:23:18Z"
+}
