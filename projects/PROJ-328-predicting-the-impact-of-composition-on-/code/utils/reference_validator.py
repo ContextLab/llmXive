@@ -1,35 +1,32 @@
-"""
-Reference Validator Utility Module.
-
-Provides functions to validate research sources, check URL accessibility,
-and verify citation formats.
-"""
 import os
 import re
 import logging
 import requests
 from pathlib import Path
 from typing import List, Optional, Tuple
+from utils.error_handlers import ConfigurationError
+from utils.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 class ConstitutionError(Exception):
-    """Raised when a critical configuration or validation rule is violated."""
+    """Raised when a reference violates constitutional requirements."""
     pass
 
-def validate_url(url: str, timeout: int = 10) -> Tuple[bool, str]:
+def validate_url(url: str) -> bool:
     """
-    Validate if a URL is accessible and returns a valid response.
+    Validate that a URL is well-formed and accessible.
     
     Args:
-        url: The URL to validate.
-        timeout: Request timeout in seconds.
+        url: The URL string to validate.
         
     Returns:
-        Tuple of (is_valid, message)
+        True if the URL is valid and accessible, False otherwise.
     """
     if not url or not isinstance(url, str):
-        return False, "Invalid URL format"
-    
-    # Basic regex check for URL structure
+        return False
+        
+    # Basic URL format check
     url_pattern = re.compile(
         r'^https?://'  # http:// or https://
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
@@ -39,138 +36,188 @@ def validate_url(url: str, timeout: int = 10) -> Tuple[bool, str]:
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
         
     if not url_pattern.match(url):
-        return False, "URL does not match standard pattern"
-    
+        logger.warning(f"Invalid URL format: {url}")
+        return False
+        
+    # Check accessibility (with timeout to avoid hanging)
     try:
-        # HEAD request is faster, fallback to GET if HEAD is not allowed
-        response = requests.head(url, timeout=timeout, allow_redirects=True)
-        if response.status_code == 405:
-            response = requests.get(url, timeout=timeout, allow_redirects=True)
-        
-        if response.status_code == 200:
-            return True, "OK"
+        response = requests.head(url, timeout=10, allow_redirects=True)
+        # 200 OK or 301/302 redirects are acceptable
+        if response.status_code in [200, 301, 302, 403]:
+            # 403 might be a paywall but the URL is valid
+            return True
         else:
-            return False, f"HTTP {response.status_code}"
-    except requests.exceptions.RequestException as e:
-        return False, f"Request failed: {str(e)}"
+            logger.warning(f"URL returned status {response.status_code}: {url}")
+            return False
+    except requests.RequestException as e:
+        logger.warning(f"Failed to access URL {url}: {e}")
+        return False
 
-def validate_citation_format(citation_text: str) -> Tuple[bool, str]:
+def validate_citation_format(citation: str) -> bool:
     """
-    Validate the format of a citation string.
-    
-    Expected format: [Author et al., Year] or similar standard academic format.
-    """
-    if not citation_text.strip():
-        return False, "Empty citation"
-    
-    # Simple check for presence of author/year pattern
-    # This is a heuristic; real validation might require NLP
-    if re.search(r'\[?.*[A-Z][a-z]+.*\d{4}.*\]?', citation_text):
-        return True, "Looks like a valid citation"
-    
-    # If it doesn't match the pattern but has text, warn but allow
-    if len(citation_text) > 10:
-        return True, "Non-standard but present citation"
-        
-    return False, "Citation format too short or unclear"
-
-def validate_research_md(draft_content: str, logger: Optional[logging.Logger] = None) -> str:
-    """
-    Process the draft research content, verify URLs, and return verified content.
-    
-    This function:
-    1. Parses the draft text to extract lines with URLs and citations.
-    2. Validates each URL.
-    3. Filters out invalid entries.
-    4. Reconstructs the verified markdown.
+    Validate that a citation string follows a basic format.
     
     Args:
-        draft_content: The raw markdown content from the draft.
-        logger: Optional logger instance.
+        citation: The citation string to validate.
         
     Returns:
-        The verified markdown content.
+        True if the citation appears valid, False otherwise.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    if not citation or not isinstance(citation, str):
+        return False
+        
+    # Basic check: should have some text and not be empty
+    # A more sophisticated check could validate DOI format, author names, etc.
+    if len(citation.strip()) < 10:
+        logger.warning(f"Citation too short: {citation}")
+        return False
+        
+    # Check for DOI pattern if present
+    doi_pattern = r'10\.\d{4,9}/[-._;()/:A-Z0-9]+'
+    if 'doi:' in citation.lower() or 'doi.org' in citation.lower():
+        if not re.search(doi_pattern, citation, re.IGNORECASE):
+            logger.warning(f"Citation mentions DOI but no valid DOI found: {citation}")
+            return False
+            
+    return True
+
+def validate_research_md(research_md_path: Path, output_path: Path) -> Tuple[bool, List[dict]]:
+    """
+    Validate the research.md file and extract verified references.
     
-    lines = draft_content.splitlines()
-    verified_lines = []
-    verified_lines.append("# Research Sources - Verified")
-    verified_lines.append("")
-    verified_lines.append("Generated by Reference-Validator Agent (T008b).")
-    verified_lines.append("")
-    verified_lines.append("## Verified Sources")
-    verified_lines.append("")
+    Args:
+        research_md_path: Path to the research.md file to validate.
+        output_path: Path where the verified research file will be written.
+        
+    Returns:
+        Tuple of (success: bool, verified_sources: List[dict])
+    """
+    if not research_md_path.exists():
+        logger.error(f"Research file not found: {research_md_path}")
+        return False, []
+        
+    verified_sources = []
+    failed_sources = []
     
-    valid_count = 0
-    invalid_count = 0
+    with open(research_md_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+        
+    # Parse markdown to extract URLs and citations
+    # Look for patterns like: - [URL](description) or - URL: description
+    url_pattern = re.compile(r'[-*]\s*\[([^\]]+)\]\(([^)]+)\)|[-*]\s*([^\s]+)\s*[:\-]\s*(.+)', re.MULTILINE)
     
+    lines = content.split('\n')
     for line in lines:
-        # Skip headers or empty lines that don't contain URLs
-        if not line.strip() or line.strip().startswith('#'):
-            if line.strip().startswith('#'):
-                verified_lines.append(line) # Keep headers
+        line = line.strip()
+        if not line or line.startswith('#'):
             continue
-        
-        # Look for URLs in the line
-        url_pattern = re.compile(r'(https?://[^\s\)]+)')
-        urls = url_pattern.findall(line)
-        
-        if not urls:
-            # If no URL, keep the line if it's part of a citation block, else skip
-            # For simplicity, we keep lines that look like text descriptions
-            if len(line.strip()) > 5:
-                verified_lines.append(line)
-            continue
-        
-        # Validate all URLs in the line
-        all_valid = True
-        for url in urls:
-            is_valid, msg = validate_url(url)
-            if not is_valid:
-                all_valid = False
-                logger.warning(f"Invalid URL found: {url} - {msg}")
-                break
-        
-        if all_valid:
-            verified_lines.append(line)
-            valid_count += 1
+            
+        # Try to extract URL and citation from markdown link format
+        match = re.search(r'\[([^\]]+)\]\(([^)]+)\)', line)
+        if match:
+            citation = match.group(1)
+            url = match.group(2)
         else:
-            invalid_count += 1
-            logger.info(f"Skipping line with invalid URL: {line[:50]}...")
+            # Try alternative format: URL: citation
+            alt_match = re.search(r'(https?://[^\s]+)\s*[:\-]\s*(.+)', line)
+            if alt_match:
+                url = alt_match.group(1)
+                citation = alt_match.group(2)
+            else:
+                continue
+                
+        # Validate URL
+        is_valid_url = validate_url(url)
+        # Validate citation format
+        is_valid_citation = validate_citation_format(citation)
+        
+        source_entry = {
+            'url': url,
+            'citation': citation,
+            'source_type': 'pdf' if url.endswith('.pdf') or 'doi.org' in url else 'api',
+            'verified': is_valid_url and is_valid_citation
+        }
+        
+        if is_valid_url and is_valid_citation:
+            verified_sources.append(source_entry)
+            logger.info(f"Verified source: {citation} -> {url}")
+        else:
+            failed_sources.append(source_entry)
+            if not is_valid_url:
+                logger.warning(f"Failed URL validation: {url}")
+            if not is_valid_citation:
+                logger.warning(f"Failed citation validation: {citation}")
     
-    verified_lines.append("")
-    verified_lines.append(f"## Summary")
-    verified_lines.append(f"- Valid sources: {valid_count}")
-    verified_lines.append(f"- Invalid sources skipped: {invalid_count}")
-    verified_lines.append("")
+    # Write verified sources to output file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("# Verified Research Sources\n\n")
+        f.write("This file contains only verified citations and URLs from the research process.\n")
+        f.write("Generated by Reference-Validator Agent.\n\n")
+        f.write("## Verified Sources\n\n")
+        
+        for i, source in enumerate(verified_sources, 1):
+            f.write(f"{i}. **{source['citation']}**\n")
+            f.write(f"   - URL: {source['url']}\n")
+            f.write(f"   - Type: {source['source_type']}\n\n")
+            
+        if not verified_sources:
+            f.write("No verified sources found.\n\n")
+            logger.warning("No verified sources found in research.md")
+            
+        if failed_sources:
+            f.write("## Failed Sources (Excluded)\n\n")
+            for i, source in enumerate(failed_sources, 1):
+                f.write(f"{i}. **{source['citation']}**\n")
+                f.write(f"   - URL: {source['url']}\n")
+                f.write(f"   - Reason: {'Invalid URL' if not validate_url(source['url']) else 'Invalid citation'}\n\n")
     
-    return "\n".join(verified_lines)
+    success = len(verified_sources) > 0
+    if not success:
+        logger.error("No verified sources found - verification failed")
+        
+    return success, verified_sources
 
 def main():
-    """
-    CLI entry point for manual testing of the validator.
-    """
-    import sys
-    from utils.logging_config import get_logger
+    """Main entry point for reference validation."""
+    logger.info("Starting reference validation...")
     
-    logger = get_logger("reference_validator_cli")
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    research_md_path = project_root / 'data' / 'config' / 'candidate_sources.txt'
+    output_path = project_root / 'specs' / '001-predict-solder-hardness' / 'research_verified.md'
     
-    if len(sys.argv) < 2:
-        print("Usage: python -m utils.reference_validator <draft_file_path>")
-        sys.exit(1)
-    
-    draft_path = Path(sys.argv[1])
-    if not draft_path.exists():
-        print(f"File not found: {draft_path}")
-        sys.exit(1)
-    
-    with open(draft_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    result = validate_research_md(content, logger)
-    print(result)
+    # If candidate_sources.txt exists as JSON, convert to markdown format first
+    if research_md_path.exists():
+        # Check if it's the JSON format from T008a
+        import json
+        try:
+            with open(research_md_path, 'r') as f:
+                candidates = json.load(f)
+                
+            # Create a temporary markdown file for validation
+            temp_md_path = project_root / 'data' / 'config' / 'research_draft.md'
+            with open(temp_md_path, 'w') as f:
+                f.write("# Candidate Research Sources\n\n")
+                for item in candidates:
+                    f.write(f"- [{item.get('citation', 'Unknown')}]({item.get('url', '')})\n")
+            
+            success, verified = validate_research_md(temp_md_path, output_path)
+            
+            if success:
+                logger.info(f"Successfully verified {len(verified)} sources")
+            else:
+                logger.error("Verification failed - no sources verified")
+                
+        except json.JSONDecodeError:
+            logger.error("Candidate sources file is not valid JSON")
+            return 1
+    else:
+        logger.error(f"Research file not found: {research_md_path}")
+        return 1
+        
+    return 0 if success else 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())

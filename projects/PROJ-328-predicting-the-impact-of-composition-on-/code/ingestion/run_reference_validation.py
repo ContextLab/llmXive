@@ -1,76 +1,129 @@
-"""
-Reference Validator Agent Runner for T008b.
-
-This script runs the Reference-Validator Agent on the draft content from T008a
-(data/config/candidate_sources.txt) and generates the verified research file.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
 from utils.reference_validator import validate_research_md, ConstitutionError
 from utils.logging_config import get_logger
 
+logger = get_logger(__name__)
+
 def main():
     """
-    Main entry point for T008b: Verify Research Sources.
+    Run the reference validator on the draft research sources.
     
-    1. Reads the draft candidate sources from data/config/candidate_sources.txt.
-    2. Validates URLs and citations.
-    3. Generates specs/001-predict-solder-hardness/research_verified.md.
+    This script implements T008b: Verify Research Sources.
+    It reads the candidate sources from T008a, validates them,
+    and generates research_verified.md.
+    
+    If verification fails or times out, it marks the state as 'provisional'
+    in data/config/sources.yaml and proceeds to T009c.
     """
-    logger = get_logger("T008b_reference_validator")
-    
-    # Define paths relative to project root
-    draft_path = project_root / "data" / "config" / "candidate_sources.txt"
-    verified_dir = project_root / "specs" / "001-predict-solder-hardness"
-    verified_path = verified_dir / "research_verified.md"
-    
-    # Ensure verified directory exists
-    verified_dir.mkdir(parents=True, exist_ok=True)
-    
-    if not draft_path.exists():
-        logger.error(f"Draft file not found: {draft_path}. T008a may not have completed.")
-        print("ERROR: Draft file not found. Please ensure T008a has run.")
-        sys.exit(1)
-    
-    logger.info(f"Starting verification of {draft_path}")
+    logger.info("Starting Reference-Validator Agent for T008b...")
     
     try:
-        # Read draft content
-        with open(draft_path, 'r', encoding='utf-8') as f:
-            draft_content = f.read()
+        # Define paths
+        project_root = Path(__file__).parent.parent
+        candidate_path = project_root / 'data' / 'config' / 'candidate_sources.txt'
+        verified_output = project_root / 'specs' / '001-predict-solder-hardness' / 'research_verified.md'
+        sources_yaml = project_root / 'data' / 'config' / 'sources.yaml'
+        
+        # Check if candidate file exists
+        if not candidate_path.exists():
+            logger.error(f"Candidate sources file not found: {candidate_path}")
+            # Mark as provisional and exit
+            _mark_provisional(sources_yaml)
+            return 1
         
         # Run validation
-        # The validate_research_md function is expected to parse the draft,
-        # verify URLs (simulated or real check depending on implementation),
-        # and return a cleaned, verified string.
-        verified_content = validate_research_md(draft_content, logger)
+        logger.info(f"Validating sources from: {candidate_path}")
         
-        if not verified_content:
-            logger.warning("No verified sources found. Creating empty file with warning.")
-            verified_content = "# Research Verified (Empty)\n\nNo sources could be verified from the draft.\n"
+        # Import the validation logic
+        from utils.reference_validator import validate_research_md
         
-        # Write verified file
-        with open(verified_path, 'w', encoding='utf-8') as f:
-            f.write(verified_content)
+        # Create a temporary markdown file from the JSON candidate list
+        import json
+        with open(candidate_path, 'r') as f:
+            candidates = json.load(f)
         
-        logger.info(f"Successfully wrote verified sources to {verified_path}")
-        print(f"VERIFIED: {verified_path} created.")
+        temp_md = project_root / 'data' / 'config' / 'temp_research.md'
+        with open(temp_md, 'w') as f:
+            f.write("# Candidate Research Sources\n\n")
+            for item in candidates:
+                citation = item.get('citation', 'Unknown Citation')
+                url = item.get('url', '')
+                f.write(f"- [{citation}]({url})\n")
         
-    except ConstitutionError as e:
-        logger.error(f"ConstitutionError during validation: {e}")
-        print(f"FATAL: Validation failed due to configuration error: {e}")
-        sys.exit(1)
+        success, verified_sources = validate_research_md(temp_md, verified_output)
+        
+        if success:
+            logger.info(f"Verification successful. {len(verified_sources)} sources verified.")
+            # Update sources.yaml with verified URLs
+            _update_sources_yaml(sources_yaml, verified_sources)
+            return 0
+        else:
+            logger.warning("Verification failed or no sources verified. Marking as provisional.")
+            _mark_provisional(sources_yaml)
+            return 1
+            
     except Exception as e:
-        logger.exception(f"Unexpected error during validation: {e}")
-        print(f"FATAL: Validation failed with unexpected error: {e}")
-        sys.exit(1)
+        logger.error(f"Reference validation failed with exception: {e}")
+        import traceback
+        traceback.print_exc()
+        # On timeout or critical failure, mark as provisional
+        try:
+            _mark_provisional(Path(__file__).parent.parent / 'data' / 'config' / 'sources.yaml')
+        except:
+            pass
+        return 1
 
-if __name__ == "__main__":
-    main()
+def _mark_provisional(sources_yaml_path: Path):
+    """Mark sources.yaml as provisional when verification fails."""
+    import yaml
+    
+    if sources_yaml_path.exists():
+        with open(sources_yaml_path, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        config['_verification_status'] = 'provisional'
+        config['_verification_message'] = 'Verification failed or timed out. Using candidate sources as provisional.'
+        
+        with open(sources_yaml_path, 'w') as f:
+            yaml.dump(config, f, default_flow_style=False)
+        
+        logger.info(f"Marked {sources_yaml_path} as provisional")
+    else:
+        logger.warning(f"Cannot mark provisional - sources.yaml not found: {sources_yaml_path}")
+
+def _update_sources_yaml(sources_yaml_path: Path, verified_sources: list):
+    """Update sources.yaml with verified URLs."""
+    import yaml
+    
+    if sources_yaml_path.exists():
+        with open(sources_yaml_path, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        config['_verification_status'] = 'verified'
+        config['_verified_count'] = len(verified_sources)
+        
+        # Update literature_pdfs with verified URLs
+        if 'literature_pdfs' in config:
+            verified_urls = {s['url']: s for s in verified_sources}
+            updated_pdfs = []
+            for pdf in config['literature_pdfs']:
+                if pdf['url'] in verified_urls:
+                    pdf['verified'] = True
+                    updated_pdfs.append(pdf)
+                else:
+                    pdf['verified'] = False
+                    updated_pdfs.append(pdf)
+            config['literature_pdfs'] = updated_pdfs
+        
+        with open(sources_yaml_path, 'w') as f:
+            yaml.dump(config, f, default_flow_style=False)
+        
+        logger.info(f"Updated {sources_yaml_path} with {len(verified_sources)} verified sources")
+    else:
+        logger.warning(f"Cannot update sources.yaml - file not found: {sources_yaml_path}")
+
+if __name__ == '__main__':
+    sys.exit(main())

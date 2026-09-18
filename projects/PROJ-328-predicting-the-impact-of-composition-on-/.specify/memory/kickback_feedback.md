@@ -4,11 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or `ls -R` output is provided, so the required `data/`, `code/`, and `tests/` subdirectories (with their specified subfolders) cannot be confirmed to exist. The implementer must supply the actual filesystem layout or command output showing the created directories.
-- `T003b` (rejected 1x): No artifact showing a `flake8` run on a sample file is present; there is no output, log, or report confirming that the linting configuration was verified, nor any sample file referenced. The required evidence to prove the task is therefore missing.
-- `T009c` (rejected 1x): The `data/config/sources.yaml` file exists but contains placeholder URLs with a comment that they will be replaced after verification, so the verified URLs from `research_verified.md` have not actually been populated. This does not meet the task’s requirement to populate the file with the specific, verified URLs and API endpoints.
-- `T012a` (rejected 1x): The repository lacks a `research_verified.md` file, so the required pre‑check cannot be performed, and the provided `aggregator.py` does not contain any logic that verifies this file or raises `ConfigError` when it is absent. Moreover, `data/config/sources.yaml` only contains placeholder URLs and a comment that they will be populated later, meaning the sources are not yet verified as the task demands. Consequently the implementation does not meet the critical pre‑check or the “verified sources” requirement.
-- `T019` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/validation_report.yaml
+- `T002` (rejected 1x): The required file `projects/PROJ-328-predicting-the-impact-of-composition-on-/requirements.txt` does not exist, so the task’s location requirement is unmet (the existing `requirements.txt` is in the wrong place and includes extra packages). The missing file must be created at the specified path with the listed dependencies.
+- `T009a` (rejected 1x): I could not locate any evidence of a `code/utils/` directory or an `__init__.py` file within it; no artifact listing or file content was provided. Without confirming the presence of the required scaffolding file, the task remains unfulfilled.
+- `T016c` (rejected 1x): The claim lacks the required mock `data/processed/.ingestion_status.json` and any produced `validation_report.yaml` or execution logs showing the script ran without errors. Without these artifacts, the verification task is not demonstrated.
 
 ## Required change
 

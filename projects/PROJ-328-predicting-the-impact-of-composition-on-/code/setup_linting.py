@@ -1,34 +1,29 @@
 """
 Setup and verification script for linting configuration.
-Task T003b: Verify linting configuration by running flake8 on a sample file.
+This script verifies that flake8 and black configurations are correct
+and runs flake8 on a sample file to ensure the setup works.
 """
 import os
 import sys
 import subprocess
 import tomli
 from pathlib import Path
-
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from utils.logging_config import get_logger
 
-logger = get_logger("setup_linting")
+logger = get_logger(__name__)
 
 
 def check_file_exists(file_path: Path) -> bool:
-    """Check if a file exists."""
+    """Check if a file exists at the given path."""
     if not file_path.exists():
         logger.error(f"File not found: {file_path}")
         return False
+    logger.info(f"File found: {file_path}")
     return True
 
 
-def validate_black_config() -> bool:
+def validate_black_config(pyproject_path: Path) -> bool:
     """Validate black configuration in pyproject.toml."""
-    pyproject_path = project_root / "pyproject.toml"
     if not check_file_exists(pyproject_path):
         return False
 
@@ -36,118 +31,108 @@ def validate_black_config() -> bool:
         with open(pyproject_path, "rb") as f:
             config = tomli.load(f)
 
-        tool_config = config.get("tool", {}).get("black", {})
-        if not tool_config:
-            logger.warning("Black configuration section not found in pyproject.toml")
+        if "tool" not in config or "black" not in config["tool"]:
+            logger.error("Black configuration not found in pyproject.toml")
             return False
 
-        logger.info("Black configuration found and valid.")
+        black_config = config["tool"]["black"]
+        logger.info(f"Black config: {black_config}")
         return True
     except Exception as e:
         logger.error(f"Error validating black config: {e}")
         return False
 
 
-def validate_flake8_config() -> bool:
-    """Validate flake8 configuration."""
-    flake8_path = project_root / ".flake8"
+def validate_flake8_config(flake8_path: Path) -> bool:
+    """Validate flake8 configuration file."""
     if not check_file_exists(flake8_path):
-        logger.error(".flake8 file not found")
         return False
 
     try:
         with open(flake8_path, "r") as f:
             content = f.read()
-            if "max-line-length" not in content:
-                logger.warning("max-line-length not explicitly defined in .flake8")
-            else:
-                logger.info("max-line-length defined in .flake8")
-        logger.info("Flake8 configuration file exists and is readable.")
+
+        # Check for essential configuration
+        if "max-line-length" not in content:
+            logger.warning("max-line-length not explicitly set in .flake8")
+        else:
+            logger.info("max-line-length is set in .flake8")
+
         return True
     except Exception as e:
         logger.error(f"Error validating flake8 config: {e}")
         return False
 
 
-def run_flake8_on_sample() -> bool:
-    """
-    Run flake8 on a sample file to verify configuration works.
-    Task T003b: Verify linting configuration by running flake8 on a sample file.
-    """
-    sample_file = project_root / "code" / "tests" / "linting" / "sample_code.py"
-
-    if not check_file_exists(sample_file):
-        logger.error(f"Sample file not found at {sample_file}. Cannot run flake8 verification.")
+def run_flake8_on_sample(sample_path: Path, flake8_path: Path) -> bool:
+    """Run flake8 on a sample file to verify configuration works."""
+    if not check_file_exists(sample_path):
         return False
 
-    flake8_path = project_root / ".flake8"
     if not check_file_exists(flake8_path):
-        logger.error("Cannot run flake8: .flake8 configuration file missing.")
+        logger.error("Cannot run flake8 without configuration file")
         return False
-
-    logger.info(f"Running flake8 on sample file: {sample_file}")
 
     try:
-        # Run flake8 with the project's .flake8 config
+        # Run flake8 with the config file
         result = subprocess.run(
-            ["flake8", "--config=" + str(flake8_path), str(sample_file)],
+            [
+                sys.executable, "-m", "flake8",
+                "--config=" + str(flake8_path),
+                str(sample_path)
+            ],
             capture_output=True,
-            text=True,
-            cwd=project_root
+            text=True
         )
 
-        # Log the output
+        logger.info(f"Flake8 exit code: {result.returncode}")
         if result.stdout:
-            logger.info("Flake8 stdout:")
-            for line in result.stdout.splitlines():
-                logger.info(f"  {line}")
-
+            logger.info(f"Flake8 stdout:\n{result.stdout}")
         if result.stderr:
-            logger.warning("Flake8 stderr:")
-            for line in result.stderr.splitlines():
-                logger.warning(f"  {line}")
+            logger.warning(f"Flake8 stderr:\n{result.stderr}")
 
-        # Check return code
-        if result.returncode == 0:
-            logger.info("Flake8 verification successful: No issues found (or issues ignored by config).")
+        # Exit code 0 means no issues, 1 means issues found, 2 means error
+        # For this verification, we just want to ensure flake8 runs without crashing
+        if result.returncode <= 1:
+            logger.info("Flake8 ran successfully on sample file")
             return True
         else:
-            logger.warning(f"Flake8 found {result.returncode} issue(s) or configuration error. Return code: {result.returncode}")
-            # This is expected if the sample file has intentional issues,
-            # but the fact that flake8 ran and returned a code means config is valid.
-            logger.info("Flake8 executed successfully and reported findings. Configuration is valid.")
-            return True
+            logger.error(f"Flake8 failed with exit code {result.returncode}")
+            return False
 
-    except FileNotFoundError:
-        logger.error("flake8 command not found. Please install it: pip install flake8")
-        return False
     except Exception as e:
         logger.error(f"Error running flake8: {e}")
         return False
 
 
 def main():
-    """Main entry point for linting setup and verification."""
-    logger.info("Starting linting configuration verification (Task T003b)...")
+    """Main entry point for linting setup verification."""
+    logger.info("Starting linting configuration verification")
 
-    # Validate configs exist
-    black_ok = validate_black_config()
-    flake8_ok = validate_flake8_config()
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    flake8_config = project_root / ".flake8"
+    pyproject_config = project_root / "pyproject.toml"
+    sample_file = project_root / "code" / "tests" / "linting" / "sample_code.py"
 
-    if not black_ok or not flake8_ok:
-        logger.error("Linting configuration validation failed. Aborting flake8 run.")
-        return 1
+    # Verify configurations exist and are valid
+    flake8_valid = validate_flake8_config(flake8_config)
+    black_valid = validate_black_config(pyproject_config)
 
-    # Run flake8 on sample
-    flake8_ok = run_flake8_on_sample()
+    if not flake8_valid or not black_valid:
+        logger.error("Configuration validation failed")
+        sys.exit(1)
 
-    if flake8_ok:
-        logger.info("Task T003b completed successfully: Linting configuration verified.")
-        return 0
+    # Run flake8 on sample file
+    flake8_runs = run_flake8_on_sample(sample_file, flake8_config)
+
+    if flake8_runs:
+        logger.info("Linting configuration verification completed successfully")
+        sys.exit(0)
     else:
-        logger.error("Task T003b failed: Could not verify linting configuration.")
-        return 1
+        logger.error("Flake8 verification failed")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

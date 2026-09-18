@@ -1,3 +1,3 @@
 """
-Contract tests for the solder hardness prediction pipeline.
+Contract tests package.
 """

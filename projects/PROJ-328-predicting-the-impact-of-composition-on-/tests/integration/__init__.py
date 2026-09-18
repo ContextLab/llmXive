@@ -1,3 +1,3 @@
 """
-Integration tests for the solder hardness prediction pipeline.
+Integration tests package.
 """

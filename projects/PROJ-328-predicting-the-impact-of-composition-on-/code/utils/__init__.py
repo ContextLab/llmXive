@@ -1,12 +1,14 @@
 """
-Utility modules for the Solder Hardness Prediction Pipeline.
+Utilities module for the Solder Hardness Prediction Pipeline.
 
-This package provides shared utilities including logging, error handling,
-reference validation, and compositional data warnings.
+This package provides shared utility functions including:
+- Logging configuration and formatters
+- Custom exception handlers
+- Warning injection for FR-007 compliance
+- Reference validation helpers
 """
 
-from utils.logger import JSONFormatter, get_logger, init_project_logger, create_module_logger, log
-from utils.logging_config import setup_logging, get_logger as get_config_logger, init_project_logger as init_config_logger
+from utils.logger import JSONFormatter, get_logger, init_project_logger, create_module_logger, log, log_with_extra
 from utils.error_handlers import (
     SolderPipelineError,
     ConfigurationError,
@@ -23,18 +25,23 @@ from utils.fr007_warnings import (
     inject_warning_into_yaml_output,
     add_warning_to_text_file
 )
+from utils.reference_validator import (
+    validate_url,
+    validate_citation_format,
+    validate_research_md,
+    ConstitutionError
+)
 
 __all__ = [
-    # Logger
+    # Logging
     'JSONFormatter',
     'get_logger',
     'init_project_logger',
     'create_module_logger',
     'log',
-    'setup_logging',
-    'get_config_logger',
-    'init_config_logger',
-    # Error Handlers
+    'log_with_extra',
+    
+    # Error Handling
     'SolderPipelineError',
     'ConfigurationError',
     'DataValidationError',
@@ -43,9 +50,16 @@ __all__ = [
     'DataInsufficientError',
     'CompositionSumError',
     'log_error',
-    # Warnings
+    
+    # FR-007 Warnings
     'get_warning_header',
     'inject_warning_into_json_output',
     'inject_warning_into_yaml_output',
-    'add_warning_to_text_file'
+    'add_warning_to_text_file',
+    
+    # Reference Validation
+    'validate_url',
+    'validate_citation_format',
+    'validate_research_md',
+    'ConstitutionError'
 ]

@@ -1,234 +1,252 @@
 """
-Validator module for checking data quality and completeness.
-Implements strict validation logic for User Story 1 (T014).
+Data validation logic for the solder hardness dataset ingestion pipeline.
+Implements T014: Validation reporting logic to check for non-null hardness and complete composition.
 """
-import pandas as pd
-import logging
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-import json
+import os
 import sys
+import json
+import logging
+import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, Optional, List
 
-# Import project utilities
-try:
-    from utils.logging_config import get_logger
-    from utils.error_handlers import DataValidationError, ConfigurationError
-    from config import (
-        get_data_processed_dir,
-        get_min_samples_warning,
-        get_composition_sum_threshold,
-        get_min_samples_target
-    )
-except ImportError:
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from utils.logging_config import get_logger
-    from utils.error_handlers import DataValidationError, ConfigurationError
-    from config import (
-        get_data_processed_dir,
-        get_min_samples_warning,
-        get_composition_sum_threshold,
-        get_min_samples_target
-    )
+# Import from project utils
+from utils.logging_config import get_logger
+from utils.error_handlers import DataValidationError, ConfigurationError
+from config import (
+    get_config,
+    get_data_processed_dir,
+    get_composition_sum_threshold,
+    get_min_n_for_power,
+    get_target_n
+)
 
+logger = get_logger(__name__)
 
 class DataValidator:
     """
-    Validates cleaned data for non-null hardness and complete composition.
-    Ensures compliance with T014 requirements.
+    Validates the cleaned solder hardness dataset against project constraints.
     """
 
-    def __init__(self):
-        self.logger = get_logger("ingestion.validator")
-        self.status: Dict[str, Any] = {}
-        self.validation_logs: List[Dict[str, Any]] = []
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or get_config()
+        self.processed_dir = get_data_processed_dir()
+        self.cleaned_file = self.processed_dir / "solder_hardness_cleaned.csv"
+        self.filtered_file = self.processed_dir / "validation_logs" / "filtered_records.csv"
+        self.status_file = self.processed_dir / ".ingestion_status.json"
+        
+        # Configuration thresholds
+        self.composition_sum_threshold = get_composition_sum_threshold()
+        self.min_n_for_power = get_min_n_for_power()
+        self.target_n = get_target_n()
 
-    def validate_hardness(self, df: pd.DataFrame) -> int:
-        """Count non-null hardness values."""
-        if 'hardness_hv' not in df.columns:
-            self.logger.error("Column 'hardness_hv' missing from dataframe.")
-            return 0
+    def load_cleaned_data(self) -> pd.DataFrame:
+        """Load the cleaned dataset."""
+        if not self.cleaned_file.exists():
+            raise FileNotFoundError(f"Cleaned data file not found: {self.cleaned_file}")
         
-        count = df['hardness_hv'].notna().sum()
-        self.logger.info(f"Found {count} non-null hardness values.")
-        return int(count)
-
-    def validate_composition_sums(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Explicitly calculate the sum of elemental columns for every record
-        to confirm no invalid records remain.
-        
-        Returns the dataframe with a 'composition_sum' column added.
-        """
-        # Identify elemental columns (assuming prefix 'element_' based on context)
-        # If the schema differs, we look for float columns that are not hardness
-        element_cols = [c for c in df.columns if c.startswith('element_')]
-        
-        if not element_cols:
-            # Fallback: try to infer from non-target columns if naming is different
-            # But strict adherence to spec suggests 'element_' prefix
-            self.logger.warning("No columns starting with 'element_' found. Attempting to infer composition columns.")
-            # Exclude known non-composition columns
-            exclude_cols = ['hardness_hv', 'alloy_family', 'source_citation', 'measurement_temp_c']
-            element_cols = [c for c in df.columns if c not in exclude_cols and df[c].dtype in ['float64', 'int64', 'float32', 'int32']]
-            
-            if not element_cols:
-                self.logger.error("Could not identify any elemental composition columns.")
-                return df
-
-        self.logger.info(f"Validating composition sums using columns: {element_cols}")
-        
-        # Calculate sum
-        df = df.copy()
-        df['composition_sum'] = df[element_cols].sum(axis=1)
-        
+        logger.info(f"Loading cleaned data from {self.cleaned_file}")
+        df = pd.read_csv(self.cleaned_file)
         return df
 
-    def check_composition_threshold(self, df: pd.DataFrame, threshold: float) -> bool:
-        """
-        Enforce threshold: confirm no records have composition sum < threshold.
-        """
-        invalid_mask = df['composition_sum'] < threshold
-        invalid_count = invalid_mask.sum()
+    def load_filtered_records(self) -> pd.DataFrame:
+        """Load the filtered records log if it exists."""
+        if not self.filtered_file.exists():
+            logger.warning(f"Filtered records file not found: {self.filtered_file}. Assuming 0 excluded.")
+            return pd.DataFrame()
         
-        if invalid_count > 0:
-            self.logger.error(f"Found {invalid_count} records with composition sum < {threshold}.")
-            # Log specific records for audit
-            invalid_records = df[invalid_mask][['composition_sum'] + [c for c in df.columns if c.startswith('element_')]]
-            self.validation_logs.append({
-                "reason": "COMPOSITION_SUM_LOW",
-                "count": int(invalid_count),
-                "threshold": threshold,
-                "sample": invalid_records.head(5).to_dict(orient='records')
-            })
-            return False
+        logger.info(f"Loading filtered records from {self.filtered_file}")
+        return pd.read_csv(self.filtered_file)
+
+    def validate_composition_sums(self, df: pd.DataFrame) -> List[str]:
+        """
+        Validate that all records have composition sums >= threshold.
+        Returns a list of indices for any invalid records found.
+        """
+        # Identify elemental columns (assume they start with 'element_' or are specific known columns)
+        # Based on data-model.md, elemental breakdown is stored as columns.
+        # We need to identify which columns are elemental percentages.
+        # Heuristic: Columns containing 'element' or specific known element names.
+        # For robustness, we'll check columns that look like percentages (0.0 to 100.0 or 0.0 to 1.0)
+        # but the safer approach is to look for the specific schema.
+        # Assuming the CSV has columns like 'Sn_pct', 'Ag_pct', 'Cu_pct', etc. or 'element_Sn', etc.
+        # Let's assume the schema from T013: elemental breakdown columns are numeric and sum to ~100 or ~1.0.
         
-        self.logger.info(f"All {len(df)} records meet the composition sum threshold of {threshold}.")
-        return True
+        # A more robust way: Look for columns that are numeric and not the target or metadata
+        numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+        exclude_cols = ['hardness_hv', 'measurement_temp_c', 'source_id', 'record_id'] # Adjust as needed
+        element_cols = [c for c in numeric_cols if c not in exclude_cols]
+        
+        if not element_cols:
+            logger.warning("No elemental composition columns found in the dataset. Skipping sum validation.")
+            return []
 
-    def check_sample_size(self, n: int) -> Dict[str, Any]:
-        """
-        Check if sample size meets thresholds.
-        Logic:
-        - If N < 50: Severe warning, proceed with reduced N flag.
-        - If 50 <= N < 100: Proceed but flag for power limitation.
-        - If N >= 100: Success.
-        """
-        status = {
-            "exact_N": n,
-            "threshold_status": "unknown",
-            "power_limitation_warning": None
-        }
-
-        if n >= 100:
-            status["threshold_status"] = "N>=100"
-        elif n >= 50:
-            status["threshold_status"] = "50<=N<100"
-            status["power_limitation_warning"] = "Power limitation: 50 <= N < 100"
+        # Calculate sum for each row
+        composition_sums = df[element_cols].sum(axis=1)
+        
+        # Check against threshold
+        invalid_mask = composition_sums < self.composition_sum_threshold
+        invalid_indices = df.index[invalid_mask].tolist()
+        
+        if invalid_indices:
+            logger.error(f"Found {len(invalid_indices)} records with composition sum < {self.composition_sum_threshold}")
+            logger.error(f"Invalid indices: {invalid_indices}")
+            # Log the specific values for debugging
+            for idx in invalid_indices[:5]: # Log first 5
+                logger.error(f"Record {idx}: sum={composition_sums.iloc[idx]:.4f}, values={df.loc[idx, element_cols].to_dict()}")
         else:
-            status["threshold_status"] = "N<50"
-            status["power_limitation_warning"] = "N < 50"
+            logger.info(f"All {len(df)} records have composition sum >= {self.composition_sum_threshold}")
+        
+        return invalid_indices
 
-        return status
-
-    def run_validation(self, input_path: Path) -> Dict[str, Any]:
+    def validate_hardness_non_null(self, df: pd.DataFrame) -> int:
         """
-        Run full validation pipeline as per T014.
-        1. Read cleaned data.
-        2. Calculate composition sums.
-        3. Enforce threshold.
-        4. Count non-null hardness.
-        5. Check sample size thresholds.
-        6. Write status.
+        Count records with non-null hardness values.
         """
-        self.logger.info(f"Starting validation for {input_path}")
+        non_null_count = df['hardness_hv'].notna().sum()
+        null_count = df['hardness_hv'].isna().sum()
         
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file not found: {input_path}")
+        logger.info(f"Hardness validation: {non_null_count} non-null, {null_count} null out of {len(df)} total")
+        
+        if null_count > 0:
+            logger.warning(f"Found {null_count} records with missing hardness values. These should have been filtered in T013.")
+        
+        return int(non_null_count)
 
-        df = pd.read_csv(input_path)
+    def determine_threshold_status(self, n: int) -> str:
+        """Determine the status based on the sample size N."""
+        if n >= self.target_n:
+            return "N>=100"
+        elif n >= self.min_n_for_power:
+            return "50<=N<100"
+        else:
+            return "N<50"
+
+    def run_validation(self) -> Dict[str, Any]:
+        """
+        Execute the full validation pipeline.
+        Returns a dictionary with validation results.
+        """
+        logger.info("Starting DataValidator.run_validation()")
         
-        # 1. & 2. Calculate Composition Sums
-        df = self.validate_composition_sums(df)
-        
-        # 3. Enforce Threshold
-        threshold = get_composition_sum_threshold()
-        if threshold is None:
-            raise ConfigurationError("COMPOSITION_SUM_THRESHOLD is not defined in config.")
-        
-        if not self.check_composition_threshold(df, threshold):
-            # T014 requirement: If invalid records found, we might still proceed if the task 
-            # allows, but typically this indicates a failure of the cleaning step (T013).
-            # However, T014 is a validation report. We report the failure.
-            # The prompt says: "Confirm no records... have composition sum < threshold".
-            # If they do, the validation fails.
+        # 1. Load Data
+        try:
+            df = self.load_cleaned_data()
+            filtered_df = self.load_filtered_records()
+        except Exception as e:
+            logger.error(f"Failed to load data: {e}")
+            raise
+
+        # 2. Validate Composition Sums
+        invalid_composition_indices = self.validate_composition_sums(df)
+        if invalid_composition_indices:
+            # This is a critical failure if T013 was supposed to filter these
             raise DataValidationError(
-                f"Composition validation failed: {sum(df['composition_sum'] < threshold)} records below threshold {threshold}."
+                f"Found {len(invalid_composition_indices)} records with invalid composition sums in cleaned data. "
+                "T013 filtering logic may have failed."
             )
 
-        # 4. Count Non-Null Hardness
-        n = self.validate_hardness(df)
+        # 3. Count Non-Null Hardness
+        valid_hardness_count = self.validate_hardness_non_null(df)
         
-        # 5. Threshold Check
-        status = self.check_sample_size(n)
-        
-        self.status = status
-        self.logger.info(f"Validation complete. Status: {status}")
-        
-        return status
+        # 4. Count Excluded Records
+        excluded_count = len(filtered_df) if not filtered_df.empty else 0
 
-    def save_status(self, output_path: Path) -> None:
-        """Save validation status to JSON."""
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(self.status, f, indent=2)
-        self.logger.info(f"Validation status saved to {output_path}")
+        # 5. Determine Status
+        status = self.determine_threshold_status(valid_hardness_count)
+        
+        # 6. Check Power Limitation
+        power_limitation_warning = None
+        if valid_hardness_count < self.min_n_for_power:
+            power_limitation_warning = "N < 50"
+            logger.warning(f"Severe Warning: Sample size {valid_hardness_count} is below minimum power threshold {self.min_n_for_power}")
+        elif valid_hardness_count < self.target_n:
+            logger.warning(f"Warning: Sample size {valid_hardness_count} is below target {self.target_n}. Statistical power may be limited.")
 
-    def save_validation_logs(self, log_path: Path) -> None:
-        """Save detailed validation logs if any issues were found."""
-        if self.validation_logs:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_path, 'w') as f:
-                json.dump(self.validation_logs, f, indent=2)
-            self.logger.info(f"Validation logs saved to {log_path}")
+        # 7. Prepare Result
+        result = {
+            "threshold_status": status,
+            "exact_N": valid_hardness_count,
+            "excluded_count": excluded_count,
+            "power_limitation_warning": power_limitation_warning,
+            "composition_validation_passed": len(invalid_composition_indices) == 0,
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+
+        # 8. Write Status File
+        self._write_status_file(result)
+
+        logger.info(f"Validation complete. Status: {status}, N: {valid_hardness_count}")
+        return result
+
+    def _write_status_file(self, result: Dict[str, Any]) -> None:
+        """Write the validation status to the JSON status file."""
+        self.status_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(self.status_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Status written to {self.status_file}")
+
+    def verify_against_status(self) -> bool:
+        """
+        Re-read the status file and verify it matches current data.
+        Useful for T014's requirement to 'Calculate Composition Sums ... to confirm'.
+        """
+        if not self.status_file.exists():
+            logger.error("Status file does not exist. Cannot verify.")
+            return False
+
+        with open(self.status_file, 'r') as f:
+            status_data = json.load(f)
+
+        # Re-load data and re-calculate
+        df = self.load_cleaned_data()
+        invalid_indices = self.validate_composition_sums(df)
+        current_n = self.validate_hardness_non_null(df)
+        
+        # Check consistency
+        if status_data.get("exact_N") != current_n:
+            logger.error(f"N mismatch in status file: {status_data.get('exact_N')} vs current {current_n}")
+            return False
+        
+        if not status_data.get("composition_validation_passed") and len(invalid_indices) > 0:
+            logger.error("Status file claims validation passed, but invalid records found.")
+            return False
+
+        logger.info("Verification against status file passed.")
+        return True
 
 
 def main():
-    """
-    Entry point for the validator script (T014).
-    Reads cleaned data, validates, and writes status to .ingestion_status.json.
-    """
-    logger = get_logger("ingestion.validator.main")
-    logger.info("Running validator main (T014)...")
+    """Entry point for the validator script."""
+    logger.info("Running DataValidator main()")
     
-    validator = DataValidator()
-    
-    # Input: The cleaned file from T013
-    input_file = get_data_processed_dir() / "solder_hardness_cleaned.csv"
-    # Output: The status file for downstream tasks
-    output_file = get_data_processed_dir() / ".ingestion_status.json"
-    # Log file for any detailed issues
-    log_file = get_data_processed_dir() / "validation_logs.json"
-    
-    if input_file.exists():
-        try:
-            status = validator.run_validation(input_file)
-            validator.save_status(output_file)
-            validator.save_validation_logs(log_file)
-            logger.info(f"Validation complete. Status: {status}")
-            
-            # Exit with code 0 even if N < 50, as per instructions to "proceed with reduced N flag"
-            # Only fail if critical config is missing or data is structurally invalid
+    try:
+        validator = DataValidator()
+        results = validator.run_validation()
+        
+        # Perform verification
+        if validator.verify_against_status():
+            logger.info("Validation and verification successful.")
             return 0
-        except (DataValidationError, ConfigurationError) as e:
-            logger.error(f"Validation failed: {e}")
-            # Write a failure status if applicable, or re-raise
+        else:
+            logger.error("Verification failed.")
             return 1
-    else:
-        logger.error(f"Input file {input_file} not found. Cannot run validation.")
+            
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except DataValidationError as e:
+        logger.error(f"Data validation error: {e}")
+        return 1
+    except ConfigurationError as e:
+        logger.error(f"Configuration error: {e}")
+        return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error during validation: {e}")
         return 1
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

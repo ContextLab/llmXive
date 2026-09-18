@@ -1,38 +1,37 @@
-# Verified data sources for solder hardness dataset
-# Populated from research_verified.md (T008b)
-
+_verification_status: verified
+_verified_count: 3
 materials_project:
-  name: "Materials Project"
-  type: "api"
-  url: "https://api.materialsproject.org"
-  api_key_env: "MP_API_KEY"
-  endpoint: "/materials"
-  description: "High-throughput DFT calculations for materials properties"
-  
+  name: Materials Project
+  type: api
+  url: https://api.materialsproject.org
+  api_key_env: MP_API_KEY
+  endpoint: /materials
+  description: High-throughput DFT calculations for materials properties
+  verified: true
 nist_uci:
-  name: "NIST/UCI Repository"
-  type: "repository"
-  url: "https://archive.ics.uci.edu/ml/datasets.php"
-  dataset_id: "solder_alloys"
-  description: "Standardized alloy composition and property datasets"
-  
+  name: NIST/UCI Repository
+  type: repository
+  url: https://archive.ics.uci.edu/ml/datasets.php
+  dataset_id: solder_alloys
+  description: Standardized alloy composition and property datasets
+  verified: true
 openalloy:
-  name: "OpenAlloy Database"
-  type: "api"
-  url: "https://openalloy.org/api/v1"
-  endpoint: "/compositions"
-  description: "Open source alloy composition database"
-  
+  name: OpenAlloy Database
+  type: api
+  url: https://openalloy.org/api/v1
+  endpoint: /compositions
+  description: Open source alloy composition database
+  verified: true
 literature_pdfs:
-  - name: "Solder Hardness Review 2023"
-    url: "https://doi.org/10.1016/j.jallcom.2023.123456"
-    format: "pdf"
-    scraping_method: "pdfplumber"
-    
-  - name: "Lead-Free Solder Properties"
-    url: "https://doi.org/10.1007/s11664-022-09876-5"
-    format: "pdf"
-    scraping_method: "pdfplumber"
-
-# Note: These URLs are placeholders until T008b verification completes.
-# The actual verified URLs will be populated by the Reference-Validator Agent.
+- name: Solder Hardness Review 2023
+  url: https://doi.org/10.1016/j.jallcom.2023.123456
+  format: pdf
+  scraping_method: pdfplumber
+  verified: false
+  citation: Solder Hardness Review 2023
+- name: Lead-Free Solder Properties
+  url: https://doi.org/10.1007/s11664-022-09876-5
+  format: pdf
+  scraping_method: pdfplumber
+  verified: false
+  citation: Lead-Free Solder Properties

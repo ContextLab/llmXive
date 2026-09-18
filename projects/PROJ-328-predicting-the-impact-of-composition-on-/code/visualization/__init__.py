@@ -1,3 +1,3 @@
 """
-Visualization module for the solder hardness prediction pipeline.
+Visualization module for plotting and reporting.
 """

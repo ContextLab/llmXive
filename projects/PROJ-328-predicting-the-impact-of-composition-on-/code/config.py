@@ -18,20 +18,23 @@ MODELS_DIR = PROJECT_ROOT / "models"
 
 class Config:
     """Configuration container."""
-    MAX_ELEMENTS = 5
-    ROOM_TEMP_THRESHOLD_C = 25.0
-    ROOM_TEMP_TOLERANCE_C = 5.0
-    COMPOSITION_SUM_THRESHOLD = 95.0
-    MIN_N_FOR_POWER = 50
-    TARGET_N = 100
-    VIF_THRESHOLD = 5.0
-    R2_SENSITIVITY_THRESHOLDS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    MIN_SAMPLES_WARNING = 50
-    MIN_SAMPLES_TARGET = 100
-    CV_FOLDS = 5
-    BOOTSTRAP_ITERATIONS = 100
-    LOG_LEVEL = "INFO"
-    LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # Task T006 Constants
+    MAX_ELEMENTS: int = 5
+    ROOM_TEMP_THRESHOLD_C: float = 25.0
+    ROOM_TEMP_TOLERANCE_C: float = 5.0
+    COMPOSITION_SUM_THRESHOLD: float = 95.0
+    MIN_N_FOR_POWER: int = 50
+    TARGET_N: int = 100
+
+    # Additional existing constants
+    VIF_THRESHOLD: float = 5.0
+    R2_SENSITIVITY_THRESHOLDS: List[float] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    MIN_SAMPLES_WARNING: int = 50
+    MIN_SAMPLES_TARGET: int = 100
+    CV_FOLDS: int = 5
+    BOOTSTRAP_ITERATIONS: int = 100
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 def get_config() -> Config:
     """Get the configuration object."""
@@ -60,6 +63,22 @@ def get_composition_sum_threshold() -> float:
 def get_max_elements() -> int:
     """Get the maximum number of elements allowed."""
     return Config.MAX_ELEMENTS
+
+def get_room_temp_threshold() -> float:
+    """Get the room temperature threshold in Celsius."""
+    return Config.ROOM_TEMP_THRESHOLD_C
+
+def get_room_temp_tolerance() -> float:
+    """Get the room temperature tolerance in Celsius."""
+    return Config.ROOM_TEMP_TOLERANCE_C
+
+def get_min_n_for_power() -> int:
+    """Get the minimum N for statistical power."""
+    return Config.MIN_N_FOR_POWER
+
+def get_target_n() -> int:
+    """Get the target sample size N."""
+    return Config.TARGET_N
 
 def get_vif_threshold() -> float:
     """Get the VIF threshold."""

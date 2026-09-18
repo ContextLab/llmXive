@@ -8,6 +8,8 @@ from typing import Tuple, Optional, Dict, Any
 from compositional import clr, ilr, alr
 from utils.logging_config import get_logger
 from seed import set_seed
+from pathlib import Path
+import json
 
 logger = get_logger(__name__)
 
@@ -138,8 +140,6 @@ def main():
         "transformed_samples": transformed.tolist()
     }
 
-    import json
-    from pathlib import Path
     Path("data/processed").mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)

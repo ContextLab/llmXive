@@ -1,3 +1,3 @@
 """
-Evaluation module for the solder hardness prediction pipeline.
+Evaluation module for metrics and analysis.
 """

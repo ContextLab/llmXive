@@ -1,125 +1,107 @@
 """
-Generate Validation Report Script (T016b).
+Task T016b: Generate Validation Report Script.
 
-Reads the ingestion status from data/processed/.ingestion_status.json
-and generates a structured validation report at data/processed/validation_report.yaml.
+Reads data/processed/.ingestion_status.json and generates
+data/processed/validation_report.yaml.
 
-This script ensures data consistency by explicitly reading threshold_status,
-exact_N, and power_limitation_warning from the JSON state file produced by T014.
+Input Schema (from .ingestion_status.json):
+- threshold_status (str): 'N>=100', '50<=N<100', 'N<50'
+- exact_N (int): Total count of valid records
+- excluded_count (int): Records excluded due to composition sum
+- power_limitation_warning (str, optional): 'N < 50' if applicable
+
+Output Schema (validation_report.yaml):
+- status (str): Mapped from threshold_status
+- count (int): exact_N
+- excluded_count (int): excluded_count
+- power_limitation_warning (str, optional): Present if applicable
 """
 import os
 import sys
-import logging
 import json
 import yaml
+import logging
+import argparse
 from pathlib import Path
-from datetime import datetime
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure code/ is in path
+code_root = Path(__file__).resolve().parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from utils.logging_config import get_logger
-from utils.error_handlers import ConfigurationError
 
-# Define paths relative to project root
-PROCESSED_DIR = project_root / "data" / "processed"
-STATUS_FILE = PROCESSED_DIR / ".ingestion_status.json"
-REPORT_FILE = PROCESSED_DIR / "validation_report.yaml"
+def load_ingestion_status(status_path: Path) -> dict:
+    """Load the ingestion status JSON file."""
+    if not status_path.exists():
+        raise FileNotFoundError(f"Ingestion status file not found: {status_path}")
+    
+    with open(status_path, 'r') as f:
+        return json.load(f)
 
-logger = get_logger(__name__)
-
-def load_ingestion_status() -> dict:
+def generate_validation_report(status_data: dict) -> dict:
     """
-    Load the ingestion status from the JSON file.
-    
-    Raises:
-        ConfigurationError: If the status file is missing or invalid.
+    Transform ingestion status data into the validation report format.
     """
-    if not STATUS_FILE.exists():
-        raise ConfigurationError(
-            f"Ingestion status file not found: {STATUS_FILE}. "
-            "Ensure T014 (validator) has run successfully to generate this file."
-        )
-    
-    try:
-        with open(STATUS_FILE, 'r', encoding='utf-8') as f:
-            status = json.load(f)
-        logger.info(f"Successfully loaded ingestion status from {STATUS_FILE}")
-        return status
-    except json.JSONDecodeError as e:
-        raise ConfigurationError(f"Invalid JSON in ingestion status file: {e}") from e
-
-def generate_validation_report(status: dict) -> dict:
-    """
-    Construct the validation report dictionary from the ingestion status.
-    
-    Args:
-        status: The dictionary loaded from .ingestion_status.json.
-    
-    Returns:
-        A dictionary representing the validation report.
-    """
-    # Explicitly extract required fields as per T014 output schema
-    # Schema: threshold_status (str), exact_N (int), power_limitation_warning (str)
-    threshold_status = status.get('threshold_status', 'UNKNOWN')
-    exact_n = status.get('exact_N', 0)
-    power_limitation_warning = status.get('power_limitation_warning', '')
-    
-    # Map to output schema: status, count, power_limitation_warning
     report = {
-        "report_metadata": {
-            "generated_at": datetime.utcnow().isoformat() + "Z",
-            "source_file": str(STATUS_FILE),
-            "report_type": "Ingestion Validation Summary",
-            "task_id": "T016b"
-        },
-        "status": threshold_status,
-        "count": exact_n,
-        "power_limitation_warning": power_limitation_warning,
-        "associational_warning": "NOTE: Results are associational, not causal. See FR-007."
+        "status": status_data.get("threshold_status", "UNKNOWN"),
+        "count": status_data.get("exact_N", 0),
+        "excluded_count": status_data.get("excluded_count", 0),
     }
-
+    
+    if "power_limitation_warning" in status_data:
+        report["power_limitation_warning"] = status_data["power_limitation_warning"]
+    
     return report
 
-def save_report(report: dict) -> None:
-    """
-    Save the generated report to the YAML file.
-    
-    Args:
-        report: The report dictionary to save.
-    """
-    # Ensure directory exists
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    
-    with open(REPORT_FILE, 'w', encoding='utf-8') as f:
-        yaml.dump(report, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    
-    logger.info(f"Validation report successfully generated at {REPORT_FILE}")
+def save_report(report_data: dict, output_path: Path):
+    """Save the report as YAML."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        yaml.dump(report_data, f, default_flow_style=False, sort_keys=False)
 
 def main():
-    """Main entry point for the validation report generation."""
+    """
+    Main entry point for generating the validation report.
+    """
+    logger = get_logger("generate_validation_report")
+    logger.info("Starting validation report generation.")
+
+    # Determine paths relative to project root
+    # We assume the script is run from the project root or code/ directory
+    # but we resolve paths relative to the code/ingestion location
+    processed_dir = code_root / "data" / "processed"
+    status_file = processed_dir / ".ingestion_status.json"
+    output_file = processed_dir / "validation_report.yaml"
+
     try:
-        logger.info("Starting validation report generation (T016b)...")
-        
-        # Step 1: Load status
-        status = load_ingestion_status()
-        
-        # Step 2: Generate report
-        report = generate_validation_report(status)
-        
-        # Step 3: Save report
-        save_report(report)
-        
+        # 1. Load Status
+        logger.info(f"Loading ingestion status from: {status_file}")
+        status_data = load_ingestion_status(status_file)
+        logger.debug(f"Loaded status: {status_data}")
+
+        # 2. Generate Report
+        logger.info("Generating validation report.")
+        report_data = generate_validation_report(status_data)
+
+        # 3. Save Report
+        logger.info(f"Saving report to: {output_file}")
+        save_report(report_data, output_file)
+
         logger.info("Validation report generation completed successfully.")
         return 0
-        
-    except ConfigurationError as e:
-        logger.error(f"Configuration error: {e}")
+
+    except FileNotFoundError as e:
+        logger.error(f"Required input file missing: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in status file: {e}")
         return 1
     except Exception as e:
-        logger.exception(f"Unexpected error during report generation: {e}")
+        logger.error(f"Unexpected error during report generation: {e}", exc_info=True)
         return 1
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate validation report from ingestion status.")
+    args = parser.parse_args()
     sys.exit(main())
