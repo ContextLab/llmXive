@@ -1,16 +1,23 @@
 """
-Unit tests for src/utils.py utilities.
+Unit tests for src/utils.py functionality.
 
-Tests cover logging setup, checksum computation, error logging, and safe exit.
+Tests cover:
+- Logging setup (file and console handlers)
+- Checksum computation (valid files, missing files)
+- Error logging with context
+- Safe exit behavior
+- Timing decorator
 """
 import os
 import sys
 import json
 import tempfile
+import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import logging
 import pytest
+import logging
+import hashlib
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -26,176 +33,223 @@ from src.utils import (
 
 class TestSetupLogging:
     def test_setup_logging_console_only(self, tmp_path):
-        """Test logging configuration with console only."""
-        logger = setup_logging(log_level="DEBUG", module_name="test_console")
+        """Test logging setup with console output only."""
+        logger = setup_logging(log_file=None, console=True, level=logging.DEBUG)
+        assert logger.name == "llmXive"
         assert logger.level == logging.DEBUG
+        # Should have at least one handler (console)
         assert len(logger.handlers) >= 1
-        # Verify a handler is StreamHandler (console)
-        console_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
-        assert len(console_handlers) > 0
+        
+        # Verify console handler exists
+        console_found = False
+        for h in logger.handlers:
+            if isinstance(h, logging.StreamHandler) and h.stream == sys.stdout:
+                console_found = True
+                break
+        assert console_found
 
     def test_setup_logging_with_file(self, tmp_path):
-        """Test logging configuration with file output."""
+        """Test logging setup with file output."""
         log_file = tmp_path / "test.log"
-        logger = setup_logging(log_level="INFO", log_file=log_file, module_name="test_file")
+        logger = setup_logging(log_file=log_file, console=False)
         
-        assert len(logger.handlers) >= 2  # Console + File
-        file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
-        assert len(file_handlers) > 0
+        assert len(logger.handlers) == 1
+        file_handler = logger.handlers[0]
+        assert isinstance(file_handler, logging.FileHandler)
+        assert file_handler.baseFilename == str(log_file)
         
-        # Verify file exists after writing
+        # Test that logging actually writes to file
         logger.info("Test message")
+        # Flush handlers
+        for handler in logger.handlers:
+            handler.flush()
+        
         assert log_file.exists()
+        with open(log_file, 'r') as f:
+            content = f.read()
+        assert "Test message" in content
 
     def test_setup_logging_duplicate_handlers(self):
-        """Test that calling setup_logging twice doesn't duplicate handlers."""
-        logger = setup_logging(module_name="test_dup")
-        initial_count = len(logger.handlers)
+        """Test that calling setup_logging multiple times doesn't duplicate handlers."""
+        # First call
+        logger1 = setup_logging(console=True, log_file=None)
+        initial_count = len(logger1.handlers)
         
-        # Call again
-        logger_again = setup_logging(module_name="test_dup")
+        # Second call
+        logger2 = setup_logging(console=True, log_file=None)
         
-        assert len(logger_again.handlers) == initial_count
+        # Should be same logger instance with same handlers
+        assert logger1 is logger2
+        assert len(logger2.handlers) == initial_count
 
 
 class TestComputeChecksum:
-    def test_checksum_string(self):
-        """Test checksum of a string."""
-        data = "test data"
-        checksum = compute_checksum(data)
-        assert len(checksum) == 64  # SHA256 hex length
-        assert isinstance(checksum, str)
-
-    def test_checksum_bytes(self):
-        """Test checksum of bytes."""
-        data = b"test data"
-        checksum = compute_checksum(data)
-        assert len(checksum) == 64
-
-    def test_checksum_dict_deterministic(self):
-        """Test that dictionary checksum is deterministic regardless of key order."""
-        data1 = {"b": 2, "a": 1}
-        data2 = {"a": 1, "b": 2}
+    def test_compute_checksum_sha256(self, tmp_path):
+        """Test checksum computation for a known file."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
         
-        checksum1 = compute_checksum(data1)
-        checksum2 = compute_checksum(data2)
+        checksum = compute_checksum(test_file)
         
-        assert checksum1 == checksum2
+        # Verify against known SHA-256
+        expected = hashlib.sha256(content).hexdigest()
+        assert checksum == expected
 
-    def test_checksum_invalid_algorithm(self):
-        """Test that unsupported algorithm raises ValueError."""
-        with pytest.raises(ValueError):
-            compute_checksum("data", algorithm="invalid_algo")
+    def test_compute_checksum_missing_file(self, tmp_path):
+        """Test checksum raises FileNotFoundError for missing file."""
+        missing_file = tmp_path / "nonexistent.txt"
+        with pytest.raises(FileNotFoundError):
+            compute_checksum(missing_file)
 
-    def test_checksum_unserializable_object(self):
-        """Test that unserializable objects raise ValueError."""
-        class Unserializable:
-            pass
+    def test_compute_checksum_large_file(self, tmp_path):
+        """Test checksum handles large files by reading in chunks."""
+        # Create a 1MB file
+        large_file = tmp_path / "large.bin"
+        chunk = b"x" * 1024
+        with open(large_file, 'wb') as f:
+            for _ in range(1024):
+                f.write(chunk)
         
-        with pytest.raises(ValueError):
-            compute_checksum(Unserializable())
+        checksum = compute_checksum(large_file)
+        assert len(checksum) == 64  # SHA-256 hex length
+        assert all(c in '0123456789abcdef' for c in checksum)
 
 
 class TestLogError:
-    def test_log_error_basic(self, caplog):
+    def test_log_error_basic(self, tmp_path):
         """Test basic error logging."""
-        logger = logging.getLogger("test_error_basic")
-        logger.setLevel(logging.DEBUG)
+        log_file = tmp_path / "error.log"
+        logger = setup_logging(log_file=log_file, console=False)
         
-        with caplog.at_level(logging.ERROR):
-            log_error(logger, "Something went wrong")
+        log_error(logger, "Something went wrong")
         
-        assert "Something went wrong" in caplog.text
+        for handler in logger.handlers:
+            handler.flush()
+        
+        content = log_file.read_text()
+        assert "Something went wrong" in content
+        assert "ERROR" in content
 
-    def test_log_error_with_exception(self, caplog):
-        """Test error logging with exception details."""
-        logger = logging.getLogger("test_error_exc")
-        logger.setLevel(logging.DEBUG)
+    def test_log_error_with_exception(self, tmp_path):
+        """Test error logging with exception traceback."""
+        log_file = tmp_path / "error_exc.log"
+        logger = setup_logging(log_file=log_file, console=False)
         
-        exc = ValueError("Test error")
+        try:
+            raise ValueError("Test exception")
+        except Exception as e:
+            log_error(logger, "Caught exception", exception=e)
         
-        with caplog.at_level(logging.ERROR):
-            log_error(logger, "Failed", error=exc)
+        for handler in logger.handlers:
+            handler.flush()
         
-        assert "Failed" in caplog.text
-        assert "ValueError" in caplog.text
-        assert "Test error" in caplog.text
+        content = log_file.read_text()
+        assert "Caught exception" in content
+        assert "ValueError" in content
+        assert "Traceback" in content
 
-    def test_log_error_with_context(self, caplog):
-        """Test error logging with context."""
-        logger = logging.getLogger("test_error_ctx")
-        logger.setLevel(logging.DEBUG)
+    def test_log_error_with_context(self, tmp_path):
+        """Test error logging with extra context."""
+        log_file = tmp_path / "error_ctx.log"
+        logger = setup_logging(log_file=log_file, console=False)
         
-        with caplog.at_level(logging.ERROR):
-            log_error(logger, "Failed", context={"user_id": 123, "action": "login"})
+        context = {"user_id": 123, "action": "delete"}
+        log_error(logger, "Operation failed", extra_context=context)
         
-        assert "Failed" in caplog.text
-        assert "user_id=123" in caplog.text
-        assert "action=login" in caplog.text
+        for handler in logger.handlers:
+            handler.flush()
+        
+        content = log_file.read_text()
+        assert "Operation failed" in content
+        assert "user_id" in content
+        assert "123" in content
 
 
 class TestSafeExit:
     @patch('sys.exit')
-    def test_safe_exit_success(self, mock_exit, caplog):
-        """Test safe exit on success."""
-        logger = logging.getLogger("test_exit_success")
-        logger.setLevel(logging.INFO)
+    def test_safe_exit_success(self, mock_exit, tmp_path):
+        """Test safe exit with success status."""
+        log_file = tmp_path / "exit.log"
+        logger = setup_logging(log_file=log_file, console=False)
         
-        with caplog.at_level(logging.INFO):
-            safe_exit(logger, exit_code=0, message="All good")
+        safe_exit(logger, status=0, message="All done")
         
-        assert "SUCCESS" in caplog.text
-        assert "All good" in caplog.text
         mock_exit.assert_called_once_with(0)
+        
+        for handler in logger.handlers:
+            handler.flush()
+        
+        content = log_file.read_text()
+        assert "All done" in content
+        assert "successfully" in content
 
     @patch('sys.exit')
-    def test_safe_exit_failure(self, mock_exit, caplog):
-        """Test safe exit on failure."""
-        logger = logging.getLogger("test_exit_fail")
-        logger.setLevel(logging.CRITICAL)
+    def test_safe_exit_failure(self, mock_exit, tmp_path):
+        """Test safe exit with failure status."""
+        log_file = tmp_path / "exit_fail.log"
+        logger = setup_logging(log_file=log_file, console=False)
         
-        exc = RuntimeError("Critical failure")
+        safe_exit(logger, status=1, message="Failed")
         
-        with caplog.at_level(logging.CRITICAL):
-            safe_exit(logger, exit_code=1, message="Crashed", error=exc)
-        
-        assert "CRITICAL" in caplog.text
-        assert "Crashed" in caplog.text
-        assert "RuntimeError" in caplog.text
         mock_exit.assert_called_once_with(1)
+        
+        for handler in logger.handlers:
+            handler.flush()
+        
+        content = log_file.read_text()
+        assert "Failed" in content
+        assert "status code 1" in content
+
+    @patch('sys.exit')
+    def test_safe_exit_no_logger(self, mock_exit):
+        """Test safe exit without logger."""
+        safe_exit(status=0)
+        mock_exit.assert_called_once_with(0)
 
 
 class TestTimingDecorator:
-    def test_timing_decorator_success(self, caplog):
-        """Test timing decorator on successful function."""
-        logger = logging.getLogger("test_timing")
-        logger.setLevel(logging.INFO)
+    def test_timing_decorator_with_logger(self, tmp_path):
+        """Test timing decorator logs execution time."""
+        log_file = tmp_path / "timing.log"
+        logger = setup_logging(log_file=log_file, console=False)
         
-        @timing_decorator(logger=logger, log_level="INFO")
+        @timing_decorator(logger)
         def slow_function():
-            import time
             time.sleep(0.1)
-            return "done"
+            return 42
         
-        with caplog.at_level(logging.INFO):
-            result = slow_function()
+        result = slow_function()
+        assert result == 42
         
-        assert result == "done"
-        assert "completed in" in caplog.text
-        assert "0.1" in caplog.text  # Should show approx 0.1s
+        for handler in logger.handlers:
+            handler.flush()
+        
+        content = log_file.read_text()
+        assert "slow_function" in content
+        assert "seconds" in content
 
-    def test_timing_decorator_failure(self, caplog):
-        """Test timing decorator on failing function."""
-        logger = logging.getLogger("test_timing_fail")
-        logger.setLevel(logging.ERROR)
+    def test_timing_decorator_without_logger(self, capsys):
+        """Test timing decorator prints to console if no logger."""
+        @timing_decorator()
+        def quick_func():
+            time.sleep(0.05)
+            return True
         
-        @timing_decorator(logger=logger, log_level="ERROR")
-        def failing_function():
-            raise ValueError("Boom")
+        result = quick_func()
+        assert result is True
         
-        with pytest.raises(ValueError):
-            with caplog.at_level(logging.ERROR):
-                failing_function()
+        captured = capsys.readouterr()
+        assert "quick_func" in captured.out
+        assert "seconds" in captured.out
+
+    def test_timing_decorator_preserves_function_metadata(self):
+        """Test that the decorated function preserves name and docstring."""
+        def my_func():
+            """My docstring"""
+            pass
         
-        assert "failed after" in caplog.text
-        assert "ValueError" in caplog.text
+        decorated = timing_decorator()(my_func)
+        
+        assert decorated.__name__ == "my_func"
+        assert decorated.__doc__ == "My docstring"

@@ -80,7 +80,14 @@ projects/PROJ-212-exploring-the-impact-of-network-structur/code/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **VIF Check & Ridge Fallback** | Essential for multicollinearity (FR-006) | Simple OLS fails on correlated topological metrics (e.g., degree vs. clustering), leading to unstable coefficients. |
-| **5x5-Fold Cross-Validation** | Required by Constitution Principle VII and robustness for small N | LOOCV has high variance for small samples; 10-fold is invalid for N<50. 5x5-Fold provides stable estimates. |
+| **K-Fold Cross-Validation
+
+The specific value to remove/generalize: 'K'
+
+Rewritten passage:
+K-Fold Cross-Validation
+
+This study addresses the research question of [Research Question] by employing K-Fold Cross-Validation as the primary method to evaluate model performance and ensure robustness against overfitting [Citation].** | Required by Constitution Principle VII and robustness for small N | LOOCV has high variance for small samples; 10-fold is invalid for N<50. Cross-validation provides stable estimates. |
 | **Disconnected Graph Handling** | Required by FR-001/002 | Standard path-length algorithms fail or return 0; explicit infinity/null handling preserves domain logic. |
 | **Decoupling Target Variable** | Required to avoid tautology | Regressing Kc directly on topology is circular because Kc is defined by spectral properties. Residual analysis tests *additional* predictive power. |
 

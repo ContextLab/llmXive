@@ -1,0 +1,6 @@
+# Black configuration file
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility.
+
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'

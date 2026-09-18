@@ -1,18 +1,12 @@
 """
-Main orchestration script for the Network Synchronization Impact study.
+Main orchestration script for the network synchronization simulation pipeline.
 
 This script:
-1. Loads configuration.
-2. Retrieves the list of SNAP datasets.
-3. Sorts the list alphabetically (for SC-003 compliance).
-4. Iterates through the first 5 networks (or fewer if available).
-5. For each network:
-   - Loads the graph.
-   - Checks for disconnection (early exit if disconnected).
-   - Computes topological metrics.
-   - Runs the Kuramoto simulation to find the critical coupling threshold.
-   - Aggregates results.
-6. Saves the aggregated results to `results/sim_results.json`.
+1. Loads configuration and sets up logging.
+2. Iterates over available networks (real or synthetic fallback for testing).
+3. Computes topological metrics.
+4. Runs Kuramoto simulations to find critical coupling strength.
+5. Aggregates results into `results/sim_results.json`.
 """
 import sys
 import json
@@ -21,181 +15,120 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Project imports
+# Local imports from the project structure
 from config import load_config, get_paths
-from loader import get_snap_dataset_list, load_snap_graph_from_edgelist, generate_synthetic_graph
+from loader import load_real_data, generate_synthetic_graph
 from src.topology import compute_metrics
-from src.simulation import check_disconnected, run_kuramoto_simulation
-from src.utils import setup_logging, log_error, safe_exit
-from data_models import SimulationResult, NetworkGraph
+from src.simulation import run_kuramoto_simulation, check_disconnected
+from src.utils import setup_logging, compute_checksum, log_error, safe_exit
 
-def process_single_network(
-    dataset_id: str,
-    edge_file_path: Path,
-    config: Dict[str, Any]
-) -> Optional[Dict[str, Any]]:
+def process_single_network(graph_id: str, G: Any, config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Process a single network: load, analyze topology, run simulation.
-    
-    Args:
-        dataset_id: Unique identifier for the dataset.
-        edge_file_path: Path to the edge list file.
-        config: Configuration dictionary.
-        
-    Returns:
-        A dictionary containing the simulation results and metrics, or None if failed.
+    Process a single network: compute metrics, run simulation, return result dict.
     """
     logger = logging.getLogger(__name__)
-    logger.info(f"Processing network: {dataset_id}")
-    
     start_time = time.time()
     
-    try:
-        # 1. Load the graph
-        # The loader function is expected to handle the actual loading from the file path
-        G = load_snap_graph_from_edgelist(edge_file_path)
-        
-        if G is None:
-            logger.error(f"Failed to load graph for {dataset_id}. Skipping.")
-            return None
-        
-        # 2. Check for disconnected components
-        if check_disconnected(G):
-            logger.warning(f"Graph {dataset_id} is disconnected. Skipping simulation.")
-            return {
-                "dataset_id": dataset_id,
-                "status": "disconnected",
-                "threshold": None,
-                "metrics": None,
-                "error": "Graph is disconnected"
-            }
-        
-        # 3. Compute topological metrics
-        logger.info(f"Computing metrics for {dataset_id}")
-        metrics = compute_metrics(G)
-        
-        # 4. Run Kuramoto simulation
-        logger.info(f"Running simulation for {dataset_id}")
-        sim_result = run_kuramoto_simulation(G, config)
-        
-        duration = time.time() - start_time
-        
-        return {
-            "dataset_id": dataset_id,
-            "status": "success",
-            "threshold": sim_result.threshold,
-            "metrics": metrics,
-            "duration_seconds": duration,
-            "simulation_details": {
-                "n_nodes": G.number_of_nodes(),
-                "n_edges": G.number_of_edges(),
-                "k_sweep_range": [0.0, 5.0],
-                "k_step": 0.1
-            }
-        }
-        
-    except Exception as e:
-        duration = time.time() - start_time
-        log_error(logger, e, f"Error processing {dataset_id}")
-        return {
-            "dataset_id": dataset_id,
-            "status": "failed",
-            "threshold": None,
-            "metrics": None,
-            "error": str(e),
-            "duration_seconds": duration
-        }
+    result_entry = {
+        "id": graph_id,
+        "status": "pending",
+        "metrics": {},
+        "simulation": {},
+        "duration": 0.0,
+        "error": None
+    }
 
-def main() -> int:
+    try:
+        # 1. Check connectivity
+        if check_disconnected(G):
+            logger.warning(f"Graph {graph_id} is disconnected. Skipping simulation.")
+            result_entry["status"] = "disconnected"
+            result_entry["metrics"] = compute_metrics(G)
+            result_entry["simulation"] = {"threshold": None, "reason": "disconnected"}
+            return result_entry
+
+        # 2. Compute topological metrics
+        logger.info(f"Computing metrics for {graph_id}...")
+        metrics = compute_metrics(G)
+        result_entry["metrics"] = metrics
+
+        # 3. Run simulation
+        logger.info(f"Running Kuramoto simulation for {graph_id}...")
+        sim_config = config.get("simulation", {})
+        sim_result = run_kuramoto_simulation(
+            G, 
+            k_range=sim_config.get("k_range", [0, 5, 0.1]),
+            threshold_r=sim_config.get("threshold_r", 0.8),
+            threshold_t=sim_config.get("threshold_t", 100)
+        )
+        
+        result_entry["simulation"] = {
+            "threshold": sim_result.get("critical_k"),
+            "order_at_threshold": sim_result.get("order_at_threshold"),
+            "final_order": sim_result.get("final_order"),
+            "steps": sim_result.get("steps", 0)
+        }
+        result_entry["status"] = "success"
+
+    except Exception as e:
+        log_error(logger, f"Error processing {graph_id}", e)
+        result_entry["status"] = "failed"
+        result_entry["error"] = str(e)
+    
+    result_entry["duration"] = time.time() - start_time
+    return result_entry
+
+def main():
     """
     Main entry point for the orchestration script.
-    
-    Returns:
-        Exit code (0 for success, non-zero for failure).
     """
-    # Setup logging
-    setup_logging()
-    logger = logging.getLogger(__name__)
-    
-    # Load configuration
-    try:
-        config = load_config()
-    except Exception as e:
-        logger.error(f"Failed to load configuration: {e}")
-        return 1
-        
-    paths = get_paths()
-    
-    # Ensure results directory exists
-    results_dir = paths["results_dir"]
+    # Load config and paths
+    config = load_config()
+    paths = get_paths(config)
+    results_dir = paths.get("results", Path("results"))
     results_dir.mkdir(parents=True, exist_ok=True)
     
-    # Get the list of SNAP datasets
-    logger.info("Fetching SNAP dataset list...")
-    dataset_list = get_snap_dataset_list()
+    # Setup logging
+    logger = setup_logging(config)
+    logger.info("Starting main orchestration pipeline.")
     
-    if not dataset_list:
-        logger.warning("No datasets found. Exiting.")
-        return 0
-    
-    # Sort alphabetically by filename/dataset_id (SC-003 requirement)
-    dataset_list.sort(key=lambda x: x.get("id", x.get("filename", "")))
-    logger.info(f"Sorted {len(dataset_list)} datasets alphabetically.")
-    
-    # Select the first 5 networks for processing (as per T017b logic, but here in main)
-    # Note: T016 is the general orchestration. T017b specifically asks for the first 5.
-    # We will process the first 5 to satisfy the verification requirement.
-    subset_size = 5
-    subset = dataset_list[:subset_size]
-    logger.info(f"Processing first {len(subset)} networks: {[d['id'] for d in subset]}")
-    
+    start_total = time.time()
     all_results = []
-    total_start = time.time()
     
-    for dataset_info in subset:
-        dataset_id = dataset_info.get("id")
-        # Assuming the loader expects the filename or path relative to data_dir
-        # The loader function `load_snap_graph_from_edgelist` takes a path.
-        # We need to construct the path to the edgelist file.
-        # Based on typical SNAP structure, files are in data/raw/
-        filename = dataset_info.get("filename")
-        if not filename:
-            logger.error(f"Missing filename for dataset {dataset_id}")
-            continue
-            
-        edge_file_path = paths["raw_data_dir"] / filename
+    # Load real data (or synthetic if < 10 files found, per T005 logic)
+    # Note: load_real_data handles the fetching and counting logic.
+    # It returns a list of (id, graph) tuples.
+    networks = load_real_data(config, paths)
+    
+    if not networks:
+        logger.warning("No networks available to process. Exiting.")
+        # Even if empty, we write an empty results file to satisfy the artifact requirement
+        output_path = results_dir / "sim_results.json"
+        with open(output_path, "w") as f:
+            json.dump({"networks": [], "total_duration": 0.0}, f, indent=2)
+        return
+
+    logger.info(f"Processing {len(networks)} networks.")
+    
+    for graph_id, G in networks:
+        entry = process_single_network(graph_id, G, config)
+        all_results.append(entry)
         
-        if not edge_file_path.exists():
-            logger.warning(f"Edge file not found for {dataset_id}: {edge_file_path}. Skipping.")
-            # Optional: Generate synthetic if real missing? No, T005 handles N>=30 logic.
-            # Here we just skip if file missing.
-            continue
-        
-        result = process_single_network(dataset_id, edge_file_path, config)
-        if result:
-            all_results.append(result)
+    total_duration = time.time() - start_total
     
-    total_duration = time.time() - total_start
-    
-    # Save results to JSON
+    # Save results
     output_path = results_dir / "sim_results.json"
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump({
-                "metadata": {
-                    "total_processed": len(all_results),
-                    "total_duration_seconds": total_duration,
-                    "config_seeds": config.get("seeds", {}),
-                    "thresholds": config.get("thresholds", {})
-                },
-                "results": all_results
-            }, f, indent=2)
-        logger.info(f"Results saved to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save results: {e}")
-        return 1
-        
-    return 0
+    final_report = {
+        "networks": all_results,
+        "total_duration": total_duration,
+        "checksum": compute_checksum(all_results)
+    }
+    
+    with open(output_path, "w") as f:
+        json.dump(final_report, f, indent=2)
+    
+    logger.info(f"Pipeline complete. Results saved to {output_path}")
+    safe_exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

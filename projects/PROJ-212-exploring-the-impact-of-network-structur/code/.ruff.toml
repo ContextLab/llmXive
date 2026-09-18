@@ -1,29 +1,30 @@
 # Ruff configuration for PROJ-212
-# Enforces PEP 8 compliance with specific project rules
+# Extends pyproject.toml settings if needed, or standalone if pyproject.toml is not used by the runner
+# This file ensures ruff is explicitly configured for the project root
 
-line-length = 88
-target-version = "py311"
-
-[lint]
-# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
+    "UP", # pyupgrade
+    "SIM", # flake8-simplify
 ]
 ignore = [
-    "E501", # Line too long (handled by formatter)
-    "B008", # Do not perform function call in argument defaults (common in data loaders)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex (handled by manual review or specific thresholds)
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in init files for API exposure
-"tests/*" = ["S101"] # Allow assertions in tests
+target-version = "py311"
+line-length = 88
 
-[lint.isort]
-known-first-party = ["config", "data_models", "loader", "main", "simulation", "stats", "topology", "utils", "validators", "viz", "src"]
+[isort]
+known-first-party = ["src", "data_models", "loader", "simulation", "stats", "topology", "utils", "validators", "viz", "main", "config"]
 force-sort-within-sections = true
-lines-after-imports = 2
+
+[per-file-ignores]
+"tests/*" = ["S101", "D100", "D103"] # Allow asserts in tests, skip docstring requirements
+"code/__init__.py" = ["F401"]

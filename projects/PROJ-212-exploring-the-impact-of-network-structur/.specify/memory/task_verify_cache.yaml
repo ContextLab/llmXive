@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`src`, `tests`, `data`, `results`,
+    `data/raw`, `data/processed`, `state`) was presented; without visible artifacts
+    we cannot confirm the `mkdir -p` command was executed. The implementer must provide
+    a listing or screenshots showing the created project structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit hook file)\
+    \ were presented, so there is no evidence that ruff and black have been set up\
+    \ for the project. The required artifacts are missing."
+T010:
+  c: false
+  h: bf91d3b69ef148f5676efd416bbc029c80d24f2ba1d05428db697cb8fe40c75d
+  r: "The repository lacks the required `src/topology.py` implementation, so the tests\
+    \ cannot import `compute_metrics`. Moreover, the existing `tests/test_topology.py`\
+    \ does not contain the specified Barab\xE1si\u2011Albert graph test (degree sum\
+    \ vs. 2\xB7edges, clustering \u2265\u202F0, path length check). Both the implementation\
+    \ file and the correct test case are missing."
+T011:
+  c: false
+  h: 5aaf051009ae0c6925623ba0efab38e32950ec57508eeab9924800cb56ccdf9b
+  r: "The repository lacks `src/simulation.py`, so the imported functions cannot be\
+    \ tested, and `tests/test_simulation.py` does not contain the required RK45 integration/threshold\u2011\
+    detection test on a 200\u2011node ring graph with a 5\u202F% analytical tolerance.\
+    \ The task\u2019s core requirement is therefore unmet."
+T021b:
+  c: false
+  h: 4e665652558df746609fa535a0785eac751a0c3c54b51997d7d17e80b7cccb84
+  r: "The repository lacks the required `src/stats.py` module (file is missing) and\
+    \ there is no unit test file present that checks the default exclusion of non\u2011\
+    authorized features. Without these artifacts, the task cannot be considered fulfilled."
+T022:
+  c: false
+  h: 77f62d7b411d927a4d5c7f9c43b99526e7fa2786b44c44abf1f5e09127e04832
+  r: The required output files `results/sim_results.json` and `data/processed_metrics.csv`
+    are both missing, and no evidence of updated `main.py` logic is provided. Without
+    these artifacts, the aggregation and regression trigger cannot be verified.

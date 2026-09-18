@@ -1,109 +1,124 @@
 import pytest
+import sys
+from pathlib import Path
 import networkx as nx
 import numpy as np
 from src.topology import compute_metrics
 from data_models import NetworkGraph
 
 class TestComputeMetrics:
-    """Unit tests for the compute_metrics function in src/topology.py."""
+    """
+    Unit tests for src/topology.py compute_metrics function.
+    Tests cover Barabási-Albert graphs, Ring graphs, and disconnected graphs.
+    """
 
-    def test_barabasi_albert_graph(self):
-        """Test metrics calculation on a Barabási-Albert graph."""
-        # Create a Barabási-Albert graph (N=100, m=2)
-        G = nx.barabasi_albert_graph(100, 2)
+    def test_ba_graph_degree_sum(self):
+        """
+        Test case: Input Barabási-Albert graph (N=10, m=2).
+        Verify degree distribution sum equals edges*2.
+        """
+        # Create a Barabási-Albert graph
+        # N=10, m=2 means each new node attaches to 2 existing nodes
+        G = nx.barabasi_albert_graph(n=10, m=2, seed=42)
         
-        # Wrap in NetworkGraph if needed, or pass directly
         metrics = compute_metrics(G)
-
-        # Assertions
-        assert metrics["number_of_nodes"] == 100
-        assert metrics["number_of_edges"] > 0
-        assert metrics["is_connected"] is True
-        assert metrics["mean_degree"] > 0
-        assert metrics["average_path_length"] != float('inf')
-        assert 0 <= metrics["clustering_coefficient"] <= 1
-        assert 0 <= metrics["average_clustering"] <= 1
-
-    def test_complete_graph(self):
-        """Test metrics on a complete graph (K_n)."""
-        n = 10
-        G = nx.complete_graph(n)
-        metrics = compute_metrics(G)
-
-        # In a complete graph, every node connects to every other node
-        expected_degree = n - 1
-        expected_clustering = 1.0  # Complete graphs are fully clustered
         
-        assert metrics["number_of_nodes"] == n
-        assert metrics["mean_degree"] == expected_degree
-        assert metrics["clustering_coefficient"] == expected_clustering
-        assert metrics["average_clustering"] == expected_clustering
-        assert metrics["is_connected"] is True
+        # Calculate expected edges
+        # In BA model, number of edges is exactly m * (n - m)
+        expected_edges = 2 * (10 - 2)
+        assert metrics['num_edges'] == expected_edges, \
+            f"Expected {expected_edges} edges, got {metrics['num_edges']}"
+        
+        # Sum of degrees in any graph is 2 * |E|
+        degree_sum = sum(metrics['degree_distribution'].keys() * 
+                       np.array(list(metrics['degree_distribution'].values())))
+        # Note: keys() returns degrees, values() returns counts
+        # We need to multiply degree * count and sum
+        calculated_degree_sum = sum(d * c for d, c in metrics['degree_distribution'].items())
+        
+        expected_degree_sum = 2 * metrics['num_edges']
+        assert calculated_degree_sum == expected_degree_sum, \
+            f"Degree sum mismatch: calculated {calculated_degree_sum}, expected {expected_degree_sum}"
 
-    def test_disconnected_graph(self):
-        """Test handling of a disconnected graph (average path length should be infinity)."""
-        # Create two separate triangles
+    def test_clustering_coefficient_bounds(self):
+        """
+        Test case: Verify clustering coefficient is >= 0 and <= 1.
+        """
+        # Test with a random graph
+        G = nx.erdos_renyi_graph(n=50, p=0.1, seed=42)
+        metrics = compute_metrics(G)
+        
+        cc = metrics['clustering_coefficient']
+        assert 0.0 <= cc <= 1.0, \
+            f"Clustering coefficient {cc} is out of bounds [0, 1]"
+
+    def test_ring_graph_path_length(self):
+        """
+        Test case: Input Ring Graph (N=200).
+        Verify path length is finite.
+        """
+        G = nx.cycle_graph(200)
+        metrics = compute_metrics(G)
+        
+        assert metrics['is_connected'] is True, "Ring graph should be connected"
+        assert metrics['average_path_length'] != float('inf'), \
+            "Average path length for connected graph should be finite"
+        assert isinstance(metrics['average_path_length'], float), \
+            "Average path length should be a float"
+
+    def test_disconnected_graph_path_length(self):
+        """
+        Test case: Disconnected graph.
+        Verify average path length is infinity.
+        """
+        # Create two disjoint cliques
+        G1 = nx.complete_graph(5)
+        G2 = nx.complete_graph(5)
+        G = nx.disjoint_union(G1, G2)
+        
+        metrics = compute_metrics(G)
+        
+        assert metrics['is_connected'] is False, "Graph should be detected as disconnected"
+        assert metrics['average_path_length'] == float('inf'), \
+            "Average path length for disconnected graph should be infinity"
+
+    def test_networkgraph_entity_support(self):
+        """
+        Test case: Verify compute_metrics works with NetworkGraph dataclass.
+        """
+        G = nx.barabasi_albert_graph(n=20, m=3, seed=123)
+        network_graph = NetworkGraph(graph=G, name="test_ba")
+        
+        metrics = compute_metrics(network_graph)
+        
+        assert 'degree_distribution' in metrics
+        assert 'clustering_coefficient' in metrics
+        assert 'average_path_length' in metrics
+        assert metrics['num_nodes'] == 20
+
+    def test_empty_graph_raises_error(self):
+        """
+        Test case: Empty graph should raise ValueError.
+        """
         G = nx.Graph()
-        G.add_edges_from([(0, 1), (1, 2), (2, 0)])
-        G.add_edges_from([(3, 4), (4, 5), (5, 3)])
-        
-        metrics = compute_metrics(G)
+        with pytest.raises(ValueError, match="empty graph"):
+            compute_metrics(G)
 
-        assert metrics["number_of_nodes"] == 6
-        assert metrics["is_connected"] is False
-        assert metrics["average_path_length"] == float('inf')
-        # Clustering should still be calculable (1.0 for two triangles)
-        assert metrics["clustering_coefficient"] == 1.0
-
-    def test_empty_graph(self):
-        """Test handling of an empty graph."""
-        G = nx.Graph()
-        metrics = compute_metrics(G)
-
-        assert metrics["number_of_nodes"] == 0
-        assert metrics["number_of_edges"] == 0
-        assert metrics["is_connected"] is False
-        assert metrics["mean_degree"] == 0.0
-        assert metrics["average_path_length"] == float('inf')
-
-    def test_single_node_graph(self):
-        """Test handling of a graph with a single node."""
-        G = nx.Graph()
-        G.add_node(0)
-        metrics = compute_metrics(G)
-
-        assert metrics["number_of_nodes"] == 1
-        assert metrics["number_of_edges"] == 0
-        assert metrics["is_connected"] is True  # A single node is considered connected
-        assert metrics["mean_degree"] == 0.0
-        # Average path length for a single node is 0
-        assert metrics["average_path_length"] == 0.0
-
-    def test_network_graph_wrapper(self):
-        """Test that compute_metrics works with NetworkGraph objects."""
-        G = nx.karate_club_graph()
-        wrapped_graph = NetworkGraph(graph=G, source="test")
-        
-        metrics = compute_metrics(wrapped_graph)
-
-        assert metrics["number_of_nodes"] == G.number_of_nodes()
-        assert metrics["is_connected"] is True
-
-    def test_degree_distribution_correctness(self):
-        """Verify that degree distribution matches actual node degrees."""
-        G = nx.path_graph(5)  # 0-1-2-3-4
+    def test_density_calculation(self):
+        """
+        Test case: Verify density is calculated correctly.
+        """
+        # Complete graph K5 has density 1.0
+        G = nx.complete_graph(5)
         metrics = compute_metrics(G)
         
-        # Path graph degrees: [1, 2, 2, 2, 1]
-        expected_degrees = sorted([1, 2, 2, 2, 1])
-        actual_degrees = sorted(metrics["degree_distribution"])
+        assert abs(metrics['density'] - 1.0) < 1e-6, \
+            f"Complete graph density should be 1.0, got {metrics['density']}"
         
-        assert actual_degrees == expected_degrees
-
-    def test_clustering_bounds(self):
-        """Ensure clustering coefficients are within valid bounds [0, 1]."""
-        G = nx.erdos_renyi_graph(50, 0.1)
-        metrics = compute_metrics(G)
-
-        assert 0.0 <= metrics["clustering_coefficient"] <= 1.0
-        assert 0.0 <= metrics["average_clustering"] <= 1.0
+        # Empty graph (no edges) with nodes has density 0.0
+        G2 = nx.Graph()
+        G2.add_nodes_from([1, 2, 3])
+        metrics2 = compute_metrics(G2)
+        
+        assert metrics2['density'] == 0.0, \
+            f"Graph with no edges should have density 0.0, got {metrics2['density']}"
