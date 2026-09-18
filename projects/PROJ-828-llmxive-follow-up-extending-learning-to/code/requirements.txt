@@ -10,3 +10,4 @@ ruff>=0.1.0
 black>=23.0.0
 pytest>=7.4.0
 accelerate>=0.20.0
+psutil  # auto-added: imported by run-book but missing from venv

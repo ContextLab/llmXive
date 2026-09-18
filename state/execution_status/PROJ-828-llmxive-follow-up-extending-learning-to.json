@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-828-llmxive-follow-up-extending-learning-to",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/src/cli/run_experiment.py --prepare-data (rc=1); python code/src/cli/run_experiment.py --full-pipeline --seeds 10 (rc=1); python code/src/cli/run_experiment.py --variant low_rank_rl --seeds 10 (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/src/cli/run_experiment.py --prepare-data -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-828-llmxive-follow-up-extending-learning-to/code/src/cli/run_experiment.py\", line 21, in <module>\n    from src.utils.seeds import set_seed, get_seed_config\nModuleNotFoundError: No module named 'src.utils.seeds'",
+    "python code/src/cli/run_experiment.py --full-pipeline --seeds 10 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-828-llmxive-follow-up-extending-learning-to/code/src/cli/run_experiment.py\", line 21, in <module>\n    from src.utils.seeds import set_seed, get_seed_config\nModuleNotFoundError: No module named 'src.utils.seeds'",
+    "python code/src/cli/run_experiment.py --variant low_rank_rl --seeds 10 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-828-llmxive-follow-up-extending-learning-to/code/src/cli/run_experiment.py\", line 21, in <module>\n    from src.utils.seeds import set_seed, get_seed_config\nModuleNotFoundError: No module named 'src.utils.seeds'",
+    "python code/src/cli/run_experiment.py --analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-828-llmxive-follow-up-extending-learning-to/code/src/cli/run_experiment.py\", line 21, in <module>\n    from src.utils.seeds import set_seed, get_seed_config\nModuleNotFoundError: No module named 'src.utils.seeds'",
+    "python code/src/cli/run_experiment.py --verify-alignment --variant low_rank_rl -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-828-llmxive-follow-up-extending-learning-to/code/src/cli/run_experiment.py\", line 21, in <module>\n    from src.utils.seeds import set_seed, get_seed_config\nModuleNotFoundError: No module named 'src.utils.seeds'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-18T21:46:22Z"
+}

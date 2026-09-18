@@ -1,0 +1,8 @@
+status: none
+intent: official GSM8K dataset download python package HuggingFace datasets
+required_fields:
+- question
+- answer
+cache_key: d2ea50b6803d2250ab482154f4dd36da2ee3e896a504f8a0afb6caa03eab2548
+searched_at: '2026-09-18T21:47:13.918212+00:00'
+retry_count: 1

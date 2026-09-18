@@ -5338,3 +5338,289 @@
   source_type: external
   status: verified
   updated_at: '2026-09-09T09:45:19Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Early trajectory window defined by results/early_window_config.json
+  claim_id: c_f73aa9d5
+  context: Implementation Notes section describing Early Window Definition.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Early_trajectory_window_defined_by_results/early_window_conf
+  kind: entity_fact
+  raw_text: The 'early trajectory' window is defined by results/early_window_config.json
+    (T018c-config).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:50:03Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Abort pruning if deviation exceeds 1% from target 300M
+  claim_id: c_5be4be6f
+  context: Implementation Notes section describing Pruning Strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ABORT if the size deviation exceeds 1% from the target (297M-303M) to
+    prevent hardware constraint violations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:50:04Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Datasets library called with trust_remote_code=False and num_proc=1
+  claim_id: c_da145dab
+  context: Implementation Notes section describing Reproducibility & Determinism.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The datasets library must be called with trust_remote_code=False (unless
+    verified) and num_proc=1 to ensure deterministic data loading order on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:50:58Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test requires N>=3; flag inconclusive if N<3
+  claim_id: c_45a79c82
+  context: Implementation Notes section describing Statistical Rigor & Power Analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: T038b-wilcoxon MUST require N>=3; if N<3, flag ''Inconclusive
+    (Insufficient Samples)'' and STOP.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:51:24Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Memory footprint remains under 7GB with N=2 seeds
+  claim_id: c_13a00cdd
+  context: 'Phase 3: CPU Feasibility task T060-accum description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: Ensure memory footprint remains < 7GB even with N=2 seeds.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:52:02Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Default to k=10 if cumulative variance < 80% for k <= 50
+  claim_id: c_4e7509a1
+  context: 'Phase 3: CPU Feasibility task T061 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Logic: If cumulative variance < 80% for any k \u2264 50, default to k=10\
+    \ and log a WARNING: Flat spectrum detected, using fixed k=10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:52:29Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Log warning and re-normalize if condition number > 1e6
+  claim_id: c_9fd6ca59
+  context: 'Phase 3: CPU Feasibility task T062 description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_warning_and_re-normalize_if_condition_number_%3E_1e6
+  kind: entity_fact
+  raw_text: 'Logic: Check condition number of the subspace matrix; if > 1e6, log WARNING:
+    Ill-conditioned subspace and re-normalize vectors before projection.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:53:00Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Select k for cumulative explained variance >= 80% with default k=10
+  claim_id: c_dfd8d3ee
+  context: 'Phase 4: User Story 1 task T020 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Select k such that cumulative explained variance \u2265 80% (default\
+    \ k=10 if none)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:55:25Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Cosine similarity of projection and basis >= 0.99
+  claim_id: c_2f581a51
+  context: 'Phase 5: User Story 2 test T023 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assertion: assert cosine_similarity(P, U) >= 0.99.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:56:00Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Alignment >= 0.95 in integration test
+  claim_id: c_eed20798
+  context: 'Phase 5: User Story 2 test T024 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assertion: Verify file exists and contains alignment >= 0.95.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:56:23Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Cosine similarity >= 0.99 for update and subspace basis
+  claim_id: c_6d83bad8
+  context: 'Phase 5: User Story 2 task T028 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert cosine similarity >= 0.99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:56:52Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Flag run as Low Alignment if alignment < 0.95
+  claim_id: c_9212383c
+  context: 'Phase 5: User Story 2 task T030c-early description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag run as 'Low Alignment' if alignment < 0.95 (do NOT abort).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:56:53Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test p-value < 0.05 for significance
+  claim_id: c_12639ce9
+  context: 'Phase 6: User Story 3 test T031 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assertion: Run Wilcoxon signed-rank test; assert p-value < 0.05 for significant
+    difference.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:56:55Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test requires N>=3; stop if N<3
+  claim_id: c_fbae295e
+  context: 'Phase 6: User Story 3 task T038b-wilcoxon description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: Must check N >= 3. If N < 3, flag ''Inconclusive (Insufficient
+    Samples)'' in results/statistical_status.json and STOP.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:57:51Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Trigger re-run if effect size < 0.5 and N < 10
+  claim_id: c_c80bc3ff
+  context: 'Phase 6: User Story 3 task T048-decide-retry description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Logic: Check: (1) time remaining, (2) effect size < 0.5. If both conditions
+    met AND N < 10, trigger re-run logic.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:58:34Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Flag inconclusive if N < 2
+  claim_id: c_4497f924
+  context: 'Phase 6: User Story 3 task T048c-validate description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Action: If N < 2, flag ''inconclusive'' and STOP.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:58:35Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Variance of k selected rank across 3 seeds < 5%
+  claim_id: c_baa31895
+  context: 'Phase 7: Polish task T069 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assertion: Variance < 5%.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:58:36Z'
+- artifact_path: projects/PROJ-828-llmxive-follow-up-extending-learning-to/specs/001-llmxive-follow-up-extending-learning-to/tasks.md
+  attempts: 1
+  canonical: Flag memory violation if peak > 7GB
+  claim_id: c_77230f7b
+  context: 'Phase 7: Polish task T071-variants description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_memory_violation_if_peak_%3E_7GB
+  kind: entity_fact
+  raw_text: If any peak > 7GB, flag 'Memory Violation' and update results/experiment_status.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:59:10Z'

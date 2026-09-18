@@ -17,7 +17,7 @@ This project investigates whether the "foresight" phenomenon in LLM reasoning st
 **Project Type**: Computational research / ML Experimentation.  
 **Performance Goals**: Complete full pipeline (OPD + 6 RL variants + analysis) within 6 hours; memory peak < 7GB.  
 **Constraints**: No GPU; no full-model SVD (must be layer-wise or randomized); FP16 precision mandatory; strict seed pinning for reproducibility.  
-**Scale/Scope**: GSM8K subset (representative sample); Multiple independent seeds per variant; ~M parameter model.
+**Scale/Scope**: GSMK subset (representative sample); Multiple independent seeds per variant; ~M parameter model.
 
 > **Dataset Note**: The GSMK dataset is sourced from the verified HuggingFace repository (main split). The The TinyLlama model architecture is derived from the TinyLlama Chat series. by reducing hidden size to a parameter count in the hundreds of millions (e.g., hidden_size=512) to fit memory constraints. The base weights are verified; the pruning is performed programmatically.
 
