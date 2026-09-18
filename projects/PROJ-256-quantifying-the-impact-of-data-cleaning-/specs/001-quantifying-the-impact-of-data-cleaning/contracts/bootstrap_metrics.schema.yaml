@@ -8,31 +8,18 @@ required:
   - p_value_ci
   - effect_size_ci
 properties:
-  dataset:
-    type: string
-  variant_id:
-    type: string
-  bootstrap_iterations:
-    type: integer
+  dataset_id:
+    type: "string"
+  cleaning_variant:
+    type: "string"
+  bootstrap_ci_lower:
+    type: "number"
+    description: "Lower bound of bootstrap confidence interval for effect size."
+  bootstrap_ci_upper:
+    type: "number"
+    description: "Upper bound of bootstrap confidence interval for effect size."
+  iterations:
+    type: "integer"
     minimum: 1
-    description: "Number of bootstrap samples used (must equal config.BOOTSTRAP_ITERATIONS)."
-  p_value_ci:
-    type: object
-    required: [lower, upper]
-    properties:
-      lower:
-        type: number
-        minimum: 0
-        maximum: 1
-      upper:
-        type: number
-        minimum: 0
-        maximum: 1
-  effect_size_ci:
-    type: object
-    required: [lower, upper]
-    properties:
-      lower:
-        type: number
-      upper:
-        type: number
+    description: "Number of bootstrap resamples used (must match config.BOOTSTRAP_ITERATIONS)."
+additionalProperties: false

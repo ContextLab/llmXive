@@ -2,38 +2,33 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "Comparison Report Schema"
 type: object
 required:
-  - generated_at
-  - aggregated_deltas
+  - overall_effect_size_change_mean
+  - overall_ci_overlap_mean
+  - overall_fpr_mean
+  - variant_summary
 properties:
-  generated_at:
-    type: string
-    format: date-time
-    description: "ISO‑8601 timestamp of report generation."
-  aggregated_deltas:
+  overall_effect_size_change_mean:
+    type: number
+  overall_ci_overlap_mean:
+    type: number
+  overall_fpr_mean:
+    type: number
+  variant_summary:
     type: array
     description: "One entry per dataset‑variant pair."
     items:
       type: object
       required:
-        - dataset
         - variant_id
-        - p_value_delta
-        - direction
-        - ci_overlap
-        - effect_size_change
+        - mean_effect_size_change
+        - mean_ci_overlap
+        - mean_fpr
       properties:
-        dataset:
-          type: string
         variant_id:
           type: string
-        p_value_delta:
+        mean_effect_size_change:
           type: number
-        direction:
-          type: string
-          enum: ["increase", "decrease"]
-        ci_overlap:
+        mean_ci_overlap:
           type: number
-          minimum: 0
-          maximum: 1
-        effect_size_change:
+        mean_fpr:
           type: number

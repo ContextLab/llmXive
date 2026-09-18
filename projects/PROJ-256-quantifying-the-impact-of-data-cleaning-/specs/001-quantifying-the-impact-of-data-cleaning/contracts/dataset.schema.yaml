@@ -1,29 +1,29 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Metadata Schema"
+title: "Dataset Schema"
 type: object
 required:
   - name
   - outcome_column
-  - outcome_type
-  - n_rows
+  - n_samples
   - missingness_proportion
+  - checksum
 properties:
   name:
     type: string
     description: "Human‑readable identifier of the dataset (e.g., 'Wine Quality')."
   outcome_column:
     type: string
-    description: "Exact column name designated as the dependent variable."
-  outcome_type:
-    type: string
-    enum: [binary, continuous]
-    description: "Whether the outcome is binary or continuous."
-  n_rows:
+    description: "Name of the documented outcome variable."
+  n_samples:
     type: integer
     minimum: 1
-    description: "Number of rows after dropping rows with missing outcome."
+    description: "Number of rows after loading."
   missingness_proportion:
     type: number
     minimum: 0
     maximum: 1
-    description: "Proportion of missing values across all predictor columns."
+    description: "Proportion of missing values before any cleaning."
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA‑256 checksum of the raw file."

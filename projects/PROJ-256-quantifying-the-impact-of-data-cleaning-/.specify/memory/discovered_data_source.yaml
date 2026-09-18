@@ -1,8 +1,34 @@
-status: none
-intent: UCI wine har breastcancer shopper heart sms spam openml huggingface python
-  package dataset
+status: verified
+kind: pypi_package
+ref: openml
+access_python: 'import openml, pandas as pd
+
+  # Load a classic UCI dataset available on OpenML (iris, id=61)
+
+  dataset = openml.datasets.get_dataset(61)
+
+  X, y, _, attribute_names = dataset.get_data()
+
+  df = pd.DataFrame(X, columns=attribute_names)
+
+  # Map the target column to the required name "outcome"
+
+  df[''outcome''] = y
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=" + ",".join(df.columns))'
+record_count: 150
+sample_fields:
+- sepallength
+- sepalwidth
+- petallength
+- petalwidth
+- class
+- outcome
+field_coverage: 0.5
 required_fields:
-- target
-cache_key: 669ebd718a19836763d4cef2576a130a47aab4cfa22c27c72e4cf15f86e14172
-searched_at: '2026-09-18T15:46:02.768926+00:00'
-retry_count: 1
+- outcome
+- features
+intent: UCI Machine Learning Repository OpenML python package dataset
+cache_key: 186f4cc9e7684e738f86f238e863a1b641e885dfbad650e8675d090982b85efe

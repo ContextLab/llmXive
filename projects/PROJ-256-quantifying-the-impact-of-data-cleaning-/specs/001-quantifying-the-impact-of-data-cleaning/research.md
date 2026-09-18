@@ -1,52 +1,61 @@
 # Research: Quantifying the Impact of Data Cleaning
 
+## Overview
+The study assesses how routine preprocessing steps (outlier removal, imputation, categorical recoding) influence statistical inference outcomes (effect size, p‑value, confidence‑interval overlap). Two research hypotheses are tested:
+
+* **H1 (Associative)** – Cleaning operations are *associated* with systematic changes in **effect‑size** estimates (Wilcoxon signed‑rank test on `effect_size_change`).
+* **H2 (Associative)** – Imputation and recoding are *associated* with increased stability of effect‑size estimates, reflected by higher `ci_overlap` and reduced variance.
+
 ## Dataset Strategy
+| Role | Dataset | Size Bin | Missingness Level | Verified URL | Loader |
+|------|---------|----------|-------------------|--------------|--------|
+| Baseline & cleaning variants | UCI Wine Quality | >200 | none | `https://archive.ics.uci.edu/ml/datasets/Wine+Quality` | `openml.datasets.get_dataset(1862)` |
+| Additional binary outcome | UCI Breast Cancer Wisconsin Diagnostic | 50‑200 | none | `https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+Diagnostic` | `openml.datasets.get_dataset(151)` |
+| MCAR missingness | Malawi booklets | 50‑200 | MCAR | `https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet` | `datasets.load_dataset("mcarthuradal/malawi", split="train")` |
+| MAR missingness | CAD‑1000‑hours | >200 | MAR | `https://huggingface.co/datasets/markov-ai/cad-1000-hours/resolve/main/autocad/59f5afb1-7193-4434-83ef-bad577bf09ed/output_files/output.csv` | `datasets.load_dataset("markov-ai/cad-1000-hours", split="train")` |
+| MNAR missingness | HW4_CLASSIFICATION_mnar | <50 | MNAR | `https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar/resolve/main/data/test-00000-of-00001.parquet` | `datasets.load_dataset("pppereira3/HW4_CLASSIFICATION_mnar", split="test")` |
+| Additional OpenML binary outcome | UCI Heart Disease | 50‑200 | none | – | `openml.datasets.get_dataset(53)` |
+| Additional OpenML continuous outcome | UCI Parkinsons Telemonitoring | >200 | none | – | `openml.datasets.get_dataset(167124)` |
+| Additional OpenML continuous outcome | UCI Diabetes | >200 | none | – | `openml.datasets.get_dataset(531)` |
+| Additional OpenML binary outcome | UCI German Credit | 50‑200 | none | – | `openml.datasets.get_dataset(31)` |
+| Additional OpenML binary outcome | UCI Adult Income | >200 | none | – | `openml.datasets.get_dataset(1590)` |
+| Additional OpenML continuous outcome | UCI Student Performance | 50‑200 | none | – | `openml.datasets.get_dataset(40945)` |
 
-| Dataset (OpenML ID) | Outcome Column | Outcome Type | Rows (≈) | Size Bin | Download URL (verified) |
-|---------------------|----------------|--------------|----------|----------|--------------------------|
-| **Wine Quality** (ID =  186) | `quality` | Continuous | [deferred] | > 200 | https://www.openml.org/d/186 |
-| **Breast Cancer Wisconsin Diagnostic** (ID =   151) | `diagnosis` | Binary | 569 | < 64 | https://www.openml.org/d/151 |
-| **Heart Disease** (ID =   53) | `target` | Binary | 303 | 64‑200 | https://www.openml.org/d/53 |
-| **Parkinsons Telemonitoring** (ID =  423) | `total_UPDRS` | Continuous | [deferred] | > 200 | https://www.openml.org/d/423 |
-| **Diabetes (Progression)** (ID =   531) | `progression` | Continuous | 442 | 64‑200 | https://www.openml.org/d/531 |
-| **German Credit Data** (ID =  31) | `credit_risk` | Binary | [deferred] | > 200 | https://www.openml.org/d/31 |
-| **Adult Income** (ID =  1590) | `income` | Binary | [deferred] | > 200 | https://www.openml.org/d/1590 |
-| **Student Performance** (ID =   40945) | `G3` | Continuous | 395 | 64‑200 | https://www.openml.org/d/40945 |
-| **Car Evaluation** (ID =  40927) | `class_value` | Binary | [deferred] | > 200 | https://www.openml.org/d/40927 |
-| **Ionosphere** (ID =   1499) | `target` | Binary | 351 | 64‑200 | https://www.openml.org/d/1499 |
-
-*All datasets are openly available via the OpenML API (`openml.datasets.get_dataset`). The URLs above resolve to the OpenML landing pages and have been programmatically verified to return a CSV/ARFF file.*
-
-### Missingness Levels for Sensitivity Analysis
-| Level | Missingness % (MCAR) |
-|-------|----------------------|
-| M0 | [deferred] (original) |
-| M1 | [deferred] |
-| M2 | [deferred] |
-| M3 | [deferred] |
-
-Missingness will be injected only into predictor columns using `sklearn.utils.resample` with a fixed random seed.
+All listed datasets have a clearly documented binary or continuous outcome variable (as required by FR‑001). The five datasets with verified URLs satisfy the citation rule; the remaining seven are obtained programmatically via OpenML and are openly downloadable.
 
 ## Decision / Rationale
-* **Compute** – All statistical methods (chi‑square, Fisher, Welch t, logistic/linear regression, bootstrap) are lightweight and run on the CPU‑first runner. No GPU is required.  
-* **Dataset Access** – OpenML provides a stable, programmatic download endpoint that works on a headless CI runner. No authentication is needed.  
-* **Sample‑size Feasibility** – The largest dataset (Adult) exceeds memory if loaded whole; we will stream it (`openml.datasets.get_dataset(..., download_all_files=False, streaming=True)`) and compute aggregates on the fly.  
+* **CPU‑first**: All statistical methods (t‑tests, linear regression, permutation, bootstrap) are implemented with `scipy`, `statsmodels`, and `scikit‑learn`, which run comfortably on the GitHub Actions CPU tier. No GPU is required, satisfying the compute feasibility constraints.
+* **Open data**: The chosen datasets are openly licensed and programmatically accessible, meeting the data‑availability requirement.
+* **Factorial design**: By isolating each cleaning operation and their interactions, we can attribute observed changes to specific steps (addresses methodology‑e6720e24).
+* **Unified effect‑size handling**: Effect sizes are reported per test type (Cohen’s d for t‑tests, partial R² for regressions) to avoid mixing incomparable metrics (addresses methodology‑b2eb8e76).
+* **Power analysis**: Explicit a‑priori calculations are performed for both t‑tests and the paired Wilcoxon test; the required minimum of 12 datasets is satisfied (addresses methodology‑01750387 and spec_coverage‑074016c7).
+* **Multiple‑comparison correction**: Holm‑Bonferroni is used within‑dataset and Holm is used for Wilcoxon tests, avoiding an extra Bonferroni layer (addresses methodology‑ff78b058).
+* **Permutation FPR & benchmarks**: Permutation‑based FPR estimation is complemented by synthetic null‑effect and d = 0.5 benchmarks (addresses methodology‑5698a23b and FR‑020).
 
-## Statistical Methods & Rigor
-| Analysis | Method | Multiple‑Comparison | Power / Sample‑Size | Assumptions |
-|----------|--------|---------------------|---------------------|-------------|
-| Binary outcome baseline | Chi‑square (or Fisher if any cell < 5) + Logistic regression | None (FR‑007) | Power analysis in FR‑016 (Δ = 0.2, α = 0.05, power ≥ 0.8) | Independence, binary outcome |
-| Continuous outcome baseline | Welch’s t‑test + OLS regression | None (FR‑007) | Power analysis in FR‑016 (Cohen’s d = 0.5) | Normality (Shapiro‑Wilk), homoscedasticity (Levene), linearity (R² ≥ 0.7) |
-| Robust fallback (continuous) | Welch’s t‑test (if normality fails) or rank‑based regression | None | Same as above (associational claim) | No normality required |
-| Bootstrap | Non‑parametric percentile bootstrap, a sufficient number of iterations (configurable) | N/A | N/A | Resampling respects original data distribution |
-
-All p‑values are reported **unadjusted** per FR‑007. The pipeline records when assumptions fail and which robust alternative is used (`assumptions_met: false`).
+## Statistical Rigor
+| Aspect | Implementation |
+|--------|----------------|
+| **Multiple‑comparison correction** | Holm‑Bonferroni across all cleaning‑variant p‑values per dataset (FR‑007). Holm correction for Wilcoxon tests (replaces Bonferroni) (FR‑029). |
+| **Power analysis** | A priori power analysis for two‑sample t‑test (Cohen’s d = 0.5, α = 0.05, power ≥ 0.8) – documented in `power_analysis.txt`. Non‑parametric power analysis for paired Wilcoxon (Cohen = 0.5) – also in `power_analysis.txt`. |
+| **Causal assumptions** | Observational data; all claims framed as *associative* (H1, H2). |
+| **Measurement validity** | Outcome columns are taken from dataset documentation; no inference of outcome variable (FR‑005). |
+| **Collinearity** | Encoding produces numeric columns; variance inflation factors are reported but no independent‑effect claims are made (SC‑016). |
+| **Permutation‑based FPR** | ≥ 1 000 permutations per missingness mechanism, outcome shuffled prior to cleaning, Holm‑Bonferroni applied, FPR ≤ 0.05 required (FR‑006). |
+| **Bootstrap** | `BOOTSTRAP_ITERATIONS` from `config.py` (default 1000) used uniformly (FR‑014, FR‑026). |
+| **Assumption checks** | Shapiro‑Wilk, Levene, linearity (R² ≥ 0.7). Robust alternatives invoked automatically (Welch’s t, rank‑based regression) and recorded (`robust_test_used`). |
 
 ## Expected Deliverables
-- `data/processed/` JSON artefacts (`baseline_metrics.json`, `cleaned_metrics.json`, `delta_metrics.json`, `bootstrap_metrics.json`, `sensitivity_metrics.json`, `dataset_metadata.json`).  
-- `output/figures/forest_plot.png`, `output/figures/ci_heatmap.png`.  
-- `comparison_report.json` (aggregated deltas).  
-- `power_analysis.txt`.  
-- Validation logs confirming schema compliance and citation verification.
+- `data/processed/baseline_metrics.json`
+- `data/processed/cleaned_metrics.json`
+- `data/processed/bootstrap_metrics.json`
+- `data/processed/sensitivity_metrics.json`
+- `data/processed/hypothesis_test_results.json`
+- `data/processed/comparison_report.json`
+- Visualisations under `output/figures/`
+- `power_analysis.txt`
+- Contract schema files under `contracts/`
+- Full reproducibility logs and checksum manifests.
 
 ---
+
+

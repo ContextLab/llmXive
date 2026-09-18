@@ -20,7 +20,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "P‑value reported with ≥ 3 decimal precision."
+    description: "P‑value rounded to at least three decimal places."
   ci_lower:
     type: number
     description: "Lower bound of the confidence interval at a conventional confidence level."
@@ -29,4 +29,6 @@ properties:
     description: "Upper bound of the confidence interval at a conventional confidence level."
   effect_size:
     type: number
-    description: "Cohen's d for continuous, odds ratio for binary."
+    description: "Cohen's d for t‑tests or standardized coefficient for regression."
+  assumptions_met:
+    type: boolean

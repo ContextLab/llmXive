@@ -4,51 +4,75 @@ type: object
 required:
   - dataset
   - variant_id
-  - rows_removed
-  - missing_before
-  - missing_after
-  - variance_reduction
-  - ci_overlap
+  - p_value
+  - adjusted_p_value
+  - ci_lower
+  - ci_upper
+  - effect_size
   - effect_size_change
-  - p_value_delta
   - direction
+  - ci_overlap
+  - p_value_delta
   - assumptions_met
+  - robust_test_used
+  - metadata
 properties:
   dataset:
     type: string
   variant_id:
     type: string
-    description: "Identifier encoding cleaning steps, e.g., 'outlier_k1.5_impute_mean'."
-  rows_removed:
-    type: integer
-    minimum: 0
-  missing_before:
+    description: "Identifier encoding cleaning steps (e.g., 'outlier_k1.5_imp_mean_enc_onehot')."
+  p_value:
     type: number
     minimum: 0
     maximum: 1
-  missing_after:
+  adjusted_p_value:
     type: number
     minimum: 0
     maximum: 1
-  variance_reduction:
+  ci_lower:
     type: number
-    minimum: 0
-    description: "Proportion of variance lost after imputation (0‑1)."
+  ci_upper:
+    type: number
+  effect_size:
+    type: number
+  effect_size_change:
+    type: number
+    description: "Absolute change in effect size (baseline vs. cleaned), ≥ 0.001 precision."
+  direction:
+    type: string
+    enum: ["increase", "decrease"]
   ci_overlap:
     type: number
     minimum: 0
     maximum: 1
-  effect_size_change:
-    type: number
   p_value_delta:
     type: number
-    description: "Baseline p‑value minus cleaned p‑value (≥ 3‑decimal)."
-  direction:
-    type: string
-    enum: ["increase", "decrease"]
+    description: "Baseline p‑value minus cleaned p‑value."
   assumptions_met:
     type: boolean
-    description: "True if all pre‑test assumptions held; false triggers robust fallback."
-  robust_used:
-    type: boolean
-    description: "True if a robust alternative test was employed for the cleaned variant."
+  robust_test_used:
+    type: string
+    description: "Name of robust test if assumptions not met; empty string otherwise."
+  metadata:
+    type: object
+    required:
+      - rows_removed
+      - missing_before
+      - missing_after
+      - variance_reduction
+    properties:
+      rows_removed:
+        type: integer
+        minimum: 0
+      missing_before:
+        type: integer
+        minimum: 0
+      missing_after:
+        type: integer
+        minimum: 0
+      variance_reduction:
+        type: number
+        minimum: 0
+        maximum: 1
+additionalProperties: false
