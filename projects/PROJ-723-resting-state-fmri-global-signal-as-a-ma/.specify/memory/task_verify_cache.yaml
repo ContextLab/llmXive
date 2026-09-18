@@ -1,10 +1,10 @@
 T010:
   c: false
-  h: e380e1069b72ac1a6dadc144239560538d3d69d4dec51251e09f78329c08d12b
-  r: "The `code/ingestion.py` file contains only placeholder functions that raise\
-    \ `NotImplementedError`, and the required `contracts/dataset.schema.yaml` file\
-    \ is missing entirely. No actual schema verification logic or fatal error handling\
-    \ is present, so the task\u2019s requirement is not met."
+  h: ffd009dfd09ca155e1e73fab0d45d7775b865cc436a445de9eb528be2accd90a
+  r: "The required `contracts/dataset.schema.yaml` file is absent, and `code/ingestion.py`\
+    \ does not read or validate against such a schema (it uses hard\u2011coded column\
+    \ lists instead). Consequently the script cannot halt with \u201CFATAL: Dataset\
+    \ Mismatch\u201D based on the missing schema as the task demands."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

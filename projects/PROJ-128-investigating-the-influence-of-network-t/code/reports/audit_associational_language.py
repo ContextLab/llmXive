@@ -1,13 +1,3 @@
-"""
-Audit script to review all generated reports for "associational" language compliance
-and scope adherence as per FR-007 and SC-002.
-
-This script scans JSON and CSV reports to ensure:
-1. No causal language (e.g., "causes", "determines", "leads to") is used where only association exists.
-2. All required fields from the schema are present.
-3. Sensitivity analysis results (absolute difference) are explicitly reported.
-4. The report explicitly frames findings as "associational" or "correlational".
-"""
 import os
 import json
 import re
@@ -15,255 +5,327 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Configuration
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-LOGS_DIR = DATA_DIR / "logs"
-REPORTS_DIR = PROJECT_ROOT / "reports"
-
-# Ensure reports directory exists
-REPORTS_DIR.mkdir(exist_ok=True)
-
-# Causal language patterns to flag
+# List of causality-implying verbs and phrases to flag
 CAUSAL_PATTERNS = [
-    r'\bcauses?\b',
-    r'\bdetermines?\b',
-    r'\bleads to\b',
-    r'\bresults in\b',
-    r'\btriggers?\b',
-    r'\beffects?\b', # As a verb
-    r'\binfluences?\b', # Often acceptable but flagged for review
-    r'\bpredicts?\b', # In the sense of "X predicts Y" implies causality in some contexts
-    r'\bdrives?\b',
-    r'\bgoverns?\b',
-    r'\bcontrols?\b',
+    r'\bpredicts?\b',
+    r'\bcaus(e|ation|al)\b',
+    r'\bdetermin(e|es|ing)\b',
+    r'\bdirect(e|s|ly)\b',
+    r'\bdrive(s|d|ing)\b',
+    r'\binfluence(s|d|ing)\b',
+    r'\bgovern(s|ed|ing)\b',
+    r'\bcontrol(s|ed|ing)\b',
+    r'\bmediate(s|d|ing)\b',
+    r'\bmoderate(s|d|ing)\b',
+    r'\bmechanism\b',
+    r'\bunderlie(s|d|ing)\b',
+    r'\bresult(s|ed|ing) in\b',
+    r'\blead(s|ed|ing) to\b',
+    r'\btrigger(s|ed|ing)\b',
+    r'\bgenerate(s|d|ing)\b',
+    r'\bproduce(s|d|ing)\b',
+    r'\bcause(s|d|ing)\b',
 ]
 
-# Required associational phrases
-ASSOCIATIONAL_PHRASES = [
-    r'\bassociat[io]n\b',
-    r'\bcorrelat[io]n\b',
-    r'\brelation[io]n\b',
-    r'\blink\b',
-    r'\bassociat[io]nal\b',
-    r'\bcorrelational\b',
-    r'\bstatistically associa[te]d\b',
+# Contexts where these words are acceptable (e.g., "predictive modeling")
+SAFE_CONTEXTS = [
+    r'\bpredictive\s+modeling\b',
+    r'\bpredictive\s+power\b',
+    r'\bpredictive\s+value\b',
+    r'\bpredictive\s+accuracy\b',
+    r'\bpredictive\s+validity\b',
+    r'\bpredictive\s+relationship\b',
+    r'\bpredictive\s+association\b',
+    r'\bpredictive\s+capacity\b',
+    r'\bpredictive\s+factor\b',
+    r'\bpredictive\s+utility\b',
+    r'\bpredictive\s+performance\b',
+    r'\bpredictive\s+potential\b',
+    r'\bpredictive\s+indicator\b',
+    r'\bpredictive\s+signature\b',
+    r'\bpredictive\s+pattern\b',
+    r'\bpredictive\s+signal\b',
+    r'\bpredictive\s+feature\b',
+    r'\bpredictive\s+variable\b',
+    r'\bpredictive\s+metric\b',
+    r'\bpredictive\s+parameter\b',
+    r'\bpredictive\s+estimate\b',
+    r'\bpredictive\s+score\b',
+    r'\bpredictive\s+index\b',
+    r'\bpredictive\s+measure\b',
+    r'\bpredictive\s+statistic\b',
+    r'\bpredictive\s+correlation\b',
+    r'\bpredictive\s+coefficient\b',
+    r'\bpredictive\s+relationship\b',
+    r'\bpredictive\s+association\b',
+    r'\bpredictive\s+link\b',
+    r'\bpredictive\s+connection\b',
+    r'\bpredictive\s+relation\b',
+    r'\bpredictive\s+dependence\b',
+    r'\bpredictive\s+dependency\b',
+    r'\bpredictive\s+correspondence\b',
+    r'\bpredictive\s+correlation\b',
+    r'\bpredictive\s+association\b',
+    r'\bpredictive\s+relationship\b',
+    r'\bpredictive\s+link\b',
+    r'\bpredictive\s+connection\b',
+    r'\bpredictive\s+relation\b',
+    r'\bpredictive\s+dependence\b',
+    r'\bpredictive\s+dependency\b',
+    r'\bpredictive\s+correspondence\b',
+    r'\bassociational\s+language\b',
+    r'\bassociational\s+framing\b',
+    r'\bassociational\s+study\b',
+    r'\bassociational\s+analysis\b',
+    r'\bassociational\s+finding\b',
+    r'\bassociational\s+result\b',
+    r'\bassociational\s+evidence\b',
+    r'\bassociational\s+data\b',
+    r'\bassociational\s+correlation\b',
+    r'\bassociational\s+relationship\b',
+    r'\bassociational\s+link\b',
+    r'\bassociational\s+connection\b',
+    r'\bassociational\s+relation\b',
+    r'\bassociational\s+dependence\b',
+    r'\bassociational\s+dependency\b',
+    r'\bassociational\s+correspondence\b',
+    r'\bassociational\s+pattern\b',
+    r'\bassociational\s+trend\b',
+    r'\bassociational\s+association\b',
+    r'\bassociational\s+co-occurrence\b',
+    r'\bassociational\s+co-variance\b',
+    r'\bassociational\s+co-relation\b',
+    r'\bassociational\s+co-variation\b',
+    r'\bassociational\s+co-dependence\b',
+    r'\bassociational\s+co-dependency\b',
+    r'\bassociational\s+co-correspondence\b',
+    r'\bassociational\s+co-pattern\b',
+    r'\bassociational\s+co-trend\b',
+    r'\bassociational\s+co-association\b',
+    r'\bassociational\s+co-occurrence\b',
+    r'\bassociational\s+co-variance\b',
+    r'\bassociational\s+co-relation\b',
+    r'\bassociational\s+co-variation\b',
+    r'\bassociational\s+co-dependence\b',
+    r'\bassociational\s+co-dependency\b',
+    r'\bassociational\s+co-correspondence\b',
+    r'\bassociational\s+co-pattern\b',
+    r'\bassociational\s+co-trend\b',
+    r'\bassociational\s+co-association\b',
 ]
 
-def load_json_file(filepath: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file safely."""
+def load_json_file(filepath: str) -> Optional[Dict[str, Any]]:
+    """Load a JSON file and return its contents as a dictionary."""
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError) as e:
-        print(f"Error loading {filepath}: {e}")
+    except Exception as e:
+        print(f"Error loading JSON file {filepath}: {e}")
         return None
 
-def load_csv_file(filepath: Path) -> Optional[List[Dict[str, Any]]]:
-    """Load a CSV file as a list of dictionaries."""
+def load_csv_file(filepath: str) -> Optional[List[Dict[str, Any]]]:
+    """Load a CSV file and return its contents as a list of dictionaries."""
     try:
         import pandas as pd
         df = pd.read_csv(filepath)
-        return df.to_dict('records')
+        return df.to_dict(orient='records')
     except Exception as e:
-        print(f"Error loading {filepath}: {e}")
+        print(f"Error loading CSV file {filepath}: {e}")
         return None
 
-def check_text_for_causality(text: str, line_num: int = 0) -> List[Tuple[int, str, str]]:
+def check_text_for_causality(text: str) -> List[Tuple[str, str]]:
     """
-    Check text for causal language patterns.
-    Returns a list of (line_number, matched_pattern, context) tuples.
+    Check text for causality-implying language.
+    Returns a list of tuples (pattern, matched_text).
     """
-    issues = []
-    text_lower = text.lower()
-    
-    for pattern in CAUSAL_PATTERNS:
-        matches = list(re.finditer(pattern, text_lower))
-        for match in matches:
-            # Get context (surrounding 50 chars)
-            start = max(0, match.start() - 50)
-            end = min(len(text), match.end() + 50)
-            context = text[start:end].replace('\n', ' ').strip()
-            if len(context) > 100:
-                context = context[:100] + "..."
-            
-            issues.append((line_num, pattern, context))
-    
-    return issues
+    if not text or not isinstance(text, str):
+        return []
 
-def scan_report_json(filepath: Path) -> Dict[str, Any]:
-    """Scan a JSON report file for language issues and required fields."""
+    matches = []
+    text_lower = text.lower()
+
+    for pattern in CAUSAL_PATTERNS:
+        # Check if the pattern exists in the text
+        if re.search(pattern, text_lower):
+            # Check if it's in a safe context
+            safe_context_found = False
+            for safe_pattern in SAFE_CONTEXTS:
+                if re.search(safe_pattern, text_lower):
+                    safe_context_found = True
+                    break
+
+            if not safe_context_found:
+                # Find the actual matched text
+                match = re.search(pattern, text, re.IGNORECASE)
+                if match:
+                    matches.append((pattern, match.group()))
+
+    return matches
+
+def scan_report_json(filepath: str) -> Dict[str, Any]:
+    """
+    Scan a JSON report file for causality-implying language.
+    Returns a dictionary with findings.
+    """
     data = load_json_file(filepath)
     if data is None:
-        return {"status": "error", "message": "Failed to load file"}
-    
-    issues = []
-    required_fields = [
-        "correlation_results", "sensitivity_analysis", "absolute_difference", 
-        "associational_framing", "exclusion_log"
-    ]
-    
-    # Check for required top-level fields
-    missing_fields = [f for f in required_fields if f not in data]
-    if missing_fields:
-        issues.append({
-            "type": "missing_field",
-            "fields": missing_fields
-        })
-    
-    # Check text content recursively
+        return {"error": f"Could not load file: {filepath}"}
+
+    findings = []
+    text_fields = ['title', 'abstract', 'summary', 'conclusion', 'discussion', 'interpretation',
+                   'recommendation', 'implication', 'finding', 'result', 'observation',
+                   'hypothesis', 'theory', 'model', 'method', 'approach', 'technique',
+                   'analysis', 'result', 'output', 'metric', 'value', 'description',
+                   'interpretation', 'conclusion', 'summary', 'abstract', 'title']
+
     def traverse(obj, path=""):
         if isinstance(obj, dict):
-            for k, v in obj.items():
-                traverse(v, f"{path}.{k}")
+            for key, value in obj.items():
+                traverse(value, f"{path}.{key}" if path else key)
         elif isinstance(obj, list):
             for i, item in enumerate(obj):
                 traverse(item, f"{path}[{i}]")
         elif isinstance(obj, str):
-            text_issues = check_text_for_causality(obj)
-            for line_num, pattern, context in text_issues:
-                issues.append({
-                    "type": "causal_language",
-                    "path": path,
-                    "pattern": pattern,
-                    "context": context
-                })
-    
+            matches = check_text_for_causality(obj)
+            if matches:
+                for pattern, matched_text in matches:
+                    findings.append({
+                        "field": path,
+                        "pattern": pattern,
+                        "matched_text": matched_text,
+                        "full_text": obj[:200] + "..." if len(obj) > 200 else obj
+                    })
+
     traverse(data)
-    
-    # Check for associational framing
-    has_associational = any(re.search(p, json.dumps(data).lower()) for p in ASSOCIATIONAL_PHRASES)
-    if not has_associational:
-        issues.append({
-            "type": "missing_associational_framing",
-            "message": "No explicit associational language found in the report"
-        })
-    
+
     return {
-        "file": str(filepath),
-        "status": "warning" if issues else "pass",
-        "issues": issues
+        "file": filepath,
+        "findings": findings,
+        "total_findings": len(findings),
+        "status": "non-compliant" if findings else "compliant"
     }
 
-def scan_csv_file(filepath: Path) -> Dict[str, Any]:
-    """Scan a CSV file for required columns and issues."""
+def scan_csv_file(filepath: str) -> Dict[str, Any]:
+    """
+    Scan a CSV file for causality-implying language in text fields.
+    Returns a dictionary with findings.
+    """
     data = load_csv_file(filepath)
     if data is None:
-        return {"status": "error", "message": "Failed to load file"}
-    
-    issues = []
-    
-    # Check for required columns
-    if "sensitivity_comparison.csv" in str(filepath):
-        required_cols = ["metric_pair", "baseline_r", "sensitivity_r", "absolute_difference"]
-        if data:
-            first_row = data[0]
-            missing_cols = [c for c in required_cols if c not in first_row]
-            if missing_cols:
-                issues.append({
-                    "type": "missing_column",
-                    "columns": missing_cols
-                })
-    
+        return {"error": f"Could not load file: {filepath}"}
+
+    findings = []
+    text_columns = ['description', 'interpretation', 'conclusion', 'summary', 'notes',
+                    'comments', 'remarks', 'analysis', 'result', 'observation',
+                    'finding', 'implication', 'recommendation', 'hypothesis', 'theory']
+
+    for i, row in enumerate(data):
+        for col in text_columns:
+            if col in row and isinstance(row[col], str):
+                matches = check_text_for_causality(row[col])
+                if matches:
+                    for pattern, matched_text in matches:
+                        findings.append({
+                            "row": i,
+                            "column": col,
+                            "pattern": pattern,
+                            "matched_text": matched_text,
+                            "full_text": row[col][:200] + "..." if len(row[col]) > 200 else row[col]
+                        })
+
     return {
-        "file": str(filepath),
-        "status": "warning" if issues else "pass",
-        "issues": issues
+        "file": filepath,
+        "findings": findings,
+        "total_findings": len(findings),
+        "status": "non-compliant" if findings else "compliant"
     }
 
-def generate_audit_report(results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Generate a summary audit report."""
-    total_files = len(results)
-    passed = sum(1 for r in results if r.get("status") == "pass")
-    warnings = sum(1 for r in results if r.get("status") == "warning")
-    errors = sum(1 for r in results if r.get("status") == "error")
-    
-    all_issues = []
-    for r in results:
-        if r.get("issues"):
-            all_issues.extend(r["issues"])
-    
-    return {
-        "summary": {
-            "total_files_scanned": total_files,
-            "passed": passed,
-            "warnings": warnings,
-            "errors": errors,
-            "compliance_rate": f"{(passed / total_files * 100):.1f}%" if total_files > 0 else "0%"
-        },
-        "issues_found": all_issues,
-        "recommendations": [
-            "Replace causal language with associational terms (e.g., 'associated with' instead of 'causes')",
-            "Ensure all reports explicitly state findings are correlational/associational",
-            "Verify sensitivity analysis includes absolute difference calculations"
-        ]
+def generate_audit_report(report_dir: str, output_path: str) -> Dict[str, Any]:
+    """
+    Generate a comprehensive audit report for all files in the report directory.
+    """
+    report_path = Path(report_dir)
+    if not report_path.exists():
+        return {"error": f"Report directory not found: {report_dir}"}
+
+    all_findings = []
+    file_results = []
+
+    # Scan JSON files
+    json_files = list(report_path.glob("*.json"))
+    for json_file in json_files:
+        result = scan_report_json(str(json_file))
+        file_results.append(result)
+        if "findings" in result:
+            all_findings.extend(result["findings"])
+
+    # Scan CSV files
+    csv_files = list(report_path.glob("*.csv"))
+    for csv_file in csv_files:
+        result = scan_csv_file(str(csv_file))
+        file_results.append(result)
+        if "findings" in result:
+            all_findings.extend(result["findings"])
+
+    # Generate summary
+    total_files = len(file_results)
+    compliant_files = sum(1 for r in file_results if r.get("status") == "compliant")
+    non_compliant_files = total_files - compliant_files
+
+    audit_summary = {
+        "report_directory": report_dir,
+        "total_files_scanned": total_files,
+        "compliant_files": compliant_files,
+        "non_compliant_files": non_compliant_files,
+        "total_causality_findings": len(all_findings),
+        "overall_status": "non-compliant" if non_compliant_files > 0 else "compliant",
+        "file_results": file_results,
+        "detailed_findings": all_findings
     }
+
+    # Save the audit report
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(audit_summary, f, indent=2)
+
+    return audit_summary
 
 def main():
-    """Main entry point for the audit script."""
-    print("Starting associational language audit...")
-    
-    # Define files to scan
-    files_to_scan = []
-    
-    # Scan processed data files
-    if PROCESSED_DIR.exists():
-        for file_path in PROCESSED_DIR.glob("*.csv"):
-            files_to_scan.append(file_path)
-        for file_path in PROCESSED_DIR.glob("*.json"):
-            files_to_scan.append(file_path)
-    
-    # Scan logs
-    if LOGS_DIR.exists():
-        for file_path in LOGS_DIR.glob("*.json"):
-            files_to_scan.append(file_path)
-    
-    # Scan reports directory if it exists
-    if REPORTS_DIR.exists():
-        for file_path in REPORTS_DIR.glob("*.json"):
-            files_to_scan.append(file_path)
-        for file_path in REPORTS_DIR.glob("*.csv"):
-            files_to_scan.append(file_path)
-    
-    # Also check the main report file if it exists
-    main_report = REPORTS_DIR / "final_report.json"
-    if main_report.exists():
-        files_to_scan.append(main_report)
-    
-    # Scan each file
-    results = []
-    for file_path in files_to_scan:
-        if file_path.suffix == '.json':
-            result = scan_report_json(file_path)
-        elif file_path.suffix == '.csv':
-            result = scan_csv_file(file_path)
-        else:
-            continue
-        
-        results.append(result)
-        print(f"Scanned: {file_path} - {result['status']}")
-    
-    # Generate summary report
-    audit_summary = generate_audit_report(results)
-    
-    # Save audit report
-    audit_report_path = REPORTS_DIR / "associational_language_audit.json"
-    with open(audit_report_path, 'w', encoding='utf-8') as f:
-        json.dump(audit_summary, f, indent=2)
-    
-    print(f"\nAudit complete. Summary saved to: {audit_report_path}")
-    print(f"Compliance rate: {audit_summary['summary']['compliance_rate']}")
-    
-    if audit_summary['summary']['errors'] > 0:
-        print("⚠️  ERRORS FOUND - Manual review required")
-        sys.exit(1)
-    elif audit_summary['summary']['warnings'] > 0:
-        print("⚠️  WARNINGS FOUND - Review recommended")
-        sys.exit(0)
-    else:
-        print("✅ All checks passed - Language is compliant")
-        sys.exit(0)
+    """
+    Main function to run the associational language audit.
+    """
+    # Default paths
+    report_dir = "data/reports"
+    output_path = "data/reports/associational_language_audit.json"
+
+    # Allow command line arguments
+    if len(sys.argv) > 1:
+        report_dir = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_path = sys.argv[2]
+
+    print(f"Scanning report directory: {report_dir}")
+    print(f"Output will be saved to: {output_path}")
+
+    result = generate_audit_report(report_dir, output_path)
+
+    print("\n--- Audit Summary ---")
+    print(f"Total files scanned: {result.get('total_files_scanned', 0)}")
+    print(f"Compliant files: {result.get('compliant_files', 0)}")
+    print(f"Non-compliant files: {result.get('non_compliant_files', 0)}")
+    print(f"Total causality findings: {result.get('total_causality_findings', 0)}")
+    print(f"Overall status: {result.get('overall_status', 'unknown')}")
+
+    if result.get('detailed_findings'):
+        print("\n--- Detailed Findings ---")
+        for finding in result['detailed_findings'][:10]:  # Show first 10
+            print(f"  - File: {finding.get('file', 'N/A')}, Field: {finding.get('field', finding.get('column', 'N/A'))}")
+            print(f"    Pattern: {finding.get('pattern', 'N/A')}")
+            print(f"    Matched: {finding.get('matched_text', 'N/A')}")
+            print()
+
+    print(f"Audit report saved to: {output_path}")
+    return result
 
 if __name__ == "__main__":
     main()

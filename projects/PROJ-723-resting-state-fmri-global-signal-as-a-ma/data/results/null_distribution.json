@@ -1,0 +1,15 @@
+{
+  "observed_stats": {
+    "mae": 0.0,
+    "r2": 0.0
+  },
+  "null_distribution_stats": {
+    "n_permutations": 1000,
+    "mean_mae": 0.0,
+    "std_mae": 0.0,
+    "mean_r2": 0.0,
+    "std_r2": 0.0
+  },
+  "empirical_p_value": 0.0,
+  "formula": "p = (count(Null MAE <= Observed MAE) + 1) / (N + 1)"
+}

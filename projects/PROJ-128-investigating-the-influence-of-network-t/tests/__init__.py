@@ -1,2 +1,4 @@
-# Test suite for the project.
-# Includes unit tests and integration tests.
+"""
+llmXive Research Pipeline: Tests Module
+Contains unit and integration tests.
+"""

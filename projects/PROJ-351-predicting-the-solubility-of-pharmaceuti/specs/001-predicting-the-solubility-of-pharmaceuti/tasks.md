@@ -144,7 +144,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T033 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T034 Code cleanup and refactoring across `code/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T034 Code cleanup and refactoring across `code/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T035 Performance optimization for GNN training loop (CPU efficiency)
 - [ ] T036 [P] Additional unit tests for edge cases (malformed SMILES, non-convergent GNN) in `tests/unit/`
 - [ ] T037 Run quickstart.md validation

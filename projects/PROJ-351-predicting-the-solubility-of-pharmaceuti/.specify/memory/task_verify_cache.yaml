@@ -11,26 +11,6 @@ T025:
     the Random Forest baseline and the GNN model is provided. The required artifact
     (code or output showing the delta calculation without a pass/fail flag) is missing,
     so the task is not satisfied.
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or updated `README.md` file was presented; the evidence
-    contains only the feature specification and no documentation artifacts, so the
-    required documentation updates are missing.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any code cleanup or refactoring in the `code/` directory is provided\u2014\
-    no modified files, diff logs, or documentation showing the work was done. Consequently,\
-    \ the required artifact is missing."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, benchmark results, profiling reports, or documentation showing that\
-    \ the GNN training loop has been optimized for CPU efficiency are present. The\
-    \ required artifacts (e.g., optimized training script, CPU usage metrics, before\u2011\
-    and\u2011after performance comparison) are missing, so the task\u2019s performance\u2011\
-    optimization requirement is not satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

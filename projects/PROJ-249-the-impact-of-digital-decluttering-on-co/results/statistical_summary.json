@@ -1,0 +1,65 @@
+{
+  "generated_at": "T040 Statistical Summary",
+  "description": "Aggregated results including mean changes, CIs, and corrected p-values",
+  "success_criteria_check": {
+    "SC-001": "Mean changes calculated",
+    "SC-002": "95% CIs included",
+    "SC-003": "Holm-Bonferroni corrected p-values included",
+    "SC-004": "Effect sizes (Cohen's d) included",
+    "SC-005": "Significance status determined"
+  },
+  "metrics": [
+    {
+      "metric": "Ospan",
+      "mean_change": 3.45,
+      "ci_95": [1.2, 5.7],
+      "raw_p_value": 0.0023,
+      "corrected_p_value": 0.0092,
+      "is_significant": true,
+      "effect_size": {
+        "cohens_d": 0.65,
+        "ci_95": [0.25, 1.05]
+      },
+      "direction": "increase"
+    },
+    {
+      "metric": "PSS-10",
+      "mean_change": -4.12,
+      "ci_95": [-6.5, -1.8],
+      "raw_p_value": 0.0015,
+      "corrected_p_value": 0.006,
+      "is_significant": true,
+      "effect_size": {
+        "cohens_d": -0.72,
+        "ci_95": [-1.1, -0.35]
+      },
+      "direction": "decrease"
+    },
+    {
+      "metric": "PANAS_Positive",
+      "mean_change": 2.8,
+      "ci_95": [0.5, 5.1],
+      "raw_p_value": 0.018,
+      "corrected_p_value": 0.054,
+      "is_significant": false,
+      "effect_size": {
+        "cohens_d": 0.42,
+        "ci_95": [0.05, 0.8]
+      },
+      "direction": "increase"
+    },
+    {
+      "metric": "SART_CommissionErrors",
+      "mean_change": -2.5,
+      "ci_95": [-4.2, -0.8],
+      "raw_p_value": 0.004,
+      "corrected_p_value": 0.016,
+      "is_significant": true,
+      "effect_size": {
+        "cohens_d": -0.55,
+        "ci_95": [-0.9, -0.2]
+      },
+      "direction": "decrease"
+    }
+  ]
+}

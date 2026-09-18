@@ -1,159 +1,314 @@
 """
-Unit tests for rank stability check functionality.
+Unit tests for the rank stability check implementation (T032).
+
+These tests verify that the rank stability logic correctly identifies
+when top 3 descriptors change by more than 1 position across thresholds.
 """
 import pytest
 import json
-import os
-import sys
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Ensure parent directory is in path
-project_root = Path(__file__).resolve().parent.parent.parent
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from models.rank_stability import (
-    get_top_n_features,
+    get_top_features_by_threshold,
     calculate_rank_shift,
     verify_rank_stability,
-    generate_stability_report
+    generate_stability_report,
+    run_rank_stability_check,
+    SWEEP_THRESHOLDS,
+    TOP_N,
+    MAX_RANK_SHIFT
 )
 
-@pytest.fixture
-def mock_sensitivity_results():
-    """Mock sensitivity analysis results for testing."""
-    return {
-        "thresholds": [0.45, 0.50, 0.55],
-        "results": {
+
+class TestGetTopFeaturesByThreshold:
+    """Tests for get_top_features_by_threshold function."""
+
+    def test_extract_top_features_success(self):
+        """Test successful extraction of top features."""
+        mock_results = {
             "0.45": {
-                "feature_importances": {
-                    "feature_a": 0.30,
-                    "feature_b": 0.25,
-                    "feature_c": 0.20,
-                    "feature_d": 0.15,
-                    "feature_e": 0.10
+                "feature_importance": {
+                    "all": {
+                        "feature_a": 0.9,
+                        "feature_b": 0.8,
+                        "feature_c": 0.7,
+                        "feature_d": 0.6
+                    }
+                }
+            }
+        }
+
+        result = get_top_features_by_threshold(mock_results, 0.45, "all")
+
+        assert len(result) == TOP_N
+        assert result == ["feature_a", "feature_b", "feature_c"]
+
+    def test_threshold_not_found(self):
+        """Test error when threshold is not in results."""
+        mock_results = {
+            "0.45": {
+                "feature_importance": {
+                    "all": {"feature_a": 0.9}
+                }
+            }
+        }
+
+        with pytest.raises(KeyError, match="Threshold 0.50 not found"):
+            get_top_features_by_threshold(mock_results, 0.50, "all")
+
+    def test_bin_type_not_found(self):
+        """Test error when bin type is not in results."""
+        mock_results = {
+            "0.45": {
+                "feature_importance": {
+                    "low": {"feature_a": 0.9}
+                }
+            }
+        }
+
+        with pytest.raises(KeyError, match="Bin type 'high' not found"):
+            get_top_features_by_threshold(mock_results, 0.45, "high")
+
+
+class TestCalculateRankShift:
+    """Tests for calculate_rank_shift function."""
+
+    def test_no_shift(self):
+        """Test when ranks are identical."""
+        features_1 = ["a", "b", "c"]
+        features_2 = ["a", "b", "c"]
+
+        shifts = calculate_rank_shift(features_1, features_2)
+
+        assert shifts["a"] == 0
+        assert shifts["b"] == 0
+        assert shifts["c"] == 0
+
+    def test_single_position_shift(self):
+        """Test when one feature shifts by 1 position."""
+        features_1 = ["a", "b", "c"]
+        features_2 = ["b", "a", "c"]
+
+        shifts = calculate_rank_shift(features_1, features_2)
+
+        assert shifts["a"] == 1
+        assert shifts["b"] == 1
+        assert shifts["c"] == 0
+
+    def test_large_shift(self):
+        """Test when a feature shifts by more than 1 position."""
+        features_1 = ["a", "b", "c"]
+        features_2 = ["c", "b", "a"]
+
+        shifts = calculate_rank_shift(features_1, features_2)
+
+        assert shifts["a"] == 2
+        assert shifts["b"] == 0
+        assert shifts["c"] == 2
+
+    def test_feature_only_in_one_set(self):
+        """Test when a feature is only present in one set."""
+        features_1 = ["a", "b", "c"]
+        features_2 = ["d", "b", "c"]
+
+        shifts = calculate_rank_shift(features_1, features_2)
+
+        # 'a' is missing in set 2, so it gets rank 4 (TOP_N + 1)
+        assert shifts["a"] == abs(1 - 4)  # 3
+        # 'd' is missing in set 1, so it gets rank 4 (TOP_N + 1)
+        assert shifts["d"] == abs(4 - 1)  # 3
+        assert shifts["b"] == 0
+        assert shifts["c"] == 0
+
+
+class TestVerifyRankStability:
+    """Tests for verify_rank_stability function."""
+
+    def test_all_stable(self):
+        """Test when all shifts are within the limit."""
+        mock_results = {
+            "0.45": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7, "d": 0.6}
                 }
             },
             "0.50": {
-                "feature_importances": {
-                    "feature_a": 0.31,
-                    "feature_b": 0.24,
-                    "feature_c": 0.21,
-                    "feature_d": 0.14,
-                    "feature_e": 0.10
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7, "d": 0.6}
                 }
             },
             "0.55": {
-                "feature_importances": {
-                    "feature_a": 0.29,
-                    "feature_b": 0.26,
-                    "feature_c": 0.19,
-                    "feature_d": 0.16,
-                    "feature_e": 0.10
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7, "d": 0.6}
                 }
             }
         }
-    }
 
-@pytest.fixture
-def mock_sensitivity_results_unstable():
-    """Mock sensitivity results where top features shift significantly."""
-    return {
-        "thresholds": [0.45, 0.50],
-        "results": {
+        is_stable, all_shifts, stable_features = verify_rank_stability(mock_results)
+
+        assert is_stable is True
+        assert "a" in stable_features
+        assert "b" in stable_features
+        assert "c" in stable_features
+
+    def test_unstable_shift(self):
+        """Test when a shift exceeds the limit."""
+        mock_results = {
             "0.45": {
-                "feature_importances": {
-                    "feature_a": 0.40,
-                    "feature_b": 0.30,
-                    "feature_c": 0.20,
-                    "feature_d": 0.10
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7, "d": 0.6}
                 }
             },
             "0.50": {
-                "feature_importances": {
-                    "feature_d": 0.45,
-                    "feature_c": 0.35,
-                    "feature_b": 0.15,
-                    "feature_a": 0.05
+                "feature_importance": {
+                    "all": {"c": 0.9, "b": 0.8, "a": 0.7, "d": 0.6}
+                }
+            },
+            "0.55": {
+                "feature_importance": {
+                    "all": {"c": 0.9, "b": 0.8, "a": 0.7, "d": 0.6}
                 }
             }
         }
-    }
 
-def test_get_top_n_features():
-    """Test that top N features are correctly identified."""
-    importances = {"a": 0.1, "b": 0.5, "c": 0.3, "d": 0.2}
-    top_2 = get_top_n_features(importances, n=2)
-    assert len(top_2) == 2
-    assert top_2[0][0] == "b"  # Highest
-    assert top_2[0][1] == 0.5
-    assert top_2[1][0] == "c"  # Second highest
-    assert top_2[1][1] == 0.3
+        is_stable, all_shifts, stable_features = verify_rank_stability(mock_results)
 
-def test_calculate_rank_shift():
-    """Test rank shift calculation."""
-    assert calculate_rank_shift(0, 0) == 0
-    assert calculate_rank_shift(0, 1) == 1
-    assert calculate_rank_shift(1, 3) == 2
-    assert calculate_rank_shift(2, 0) == 2
+        # 'a' shifts from 1 to 3 (shift=2), 'c' shifts from 3 to 1 (shift=2)
+        assert is_stable is False
+        assert "a" not in stable_features
+        assert "c" not in stable_features
+        assert "b" in stable_features
 
-def test_verify_rank_stability_stable(mock_sensitivity_results):
-    """Test verification with stable data (shifts <= 1)."""
-    is_stable, details = verify_rank_stability(mock_sensitivity_results, max_shift=1, top_n=3)
-    assert is_stable is True
-    # Check that details contain the expected features
-    assert "feature_a" in details
-    assert "feature_b" in details
-    assert "feature_c" in details
-    # Check shifts are 0 or 1
-    for feature, threshold_details in details.items():
-        for threshold, info in threshold_details.items():
-            assert info["shift"] <= 1
-
-def test_verify_rank_stability_unstable(mock_sensitivity_results_unstable):
-    """Test verification with unstable data (shifts > 1)."""
-    is_stable, details = verify_rank_stability(mock_sensitivity_results_unstable, max_shift=1, top_n=3)
-    assert is_stable is False
-    # feature_a was rank 0, now rank 3 -> shift 3
-    assert details["feature_a"]["0.50"]["shift"] == 3
-
-def test_generate_stability_report(tmp_path):
-    """Test report generation."""
-    is_stable = True
-    details = {
-        "feature_a": {"0.45": {"baseline_rank": 0, "current_rank": 0, "shift": 0, "stable": True}}
-    }
-    output_path = tmp_path / "test_report.txt"
-    
-    report = generate_stability_report(is_stable, details, output_path)
-    
-    assert "RANK STABILITY ANALYSIS REPORT" in report
-    assert "Overall Result: STABLE" in report
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        content = f.read()
-    assert "feature_a" in content
-
-def test_verify_rank_stability_missing_threshold():
-    """Test handling of missing threshold results."""
-    results = {
-        "thresholds": [0.45, 0.50],
-        "results": {
-            "0.45": {"feature_importances": {"a": 0.5, "b": 0.3}}
-            # Missing 0.50
+    def test_partial_stability(self):
+        """Test when some features are stable and others are not."""
+        mock_results = {
+            "0.45": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7, "d": 0.6}
+                }
+            },
+            "0.50": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7, "d": 0.6}
+                }
+            },
+            "0.55": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.7, "c": 0.8, "d": 0.6}
+                }
+            }
         }
-    }
-    # Should not raise, just skip missing
-    is_stable, details = verify_rank_stability(results, max_shift=1, top_n=2)
-    assert is_stable is True  # Only one comparison possible, and it's identical
 
-def test_verify_rank_stability_invalid_structure():
-    """Test handling of invalid structure."""
-    results = {"thresholds": [], "results": {}}
-    with pytest.raises(ValueError, match="Invalid sensitivity results structure"):
-        verify_rank_stability(results)
-    
-    results = {"thresholds": [0.45], "results": {}}
-    with pytest.raises(ValueError, match="Results for baseline threshold"):
-        verify_rank_stability(results)
+        is_stable, all_shifts, stable_features = verify_rank_stability(mock_results)
+
+        # First comparison (0.45->0.50): all stable
+        # Second comparison (0.50->0.55): b and c swap (shift=1), so still stable
+        assert is_stable is True
+        assert len(stable_features) >= 2
+
+
+class TestGenerateStabilityReport:
+    """Tests for generate_stability_report function."""
+
+    def test_report_generation(self):
+        """Test that a report is generated correctly."""
+        mock_results = {
+            "0.45": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7}
+                }
+            },
+            "0.50": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7}
+                }
+            },
+            "0.55": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7}
+                }
+            }
+        }
+
+        stability_result = verify_rank_stability(mock_results)
+
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp:
+            tmp_path = Path(tmp.name)
+
+        report_content = generate_stability_report(stability_result, tmp_path)
+
+        assert "RANK STABILITY ANALYSIS REPORT" in report_content
+        assert "STABILITY RESULT" in report_content
+        assert "Is Stable" in report_content
+        assert tmp_path.exists()
+
+        # Clean up
+        tmp_path.unlink()
+
+    def test_report_without_output_path(self):
+        """Test report generation without saving to file."""
+        mock_results = {
+            "0.45": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7}
+                }
+            },
+            "0.50": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7}
+                }
+            },
+            "0.55": {
+                "feature_importance": {
+                    "all": {"a": 0.9, "b": 0.8, "c": 0.7}
+                }
+            }
+        }
+
+        stability_result = verify_rank_stability(mock_results)
+        report_content = generate_stability_report(stability_result)
+
+        assert "RANK STABILITY ANALYSIS REPORT" in report_content
+        assert len(report_content) > 0
+
+
+class TestRunRankStabilityCheck:
+    """Tests for the main entry point run_rank_stability_check."""
+
+    @patch('models.rank_stability.load_sensitivity_results')
+    @patch('models.rank_stability.verify_rank_stability')
+    @patch('models.rank_stability.generate_stability_report')
+    @patch('builtins.open')
+    @patch('pathlib.Path.exists', return_value=True)
+    def test_successful_run(
+        self,
+        mock_exists,
+        mock_open,
+        mock_generate_report,
+        mock_verify,
+        mock_load
+    ):
+        """Test successful execution of the rank stability check."""
+        mock_load.return_value = {"0.45": {}, "0.50": {}, "0.55": {}}
+        mock_verify.return_value = (True, {}, ["a", "b"])
+        mock_generate_report.return_value = "Report content"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir) / "results.json"
+
+            results = run_rank_stability_check(
+                sensitivity_results_path=tmp_path,
+                output_report_path=tmp_path.with_suffix('.txt')
+            )
+
+            assert results["is_stable"] is True
+            assert "report_path" in results
+            assert "report_content" in results

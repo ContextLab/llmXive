@@ -6,3 +6,6 @@ requests
 pyyaml
 statsmodels
 scipy
+datasets
+ruff
+black

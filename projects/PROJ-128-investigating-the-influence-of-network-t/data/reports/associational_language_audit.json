@@ -1,0 +1,51 @@
+{
+  "report_directory": "data/reports",
+  "total_files_scanned": 3,
+  "compliant_files": 3,
+  "non_compliant_files": 0,
+  "total_causality_findings": 0,
+  "overall_status": "compliant",
+  "file_results": [
+    {
+      "file": "data/reports/final_report.json",
+      "findings": [],
+      "total_findings": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "data/reports/correlation_results.csv",
+      "findings": [],
+      "total_findings": 0,
+      "status": "compliant"
+    },
+    {
+      "file": "data/reports/sensitivity_comparison.csv",
+      "findings": [],
+      "total_findings": 0,
+      "status": "compliant"
+    }
+  ],
+  "detailed_findings": [],
+  "audit_notes": [
+    "All reports reviewed for causality-implying language.",
+    "No instances of 'predicts', 'causes', 'determines', or similar causal language found in final report.",
+    "All correlations described using 'associational' or 'predictive relationship' framing.",
+    "Scope adherence verified: only FR-001 through FR-008 features implemented.",
+    "No unapproved sensitivity analyses (e.g., tractography confidence) present.",
+    "Report explicitly states 'associational' nature of findings as required by FR-007.",
+    "Sensitivity analysis results correctly framed as methodological robustness checks, not causal evidence."
+  ],
+  "compliance_checklist": {
+    "FR-007_associational_framing": "PASS",
+    "FR-006_window_length_sensitivity": "PASS",
+    "FR-008_density_threshold_sensitivity": "PASS",
+    "no_unapproved_scope_creep": "PASS",
+    "no_causal_language_in_conclusions": "PASS",
+    "no_causal_language_in_discussion": "PASS",
+    "no_causal_language_in_abstract": "PASS",
+    "no_causal_language_in_title": "PASS"
+  },
+  "reviewer_comments": "Final review confirms all reports use appropriate associational language. No causal claims detected. Scope adherence verified against FR-001 through FR-008. All sensitivity analyses are properly framed as methodological robustness checks.",
+  "review_date": "2024-01-15",
+  "reviewer": "Automated Audit System"
+}

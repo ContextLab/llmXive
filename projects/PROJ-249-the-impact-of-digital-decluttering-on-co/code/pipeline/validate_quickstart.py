@@ -1,13 +1,11 @@
-"""
-T048: Quickstart Validation Script
-Validates end-to-end reproducibility by running the full pipeline defined in quickstart.md.
-"""
 import os
 import sys
 import subprocess
 import json
 import logging
 from pathlib import Path
+from datetime import datetime
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -16,213 +14,231 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def run_command(cmd: list, description: str) -> bool:
+# Project root relative to this script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
+# Define the quickstart steps based on the project structure and typical pipeline flow
+# These steps must produce the files mentioned in the tasks and quickstart.md
+QUICKSTART_STEPS = [
+    {
+        "name": "Generate Synthetic Baseline Data",
+        "command": ["python", "code/validation/synthetic_baseline.py"],
+        "expected_outputs": [
+            "data/raw/synthetic_baseline.csv"
+        ]
+    },
+    {
+        "name": "Validate Instruments",
+        "command": ["python", "code/validation/validate_instruments.py"],
+        "expected_outputs": []
+    },
+    {
+        "name": "Merge Data",
+        "command": ["python", "code/pipeline/merge_data.py"],
+        "expected_outputs": [
+            "data/processed/merged_data.csv"
+        ]
+    },
+    {
+        "name": "Calculate Change Scores",
+        "command": ["python", "code/analysis/change_scores.py"],
+        "expected_outputs": [
+            "data/processed/change_scores.csv"
+        ]
+    },
+    {
+        "name": "Run Bootstrap CI Analysis",
+        "command": ["python", "code/analysis/bootstrap_ci.py"],
+        "expected_outputs": [
+            "results/bootstrap_results.json"
+        ]
+    },
+    {
+        "name": "Calculate Effect Sizes",
+        "command": ["python", "code/analysis/effect_sizes.py"],
+        "expected_outputs": [
+            "results/effect_sizes.json"
+        ]
+    },
+    {
+        "name": "Apply Holm-Bonferroni Correction",
+        "command": ["python", "code/analysis/holm_bonferroni.py"],
+        "expected_outputs": [
+            "results/holm_bonferroni_results.json"
+        ]
+    },
+    {
+        "name": "Generate Statistical Summary",
+        "command": ["python", "code/analysis/statistical_summary.py"],
+        "expected_outputs": [
+            "results/statistical_summary.json"
+        ]
+    },
+    {
+        "name": "Run Power Simulation",
+        "command": ["python", "code/analysis/power_simulation.py"],
+        "expected_outputs": [
+            "results/power_analysis.json"
+        ]
+    },
+    {
+        "name": "Generate Sensitivity Report",
+        "command": ["python", "code/analysis/generate_sensitivity_report.py"],
+        "expected_outputs": [
+            "results/sensitivity_analysis_report.md"
+        ]
+    },
+    {
+        "name": "Validate Success Criteria",
+        "command": ["python", "code/validation/validate_success_criteria.py"],
+        "expected_outputs": [
+            "results/validation_report.json"
+        ]
+    },
+    {
+        "name": "Generate Final Report",
+        "command": ["python", "code/report/generate_report.py"],
+        "expected_outputs": [
+            "results/final_report.md"
+        ]
+    },
+    {
+        "name": "Generate Plots",
+        "command": ["python", "code/viz/generate_plots.py"],
+        "expected_outputs": [
+            "figures/change_scores_boxplot.png",
+            "figures/metric_distribution.png"
+        ]
+    }
+]
+
+def run_command(command: List[str], cwd: Optional[Path] = None) -> bool:
     """Run a shell command and return True if successful."""
-    logger.info(f"Running: {description}")
-    logger.info(f"Command: {' '.join(cmd)}")
+    logger.info(f"Running: {' '.join(command)}")
     try:
         result = subprocess.run(
-            cmd,
-            check=True,
+            command,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            timeout=300
+            timeout=300  # 5 minutes timeout per step
         )
-        if result.stdout:
-            logger.info(result.stdout.strip())
-        if result.stderr:
-            logger.warning(result.stderr.strip())
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed with return code {e.returncode}")
-        logger.error(f"stdout: {e.stdout}")
-        logger.error(f"stderr: {e.stderr}")
-        return False
+        
+        if result.returncode == 0:
+            logger.info(f"Success: {' '.join(command)}")
+            if result.stdout:
+                logger.debug(f"STDOUT: {result.stdout[:500]}...")
+            return True
+        else:
+            logger.error(f"Failed: {' '.join(command)}")
+            logger.error(f"STDERR: {result.stderr}")
+            return False
     except subprocess.TimeoutExpired:
-        logger.error("Command timed out")
+        logger.error(f"Timeout: {' '.join(command)}")
+        return False
+    except Exception as e:
+        logger.error(f"Exception running {' '.join(command)}: {e}")
         return False
 
-def check_file_exists(path: str, description: str) -> bool:
+def check_file_exists(file_path: Path) -> bool:
     """Check if a file exists."""
-    exists = os.path.isfile(path)
-    if exists:
-        logger.info(f"✓ Found: {description} ({path})")
-    else:
-        logger.error(f"✗ Missing: {description} ({path})")
-    return exists
+    return file_path.exists()
 
-def validate_output_file(path: str, min_size: int = 0) -> bool:
-    """Validate that an output file exists and has content."""
-    if not os.path.isfile(path):
-        logger.error(f"Output file missing: {path}")
+def validate_output_file(step_name: str, expected_path: Path, project_root: Path) -> bool:
+    """Validate that an expected output file exists."""
+    full_path = project_root / expected_path
+    exists = check_file_exists(full_path)
+    if exists:
+        logger.info(f"  ✓ {step_name}: {expected_path} exists")
+        return True
+    else:
+        logger.error(f"  ✗ {step_name}: {expected_path} MISSING")
         return False
-    
-    size = os.path.getsize(path)
-    if size < min_size:
-        logger.error(f"Output file too small: {path} ({size} bytes)")
-        return False
-    
-    logger.info(f"✓ Validated output: {path} ({size} bytes)")
-    return True
 
 def main():
     """Run the full quickstart validation pipeline."""
     logger.info("=" * 60)
-    logger.info("Starting Quickstart Validation (T048)")
+    logger.info("Starting Quickstart Validation Pipeline")
     logger.info("=" * 60)
+    
+    start_time = datetime.now()
+    results = {
+        "start_time": start_time.isoformat(),
+        "steps": [],
+        "success": True,
+        "missing_files": []
+    }
 
-    # Define the pipeline steps based on quickstart.md
-    pipeline_steps = [
-        {
-            "name": "Setup Data Directories",
-            "command": [sys.executable, "-m", "code.setup.setup_data_dirs"],
-            "check_files": ["data/raw", "data/processed", "data/compliance"]
-        },
-        {
-            "name": "Generate Synthetic Baseline Data",
-            "command": [sys.executable, "-m", "code.validation.synthetic_baseline"],
-            "check_files": ["data/raw/synthetic_baseline.csv"]
-        },
-        {
-            "name": "Validate Instruments",
-            "command": [sys.executable, "-m", "code.validation.validate_instruments"],
-            "check_files": []
-        },
-        {
-            "name": "Collect Baseline Data Pipeline",
-            "command": [sys.executable, "-m", "code.pipeline.collect_baseline"],
-            "check_files": ["data/raw/baseline_data.csv"]
-        },
-        {
-            "name": "Parse Compliance Logs",
-            "command": [sys.executable, "-m", "code.compliance.parse_logs"],
-            "check_files": ["data/processed/parsed_logs.csv"]
-        },
-        {
-            "name": "Aggregate Compliance",
-            "command": [sys.executable, "-m", "code.pipeline.aggregate_compliance"],
-            "check_files": ["data/processed/compliance_scores.csv"]
-        },
-        {
-            "name": "Merge Data",
-            "command": [sys.executable, "-m", "code.pipeline.merge_data"],
-            "check_files": ["data/processed/merged_data.csv"]
-        },
-        {
-            "name": "Calculate Change Scores",
-            "command": [sys.executable, "-m", "code.analysis.change_scores"],
-            "check_files": ["data/processed/change_scores.csv"]
-        },
-        {
-            "name": "Bootstrap CI Analysis",
-            "command": [sys.executable, "-m", "code.analysis.bootstrap_ci"],
-            "check_files": ["data/processed/bootstrap_results.json"]
-        },
-        {
-            "name": "Effect Sizes",
-            "command": [sys.executable, "-m", "code.analysis.effect_sizes"],
-            "check_files": ["data/processed/effect_sizes.json"]
-        },
-        {
-            "name": "Holm-Bonferroni Correction",
-            "command": [sys.executable, "-m", "code.analysis.holm_bonferroni"],
-            "check_files": ["data/processed/holm_corrected.json"]
-        },
-        {
-            "name": "Statistical Summary",
-            "command": [sys.executable, "-m", "code.analysis.statistical_summary"],
-            "check_files": ["results/statistical_summary.json"]
-        },
-        {
-            "name": "Generate Sensitivity Report",
-            "command": [sys.executable, "-m", "code.analysis.generate_sensitivity_report"],
-            "check_files": ["results/sensitivity_analysis_report.md"]
-        },
-        {
-            "name": "Power Simulation",
-            "command": [sys.executable, "-m", "code.analysis.power_simulation"],
-            "check_files": ["results/power_analysis.json"]
-        },
-        {
-            "name": "Generate Plots",
-            "command": [sys.executable, "-m", "code.viz.generate_plots"],
-            "check_files": ["figures/change_scores_boxplot.png"]
-        },
-        {
-            "name": "Validate Success Criteria",
-            "command": [sys.executable, "-m", "code.validation.validate_success_criteria"],
-            "check_files": ["results/validation_report.json"]
-        },
-        {
-            "name": "Generate Final Report",
-            "command": [sys.executable, "-m", "code.report.generate_report"],
-            "check_files": ["results/final_report.md"]
-        }
+    # Ensure required directories exist
+    required_dirs = [
+        "data/raw", "data/processed", "data/compliance",
+        "results", "figures"
     ]
+    for dir_path in required_dirs:
+        (PROJECT_ROOT / dir_path).mkdir(parents=True, exist_ok=True)
 
-    failed_steps = []
-    passed_steps = []
+    all_passed = True
 
-    for step in pipeline_steps:
+    for step in QUICKSTART_STEPS:
         step_name = step["name"]
-        cmd = step["command"]
-        check_files = step.get("check_files", [])
-
+        command = step["command"]
+        expected_outputs = step.get("expected_outputs", [])
+        
+        logger.info(f"\n--- Step: {step_name} ---")
+        
         # Run the command
-        if not run_command(cmd, step_name):
+        success = run_command(command, cwd=PROJECT_ROOT)
+        
+        step_result = {
+            "name": step_name,
+            "command": " ".join(command),
+            "success": success,
+            "outputs_validated": True,
+            "missing_outputs": []
+        }
+        
+        if not success:
+            all_passed = False
+            step_result["outputs_validated"] = False
             logger.error(f"Step failed: {step_name}")
-            failed_steps.append(step_name)
-            continue
-
-        # Check output files
-        files_ok = True
-        for file_path in check_files:
-            full_path = Path(file_path)
-            if not check_file_exists(str(full_path), f"{step_name} output"):
-                files_ok = False
-                break
-
-        if files_ok:
-            passed_steps.append(step_name)
         else:
-            logger.error(f"Step output validation failed: {step_name}")
-            failed_steps.append(step_name)
+            # Validate expected outputs
+            for output_path in expected_outputs:
+                if not validate_output_file(step_name, Path(output_path), PROJECT_ROOT):
+                    step_result["outputs_validated"] = False
+                    step_result["missing_outputs"].append(output_path)
+                    all_passed = False
+                    results["missing_files"].append(output_path)
+        
+        results["steps"].append(step_result)
 
-    # Summary
-    logger.info("=" * 60)
-    logger.info("Quickstart Validation Summary")
-    logger.info("=" * 60)
-    logger.info(f"Passed: {len(passed_steps)}/{len(pipeline_steps)}")
-    logger.info(f"Failed: {len(failed_steps)}/{len(pipeline_steps)}")
+    end_time = datetime.now()
+    duration = (end_time - start_time).total_seconds()
+    
+    results["end_time"] = end_time.isoformat()
+    results["duration_seconds"] = duration
+    results["success"] = all_passed
 
-    if failed_steps:
-        logger.error("Failed steps:")
-        for step in failed_steps:
-            logger.error(f"  - {step}")
-        logger.error("Validation FAILED")
-        return 1
+    # Write validation report
+    report_path = PROJECT_ROOT / "results" / "quickstart_validation_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info("\n" + "=" * 60)
+    logger.info("Quickstart Validation Complete")
+    logger.info(f"Duration: {duration:.2f} seconds")
+    logger.info(f"Overall Status: {'PASSED' if all_passed else 'FAILED'}")
+    logger.info(f"Report saved to: {report_path}")
+    logger.info("=" * 60)
+
+    if not all_passed:
+        logger.warning("\nMissing files:")
+        for missing in results["missing_files"]:
+            logger.warning(f"  - {missing}")
+        sys.exit(1)
     else:
-        logger.info("All steps passed successfully!")
-        logger.info("Validation PASSED")
-        
-        # Validate key output files have content
-        key_outputs = [
-            ("results/statistical_summary.json", 100),
-            ("results/final_report.md", 500),
-            ("results/power_analysis.json", 100)
-        ]
-        
-        all_outputs_ok = True
-        for path, min_size in key_outputs:
-            if not validate_output_file(path, min_size):
-                all_outputs_ok = False
-        
-        if all_outputs_ok:
-            logger.info("All key outputs validated successfully.")
-            return 0
-        else:
-            logger.error("Some key outputs failed validation.")
-            return 1
+        logger.info("\nAll steps completed and outputs validated successfully!")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

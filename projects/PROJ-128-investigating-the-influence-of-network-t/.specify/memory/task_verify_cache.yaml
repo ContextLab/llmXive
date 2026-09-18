@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The response provides only a feature specification and no evidence that the\
-    \ required directories (`code/`, `data/`, `contracts/`, `tests/`) have been created;\
-    \ no file listings or screenshots are shown. Consequently, the claim that the\
-    \ project directory structure exists cannot be verified. The implementer must\
-    \ create and show the four directories (and preferably non\u2011empty placeholder\
-    \ files) to satisfy the task."
 T003:
   c: true
   h: 563e4d6952a6c6339af60e582e8e49bb4c38d0f3e84bbabbbf0759e380dba581
@@ -20,13 +11,6 @@ T012:
   r: The required artifact `tests/unit/test_structural.py` does not exist in the repository,
     so no unit test for `code/preprocess/structural.py` is provided. The task remains
     unfinished.
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or updated `README.md` file was provided; the claim of documentation
-    updates cannot be verified because the required artifacts are missing. The task
-    remains unfinished until the documentation files are added and contain the expected
-    updates.
 T051:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -58,7 +58,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/utils/constants.py` with:
- 1. {{claim:c_1a09f818}} (Wikipedia: Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit))
+ 1. {{claim:c_1a09f818}} (Wikipedia: Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit) [UNRESOLVED-CLAIM: c_6ba1aa43 — status=not_enough_info])
  2. Potentials list: `PHI_VALUES = [0, 2, 4]` (V)
  3. Create empty schema structure for `code/utils/reactions.yaml` with keys: `molecule_id`, `potential_v`, `reactants`, `products`, `n_electrons`, `energy_products`, `energy_reactants`. (Do not populate data yet).
 - [X] T011 [P] Populate `code/utils/reactions.yaml` with hardcoded reaction data for EC, DMC, LiPF6 at potentials 0V, 2V, 4V. Include at least 3 sample rows with defined `n_electrons` and energy values to ensure T016 has data to read.
@@ -94,7 +94,7 @@
 - [X] T016 [US1] Implement `code/data/target_calc.py` to calculate $E_{decomp}$ using `code/utils/reactions.yaml` (populated in T011) and stoichiometry heuristic for $\phi \in \{0, 2, 4\}$ V (FR-002, FR-008). The heuristic selects the correct reaction entry from the YAML based on molecule ID and potential. <!-- FAILED: unspecified -->
 - [ ] T017 [US1] Add validation logic to ensure feature matrix has no missing values before output
 - [X] T018 [US1] Split data into Train/Validation/Held-Out sets (e.g., a majority portion for training with smaller portions for validation and held-out evaluation) and save processed feature matrix, targets, and the held-out set to `data/processed/electrolyte_features.csv` and `data/processed/electrolyte_heldout.csv`
-- [ ] T019 [US1] Implement stratification logic to split data into 'Low' (using low-voltage data) and 'High' (using high-voltage data) bins. **Deviation**: Explicitly map the spec's '3-5V' range requirement to the available 4V data point due to data constraints. Save bin assignments to `data/processed/bins.csv`.
+- [X] T019 [US1] Implement stratification logic to split data into 'Low' (using low-voltage data) and 'High' (using high-voltage data) bins. **Deviation**: Explicitly map the spec's '3-5V' range requirement to the available 4V data point due to data constraints. Save bin assignments to `data/processed/bins.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,7 +113,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement `code/models/trainer.py` to train Random Forest with 5-fold CV and hyperparameter tuning using GridSearchCV (search space: n_estimators=[low, medium, high], max_depth=[10, 20, None]). **Bin Logic**: Explicitly map all requests for the 'High-potential (3-5V)' range to the available 4V data point by filtering data where `potential == 4`. **Deviation**: Note that the spec's 3-5V range is approximated by the single 4V point due to data constraints. (FR-004)
+- [X] T022 [P] [US2] Implement `code/models/trainer.py` to train Random Forest with 5-fold CV and hyperparameter tuning using GridSearchCV (search space: n_estimators=[low, medium, high], max_depth=[10, 20, None] [UNRESOLVED-CLAIM: c_effcd87a — status=not_enough_info]). **Bin Logic**: Explicitly map all requests for the 'High-potential (3-5V)' range to the available 4V data point by filtering data where `potential == 4`. **Deviation**: Note that the spec's 3-5V range is approximated by the single 4V point due to data constraints. (FR-004)
 - [X] T023 [US2] Implement `code/models/evaluator.py` to calculate permutation importance for each bin (FR-005). **Dependency**: Requires model artifact from T022.
 - [ ] T024 [US2] Implement logic to identify descriptors entering top 3 in high-potential (4V) but absent in low-potential (0-2V). **Deviation**: Explicitly reference spec's 3-5V range and note the mapping to 4V data point as a known limitation.
 - [ ] T025 [US2] Generate heatmap visualization of top features per bin using `seaborn` and save to `data/validation/feature_importance_heatmap.png`
@@ -139,8 +139,8 @@
 - [X] T029 [P] [US3] Implement internal validation logic in `code/models/evaluator.py` to compare predictions against held-out DFT data (FR-006 Fallback). **Deviation**: Explicitly log that FR-006 (External Validation) is unmet due to missing experimental dataset (Plan Check: Data Gap).
 - [X] T030 [US3] Implement calculation of MAE and R² for the internal validation set. **Deviation**: Label metric as 'Internal Consistency MAE' and flag that SC-003 (Experimental MAE) is unmet due to data gap. **Dependency**: Read model artifact from `data/processed/model_run.json` generated in T026.
 - [X] T031 [US3] Implement `code/models/evaluator.py` sensitivity analysis: sweep 'decomposition energy stability cutoff' threshold $\{0.45, 0.50, 0.55\}$ eV (FR-007)
-- [ ] T032 [US3] Implement rank stability check: verify top 3 descriptors change by no more than 1 position across the sweep
-- [ ] T033 [US3] Generate sensitivity analysis report and save to `data/validation/sensitivity_report.md`
+- [ ] T032 [US3] Implement rank stability check: verify top 3 descriptors change by no more than 1 position across the sweep [UNRESOLVED-CLAIM: c_02dcc86b — status=not_enough_info]
+- [X] T033 [US3] Generate sensitivity analysis report and save to `data/validation/sensitivity_report.md`
 - [ ] T034 [US3] Add warning flag to final report stating: "FR-006 and SC-003 (External Validation) could not be fulfilled due to unavailability of experimental onset potential datasets. Internal DFT validation was used as a fallback."
 
 **Checkpoint**: All user stories should now be independently functional

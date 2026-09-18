@@ -1,18 +1,3 @@
-T020:
-  c: false
-  h: 56b30975f11f4ad943dd1fffbaef3ad57a8e8c3618f9d094c12f1783dd140dde
-  r: "The required output file `results/power_analysis.json` does not exist, so the\
-    \ simulation\u2019s results are not written as mandated. Additionally, the provided\
-    \ `power_simulation.py` is truncated and does not clearly show the 1,000\u2011\
-    iteration loop, Holm\u2011Bonferroni correction per iteration, or the JSON write\
-    \ step. These missing artifacts prevent the task from being considered complete."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that shows the implementation\
-    \ of logic to flag non\u2011compliant days while preserving the data for later\
-    \ analysis. The required artifact (e.g., a function, module, or database update\
-    \ rule) is missing, so the task is not satisfied."
 T042:
   c: false
   h: 4efc2e67e1dc5526a0d1685efb9fbb65ca72078166236a0d211598a1c1647a06

@@ -5,33 +5,42 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0] - 2026-06-26
 
 ### Added
-- Complete implementation of the research pipeline for investigating network topology influence.
-- Leave-One-Out (LOO) K-Means state extraction to ensure statistical independence.
-- Structural graph metric calculation (global efficiency, clustering, modularity).
-- Dynamic functional metric calculation (dwell time, visited states).
-- Correlation analysis with Benjamini-Hochberg FDR correction.
-- Robustness analysis for window length and density threshold variations.
-- Comprehensive documentation in `docs/` directory.
-- Associational language audit and framing in reports.
+
+- **Phase 1: Setup**
+ - T001: Project directory structure (`code/`, `data/`, `contracts/`, `tests/`)
+ - T002: `requirements.txt` with all dependencies
+ - T003: Linting and formatting configuration
+
+- **Phase 2: Foundational**
+ - T004-T005: Configuration parameters (window length, K-Means K, density thresholds)
+ - T006-T011: Data loading utilities, preprocessing skeletons, schema definitions
+
+- **Phase 3: User Story 1 (MVP)**
+ - T015: Structural graph metric calculation (global efficiency, clustering, modularity)
+ - T016: Leave-One-Out (LOO) K-Means centroid generation
+ - T017: LOO state assignment and dynamic metric calculation
+ - T018-T020: Batch processing, aggregation, and exclusion logging
+ - T012-T014: Unit and integration tests
+
+- **Phase 4: User Story 2**
+ - T024-T028: Normality testing, correlation analysis, FDR correction, and result generation
+
+- **Phase 5: User Story 3**
+ - T031-T035: Sensitivity analysis, resource monitoring, and final report generation
+
+- **Phase N: Polish**
+ - T050: Comprehensive documentation updates (`README.md`, `docs/README.md`, `docs/CHANGELOG.md`)
 
 ### Changed
+
+- Updated task T016/T017 to implement strict LOO K-Means for statistical independence.
 - Removed unapproved scope creep (Phase 6: Tractography Noise Sensitivity).
-- Updated research question validation to emphasize associational framing.
 
 ### Fixed
-- Ensured all data loaders fail loudly on missing real data (no synthetic fallbacks).
-- Corrected LOO implementation to strictly exclude the current subject from centroid generation.
 
-### Documentation
-- Added `docs/README.md`, `docs/ARCHITECTURE.md`, `docs/PROCESS.md`, and `docs/CHANGELOG.md`.
-- Updated root `README.md` with quick start guide and key methodological notes.
+- Ensured all scripts write real output files to disk (no in-memory-only execution).
+- Enforced "fail loudly" policy for data loading (no synthetic fallbacks).
 
-## [0.1.0] - 2026-06-25
+### Known Issues
 
-### Added
-- Initial project setup and directory structure.
-- Basic configuration and schema definitions.
-- Skeleton modules for preprocessing and analysis.
-
-### Notes
-- This version was a foundational setup to enable subsequent user story implementations.
+- None reported at this time.

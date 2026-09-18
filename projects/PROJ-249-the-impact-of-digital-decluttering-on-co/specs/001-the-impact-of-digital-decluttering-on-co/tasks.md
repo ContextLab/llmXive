@@ -131,10 +131,10 @@
 - [X] T038 [US3] Implement Holm-Bonferroni step-down correction in `code/analysis/holm_bonferroni.py` (FR-008)
 - [X] T039 [US3] Implement Cohen's d with 95% CI calculation in `code/analysis/effect_sizes.py` (FR-007)
 - [ ] T020 [US3] Implement Monte Carlo power simulation (1,000 iterations) to estimate power for detecting d=0.5 with Holm-Bonferroni correction in `code/analysis/power_simulation.py`; MUST use synthetic data from T017 and apply Holm-Bonferroni correction to alpha in every iteration to account for reduced alpha; MUST write output to `results/power_analysis.json` (FR-006, US-1).
-- [ ] T040 [US3] Generate `results/statistical_summary.json` with mean change, CI, and corrected p-values (SC-001 to SC-005)
+- [X] T040 [US3] Generate `results/statistical_summary.json` with mean change, CI, and corrected p-values (SC-001 to SC-005)
 - [ ] T029 [US3] Generate sensitivity analysis report in `results/sensitivity_analysis_report.md`; MUST explicitly document self-report limitations or compare against objective data if available (FR-011)
 - [X] T041 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
-- [ ] T043 [US3] Create validation script to check results against success criteria (SC-001 to SC-005) in `code/validation/validate_success_criteria.py`; MUST explicitly compare `results/statistical_summary.json` values against thresholds (p < 0.05, d ≥ 0.2) AND verify the *direction* of the effect (e.g., reduction for SART, increase for Ospan) to match the hypothesis; generate a validation report; MUST run before T042.
+- [X] T043 [US3] Create validation script to check results against success criteria (SC-001 to SC-005) in `code/validation/validate_success_criteria.py`; MUST explicitly compare `results/statistical_summary.json` values against thresholds (p < 0.05, d ≥ 0.2) AND verify the *direction* of the effect (e.g., reduction for SART, increase for Ospan) to match the hypothesis; generate a validation report; MUST run before T042.
 - [X] T042 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T029), 2) Power simulation results (from T020), 3) Statistical summary (from T040), 4) Validation status (from T043); Output to `results/final_report.md`; MUST be the final task in Phase 5. <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
@@ -146,7 +146,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T044 [P] Documentation updates: `README.md`, `quickstart.md`, and API docs in `docs/`
-- [ ] T045 Code cleanup and refactoring for readability <!-- ATOMIZE: requested -->
+- [ ] T045 Code cleanup and refactoring for readability <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T046 Performance optimization for bootstrap loops (vectorization)
 - [ ] T047 [P] Additional unit tests for edge cases (dropouts, missing data) in `tests/unit/`
 - [ ] T048 Run `quickstart.md` validation to ensure end-to-end reproducibility

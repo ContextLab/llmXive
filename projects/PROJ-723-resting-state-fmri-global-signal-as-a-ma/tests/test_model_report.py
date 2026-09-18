@@ -1,187 +1,106 @@
-"""
-Tests for T025: model_report generation.
-
-These tests verify that:
-  1. The report generation logic runs without error.
-  2. The report contains the required keys.
-  3. The null distribution stats are computed correctly.
-  4. The p-value calculation is correct.
-"""
-import json
 import os
+import json
 import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import numpy as np
 import pytest
+from pathlib import Path
 
-# Mock the modeling functions to avoid heavy computation in tests
-@pytest.fixture
-def mock_modeling_results():
-    """Fixture to provide mock results from modeling functions."""
-    return {
-        "mean_mae": 2.5,
-        "mean_r": 0.35,
-        "mean_r2": 0.12,
-        "optimal_alpha": 1.0,
-    }
+# Import the functions to test
+from model_report import calculate_empirical_p_value, compute_null_distribution_stats, generate_model_report, load_existing_results
 
-@pytest.fixture
-def mock_null_results():
-    """Fixture to provide mock null distribution results."""
-    np.random.seed(42)
-    null_maes = np.random.normal(loc=3.0, scale=0.5, size=1000)
-    return {
-        "null_maes": null_maes,
-    }
+class TestEmpiricalPValue:
+    def test_p_value_calculation_basic(self):
+        """Test basic p-value calculation with known values."""
+        observed_mae = 0.5
+        null_maes = np.array([0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1])
+        
+        # Count <= 0.5: 0.1, 0.2, 0.3, 0.4 -> 4 items
+        # p = (4 + 1) / (10 + 1) = 5/11
+        expected_p = 5 / 11
+        
+        p_value = calculate_empirical_p_value(observed_mae, null_maes)
+        assert abs(p_value - expected_p) < 1e-6
 
-@pytest.fixture
-def mock_df():
-    """Fixture to provide a mock cleaned data DataFrame."""
-    data = {
-        "Subject_ID": [f"sub-{i:03d}" for i in range(1, 11)],
-        "Global_Signal_SD": np.random.rand(10) * 0.5,
-        "MWQ_Score": np.random.randint(10, 50, 10),
-        "Age": np.random.randint(20, 60, 10),
-        "Sex": np.random.choice([0, 1], 10),
-        "Mean_FD": np.random.rand(10) * 0.2,
-        "Mean_DVARS": np.random.rand(10) * 0.1,
-    }
-    return data
+    def test_p_value_all_lower(self):
+        """Test when all null values are lower than observed."""
+        observed_mae = 10.0
+        null_maes = np.array([1.0, 2.0, 3.0])
+        
+        # Count <= 10: 3 items
+        # p = (3 + 1) / (3 + 1) = 1.0
+        p_value = calculate_empirical_p_value(observed_mae, null_maes)
+        assert p_value == 1.0
 
-@pytest.fixture
-def mock_existing_results():
-    """Fixture to provide mock existing results (delta_r2, diagnostics)."""
-    return {
-        "delta_r2": {
-            "delta_r2_value": 0.05,
-            "reduced_model_r2": 0.07,
-            "full_model_r2": 0.12,
-        },
-        "diagnostics": {
-            "VIF": {
-                "Global_Signal_SD": 2.1,
-                "Mean_FD": 1.5,
-                "Mean_DVARS": 1.8,
-                "Age": 1.2,
-                "Sex": 1.1,
-            },
-            "correlation_matrix": {
-                "Global_Signal_SD_Mean_FD": 0.15,
-            },
-        },
-    }
+    def test_p_value_all_higher(self):
+        """Test when all null values are higher than observed."""
+        observed_mae = 0.0
+        null_maes = np.array([1.0, 2.0, 3.0])
+        
+        # Count <= 0: 0 items
+        # p = (0 + 1) / (3 + 1) = 0.25
+        p_value = calculate_empirical_p_value(observed_mae, null_maes)
+        assert abs(p_value - 0.25) < 1e-6
 
-def test_compute_null_distribution_stats(mock_null_results, mock_modeling_results):
-    """Test that null distribution stats and p-value are computed correctly."""
-    from model_report import compute_null_distribution_stats
+    def test_p_value_empty_null(self):
+        """Test that empty null distribution raises error."""
+        observed_mae = 0.5
+        null_maes = np.array([])
+        
+        with pytest.raises(ValueError):
+            calculate_empirical_p_value(observed_mae, null_maes)
 
-    null_maes = mock_null_results["null_maes"]
-    observed_mae = mock_modeling_results["mean_mae"]
+class TestNullDistributionStats:
+    def test_stats_calculation(self):
+        """Test calculation of null distribution statistics."""
+        null_maes = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        
+        stats = compute_null_distribution_stats(null_maes)
+        
+        assert stats["mean_mae"] == 3.0
+        assert stats["std_mae"] == pytest.approx(np.std(null_maes))
+        assert stats["min_mae"] == 1.0
+        assert stats["max_mae"] == 5.0
+        assert stats["count"] == 5
 
-    stats = compute_null_distribution_stats(null_maes, observed_mae)
+class TestModelReportGeneration:
+    def test_report_generation(self):
+        """Test generation of model report JSON."""
+        observed_stats = {"mae": 0.5, "r2": 0.3}
+        null_stats = {"mean_mae": 0.6, "std_mae": 0.1}
+        p_value = 0.03
+        
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+            output_path = f.name
+        
+        try:
+            report = generate_model_report(observed_stats, null_stats, p_value, output_path)
+            
+            # Verify file exists and content matches
+            assert os.path.exists(output_path)
+            
+            with open(output_path, 'r') as f:
+                saved_report = json.load(f)
+            
+            assert saved_report["empirical_p_value"] == p_value
+            assert saved_report["observed_stats"]["mae"] == 0.5
+            assert saved_report["interpretation"] == "Significant"
+        finally:
+            os.unlink(output_path)
 
-    assert "mean_null_mae" in stats
-    assert "std_null_mae" in stats
-    assert "min_null_mae" in stats
-    assert "max_null_mae" in stats
-    assert "empirical_p_value" in stats
+class TestLoadExistingResults:
+    def test_load_valid_file(self):
+        """Test loading a valid JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+            json.dump({"observed_stats": {"mae": 0.5}}, f)
+            temp_path = f.name
+        
+        try:
+            data = load_existing_results(temp_path)
+            assert data["observed_stats"]["mae"] == 0.5
+        finally:
+            os.unlink(temp_path)
 
-    # Verify p-value calculation
-    expected_p_value = float(np.sum(null_maes <= observed_mae) / len(null_maes))
-    assert np.isclose(stats["empirical_p_value"], expected_p_value)
-
-@patch("model_report.load_cleaned_data")
-@patch("model_report.run_ridge_regression_with_nested_cv")
-@patch("model_report.run_null_distribution_analysis")
-@patch("model_report.load_existing_results")
-@patch("model_report.write_json")
-def test_generate_model_report(
-    mock_write_json,
-    mock_load_existing,
-    mock_null_analysis,
-    mock_ridge_cv,
-    mock_load_data,
-    mock_modeling_results,
-    mock_null_results,
-    mock_df,
-    mock_existing_results,
-):
-    """Test that generate_model_report produces the correct structure."""
-    from model_report import generate_model_report
-
-    # Setup mocks
-    mock_load_data.return_value = mock_df
-    mock_ridge_cv.return_value = mock_modeling_results
-    mock_null_analysis.return_value = mock_null_results
-    mock_load_existing.return_value = mock_existing_results
-
-    report = generate_model_report()
-
-    # Verify structure
-    assert "primary_model" in report
-    assert "null_distribution" in report
-    assert "reduced_model_comparison" in report
-    assert "collinearity_diagnostics" in report
-    assert "metadata" in report
-
-    # Verify primary model keys
-    pm = report["primary_model"]
-    assert "mean_out_of_fold_mae" in pm
-    assert "mean_out_of_fold_pearson_r" in pm
-    assert "mean_out_of_fold_r_squared" in pm
-    assert "optimal_alpha" in pm
-
-    # Verify null distribution keys
-    nd = report["null_distribution"]
-    assert "n_permutations" in nd
-    assert "mean_null_mae" in nd
-    assert "std_null_mae" in nd
-    assert "empirical_p_value" in nd
-
-    # Verify values are passed through correctly
-    assert pm["mean_out_of_fold_mae"] == mock_modeling_results["mean_mae"]
-    assert nd["n_permutations"] == 1000
-
-@patch("model_report.load_cleaned_data")
-@patch("model_report.run_ridge_regression_with_nested_cv")
-@patch("model_report.run_null_distribution_analysis")
-@patch("model_report.load_existing_results")
-@patch("model_report.write_json")
-@patch("model_report.Path.exists")
-@patch("model_report.Path.mkdir")
-def test_main_function(
-    mock_mkdir,
-    mock_path_exists,
-    mock_write_json,
-    mock_load_existing,
-    mock_null_analysis,
-    mock_ridge_cv,
-    mock_load_data,
-    mock_modeling_results,
-    mock_null_results,
-    mock_df,
-    mock_existing_results,
-    capsys,
-):
-    """Test that main() runs end-to-end and prints summary."""
-    from model_report import main
-
-    # Setup mocks
-    mock_path_exists.return_value = True
-    mock_load_data.return_value = mock_df
-    mock_ridge_cv.return_value = mock_modeling_results
-    mock_null_analysis.return_value = mock_null_results
-    mock_load_existing.return_value = mock_existing_results
-
-    main()
-
-    # Verify write_json was called
-    assert mock_write_json.called
-
-    # Verify stdout contains expected summary lines
-    captured = capsys.readouterr()
-    assert "Primary Model MAE:" in captured.out
-    assert "Primary Model Pearson r:" in captured.out
-    assert "Empirical p-value:" in captured.out
+    def test_load_missing_file(self):
+        """Test that loading a missing file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_existing_results("nonexistent_file.json")

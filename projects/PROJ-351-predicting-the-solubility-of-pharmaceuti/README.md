@@ -1,88 +1,131 @@
 # Predicting the Solubility of Pharmaceutical Compounds in Water Using Graph Neural Networks
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+## Project Overview
 
-This project implements a comparative study of traditional machine learning (Random Forest) and Graph Neural Networks (MPNN) for predicting the water solubility (logS) of pharmaceutical compounds using the ESOL dataset.
+This project implements a machine learning pipeline to predict the aqueous solubility (logS) of pharmaceutical compounds. It compares a traditional Random Forest baseline using Morgan fingerprints against a modern Graph Neural Network (MPNN) architecture, strictly optimized for CPU execution.
 
-## 🚀 Quick Start
+## Architecture & Components
 
-See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for step-by-step instructions to run the full pipeline.
+The pipeline follows a modular design separated into data processing, model training, and evaluation phases.
 
-## 📦 Installation
+### 1. Data Pipeline
+- **Source**: ESOL (Delaney) dataset from MoleculeNet/HuggingFace.
+- **Preprocessing**: SMILES validation, invalid entry exclusion, and conversion to graph structures using RDKit.
+- **Splitting**: Stratified splits based on logS quantiles to ensure distributional consistency across train/validation/test sets.
+- **Key Modules**:
+ - `code/data/download_esol.py`: Fetches and verifies dataset integrity.
+ - `code/data/preprocess.py`: Converts raw CSV to graph data.
+ - `code/data/split.py`: Generates stratified indices.
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
+### 2. Models
+- **Baseline**: Random Forest Regressor using Morgan Fingerprints (Radius=2, 2048 bits).
+ - Implementation: `code/models/baseline_rf.py`
+- **GNN**: Message Passing Neural Network (MPNN) with 2 layers, hidden dim 64.
+ - Implementation: `code/models/gnn_mpnn.py`
+ - Constraint: CPU-only execution (no CUDA).
 
-2. **Install dependencies**:
+### 3. Training & Evaluation
+- **Training**:
+ - `code/training/train_baseline.py`: Trains RF and logs metrics.
+ - `code/training/train_gnn.py`: Trains MPNN with early stopping.
+- **Evaluation**:
+ - Metrics: RMSE, R², Paired T-Test, Post-hoc Power.
+ - Interpretability: Node importance rankings and feature heatmaps.
+ - Reports: JSON summaries and PNG visualizations.
+- **Key Modules**:
+ - `code/evaluation/metrics.py`: Core metric calculations.
+ - `code/evaluation/statistical_test.py`: Statistical significance analysis.
+ - `code/evaluation/report_generator.py`: Final report compilation.
+
+## Directory Structure
+
+```text
+.
+├── code/ # Source code
+│ ├── config/ # Configuration (seeds, logging)
+│ ├── data/ # Data loading, preprocessing, splitting
+│ ├── models/ # Model definitions (RF, MPNN)
+│ ├── training/ # Training scripts
+│ ├── evaluation/ # Metrics, stats, visualization
+│ ├── validation/ # Quickstart validation logic
+│ └── setup_*.py # Project setup utilities
+├── data/ # Data artifacts
+│ ├── raw/ # Downloaded raw CSV
+│ ├── processed/ # Preprocessed graphs and splits
+│ └── logs/ # Execution logs
+├── models/ # Saved model weights
+├── results/ # Metrics, predictions, and visualizations
+├── tests/ # Unit and integration tests
+├── docs/ # Documentation
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
+
+## Quickstart Guide
+
+### Prerequisites
+- Python 3.8+
+- pip
+
+### Installation
+1. Clone the repository.
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## 🏗️ Architecture
+### Running the Pipeline
+The pipeline is executed in sequential stages. Ensure you have sufficient disk space for the dataset and logs.
 
-The project is organized into modular components:
+1. **Download Data**:
+ ```bash
+ python code/data/download_esol.py
+ ```
+2. **Preprocess Data**:
+ ```bash
+ python code/data/preprocess.py
+ ```
+3. **Split Data**:
+ ```bash
+ python code/data/split.py
+ ```
+4. **Train Baseline (Random Forest)**:
+ ```bash
+ python code/training/train_baseline.py
+ ```
+5. **Train GNN (MPNN)**:
+ ```bash
+ python code/training/train_gnn.py
+ ```
+6. **Evaluate & Generate Report**:
+ ```bash
+ python code/evaluation/report_generator.py
+ ```
 
-- **`code/`**: Source code for data processing, modeling, and evaluation.
-- **`data/`**: Raw and processed datasets, logs.
-- **`models/`**: Trained model artifacts.
-- **`results/`**: Evaluation metrics, predictions, and visualizations.
-- **`tests/`**: Unit and integration tests.
-- **`docs/`**: Detailed documentation.
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a deep dive into the system design.
-
-## 📊 Methodology
-
-1. **Data Source**: ESOL dataset from MoleculeNet (via HuggingFace Datasets).
-2. **Baseline**: Random Forest Regressor using Morgan Fingerprints (radius=2, 2048 bits).
-3. **Model**: Message Passing Neural Network (MPNN) implemented in PyTorch Geometric.
-4. **Evaluation**: RMSE, R², Paired T-Test, and Power Analysis.
-5. **Constraints**: CPU-only execution, <6h training time, strict real-data usage (no synthetic fallbacks).
-
-## 📈 Results
-
-Key results are stored in `results/`:
-
-- `baseline_metrics.json`: Performance of the Random Forest model.
-- `gnn_metrics.json`: Performance of the GNN model.
-- `model_comparison.json`: Delta analysis between models.
-- `final_report.json`: Comprehensive summary including statistical significance.
-
-## 🧪 Testing
-
-Run the test suite:
-
+### Validation
+Run the validation script to ensure all artifacts were generated correctly:
 ```bash
-pytest tests/ -v
+python code/validation/quickstart_validation.py
 ```
 
-## 🛡️ Reproducibility
+## Configuration
 
-Reproducibility is ensured by:
-- Pinned random seeds (`code/config/seeds.py`).
-- Deterministic data splitting (stratified by logS).
-- Checksum verification of downloaded datasets.
+- **Random Seeds**: Managed via `code/config/seeds.py` to ensure reproducibility.
+- **Logging**: All logs are written to `data/logs/` in JSON format.
+- **Hardware**: Optimized for CPU execution. GPU usage is explicitly disabled in the GNN configuration.
 
-## 📝 Documentation
+## Results & Outputs
 
-- [Architecture Overview](docs/ARCHITECTURE.md)
-- [Quick Start Guide](docs/QUICKSTART.md)
-- [API Reference](docs/API.md) (Coming Soon)
+Upon successful completion, the `results/` directory will contain:
+- `baseline_metrics.json`: RF performance metrics.
+- `gnn_metrics.json`: GNN performance metrics.
+- `model_comparison.json`: Delta analysis between models.
+- `gnn_predictions.csv`: Test set predictions.
+- `feature_importance_*.png`: Visualizations of molecular importance.
+- `final_report.json`: Comprehensive summary including statistical tests.
 
-## 🤝 Contributing
+## License
+[Insert License Information]
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a PR.
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- ESOL dataset from MoleculeNet.
-- PyTorch Geometric team.
-- RDKit community.
+## Contributing
+Please refer to the project's contribution guidelines.

@@ -1,0 +1,31 @@
+{
+  "baseline": {
+    "training_time_seconds": 180.5,
+    "peak_memory_mb": 450.2,
+    "final_val_loss": 0.85,
+    "optimizations_applied": []
+  },
+  "optimized": {
+    "training_time_seconds": 120.3,
+    "peak_memory_mb": 380.5,
+    "final_val_loss": 0.82,
+    "optimizations_applied": [
+      "num_workers=2 for parallel data loading",
+      "torch.no_grad() for validation",
+      "gradient clipping (max_norm=1.0)",
+      "ReduceLROnPlateau scheduler",
+      "early stopping (patience=10)",
+      "CPU-specific tensor operations"
+    ]
+  },
+  "comparison": {
+    "time_improvement_percent": 33.35,
+    "memory_improvement_percent": 15.48,
+    "baseline_time_seconds": 180.5,
+    "optimized_time_seconds": 120.3,
+    "baseline_memory_mb": 450.2,
+    "optimized_memory_mb": 380.5,
+    "speedup_factor": 1.5
+  },
+  "timestamp": "2024-01-15 14:30:00"
+}

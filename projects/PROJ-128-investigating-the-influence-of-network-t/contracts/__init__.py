@@ -1,1 +1,4 @@
-# Schema definitions for data validation.
+"""
+llmXive Research Pipeline: Contracts Module
+Contains schema definitions and validation contracts.
+"""

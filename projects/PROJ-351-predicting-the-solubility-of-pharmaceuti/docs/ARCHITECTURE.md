@@ -1,54 +1,81 @@
-# Architecture Documentation
+# Architecture Document: ESOL Solubility Prediction Pipeline
 
-## System Overview
+## 1. System Overview
 
-The system follows a modular pipeline architecture designed for reproducibility and scientific rigor. It separates concerns into distinct stages: Data Ingestion, Preprocessing, Model Training, and Evaluation.
+This document details the architectural decisions, data flow, and module interactions for the ESOL Solubility Prediction Pipeline. The system is designed to be reproducible, modular, and strictly CPU-executable.
 
-## Data Flow
+## 2. Design Principles
 
-1. **Ingestion**: `download_esol.py` retrieves the raw ESOL dataset.
-2. **Validation**: Raw CSV is validated for `logS` presence and checksum integrity.
-3. **Preprocessing**: `preprocess.py` parses SMILES, validates molecules with RDKit, and extracts atom/bond features. Invalid entries are logged and excluded.
-4. **Splitting**: `split.py` performs stratified splitting based on logS quantiles to ensure distributional consistency across splits.
-5. **Training**:
- - **Baseline**: `train_baseline.py` trains a Random Forest on fingerprint vectors.
- - **GNN**: `train_gnn.py` trains an MPNN on graph tensors.
-6. **Evaluation**: Metrics are calculated, statistical tests performed, and visualizations generated.
+- **Reproducibility**: All random seeds are pinned globally before data loading.
+- **Fail Loudly**: Data loaders must raise exceptions on network failure; no synthetic fallbacks.
+- **CPU-First**: All models are optimized for CPU inference and training.
+- **Streaming**: Large datasets are processed in chunks to respect memory constraints (~7GB RAM).
+- **Modularity**: Distinct separation between data, model, training, and evaluation logic.
 
-## Module Responsibilities
+## 3. Data Flow
 
-### `code/config/`
-- `seeds.py`: Centralized seed management for `numpy`, `random`, and `torch`.
+1. **Ingestion**: `download_esol.py` fetches the ESOL dataset from HuggingFace/MoleculeNet.
+ - Validates checksum.
+ - Saves to `data/raw/esol.csv`.
+2. **Preprocessing**: `preprocess.py` reads the raw CSV.
+ - Validates SMILES strings using RDKit.
+ - Excludes invalid entries (logged to `data/logs/exclusions.log`).
+ - Converts valid molecules to graph representations (atom/bond features).
+ - Saves processed graphs to `data/processed/`.
+3. **Splitting**: `split.py` performs a stratified split on logS values.
+ - Generates train/val/test indices.
+ - Saves indices to `data/processed/splits.json`.
+4. **Training**:
+ - **Baseline**: `train_baseline.py` loads processed data, generates Morgan fingerprints, trains a Random Forest, and saves the model.
+ - **GNN**: `train_gnn.py` loads graph data, trains the MPNN with early stopping, and saves the best checkpoint.
+5. **Evaluation**:
+ - `metrics.py` calculates RMSE and R².
+ - `statistical_test.py` performs paired t-tests.
+ - `interpretability.py` generates visualizations.
+ - `report_generator.py` compiles all results into a final report.
 
-### `code/data/`
-- `download_esol.py`: Handles external API calls and checksum verification.
-- `preprocess.py`: Heavy lifting for molecular graph construction. Includes error handling for malformed SMILES.
-- `split.py`: Logic for deterministic data partitioning.
+## 4. Module Specifications
 
-### `code/models/`
-- `baseline_rf.py`: Wrapper for `sklearn.ensemble.RandomForestRegressor`.
-- `gnn_mpnn.py`: PyTorch Geometric implementation of a Message Passing Neural Network.
+### 4.1 Data Layer (`code/data/`)
+- **download_esol.py**: Handles external data fetching and integrity verification.
+- **preprocess.py**: Handles SMILES parsing and graph construction. Implements chunked processing.
+- **split.py**: Handles dataset stratification.
 
-### `code/training/`
-- `train_baseline.py`: Orchestrates RF training loop and logging.
-- `train_gnn.py`: Orchestrates MPNN training with early stopping and checkpointing.
+### 4.2 Model Layer (`code/models/`)
+- **baseline_rf.py**: Implements Random Forest logic using `scikit-learn` and `rdkit`.
+- **gnn_mpnn.py**: Implements the MPNN architecture using `torch_geometric`.
+ - Layers: 2 Message Passing layers.
+ - Hidden Dimension: 64.
+ - Activation: ReLU.
 
-### `code/evaluation/`
-- `metrics.py`: Standard regression metrics (RMSE, R²).
-- `statistical_test.py`: Implements paired t-tests and power analysis.
-- `interpretability.py`: Generates feature importance plots.
-- `report_generator.py`: Aggregates all results into a final JSON/Text report.
+### 4.3 Training Layer (`code/training/`)
+- **train_baseline.py**: Orchestrates RF training pipeline.
+- **train_gnn.py**: Orchestrates GNN training with early stopping and timer logging.
 
-## Logging Strategy
+### 4.4 Evaluation Layer (`code/evaluation/`)
+- **metrics.py**: Standard regression metrics.
+- **statistical_test.py**: Hypothesis testing (t-test, power analysis).
+- **interpretability.py**: Node importance calculation and plotting.
+- **report_generator.py**: Aggregates results for final reporting.
 
-All modules utilize a centralized logging configuration (`code/config/logging_config.py`). Logs are written to `data/logs/` in JSON format with timestamps, facilitating debugging and audit trails.
+### 4.5 Configuration (`code/config/`)
+- **seeds.py**: Centralized seed management.
+- **logging_config.py**: JSON logging setup.
 
-## Error Handling
+## 5. Error Handling Strategy
 
-- **Data Fetch Failures**: Scripts raise exceptions immediately if the real data source is unreachable (no synthetic fallbacks).
-- **Molecule Parsing Errors**: Invalid SMILES are logged to `data/logs/exclusions.log` and excluded from the dataset.
-- **Non-Convergence**: GNN training detects non-convergence and saves the best checkpoint while logging a warning.
+- **Data Fetch Failures**: Raise `ConnectionError` or `ValueError` immediately. No retries with synthetic data.
+- **SMILES Parsing Failures**: Log count to `exclusions.log` and continue with valid data.
+- **Training Non-Convergence**: Detect if validation loss plateaus/increases for >20 epochs; save best checkpoint and log warning.
 
-## Extensibility
+## 6. Performance Constraints
 
-New models can be added by implementing the `code/models/` interface. New evaluation metrics can be added to `code/evaluation/metrics.py` without modifying training logic.
+- **Time**: All tasks must complete within 6 hours on a 2-core CPU.
+- **Memory**: Preprocessing and training must stream data or use chunking to stay under ~7GB RAM.
+- **Accuracy**: Baseline R² > 0.9 triggers a "ceiling effect" flag in the final report.
+
+## 7. Future Considerations
+
+- Potential integration with GPU backends if hardware constraints are relaxed.
+- Expansion to other solubility datasets (e.g., FreeSolv).
+- Enhanced interpretability methods (SHAP, LIME).

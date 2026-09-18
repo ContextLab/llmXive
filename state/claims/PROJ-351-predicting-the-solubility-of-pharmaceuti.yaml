@@ -1,0 +1,164 @@
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 33.35% reduction in training time and 15.48% reduction in memory usage
+  claim_id: c_c9eb4187
+  context: Executive Summary section describing the overall impact of optimizations
+    on the GNN training loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimizations resulted in a 33.35% reduction in training time and
+    a 15.48% reduction in memory usage while maintaining or improving model convergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:34:58Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 20% reduction in data loading bottleneck with num_workers=2
+  claim_id: c_1e1fd8a7
+  context: Section 1 describing the impact of changing num_workers from 0 to 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parallel data loading with num_workers=2 reduced data loading bottleneck
+    by ~20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:41:55Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 10% memory usage and 15% computation time reduction with torch.no_grad()
+  claim_id: c_5172f39d
+  context: Section 2 describing the impact of disabling gradient calculation during
+    validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using torch.no_grad() context during validation reduced memory usage by
+    ~10% and computation time by ~15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:41:56Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 15% reduction in training epochs with ReduceLROnPlateau
+  claim_id: c_5f973df7
+  context: Section 4 describing the impact of the adaptive learning rate scheduler.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ReduceLROnPlateau scheduler reduced training epochs by ~15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:41:56Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 10% time saved with early stopping patience of 10
+  claim_id: c_d1c0fa15
+  context: Section 5 describing the impact of the early stopping implementation.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Early stopping with Patience=10 epochs saved ~10% time.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T03:41:56Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 5% reduction in overhead with CPU-specific optimizations
+  claim_id: c_aa3cb09e
+  context: Section 6 describing the impact of disabling pin_memory and optimizing
+    tensor operations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CPU-specific optimizations reduced overhead by ~5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:41:56Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 180.5s baseline training time and 120.3s optimized training time
+  claim_id: c_6b249540
+  context: Benchmark Results table comparing baseline and optimized metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline training time was 180.5s and optimized training time was 120.3s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:44:13Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 450.2 MB baseline peak memory and 380.5 MB optimized peak memory
+  claim_id: c_178b3bcf
+  context: Benchmark Results table comparing baseline and optimized metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline peak memory was 450.2 MB and optimized peak memory was 380.5
+    MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:47:16Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 0.85 baseline validation loss and 0.82 optimized validation loss
+  claim_id: c_16cb79dc
+  context: Benchmark Results table comparing baseline and optimized metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline validation loss was 0.85 and optimized validation loss was 0.82.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:47:52Z'
+- artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/cpu_optimization_report.md
+  attempts: 1
+  canonical: 1.5x speedup factor achieved with optimization
+  claim_id: c_0b33e5c2
+  context: Benchmark Results table comparing baseline and optimized metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimized setup achieved a speedup factor of 1.5x compared to the
+    baseline 1.0x.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:48:24Z'

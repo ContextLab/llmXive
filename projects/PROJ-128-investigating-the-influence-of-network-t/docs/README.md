@@ -1,161 +1,189 @@
 # Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
 
-## Overview
+## Project Overview
 
-This project investigates whether topological properties of structural brain networks (derived from diffusion MRI) predict the prevalence, stability, and switching speed of recurrent activity patterns (derived from functional MRI). The analysis employs a rigorous Leave-One-Out (LOO) K-Means clustering strategy to ensure statistical independence between training and assignment phases.
+This project investigates the relationship between structural brain network topology (derived from diffusion MRI) and dynamic functional brain activity patterns (derived from fMRI). The study employs a rigorous Leave-One-Out (LOO) K-Means clustering approach to ensure statistical independence between structural and functional metric calculations.
 
 ## Research Question
 
-Do topological properties of structural brain networks derived from diffusion MRI predict the prevalence, stability, and switching speed of recurrent activity patterns?
+Do topological properties of structural brain networks derived from diffusion MRI predict the prevalence, stability, and switching speed of recurrent activity patterns in spontaneous brain activity?
 
-## Methodological Framework
+## Key Features
 
-### Data Sources
-- **Structural Connectivity**: Diffusion MRI (dMRI) data from the HCP (Human Connectome Project) OpenNeuro dataset.
-- **Functional Connectivity**: Resting-state fMRI (rs-fMRI) data from the same HCP cohort.
+- **Structural Graph Metrics**: Computation of global efficiency, average clustering coefficient, and modularity from dMRI tractography data.
+- **Dynamic Functional Metrics**: Extraction of dwell times and state visitation frequencies using sliding-window correlations and LOO K-Means clustering.
+- **Statistical Analysis**: Correlation analysis between structural and dynamic metrics with Benjamini-Hochberg FDR correction.
+- **Robustness Checks**: Sensitivity analysis for window length and density threshold variations.
+- **Associational Framing**: All reports explicitly frame findings as associational rather than causal.
 
-### Key Pipeline Stages
-1. **Preprocessing**:
- - Structural: Graph metric calculation (global efficiency, clustering coefficient, modularity) using NetworkX.
- - Functional: Sliding-window correlation (30 TR window, 1 TR step) followed by LOO K-Means state extraction.
-2. **Leave-One-Out (LOO) Strategy**:
- - For each subject, centroids are generated using data from all *other* subjects (N-1).
- - This ensures that the state assignment for a subject is independent of its own data, preventing circularity.
-3. **Correlation Analysis**:
- - Statistical testing (Pearson/Spearman) between structural metrics and dynamic functional metrics.
- - Benjamini-Hochberg FDR correction applied to control for multiple comparisons.
-4. **Robustness Checks**:
- - Sensitivity analysis on window length (30 TR vs. 20 TR).
- - Sensitivity analysis on structural density thresholds (±5% variation).
-
-### Associational Framing
-All results are framed as "associational" or "correlational" findings. The pipeline does not claim causal inference. Language in the final report explicitly avoids causal terminology (e.g., "predicts" is interpreted as "statistically associated with" in the context of the report).
-
-## Directory Structure
+## Project Structure
 
 ```
-.
-├── code/ # Implementation modules
-│ ├── analysis/ # Correlation and robustness analysis
-│ ├── preprocess/ # Data loading and metric calculation
-│ ├── reports/ # Report generation and validation
-│ ├── utils/ # CPU optimization utilities
-│ ├── config.py # Global configuration
+PROJ-128-investigating-the-influence-of-network-t/
+├── code/
+│ ├── preprocess/
+│ │ ├── __init__.py
+│ │ ├── loader.py # HCP data loading utilities
+│ │ ├── structural.py # Graph metric calculation
+│ │ └── functional.py # Sliding-window & state extraction
+│ ├── analysis/
+│ │ ├── correlation.py # Statistical testing & FDR correction
+│ │ └── robustness.py # Sensitivity analysis
+│ ├── reports/
+│ │ ├── generate_report.py # Final report generation
+│ │ ├── audit_associational_language.py
+│ │ └── validate_report.py
+│ ├── config.py # Configuration parameters
 │ ├── main.py # Main pipeline orchestrator
-│ └── setup_data_structure.py
-├── data/ # Data storage
+│ └── utils/
+│ └── cpu_optimization.py
+├── data/
 │ ├── raw/ # Raw HCP data (downloaded)
-│ ├── processed/ # Processed metrics and state assignments
-│ └── logs/ # Exclusion logs and execution logs
-├── tests/ # Unit and integration tests
+│ ├── processed/ # Intermediate & final metrics
+│ └── logs/ # Exclusion & runtime logs
+├── contracts/
+│ ├── dataset.schema.yaml # Input data schema
+│ └── output.schema.yaml # Output data schema
+├── tests/
 │ ├── unit/ # Unit tests
 │ └── integration/ # Integration tests
-├── docs/ # Documentation
-│ └── README.md # This file
-├── contracts/ # Data schemas
+├── docs/
+│ └── README.md # This documentation
 ├── requirements.txt # Python dependencies
-└── pyproject.toml # Project configuration (linting, formatting)
+├── pyproject.toml # Tool configuration
+└── README.md # Root README
 ```
+
+## Prerequisites
+
+- Python 3.9+
+- CPU-only execution environment (no GPU required)
+- ~14 GB disk space for data processing
+- ~7 GB RAM for processing
 
 ## Installation
 
-1. **Clone the repository**:
+1. Clone the repository:
  ```bash
  git clone <repository-url>
  cd PROJ-128-investigating-the-influence-of-network-t
  ```
 
-2. **Create a virtual environment**:
+2. Create a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
+## Data Source
+
+This project uses the **Human Connectome Project (HCP)** data available via OpenNeuro. The pipeline automatically downloads the required dMRI and fMRI data for the specified cohort.
+
+- **Source**: OpenNeuro (HCP 1200 Subjects Release)
+- **Data Types**: dMRI (tractography), fMRI (resting-state)
+- **Access**: Publicly available, no authentication required
+
 ## Usage
 
-### Running the Full Pipeline
+### Quick Start
 
-The main entry point is `code/main.py`. It orchestrates the entire pipeline:
+Run the full pipeline:
 
 ```bash
 python code/main.py
 ```
 
 This will:
-1. Load HCP data from `data/raw/`.
-2. Compute structural graph metrics.
-3. Perform LOO K-Means state extraction and calculate dynamic metrics.
-4. Aggregate results into CSV files in `data/processed/`.
-5. Log exclusions to `data/logs/exclusion_log.json`.
+1. Download HCP data (if not already present)
+2. Compute structural graph metrics for each subject
+3. Extract dynamic functional states using LOO K-Means
+4. Calculate correlation between structural and dynamic metrics
+5. Perform robustness analysis
+6. Generate the final report
 
-### Running Specific Analyses
+### Individual Components
 
-- **Correlation Analysis**:
- ```bash
- python code/analysis/generate_correlation_results.py
- ```
+- **Structural Metrics**: `python code/preprocess/structural.py`
+- **Functional Metrics**: `python code/preprocess/functional.py`
+- **Correlation Analysis**: `python code/analysis/correlation.py`
+- **Robustness Analysis**: `python code/analysis/robustness.py`
+- **Report Generation**: `python code/reports/generate_report.py`
 
-- **Robustness/Sensitivity Analysis**:
- ```bash
- python code/analysis/robustness.py
- ```
+### Validation
 
-- **Report Generation**:
- ```bash
- python code/reports/generate_report.py
- ```
+Validate the pipeline output:
 
-- **Validation**:
- ```bash
- python code/validate_quickstart.py
- ```
+```bash
+python code/validate_quickstart.py
+```
 
-### Configuration
+## Configuration
 
-Global parameters are defined in `code/config.py`:
-- `WINDOW_LENGTH = 30` (in TRs)
-- `WINDOW_STEP = 1` (in TRs)
-- `K_MEANS_K = 5`
-- `DENSITY_THRESHOLD_BASELINE = None`
-- `DENSITY_THRESHOLD_VARIATION = 0.05`
+Key parameters are defined in `code/config.py`:
 
-## Output Artifacts
+- `WINDOW_LENGTH`: Sliding window length (default: 30 TRs)
+- `WINDOW_STEP`: Step size between windows (default: 1 TR)
+- `K_MEANS_K`: Number of K-Means clusters (default: 5)
+- `DENSITY_THRESHOLD_BASELINE`: Structural graph density threshold (default: None)
+- `DENSITY_THRESHOLD_VARIATION`: Density variation for sensitivity analysis (default: 0.05)
 
-- **`data/processed/structural_metrics.csv`**: Per-subject structural graph metrics.
-- **`data/processed/dynamic_metrics.csv`**: Per-subject dynamic functional metrics (dwell time, visited states).
-- **`data/processed/correlation_results.csv`**: Correlation coefficients (r), p-values, and FDR-corrected flags.
-- **`data/processed/sensitivity_comparison.csv`**: Absolute differences in correlation coefficients for sensitivity analyses.
-- **`data/logs/exclusion_log.json`**: Log of subjects excluded due to convergence failure or sparsity.
-- **`data/reports/final_report.json`**: Comprehensive summary of findings with associational framing.
+## Output Files
+
+The pipeline generates the following outputs in the `data/processed/` directory:
+
+- `structural_metrics.csv`: Per-subject structural graph metrics
+- `dynamic_metrics.csv`: Per-subject dynamic functional metrics
+- `state_assignments.csv`: State sequences for each subject
+- `correlation_results.csv`: Correlation coefficients, p-values, and FDR corrections
+- `sensitivity_comparison.csv`: Sensitivity analysis results
+- `final_report.json`: Comprehensive summary of all findings
 
 ## Testing
 
-Run the test suite:
+Run unit tests:
 
 ```bash
-pytest tests/
+python -m pytest tests/unit/ -v
 ```
 
-- **Unit Tests**: `tests/unit/`
-- **Integration Tests**: `tests/integration/`
+Run integration tests:
 
-## Contributing
+```bash
+python -m pytest tests/integration/ -v
+```
 
-When adding new features:
-1. Ensure the code adheres to the CPU-only constraint.
-2. Maintain the "associational" language framing.
-3. Update the `contracts/` schemas if data structures change.
-4. Add tests for new functionality.
+## Methodological Notes
+
+### Leave-One-Out (LOO) K-Means
+
+To ensure statistical independence, this project employs a Leave-One-Out K-Means strategy:
+1. For each subject, K-Means centroids are computed using data from all *other* subjects (N-1).
+2. The excluded subject's data is then assigned to these LOO-generated centroids.
+3. This prevents data leakage and ensures unbiased metric estimation.
+
+### Associational Framing
+
+All reports and analyses explicitly frame findings as **associational** rather than causal. The study investigates correlations between structural topology and functional dynamics without implying directional causality.
+
+### CPU-Only Execution
+
+The pipeline is optimized for CPU execution with no GPU dependencies. Memory usage is monitored and optimized for environments with ~7 GB RAM.
 
 ## License
 
-[Insert License Information Here]
+This project is licensed under the MIT License.
 
 ## Acknowledgments
 
-Data provided by the Human Connectome Project, WU-Minn Consortium (Principal Investigators: David Van Essen and Kamil Ugurbil; 1U54MH091657) funded by the 16 NIH Institutes and Centers that support the NIH Blueprint for Neuroscience Research; and the McDonnell Center for Systems Neuroscience at Washington University.
+- **Data Source**: Human Connectome Project (HCP), WU-Minn Consortium
+- **Platform**: OpenNeuro for data distribution
+- **Tools**: NetworkX, scikit-learn, nilearn, pandas, numpy, scipy
+
+## Contact
+
+For questions or contributions, please open an issue in the repository.

@@ -729,3 +729,212 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T18:44:19Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/data/validation/sensitivity_report.md
+  attempts: 1
+  canonical: "Random Forest model R\xB2 score of 0.85"
+  claim_id: c_707a1d99
+  context: "This report details the sensitivity of the Random Forest model's feature\
+    \ importance rankings to variations in the decomposition energy stability cutoff\
+    \ threshold. Model R\xB2 Score: 0.85"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Model R\xB2 Score: 0.85"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:05:27Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/data/validation/sensitivity_report.md
+  attempts: 1
+  canonical: Internal Consistency MAE of 0.12
+  claim_id: c_b204e0ac
+  context: 'Internal Consistency MAE: 0.12'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Internal Consistency MAE: 0.12'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:05:51Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/data/validation/sensitivity_report.md
+  attempts: 1
+  canonical: Maximum rank shift observed of 0 positions across thresholds
+  claim_id: c_803b645e
+  context: 'The stability of the top 3 descriptors was verified across the swept thresholds.
+    Max Rank Shift Observed: 0 positions'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Max Rank Shift Observed: 0 positions'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:06:25Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Dalton unit reference from Wikipedia
+  claim_id: c_6ba1aa43
+  context: 'Create code/utils/constants.py with: 1. {{claim:c_1a09f818}} (Wikipedia:
+    Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit))'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dalton_unit_reference_from_Wikipedia
+  kind: entity_fact
+  raw_text: 'Wikipedia: Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:07:22Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potential values list contains 0, 2, and 4 volts
+  claim_id: c_0aec9e91
+  context: 'Create code/utils/constants.py with: 2. Potentials list: PHI_VALUES =
+    [0, 2, 4] (V)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Potentials list: PHI_VALUES = [0, 2, 4] (V)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:07:58Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Reactions YAML populated with data for EC, DMC, and LiPF6 at 0, 2, and
+    4 volts
+  claim_id: c_84301332
+  context: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:08:22Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Reactions YAML includes at least 3 sample rows with defined electron
+    and energy values
+  claim_id: c_7f7e41ea
+  context: Include at least 3 sample rows with defined n_electrons and energy values
+    to ensure T016 has data to read.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reactions_YAML_includes_at_least_3_sample_rows_with_defined
+  kind: magnitude
+  raw_text: Include at least 3 sample rows with defined n_electrons and energy values.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:09:00Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: DFT data fetched from HuggingFace dataset materialsproject/mp-dft-electrolytes
+  claim_id: c_3237ee47
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_data_fetched_from_HuggingFace_dataset_materialsproject/m
+  kind: entity_fact
+  raw_text: 'fetch and filter DFT data from HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:09:22Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Decomposition energy calculation matches manual formula within 0.01 eV
+  claim_id: c_15fed058
+  context: Run extraction on a small fixed subset; verify output CSV columns, no missing
+    features, and $E_{decomp}$ calculation matches manual formula within 0.01 eV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify output CSV columns, no missing features, and E_decomp calculation
+    matches manual formula within 0.01 eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:09:46Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: GridSearchCV search space includes n_estimators and max_depth values
+    of 10, 20, and None
+  claim_id: c_effcd87a
+  context: 'Train Random Forest with 5-fold CV and hyperparameter tuning using GridSearchCV
+    (search space: n_estimators=[low, medium, high], max_depth=[10, 20, None]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'search space: n_estimators=[low, medium, high], max_depth=[10, 20, None]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:10:13Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps decomposition energy threshold through 0.45,
+    0.50, and 0.55 eV
+  claim_id: c_01aae883
+  context: 'Implement code/models/evaluator.py sensitivity analysis: sweep ''decomposition
+    energy stability cutoff'' threshold {0.45, 0.50, 0.55} eV (FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep 'decomposition energy stability cutoff' threshold {0.45, 0.50, 0.55}
+    eV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:10:35Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Top 3 descriptor ranks change by no more than 1 position across threshold
+    sweep
+  claim_id: c_02dcc86b
+  context: 'Implement rank stability check: verify top 3 descriptors change by no
+    more than 1 position across the sweep'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top_3_descriptor_ranks_change_by_no_more_than_1_position_acr
+  kind: magnitude
+  raw_text: verify top 3 descriptors change by no more than 1 position across the
+    sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T04:11:30Z'

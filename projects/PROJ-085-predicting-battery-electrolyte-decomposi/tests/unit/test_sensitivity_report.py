@@ -1,13 +1,17 @@
 import os
-import sys
 import json
 import tempfile
-import pytest
 from pathlib import Path
+import pytest
+import pandas as pd
+
+# Mock the config and logging to avoid dependency on full project setup during unit tests
+# In a real integration test, these would use the actual config
+import sys
 from unittest.mock import patch, MagicMock
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from models.sensitivity_report_generator import (
     load_sensitivity_results,
@@ -15,114 +19,100 @@ from models.sensitivity_report_generator import (
     generate_report_content,
     run_report_generation
 )
-from config import get_config
 
 @pytest.fixture
-def mock_model_run_data():
-    """Fixture to provide mock model run data for testing."""
+def mock_sensitivity_data():
     return {
-        "model_type": "RandomForestRegressor",
-        "r2_score": 0.85,
-        "mae": 0.12,
-        "deviation_note": "Internal DFT validation used as fallback.",
-        "sensitivity_analysis": {
-            "thresholds": [0.45, 0.50, 0.55],
-            "rank_stability": {
-                "0.45": "Stable",
-                "0.50": "Stable",
-                "0.55": "Stable"
-            },
-            "feature_ranks": {
-                "0.45": ["homo_energy", "lumo_energy", "bond_length_avg"],
-                "0.50": ["homo_energy", "lumo_energy", "bond_length_avg"],
-                "0.55": ["homo_energy", "lumo_energy", "bond_length_avg"]
-            }
+        "thresholds_swept": [0.45, 0.50, 0.55],
+        "rank_stability": {
+            "max_rank_shift": 0,
+            "is_stable": True
+        },
+        "feature_shifts": {
+            "0.45": {"top_3": ["homo", "lumo", "bond_length_c1"]},
+            "0.50": {"top_3": ["homo", "lumo", "bond_length_c1"]},
+            "0.55": {"top_3": ["homo", "lumo", "bond_length_c1"]},
+            "shifted_high_potential": ["bond_angle_o1_c1"]
+        },
+        "internal_metrics": {
+            "mae": 0.12,
+            "r2": 0.85
         }
     }
 
-def test_generate_report_content(mock_model_run_data):
-    """Test that report content is generated correctly."""
-    sensitivity_results = mock_model_run_data["sensitivity_analysis"]
-    model_info = {
-        "model_type": mock_model_run_data["model_type"],
-        "r2_score": mock_model_run_data["r2_score"],
-        "mae": mock_model_run_data["mae"],
-        "deviation_note": mock_model_run_data["deviation_note"]
+@pytest.fixture
+def mock_model_data():
+    return {
+        "r2_score": 0.85,
+        "mae": 0.12,
+        "model_type": "RandomForest"
     }
 
-    content = generate_report_content(sensitivity_results, model_info)
-
-    # Check for key sections
-    assert "Sensitivity Analysis Report" in content
+def test_generate_report_content(mock_sensitivity_data, mock_model_data):
+    """Test that the report content is generated correctly with expected sections."""
+    content = generate_report_content(mock_sensitivity_data, mock_model_data)
+    
+    # Check for required sections
     assert "Executive Summary" in content
-    assert "Model Performance Metrics" in content
-    assert "Sensitivity Sweep Configuration" in content
+    assert "Methodology" in content
     assert "Rank Stability Analysis" in content
-    assert "Conclusion" in content
-
-    # Check for specific values
+    assert "Feature Importance Shifts" in content
+    assert "Warnings and Deviations" in content
+    
+    # Check for specific data points
     assert "0.45" in content
     assert "0.50" in content
     assert "0.55" in content
-    assert "homo_energy" in content
-    assert "lumo_energy" in content
-    assert "0.85" in content
-    assert "0.12" in content
+    assert "homo" in content
+    assert "bond_angle_o1_c1" in content
+    
+    # Check for warning text
+    assert "FR-006 and SC-003" in content
+    assert "External Validation" in content
+    assert "Internal DFT validation" in content
 
-    # Check deviation note
-    assert "Internal DFT validation used as fallback" in content
+@patch('models.sensitivity_report_generator.get_validation_dir')
+@patch('models.sensitivity_report_generator.load_sensitivity_results')
+@patch('models.sensitivity_report_generator.load_model_info')
+def test_run_report_generation_success(
+    mock_load_model, 
+    mock_load_sens, 
+    mock_get_validation, 
+    mock_sensitivity_data, 
+    mock_model_data,
+    tmp_path
+):
+    """Test the full pipeline writes the file correctly."""
+    # Setup mocks
+    mock_load_sens.return_value = mock_sensitivity_data
+    mock_load_model.return_value = mock_model_data
+    
+    # Mock the output directory
+    mock_get_validation_dir.return_value = tmp_path
+    
+    # Run
+    success = run_report_generation()
+    
+    assert success is True
+    assert (tmp_path / "sensitivity_report.md").exists()
+    
+    # Verify content
+    with open(tmp_path / "sensitivity_report.md", 'r') as f:
+        content = f.read()
+    assert "Executive Summary" in content
 
-def test_run_report_generation(mock_model_run_data):
-    """Test the full report generation pipeline."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Setup mock config
-        config_path = os.path.join(tmpdir, "config.json")
-        with open(config_path, 'w') as f:
-            json.dump({
-                "model_run_path": os.path.join(tmpdir, "model_run.json"),
-                "validation_dir": tmpdir
-            }, f)
+@patch('models.sensitivity_report_generator.load_sensitivity_results')
+def test_run_report_generation_fail_missing_sens(mock_load_sens):
+    """Test failure when sensitivity results are missing."""
+    mock_load_sens.return_value = None
+    success = run_report_generation()
+    assert success is False
 
-        # Write mock model run data
-        model_run_path = os.path.join(tmpdir, "model_run.json")
-        with open(model_run_path, 'w') as f:
-            json.dump(mock_model_run_data, f)
-
-        # Patch get_config to return our temp config
-        with patch('models.sensitivity_report_generator.get_config', return_value={
-            "model_run_path": model_run_path,
-            "validation_dir": tmpdir
-        }):
-            output_path = run_report_generation()
-
-            # Verify file exists
-            assert os.path.exists(output_path)
-            assert output_path.endswith("sensitivity_report.md")
-
-            # Verify content
-            with open(output_path, 'r') as f:
-                content = f.read()
-            
-            assert "Sensitivity Analysis Report" in content
-            assert "homo_energy" in content
-
-def test_load_sensitivity_results_missing_file():
-    """Test that appropriate error is raised if model run file is missing."""
-    with patch('models.sensitivity_report_generator.get_config', return_value={
-        "model_run_path": "/nonexistent/path/model_run.json"
-    }):
-        with pytest.raises(FileNotFoundError, match="Sensitivity results not found"):
-            load_sensitivity_results()
-
-def test_load_sensitivity_results_missing_key():
-    """Test that appropriate error is raised if sensitivity key is missing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        model_run_path = os.path.join(tmpdir, "model_run.json")
-        with open(model_run_path, 'w') as f:
-            json.dump({"some_other_key": {}})
-        
-        with patch('models.sensitivity_report_generator.get_config', return_value={
-            "model_run_path": model_run_path
-        }):
-            with pytest.raises(ValueError, match="Sensitivity analysis data not found"):
-                load_sensitivity_results()
+@patch('models.sensitivity_report_generator.load_sensitivity_results')
+@patch('models.sensitivity_report_generator.load_model_info')
+def test_run_report_generation_fail_missing_model(mock_load_sens, mock_load_model, mock_sensitivity_data):
+    """Test failure when model info is missing."""
+    mock_load_sens.return_value = mock_sensitivity_data
+    mock_load_model.return_value = None
+    success = run_report_generation()
+    assert success is False

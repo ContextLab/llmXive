@@ -1,92 +1,158 @@
-import pytest
-import pandas as pd
+import os
 import json
+import pytest
 from pathlib import Path
 import tempfile
-import os
+import shutil
 
-# Mock the config to avoid dependency on actual project structure during unit test
-# In a real integration, we would rely on the actual config module
-import sys
-from unittest.mock import patch, MagicMock
-
-# We need to import the function we are testing
-# Since it relies on config, we mock the config calls
-from code.models.feature_shift_analyzer import identify_shifted_features, load_importance_data
+from models.feature_shift_analyzer import (
+    load_importance_data,
+    identify_shifted_features,
+    save_shift_analysis_report,
+    run_feature_shift_pipeline
+)
 
 @pytest.fixture
-def mock_importance_data():
-    """Creates a mock DataFrame representing model_run.json content."""
-    data = {
-        "low_potential": [
-            "bond_length_C_O", "angle_O_C_O", "homo_energy", "lumo_energy", "dihedral_C_O_C"
-        ],
-        "high_potential": [
-            "homo_energy", "band_gap", "bond_length_C_O", "charge_Li", "dipole_moment"
-        ]
+def sample_importance_data():
+    """Create sample importance data for testing."""
+    return {
+        "feature_importances": {
+            "Low": {
+                "homo_energy": 0.85,
+                "lumo_energy": 0.72,
+                "bond_length_c_o": 0.65,
+                "dihedral_angle": 0.45,
+                "band_gap": 0.30
+            },
+            "High": {
+                "homo_energy": 0.90,
+                "bond_length_c_o": 0.82,
+                "solvent_dipole": 0.75,  # New feature in high bin
+                "lumo_energy": 0.50,
+                "bond_angle_o_c_o": 0.40
+            }
+        }
     }
-    return pd.DataFrame([data])
 
 @pytest.fixture
-def temp_model_run_file(mock_importance_data, tmp_path):
-    """Creates a temporary model_run.json file for testing load_importance_data."""
-    model_run_path = tmp_path / "model_run.json"
-    with open(model_run_path, "w") as f:
-        json.dump(mock_importance_data.to_dict(orient='records')[0], f)
-    return model_run_path
+def temp_importance_file(sample_importance_data):
+    """Create a temporary file with sample importance data."""
+    temp_dir = tempfile.mkdtemp()
+    file_path = os.path.join(temp_dir, "model_run.json")
+    
+    with open(file_path, 'w') as f:
+        json.dump(sample_importance_data, f)
+    
+    yield file_path
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
-def test_identify_shifted_features_logic(mock_importance_data):
-    """Tests the core logic of identifying features unique to high potential top 3."""
-    result = identify_shifted_features(mock_importance_data, top_n=3)
+def test_load_importance_data(temp_importance_file, sample_importance_data):
+    """Test loading importance data from file."""
+    loaded_data = load_importance_data(temp_importance_file)
+    assert loaded_data == sample_importance_data
+    assert "feature_importances" in loaded_data
+    assert "Low" in loaded_data["feature_importances"]
+    assert "High" in loaded_data["feature_importances"]
 
-    # Expected Top 3 Low: bond_length_C_O, angle_O_C_O, homo_energy
-    # Expected Top 3 High: homo_energy, band_gap, bond_length_C_O
+def test_identify_shifted_features(sample_importance_data):
+    """Test identifying features that enter top-3 in high bin but absent in low bin."""
+    shifted, low_top, high_top = identify_shifted_features(
+        sample_importance_data,
+        low_potential_threshold=3,
+        high_potential_threshold=3
+    )
+    
+    # Low bin top-3: homo_energy, lumo_energy, bond_length_c_o
+    assert low_top == ["homo_energy", "lumo_energy", "bond_length_c_o"]
+    
+    # High bin top-3: homo_energy, bond_length_c_o, solvent_dipole
+    assert high_top == ["homo_energy", "bond_length_c_o", "solvent_dipole"]
+    
+    # Shifted: solvent_dipole (in high top-3, not in low top-3)
+    assert shifted == ["solvent_dipole"]
 
-    # Unique to High (in High Top 3, not in Low Top 3): 'band_gap'
-    # Unique to Low (in Low Top 3, not in High Top 3): 'angle_O_C_O'
-    # Common: 'bond_length_C_O', 'homo_energy'
-
-    assert "band_gap" in result["shifted_features"]["in_high_not_low"]
-    assert "angle_O_C_O" in result["shifted_features"]["in_low_not_high"]
-    assert "bond_length_C_O" in result["shifted_features"]["common"]
-    assert "homo_energy" in result["shifted_features"]["common"]
-
-    # Verify the deviation note exists
-    assert "deviation_note" in result["analysis_metadata"]
-    assert "3-5V" in result["analysis_metadata"]["deviation_note"]
-    assert "4V" in result["analysis_metadata"]["deviation_note"]
-
-def test_identify_shifted_features_no_shift(mock_importance_data):
-    """Tests logic when top 3 are identical."""
-    # Modify data so top 3 are identical
-    data = {
-        "low_potential": ["A", "B", "C", "D"],
-        "high_potential": ["A", "B", "C", "E"]
+def test_identify_shifted_features_no_shift(sample_importance_data):
+    """Test when there are no shifted features."""
+    # Modify data so top features are the same
+    modified_data = {
+        "feature_importances": {
+            "Low": {
+                "homo_energy": 0.90,
+                "lumo_energy": 0.80,
+                "bond_length_c_o": 0.70,
+                "dihedral_angle": 0.50
+            },
+            "High": {
+                "homo_energy": 0.95,
+                "lumo_energy": 0.85,
+                "bond_length_c_o": 0.75,
+                "solvent_dipole": 0.60
+            }
+        }
     }
-    df = pd.DataFrame([data])
-    result = identify_shifted_features(df, top_n=3)
+    
+    shifted, low_top, high_top = identify_shifted_features(
+        modified_data,
+        low_potential_threshold=3,
+        high_potential_threshold=3
+    )
+    
+    # Both top-3 should be the same
+    assert low_top == ["homo_energy", "lumo_energy", "bond_length_c_o"]
+    assert high_top == ["homo_energy", "lumo_energy", "bond_length_c_o"]
+    assert shifted == []
 
-    assert len(result["shifted_features"]["in_high_not_low"]) == 0
-    assert len(result["shifted_features"]["in_low_not_high"]) == 0
-    assert len(result["shifted_features"]["common"]) == 3
+def test_save_shift_analysis_report(sample_importance_data):
+    """Test saving the shift analysis report."""
+    shifted, low_top, high_top = identify_shifted_features(sample_importance_data)
+    
+    temp_dir = tempfile.mkdtemp()
+    output_file = os.path.join(temp_dir, "shift_report.json")
+    
+    try:
+        saved_path = save_shift_analysis_report(
+            shifted, low_top, high_top, output_file
+        )
+        
+        assert os.path.exists(saved_path)
+        
+        with open(saved_path, 'r') as f:
+            report = json.load(f)
+        
+        assert "shifted_features" in report
+        assert report["shifted_features"] == shifted
+        assert "spec_deviation_note" in report
+        assert "3-5V" in report["spec_deviation_note"]
+        assert "4V" in report["spec_deviation_note"]
+    finally:
+        shutil.rmtree(temp_dir)
 
-def test_load_importance_data_missing_file(tmp_path):
-    """Tests that load_importance_data raises FileNotFoundError for missing file."""
-    # We need to patch the path resolution inside the function
-    # Since the function uses get_project_root(), we mock that
-    with patch("code.models.feature_shift_analyzer.get_project_root") as mock_root:
-        mock_root.return_value = tmp_path
-        with pytest.raises(FileNotFoundError):
-            load_importance_data()
+def test_run_feature_shift_pipeline(temp_importance_file):
+    """Test the complete pipeline."""
+    temp_dir = tempfile.mkdtemp()
+    output_file = os.path.join(temp_dir, "pipeline_report.json")
+    
+    try:
+        result = run_feature_shift_pipeline(
+            importance_file=temp_importance_file,
+            output_file=output_file
+        )
+        
+        assert "shifted_features" in result
+        assert "low_bin_top_features" in result
+        assert "high_bin_top_features" in result
+        assert "report_path" in result
+        assert os.path.exists(result["report_path"])
+        assert "spec_deviation_note" in result
+    finally:
+        shutil.rmtree(temp_dir)
 
-def test_load_importance_data_invalid_structure(tmp_path):
-    """Tests that load_importance_data raises ValueError for missing keys."""
-    invalid_data = {"wrong_key": []}
-    model_run_path = tmp_path / "model_run.json"
-    with open(model_run_path, "w") as f:
-        json.dump(invalid_data, f)
-
-    with patch("code.models.feature_shift_analyzer.get_project_root") as mock_root:
-        mock_root.return_value = tmp_path
-        with pytest.raises(ValueError):
-            load_importance_data()
+def test_shifted_features_not_in_low_bin(sample_importance_data):
+    """Verify that all shifted features are indeed not in the low bin top."""
+    shifted, low_top, high_top = identify_shifted_features(sample_importance_data)
+    
+    for feat in shifted:
+        assert feat not in low_top, f"Shifted feature '{feat}' should not be in low bin top"
+        assert feat in high_top, f"Shifted feature '{feat}' should be in high bin top"

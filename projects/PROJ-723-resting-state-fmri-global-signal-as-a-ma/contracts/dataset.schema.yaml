@@ -1,40 +1,16 @@
-# Dataset Schema for Resting-State fMRI Global Signal Analysis
-# Required columns and their expected data types for validation
-schema_version: "1.0"
 required_columns:
-  - name: Subject_ID
-    type: string
-    description: Unique identifier for each subject
-  - name: global_signal
-    type: numeric
-    description: Global signal time series (will be aggregated)
-  - name: global_signal_sd
-    type: numeric
-    description: Standard deviation of the global signal per run
-  - name: MWQ_Score
-    type: numeric
-    description: Mind-Wandering Questionnaire total score
-  - name: Age
-    type: numeric
-    description: Subject age in years
-  - name: Sex
-    type: categorical
-    allowed_values: ["M", "F", "Male", "Female", "M", "F"]
-    description: Biological sex of the subject
-  - name: Mean_FD
-    type: numeric
-    description: Mean Framewise Displacement (motion metric)
-  - name: Mean_DVARS
-    type: numeric
-    description: Mean DVARS (temporal difference of variance)
-
-validation_rules:
-  - rule: no_missing_values
-    columns: all
-    description: All required columns must have non-null values
-  - rule: positive_values
-    columns: ["global_signal_sd", "Mean_FD", "Mean_DVARS", "Age"]
-    description: These columns must contain positive values
-  - rule: unique_subject_ids
-    column: Subject_ID
-    description: Subject IDs must be unique
+  - Subject_ID
+  - global_signal_sd
+  - MWQ_Score
+  - Age
+  - Sex
+  - Mean_FD
+  - Mean_DVARS
+types:
+  Subject_ID: string
+  global_signal_sd: float
+  MWQ_Score: integer
+  Age: integer
+  Sex: string
+  Mean_FD: float
+  Mean_DVARS: float

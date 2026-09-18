@@ -1,52 +1,57 @@
 # Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
 
-## Project Status
-**Status**: Completed (MVP + Robustness Analysis)
-**Version**: 1.0.0
+**Project ID**: PROJ-128
+
+## Overview
+
+This research project investigates the relationship between structural brain network topology (derived from diffusion MRI) and dynamic functional brain activity patterns (derived from fMRI). We employ a rigorous Leave-One-Out (LOO) K-Means clustering approach to ensure statistical independence between structural and functional metric calculations.
+
+## Research Question
+
+Do topological properties of structural brain networks derived from diffusion MRI predict the prevalence, stability, and switching speed of recurrent activity patterns in spontaneous brain activity?
+
+## Key Highlights
+
+- **MVP Status**: User Story 1 (Compute Structural and Dynamic Graph Metrics) is fully implemented and tested.
+- **Statistical Rigor**: LOO K-Means ensures independence; FDR correction controls for multiple comparisons.
+- **Robustness**: Sensitivity analysis validates findings against parameter variations.
+- **Associational Framing**: All results are explicitly framed as associational, not causal.
+- **CPU-Optimized**: Designed for environments without GPU access.
 
 ## Quick Start
 
-### Prerequisites
-- Python 3.8+
-- Access to HCP OpenNeuro data (downloaded to `data/raw/`)
-
-### Installation
 ```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### Running the Pipeline
-```bash
+# Run the full pipeline
 python code/main.py
-```
 
-### Validating Results
-```bash
+# Validate results
 python code/validate_quickstart.py
 ```
 
-## What This Project Does
+## Project Structure
 
-This project analyzes the relationship between structural brain connectivity (from dMRI) and dynamic functional connectivity (from fMRI). It uses a **Leave-One-Out (LOO)** K-Means clustering approach to ensure that the functional states assigned to a subject are independent of that subject's own data, thereby avoiding circularity.
-
-Key outputs include:
-- Structural graph metrics (efficiency, clustering, modularity).
-- Dynamic functional metrics (dwell time, state transitions).
-- Correlation analysis with FDR correction.
-- Robustness checks on window length and density thresholds.
+- `code/`: Source code for the pipeline
+- `data/`: Raw and processed data
+- `tests/`: Unit and integration tests
+- `contracts/`: Data schemas
+- `docs/`: Documentation
 
 ## Documentation
 
-- **[Architecture Overview](docs/ARCHITECTURE.md)**: High-level design and component breakdown.
-- **[Implementation Process](docs/PROCESS.md)**: Step-by-step guide to the development workflow.
-- **[User Guide](docs/README.md)**: Detailed usage instructions and output descriptions.
+Detailed documentation is available in [`docs/README.md`](docs/README.md).
 
-## Key Methodological Notes
+## Status
 
-- **LOO K-Means**: Centroids are generated from N-1 subjects, ensuring independence for the Nth subject's state assignment.
-- **Associational Framing**: All results are presented as correlations, not causal predictions.
-- **CPU-Only**: The pipeline is optimized for CPU execution; no GPU acceleration is used.
+- [x] Phase 1: Setup
+- [x] Phase 2: Foundational
+- [x] Phase 3: User Story 1 (MVP)
+- [x] Phase 4: User Story 2
+- [x] Phase 5: User Story 3
+- [x] Phase N: Polish & Documentation (T050)
 
 ## License
 
-[Insert License Information Here]
+MIT License
