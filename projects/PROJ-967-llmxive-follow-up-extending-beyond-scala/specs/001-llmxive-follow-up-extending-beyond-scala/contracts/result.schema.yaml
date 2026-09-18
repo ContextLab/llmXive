@@ -42,7 +42,7 @@ properties:
   power_status:
     type: string
     description: "ok" or "low" (if N < 100).
-  covariance_matrix_path:
+  global_entanglement_path:
     type: string
     description: Path to the saved global covariance matrix file.
   exclusion_log_path:
@@ -62,7 +62,10 @@ properties:
     description: P-value for the global hypothesis test.
   partial_corr_entanglement:
     type: number
-    description: Partial correlation between entanglement features and fidelity loss, controlling for student_score and teacher_mean.
+    description: Partial correlation between entanglement features and residual error, controlling for mean_teacher_score.
+  vif_status:
+    type: string
+    description: "passed" or "filtered" (if features were dropped due to VIF > 5).
 required:
   - r_squared
   - mae
@@ -72,11 +75,12 @@ required:
   - timestamp
   - data_source
   - power_status
-  - covariance_matrix_path
+  - global_entanglement_path
   - exclusion_log_path
   - lineage_report_path
   - target_variable_source
   - global_hypothesis_correlation
   - global_hypothesis_p_value
   - partial_corr_entanglement
+  - vif_status
 additionalProperties: false

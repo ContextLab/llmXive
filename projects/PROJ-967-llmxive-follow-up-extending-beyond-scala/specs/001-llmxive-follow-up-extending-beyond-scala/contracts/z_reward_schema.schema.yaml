@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Z-Reward Evaluation Dataset Schema"
-description: "Schema for the Z-Reward evaluation dataset used in the entanglement analysis."
+description: "Schema for the Z-Reward evaluation dataset used in the entanglement analysis. Note: This schema is retained for reference but the actual pipeline uses OxfordPets + Simulation."
 type: "object"
 required:
   - "prompt"

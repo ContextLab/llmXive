@@ -1,24 +1,72 @@
-schema_version: "1.0"
-fields:
-  - name: prompt
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Z-Reward Dataset Schema"
+description: "Schema for the raw Z-Reward evaluation dataset ingestion."
+type: object
+required:
+  - sample_id
+  - prompt
+  - teacher_scores
+  - student_scalar
+  - human_annotations
+  - metadata
+properties:
+  sample_id:
     type: string
-  - name: image_url
+    description: "Unique identifier for the sample."
+  prompt:
     type: string
-  - name: teacher_scores
+    description: "The text prompt used for generation."
+  teacher_scores:
     type: object
+    description: "Teacher model scores for the four rubric dimensions."
+    required:
+      - alignment
+      - realism
+      - aesthetics
+      - plausibility
     properties:
-      Alignment: float
-      Realism: float
-      Aesthetics: float
-      Plausibility: float
-  - name: student_scalar
-    type: float
-  - name: human_annotations
+      alignment:
+        type: number
+        description: "Teacher score for alignment."
+      realism:
+        type: number
+        description: "Teacher score for realism."
+      aesthetics:
+        type: number
+        description: "Teacher score for aesthetics."
+      plausibility:
+        type: number
+        description: "Teacher score for plausibility."
+  student_scalar:
+    type: number
+    description: "Scalar output from the student model."
+  human_annotations:
     type: object
+    description: "Human annotations for the four rubric dimensions. May contain nulls."
     properties:
-      Alignment: float
-      Realism: float
-      Aesthetics: float
-      Plausibility: float
-  - name: primary_dimension
-    type: string
+      alignment:
+        type: ["number", "null"]
+        description: "Human annotation for alignment."
+      realism:
+        type: ["number", "null"]
+        description: "Human annotation for realism."
+      aesthetics:
+        type: ["number", "null"]
+        description: "Human annotation for aesthetics."
+      plausibility:
+        type: ["number", "null"]
+        description: "Human annotation for plausibility."
+  metadata:
+    type: object
+    description: "Metadata including the primary quality dimension."
+    required:
+      - primary_dimension
+    properties:
+      primary_dimension:
+        type: string
+        enum:
+          - alignment
+          - realism
+          - aesthetics
+          - plausibility
+        description: "The dimension used for fidelity loss calculation."

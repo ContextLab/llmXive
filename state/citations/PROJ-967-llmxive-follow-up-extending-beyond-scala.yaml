@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 1741d19915e212910d4f693d08b2bb08eb95654d078d194285ddd97376b70e2f
+  artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-09-18T12:57:44.958058Z'

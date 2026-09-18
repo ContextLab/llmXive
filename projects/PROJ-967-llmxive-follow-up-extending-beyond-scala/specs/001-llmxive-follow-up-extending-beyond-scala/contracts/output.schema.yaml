@@ -1,5 +1,6 @@
-schema_version: "1.0"
-description: "Schema for data/processed/features.json containing per-sample entanglement metrics and target variable"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for data/processed/features.json containing per-sample entanglement metrics and target variable."
 type: array
 items:
   type: object
@@ -19,17 +20,25 @@ items:
     kurtosis:
       type: number
       description: "Kurtosis of the teacher score distribution"
-    mahalanobis_distance:
+    mean_teacher_score:
       type: number
-      description: "Mahalanobis distance of the sample's teacher score vector from the global mean"
-    fidelity_loss:
+      description: "Mean of the teacher scores"
+    theoretical_baseline_error:
       type: number
-      description: "Mean Absolute Error between student_scalar and human_annotations for the primary_dimension"
+      description: "Theoretical MAE derived from the known distillation function"
+    observed_mae:
+      type: number
+      description: "Observed MAE between student and target dimension"
+    residual_error:
+      type: number
+      description: "Target variable: Observed MAE - Theoretical Baseline"
   required:
     - sample_id
     - variance
     - entropy
     - skewness
     - kurtosis
-    - mahalanobis_distance
-    - fidelity_loss
+    - mean_teacher_score
+    - theoretical_baseline_error
+    - observed_mae
+    - residual_error
