@@ -2105,23 +2105,6 @@
   updated_at: '2026-09-08T00:55:04Z'
 - artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
   attempts: 1
-  canonical: Flag deciles with fewer than 20 samples as underpowered
-  claim_id: c_165e5ade
-  context: Ensure deciles with <20 samples are flagged as 'underpowered' per spec.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Flag_deciles_with_fewer_than_20_samples_as_underpowered
-  kind: magnitude
-  raw_text: Ensure deciles with <20 samples are flagged as underpowered.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-08T00:55:44Z'
-- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
-  attempts: 1
   canonical: Impute missing age with median and stage with mode
   claim_id: c_7088f8c0
   context: Impute missing age with median age; impute missing stage with mode. Drop
@@ -2260,3 +2243,238 @@
   source_type: external
   status: verified
   updated_at: '2026-09-08T01:00:19Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Filter TCGA tumor types with at least 3 types and 50 samples each
+  claim_id: c_09e495f8
+  context: "Logic: Use TCGAbiolinks R package to download RNA-seq HTSeq-Counts and\
+    \ clinical metadata... Explicitly filter for tumor types with \u22653 available\
+    \ types and \u226550 samples each."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_TCGA_tumor_types_with_at_least_3_types_and_50_samples
+  kind: magnitude
+  raw_text: "Filter for tumor types with \u22653 available types and \u226550 samples\
+    \ each."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:01:18Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Verify at least 3 TCGA types and 2 GEO datasets
+  claim_id: c_40f04c07
+  context: "Verify \u22653 TCGA types and \u22652 GEO datasets. Return True if valid,\
+    \ False otherwise."
+  evidence:
+    candidates:
+    - - Create account Log in Verify at least
+      - 3.0
+    - - Verify at least 3 TCGA types and
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_3_TCGA_types_and_2_GEO_datasets
+  kind: magnitude
+  raw_text: "Verify \u22653 TCGA types and \u22652 GEO datasets."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-18T03:03:25Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Select top 50 ranked genes for fallback union
+  claim_id: c_9554ab8e
+  context: "If empty, compute the union of top-ranked genes (\u226450) based on descending\
+    \ mean log2FC then ascending meta-p-value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Select a top-ranked subset of genes with a limit of \u226450."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:03:26Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Filter genes with FDR less than 0.05 and absolute log2FC greater than
+    1.0
+  claim_id: c_c7061e11
+  context: Aggregate significant genes (FDR < 0.05, |log2FC| > 1.0) across types.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_genes_with_FDR_less_than_0.05_and_absolute_log2FC_gre
+  kind: magnitude
+  raw_text: Extract significant genes with FDR < 0.05 and |log2FC| > 1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:04:59Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Verify output genes have padj less than 0.05 and absolute log2FC greater
+    than 1.0
+  claim_id: c_2d453ea9
+  context: Immediately after execution, verify the output contains only genes with
+    padj < 0.05 and |log2FC| > 1.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_genes_have_padj_less_than_0.05_and_absolute_lo
+  kind: magnitude
+  raw_text: Verify the output contains only genes with padj < 0.05 and |log2FC| >
+    1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:05:35Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Calculate 95% CI with 1000 bootstrap iterations and random state 42
+  claim_id: c_2743dc96
+  context: Calculate the 95% CI for the performance drop using scipy.stats.ttest_rel
+    for paired t-test and pingouin for non-parametric bootstrap (n_boot=1000, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 95% CI for performance drop using non-parametric bootstrap with
+    n_boot=1000 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:05:54Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Compare ROC-AUC against threshold of 0.75
+  claim_id: c_85c50c9e
+  context: "Explicitly compare the computed ROC-AUC against the target threshold of\
+    \ \u22650.75."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare computed ROC-AUC against the target threshold of \u22650.75."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:05:54Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 2
+  canonical: Flag deciles with fewer than 20 samples as underpowered
+  claim_id: c_165e5ade
+  context: Ensure deciles with <20 samples are flagged as 'underpowered' per spec.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_deciles_with_fewer_than_20_samples_as_underpowered
+  kind: magnitude
+  raw_text: Ensure deciles with <20 samples are flagged as underpowered.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:06:27Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Apply cost-sensitive learning if responder ratio is less than 20 percent
+  claim_id: c_8f51be67
+  context: If responder ratio < 20%, apply cost-sensitive learning (class weights)
+    in src/model_training.py.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_cost-sensitive_learning_if_responder_ratio_is_less_tha
+  kind: magnitude
+  raw_text: Apply cost-sensitive learning if responder ratio is < 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:07:05Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Flag genes as underpowered if combined sample size is less than 50
+  claim_id: c_cc576ff6
+  context: If the combined sample size for any gene across tumor types is < 50, FLAG
+    the gene as 'underpowered' in results/meta_analysis/panel_status.json.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_genes_as_underpowered_if_combined_sample_size_is_less_t
+  kind: magnitude
+  raw_text: Flag genes as underpowered if combined sample size is < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:09:06Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Check if sample size is greater than 20 before running DeLong test
+  claim_id: c_bd786b99
+  context: Before running DeLong's test, check if the number of samples in the held-out
+    set is sufficient for the test (n > 20).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_if_sample_size_is_greater_than_20_before_running_DeLon
+  kind: magnitude
+  raw_text: Check if number of samples in held-out set is sufficient (n > 20) before
+    running DeLong's test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:11:02Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Verify adjusted p-values are less than 0.01
+  claim_id: c_c30b3538
+  context: Verify that the adjusted p-values for the selected genes are < 0.01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_adjusted_p-values_are_less_than_0.01
+  kind: magnitude
+  raw_text: Verify adjusted p-values for selected genes are < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:11:13Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Verify adjusted DeLong p-values are less than 0.01
+  claim_id: c_7980427f
+  context: Verify that the adjusted DeLong p-values are < 0.01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_adjusted_DeLong_p-values_are_less_than_0.01
+  kind: magnitude
+  raw_text: Verify adjusted DeLong p-values are < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T03:11:27Z'

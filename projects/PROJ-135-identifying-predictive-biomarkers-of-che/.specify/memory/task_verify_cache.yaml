@@ -80,3 +80,10 @@ T051:
   r: No code, script, notebook, documentation, or any other artifact implementing
     a DeLong test power analysis was provided. The claim contains only a placeholder
     comment and no concrete output, so the required functionality is missing.
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or performance results for a GPU\u2011accelerated\
+    \ elastic\u2011net training implementation were provided; the only evidence is\
+    \ the high\u2011level feature description, which does not contain the required\
+    \ artifact. The task therefore remains unfulfilled."
