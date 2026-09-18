@@ -1,103 +1,50 @@
-"""
-Project Structure Initialization Script.
-
-Creates the necessary directory structure for the llmXive research project
-according to the implementation plan.
-
-Directories created:
-- code/src/: Source code modules
-- code/tests/: Test suites
-- code/data/: Data artifacts (raw, derived, metadata)
-- code/outputs/: Reports and figures
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def create_directories(base_path: str = None) -> dict:
+def create_directories():
     """
-    Create the standard project directory structure.
-    
-    Args:
-        base_path: Optional base path. If None, uses the current working directory.
-                   All created directories will be relative to this base.
-                   
-    Returns:
-        dict: Mapping of directory names to their absolute paths.
+    Create the project directory structure as defined in task T001a.
+    All paths are relative to the project root (current working directory).
     """
-    if base_path is None:
-        base_path = os.getcwd()
-    
-    base = Path(base_path)
-    
-    # Define the directory structure relative to the project root
-    # Based on tasks.md and standard project organization
-    directories = [
-        # Source code
-        "code/src",
-        "code/src/models",
-        "code/src/services",
-        "code/src/lib",
-        "code/src/cli",
-        
-        # Tests
-        "code/tests",
-        "code/tests/unit",
-        "code/tests/integration",
-        "code/tests/contract",
-        
-        # Data
-        "code/data",
-        "code/data/raw",
-        "code/data/derived",
-        "code/data/derived/topology",
-        "code/data/derived/vdos",
-        "code/data/derived/reference",
-        "code/data/derived/correlation",
-        "code/data/metadata",
-        
-        # Outputs
-        "code/outputs",
-        "code/outputs/reports",
-        "code/outputs/figures",
-        
-        # Scripts
-        "code/scripts",
-        
-        # Specs (feature directory)
-        "code/specs",
+    # Define all required directories relative to the project root
+    base_dirs = [
+        "src",
+        "tests",
+        "data",
+        "outputs",
+        "data/metadata",
+        "data/derived",
+        "data/derived/topology",
+        "data/derived/vdos",
+        "data/derived/reference",
+        "data/derived/correlation",
+        "outputs/figures",
+        "outputs/reports",
     ]
-    
-    created = {}
-    for dir_path in directories:
-        full_path = base / dir_path
+
+    created_count = 0
+    for dir_path in base_dirs:
+        full_path = Path(dir_path)
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created[dir_path] = str(full_path.resolve())
+            created_count += 1
         else:
-            created[dir_path] = str(full_path.resolve())
-            
-    return created
+            # Ensure it is actually a directory
+            if not full_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
 
+    print(f"Directory structure created/verified. New directories: {created_count}")
+    return True
 
 def main():
-    """
-    Main entry point for the setup script.
-    Creates directories and prints a summary of the project structure.
-    """
-    print("Initializing project structure...")
-    
-    created_dirs = create_directories()
-    
-    print(f"Successfully created {len(created_dirs)} directories.")
-    print("\nProject structure created:")
-    for dir_name, abs_path in sorted(created_dirs.items()):
-        print(f"  - {dir_name}")
-        
-    print("\nProject initialization complete.")
-    return 0
-
+    """Entry point for the script."""
+    try:
+        create_directories()
+        print("Task T001a completed successfully.")
+    except Exception as e:
+        print(f"Error creating directory structure: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

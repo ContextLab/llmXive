@@ -17,7 +17,7 @@ This project implements a computational pipeline to investigate the correlation 
 **Project Type**: CLI / Data Analysis Pipeline.  
 **Performance Goals**: Full pipeline (Topology + VDOS + Correlation) for a -atom system ≤ 30 minutes on 4-core CPU (SC-005).  
 **Constraints**: No GPU usage; memory footprint ≤ 7 GB; strict reproducibility via pinned seeds; no synthetic data generation (real trajectories + programmatic reference generation).  
-**Scale/Scope**: Multiple system sizes (N=, 2000, 4000) with ≥30 independent disorder realizations each; A substantial number of bootstrap iterations.
+**Scale/Scope**: Multiple system sizes (N=,, 4000) with ≥30 independent disorder realizations each; A substantial number of bootstrap iterations.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

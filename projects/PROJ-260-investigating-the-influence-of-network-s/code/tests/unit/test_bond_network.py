@@ -1,199 +1,278 @@
 """
-Unit tests for the BondNetwork class.
-
-These tests verify:
-- Correct initialization and validation
-- Accurate coordination number calculation
-- Bond angle variance computation
-- Global metrics calculation
-- Physical constraint validation
+Unit tests for the BondNetwork model.
 """
-
 import numpy as np
 import pytest
 import sys
 import os
 
-# Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from src.models.bond_network import BondNetwork
+from src.models.simulation_box import SimulationBox
+
 
 def test_valid_initialization():
-    """Test that a valid network initializes without errors."""
-    positions = np.array([
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-    ])
-    atom_ids = [0, 1, 2, 3]
+    """Test that a BondNetwork can be initialized with valid data."""
+    num_atoms = 10
+    positions = np.random.rand(num_atoms, 3)
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 3.0
     
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.5)
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
+    )
     
-    assert len(network.atom_ids) == 4
-    assert len(network.coordination_numbers) == 4
-    assert network.is_valid
+    assert network.num_atoms == num_atoms
+    assert network.cutoff == cutoff
+    assert network.positions.shape == (num_atoms, 3)
+    assert network.box_vectors.shape == (3, 3)
+    assert network.is_valid is True
+
 
 def test_coordination_number_calculation():
-    """Test that coordination numbers are calculated correctly."""
-    # Create a simple linear chain: 0-1-2-3
-    positions = np.array([
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [2.0, 0.0, 0.0],
-        [3.0, 0.0, 0.0],
-    ])
-    atom_ids = [0, 1, 2, 3]
+    """Test coordination number calculation for a simple cluster."""
+    # Create a central atom at origin and 4 neighbors at distance 2.0
+    # Cutoff is 2.5, so all 4 should be neighbors.
+    num_atoms = 5
+    positions = np.zeros((num_atoms, 3))
+    positions[0] = [0, 0, 0]
+    positions[1] = [2, 0, 0]
+    positions[2] = [-2, 0, 0]
+    positions[3] = [0, 2, 0]
+    positions[4] = [0, -2, 0]
     
-    # Cutoff should be > 1.0 but < 2.0 to only connect adjacent atoms
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.5)
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 2.5
     
-    # Expected coordination: [1, 2, 2, 1]
-    expected_coords = [1, 2, 2, 1]
-    assert network.coordination_numbers == expected_coords
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
+    )
+    
+    network.compute_adjacency()
+    
+    # Atom 0 should have coordination 4
+    assert network.coordination_numbers[0] == 4
+    # Other atoms should have coordination 1 (only connected to 0)
+    assert network.coordination_numbers[1] == 1
+    assert network.coordination_numbers[2] == 1
+    assert network.coordination_numbers[3] == 1
+    assert network.coordination_numbers[4] == 1
+
 
 def test_coordination_with_cluster():
-    """Test coordination on a small cluster (manual calculation)."""
-    # Create a central atom with 4 neighbors (tetrahedral-like)
-    # Central atom at origin, neighbors at distance 1.0
+    """Test coordination on a slightly larger, more complex cluster."""
+    # Tetrahedral arrangement approx
+    num_atoms = 5
     positions = np.array([
-        [0.0, 0.0, 0.0],  # Central
-        [1.0, 0.0, 0.0],  # Neighbor 1
-        [0.0, 1.0, 0.0],  # Neighbor 2
-        [0.0, 0.0, 1.0],  # Neighbor 3
-        [0.5, 0.5, 0.5],  # Neighbor 4 (closer)
+        [0.0, 0.0, 0.0],
+        [1.0, 1.0, 1.0],
+        [1.0, -1.0, -1.0],
+        [-1.0, 1.0, -1.0],
+        [-1.0, -1.0, 1.0]
     ])
-    atom_ids = [0, 1, 2, 3, 4]
+    # Distances from center are sqrt(3) ~ 1.732
+    # Distance between neighbors: sqrt(8) ~ 2.828
     
-    # Cutoff = 1.2 to include all neighbors of central atom
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.2)
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 2.0 # Should catch center to neighbors, but not neighbor to neighbor
     
-    # Central atom (index 0) should have coordination 4
-    # Neighbors should have coordination 1 (only connected to center)
-    # Except neighbor 4 which is closer to center
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
+    )
+    
+    network.compute_adjacency()
+    
+    # Center (0) connected to 4
     assert network.coordination_numbers[0] == 4
-    # Check that neighbors have at least 1 connection
-    for i in range(1, 5):
-        assert network.coordination_numbers[i] >= 1
+    # Neighbors only connected to center
+    assert all(network.coordination_numbers[1:] == 1)
+
 
 def test_bond_angle_variance():
     """Test bond angle variance calculation."""
-    # Create atoms with known angles
-    # Central atom with 3 neighbors at 120 degrees (planar)
-    positions = np.array([
-        [0.0, 0.0, 0.0],  # Central
-        [1.0, 0.0, 0.0],  # Neighbor 1
-        [-0.5, np.sqrt(3)/2, 0.0],  # Neighbor 2 (120 deg)
-        [-0.5, -np.sqrt(3)/2, 0.0], # Neighbor 3 (240 deg)
-    ])
-    atom_ids = [0, 1, 2, 3]
+    # Atom 0 at origin.
+    # Neighbors at 0, 1, 2 on x-axis: angles 0, 0 (collinear) -> variance 0
+    # Neighbors at 0, 1, 2 forming a triangle: angles 60, 60, 60 -> variance 0
+    # Neighbors at 0, 1, 2 forming 90, 90, 180 -> variance > 0
     
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.5)
-    
-    # The angles between neighbors should be 120 degrees (2π/3 radians)
-    # Variance of three 120-degree angles should be 0
-    # (Note: due to floating point, it might not be exactly 0)
-    assert network.bond_angle_variances[0] < 0.01  # Small tolerance
-
-def test_invalid_positions_shape():
-    """Test that invalid position shapes raise errors."""
-    with pytest.raises(ValueError):
-        BondNetwork(
-            atom_ids=[0, 1],
-            positions=np.array([[0.0, 0.0]]),  # 2D, not 3D
-            cutoff=1.5
-        )
-
-def test_invalid_atom_id_count():
-    """Test that mismatched atom_ids and positions raise errors."""
-    with pytest.raises(ValueError):
-        BondNetwork(
-            atom_ids=[0, 1, 2],  # 3 IDs
-            positions=np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),  # 2 positions
-            cutoff=1.5
-        )
-
-def test_global_metrics():
-    """Test global metrics calculation."""
+    num_atoms = 4
     positions = np.array([
         [0.0, 0.0, 0.0],
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0]
     ])
-    atom_ids = [0, 1, 2, 3]
+    # Center at 0. Neighbors at 1, 2, 3.
+    # Angles: (1,2) -> 90 deg, (1,3) -> 90 deg, (2,3) -> 90 deg.
+    # Variance of [90, 90, 90] is 0.
     
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.5)
-    metrics = network.get_global_metrics()
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 2.0
     
-    assert "avg_coordination" in metrics
-    assert "max_coordination" in metrics
-    assert "total_bonds" in metrics
-    assert "density" in metrics
-    assert metrics["total_bonds"] > 0
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
+    )
+    
+    network.compute_adjacency()
+    network.compute_bond_angle_variance()
+    
+    # All angles 90 degrees (pi/2). Variance should be 0.
+    assert np.isclose(network.bond_angle_variances[0], 0.0)
+    
+    # Atom 1 has only 1 neighbor (0). Variance should be 0.
+    assert np.isclose(network.bond_angle_variances[1], 0.0)
+
+
+def test_invalid_positions_shape():
+    """Test initialization fails with invalid position shape."""
+    with pytest.raises(ValueError):
+        BondNetwork(
+            num_atoms=3,
+            atom_ids=np.arange(3),
+            positions=np.zeros((3, 2)), # 2D positions
+            box_vectors=np.eye(3),
+            cutoff=1.0
+        )
+
+
+def test_invalid_atom_id_count():
+    """Test initialization fails if atom_ids count mismatches num_atoms."""
+    with pytest.raises(ValueError):
+        BondNetwork(
+            num_atoms=3,
+            atom_ids=np.arange(2), # Count mismatch
+            positions=np.zeros((3, 3)),
+            box_vectors=np.eye(3),
+            cutoff=1.0
+        )
+
+
+def test_global_metrics():
+    """Test calculation of global metrics."""
+    num_atoms = 4
+    positions = np.array([
+        [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]
+    ])
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 2.0
+    
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
+    )
+    
+    network.compute_adjacency()
+    network.validate_physical_constraints()
+    
+    assert 'average_coordination' in network.global_metrics
+    assert 'total_bonds' in network.global_metrics
+    assert 'density' in network.global_metrics
+    
+    # Total bonds: 0-1, 0-2, 0-3 -> 3 bonds
+    assert network.global_metrics['total_bonds'] == 3
+
 
 def test_physical_constraint_validation():
-    """Test validation of physical constraints."""
-    # Create a network with an over-coordinated atom
-    positions = np.array([
-        [0.0, 0.0, 0.0],
-        [0.5, 0.0, 0.0],
-        [-0.5, 0.0, 0.0],
-        [0.0, 0.5, 0.0],
-        [0.0, -0.5, 0.0],
-        [0.0, 0.0, 0.5],
-        [0.0, 0.0, -0.5],
-    ])
-    atom_ids = [0, 1, 2, 3, 4, 5, 6]
+    """Test anomaly flagging for high coordination."""
+    # Create a scenario with high coordination
+    num_atoms = 8
+    positions = np.zeros((num_atoms, 3))
+    # Central atom at 0
+    # 7 neighbors very close
+    for i in range(1, 8):
+        positions[i] = [0.1 * i, 0, 0] # All within 0.7 distance
+        
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 1.0
     
-    # Cutoff large enough to connect all to center
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.0)
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
+    )
     
-    # Validate with max_coord=6
-    is_valid = network.validate_physical_constraints(max_coord=6)
-    assert not is_valid
-    assert len(network.validation_errors) > 0
-    assert "coordination 6" in network.validation_errors[0] or "coordination 7" in network.validation_errors[0]
+    network.compute_adjacency()
+    network.validate_physical_constraints()
+    
+    # Atom 0 has 7 neighbors -> anomaly
+    assert 0 in network.anomaly_flags
+    assert any("High coordination" in flag for flag in network.anomaly_flags[0])
+    assert network.is_valid is False # Network contains anomalies
+
 
 def test_to_dict_and_from_dict():
     """Test serialization and deserialization."""
-    positions = np.array([
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-    ])
-    atom_ids = [0, 1]
-    
-    network = BondNetwork(atom_ids=atom_ids, positions=positions, cutoff=1.5)
-    
-    # Serialize
-    data = network.to_dict()
-    
-    # Deserialize
-    network2 = BondNetwork.from_dict(data)
-    
-    assert np.array_equal(network2.positions, network.positions)
-    assert network2.atom_ids == network.atom_ids
-    assert network2.coordination_numbers == network.coordination_numbers
-
-def test_pbc_application():
-    """Test that periodic boundary conditions are applied correctly."""
-    # Create a box with PBC
-    box_vectors = np.eye(3) * 2.0
-    positions = np.array([
-        [0.0, 0.0, 0.0],
-        [1.9, 0.0, 0.0],  # Close to boundary
-    ])
-    atom_ids = [0, 1]
+    num_atoms = 3
+    positions = np.random.rand(3, 3)
+    box_vectors = np.eye(3) * 5.0
+    cutoff = 2.0
     
     network = BondNetwork(
-        atom_ids=atom_ids, 
-        positions=positions, 
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
         box_vectors=box_vectors,
-        cutoff=0.5  # Small cutoff, but PBC should make them close
+        cutoff=cutoff
+    )
+    network.compute_adjacency()
+    network.compute_bond_angle_variance()
+    network.validate_physical_constraints()
+    
+    data = network.to_dict()
+    
+    # Reconstruct (partial)
+    reconstructed = BondNetwork.from_dict(data)
+    
+    assert reconstructed.num_atoms == network.num_atoms
+    assert reconstructed.cutoff == network.cutoff
+    assert np.array_equal(reconstructed.coordination_numbers, network.coordination_numbers)
+    assert np.allclose(reconstructed.bond_angle_variances, network.bond_angle_variances)
+    assert reconstructed.is_valid == network.is_valid
+
+
+def test_pbc_application():
+    """Test that Minimum Image Convention is applied correctly."""
+    # Box size 10. Atom at 0.9, Atom at 9.1.
+    # Distance should be 1.8 (via PBC), not 8.2.
+    num_atoms = 2
+    positions = np.array([
+        [0.9, 0.0, 0.0],
+        [9.1, 0.0, 0.0]
+    ])
+    box_vectors = np.eye(3) * 10.0
+    cutoff = 2.0
+    
+    network = BondNetwork(
+        num_atoms=num_atoms,
+        atom_ids=np.arange(num_atoms),
+        positions=positions,
+        box_vectors=box_vectors,
+        cutoff=cutoff
     )
     
-    # With PBC, distance between (0,0,0) and (1.9,0,0) in a 2.0 box
-    # should be min(|1.9-0|, |1.9-2.0|) = 0.1
-    # So they should be connected if cutoff > 0.1
-    assert 1 in network.adjacency[0]
+    network.compute_adjacency()
+    
+    # Should be bonded because distance is 1.8
+    assert network.coordination_numbers[0] == 1
+    assert network.coordination_numbers[1] == 1
+    assert len(network.edges) == 1
