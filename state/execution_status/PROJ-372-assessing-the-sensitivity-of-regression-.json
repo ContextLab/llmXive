@@ -1,6 +1,19 @@
 {
+  "project_id": "PROJ-372-assessing-the-sensitivity-of-regression-",
+  "ok": false,
+  "reason": "4 command(s) failed: python -m src.cli main ingest --config config.yaml (rc=1); python -m src.cli main resample --config config.yaml (rc=1); python -m src.cli main meta --config config.yaml (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python -m src.cli main ingest --config config.yaml -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-372-assessing-the-sensitivity-of-regression-/code/.venv/bin/python: No module named src.cli",
+    "python -m src.cli main resample --config config.yaml -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-372-assessing-the-sensitivity-of-regression-/code/.venv/bin/python: No module named src.cli",
+    "python -m src.cli main meta --config config.yaml -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-372-assessing-the-sensitivity-of-regression-/code/.venv/bin/python: No module named src.cli",
+    "python -m src.cli main report --config config.yaml -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-372-assessing-the-sensitivity-of-regression-/code/.venv/bin/python: No module named src.cli"
+  ],
+  "fix_rounds": 7,
   "model_tier": 1,
-  "fix_rounds": 0,
-  "updated_at": "2026-09-08T23:16:18Z",
-  "project_id": "PROJ-372-assessing-the-sensitivity-of-regression-"
+  "total_attempts": 7,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-18T15:20:00Z"
 }
