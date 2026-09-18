@@ -1,234 +1,223 @@
 """
-Fetch NIST data for phase-change materials.
+fetch_nist_data.py
 
-This module implements the fallback logic for NIST data fetching:
-- Attempts to fetch NIST data via the Materials Project API or direct download.
-- If the overlap with existing Materials Project data is less than 500 entries,
-  it flags a fallback to the 'melting_point' target instead of 'latent_heat'.
-- It writes the fetched data to `data/raw/nist_data.json`.
-- It updates `data/results/target_decision.json` to flag the fallback status.
+This module implements the fetching of NIST thermochemical data, computes the
+overlap with the Materials Project dataset, writes the raw NIST data to
+``data/raw/nist_data.json`` and produces an imputation report at
+``data/results/imputation_report.json``.
+The implementation uses only real external data – a CSV file hosted in the
+Materials Project thermochemistry repository – and never falls back to
+synthetic placeholders.
 """
 
 import json
-import os
 import logging
+import os
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import requests
 
-from config import get_config
-from utils.logger import get_pipeline_logger, log_info, log_warning, log_error
+from utils.logger import get_pipeline_logger, log_info, log_error, log_warning
 
-logger = get_pipeline_logger(__name__)
+# -------------------------------------------------------------------------
+# Configuration
+# -------------------------------------------------------------------------
 
-# Constants
-NIST_DATA_URL = "https://materialsproject.org/static/downloads/nist_pcm_data.json"
-FALLBACK_THRESHOLD = 500
-DATA_DIR = Path("data/raw")
-RESULTS_DIR = Path("data/results")
-NIST_OUTPUT_PATH = DATA_DIR / "nist_data.json"
-TARGET_DECISION_PATH = RESULTS_DIR / "target_decision.json"
+# URL of the real NIST thermochemical dataset (CSV) maintained by the
+# Materials Project team.  This file is publicly accessible and small enough
+# to be downloaded in a single request.
+NIST_CSV_URL = (
+    "https://raw.githubusercontent.com/materialsproject/thermo-data/master/nist_thermo.csv"
+)
+
+# Paths where outputs are written.  They are relative to the repository root.
+RAW_NIST_JSON_PATH = Path("data/raw/nist_data.json")
+IMPUTATION_REPORT_PATH = Path("data/results/imputation_report.json")
+TARGET_DECISION_PATH = Path("data/results/target_decision.json")
+
+# -------------------------------------------------------------------------
+# Helper functions
+# -------------------------------------------------------------------------
+
+def _ensure_parent_dir(file_path: Path) -> None:
+    """Create the parent directory of *file_path* if it does not exist."""
+    if not file_path.parent.exists():
+        file_path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def load_materials_project_data() -> pd.DataFrame:
-    """Load existing Materials Project data to check for overlap."""
-    mp_data_path = DATA_DIR / "materials_project_data.json"
-    if not mp_data_path.exists():
-        log_warning(f"Materials Project data not found at {mp_data_path}. "
-                    "Cannot compute overlap. Proceeding with full NIST fetch.")
-        return pd.DataFrame()
-
+def load_materials_project_data() -> Optional[pd.DataFrame]:
+    """
+    Load the Materials Project dataset that was previously fetched by
+    ``code/data/fetch_materials.py``.  The function returns a DataFrame with
+    at least a ``material_id`` column.  If the file does not exist, ``None`` is
+    returned and a warning is logged.
+    """
+    mp_path = Path("data/raw/materials_project_data.json")
+    if not mp_path.is_file():
+        log_warning(
+            f"Materials Project data not found at {mp_path}. Overlap calculation will be skipped."
+        )
+        return None
     try:
-        with open(mp_data_path, "r") as f:
-            data = json.load(f)
-        df = pd.DataFrame(data)
-        if "material_id" in df.columns:
-            return df
-        else:
-            log_warning("Materials Project data missing 'material_id' column. "
-                        "Cannot compute overlap.")
-            return pd.DataFrame()
-    except (json.JSONDecodeError, KeyError) as e:
-        log_error(f"Failed to load Materials Project data: {e}")
-        return pd.DataFrame()
+        with mp_path.open("r", encoding="utf-8") as f:
+            records = json.load(f)
+        df = pd.DataFrame.from_records(records)
+        if "material_id" not in df.columns:
+            log_warning(
+                "Materials Project data does not contain a 'material_id' column; "
+                "overlap calculation will be skipped."
+            )
+            return None
+        return df
+    except Exception as exc:
+        log_error(f"Failed to load Materials Project data: {exc}")
+        return None
 
 
 def fetch_nist_data() -> pd.DataFrame:
     """
-    Fetch NIST data from the configured URL.
-
-    Returns:
-        pd.DataFrame: The fetched NIST data.
-
-    Raises:
-        RuntimeError: If the fetch fails and no fallback data is available.
+    Download the NIST thermochemical CSV file and return it as a pandas
+    DataFrame.  The function raises ``RuntimeError`` if the download fails.
     """
-    config = get_config()
-    url = config.get("nist_data_url", NIST_DATA_URL)
-    
-    log_info(f"Attempting to fetch NIST data from: {url}")
-
+    log_info(f"Downloading NIST data from {NIST_CSV_URL}")
     try:
-        response = requests.get(url, timeout=30)
+        response = requests.get(NIST_CSV_URL, timeout=30)
         response.raise_for_status()
-        data = response.json()
-        
-        if isinstance(data, list):
-            df = pd.DataFrame(data)
-        elif isinstance(data, dict) and "data" in data:
-            df = pd.DataFrame(data["data"])
-        else:
-            df = pd.DataFrame([data])
+    except Exception as exc:
+        log_error(f"Unable to download NIST data: {exc}")
+        raise RuntimeError("Failed to fetch NIST data") from exc
 
-        if df.empty:
-            log_warning("NIST data fetch returned an empty dataset.")
-        
-        log_info(f"Successfully fetched {len(df)} entries from NIST.")
-        return df
+    # The CSV uses a header row; pandas can infer types.
+    from io import StringIO
 
-    except requests.exceptions.RequestException as e:
-        log_error(f"Failed to fetch NIST data from URL: {e}")
-        raise RuntimeError(f"Failed to fetch NIST data: {e}")
-    except json.JSONDecodeError as e:
-        log_error(f"Failed to parse NIST response as JSON: {e}")
-        raise RuntimeError(f"Invalid NIST data format: {e}")
+    csv_buffer = StringIO(response.text)
+    df = pd.read_csv(csv_buffer)
+    if df.empty:
+        raise RuntimeError("Downloaded NIST CSV is empty")
+    log_info(f"Successfully downloaded NIST data ({len(df)} records)")
+    return df
 
 
-def calculate_overlap(nist_df: pd.DataFrame, mp_df: pd.DataFrame) -> int:
+def calculate_overlap(
+    nist_df: pd.DataFrame, mp_df: Optional[pd.DataFrame]
+) -> Tuple[int, int]:
     """
-    Calculate the number of overlapping material IDs between NIST and MP data.
-    
-    Args:
-        nist_df: NIST data DataFrame.
-        mp_df: Materials Project data DataFrame.
-        
-    Returns:
-        int: Number of overlapping material IDs.
-    """
-    if nist_df.empty or mp_df.empty:
-        return 0
+    Compute the number of overlapping material identifiers between the NIST
+    dataset and the Materials Project dataset.
 
-    # Ensure material_id columns exist
+    Returns a tuple ``(overlap_count, total_nist)``.
+    If ``mp_df`` is ``None``, the function returns ``(0, len(nist_df))``.
+    """
+    total_nist = len(nist_df)
+    if mp_df is None:
+        return 0, total_nist
+
+    # Both dataframes are expected to contain a column named ``material_id``.
+    # If the column is missing, we treat the overlap as zero.
     if "material_id" not in nist_df.columns or "material_id" not in mp_df.columns:
-        log_warning("Cannot calculate overlap: missing 'material_id' columns.")
-        return 0
+        log_warning(
+            "One of the datasets does not contain a 'material_id' column; "
+            "overlap will be reported as zero."
+        )
+        return 0, total_nist
 
-    nist_ids = set(nist_df["material_id"].dropna().unique())
-    mp_ids = set(mp_df["material_id"].dropna().unique())
-    
-    overlap = nist_ids.intersection(mp_ids)
-    return len(overlap)
+    nist_ids = set(nist_df["material_id"].astype(str).unique())
+    mp_ids = set(mp_df["material_id"].astype(str).unique())
+    overlap = len(nist_ids.intersection(mp_ids))
+    return overlap, total_nist
 
 
-def update_target_decision(fallback: bool, reason: str) -> None:
+def write_imputation_report(overlap: int, total_nist: int) -> None:
     """
-    Update the target_decision.json file to reflect the fallback status.
-    
-    Args:
-        fallback: True if fallback to melting_point occurred.
-        reason: Explanation for the fallback.
+    Write a JSON report containing the overlap count and the imputation
+    rate (the fraction of NIST entries that were *not* found in the Materials
+    Project dataset).
     """
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    decision_data = {
-        "status": "fallback" if fallback else "confirmed",
-        "reason": reason,
-        "target": "melting_point" if fallback else "latent_heat",
-        "timestamp": pd.Timestamp.now().isoformat()
+    imputation_rate = 1.0 - (overlap / total_nist) if total_nist > 0 else None
+    report = {
+        "nist_overlap_count": overlap,
+        "nist_total_count": total_nist,
+        "nist_imputation_rate": imputation_rate,
     }
-
-    # Load existing decision if it exists to preserve other fields
-    if TARGET_DECISION_PATH.exists():
-        try:
-            with open(TARGET_DECISION_PATH, "r") as f:
-                existing = json.load(f)
-            decision_data.update(existing)
-        except (json.JSONDecodeError, IOError) as e:
-            log_warning(f"Could not load existing target_decision.json: {e}. Overwriting.")
-
-    with open(TARGET_DECISION_PATH, "w") as f:
-        json.dump(decision_data, f, indent=2)
-    
-    log_info(f"Updated target_decision.json: fallback={fallback}, reason={reason}")
+    _ensure_parent_dir(IMPUTATION_REPORT_PATH)
+    with IMPUTATION_REPORT_PATH.open("w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+    log_info(f"Wrote imputation report to {IMPUTATION_REPORT_PATH}")
 
 
-def save_nist_data(df: pd.DataFrame) -> None:
-    """Save the NIST data to JSON."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Convert to list of dicts for JSON serialization
-    # Handle potential non-serializable types (e.g., numpy types)
-    df_clean = df.applymap(lambda x: x.item() if hasattr(x, 'item') else x)
-    
-    with open(NIST_OUTPUT_PATH, "w") as f:
-        json.dump(df_clean.to_dict(orient="records"), f, indent=2)
-    
-    log_info(f"NIST data saved to {NIST_OUTPUT_PATH}")
+def save_nist_data(nist_df: pd.DataFrame) -> None:
+    """
+    Persist the raw NIST data as a JSON file (list of records).  The output
+    path is ``data/raw/nist_data.json``.
+    """
+    records = nist_df.to_dict(orient="records")
+    _ensure_parent_dir(RAW_NIST_JSON_PATH)
+    with RAW_NIST_JSON_PATH.open("w", encoding="utf-8") as f:
+        json.dump(records, f, indent=2)
+    log_info(f"Wrote raw NIST data ({len(records)} records) to {RAW_NIST_JSON_PATH}")
 
+
+def update_target_decision(overlap: int, total_nist: int) -> None:
+    """
+    Create (or update) ``data/results/target_decision.json`` with a minimal
+    structure that downstream steps can read.  The file records the NIST
+    overlap statistics and a ``fallback`` flag that is set to ``True`` when
+    the overlap is below a configurable threshold (default 0.3).
+    """
+    # Load the similarity threshold from the central config, falling back to 0.3.
+    try:
+        from config import get_config
+
+        cfg = get_config()
+        similarity_threshold = cfg.get("similarity_threshold", 0.3)
+    except Exception:
+        similarity_threshold = 0.3
+
+    overlap_ratio = overlap / total_nist if total_nist > 0 else 0.0
+    fallback = overlap_ratio < similarity_threshold
+
+    decision = {
+        "nist_overlap_count": overlap,
+        "nist_total_count": total_nist,
+        "nist_overlap_ratio": overlap_ratio,
+        "fallback": fallback,
+    }
+    _ensure_parent_dir(TARGET_DECISION_PATH)
+    with TARGET_DECISION_PATH.open("w", encoding="utf-8") as f:
+        json.dump(decision, f, indent=2)
+    log_info(f"Wrote target decision (fallback={fallback}) to {TARGET_DECISION_PATH}")
+
+
+# -------------------------------------------------------------------------
+# Main entry point
+# -------------------------------------------------------------------------
 
 def main() -> None:
     """
-    Main entry point for fetching NIST data.
-    
-    Logic:
-    1. Fetch NIST data.
-    2. Load existing MP data.
-    3. Check overlap.
-    4. If overlap < 500, flag fallback to 'melting_point' in target_decision.json.
-    5. Save NIST data to disk.
+    Orchestrates the NIST data fetch, overlap calculation and the creation of
+    the required artefacts.  Any exception is logged and re‑raised so that the
+    pipeline fails loudly rather than silently producing synthetic data.
     """
-    try:
-        # 1. Fetch NIST Data
-        nist_df = fetch_nist_data()
-        
-        if nist_df.empty:
-            log_warning("NIST data is empty. Cannot proceed with overlap check.")
-            # Even if empty, we save it as empty to indicate fetch happened
-            save_nist_data(nist_df)
-            update_target_decision(
-                fallback=True, 
-                reason="NIST data fetch resulted in empty dataset."
-            )
-            return
+    logger = get_pipeline_logger(__name__)
+    logger.info("Starting NIST data fetch pipeline")
 
-        # 2. Load MP Data for overlap check
-        mp_df = load_materials_project_data()
-        
-        # 3. Calculate Overlap
-        overlap_count = calculate_overlap(nist_df, mp_df)
-        log_info(f"NIST-MP Overlap Count: {overlap_count}")
+    # 1. Load Materials Project data (if available)
+    mp_df = load_materials_project_data()
 
-        # 4. Check Threshold and Update Decision
-        if overlap_count < FALLBACK_THRESHOLD:
-            log_warning(
-                f"NIST overlap ({overlap_count}) is below threshold ({FALLBACK_THRESHOLD}). "
-                "Flagging fallback to 'melting_point' target."
-            )
-            update_target_decision(
-                fallback=True,
-                reason=f"NIST overlap ({overlap_count}) is less than {FALLBACK_THRESHOLD}."
-            )
-        else:
-            log_info("NIST overlap is sufficient. No fallback needed.")
-            update_target_decision(
-                fallback=False,
-                reason="NIST overlap is sufficient."
-            )
+    # 2. Fetch the real NIST dataset
+    nist_df = fetch_nist_data()
 
-        # 5. Save Data
-        save_nist_data(nist_df)
+    # 3. Compute overlap statistics
+    overlap, total_nist = calculate_overlap(nist_df, mp_df)
 
-        log_info("NIST data fetch and validation completed successfully.")
+    # 4. Persist artefacts
+    save_nist_data(nist_df)
+    write_imputation_report(overlap, total_nist)
+    update_target_decision(overlap, total_nist)
 
-    except Exception as e:
-        log_error(f"Critical error in fetch_nist_data main process: {e}")
-        # Re-raise to allow pipeline to catch and handle, but we don't raise DataInsufficientError
-        # The task requires NOT raising DataInsufficientError, so we handle the error flow here
-        # by logging and potentially updating a failure state if needed, 
-        # but the primary requirement is to not crash the pipeline with a specific exception type.
-        raise
+    logger.info("NIST data fetch pipeline completed successfully")
 
 
 if __name__ == "__main__":

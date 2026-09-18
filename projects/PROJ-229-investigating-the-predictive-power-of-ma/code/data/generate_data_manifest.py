@@ -1,123 +1,139 @@
 """
 generate_data_manifest.py
 
-This script creates a manifest JSON file describing the raw input datasets
-and the target decision file produced by the earlier pipeline steps.
-The manifest is written to ``data/results/data_manifest.json`` and includes
-for each file:
+This script scans the project's data directories, computes SHA256 checksums for each file,
+and writes a manifest JSON file summarizing raw, processed, external, and result artifacts.
 
-- Relative path (POSIX style)
-- File size in bytes
-- SHA256 checksum (computed using the project's checksum utility)
+The manifest is written to `data/results/data_manifest.json` with the following structure:
 
-The script is deliberately lightweight and does not attempt to
-re‑download or synthesize any data; it will raise an exception if any of the
-expected source files are missing, ensuring that the pipeline fails loudly
-when required inputs are unavailable.
+{
+    "generated_at": "<ISO timestamp>",
+    "entries": [
+        {
+            "path": "data/raw/materials_project_data.json",
+            "category": "raw",
+            "size_bytes": 12345,
+            "sha256": "deadbeef..."
+        },
+        ...
+    ]
+}
+
+The script can be executed directly:
+    python code/data/generate_data_manifest.py
+
+It relies on the project's `utils.checksum.compute_sha256` helper.
 """
-
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import List, Dict
 
-# Project‑wide logger utility
-from utils.logger import get_pipeline_logger
-
-# Checksum utility provided elsewhere in the repository
 from utils.checksum import compute_sha256
 
-logger = get_pipeline_logger(__name__)
+# Configure a basic logger for this script
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-# ----------------------------------------------------------------------
-# Configuration – paths are relative to the repository root.
-# ----------------------------------------------------------------------
-RAW_MATERIALS_PATH = Path("data/raw/materials_project_data.json")
-RAW_NIST_PATH = Path("data/raw/nist_data.json")
-TARGET_DECISION_PATH = Path("data/results/target_decision.json")
-MANIFEST_OUTPUT_PATH = Path("data/results/data_manifest.json")
 
-def _file_record(file_path: Path) -> dict:
+def collect_files(base_dir: Path, category: str) -> List[Dict]:
     """
-    Build a dictionary with metadata for *file_path*.
+    Recursively collect file metadata from ``base_dir``.
 
     Parameters
     ----------
-    file_path: Path
-        Path to the file whose information should be recorded.
+    base_dir : Path
+        Directory to scan.
+    category : str
+        Logical category for the files (e.g., "raw", "processed", "external", "results").
 
     Returns
     -------
-    dict
-        ``{'path': <relative posix string>, 'size_bytes': <int>,
-         'sha256': <hex string>}``
+    List[Dict]
+        A list of dictionaries with keys: path, category, size_bytes, sha256.
     """
-    if not file_path.is_file():
-        raise FileNotFoundError(f"Required file not found: {file_path}")
+    entries = []
+    if not base_dir.is_dir():
+        logger.warning("Directory %s does not exist; skipping.", base_dir)
+        return entries
 
-    size = file_path.stat().st_size
-    checksum = compute_sha256(file_path)
+    for file_path in base_dir.rglob("*"):
+        if file_path.is_file():
+            try:
+                rel_path = file_path.relative_to(Path.cwd())
+            except ValueError:
+                # If the script is run from a different cwd, fallback to a relative path from project root
+                rel_path = file_path.relative_to(Path(__file__).parents[3])
 
-    logger.debug(
-        "Recorded file %s – size: %d bytes, sha256: %s",
-        file_path,
-        size,
-        checksum,
-    )
+            size = file_path.stat().st_size
+            try:
+                checksum = compute_sha256(file_path)
+            except Exception as exc:
+                logger.error("Failed to compute checksum for %s: %s", file_path, exc)
+                checksum = None
 
-    return {
-        "path": file_path.as_posix(),
-        "size_bytes": size,
-        "sha256": checksum,
+            entry = {
+                "path": str(rel_path).replace("\\", "/"),
+                "category": category,
+                "size_bytes": size,
+                "sha256": checksum,
+            }
+            entries.append(entry)
+    return entries
+
+
+def generate_manifest() -> Dict:
+    """
+    Build the complete manifest dictionary by scanning the standard data sub‑directories.
+    """
+    manifest_entries: List[Dict] = []
+
+    # Define the directories and their logical categories
+    data_root = Path.cwd() / "data"
+    categories = {
+        "raw": data_root / "raw",
+        "processed": data_root / "processed",
+        "external": data_root / "external",
+        "results": data_root / "results",
     }
 
-def generate_manifest() -> dict:
-    """
-    Assemble the manifest dictionary and write it to disk.
-
-    Returns
-    -------
-    dict
-        The manifest dictionary that was written.
-    """
-    logger.info("Generating data manifest...")
-
-    files = [
-        _file_record(RAW_MATERIALS_PATH),
-        _file_record(RAW_NIST_PATH),
-        _file_record(TARGET_DECISION_PATH),
-    ]
+    for cat, dir_path in categories.items():
+        logger.info("Collecting %s files from %s", cat, dir_path)
+        manifest_entries.extend(collect_files(dir_path, cat))
 
     manifest = {
-        "manifest_version": 1,
         "generated_at": datetime.utcnow().isoformat() + "Z",
-        "files": files,
+        "entries": manifest_entries,
     }
-
-    # Ensure the output directory exists
-    MANIFEST_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    with MANIFEST_OUTPUT_PATH.open("w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, sort_keys=False)
-
-    logger.info(
-        "Data manifest written to %s (contains %d entries)",
-        MANIFEST_OUTPUT_PATH,
-        len(files),
-    )
     return manifest
+
+
+def write_manifest(manifest: Dict, output_path: Path) -> None:
+    """
+    Write the manifest dictionary to ``output_path`` as pretty‑printed JSON.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+    logger.info("Data manifest written to %s", output_path)
+
 
 def main() -> None:
     """
-    Entry‑point for ``python -m code.data.generate_data_manifest``.
+    Entry point for the script.
     """
-    try:
-        generate_manifest()
-    except Exception as exc:
-        logger.error("Failed to generate data manifest: %s", exc, exc_info=True)
-        raise
+    logger.info("Starting data manifest generation")
+    manifest = generate_manifest()
+    output_file = Path.cwd() / "data" / "results" / "data_manifest.json"
+    write_manifest(manifest, output_file)
+    logger.info("Data manifest generation completed")
+
 
 if __name__ == "__main__":
-    # When executed as a script ``python code/data/generate_data_manifest.py``,
-    # run the main routine.
     main()

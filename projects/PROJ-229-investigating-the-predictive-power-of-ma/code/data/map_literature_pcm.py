@@ -24,8 +24,12 @@ from pymatgen.core import Composition
 from mp_api.client import MPRester
 
 from config import get_api_key
-from utils.logger import get_pipeline_logger, log_info, log_error
-
+from utils.logger import (
+    get_pipeline_logger,
+    log_info,
+    log_error,
+    log_warning,
+)
 
 # --------------------------------------------------------------------------- #
 # Helper functions
@@ -96,8 +100,7 @@ def _query_mp_id(composition: str, mpr: MPRester) -> Optional[str]:
         results = mpr.summary.search(
             criteria={"pretty_formula": pretty},
             fields=["material_id"],
-            # ``limit`` = 1 to avoid large payloads.
-            limit=1,
+            limit=1,  # ``limit`` = 1 to avoid large payloads.
         )
         if results:
             return results[0]["material_id"]

@@ -1,21 +1,26 @@
-# Schema for the target decision JSON produced by target_consistency_check
-# Ensures the selected target property and the correlation metric are recorded.
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
+description: Schema for validating target_decision.json produced by the target consistency check.
 properties:
-  selected_target:
+  target_variable:
     type: string
-    description: The property chosen as the predictive target.
-    enum:
-      - latent_heat
-      - melting_point
-  pearson_r:
+    description: Name of the target variable selected for modeling (e.g., "melting_point" or "latent_heat").
+  correlation:
     type: number
-    description: Pearson correlation coefficient between the two candidate targets.
-  fallback_used:
-    type: boolean
-    description: Whether a fallback decision was required (e.g., insufficient overlap).
+    description: Pearson correlation coefficient between the candidate target and the primary feature set.
+  decision:
+    type: string
+    description: Decision made based on the correlation threshold.
+    enum:
+      - melting_point
+      - latent_heat
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp indicating when the decision file was generated.
 required:
-  - selected_target
-  - pearson_r
-  - fallback_used
+  - target_variable
+  - correlation
+  - decision
+  - generated_at
 additionalProperties: false

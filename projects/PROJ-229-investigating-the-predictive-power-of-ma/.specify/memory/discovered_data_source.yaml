@@ -1,6 +1,6 @@
 status: none
-intent: Materials Project API melt point heat capacity dataset matbench_melting_points
-  python package dataset
+intent: matminer Materials Project dataset with melting point heat capacity NIST latent
+  heat python package dataset
 required_fields:
 - material_id
 - formula
@@ -10,9 +10,9 @@ required_fields:
 - atomic_number
 - electronegativity
 - atomic_radius
-- crystal_graph
-- spacegroup
-- density
-cache_key: 3fdd3f7bb27dc9e5a9711fb10ce526812a5a245e5c9f4350b4737e52b67fbbb1
-searched_at: '2026-09-02T02:24:48.621617+00:00'
+- crystal_system
+- space_group
+- graph_representation
+cache_key: efb9f7babde560cf6a2cb0f88d882a361bd57f5182a703f440abea92971083fc
+searched_at: '2026-09-18T10:24:25.298734+00:00'
 retry_count: 1

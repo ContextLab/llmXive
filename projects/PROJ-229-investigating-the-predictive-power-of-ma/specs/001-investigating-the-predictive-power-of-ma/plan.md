@@ -13,7 +13,7 @@ This project investigates whether machine learning models, specifically interpre
 **Primary Dependencies**: `pymatgen` (structure/graph), `scikit-learn` (baselines), `shap` (interpretability), `pysr` (symbolic regression), `pandas`, `numpy`, `datasets` (HuggingFace), `pyyaml`, `pytest`  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/external`), JSON/YAML config files  
 **Testing**: `pytest` (unit, integration, contract), `pytest-cov` for coverage  
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, several GB of RAM, 14 GB disk)  
+**Target Platform**: Linux (GitHub Actions free‑tier runner: multiple CPU cores, several GB of RAM, ample disk space)  
 **Project Type**: Research pipeline / Data science library  
 **Performance Goals**: Complete full pipeline (fetch, feature, train, validate) within 6 hours on CPU; memory usage < 7 GB; disk usage < 12 GB.  
 **Constraints**: No GPU available on primary runner; no access to gated datasets (e.g., ADNI, HCP) without open substitute; all external data must be checksummed and reproducible.  

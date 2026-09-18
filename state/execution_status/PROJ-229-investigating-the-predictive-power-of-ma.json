@@ -1,6 +1,22 @@
 {
+  "project_id": "PROJ-229-investigating-the-predictive-power-of-ma",
+  "ok": false,
+  "reason": "8 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/compute_descriptors.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026main__\":     # Test with mock data     df = pd.DataFrame({'\u2026\u201d; code/data/fetch_materials_project.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026API key provided. Using mock data.\")         # Return mock\u2026\u201d; code/data/fetch_materials_project.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026data.\")         # Return mock data for testing         retu\u2026\u201d; 3 run-book script(s) missing (plan/impl path mismatch): python code/models/train_baselines.py; python code/validate/validate_external.py; python code/validate/sensitivity_analysis.py; 4 command(s) failed: python code/data/fetch_materials.py (rc=1); python code/data/compute_descriptors.py (rc=1); python code/models/train_symbolic.py (rc=1); 11 declared deliverable(s) absent: data/external/literature_pcms_mapped.csv; data/external/literature_pcms_raw.csv; data/models/shap_summary.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/fetch_materials.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/data/fetch_materials.py\", line 8, in <module>\n    from utils.logger import get_pipeline_logger, log_error, log_warning, log_info\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/utils/__init__.py\", line 4, in <module>\n    from .logger import setup_logger, get_pipeline_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-",
+    "python code/data/compute_descriptors.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/data/compute_descriptors.py\", line 15, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/models/train_baselines.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/models/train_baselines.py': [Errno 2] No such file or directory",
+    "python code/models/train_symbolic.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/models/train_symbolic.py\", line 18, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/validate/validate_external.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/validate/validate_external.py': [Errno 2] No such file or directory",
+    "python code/validate/sensitivity_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/validate/sensitivity_analysis.py': [Errno 2] No such file or directory",
+    "python code/main.py --generate-report -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/main.py\", line 28, in <module>\n    from utils.logger import get_pipeline_logger, log_error, log_info\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/code/utils/__init__.py\", line 4, in <module>\n    from .logger import setup_logger, get_pipeline_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-229-investigating-the-predictive-power-of-ma/cod"
+  ],
+  "fix_rounds": 1,
   "model_tier": 1,
-  "fix_rounds": 0,
-  "updated_at": "2026-09-02T03:01:42Z",
-  "project_id": "PROJ-229-investigating-the-predictive-power-of-ma"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-18T10:23:23Z"
 }

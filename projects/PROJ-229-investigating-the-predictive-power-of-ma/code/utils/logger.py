@@ -1,234 +1,135 @@
+"""
+Logger utility for the project.
+
+Provides a singleton pipeline logger that writes to a file defined in
+``config.yaml`` under the key ``log_file``. If the configuration does not
+specify a log file, a default location ``data/logs/pipeline.log`` is used.
+
+The helper functions ``log_debug``, ``log_info`` etc. are thin wrappers
+around the standard :pyclass:`logging.Logger` methods and automatically
+initialise the logger on first use.
+"""
+
 import logging
 import sys
-import os
 import traceback
 from pathlib import Path
 from typing import Optional, Dict, Any
-from datetime import datetime
 
-from config import get_config
+# The config module loads ``config.yaml`` and provides ``get_config``.
+# Import is placed inside a function to avoid import‑time side effects if
+# ``config.yaml`` is missing or malformed; any error will be raised when
+# the logger is first set up.
+def _load_config() -> Dict[str, Any]:
+    try:
+        from config import get_config
+    except Exception as exc:
+        # If the config module cannot be imported we fall back to an empty
+        # configuration – the logger will use its default path.
+        return {}
+    try:
+        return get_config()
+    except Exception:
+        # Any problem reading the config (e.g. missing file) results in an
+        # empty dict so the logger can still operate.
+        return {}
 
 _logger: Optional[logging.Logger] = None
-_handler: Optional[logging.Handler] = None
 
-def setup_logger(
-    name: str = "llmXive",
-    level: Optional[int] = None,
-    log_file: Optional[str] = None,
-    use_color: bool = True
-) -> logging.Logger:
+def _ensure_log_directory(log_path: Path) -> None:
+    """Create parent directories for the log file if they do not exist."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+def setup_logger(level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the global logger instance for the pipeline.
-    
-    Args:
-        name: Logger name.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-        log_file: Optional path to a log file. If provided, logs are written there.
-        use_color: Whether to use ANSI color codes in console output.
-    
-    Returns:
-        The configured logger instance.
+    Initialise the singleton pipeline logger.
+
+    Parameters
+    ----------
+    level: int, optional
+        Logging level; defaults to ``logging.INFO``.
+
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
-    global _logger, _handler
-    
+    global _logger
     if _logger is not None:
         return _logger
 
-    config = get_config()
-    if level is None:
-        # Default to INFO unless DEBUG is explicitly set in config
-        level_str = config.get("logging", {}).get("level", "INFO")
-        level = getattr(logging, level_str.upper(), logging.INFO)
+    config = _load_config()
+    log_file = config.get("log_file", "data/logs/pipeline.log")
+    log_path = Path(log_file)
 
-    _logger = logging.getLogger(name)
-    _logger.setLevel(level)
-    
-    # Prevent adding multiple handlers if called multiple times
-    if _logger.handlers:
-        return _logger
+    _ensure_log_directory(log_path)
 
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    
-    # Simple formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    logger = logging.getLogger("pipeline")
+    logger.setLevel(level)
+    logger.propagate = False  # Prevent double logging in notebooks/tests
+
+    # File handler
+    file_handler = logging.FileHandler(log_path, encoding="utf-8")
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     )
-    console_handler.setFormatter(formatter)
-    _logger.addHandler(console_handler)
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
 
-    # File Handler (if specified)
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        _logger.addHandler(file_handler)
+    # Stream handler (stderr) for immediate feedback
+    stream_handler = logging.StreamHandler(sys.stderr)
+    stream_formatter = logging.Formatter("%(levelname)s - %(message)s")
+    stream_handler.setFormatter(stream_formatter)
+    logger.addHandler(stream_handler)
 
-    return _logger
+    _logger = logger
+    return logger
 
-def get_pipeline_logger(name: str = "llmXive") -> logging.Logger:
+def get_pipeline_logger() -> logging.Logger:
     """
-    Retrieve the initialized pipeline logger.
-    If not initialized, initializes it with default settings from config.
-    
-    Args:
-        name: Logger name (default 'llmXive').
-    
-    Returns:
-        The logger instance.
+    Return the singleton pipeline logger, creating it on first use.
     """
-    global _logger
     if _logger is None:
-        # Initialize with defaults if not explicitly set up yet
-        _logger = setup_logger(name)
+        return setup_logger()
     return _logger
 
-def log_error(error: Exception, context: str = "Pipeline Error") -> None:
-    """
-    Log an exception with context using the pipeline logger.
-    
-    Args:
-        error: The exception to log.
-        context: A string describing the context where the error occurred.
-    """
-    logger = get_pipeline_logger()
-    logger.error(f"{context}: {error.__class__.__name__} - {str(error)}")
-    tb_str = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-    logger.debug(f"Traceback: {tb_str}")
-
-def log_warning(message: str) -> None:
-    """
-    Log a warning message.
-    
-    Args:
-        message: The warning message.
-    """
-    logger = get_pipeline_logger()
-    logger.warning(message)
-
-def log_info(message: str) -> None:
-    """
-    Log an info message.
-    
-    Args:
-        message: The info message.
-    """
-    logger = get_pipeline_logger()
-    logger.info(message)
+# Convenience wrappers -----------------------------------------------------
 
 def log_debug(message: str) -> None:
-    """
-    Log a debug message.
-    
-    Args:
-        message: The debug message.
-    """
-    logger = get_pipeline_logger()
-    logger.debug(message)
+    """Log a DEBUG level message."""
+    get_pipeline_logger().debug(message)
+
+def log_info(message: str) -> None:
+    """Log an INFO level message."""
+    get_pipeline_logger().info(message)
+
+def log_warning(message: str) -> None:
+    """Log a WARNING level message."""
+    get_pipeline_logger().warning(message)
+
+def log_error(message: str) -> None:
+    """Log an ERROR level message."""
+    get_pipeline_logger().error(message)
 
 def log_critical(message: str) -> None:
+    """Log a CRITICAL level message."""
+    get_pipeline_logger().critical(message)
+
+def log_exception_details(exc: BaseException, context: str = "") -> None:
     """
-    Log a critical message.
-    
-    Args:
-        message: The critical message.
+    Log an exception with its traceback.
+
+    Parameters
+    ----------
+    exc: BaseException
+        The caught exception instance.
+    context: str, optional
+        Additional context message to prepend to the traceback.
     """
     logger = get_pipeline_logger()
-    logger.critical(message)
-
-def log_exception_details(error: Exception, context: str = "Unhandled Exception") -> None:
-    """
-    Log detailed exception information including traceback.
-    
-    Args:
-        error: The exception instance.
-        context: Contextual description of where the error occurred.
-    """
-    logger = get_pipeline_logger()
-    logger.critical(f"{context}: {error.__class__.__name__} - {str(error)}")
-    logger.critical(f"Traceback:\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}")
-    
-    # Attempt to log additional context if available
-    if hasattr(error, 'context'):
-        logger.critical(f"Error Context: {error.context}")
-
-class PipelineError(Exception):
-    """Base exception for pipeline errors."""
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
-        super().__init__(message)
-        self.message = message
-        self.details = details or {}
-        self.timestamp = datetime.now().isoformat()
-
-class DataFetchError(PipelineError):
-    """Exception raised when data fetching fails."""
-    pass
-
-class DataProcessingError(PipelineError):
-    """Exception raised when data processing fails."""
-    pass
-
-class ModelTrainingError(PipelineError):
-    """Exception raised when model training fails."""
-    pass
-
-class ConfigError(PipelineError):
-    """Exception raised when configuration is invalid."""
-    pass
-
-def handle_error(error: Exception, context: str = "Pipeline Error", reraise: bool = True) -> None:
-    """
-    Centralized error handling function.
-    
-    Args:
-        error: The exception to handle.
-        context: Contextual description of the error.
-        reraise: If True, re-raises the exception after logging.
-    """
-    logger = get_pipeline_logger()
-    log_error(error, context)
-    
-    if reraise:
-        raise error
-
-def validate_not_null(value: Any, field_name: str) -> Any:
-    """
-    Validate that a value is not None.
-    
-    Args:
-        value: The value to validate.
-        field_name: Name of the field for error messaging.
-    
-    Returns:
-        The value if valid.
-    
-    Raises:
-        ValueError: If the value is None.
-    """
-    if value is None:
-        raise ValueError(f"{field_name} cannot be None")
-    return value
-
-def validate_positive(value: float, field_name: str) -> float:
-    """
-    Validate that a numeric value is positive.
-    
-    Args:
-        value: The value to validate.
-        field_name: Name of the field for error messaging.
-    
-    Returns:
-        The value if valid.
-    
-    Raises:
-        ValueError: If the value is not positive.
-    """
-    if not isinstance(value, (int, float)):
-        raise ValueError(f"{field_name} must be numeric")
-    if value <= 0:
-        raise ValueError(f"{field_name} must be positive")
-    return value
+    tb_lines = traceback.format_exception(type(exc), exc, exc.__traceback__)
+    tb_text = "".join(tb_lines)
+    if context:
+        logger.error("%s\n%s", context, tb_text)
+    else:
+        logger.error("%s", tb_text)

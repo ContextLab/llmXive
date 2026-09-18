@@ -6334,3 +6334,199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T09:54:26Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: final CSV contains at least 5000 rows
+  claim_id: c_e2a641a5
+  context: "In Phase\u202F4 (User Story\u202F2 \u2013 Train Baseline and Interpretable\
+    \ Models), the task T041 specifies a unit test that checks the preprocessed dataset.\
+    \ The test asserts the CSV has \u2265\u202F5,000 rows and meets memory constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_CSV_contains_at_least_5000_rows
+  kind: magnitude
+  raw_text: "Unit test (`tests/unit/test_preprocessed_dataset.py`) that verifies the\
+    \ final CSV contains \u2265\u202F5,000 rows with non\u2011null melting\u2011point,\
+    \ latent\u2011heat (where available), all feature columns, and that peak memory\
+    \ usage \u2264\u202F7\u202FGB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:25:57Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "final CSV contains at least 5000 rows and peak memory usage \u2264 7\
+    \ GB"
+  claim_id: c_bed0afb9
+  context: Unit test T041 verifies that the generated dataset meets size and memory
+    constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_CSV_contains_at_least_5000_rows_and_peak_memory_usage
+  kind: magnitude
+  raw_text: "the final CSV contains \u2265\u202F5,000 rows with non\u2011null melting\u2011\
+    point, latent\u2011heat (where available), all feature columns, and that peak\
+    \ memory usage \u2264\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:27:44Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: collinearity_diagnostic.json flags variables with VIF greater than 5
+  claim_id: c_22de427e
+  context: Unit test T040_test checks the contents of the collinearity diagnostic
+    output.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: "collinearity_diagnostic.json contains VIF scores and flags variables\
+    \ with VIF\u202F>\u202F5"
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T10:27:53Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "sensitivity variation \u2264 5 percent"
+  claim_id: c_753550aa
+  context: Unit test T062_sensitivity_threshold_test validates the reported variation
+    against the configured threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "variation reported in sensitivity_report.json does not exceed the 5\u202F\
+    % threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:28:23Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: descriptor and stability unit tests require at least 80% coverage
+  claim_id: c_c93c0425
+  context: Phase 6 task T030 specifies a coverage requirement for additional unit
+    tests.
+  evidence:
+    entailment_evidence: Descriptor and stability unit tests require at least 80%
+      cov
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Descriptor_and_stability_unit_tests_require_at_least_80%25_cov
+  kind: magnitude
+  raw_text: "unit tests for descriptor computation and stability checks require \u2265\
+    \u202F80\u202F% coverage"
+  resolved_value: descriptor and stability unit tests require at least 80% coverage
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T10:28:26Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "latent heat R\xB2 drop greater than 20 percent triggers proxy leakage\
+    \ flag"
+  claim_id: c_221825e4
+  context: "Task T074_core implements a proxy leakage test that monitors R\xB2 reduction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latent_heat_R%C2%B2_drop_greater_than_20_percent_triggers_proxy_l
+  kind: magnitude
+  raw_text: "if R\xB2 on latent heat drops by >20\u202F% the proxy leakage test flags\
+    \ 'PROXY LEAKAGE DETECTED'"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:29:24Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: collinearity diagnostic flags variables with VIF greater than 5
+  claim_id: c_01a96026
+  context: "T040_test [P] Unit test checking that `collinearity_diagnostic.json` contains\
+    \ VIF scores and flags variables with VIF\u202F>\u202F5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_diagnostic_flags_variables_with_VIF_greater_tha
+  kind: magnitude
+  raw_text: "The unit test T040_test checks that `collinearity_diagnostic.json` contains\
+    \ VIF scores and flags variables with VIF\u202F>\u202F5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:33:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: sensitivity variation does not exceed 5 percent
+  claim_id: c_bd375d81
+  context: "T062_sensitivity_threshold_test [P] Unit test verifying that the variation\
+    \ reported in `sensitivity_report.json` does not exceed the 5\u202F% threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The unit test T062_sensitivity_threshold_test verifies that the variation\
+    \ reported in `sensitivity_report.json` does not exceed the 5\u202F% threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:33:51Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: correlation report JSON includes pearson_r and p_value keys
+  claim_id: c_3353d26a
+  context: T030c Implement Pearson correlation analysis in `code/evaluate.py`; output
+    `data/results/correlation_report.json` with keys `pearson_r` and `p_value`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_report_JSON_includes_pearson_r_and_p_value_keys
+  kind: entity_fact
+  raw_text: The Pearson correlation analysis in `code/evaluate.py` outputs `data/results/correlation_report.json`
+    with keys `pearson_r` and `p_value`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:34:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: streaming data loader handles datasets larger than 7 GB without full
+    RAM load
+  claim_id: c_9ff918e1
+  context: "T035 [P] Implement Streaming Data Loader ... Must handle >7\u202FGB datasets\
+    \ without loading full data into RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The streaming data loader in `code/data/compute_descriptors.py` must\
+    \ handle datasets larger than 7\u202FGB without loading the full data into RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T10:35:25Z'

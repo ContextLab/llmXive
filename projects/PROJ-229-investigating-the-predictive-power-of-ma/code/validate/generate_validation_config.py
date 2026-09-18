@@ -1,62 +1,64 @@
 """
 generate_validation_config.py
-------------------------------
 
-This script creates the validation configuration file required by the
-external validation step (US3). It reads the global configuration (via
-`config.get_config`) to obtain the `top_n` parameter, which defaults to
-10 if not present, and writes a JSON file at
-`data/results/validation_config.json` with the following structure:
-
-    {
-        "top_n": <int>
-    }
-
-The script can be executed directly:
-
-    python code/validate/generate_validation_config.py
-
-It will create the `data/results/` directory if it does not already exist.
+This script generates the validation configuration file used by the external
+validation step. It reads the global configuration (config.yaml) and writes
+a JSON file containing the required parameters, currently only ``top_n``.
+The default value for ``top_n`` is defined in ``config.yaml`` (default: 10).
 """
 
 import json
-import os
+import logging
 from pathlib import Path
 
-# Import the configuration loader from the project's config module.
+# The project provides a config helper that loads the YAML configuration.
 from config import get_config
 
-def generate_validation_config(output_path: Path) -> None:
+logger = logging.getLogger(__name__)
+
+def generate_validation_config(output_path: Path | str = None) -> Path:
     """
-    Generate the validation configuration JSON file.
+    Generate ``validation_config.json`` containing the ``top_n`` parameter.
 
     Parameters
     ----------
-    output_path : Path
-        The file path where the JSON configuration will be written.
+    output_path : Path | str, optional
+        Destination for the JSON file. If omitted, the default location
+        ``data/results/validation_config.json`` is used.
+
+    Returns
+    -------
+    Path
+        Path to the written JSON file.
     """
-    # Ensure the parent directory exists.
+    cfg = get_config()
+    top_n = cfg.get("top_n", 10)  # default to 10 if the key is missing
+
+    # Resolve the output path
+    if output_path is None:
+        output_path = Path("data/results/validation_config.json")
+    else:
+        output_path = Path(output_path)
+
+    # Ensure the parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load the global configuration; fall back to default if missing.
-    cfg = get_config()
-    top_n = cfg.get("top_n", 10)
+    payload = {"top_n": top_n}
+    try:
+        with output_path.open("w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+        logger.info("Validation config written to %s", output_path)
+    except Exception as exc:
+        logger.error("Failed to write validation config: %s", exc)
+        raise
 
-    # Prepare the JSON payload.
-    payload = {"top_n": int(top_n)}
-
-    # Write the JSON file with pretty formatting.
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2)
-    print(f"Validation config written to {output_path}")
+    return output_path
 
 def main() -> None:
     """
-    Entry point for the script when executed as a module.
+    Entry‑point for ``python -m code.validate.generate_validation_config``.
     """
-    # Define the output location relative to the repository root.
-    output_file = Path("data") / "results" / "validation_config.json"
-    generate_validation_config(output_file)
+    generate_validation_config()
 
 if __name__ == "__main__":
     main()

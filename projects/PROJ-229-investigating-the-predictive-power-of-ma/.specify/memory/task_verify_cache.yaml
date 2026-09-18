@@ -7,30 +7,32 @@ T003b:
     \ the specified settings."
 T005a:
   c: false
-  h: 311242c5864fcdb24aa93e6efc77cf04cdd5956cdcac00d22f6ee3fd92a3be26
-  r: The script `code/data/fetch_materials.py` is present, but the required output
-    file `data/raw/materials_project_data.json` does not exist on disk, so the data
-    retrieval step was not completed. The deliverable is missing.
+  h: 6e0da258d5eca93390e96048c450f8309d6900e7b38cc13d669d19a0f55cae4c
+  r: "The required deliverable `data/raw/materials_project_data.json` is absent from\
+    \ the repository, and there is no evidence that `code/data/fetch_materials.py`\
+    \ was executed to produce it. Without this JSON file the task\u2019s primary output\
+    \ is missing."
 T005b:
   c: false
-  h: f38a801cdac7a2103ff607f41599510633b1ceec23e255e74fdacf878e6796cf
-  r: The required artifact `data/raw/nist_data.json` is absent; only the fetch script
-    is present (and truncated), but there is no evidence that it was executed or that
-    the JSON file was generated. The deliverable file must exist and contain the fetched
-    NIST data for the task to be considered complete.
+  h: 1918ae4ec78b506741b525f4acaad6627eac8d4f6714e4b2e5003fa796f46d2c
+  r: The repository contains the `fetch_nist_data.py` script, but the required output
+    file `data/raw/nist_data.json` is absent, indicating the script has not been executed
+    (or its results were not saved). The deliverable specified by the task is therefore
+    missing.
 T005c:
   c: false
-  h: eb20f2714ce7fdde5ad9aaedea51e584cf3e84f717384eba3dfbf2eed7381174
-  r: The required `data/results/target_decision.json` file is missing, and the provided
-    `target_consistency_check.py` script is truncated before performing the correlation
-    calculation and writing the decision, so the implementation is incomplete.
+  h: cbd7528fee197b31ed56bcefecdb384f1cbeeb276323ca670d669147d5ff9bc2
+  r: "The repository contains `code/data/target_consistency_check.py`, but the required\
+    \ output file `data/results/target_decision.json` is absent, and the provided\
+    \ script excerpt is truncated before any code that writes the JSON. Without the\
+    \ generated JSON (or evidence it is produced), the task\u2019s deliverable is\
+    \ not satisfied."
 T006a:
   c: false
-  h: eb20f2714ce7fdde5ad9aaedea51e584cf3e84f717384eba3dfbf2eed7381174
-  r: The repository contains the `code/data/target_consistency_check.py` script, but
-    the required output file `data/results/target_decision.json` is absent, and there
-    is no evidence that the script was executed to generate it. Consequently, the
-    deliverable specified by the task has not been produced.
+  h: c46f15332d3f7ac3519d480ad6ff7c70709a1eeacd40d3cfb1712bd4ef85b5d1
+  r: "The required artifact `data/results/target_decision.json` does not exist on\
+    \ disk, so the deliverable is missing. The task\u2019s core requirement\u2014\
+    to verify and provide that file\u2014has not been satisfied."
 T008b:
   c: false
   h: b9ff03bbd7597fb242f8968bb64ccc4e8c1039aebcfda8ea7d5a0d5d4269bba9
@@ -40,3 +42,10 @@ T008b:
     \ checksums for the processed data files. The task\u2019s core requirement\u2014\
     recording processed\u2011file SHA256 checksums in `data/checksums.txt`\u2014is\
     \ therefore unmet."
+T013:
+  c: false
+  h: a3a41ee3fde4810bac7cd34693abab87447506f5e44d8d1de75bfe7075923bd3
+  r: The script `code/data/fetch_literature_pcm.py` exists and contains the fetching
+    logic, but the required output file `data/external/literature_pcms_raw.csv` is
+    missing, so the deliverable is not fully satisfied. The CSV must be generated
+    and present.

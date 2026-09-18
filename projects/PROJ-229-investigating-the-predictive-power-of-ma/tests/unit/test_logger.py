@@ -1,185 +1,105 @@
+"""
+Unit test for the logger utility.
+
+The test writes a log entry using ``log_info`` and then verifies that the
+entry appears in the expected log file.
+"""
+
 import os
-import sys
-import logging
-import tempfile
-import json
 from pathlib import Path
+
 import pytest
 
-# Ensure the code directory is in the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
+# Import the logger helpers
 from utils.logger import (
-    setup_logger, 
-    get_pipeline_logger, 
-    log_error, 
-    log_warning, 
-    log_info, 
+    get_pipeline_logger,
+    log_info,
     log_debug,
-    PipelineError,
-    DataFetchError,
-    handle_error,
-    validate_not_null,
-    validate_positive
+    log_warning,
+    log_error,
+    log_critical,
+    log_exception_details,
 )
-from config import get_config
 
-class TestLoggerInfrastructure:
-    """Tests for the logging infrastructure and error handling utilities."""
 
-    def test_setup_logger_creates_instance(self):
-        """Test that setup_logger creates and returns a logger instance."""
-        logger = setup_logger("test_logger_1")
-        assert logger is not None
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == "test_logger_1"
+@pytest.fixture(scope="function")
+def clean_log_file(tmp_path_factory):
+    """
+    Provide a fresh log file for each test case.
+    The logger reads its destination from ``config.yaml``; however, the
+    logger also falls back to the default ``data/logs/pipeline.log`` when
+    that key is missing. We therefore ensure that the default location is
+    cleared before each test.
+    """
+    # Ensure the default log directory exists
+    default_log_path = Path("data/logs/pipeline.log")
+    if default_log_path.is_file():
+        default_log_path.unlink()
+    yield default_log_path
+    # Cleanup after test
+    if default_log_path.is_file():
+        default_log_path.unlink()
 
-    def test_get_pipeline_logger_reuses_instance(self):
-        """Test that get_pipeline_logger returns the same instance if already initialized."""
-        # First call initializes
-        logger1 = get_pipeline_logger("test_shared")
-        # Second call should return the same
-        logger2 = get_pipeline_logger("test_shared")
-        assert logger1 is logger2
 
-    def test_log_info_writes_message(self, caplog):
-        """Test that log_info writes an info message."""
-        # Temporarily set level to INFO to capture logs
-        logger = setup_logger("test_info", level=logging.INFO)
-        
-        with caplog.at_level(logging.INFO):
-            log_info("Test info message")
-        
-        assert "Test info message" in caplog.text
-        assert "INFO" in caplog.text
+def test_logger_writes_and_reads_entry(clean_log_file: Path):
+    """
+    Write a test message and assert it is present in the log file.
+    """
+    test_message = "UNIT TEST LOG ENTRY"
+    # Use the high‑level helper – this will trigger lazy logger creation.
+    log_info(test_message)
 
-    def test_log_warning_writes_message(self, caplog):
-        """Test that log_warning writes a warning message."""
-        logger = setup_logger("test_warning", level=logging.WARNING)
-        
-        with caplog.at_level(logging.WARNING):
-            log_warning("Test warning message")
-        
-        assert "Test warning message" in caplog.text
-        assert "WARNING" in caplog.text
+    # Verify the file exists
+    assert clean_log_file.is_file(), "Log file was not created"
 
-    def test_log_error_writes_exception(self, caplog):
-        """Test that log_error writes exception details."""
-        logger = setup_logger("test_error", level=logging.ERROR)
-        test_exception = ValueError("Test error value")
-        
-        with caplog.at_level(logging.ERROR):
-            log_error(test_exception, "Test Context")
-        
-        assert "Test Context" in caplog.text
-        assert "ValueError" in caplog.text
-        assert "Test error value" in caplog.text
+    # Read the file contents
+    with clean_log_file.open("r", encoding="utf-8") as f:
+        contents = f.read()
 
-    def test_log_file_creation(self):
-        """Test that log_file parameter creates a file with entries."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_pipeline.log"
-            logger = setup_logger("test_file_log", log_file=str(log_path), level=logging.INFO)
-            
-            log_info("File log test message")
-            
-            assert log_path.exists()
-            content = log_path.read_text()
-            assert "File log test message" in content
-            assert "INFO" in content
+    # The log entry should contain the test message
+    assert test_message in contents, "Log entry not found in log file"
 
-    def test_pipeline_error_custom_exception(self):
-        """Test that PipelineError stores message and details."""
-        details = {"key": "value", "code": 404}
-        error = PipelineError("Pipeline failed", details)
-        
-        assert error.message == "Pipeline failed"
-        assert error.details == details
-        assert "Pipeline failed" in str(error)
 
-    def test_data_fetch_error_subclass(self):
-        """Test that DataFetchError is a subclass of PipelineError."""
-        error = DataFetchError("Fetch failed")
-        assert isinstance(error, PipelineError)
-        assert error.message == "Fetch failed"
+def test_logger_multiple_levels(clean_log_file: Path):
+    """
+    Emit log entries at all supported levels and ensure they are recorded.
+    """
+    messages = {
+        "debug": "debug message",
+        "info": "info message",
+        "warning": "warning message",
+        "error": "error message",
+        "critical": "critical message",
+    }
 
-    def test_handle_error_logs_and_raises(self):
-        """Test that handle_error logs the error and re-raises it."""
-        logger = setup_logger("test_handle", level=logging.ERROR)
-        test_exception = RuntimeError("Handle test")
-        
-        with pytest.raises(RuntimeError) as exc_info:
-            handle_error(test_exception, "Handle Context")
-        
-        assert exc_info.value is test_exception
+    log_debug(messages["debug"])
+    log_info(messages["info"])
+    log_warning(messages["warning"])
+    log_error(messages["error"])
+    log_critical(messages["critical"])
 
-    def test_validate_not_null_pass(self):
-        """Test validate_not_null with valid value."""
-        result = validate_not_null("valid", "field_name")
-        assert result == "valid"
+    # Read back the file
+    with clean_log_file.open("r", encoding="utf-8") as f:
+        log_text = f.read()
 
-    def test_validate_not_null_fail(self):
-        """Test validate_not_null with None raises ValueError."""
-        with pytest.raises(ValueError, match="cannot be None"):
-            validate_not_null(None, "field_name")
+    for level, msg in messages.items():
+        assert msg in log_text, f"{level.upper()} message not found in log"
 
-    def test_validate_positive_pass(self):
-        """Test validate_positive with positive value."""
-        result = validate_positive(10.5, "value_field")
-        assert result == 10.5
 
-    def test_validate_positive_fail_zero(self):
-        """Test validate_positive with zero raises ValueError."""
-        with pytest.raises(ValueError, match="must be positive"):
-            validate_positive(0, "value_field")
+def test_log_exception_details(clean_log_file: Path):
+    """
+    Verify that an exception's traceback is logged.
+    """
+    try:
+        raise ValueError("sample error")
+    except ValueError as exc:
+        log_exception_details(exc, "Caught exception in test")
 
-    def test_validate_positive_fail_negative(self):
-        """Test validate_positive with negative value raises ValueError."""
-        with pytest.raises(ValueError, match="must be positive"):
-            validate_positive(-5, "value_field")
+    with clean_log_file.open("r", encoding="utf-8") as f:
+        log_text = f.read()
 
-    def test_validate_positive_fail_string(self):
-        """Test validate_positive with non-numeric value raises ValueError."""
-        with pytest.raises(ValueError, match="must be numeric"):
-            validate_positive("not a number", "value_field")
-
-    def test_logger_write_and_read_entry(self):
-        """
-        Unit test for T005d: Write and read a log entry.
-        Verifies that the logger actually writes to a file and the entry can be retrieved.
-        """
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "write_read_test.log"
-            test_message = "T005d verification entry"
-            
-            # Setup logger with file output
-            logger = setup_logger(
-                "write_read_test",
-                log_file=str(log_path),
-                level=logging.INFO
-            )
-            
-            # Write a log entry
-            log_info(test_message)
-            
-            # Verify file exists
-            assert log_path.exists(), "Log file was not created"
-            
-            # Read the file content
-            content = log_path.read_text()
-            
-            # Verify the specific message is present
-            assert test_message in content, f"Message '{test_message}' not found in log file"
-            
-            # Verify standard log format components are present
-            assert "INFO" in content, "Log level INFO not found"
-            assert "write_read_test" in content, "Logger name not found"
-            
-            # Verify we can parse the line (basic structural check)
-            lines = content.strip().split('\n')
-            assert len(lines) > 0, "Log file is empty"
-            
-            # Check that the line contains the message and level
-            last_line = lines[-1]
-            assert test_message in last_line
-            assert "INFO" in last_line
+    assert "Caught exception in test" in log_text
+    assert "ValueError: sample error" in log_text
+    # The traceback contains the line "raise ValueError" – ensure at least
+    # part of it appears.
+    assert "raise ValueError" in log_text

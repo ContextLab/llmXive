@@ -2,13 +2,13 @@
 evaluate.py
 -------------
 Implements a Pearson correlation analysis between latent heat and melting point
-from the raw materials project data. The script reads the JSON dataset produced
-by the data fetching step, computes the Pearson correlation coefficient (r) for
-the two target variables, logs the result, and writes a JSON report to
-``data/results/correlation_report.json`` with a single key ``pearson_r``.
+from the raw Materials Project data. The script reads the JSON dataset produced
+by the data fetching step, computes the Pearson correlation coefficient (r) and
+the associated two‑tailed p‑value, logs the result, and writes a JSON report to
+``data/results/correlation_report.json`` with keys ``pearson_r`` and ``p_value``.
 
-This module is deliberately lightweight and does not enforce any pass/fail
-thresholds; it simply records the correlation for downstream research analysis.
+The implementation avoids any hard pass/fail thresholds; it simply records the
+measured statistics for downstream analysis.
 """
 
 import json
@@ -20,6 +20,13 @@ import numpy as np
 
 # Project‑specific logger utilities
 from utils.logger import get_pipeline_logger, log_info, log_error
+
+# Optional import: scipy provides exact p‑value for Pearson correlation.
+# If scipy is unavailable, we fall back to a NaN p‑value and log a warning.
+try:
+    from scipy import stats  # type: ignore
+except Exception:  # pragma: no cover
+    stats = None
 
 
 # ---------------------------------------------------------------------------
@@ -61,9 +68,66 @@ def load_raw_materials_data(path: Path) -> pd.DataFrame:
     return df
 
 
-def compute_pearson_r(df: pd.DataFrame, col_x: str, col_y: str) -> float:
+def _pearson_correlation_and_pvalue(x: pd.Series, y: pd.Series):
     """
-    Compute the Pearson correlation coefficient between two columns.
+    Compute Pearson correlation coefficient and two‑tailed p‑value.
+
+    If ``scipy`` is available we delegate to ``scipy.stats.pearsonr`` for an
+    exact p‑value.  Otherwise we compute the coefficient with pandas and
+    approximate the p‑value using the t‑distribution formula.
+
+    Parameters
+    ----------
+    x, y: pd.Series
+        Numeric series of equal length.
+
+    Returns
+    -------
+    r: float
+        Pearson correlation coefficient (or np.nan if undefined).
+    p: float
+        Two‑tailed p‑value (or np.nan if it cannot be computed).
+    """
+    # Ensure numeric conversion and drop missing values.
+    x_num = pd.to_numeric(x, errors="coerce")
+    y_num = pd.to_numeric(y, errors="coerce")
+    mask = x_num.notna() & y_num.notna()
+    x_clean = x_num[mask]
+    y_clean = y_num[mask]
+
+    n = len(x_clean)
+    if n < 2:
+        return float("nan"), float("nan")
+
+    if stats is not None:
+        # scipy returns (r, p) directly.
+        r, p = stats.pearsonr(x_clean, y_clean)
+        return float(r), float(p)
+    else:
+        # Compute r manually.
+        r = x_clean.corr(y_clean, method="pearson")
+        if pd.isna(r):
+            return float("nan"), float("nan")
+
+        # Approximate p-value using t‑distribution.
+        # t = r * sqrt((n-2) / (1 - r**2))
+        # df = n - 2
+        # two‑tailed p = 2 * (1 - CDF_t(|t|))
+        df = n - 2
+        if df <= 0:
+            return float(r), float("nan")
+        t_stat = r * np.sqrt(df / (1 - r ** 2)) if r != 1 else np.inf
+        # Use scipy's t CDF if available; otherwise fallback to NaN.
+        if stats is not None:
+            p = 2 * (1 - stats.t.cdf(abs(t_stat), df))
+        else:
+            p = float("nan")
+        return float(r), float(p)
+
+
+def compute_pearson_r_and_p(df: pd.DataFrame, col_x: str, col_y: str):
+    """
+    Wrapper that extracts the two columns and returns both r and p‑value.
 
     Parameters
     ----------
@@ -76,23 +140,13 @@ def compute_pearson_r(df: pd.DataFrame, col_x: str, col_y: str) -> float:
 
     Returns
     -------
-    float
-        Pearson correlation coefficient. Returns ``np.nan`` if insufficient
-        data are available.
+    tuple(float, float)
+        (Pearson r, two‑tailed p‑value). Returns (nan, nan) if insufficient data.
     """
-    # Drop rows where either column is missing or non‑numeric.
-    subset = df[[col_x, col_y]].apply(pd.to_numeric, errors="coerce")
-    clean = subset.dropna()
-
-    if clean.shape[0] < 2:
-        # Not enough data points to compute a correlation.
-        return float("nan")
-
-    r = clean[col_x].corr(clean[col_y], method="pearson")
-    return float(r)
+    return _pearson_correlation_and_pvalue(df[col_x], df[col_y])
 
 
-def write_report(report_path: Path, pearson_r: float) -> None:
+def write_report(report_path: Path, pearson_r: float, p_value: float) -> None:
     """
     Write the correlation report as a JSON file.
 
@@ -101,12 +155,17 @@ def write_report(report_path: Path, pearson_r: float) -> None:
     report_path: Path
         Destination path for the JSON report.
     pearson_r: float
-        Pearson correlation coefficient to store under the ``pearson_r`` key.
+        Pearson correlation coefficient.
+    p_value: float
+        Two‑tailed p‑value associated with the correlation.
     """
     # Ensure the parent directory exists.
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
-    report_content = {"pearson_r": pearson_r}
+    report_content = {
+        "pearson_r": pearson_r,
+        "p_value": p_value,
+    }
     with report_path.open("w", encoding="utf-8") as f:
         json.dump(report_content, f, indent=2)
 
@@ -117,10 +176,10 @@ def main() -> None:
 
     The function:
     1. Loads the raw materials dataset.
-    2. Computes the Pearson correlation between ``latent_heat`` and
-       ``melting_point``.
-    3. Logs the computed value.
-    4. Writes the result to ``data/results/correlation_report.json``.
+    2. Computes the Pearson correlation and p‑value between ``latent_heat``
+       and ``melting_point``.
+    3. Logs the computed values.
+    4. Writes the results to ``data/results/correlation_report.json``.
     """
     logger = get_pipeline_logger(__name__)
     logger.info("Starting Pearson correlation analysis.")
@@ -131,8 +190,6 @@ def main() -> None:
         logger.error(f"Failed to load raw data: {exc}")
         raise
 
-    # Column names are defined by the data fetching step.  We default to the
-    # conventional names used throughout the repository.
     COL_LATENT = "latent_heat"
     COL_MELT = "melting_point"
 
@@ -141,15 +198,16 @@ def main() -> None:
         logger.error(f"Required columns missing from dataset: {missing}")
         raise KeyError(f"Missing required columns: {missing}")
 
-    r = compute_pearson_r(df, COL_LATENT, COL_MELT)
+    r, p = compute_pearson_r_and_p(df, COL_LATENT, COL_MELT)
 
     if np.isnan(r):
         logger.warning("Insufficient data to compute Pearson correlation.")
     else:
         logger.info(f"Pearson correlation (latent_heat vs melting_point): {r:.4f}")
+        logger.info(f"P‑value for the correlation: {p:.4e}")
 
     try:
-        write_report(REPORT_PATH, r)
+        write_report(REPORT_PATH, r, p)
         logger.info(f"Correlation report written to {REPORT_PATH}")
     except Exception as exc:
         logger.error(f"Failed to write correlation report: {exc}")

@@ -9,6 +9,5 @@ requests
 pyyaml
 mp-api
 datasets
-jsonschema
-# Note: versions are not pinned to keep the environment flexible for the
-# execution environment used in the evaluation pipeline. Adjust as needed.
+scipy
+# Added scipy for statistical calculations in evaluate.py.

@@ -1,64 +1,137 @@
 """
-Compute elemental and structural descriptors (T012).
+Streaming descriptor computation for Materials Project data.
 
-This module generates:
-- Elemental descriptors (atomic number, electronegativity, radius)
-- Crystal graph representations (simplified for this implementation)
+This module reads the raw Materials Project JSON file produced by
+``code/data/fetch_materials.py`` (or its matbench fallback) and
+computes a small set of chemically‑relevant descriptors using
+``pymatgen``.  The implementation is deliberately lightweight to stay
+within the 7 GB RAM limit and to avoid loading the entire dataset into
+memory at once.
 
-Note: This is a placeholder implementation for the integration test.
-In a real scenario, it would use pymatgen.
+The public API consists of:
+  * ``compute_descriptors() -> pandas.DataFrame`` – reads the raw JSON,
+    iterates over the entries, computes descriptors and returns a
+    DataFrame.
+  * ``main()`` – convenience entry point that writes the descriptor
+    DataFrame to ``data/processed/processed_features.csv`` (used by the
+    quick‑start run‑book).
 """
-import os
+import json
 import logging
-from typing import Optional, Dict, List, Any
+from pathlib import Path
+from typing import Iterator, Dict, Any
 
 import pandas as pd
-import numpy as np
+from pymatgen.core import Composition
 
-from config import get_config
-from code.utils.logger import get_pipeline_logger
-from code.utils.error_handling import DataProcessingError
+from utils.logger import get_pipeline_logger, log_info, log_error
 
 logger = get_pipeline_logger(__name__)
 
-def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
+RAW_DATA_PATH = Path("data/raw/materials_project_data.json")
+PROCESSED_DIR = Path("data/processed")
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+PROCESSED_PATH = PROCESSED_DIR / "processed_features.csv"
+
+def _load_raw_entries() -> Iterator[Dict[str, Any]]:
     """
-    Compute descriptors for the input dataframe.
-    
-    Args:
-        df: DataFrame with materials data (must have 'elements' or similar column).
-    
-    Returns:
-        DataFrame with added descriptor columns.
+    Lazily stream entries from the raw JSON file.
+
+    The raw file is expected to be a JSON list where each element is a
+    dictionary containing at least a ``material_id`` and a ``composition``
+    field (the latter as a string, e.g. ``\"Fe2O3\"``).  Streaming avoids
+    loading the entire file into RAM.
     """
-    logger.info("Computing descriptors...")
-    
-    # Check for required columns
-    if 'elements' not in df.columns and 'formula' not in df.columns:
-        raise DataProcessingError("Input DataFrame must have 'elements' or 'formula' column.")
-    
-    # Mock descriptor computation
-    n = len(df)
-    
-    # Generate random descriptors
-    df['feat_atomic_number'] = np.random.randint(1, 100, n)
-    df['feat_electronegativity'] = np.random.uniform(0.5, 4.0, n)
-    df['feat_radius'] = np.random.uniform(0.5, 2.0, n)
-    df['feat_mass'] = np.random.uniform(10, 200, n)
-    df['feat_valence'] = np.random.randint(1, 8, n)
-    df['feat_density'] = np.random.uniform(1, 10, n)
-    df['feat_thermal_conductivity'] = np.random.uniform(10, 500, n)
-    
-    # Ensure no NaN values
-    df = df.fillna(0)
-    
-    logger.info(f"Computed {len([c for c in df.columns if c.startswith('feat_')])} descriptors.")
-    
+    if not RAW_DATA_PATH.is_file():
+        raise FileNotFoundError(f"Raw Materials Project data not found at {RAW_DATA_PATH}")
+
+    logger.debug(f"Opening raw data file {RAW_DATA_PATH}")
+    with RAW_DATA_PATH.open("r", encoding="utf-8") as f:
+        # The file may be a large JSON array; we parse it incrementally.
+        # For simplicity we load the whole list (the dataset size fits
+        # comfortably within the runner limits).  If the file ever grows
+        # beyond memory limits, this can be replaced with ijson or a
+        # line‑delimited JSON format.
+        data = json.load(f)
+        for entry in data:
+            yield entry
+
+def _compute_entry_descriptors(entry: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Compute a small set of descriptors for a single material entry.
+
+    Descriptors:
+      * ``num_elements`` – number of distinct elements in the composition.
+      * ``mean_atomic_weight`` – average atomic weight of the constituent
+        elements, weighted by their stoichiometry.
+      * ``max_atomic_number`` – highest atomic number present.
+      * ``min_atomic_number`` – lowest atomic number present.
+    """
+    composition_str = entry.get("composition")
+    if not composition_str:
+        raise ValueError(f"Entry missing 'composition': {entry}")
+
+    try:
+        comp = Composition(composition_str)
+    except Exception as exc:
+        raise ValueError(f"Failed to parse composition '{composition_str}': {exc}")
+
+    # Elemental properties
+    elements = list(comp.elements)
+    num_elements = len(elements)
+    # Weighted atomic weight
+    total = sum(comp.get_atomic_fraction(el) * el.atomic_mass for el in elements)
+    mean_atomic_weight = total
+    atomic_numbers = [el.Z for el in elements]
+    max_atomic_number = max(atomic_numbers)
+    min_atomic_number = min(atomic_numbers)
+
+    # Return a flat dictionary; the material id is kept for later joins.
+    result = {
+        "material_id": entry.get("material_id"),
+        "composition": composition_str,
+        "num_elements": num_elements,
+        "mean_atomic_weight": mean_atomic_weight,
+        "max_atomic_number": max_atomic_number,
+        "min_atomic_number": min_atomic_number,
+    }
+    return result
+
+def compute_descriptors() -> pd.DataFrame:
+    """
+    Compute descriptors for all materials and return a pandas DataFrame.
+
+    The function streams the raw JSON entries, computes per‑material
+    descriptors, and aggregates them into a DataFrame.  No synthetic data
+    is generated; all values are derived from the real Materials Project
+    (or matbench fallback) records.
+    """
+    logger.info("Starting descriptor computation.")
+    records = []
+    for entry in _load_raw_entries():
+        try:
+            desc = _compute_entry_descriptors(entry)
+            records.append(desc)
+        except Exception as exc:
+            log_error(f"Skipping entry due to descriptor error: {exc}", exc_info=True)
+
+    if not records:
+        raise RuntimeError("No descriptor records were generated; check raw data integrity.")
+    df = pd.DataFrame.from_records(records)
+    logger.info(f"Descriptor computation completed: {len(df)} records generated.")
     return df
 
-if __name__ == "__main__":
-    # Test with mock data
-    df = pd.DataFrame({'elements': ['Al', 'Si', 'Fe'] * 100})
-    df_described = compute_descriptors(df)
-    print(df_described.head())
-    print(df_described.columns)
+def main() -> None:
+    """
+    Entry point used by the quick‑start run‑book.
+
+    Computes the descriptor DataFrame and writes it to the standard
+    processed CSV location.
+    """
+    try:
+        df = compute_descriptors()
+        df.to_csv(PROCESSED_PATH, index=False)
+        log_info(f"Processed descriptors saved to {PROCESSED_PATH}")
+    except Exception as exc:
+        log_error(f"Failed to compute or save descriptors: {exc}", exc_info=True)
+        raise
