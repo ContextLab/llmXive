@@ -22,12 +22,12 @@ properties:
           description: "Molecular weight in g/mol."
         target_value:
           type: number
-          description: "Log-transformed conductivity, HOMO-LUMO gap, or raw target value."
+          description: "Log-transformed HOMO-LUMO gap or raw target value."
         target_type:
           type: string
           enum:
-            - conductivity
             - homo_lumo_gap
+            - topological_proxy
           description: "Type of target variable used."
         descriptors:
           type: object
@@ -39,8 +39,8 @@ properties:
             - conjugation_path_length
             - average_path_length
             - ring_count
-            - degree_distribution_std
-            - vif_score
+            - degree_mean
+            - degree_std
           properties:
             aromatic_ring_count:
               type: number
@@ -54,12 +54,12 @@ properties:
             ring_count:
               type: number
               description: "Total number of rings in the molecular graph."
-            degree_distribution_std:
+            degree_mean:
               type: number
-              description: "Standard deviation of node degrees."
-            vif_score:
+              description: "Mean of the atomic degree distribution."
+            degree_std:
               type: number
-              description: "Variance Inflation Factor for the feature set."
+              description: "Standard deviation of the atomic degree distribution."
     minItems: 1
 required:
   - molecules

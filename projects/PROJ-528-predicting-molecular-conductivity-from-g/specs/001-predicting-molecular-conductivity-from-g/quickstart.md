@@ -1,10 +1,9 @@
 # Quickstart: Predicting Molecular Conductivity from Graph-Based Features
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Access to a GitHub Actions runner (or local environment with 7GB+ RAM).
+*   Python 3.11+
+*   Git
+*   Access to Hugging Face (for dataset download)
 
 ## Installation
 
@@ -27,42 +26,66 @@
 
 ## Running the Pipeline
 
+The pipeline is designed to run sequentially. Execute the following commands in order:
+
 1.  **Download Data**:
-    The `data_loader.py` script will fetch verified datasets from HuggingFace.
     ```bash
-    python code/data_loader.py --download
+    python code/01_download_data.py
+    # Output: data/raw/*.parquet
     ```
 
 2.  **Compute Descriptors**:
     ```bash
-    python code/descriptors.py --input data/raw/combined_smiles.csv --output data/processed/descriptors.csv
+    python code/02_compute_descriptors.py
+    # Output: data/processed/descriptors_base.csv, data/processed/descriptors.csv
     ```
 
-3.  **Train Models**:
+3.  **Preprocess & Split**:
     ```bash
-    python code/model_training.py --data data/processed/descriptors.csv --output data/processed/model_results.json
+    python code/03_preprocess.py
+    # Output: data/processed/cleaned.csv
     ```
 
-4.  **Generate Analysis and Plots**:
+4.  **Train Models**:
     ```bash
-    python code/analysis.py --results data/processed/model_results.json --plots data/processed/correlation_plots/
+    python code/04_train_models.py
+    # Output: data/processed/model_results.json
+    ```
+
+5.  **VIF Analysis & Retraining**:
+    ```bash
+    python code/05_vif_analysis.py
+    # Output: data/processed/vif_iteration_log.json
+    ```
+
+6.  **Feature Importance**:
+    ```bash
+    python code/06_feature_importance.py
+    # Output: data/processed/feature_importance.csv
+    ```
+
+7.  **Sensitivity Analysis**:
+    ```bash
+    python code/07_sensitivity_analysis.py
+    # Output: data/processed/sensitivity_results.json
+    ```
+
+8.  **Generate Visualizations**:
+    ```bash
+    python code/08_visualization.py
+    # Output: figures/*.png
     ```
 
 ## Verification
 
-Run the test suite to ensure correctness:
-```bash
-pytest tests/
-```
-
-Expected output:
--   `test_descriptors.py`: All descriptor values match reference SMILES.
--   `test_scaffold_split.py`: Train and test sets have no overlapping Murcko scaffolds.
--   `test_analysis.py`: VIF, FDR, and sensitivity analysis calculations are correct.
+To verify the pipeline completed successfully:
+*   Check that `data/processed/descriptors_base.csv` exists and has > 0 rows.
+*   Check that `data/processed/vif_iteration_log.json` contains the final VIF scores.
+*   Check that `figures/` contains correlation plots.
+*   Run `pytest tests/` to execute unit and integration tests.
 
 ## Troubleshooting
 
--   **Memory Error**: If the dataset is too large, the `data_loader.py` script automatically samples to 5000 rows.
--   **Missing Target**: If no conductivity or HOMO-LUMO gap column is found, the script will halt with an error "No valid target variable found."
--   **SMILES Errors**: Invalid SMILES strings are logged to `data/logs/errors.log` and excluded.
--   **Weak Correlation**: If topological descriptors show weak correlation with the target, a warning will be logged indicating the proxy hypothesis may be unsupported.
+*   **RDKit Import Error**: Ensure `rdkit` is installed via `conda` or `pip` (check `requirements.txt`).
+*   **Dataset Download Failed**: Verify internet connectivity and Hugging Face access. The script uses `streaming=True` to handle large files.
+*   **Memory Error**: If running out of RAM, reduce the `batch_size` in `01_download_data.py` or `02_compute_descriptors.py`.

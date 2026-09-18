@@ -1,42 +1,39 @@
 # Implementation Plan: Predicting Molecular Conductivity from Graph-Based Features
 
-**Branch**: `001-predict-molecular-conductivity` | **Date**: 2026-06-24 | **Spec**: `spec.md`
+**Branch**: `001-predict-molecular-conductivity` | **Date**: 2026-06-24 | **Spec**: `specs/001-predicting-molecular-conductivity/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-molecular-conductivity/spec.md`
 
 ## Summary
 
-This project implements a predictive modeling pipeline to investigate whether graph-based topological descriptors (e.g., conjugation length, aromaticity indices) correlate with molecular electronic properties. The approach involves parsing SMILES strings, computing multiple RDKit-based descriptors, filtering for valid target variables, and training Random Forest and Gradient Boosting regressors. 
+This feature implements a computational pipeline to predict molecular electronic properties (specifically **HOMO-LUMO gap**, as a proxy for intrinsic conductivity) from graph-based topological descriptors. The system ingests SMILES strings, computes descriptors (including aromaticity and conjugation proxies per reviewer feedback), trains Random Forest and Gradient Boosting models with scaffold splitting, and performs rigorous statistical validation (VIF, FDR correction, sensitivity analysis) within strict CPU-only compute constraints.
 
-**Critical Scope Adjustment**: Per verified dataset constraints, if direct conductivity (charge carrier mobility) data is unavailable, the target variable will be the HOMO-LUMO gap. In this case, the research question is reframed to "Predicting Electronic Delocalization Potential (HOMO-LUMO Gap) from Graph Features." All claims will be framed as predicting electronic structure, not charge transport, to avoid construct validity failure.
-
-The plan strictly adheres to CPU-only constraints, implements scaffold splitting to prevent data leakage, and includes rigorous statistical controls (VIF, Benjamini-Hochberg) and sensitivity analyses for outliers as mandated by the specification.
+**Note on Spec-Plan Alignment**: The source specification (FR-003, FR-011) mandates "charge carrier mobility" or "intrinsic conductivity" as the target. However, no verified dataset containing these specific values exists for the required molecular scope in open repositories. The plan pivots to predicting "HOMO-LUMO gap" (a quantum-derived electronic property) from the QM9 dataset. This constitutes a scope change. The implementation will proceed with HOMO-LUMO gap, but the `spec.md` must be amended to reflect this change before the project can advance to `research_accepted`. The plan explicitly distinguishes between predicting intrinsic molecular properties (feasible) and bulk conductivity (not feasible with single-molecule graph descriptors).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`  
-**Storage**: 
-- Intermediate files: CSV/Parquet (`data/processed/descriptors.csv`, etc.) for efficiency.
-- Final contract outputs: JSON (`data/processed/model_results.json`, etc.) as defined in `contracts/`.
-**Testing**: `pytest` with unit tests for descriptor computation and integration tests for the full pipeline  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM)  
-**Project Type**: Data Science / Computational Chemistry Pipeline  
-**Performance Goals**: Complete full analysis (data load -> model eval -> plots) within 6 hours on 2-core CPU.  
-**Constraints**: No GPU/CUDA; no quantum mechanical calculations (DFT) unless available in verified dataset (fallback to topological proxies); strict memory limits (<7 GB).  
-**Scale/Scope**: Target dataset size up to 5,000 molecules; ~20 features per molecule.
+**Primary Dependencies**: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `datasets` (Hugging Face), `pyyaml`, `statsmodels`  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `code/`)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7 GB RAM)  
+**Project Type**: data-science-pipeline  
+**Performance Goals**: Full pipeline < 6 hours; memory < 7 GB peak  
+**Constraints**: CPU-only; no GPU dependencies; strict data provenance; all outputs deterministic via pinned seeds.  
+**Scale/Scope**: Up to 133,885 molecules (QM9 size); A set of descriptors; regression models.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*Gates determined based on `constitution.md`*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (I)**: The plan mandates pinned `requirements.txt`, fixed random seeds in all training/splitting steps, and checksums for all raw data artifacts.
-2.  **Verified Accuracy (II)**: All dataset URLs are restricted to the "Verified datasets" block in the input. The HuggingFace URLs listed have been verified by the Reference-Validator Agent (as per input block status) and meet the title-token-overlap threshold (≥ 0.7).
-3.  **Data Hygiene (III)**: The pipeline separates `data/raw` (immutable, checksummed) from `data/processed` (derived). No in-place modifications.
-4.  **Single Source of Truth (IV)**: All output metrics (R², MAE, feature importance) are generated strictly by scripts in `code/` and logged to JSON/CSV, never hand-typed.
-5.  **Versioning Discipline (V)**: Artifacts will carry content hashes; the plan includes steps to update the project state file upon completion.
-6.  **Graph Descriptor Transparency (VI)**: Descriptors are computed via `rdkit` (version pinned). The code includes unit tests verifying specific SMILES inputs against expected descriptor values.
-7.  **Dataset Provenance and Integrity (VII)**: The plan explicitly selects sources from the verified list (HuggingFace). While the constitution prefers Materials Project/PubChem, the "Verified datasets" input block for this project stage authorizes these HuggingFace sources as the primary data provenance.
+- **I. Reproducibility**: Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and deterministic data fetching from verified Hugging Face URLs (QM9).
+- **II. Verified Accuracy**: All dataset citations restricted to the "Verified datasets" block (QM9). The Reference-Validator Agent will verify the QM9 dataset URL and title overlap (≥ 0.7) before proceeding.
+- **III. Data Hygiene**: Raw data stored in `data/raw/` with checksums; processed data in `data/processed/` derived via scripts; no in-place modification.
+- **IV. Single Source of Truth**: All metrics (R², MAE, VIF) generated by `code/` and logged to JSON/CSV; no hand-typed values in `plan.md` or `paper/`.
+- **V. Versioning**: Artifact hashes recorded in project state; `requirements.txt` pinned.
+- **VI. Graph Descriptor Transparency**: Descriptors computed via `rdkit` (version pinned); code committed with unit tests; proxy usage (topological vs. quantum) logged with warnings.
+- **VII. Dataset Provenance**: Constitution Principle VII mandates Materials Project/PubChem. However, these lack the target variable. **Action**: This plan uses QM9 (verified via Hugging Face) as a necessary fallback. This requires a formal Constitution Amendment to Principle VII to be processed before `research_accepted`. The plan documents this deviation explicitly.
 
 ## Project Structure
 
@@ -48,93 +45,164 @@ specs/001-predict-molecular-conductivity/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 0 output (generated/validated)
-└── tasks.md             # Phase 2 output (generated later)
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── __init__.py
-├── config.py            # Paths, seeds, thresholds
-├── descriptors.py       # RDKit descriptor computation logic
-├── data_loader.py       # Dataset fetching and cleaning
-├── model_training.py    # Scaffold split, RF, GB training, CV, Retraining loops
-├── analysis.py          # VIF, feature importance, sensitivity analysis, BH correction
-├── plotting.py          # Correlation plots with CI
-└── main.py              # Orchestrator
-tests/
-├── test_descriptors.py  # Unit tests for RDKit logic
-├── test_scaffold_split.py
-└── test_analysis.py
+├── 01_download_data.py          # Fetches verified datasets; saves to data/raw/
+├── 02_compute_descriptors.py    # RDKit pipeline; outputs data/processed/descriptors_base.csv
+├── 03_preprocess.py             # Cleaning, log-transform, scaffold split; outputs data/processed/cleaned.csv
+├── 04_train_models.py           # RF & GB training; outputs data/processed/model_results.json
+├── 05_vif_analysis.py           # VIF calculation, feature dropping, retraining; outputs data/processed/vif_iteration_log.json
+├── 06_feature_importance.py     # Permutation importance; outputs data/processed/feature_importance.csv
+├── 07_sensitivity_analysis.py   # Outlier threshold sweep; outputs data/processed/sensitivity_results.json
+├── 08_visualization.py          # Correlation plots with CI; outputs figures/
+└── requirements.txt             # Pinned dependencies
+
 data/
-├── raw/                 # Downloaded parquet/zip files
-└── processed/           # Cleaned CSVs with descriptors, JSON results
+├── raw/                         # Downloaded parquet/csv files (checksummed)
+└── processed/
+    ├── descriptors_base.csv     # Base descriptors (T019a)
+    ├── descriptors.csv          # Merged/final descriptors (T019b)
+    ├── cleaned.csv              # Preprocessed training data
+    ├── model_results.json       # Model metrics (T039d)
+    ├── vif_iteration_log.json   # VIF history (T039d)
+    ├── feature_importance.csv   # Ranked features (T040)
+    └── sensitivity_results.json # Outlier sensitivity (T040)
+
+tests/
+├── unit/                        # Descriptor unit tests (RDKit verification)
+└── integration/                 # Pipeline end-to-end tests
 ```
 
-**Structure Decision**: Single `code/` directory structure selected. This minimizes complexity for a data pipeline and aligns with the CPU-only, script-based execution model. No separate frontend/backend is required.
-
-## Implementation Phases
-
-### Phase 0: Contract Generation & Validation
-- Generate/validate `contracts/*.schema.yaml` files.
-- Ensure schemas are valid YAML and match the data model.
-
-### Phase 1: Data Ingestion & Validation
-- Download verified datasets from HuggingFace.
-- **Target Variable Check**: Verify presence of conductivity or HOMO-LUMO gap.
-  - If neither exists: **HALT** with error "No verified dataset found with required target variable."
-  - If only HOMO-LUMO gap exists: **LOG WARNING** and reframe target to "Electronic Delocalization Potential."
-- Validate SMILES strings (RDKit).
-- Log missing conductivity values and exclude them (FR-012).
-
-### Phase 2: Descriptor Computation & Fallback
-- Compute graph-based descriptors (FR-001, FR-008).
-- **Quantum Fallback Check**:
-  - If quantum-derived descriptors (e.g., HOMO-LUMO gap) are missing from the dataset:
-    - **LOG WARNING**: "Quantum descriptors missing; falling back to topological proxies."
-    - Use topological conjugation length as proxy.
-  - If both quantum and topological proxies fail for a molecule: **EXCLUDE** molecule.
-
-### Phase 3: Preprocessing & Distribution Check
-- Check target variable distribution.
-  - If log-normal or >3 orders of magnitude: Apply log-transformation.
-  - Else: Use raw values and log distributional properties.
-- **Correlation Pre-check**: Compute correlation between topological descriptors and target.
-  - If correlation is weak (e.g., |r| < 0.3): Log warning "Topological proxy hypothesis unsupported by weak correlation."
-
-### Phase 4: Model Training & VIF Filtering (FR-013)
-- **Iterative VIF Loop**:
-  1. Calculate VIF for all predictors.
-  2. If any feature has VIF > 10:
-     - Exclude feature.
-     - **RETRAIN** model on reduced feature set.
-     - Repeat until all VIF ≤ 10.
-  3. Final model trained on reduced set.
-- Train Random Forest and Gradient Boosting (FR-003).
-- Apply scaffold splitting (FR-002).
-
-### Phase 5: Sensitivity Analysis (FR-007)
-- **Retrain Loop**: For each outlier threshold in a set of increasing standard deviations:
-  - Filter data.
-  - Retrain models.
-  - Record R² scores.
-- **Statistical Test**: Perform ANOVA or Kruskal-Wallis on R² scores across thresholds to determine if variance is significant.
-
-### Phase 6: Analysis & Reporting (FR-006, FR-014)
-- Compute feature importance (FR-005).
-- Calculate feature-conductivity correlations.
-- **Benjamini-Hochberg Correction**: Apply FDR correction to p-values (FR-006).
-- Generate plots with % CI (FR-005).
-- Write final results to JSON (model_output_schema.yaml).
+**Structure Decision**: Single `code/` directory with sequential scripts. This minimizes overhead for the 6-hour CPU constraint and ensures linear data flow from raw to processed to results.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| Violation | Why Needed (Citing FR IDs) | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Scaffold Splitting | Required by FR-002 to prevent data leakage from structurally similar molecules. | Random splitting would lead to over-optimistic R² scores due to molecular similarity in train/test sets. |
-| VIF Filtering & Retraining | Required by FR-013 to ensure statistical independence of features. | Including collinear features would inflate importance scores and violate SC-007/SC-008. |
-| Sensitivity Analysis (Retraining) | Required by FR-007 to test robustness against outliers. | A single threshold or post-hoc analysis would not measure how model performance *varies* across cutoffs. |
-| Benjamini-Hochberg | Required by FR-006 for multiple comparison correction. | Standard p-values would result in inflated Type I errors when testing multiple feature-conductivity correlations. |
-| Target Variable Reframing | Required by data constraints (no verified conductivity). | Using HOMO-LUMO gap as a proxy for conductivity without distinction would be scientifically invalid (construct validity). |
+| VIF Iteration Loop | **FR-013** requires dropping features with VIF > 10 and retraining. A single pass is insufficient if dropping one feature causes collinearity in others. | A single-pass VIF filter risks leaving hidden collinearity; iterative retraining ensures the final model meets the independence constraint. |
+| Sensitivity Analysis Sweep | **FR-007** requires sweeping outlier thresholds (multiple standard deviation levels) to measure robustness. | A single threshold assumes a specific outlier definition; the sweep validates that conclusions are not artifacts of a single arbitrary cutoff. |
+| Scaffold Split | **FR-002** requires scaffold splitting to prevent data leakage from similar molecules. | Random splitting would leak structural information, inflating R² and violating the "observational" assumption. |
+| Nested CV for VIF | **FR-013** & **SC-007** require robust collinearity control. Performing VIF outside CV leads to data dredging. | Performing VIF on the full dataset leaks test information into feature selection, inflating R². Nested CV prevents this. |
+| Benjamini-Hochberg Correction | **FR-006** requires FDR correction for multiple feature-target correlations. | Without correction, the family-wise error rate would be uncontrolled, leading to false positives in feature importance. |
+
+## Phase 1: Data Preparation & Validation
+
+### T011: Target Variable Dynamic Range Validation
+**Goal**: Verify that the target variable (HOMO-LUMO gap) has a non-trivial dynamic range (≥ 3 orders of magnitude) before training.
+**Steps**:
+1. Load the raw dataset.
+2. Calculate the range (max - min) of the target variable.
+3. If `max(target) / min(target) < 1000` (3 orders of magnitude), reject the dataset and log an error.
+4. If valid, proceed.
+**Deliverable**: Log entry confirming dynamic range validation or error message if failed.
+
+### T011a: Dynamic Range Validation Implementation
+**Goal**: Implement the specific validation logic for FR-011.
+**Steps**:
+1. In `03_preprocess.py`, after loading the target variable, compute `min_val` and `max_val`.
+2. Calculate `dynamic_range = max_val / min_val`.
+3. If `dynamic_range < 1000`, raise a `ValueError` with the message "Target variable dynamic range (< 3 orders of magnitude) is insufficient for training per FR-011."
+4. Log the calculated range to `logs/validation.log`.
+**Deliverable**: Explicit error handling and logging in `03_preprocess.py`.
+
+### T014: Quantum vs. Topological Target Selection
+**Goal**: Implement conditional logic for target variable selection per FR-014.
+**Steps**:
+1. Check if the dataset contains a quantum-derived descriptor (HOMO-LUMO gap).
+2. **If Present**: Use HOMO-LUMO gap as the target. Log "Using quantum-derived target: HOMO-LUMO gap".
+3. **If Missing**: Compute topological proxies (conjugation path length) as the target. Log "WARNING: Quantum target missing. Using topological proxy. See FR-014".
+4. Proceed with the selected target.
+**Deliverable**: Log entry specifying the target type used.
+
+### T014a: Quantum vs. Topological Target Selection Implementation
+**Goal**: Implement the specific conditional logic for FR-014.
+**Steps**:
+1. In `03_preprocess.py`, check for the presence of the `homo_lumo_gap` column in the raw data.
+2. **If Present**: Set `target_col = 'homo_lumo_gap'`. Log "INFO: Using quantum-derived target (HOMO-LUMO gap)."
+3. **If Missing**: Log "WARNING: Quantum target missing. Falling back to topological proxy (conjugation path length) per FR-014." Set `target_col = 'conjugation_path_length'`.
+4. Store the `target_type` in the `model_results.json` output.
+**Deliverable**: Explicit conditional logic and logging in `03_preprocess.py`.
+
+### T019a: Write Base Descriptors
+**Goal**: Compute and write base descriptors to `data/processed/descriptors_base.csv`.
+**Steps**:
+1. Load SMILES strings from raw data.
+2. Compute descriptors (aromaticity, conjugation, ring count, etc.) using RDKit.
+3. Filter out invalid SMILES (log errors).
+4. **Write File**: Execute `df.to_csv('data/processed/descriptors_base.csv', index=False)`.
+5. **Verify**: Assert `os.path.exists('data/processed/descriptors_base.csv')` and `len(df) > 0`.
+**Deliverable**: `data/processed/descriptors_base.csv` (verified existence and row count).
+
+### T019b: Write Full Descriptors
+**Goal**: Merge base descriptors with target values and write to `data/processed/descriptors.csv`.
+**Steps**:
+1. Load `descriptors_base.csv` and raw target data.
+2. Merge on SMILES.
+3. Filter rows with missing target values.
+4. **Write File**: Execute `df.to_csv('data/processed/descriptors.csv', index=False)`.
+5. **Verify**: Assert `os.path.exists('data/processed/descriptors.csv')` and `len(df) > 0`.
+**Deliverable**: `data/processed/descriptors.csv` (verified existence and row count).
+
+## Phase 2: Modeling & Analysis
+
+### T039d: VIF Analysis & Model Retraining
+**Goal**: Perform iterative VIF analysis, drop high-collinearity features, retrain models, and save results.
+**Steps**:
+1. Load `descriptors.csv`.
+2. **Nested CV Implementation**: For each fold in 5-fold CV:
+   a. Split data into train/val.
+   b. Calculate VIF for features in the training set only.
+   c. Iteratively drop features with VIF > 10 in the training set.
+   d. Retrain models on the reduced feature set.
+   e. Evaluate on the validation set.
+3. Aggregate results and identify the final feature set (features excluded in all folds or majority).
+4. **Write File**: Execute `json.dump(vif_log, open('data/processed/vif_iteration_log.json', 'w'))`.
+5. **Write File**: Execute `json.dump(final_results, open('data/processed/model_results.json', 'w'))` including `vif_excluded_features`.
+6. **Verify**: Assert both files exist. **Crucially**, verify that the features listed in `vif_excluded_features` in `model_results.json` are indeed absent from the final model's feature set in the log.
+**Deliverable**: `data/processed/vif_iteration_log.json`, `data/processed/model_results.json` (verified existence and content alignment).
+
+### T040: Feature Importance & FDR Correction
+**Goal**: Compute permutation importance, apply Benjamini-Hochberg correction, and save results.
+**Steps**:
+1. Load trained models.
+2. Compute permutation importance using `sklearn.inspection.permutation_importance` on the test set.
+3. Calculate p-values for feature-target correlations.
+4. Apply Benjamini-Hochberg correction to p-values using `statsmodels.stats.multitest.multipletests`.
+5. **Write File**: Execute `df.to_csv('data/processed/feature_importance.csv', index=False)` including `p_value_adjusted`.
+6. **Verify**: Assert file exists and contains `p_value_adjusted` column.
+**Deliverable**: `data/processed/feature_importance.csv` (verified existence and content).
+
+### T040a: Benjamini-Hochberg Correction Implementation
+**Goal**: Explicitly implement the BH correction for FR-006.
+**Steps**:
+1. In `06_feature_importance.py`, after computing raw p-values for feature-target correlations:
+2. Import `multipletests` from `statsmodels.stats.multitest`.
+3. Call `reject, pvals_corrected, _, _ = multipletests(pvals, method='fdr_bh')`.
+4. Add `p_value_adjusted` column to the results DataFrame.
+5. Log the number of features that became insignificant after correction.
+**Deliverable**: Explicit implementation of BH correction in `06_feature_importance.py` and `p_value_adjusted` column in output.
+
+## Phase 3: Sensitivity & Visualization
+
+### T041: Sensitivity Analysis
+**Goal**: Sweep outlier thresholds and measure R² variance.
+**Steps**:
+1. Iterate thresholds [low,, 3.5].
+2. Filter data, retrain model, record R².
+3. Calculate variance of R².
+4. **Write File**: `data/processed/sensitivity_results.json`.
+**Deliverable**: `data/processed/sensitivity_results.json`.
+
+### T042: Visualization
+**Goal**: Generate correlation plots with 95% CI.
+**Steps**:
+1. Plot top features vs. target.
+2. Add regression lines and CI.
+3. **Write File**: `figures/*.png`.
+**Deliverable**: `figures/` directory with PNGs.

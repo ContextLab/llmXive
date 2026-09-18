@@ -1,67 +1,75 @@
 # Data Model: Predicting Molecular Conductivity from Graph-Based Features
 
-## Entities and Relationships
+## Entity Definitions
 
 ### Molecule
-The core entity representing a chemical compound.
-- **Attributes**:
-  - `smiles`: String (Canonical SMILES).
-  - `molecular_weight`: Float (g/mol).
-  - `target_value`: Float (log-transformed conductivity, HOMO-LUMO gap, or raw value).
-  - `target_type`: String ("conductivity" or "homo_lumo_gap").
-  - `source_dataset`: String (e.g., "HOMO-LUMO", "SMILES-Transformers").
-  - `is_valid`: Boolean (True if SMILES parsed and descriptors computed successfully).
+A chemical compound represented by a SMILES string and associated properties.
+*   `smiles`: String (Canonical SMILES).
+*   `id`: String (Unique identifier).
+*   `target_value`: Float (Log-transformed HOMO-LUMO gap).
+*   `is_valid`: Boolean (Flag for valid SMILES and non-missing target).
 
 ### Descriptor
-A numeric feature derived from the molecular graph.
-- **Attributes**:
-  - `molecule_id`: Foreign Key (links to Molecule).
-  - `feature_name`: String (e.g., "aromatic_ring_count", "conj_path_len").
-  - `feature_value`: Float.
-  - `vif_score`: Float (calculated during analysis).
-  - `is_excluded`: Boolean (True if VIF > 10).
+A numeric feature computed from the molecular graph.
+*   `name`: String (e.g., "aromaticity_index", "conjugation_path_length").
+*   `value`: Float.
+*   `source`: String ("rdkit" or "quantum").
 
-### ModelRun
-A record of a specific training experiment.
-- **Attributes**:
-  - `run_id`: UUID.
-  - `model_type`: String ("RandomForest", "GradientBoosting").
-  - `outlier_threshold`: Float (e.g., 3.0).
-  - `r2_test`: Float.
-  - `mae_test`: Float.
-  - `r2_cv_mean`: Float.
-  - `r2_cv_std`: Float.
-  - `timestamp`: DateTime.
+### Model
+A trained regression model.
+*   `model_type`: String ("RandomForest" or "GradientBoosting").
+*   `hyperparameters`: JSON (e.g., `{"n_estimators": 100}`).
+*   `metrics`: JSON (e.g., `{"r2": 0.85, "mae": 0.12}`).
+*   `feature_importance`: List of tuples (feature_name, score).
 
 ## Data Flow
 
-1.  **Ingestion**: Raw datasets (Parquet) are downloaded to `data/raw/`.
-2.  **Cleaning**:
-    -   SMILES validation (RDKit).
-    -   Target variable filtering (remove NaN, check distribution).
-    -   Conditional log-transformation based on distribution.
-    -   Merging datasets if multiple sources are used.
-    -   **Halt Check**: If no valid target variable found, stop pipeline.
-3.  **Transformation**:
-    -   Descriptor computation (RDKit).
-    -   **Correlation Pre-check**: Validate proxy hypothesis.
-    -   VIF calculation and iterative feature filtering/retraining.
-4.  **Modeling**:
-    -   Scaffold splitting.
-    -   Retraining loop for sensitivity analysis.
-5.  **Output**:
-    -   `data/processed/descriptors.csv` (Intermediate)
-    -   `data/processed/model_results.json` (Final Contract)
-    -   `data/processed/feature_importance.csv` (Intermediate)
-    -   `data/processed/correlation_plots/`
+1.  **Raw Input**: `data/raw/` contains downloaded Parquet/CSV files (QM9).
+2.  **Descriptor Computation**: `02_compute_descriptors.py` reads SMILES, computes 10+ descriptors, writes `data/processed/descriptors_base.csv`.
+    *   **Schema Mapping**: Computes `degree_mean` and `degree_std` as separate columns.
+3.  **Preprocessing**: `03_preprocess.py` merges descriptors with target, handles missing values, applies log-transform, performs scaffold split, writes `data/processed/cleaned.csv`.
+    *   **Validation**: Checks dynamic range (FR-011) and target type (FR-014).
+4.  **Training**: `04_train_models.py` trains models, writes `data/processed/model_results.json`.
+5.  **VIF Analysis**: `05_vif_analysis.py` calculates VIF, drops high-VIF features, retrains, writes `data/processed/vif_iteration_log.json`.
+6.  **Importance**: `06_feature_importance.py` computes permutation importance, applies BH correction, writes `data/processed/feature_importance.csv`.
+7.  **Sensitivity**: `07_sensitivity_analysis.py` sweeps outlier thresholds, writes `data/processed/sensitivity_results.json`.
 
-## Schema Definitions (Contracts)
+## Schema Definitions
 
-The data model is enforced via the following schema contracts:
--   `contracts/dataset_schema.yaml`: Validates the input processed dataset.
--   `contracts/model_output_schema.yaml`: Validates the JSON results of model training.
--   `contracts/feature_schema.yaml`: Validates the feature importance and VIF output.
+### Input Schema (SMILES)
+*   `smiles`: string (required)
+*   `homo_lumo_gap`: float (optional, if available in raw dataset)
 
-## Storage Format Clarification
--   **Intermediate Files**: CSV/Parquet formats are used for descriptors and splits for efficiency.
--   **Final Contract Outputs**: JSON format is used for `model_results.json` and `feature_importance.csv` (converted to JSON structure) to align with `contracts/*.schema.yaml`.
+### Output Schema (Descriptors)
+*   `smiles`: string
+*   `aromatic_ring_count`: integer
+*   `conjugation_path_length`: float
+*   `average_path_length`: float
+*   `degree_mean`: float
+*   `degree_std`: float
+*   `ring_count`: integer
+*   `molecular_weight`: float
+*   `homo_lumo_gap`: float (if available)
+*   `is_valid`: boolean
+
+### Output Schema (Model Results)
+*   `model_type`: string
+*   `r2_test`: float
+*   `mae_test`: float
+*   `r2_cv_mean`: float
+*   `r2_cv_std`: float
+*   `feature_importance_ranking`: list of strings
+*   `vif_excluded_features`: list of strings
+*   `target_type`: string ("homo_lumo_gap" or "topological_proxy")
+
+### Output Schema (Feature Importance)
+*   `feature_name`: string
+*   `importance_score`: float
+*   `p_value_raw`: float
+*   `p_value_adjusted`: float (Benjamini-Hochberg corrected)
+*   `is_significant`: boolean (based on adjusted p-value)
+
+## Data Hygiene Rules
+*   **Checksums**: All files in `data/raw/` and `data/processed/` must have corresponding SHA-256 checksums in `state/`.
+*   **Immutability**: Raw files are never modified. All transformations create new files.
+*   **Logging**: Every script logs its input/output file paths and row counts to `logs/`.

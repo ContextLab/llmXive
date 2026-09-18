@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Schema"
+description: "Schema for sensitivity analysis results across outlier thresholds (data/processed/sensitivity_results.json)"
+type: "object"
+properties:
+  thresholds:
+    type: "array"
+    description: "List of outlier thresholds tested (e.g., 2.5, 3.0, 3.5)"
+    items:
+      type: "number"
+  r2_scores:
+    type: "array"
+    description: "List of R2 scores corresponding to each threshold"
+    items:
+      type: "number"
+  mae_scores:
+    type: "array"
+    description: "List of MAE scores corresponding to each threshold"
+    items:
+      type: "number"
+  variance_r2:
+    type: "number"
+    description: "Variance of R2 scores across thresholds"
+required:
+  - "thresholds"
+  - "r2_scores"
+  - "mae_scores"
+  - "variance_r2"
+additionalProperties: false

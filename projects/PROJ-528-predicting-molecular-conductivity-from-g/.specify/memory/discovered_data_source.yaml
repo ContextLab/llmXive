@@ -1,9 +1,13 @@
 status: none
-intent: organic molecules SMILES conductivity dataset download python package dataset
+intent: Organic molecule conductivity dataset SMILES Transformers Test MAESTRO python
+  package dataset
 required_fields:
 - smiles
-- conductivity
+- conductivity_value
+- conductivity_units
+- temperature_K
+- measurement_method
 - molecule_id
-cache_key: 0184fa60748855a2bbf1fb45f3060e36e1111a4c5390d9dd4c00c1bcf1485adb
-searched_at: '2026-09-06T15:30:02.366251+00:00'
+cache_key: a9fd3d910e3f9cf980e10bccfc4cd9ba2a68365c280bd05f5e6f3537f5729c54
+searched_at: '2026-09-18T09:31:55.836147+00:00'
 retry_count: 1

@@ -58,7 +58,7 @@ properties:
                 type: number
         correlations:
           type: array
-          description: "Feature-conductivity correlations with adjusted p-values."
+          description: "Feature-target correlations with adjusted p-values."
           items:
             type: object
             required:
@@ -79,7 +79,12 @@ properties:
         target_type:
           type: string
           enum:
-            - conductivity
             - homo_lumo_gap
+            - topological_proxy
           description: "Type of target variable used for this run."
+        vif_excluded_features:
+          type: array
+          description: "List of features excluded due to VIF > 10."
+          items:
+            type: string
 additionalProperties: false

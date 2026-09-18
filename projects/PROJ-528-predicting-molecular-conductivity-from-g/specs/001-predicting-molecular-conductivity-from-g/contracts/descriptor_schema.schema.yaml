@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Descriptor Schema"
+description: "Schema for the output of the descriptor computation pipeline (data/processed/descriptors_base.csv)"
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string of the molecule"
+  aromatic_ring_count:
+    type: "integer"
+    description: "Number of aromatic rings in the molecule"
+  conjugation_path_length:
+    type: "number"
+    description: "Length of the longest conjugated path (in bonds)"
+  average_path_length:
+    type: "number"
+    description: "Average shortest path length between all pairs of atoms"
+  degree_mean:
+    type: "number"
+    description: "Mean of the atomic degree distribution"
+  degree_std:
+    type: "number"
+    description: "Standard deviation of the atomic degree distribution"
+  ring_count:
+    type: "integer"
+    description: "Total number of rings in the molecule"
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight in g/mol"
+  homo_lumo_gap:
+    type: "number"
+    description: "HOMO-LUMO gap in eV (if available, else null)"
+  is_valid:
+    type: "boolean"
+    description: "Flag indicating if the molecule and descriptors are valid"
+required:
+  - "smiles"
+  - "aromatic_ring_count"
+  - "conjugation_path_length"
+  - "average_path_length"
+  - "degree_mean"
+  - "degree_std"
+  - "ring_count"
+  - "molecular_weight"
+  - "is_valid"
+additionalProperties: false
