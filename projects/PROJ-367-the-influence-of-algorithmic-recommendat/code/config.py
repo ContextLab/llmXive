@@ -38,3 +38,9 @@ def setup_logging(level: int = logging.INFO) -> logging.Logger:
 
 # Global instance
 project_config = ProjectConfig()
+
+# Convenience exports for task verification
+SEED = project_config.seed
+SEMANTIC_SIMILARITY_THRESHOLD = project_config.semantic_similarity_threshold
+SYNTHETIC_N_USERS = project_config.synthetic_n_users
+SYNTHETIC_N_SESSIONS = project_config.synthetic_n_sessions

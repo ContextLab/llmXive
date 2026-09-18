@@ -4,9 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T016` (rejected 1x): No code, script, or log output was provided that demonstrates added error handling for missing data or a count of excluded sessions. Without any artifact showing the implementation (e.g., updated preprocessing script with try/except blocks and logging statements), the requirement cannot be verified as met.
-- `T023` (rejected 1x): No code, script, or documentation implementing the required fallback to Generalized Least Squares with robust standard errors is present; the only artifacts shown relate to data ingestion and PSW, not to the GLS fallback logic. Consequently, the task’s core requirement is unfulfilled.
-- `T024` (rejected 1x): No code, script, or log output was provided that implements the required logic to detect extreme propensity‑score weights and to flag methodological changes in the logs, so the claimed feature cannot be verified. The necessary artifact is missing.
+- `T001a` (rejected 1x): No evidence of the required directory tree (`projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `docs/reports/`) was provided; the implementer did not supply any artifact confirming these folders exist. The task remains unfinished until the specified directories are created and shown.
+- `T001b` (rejected 1x): The claim provides no evidence of `__init__.py` files in `code/`, `tests/`, or `tests/unit/`; no file listings or contents are shown, so the required artifacts are missing. The task is not satisfied.
+- `T001c` (rejected 1x): No evidence was provided that the `docs/` and `docs/reports/` directories actually exist in the repository; the claim is unsubstantiated and the required filesystem artifacts are missing.
 
 ## Required change
 

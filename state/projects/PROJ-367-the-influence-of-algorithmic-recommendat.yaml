@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-367-the-influence-of-algorithmic-recommendat
-last_run_id: ed82449b-79d0-40d2-bce8-f0f2635ee752
+last_run_id: 3bae6808-65c1-448f-b232-07e64551e5f7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat
 title: The Influence of Algorithmic Recommendations on Exploration vs. Exploitation
   in Online Learning
-updated_at: '2026-09-09T09:56:44.902319Z'
+updated_at: '2026-09-18T21:51:53.098802Z'

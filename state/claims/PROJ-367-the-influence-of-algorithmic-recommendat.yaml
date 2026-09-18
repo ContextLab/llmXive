@@ -83,3 +83,760 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T09:56:21Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses Poisson(lambda=5) for recommended categories
+    and Normal distribution with sigma=0.2 for enrolled categories
+  claim_id: c_eb309931
+  context: 'Distributions: recommended_categories generated from Poisson(lambda=5)
+    for category counts; enrolled_categories generated from a Normal distribution
+    centered on recommendations with added noise (sigma=0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset is generated with recommended_categories from a
+    Poisson distribution (lambda=5) and enrolled_categories from a Normal distribution
+    centered on recommendations with noise (sigma=0.2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:32:13Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Outcome Permutation Test uses at least 1000 iterations
+  claim_id: c_fc43035c
+  context: "Implement Outcome Permutation Test in code/robustness.py with \u22651,000\
+    \ iterations (FR-004, updated by T030a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outcome_Permutation_Test_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: The Outcome Permutation Test implementation requires at least 1,000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:32:31Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.01, 0.05, and 0.1
+  claim_id: c_467f3824
+  context: Output a table (CSV) showing the Recommendation_Diversity coefficient and
+    p-value for each threshold {0.01, 0.05, 0.1}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep tests semantic similarity thresholds of
+    0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:32:51Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_b04b1920
+  context: Measure and report total pipeline runtime... to measure against SC-005
+    (6-hour limit)... assert runtime_seconds < 6 * 3600
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_limit_is_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than 6 hours (21,600 seconds).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:33:18Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Permutation test loop must complete in under 30 minutes
+  claim_id: c_39ed81ff
+  context: Add a timing check to ensure this specific step completes in < 30 minutes
+    on a standard CPU.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_loop_must_complete_in_under_30_minutes
+  kind: magnitude
+  raw_text: The permutation test loop optimization must complete in less than 30 minutes
+    on a standard CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:34:29Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: GLS fallback triggered when N < 30 unique users
+  claim_id: c_35eadbc1
+  context: Implement detection logic for N < 30 unique users... Implement Generalized
+    Least Squares (GLS) fallback logic... Create a test case with N < 30 and verify
+    GLS is triggered.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLS_fallback_triggered_when_N_%3C_30_unique_users
+  kind: magnitude
+  raw_text: The Generalized Least Squares (GLS) fallback is triggered when the number
+    of unique users (N) is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:34:52Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Extreme weights defined as > 10x median
+  claim_id: c_4d2bc340
+  context: Unit test for PSW weight stability check (extreme weights > 10x median)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extreme propensity score weights are defined as those exceeding 10 times
+    the median weight.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:35:13Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses fixed random seed
+  claim_id: c_10c8d0e1
+  context: Use a fixed random seed to ensure reproducibility.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generation_uses_fixed_random_seed
+  kind: entity_fact
+  raw_text: The synthetic dataset generation uses a fixed random seed to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:35:37Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses Poisson(lambda=5) for recommendations
+    and Normal distribution (sigma=0.2) for enrollments
+  claim_id: c_9eb1dcb9
+  context: 'Task T013a specifies the distributions for the synthetic dataset: ''recommended_categories
+    generated from Poisson(lambda=5)... enrolled_categories generated from a Normal
+    distribution centered on recommendations with added noise (sigma=0.2)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset is generated with recommended_categories from a
+    Poisson distribution (lambda=5) and enrolled_categories from a Normal distribution
+    centered on recommendations with noise (sigma=0.2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:36:02Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Outcome permutation test uses at least 1,000 iterations
+  claim_id: c_3288abcc
+  context: "Task T030b states: 'Implement Outcome Permutation Test in code/robustness.py\
+    \ with \u22651,000 iterations'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outcome_permutation_test_uses_at_least_1,000_iterations
+  kind: magnitude
+  raw_text: The outcome permutation test implements 1,000 or more iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:36:22Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.01, 0.05, and 0.1
+  claim_id: c_3505debc
+  context: Task T032a specifies the output table must show values 'for each threshold
+    {0.01, 0.05, 0.1}'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep evaluates thresholds at 0.01, 0.05, and
+    0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:37:05Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_f26a8090
+  context: Task T039 states the pipeline must measure runtime 'against SC-005 (6-hour
+    limit)' and includes an assertion 'runtime_seconds < 6 * 3600'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total pipeline runtime is measured against a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:38:08Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Permutation test loop optimization target is less than 30 minutes
+  claim_id: c_bc467567
+  context: Task T041 includes a timing check 'to ensure this specific step completes
+    in < 30 minutes on a standard CPU'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_loop_optimization_target_is_less_than_30_mi
+  kind: magnitude
+  raw_text: The permutation test loop optimization targets a completion time of less
+    than 30 minutes on a standard CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:39:09Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: GLS fallback triggered when unique users less than 30
+  claim_id: c_40e57ec6
+  context: Task T025a and T025b describe implementing detection logic for 'N < 30
+    unique users' and triggering 'Generalized Least Squares (GLS) fallback logic'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLS_fallback_triggered_when_unique_users_less_than_30
+  kind: magnitude
+  raw_text: Generalized Least Squares (GLS) is used as a fallback when the number
+    of unique users is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:39:55Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Extreme weights defined as greater than 10 times median
+  claim_id: c_52a0f86d
+  context: Task T021 mentions a unit test for 'PSW weight stability check (extreme
+    weights > 10x median)'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extreme_weights_defined_as_greater_than_10_times_median
+  kind: magnitude
+  raw_text: Extreme weights are flagged if they exceed 10 times the median weight.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:40:39Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Shannon entropy calculation uses log base 2
+  claim_id: c_6e3d29b5
+  context: Task T005 specifies 'Setup code/metrics.py for Shannon entropy calculation
+    (log base 2)'.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: ', the logarithm, varies for different applications. Base 2 gives the
+        unit of bits (or "shannons"), while base e gives "natural units" nat, and
+        base 10 gives units of "dits", "bans", or "hartleys". An equivalent definition
+        of entropy is the expected value of the self-information of a variable.'
+      source_id: Entropy (information theory)
+      url: https://en.wikipedia.org/wiki/Entropy_(information_theory)
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: The Shannon entropy calculation uses a log base of 2.
+  resolved_value: '2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T21:40:48Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Poisson distribution lambda is 5 for synthetic data
+  claim_id: c_61279a4b
+  context: Task T013a details 'recommended_categories generated from Poisson(lambda=5)'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic dataset generation uses a Poisson distribution with lambda equal
+    to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:41:17Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 4 multiprocessing workers
+  claim_id: c_3b2cdd3b
+  context: Task T041 states to 'Refactor code/robustness.py to use multiprocessing.Pool
+    with 4 workers'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The multiprocessing optimization for the permutation test uses 4 workers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:41:34Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 0
+  canonical: Shannon entropy calculation uses log base 2
+  claim_id: c_ce21c91e
+  context: Setup code/metrics.py for Shannon entropy calculation (log base 2) (FR-001).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: ', the logarithm, varies for different applications. Base 2 gives the
+        unit of bits (or "shannons"), while base e gives "natural units" nat, and
+        base 10 gives units of "dits", "bans", or "hartleys". An equivalent definition
+        of entropy is the expected value of the self-information of a variable.'
+      source_id: Entropy (information theory)
+      url: https://en.wikipedia.org/wiki/Entropy_(information_theory)
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: The Shannon entropy calculation uses log base 2.
+  resolved_value: '2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T21:42:33Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Synthetic recommended categories follow Poisson(lambda=5)
+  claim_id: c_defd8ea4
+  context: 'Distributions: recommended_categories generated from Poisson(lambda=5)
+    for category counts; enrolled_categories generated from a Normal distribution
+    centered on recommendations with added noise (sigma=0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset is generated with recommended_categories from a
+    Poisson distribution with lambda=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:42:53Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Synthetic enrolled categories follow Normal distribution with sigma=0.2
+  claim_id: c_ef889365
+  context: 'Distributions: recommended_categories generated from Poisson(lambda=5)
+    for category counts; enrolled_categories generated from a Normal distribution
+    centered on recommendations with added noise (sigma=0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset is generated with enrolled_categories from a Normal
+    distribution with sigma=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:24Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Shannon entropy of ['A', 'B', 'C'] is 1.585
+  claim_id: c_a40e9193
+  context: 'Verification: Write a unit test with known input [''A'', ''B'', ''C'']
+    and assert output 1.585.'
+  evidence:
+    asserted: '1.585'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: The Shannon entropy calculation for input ['A', 'B', 'C'] yields 1.585.
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T21:43:24Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Outcome permutation test runs >= 1000 iterations
+  claim_id: c_2583e348
+  context: "Implement Outcome Permutation Test in code/robustness.py with \u22651,000\
+    \ iterations (FR-004, updated by T030a)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outcome_permutation_test_runs_%3E=_1000_iterations
+  kind: magnitude
+  raw_text: The outcome permutation test is configured to run at least 1,000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:55Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests thresholds 0.01, 0.05, 0.1
+  claim_id: c_596be5f8
+  context: 'Output File: data/processed/sensitivity_analysis.csv. Columns: threshold,
+    coefficient, p_value. ... for each threshold {0.01, 0.05, 0.1}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep tests semantic similarity thresholds of
+    0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:55Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_3c72b0c8
+  context: aggregate these in the final report docs/reports/final_analysis.md to measure
+    against SC-005 (6-hour limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline total runtime is measured against a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:55Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Permutation test loop target time is 30 minutes
+  claim_id: c_33fb2e23
+  context: Add a timing check to ensure this specific step completes in < 30 minutes
+    on a standard CPU.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_loop_target_time_is_30_minutes
+  kind: magnitude
+  raw_text: The permutation test loop optimization targets a completion time of less
+    than 30 minutes on a standard CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:56Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: GLS fallback triggered when N < 30
+  claim_id: c_f6c14bfa
+  context: Implement detection logic for N < 30 unique users in code/modeling.py.
+    ... Verify GLS is triggered.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLS_fallback_triggered_when_N_%3C_30
+  kind: magnitude
+  raw_text: The Generalized Least Squares (GLS) fallback is triggered when the number
+    of unique users is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:57Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Extreme weights flagged if > 10x median
+  claim_id: c_8531156c
+  context: Unit test for PSW weight stability check (extreme weights > 10x median)
+    in tests/unit/test_modeling.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extreme weights are flagged if they exceed 10 times the median weight.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:43:57Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: synthetic data generation uses Poisson(lambda=5) for category counts
+    and Normal distribution with sigma=0.2 for enrolled categories
+  claim_id: c_e6b98c8f
+  context: 'T013a [US1] Generate Synthetic Dataset: Create code/data_generation.py
+    to generate a synthetic dataset mimicking user-algorithm interactions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Distributions: recommended_categories generated from Poisson(lambda=5)
+    for category counts; enrolled_categories generated from a Normal distribution
+    centered on recommendations with added noise (sigma=0.2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:45:13Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: outcome permutation test uses at least 1000 iterations
+  claim_id: c_8a42166b
+  context: "T030b [US3] Implement Outcome Permutation Test in code/robustness.py with\
+    \ \u22651,000 iterations (FR-004, updated by T030a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outcome_permutation_test_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Implement Outcome Permutation Test in code/robustness.py with \u2265\
+    1,000 iterations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:45:27Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.1
+  claim_id: c_05c77412
+  context: 'T032a [US3] Generate Sensitivity Analysis Table: Implement logic to execute
+    the sensitivity sweep and output a table (CSV) showing the Recommendation_Diversity
+    coefficient and p-value for each threshold {0.01, 0.05, 0.1}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate Sensitivity Analysis Table... output a table (CSV) showing the
+    Recommendation_Diversity coefficient and p-value for each threshold {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:45:51Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: permutation test optimization target is less than 30 minutes on standard
+    CPU
+  claim_id: c_07df9843
+  context: 'T041 [US3] Optimize Permutation Test Loop: Refactor code/robustness.py
+    to use multiprocessing.Pool with 4 workers... Add a timing check to ensure this
+    specific step completes in < 30 minutes on a standard CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_optimization_target_is_less_than_30_minutes
+  kind: magnitude
+  raw_text: Add a timing check to ensure this specific step completes in < 30 minutes
+    on a standard CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:46:45Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: permutation test uses multiprocessing with 4 workers
+  claim_id: c_b8f79f50
+  context: 'T041 [US3] Optimize Permutation Test Loop: Refactor code/robustness.py
+    to use multiprocessing.Pool with 4 workers for the outcome permutation test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/robustness.py to use multiprocessing.Pool with 4 workers
+    for the outcome permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:47:21Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: synthetic dataset Poisson distribution lambda 5 category counts
+  claim_id: c_76829426
+  context: 'Distributions: recommended_categories generated from Poisson(lambda=5)
+    for category counts; enrolled_categories generated from a Normal distribution
+    centered on recommendations with added noise (sigma=0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset uses a Poisson distribution with lambda=5 for generating
+    category counts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:48:34Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: synthetic dataset Normal distribution sigma 0.2 enrolled categories noise
+  claim_id: c_9818acf0
+  context: 'Distributions: recommended_categories generated from Poisson(lambda=5)
+    for category counts; enrolled_categories generated from a Normal distribution
+    centered on recommendations with added noise (sigma=0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset uses a Normal distribution with sigma=0.2 for generating
+    enrolled categories noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:48:53Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: Outcome Permutation Test 1000 iterations
+  claim_id: c_e6b78303
+  context: "Implement Outcome Permutation Test in code/robustness.py with \u22651,000\
+    \ iterations (FR-004, updated by T030a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outcome_Permutation_Test_1000_iterations
+  kind: magnitude
+  raw_text: The Outcome Permutation Test is implemented with at least 1,000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:49:08Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.01 0.05 0.1
+  claim_id: c_97c4893b
+  context: 'Output File: data/processed/sensitivity_analysis.csv. Columns: threshold,
+    coefficient, p_value. ... thresholds {0.01, 0.05, 0.1}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps semantic similarity thresholds at values
+    0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:49:31Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 6 hours
+  claim_id: c_d7d5d4bd
+  context: aggregate these in the final report docs/reports/final_analysis.md to measure
+    against SC-005 (6-hour limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime must be measured against a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:49:54Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: permutation test loop completion time 30 minutes standard CPU
+  claim_id: c_a14e067f
+  context: Add a timing check to ensure this specific step completes in < 30 minutes
+    on a standard CPU.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_loop_completion_time_30_minutes_standard_CP
+  kind: magnitude
+  raw_text: The permutation test loop optimization targets a completion time of less
+    than 30 minutes on a standard CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:49:56Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: GLS fallback triggered unique users less than 30
+  claim_id: c_5ec163f0
+  context: Implement detection logic for N < 30 unique users in code/modeling.py.
+    ... Implement Generalized Least Squares (GLS) fallback logic with robust standard
+    errors in code/modeling.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLS_fallback_triggered_unique_users_less_than_30
+  kind: magnitude
+  raw_text: The system triggers a Generalized Least Squares (GLS) fallback when the
+    number of unique users is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:51:05Z'
+- artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/tasks.md
+  attempts: 1
+  canonical: extreme weights flagged greater than 10 times median
+  claim_id: c_9db42b65
+  context: Unit test for PSW weight stability check (extreme weights > 10x median)
+    in tests/unit/test_modeling.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extreme_weights_flagged_greater_than_10_times_median
+  kind: magnitude
+  raw_text: Extreme weights are flagged when they exceed 10 times the median weight.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:51:52Z'

@@ -1,1 +1,2 @@
-# Placeholder for processed data files
+# This directory stores processed data files ready for analysis.
+# Output from ingestion, metrics, and modeling steps will be written here.
