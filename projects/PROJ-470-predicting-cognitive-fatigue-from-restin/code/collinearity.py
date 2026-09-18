@@ -1,200 +1,218 @@
+"""Collinearity diagnostics for ANCOVA model predictors.
+
+Implements SC-004: VIF < 5 for all predictors.
+Calculates Variance Inflation Factor for Fatigue_Delta, Pre_Complexity,
+and covariates (age, time_of_day, medication_status).
 """
-Collinearity diagnostics module for VIF calculation.
-Implements SC-004: Variance Inflation Factor (VIF) < 5 constraint.
-"""
+from __future__ import annotations
+
 import os
 import sys
 import json
 import yaml
+import logging
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import logging
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
 
-# Import existing utilities from project structure
-from utils.logging import get_logger
+# Import from sibling modules using exact names from API surface
+from utils.logging import get_logger, log_operation
 
-def load_config(config_path="code/config.yaml"):
-    """Load configuration from YAML file."""
-    with open(config_path, 'r') as f:
+
+def load_config(config_path: str = "code/config.yaml") -> dict:
+    """Load pipeline configuration."""
+    with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-def setup_logger(name, log_file="data/analysis/collinearity.log"):
-    """Setup logger for collinearity diagnostics."""
+
+def setup_logger(name: str, log_file: str | None = None) -> logging.Logger:
+    """Set up a logger compatible with all callers.
+
+    Supports:
+      - get_logger("name")
+      - get_logger(name, log_file)
+      - get_logger(name, log_file="...")
+      - get_logger() -> global
+    """
+    # Delegate to the tolerant logging module
     logger = get_logger(name, log_file)
+    # Return a standard logging.Logger-like object for compatibility
+    # The ReproducibilityLogger from utils.logging handles all calls
     return logger
 
-def load_analysis_results(metrics_dir="data/processed"):
-    """
-    Load Lempel-Ziv Complexity and Permutation Entropy metrics.
-    Returns a combined DataFrame of predictors.
-    """
-    lzc_path = os.path.join(metrics_dir, "lzc_metrics.csv")
-    pe_path = os.path.join(metrics_dir, "pe_metrics.csv")
-    
-    if not os.path.exists(lzc_path):
-        raise FileNotFoundError(f"Required file missing: {lzc_path}")
-    if not os.path.exists(pe_path):
-        raise FileNotFoundError(f"Required file missing: {pe_path}")
-        
-    lzc_df = pd.read_csv(lzc_path)
-    pe_df = pd.read_csv(pe_path)
-    
-    # Ensure consistent participant_id column name if necessary
-    if 'participant_id' not in lzc_df.columns:
-        # Try to find a suitable ID column or fail
-        raise ValueError(f"lzc_metrics.csv missing 'participant_id' column. Columns: {lzc_df.columns.tolist()}")
-    
-    # Merge on participant_id to create the combined predictor set
-    # Assuming both files have 'participant_id' and channel-specific columns
-    # We need to align them. If channels differ, we might need to handle that,
-    # but for VIF we assume the same set of features per participant.
-    # Let's assume the structure is: participant_id, channel_1, channel_2, ...
-    
-    # Merge
-    combined = pd.merge(lzc_df, pe_df, on='participant_id', suffixes=('_lzc', '_pe'))
-    
-    # Identify predictor columns (exclude participant_id and any non-numeric)
-    predictor_cols = combined.select_dtypes(include=[np.number]).columns.tolist()
-    if 'participant_id' in predictor_cols:
-        predictor_cols.remove('participant_id')
-        
-    if len(predictor_cols) == 0:
-        raise ValueError("No numeric predictor columns found in merged metrics.")
-        
-    return combined, predictor_cols
 
-def calculate_vif(data, predictors):
+def load_analysis_results(
+    correlation_file: str = "data/analysis/correlation_results.csv",
+    ancova_file: str = "data/analysis/ancova_results.csv",
+    delta_file: str = "data/analysis/delta_scores.csv",
+) -> pd.DataFrame:
+    """Load and merge analysis results for VIF calculation.
+
+    Expects:
+      - delta_scores.csv with columns: participant_id, fatigue_delta, pre_complexity
+      - ancova_results.csv or correlation_results.csv with covariates if available
     """
-    Calculate Variance Inflation Factor for each predictor.
-    
-    Args:
-        data: DataFrame containing predictor variables
-        predictors: List of column names to calculate VIF for
-        
-    Returns:
-        DataFrame with columns: ['predictor', 'vif']
-    """
-    X = data[predictors]
-    
-    # Add constant for intercept if needed (statsmodels VIF usually expects it)
-    # However, vif function in statsmodels.stats.outliers_influence 
-    # calculates VIF for each column in X. 
-    # Standard VIF formula: 1 / (1 - R^2_j) where R^2_j is from regressing X_j on other Xs.
-    
-    vif_data = []
-    for i, col in enumerate(predictors):
-        # Calculate VIF for this column
-        # Using the standard approach: regress col on all other predictors
-        y = X[col]
-        X_other = X.drop(columns=[col])
-        
-        # If X_other is empty (only 1 predictor), VIF is undefined or 1
-        if X_other.empty:
-            vif_val = 1.0
+    # Load delta scores (primary source for predictors)
+    if not os.path.exists(delta_file):
+        raise FileNotFoundError(f"Delta scores file not found: {delta_file}")
+
+    delta_df = pd.read_csv(delta_file)
+
+    required_cols = ["participant_id", "fatigue_delta", "pre_complexity"]
+    missing = [c for c in required_cols if c not in delta_df.columns]
+    if missing:
+        raise ValueError(f"Delta scores missing columns: {missing}")
+
+    # Try to load covariates from a separate file if it exists
+    covariates_file = "data/processed/covariates.csv"
+    if os.path.exists(covariates_file):
+        cov_df = pd.read_csv(covariates_file)
+        required_cov = ["participant_id", "age", "time_of_day", "medication_status"]
+        missing_cov = [c for c in required_cov if c not in cov_df.columns]
+        if not missing_cov:
+            # Merge covariates
+            merged = delta_df.merge(cov_df, on="participant_id", how="inner")
+            return merged
         else:
-            # Add constant for the regression
-            try:
-                from sklearn.linear_model import LinearRegression
-                reg = LinearRegression().fit(X_other, y)
-                r_squared = reg.score(X_other, y)
-                if r_squared >= 1.0:
-                    vif_val = np.inf
-                else:
-                    vif_val = 1.0 / (1.0 - r_squared)
-            except Exception as e:
-                logging.error(f"Error calculating VIF for {col}: {e}")
-                vif_val = np.inf
-        
-        vif_data.append({'predictor': col, 'vif': vif_val})
-        
-    return pd.DataFrame(vif_data)
+            # Log warning but continue without covariates
+            logging.warning(f"Covariates file missing columns: {missing_cov}. Proceeding without covariates.")
 
-def run_collinearity_diagnostics(config=None):
-    """
-    Run full collinearity diagnostics pipeline.
-    
-    Returns:
-        Tuple (vif_df, is_valid) where is_valid is True if all VIF < 5
-    """
-    logger = setup_logger("collinearity")
-    logger.info("Starting collinearity diagnostics (VIF calculation)")
-    
-    if config is None:
-        config = load_config()
-    
-    try:
-        df, predictors = load_analysis_results()
-        logger.info(f"Loaded {len(df)} participants with {len(predictors)} predictors")
-        
-        vif_df = calculate_vif(df, predictors)
-        
-        # Log results
-        logger.info("VIF Results:")
-        for _, row in vif_df.iterrows():
-            logger.info(f"  {row['predictor']}: VIF = {row['vif']:.4f}")
-        
-        # Check constraint: VIF < 5
-        max_vif = vif_df['vif'].max()
-        is_valid = max_vif < 5.0
-        
-        if not is_valid:
-            failed_predictors = vif_df[vif_df['vif'] >= 5.0]['predictor'].tolist()
-            error_msg = (
-                f"Collinearity constraint violated (SC-004). "
-                f"Max VIF = {max_vif:.4f}. "
-                f"Predictors with VIF >= 5: {failed_predictors}. "
-                f"Model assumptions invalid. Exiting."
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-        
-        logger.info("Collinearity diagnostics passed. All VIF < 5.")
-        return vif_df, True
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during diagnostics: {e}")
-        raise
+    # If no covariates file, return just the core predictors
+    return delta_df[["participant_id", "fatigue_delta", "pre_complexity"]]
 
-def save_collinearity_report(vif_df, output_path="data/analysis/vif_diagnostics.csv"):
-    """
-    Save VIF diagnostics to CSV.
-    
+
+def calculate_vif(df: pd.DataFrame, predictors: list[str]) -> dict[str, float]:
+    """Calculate VIF for each predictor.
+
     Args:
-        vif_df: DataFrame with 'predictor' and 'vif' columns
-        output_path: Path to save the CSV
+        df: DataFrame with predictor columns
+        predictors: List of column names to calculate VIF for
+
+    Returns:
+        Dict mapping predictor name to VIF value
+    """
+    if len(predictors) == 0:
+        return {}
+
+    # Add constant for intercept
+    X = df[predictors].dropna()
+    if X.empty:
+        raise ValueError("No valid data rows after dropping NaNs")
+
+    X_const = add_constant(X)
+
+    vif_results = {}
+    for i, col in enumerate(X_const.columns):
+        if col == "const":
+            continue
+        try:
+            vif_val = variance_inflation_factor(X_const.values, i)
+            vif_results[col] = float(vif_val)
+        except Exception as e:
+            vif_results[col] = float('nan')
+            logging.warning(f"Could not calculate VIF for {col}: {e}")
+
+    return vif_results
+
+
+def run_collinearity_diagnostics(
+    predictors: list[str] | None = None,
+    vif_threshold: float = 5.0,
+) -> tuple[dict[str, float], bool]:
+    """Run full collinearity diagnostics.
+
+    Args:
+        predictors: List of predictor column names. If None, auto-detect from data.
+        vif_threshold: Maximum allowed VIF (default 5.0 per SC-004)
+
+    Returns:
+        Tuple of (vif_dict, passed_check)
+    """
+    # Define default predictors based on ANCOVA model
+    default_predictors = ["fatigue_delta", "pre_complexity"]
+
+    # Check for covariates
+    covariates = ["age", "time_of_day", "medication_status"]
+    data = load_analysis_results()
+
+    # Auto-detect available predictors
+    available_cols = set(data.columns)
+    if predictors is None:
+        predictors = [c for c in default_predictors + covariates if c in available_cols]
+
+    if len(predictors) < 2:
+        raise ValueError(f"Need at least 2 predictors for VIF, found: {predictors}")
+
+    # Calculate VIF
+    vif_results = calculate_vif(data, predictors)
+
+    # Check threshold
+    failed = False
+    for pred, vif_val in vif_results.items():
+        if np.isnan(vif_val) or vif_val >= vif_threshold:
+            failed = True
+            logging.warning(f"VIF for {pred} is {vif_val:.2f} (>= {vif_threshold})")
+
+    return vif_results, not failed
+
+
+def save_collinearity_report(
+    vif_results: dict[str, float],
+    passed: bool,
+    output_path: str = "data/analysis/vif_diagnostics.log",
+) -> None:
+    """Save VIF diagnostics to log file.
+
+    Format: Plain text with VIF values and pass/fail status.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    vif_df.to_csv(output_path, index=False)
-    logging.info(f"VIF diagnostics saved to {output_path}")
 
-def main():
+    with open(output_path, "w") as f:
+        f.write("=== Collinearity Diagnostics (VIF) ===\n")
+        f.write(f"Threshold: 5.0\n")
+        f.write(f"Status: {'PASSED' if passed else 'FAILED'}\n\n")
+        f.write("VIF Values:\n")
+        for predictor, vif_val in sorted(vif_results.items()):
+            status = "OK" if not np.isnan(vif_val) and vif_val < 5.0 else "WARNING"
+            f.write(f"  {predictor}: {vif_val:.4f} [{status}]\n")
+        f.write("\n")
+        if not passed:
+            f.write("CRITICAL: One or more predictors have VIF >= 5.0.\n")
+            f.write("This violates SC-004 and indicates severe multicollinearity.\n")
+
+
+def main() -> None:
     """Main entry point for collinearity diagnostics."""
+    log_operation("start_collinearity_diagnostics")
+
+    # Load config
+    config = load_config()
+    vif_threshold = config.get("vif_threshold", 5.0)
+
+    # Set up logger
     logger = setup_logger("collinearity")
-    logger.info("=== Collinearity Diagnostics (T037) ===")
-    
+
     try:
-        vif_df, is_valid = run_collinearity_diagnostics()
-        save_collinearity_report(vif_df)
-        logger.info("Task T037 completed successfully.")
-        sys.exit(0)
-        
-    except FileNotFoundError as e:
-        logger.error(f"Critical file missing: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Collinearity check failed: {e}")
-        sys.exit(1)
+        # Run diagnostics
+        vif_results, passed = run_collinearity_diagnostics(vif_threshold=vif_threshold)
+
+        # Save report
+        save_collinearity_report(vif_results, passed)
+
+        if not passed:
+            logger.error("VIF check FAILED. Exiting with code 1.")
+            sys.exit(1)
+        else:
+            logger.info("VIF check PASSED.")
+            sys.exit(0)
+
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Collinearity diagnostics failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

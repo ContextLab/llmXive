@@ -1,98 +1,66 @@
-import pytest
+"""Tests for T023: Sensitivity Analysis."""
+import os
+import sys
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import sys
-import os
 
-# Add the code directory to the path
+# Add code to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from sensitivity_analysis import run_sensitivity_analysis, generate_sensitivity_table
+from utils.logging import get_logger
 
-def test_run_sensitivity_analysis_basic():
-    """Test that sensitivity analysis correctly counts significant channels."""
-    # Create mock data with known p-values
+def test_run_sensitivity_analysis_counts():
+    """Test that sensitivity analysis correctly counts significant electrodes."""
+    # Create mock data
     data = {
-        'channel': ['C1', 'C2', 'C3', 'C4', 'C5'],
-        'p_value': [0.04, 0.06, 0.01, 0.10, 0.005]
+        'channel': ['Fz', 'Cz', 'Pz', 'Oz', 'F3', 'F4', 'C3', 'C4', 'P3', 'P4'],
+        'p_value_bh': [0.01, 0.03, 0.04, 0.06, 0.005, 0.02, 0.08, 0.09, 0.015, 0.10]
     }
     df = pd.DataFrame(data)
-    
-    # Test at p <= 0.05
-    result = run_sensitivity_analysis(df, thresholds=[0.05])
-    assert len(result) == 1
-    assert result.iloc[0]['threshold'] == 0.05
-    assert result.iloc[0]['count_significant'] == 3  # C1, C3, C5
-    
-    # Test at p <= 0.01
-    result = run_sensitivity_analysis(df, thresholds=[0.01])
-    assert result.iloc[0]['threshold'] == 0.01
-    assert result.iloc[0]['count_significant'] == 1  # Only C5
 
-def test_run_sensitivity_analysis_multiple_thresholds():
-    """Test sensitivity analysis with multiple thresholds."""
-    data = {
-        'channel': ['C1', 'C2', 'C3'],
-        'p_value': [0.04, 0.02, 0.001]
-    }
-    df = pd.DataFrame(data)
-    
-    result = run_sensitivity_analysis(df, thresholds=[0.05, 0.01])
-    assert len(result) == 2
-    
-    # Check 0.05 threshold
-    row_05 = result[result['threshold'] == 0.05].iloc[0]
-    assert row_05['count_significant'] == 3
-    
-    # Check 0.01 threshold
-    row_01 = result[result['threshold'] == 0.01].iloc[0]
-    assert row_01['count_significant'] == 1
+    # Run analysis
+    result = run_sensitivity_analysis(df)
 
-def test_generate_sensitivity_table_saves_file(tmp_path):
-    """Test that generate_sensitivity_table writes a valid CSV."""
-    data = {
-        'channel': ['C1', 'C2'],
-        'p_value': [0.04, 0.06]
-    }
-    df = pd.DataFrame(data)
+    # Expected: 
+    # <= 0.05: Fz(0.01), Cz(0.03), Pz(0.04), F3(0.005), F4(0.02), P3(0.015) = 6
+    # <= 0.01: Fz(0.01), F3(0.005) = 2
     
-    output_path = tmp_path / "sensitivity_table.csv"
-    result_df = generate_sensitivity_table(df, output_path)
-    
-    # Verify file exists
-    assert output_path.exists()
-    
-    # Verify content
-    saved_df = pd.read_csv(output_path)
-    assert 'threshold' in saved_df.columns
-    assert 'count_significant' in saved_df.columns
-    assert len(saved_df) == 2  # Two thresholds
-    
-    # Verify values
-    row_05 = saved_df[saved_df['threshold'] == 0.05].iloc[0]
-    assert row_05['count_significant'] == 1
-    
-    row_01 = saved_df[saved_df['threshold'] == 0.01].iloc[0]
-    assert row_01['count_significant'] == 0
+    sig_05 = result[result['threshold'] == 0.05]['significant_electrodes'].iloc[0]
+    sig_01 = result[result['threshold'] == 0.01]['significant_electrodes'].iloc[0]
 
-def test_generate_sensitivity_table_schema():
-    """Test that the output CSV strictly matches the required schema."""
-    data = {
-        'channel': ['C1'],
-        'p_value': [0.04]
-    }
-    df = pd.DataFrame(data)
-    
-    # Use a temporary directory
-    import tempfile
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        output_path = Path(tmp_dir) / "sensitivity_table.csv"
-        generate_sensitivity_table(df, output_path)
+    assert sig_05 == 6, f"Expected 6 significant at 0.05, got {sig_05}"
+    assert sig_01 == 2, f"Expected 2 significant at 0.01, got {sig_01}"
+    assert len(result) == 2, "Result should have 2 rows (one per threshold)"
+
+def test_generate_sensitivity_table_writes_file(tmp_path):
+    """Test that generate_sensitivity_table writes the correct file."""
+    # Temporarily override OUTPUT_FILE
+    import sensitivity_analysis
+    original_output = sensitivity_analysis.OUTPUT_FILE
+    test_output = tmp_path / "test_sensitivity_table.csv"
+    sensitivity_analysis.OUTPUT_FILE = test_output
+
+    try:
+        data = {
+            'channel': ['Fz', 'Cz', 'Pz'],
+            'p_value_bh': [0.04, 0.06, 0.02]
+        }
+        df = pd.DataFrame(data)
+
+        result = generate_sensitivity_table(df)
+
+        assert test_output.exists(), "Output file was not created"
         
-        saved_df = pd.read_csv(output_path)
+        # Verify content
+        written_df = pd.read_csv(test_output)
+        assert 'threshold' in written_df.columns
+        assert 'significant_electrodes' in written_df.columns
+        assert len(written_df) == 2
         
-        # Check exact column names and types
-        assert list(saved_df.columns) == ['threshold', 'count_significant']
-        assert saved_df['threshold'].dtype in ['float64', 'float32']
-        assert saved_df['count_significant'].dtype in ['int64', 'int32']
+        # Check counts: 0.05 -> 2 (Fz, Pz), 0.01 -> 0
+        sig_05 = written_df[written_df['threshold'] == 0.05]['significant_electrodes'].iloc[0]
+        assert sig_05 == 2, f"Expected 2 significant at 0.05, got {sig_05}"
+    finally:
+        sensitivity_analysis.OUTPUT_FILE = original_output

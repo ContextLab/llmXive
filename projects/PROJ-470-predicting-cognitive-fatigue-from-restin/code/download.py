@@ -1,190 +1,183 @@
+"""Download public EEG dataset with resting-state and fatigue ratings.
+
+Implements T009: Fetch a public dataset containing both resting-state EEG AND paired pre/post fatigue ratings.
+"""
 import os
 import sys
 import json
 import logging
 import time
 import io
-import shutil
 import requests
 from pathlib import Path
-import yaml
+import shutil
+import uuid
 
-def load_config(config_path: str):
-    """Loads configuration from a YAML file."""
+# Import local utilities
+from utils.logging import get_logger
+
+def load_config(config_path="code/config.yaml"):
+    """Load configuration from YAML file."""
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    import yaml
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def setup_logger(name: str) -> logging.Logger:
-    """Sets up a logger."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        ch = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+def setup_logger(name, log_file=None):
+    """Setup a logger that writes to file and console."""
+    logger = get_logger(name, log_file)
     return logger
 
-def write_validation_report(report_data: dict, output_path: str):
-    """Writes validation report to a JSON file."""
+def write_validation_report(report_data, output_path):
+    """Write validation report to JSON."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(report_data, f, indent=4)
+        json.dump(report_data, f, indent=2)
 
-def fetch_huggingface_metadata(dataset_id: str) -> dict:
-    """Fetches metadata from HuggingFace Hub API."""
-    api_url = f"https://huggingface.co/api/datasets/{dataset_id}"
-    try:
-        response = requests.head(api_url, timeout=10)
-        if response.status_code != 200:
-            return None
-        response = requests.get(api_url, timeout=10)
-        if response.status_code != 200:
-            return None
-        metadata = response.json()
-        return {
-            "dataset_id": dataset_id,
-            "dataset_name": metadata.get("id", dataset_id),
-            "variables": ["eeg_data", "fatigue_rating", "pre_fatigue", "post_fatigue"],
-            "num_participants": 100
-        }
-    except Exception as e:
-        return None
+def fetch_huggingface_metadata(dataset_id, token=None):
+    """Fetch metadata from HuggingFace Hub."""
+    url = f"https://huggingface.co/api/datasets/{dataset_id}"
+    headers = {}
+    if token:
+        headers['Authorization'] = f'Bearer {token}'
+    
+    # Perform HTTP HEAD request to check existence before full download
+    head_response = requests.head(url, headers=headers, timeout=30)
+    if head_response.status_code == 404:
+        raise RuntimeError(f"Dataset not found: {dataset_id} (HTTP 404)")
+    elif head_response.status_code != 200:
+        # Try GET if HEAD fails for some reason but might still exist
+        get_response = requests.get(url, headers=headers, timeout=30)
+        if get_response.status_code != 200:
+            raise RuntimeError(f"Failed to fetch metadata: {get_response.status_code}")
+        return get_response.json()
+    
+    # Proceed with GET to fetch full metadata
+    response = requests.get(url, headers=headers, timeout=30)
+    if response.status_code != 200:
+        raise RuntimeError(f"Failed to fetch metadata: {response.status_code}")
+    return response.json()
 
-def search_huggingface_datasets(tags: list) -> list:
-    """Searches HuggingFace Hub for datasets with specific tags."""
-    search_url = "https://huggingface.co/api/datasets"
-    params = {"tags": tags, "limit": 50}
-    try:
-        response = requests.get(search_url, params=params, timeout=15)
-        if response.status_code != 200:
-            return []
-        datasets = response.json()
-        # Filter for likely EEG/fatigue datasets
-        likely_candidates = []
-        for ds in datasets:
-            ds_id = ds.get('id', '')
-            if 'eeg' in ds_id.lower() or 'fatigue' in ds_id.lower():
-                likely_candidates.append(ds_id)
-        return likely_candidates
-    except Exception:
-        return []
+def search_huggingface_datasets(query, token=None):
+    """Search HuggingFace for datasets."""
+    url = "https://huggingface.co/api/datasets"
+    params = {'search': query}
+    headers = {}
+    if token:
+        headers['Authorization'] = f'Bearer {token}'
+    response = requests.get(url, params=params, headers=headers, timeout=30)
+    if response.status_code != 200:
+        raise RuntimeError(f"Failed to search datasets: {response.status_code}")
+    return response.json()
 
-def validate_dataset(metadata: dict):
-    """Validates the dataset based on required variables and participant count."""
-    # T009 does NOT perform variable validation or N-count checks; these are handled by T010.
-    # However, we ensure the metadata structure is valid for T010 to use later.
-    if not metadata:
-        raise ValueError("Dataset metadata is empty.")
+def validate_dataset(metadata, required_variables):
+    """Validate that dataset has required variables."""
+    # This is a placeholder; real validation would check dataset structure
     return True
 
-def download_raw_data(dataset_id: str, output_dir: str, logger: logging.Logger):
-    """Downloads raw data from HuggingFace Hub."""
-    from datasets import load_dataset
-    
-    os.makedirs(output_dir, exist_ok=True)
-    
+def download_raw_data(dataset_id, output_dir, token=None):
+    """Download raw data from HuggingFace."""
+    from huggingface_hub import snapshot_download
     try:
-        # Load dataset in streaming mode to avoid memory issues
-        # Using a known EEG dataset structure as a fallback if specific search fails
-        # In a real scenario, we would use the specific dataset_id found by search
-        ds = load_dataset(dataset_id, split='train', streaming=True)
-        
-        # Download first subject's data as sample
-        sample_count = 0
-        sample_file_path = os.path.join(output_dir, "sample_eeg.fif")
-        
-        for item in ds:
-            # Simulate saving an EEG file structure
-            # In a real implementation, we would extract the actual EEG data
-            # For this task, we create a minimal valid FIF-like structure
-            if sample_count == 0:
-                # Create a minimal valid file
-                with open(sample_file_path, 'wb') as f:
-                    # Write a minimal header to make it look like a real file
-                    # This is a placeholder for the actual binary EEG data
-                    f.write(b'\x00' * 1024) 
-                sample_count += 1
-                logger.info(f"Created sample EEG file at {sample_file_path}")
-            
-            if sample_count >= 1:
-                break
-        
-        if not os.path.exists(sample_file_path):
-            raise ValueError("Failed to create sample EEG file.")
-
-        manifest = {
-            "status": "success",
-            "dataset_id": dataset_id,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "files_downloaded": ["sample_eeg.fif"],
-            "sample_path": sample_file_path
-        }
-        return manifest
-        
+        local_dir = snapshot_download(
+            repo_id=dataset_id,
+            repo_type="dataset",
+            local_dir=output_dir,
+            token=token
+        )
+        return local_dir
     except Exception as e:
-        logger.error(f"Download failed: {e}")
-        raise
+        raise RuntimeError(f"Failed to download dataset: {e}")
 
-def log_participant_exclusions(exclusion_log_path: str, participant_id: str, reason: str):
-    """Logs participant exclusions to a CSV file."""
-    # This function is a placeholder for T013/T014 implementation
-    pass
+def log_participant_exclusions(exclusions, output_path):
+    """Log participant exclusions to CSV."""
+    import pandas as pd
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    if not exclusions:
+        with open(output_path, 'w') as f:
+            f.write("participant_id,reason,timestamp\n")
+        return
+    df = pd.DataFrame(exclusions)
+    df.to_csv(output_path, index=False)
 
 def main():
-    """Main function to download the EEG dataset."""
+    """Main entry point for download pipeline."""
     logger = setup_logger("download")
     logger.info("Starting download pipeline.")
-    
-    config = load_config("code/config.yaml")
-    output_dir = "data/raw"
-    validation_report_path = os.path.join(output_dir, "download_manifest.json")
 
-    # Search for datasets with 'eeg' and 'fatigue' tags
-    search_tags = ['eeg', 'fatigue']
-    logger.info(f"Searching HuggingFace Hub for datasets with tags: {search_tags}")
-    
-    candidates = search_huggingface_datasets(search_tags)
-    
-    dataset_id = None
-    if candidates:
-        dataset_id = candidates[0]
-        logger.info(f"Found candidate dataset: {dataset_id}")
-    else:
-        # Fallback to a known EEG dataset if search yields nothing
-        # Using a generic EEG dataset that might contain fatigue-related data
-        # In a real scenario, this would be a verified dataset
-        dataset_id = "eeg-fatigue-dataset" # Placeholder ID
-        logger.warning(f"No datasets found with tags {search_tags}. Using fallback ID: {dataset_id}")
-
+    # Load config
     try:
-        # Perform HTTP HEAD request to verify metadata availability
+        config = load_config()
+    except FileNotFoundError:
+        print("Warning: config.yaml not found. Using defaults.")
+        config = {}
+
+    # Dataset ID (hardcoded as per task requirement)
+    dataset_id = 'eeg-fatigue-resting-v1'
+    output_dir = "data/raw"
+
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Attempt to fetch metadata (HTTP HEAD check included in fetch_huggingface_metadata)
+    try:
         metadata = fetch_huggingface_metadata(dataset_id)
-        if metadata is None:
-            # If HEAD fails, try to list available datasets from search
-            if not candidates:
-                raise ValueError(f"Dataset with ID '{dataset_id}' not found and no search candidates found.")
-            metadata = {"dataset_id": dataset_id, "dataset_name": dataset_id, "variables": [], "num_participants": 0}
-            
-        validate_dataset(metadata)
-
-        download_manifest = download_raw_data(dataset_id, output_dir, logger)
-        if download_manifest is None:
-            raise ValueError(f"Failed to download data for dataset '{dataset_id}'.")
-
-        write_validation_report(download_manifest, validation_report_path)
-        logger.info(f"Successfully downloaded dataset '{dataset_id}' and saved manifest to '{validation_report_path}'.")
-
-        # Ensure sample_eeg.fif exists (already created in download_raw_data)
-        source_path = os.path.join(output_dir, "sample_eeg.fif")
-        if os.path.exists(source_path):
-            logger.info(f"Sample EEG file verified at '{source_path}'.")
-        else:
-            raise FileNotFoundError(f"Sample EEG file not found at '{source_path}'.")
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.info(f"Metadata fetched successfully for {dataset_id}")
+    except RuntimeError as e:
+        logger.error(f"Failed to fetch or parse metadata. Exiting: {e}")
+        print(f"ERROR: {e}")
+        print(f"Expected dataset ID: {dataset_id}")
         sys.exit(1)
+
+    # Attempt to download raw data
+    try:
+        local_dir = download_raw_data(dataset_id, output_dir)
+        logger.info(f"Dataset downloaded to {local_dir}")
+    except RuntimeError as e:
+        logger.error(f"Failed to download dataset. Exiting: {e}")
+        print(f"ERROR: {e}")
+        print(f"Expected dataset ID: {dataset_id}")
+        sys.exit(1)
+
+    # Find the first available subject's data file (assuming .fif format)
+    sample_file = None
+    for root, dirs, files in os.walk(output_dir):
+        for file in files:
+            if file.endswith('.fif'):
+                sample_file = os.path.join(root, file)
+                break
+        if sample_file:
+            break
+
+    if not sample_file:
+        logger.error("No .fif file found in the downloaded dataset.")
+        print("ERROR: No .fif file found in the downloaded dataset.")
+        sys.exit(1)
+
+    # Generate a unique run ID for the sample file copy
+    unique_run_id = uuid.uuid4().hex
+    sample_copy_path = os.path.join(output_dir, f"sample_eeg_{unique_run_id}.fif")
+    
+    # Copy the first subject's data file to the sample location
+    shutil.copy2(sample_file, sample_copy_path)
+    logger.info(f"Sample file copied to {sample_copy_path}")
+
+    # Write manifest
+    manifest = {
+        'dataset_id': dataset_id,
+        'download_time': time.strftime("%Y-%m-%d %H:%M:%S"),
+        'sample_file': sample_copy_path,
+        'source_dir': local_dir,
+        'status': 'success'
+    }
+    manifest_path = os.path.join(output_dir, "download_manifest.json")
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+
+    logger.info(f"Download complete. Manifest written to {manifest_path}")
+    print(f"Success: Downloaded sample data to {sample_copy_path}")
+    print(f"Manifest written to {manifest_path}")
 
 if __name__ == "__main__":
     main()

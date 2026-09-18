@@ -7,6 +7,14 @@ T006:
     constants nor any code that actually creates `data/processed/exclusion_log.csv`.
     Moreover the CSV file is absent on disk. Consequently the required logging utility
     and its verification are not fully implemented.
+T009:
+  c: false
+  h: a6486c83505720a2faf0125de5e5ab4f1b72a59fa1ac63de2c71e45a386f5e99
+  r: "The provided `code/download.py` is truncated (e.g., `download_raw_data` ends\
+    \ abruptly) and lacks the required logic to actually download the dataset, generate\
+    \ `data/raw/download_manifest.json`, and create a sample EEG file with a unique\
+    \ run ID. No `data/raw/download_manifest.json` file exists, confirming the script\
+    \ does not fulfill the task\u2019s specifications."
 T010:
   c: false
   h: 3ee9d132d5749fd6978e60b3b070e9ffa55c22f0d5155f90aa66052c7ac5f791
@@ -49,14 +57,6 @@ T014:
     \ is truncated and does not show a complete implementation of the segment\u2011\
     length validation or logging of the `\"segment_too_short\"` reason. Both required\
     \ artifacts are missing/incomplete."
-T016:
-  c: false
-  h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
-  r: "The required output file `data/analysis/complexity_metrics.csv` does not exist,\
-    \ so the core deliverable is missing. Additionally, the provided `code/features.py`\
-    \ contains permutation entropy logic, which goes beyond the requested Lempel\u2011\
-    Ziv complexity implementation. The next implementer must generate the CSV with\
-    \ the specified columns and ensure only LZC is computed."
 T017:
   c: false
   h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
@@ -71,6 +71,13 @@ T020:
     Hochberg multiple\u2011comparison correction across electrodes is present. The\
     \ claim lacks any artifact to verify that FR\u2011005\u2019s correction step has\
     \ been added, so the required implementation is missing."
+T021:
+  c: false
+  h: d292957a3daf7ea2c89fd4a4bc0f1d0de3e2f9d1db2e185c68df3640a57b7443
+  r: "The repository lacks the required `data/analysis/ancova_results.csv` file, and\
+    \ the provided excerpt of `code/analysis.py` does not contain any ANCOVA modeling\
+    \ code or logic that would generate such a results file. Consequently, the task\u2019\
+    s implementation and verification requirements are not met."
 T023:
   c: false
   h: c298234d782ea951fb05e72bb6d8b547139f9b405b5c6ce0c84e800a6fd5f601
@@ -79,10 +86,19 @@ T023:
     \ warning logging. Additionally, the required output file `data/analysis/vif_report.csv`\
     \ is absent. Both the test and the CSV report need to be added to satisfy the\
     \ task."
-T027:
+T026:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing the pipeline was executed, nor any measurement of peak RSS\
-    \ or a report confirming that memory usage stayed \u2264\u202F7\u202FGB is present.\
-    \ The claim lacks the required evidence (e.g., monitoring logs, screenshots, or\
-    \ a summary table) to verify the memory\u2011usage requirement."
+  h: 1e794f96079e380c7e4ecaa74ccf36e9f28e3dabe88a33d7f454233ec882b1f8
+  r: 'The `code/utils/monitor.py` file exists and can be imported, but it does not
+    correctly implement the required functionality: the `total_runtime_hours` property
+    references an undefined attribute (`self.total_run`) and there is no code that
+    writes `data/analysis/resource_usage.json` with the required keys. Additionally,
+    the JSON output file is missing. The monitor must be fixed to compute total runtime
+    in hours and generate the JSON file with `peak_rss_gb` and `total_runtime_hours`.'
+T028:
+  c: false
+  h: f7f608f4823cb6c02412ca266fc36c068642435f88797cdd09947162aa7daf0a
+  r: "The required artifact `data/analysis/resource_usage.json` does not exist, so\
+    \ there is no evidence that the pipeline runtime was measured or that it meets\
+    \ the \u2264\u202F6\u202Fhour limit. The task\u2019s verification step cannot\
+    \ be satisfied without this file."
