@@ -65,7 +65,7 @@ A researcher needs to understand how statistical power is affected when non-inde
 - **FR-001**: System MUST download and parse a set of public datasets from UCI Machine Learning Repository or OpenML that contain continuous or categorical variables suitable for t-tests, ANOVA, or chi-squared tests (See US-1).
 - **FR-002**: System MUST construct a null hypothesis by first injecting the controlled dependency structure into the original data, and THEN applying random permutation of labels or selection of independent variables to ensure a known ground truth of no effect while preserving the dependency structure (See US-1).
 - **FR-003**: System MUST inject controlled dependency structures via block bootstrap (hierarchical), AR(1) resampling (temporal), and spatial kernel smoothing (spatial, restricted to datasets with explicit spatial coordinates or a validated feature-space clustering proxy) with tunable strength parameters (See US-1).
-- **FR-004**: System MUST execute Monte Carlo simulations with at least 10,000 replications per test-configuration combination to ensure error rate precision within $\pm 0.5\%$ (See US-1, US-2).
+- **FR-004**: System MUST execute Monte Carlo simulations with at least 10,000 replications per test-configuration combination to ensure error rate precision within a high degree of accuracy (See US-1, US-2).
 - **FR-005**: System MUST calculate and report observed Type I error rates and statistical power for t-tests, one-way ANOVA, and chi-squared tests across all dependency configurations (See US-1, US-2, US-3).
 - **FR-006**: System MUST generate comparative visualizations (e.g., error rate curves with 95% Clopper-Pearson CIs) plotting error rate/power against dependency strength for each test type (See US-2).
 - **FR-007**: System MUST implement a sensitivity analysis that sweeps the dependency strength threshold over the concrete set $r \in \{0, 0.1, 0.2, 0.3, 0.5\}$ to report how error rates vary, ensuring threshold robustness (See US-1, US-2).
@@ -94,9 +94,9 @@ A researcher needs to understand how statistical power is affected when non-inde
 
 ## Assumptions
 
-- The public datasets selected from UCI/OpenML contain sufficient sample sizes ($N \ge 50$) to support the injection of dependency structures and Monte Carlo replications without exhausting memory.
+- The public datasets selected from UCI/OpenML contain sufficient sample sizes ($N \ge$ a threshold determined by power analysis) to support the injection of dependency structures and Monte Carlo replications without exhausting memory.
 - The "null hypothesis" can be reliably constructed for the selected datasets via random permutation of labels or by identifying pairs of variables that are empirically uncorrelated in the original data, provided dependency is injected prior to permutation.
 - The computational cost of injecting dependency structures (block bootstrap, AR() resampling) for a sufficiently large number of replications fits within the GB RAM and 6-hour time limit of a free-tier GitHub Actions runner (ubuntu-latest, 2-core, 7GB RAM). IF implemented using vectorized numpy operations or parallel processing.
 - The standard `scipy.stats` and `statsmodels` libraries in Python are sufficient for performing t-tests, ANOVA, and chi-squared tests without requiring GPU acceleration or specialized high-performance computing libraries, provided the simulation loop is optimized.
 - The dependency injection methods (block bootstrap, AR(1), spatial kernel) are appropriate approximations for the types of non-independence found in general public datasets, even if the exact real-world structure is unknown.
-- The nominal alpha level for significance testing is fixed at 0.05 for all experiments.
+- The nominal alpha level for significance testing is fixed at a conventional threshold for all experiments.

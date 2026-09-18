@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a Monte Carlo simulation framework to quantify how non-independence (temporal, hierarchical) in public datasets inflates Type I error rates and alters statistical power for standard tests (t-test, ANOVA, Chi-squared). The system downloads verified UCI datasets, injects controlled dependency structures (AR(1) for temporal, Cluster-Effect Injection for hierarchical) into the error terms of real data, and executes 10,000+ replications per configuration on a CPU-only runner. The output includes error rate curves, power loss quantification, and comparative visualizations against nominal alpha levels.
+This project implements a Monte Carlo simulation framework to quantify how non-independence (temporal, hierarchical) in public datasets inflates Type I error rates and alters statistical power for standard tests (t-test, ANOVA, Chi-squared). The system downloads verified UCI datasets, injects controlled dependency structures (AR(1) for temporal, Cluster-Effect Injection for hierarchical) into the error terms of real data, and executes a large number of replications per configuration on a CPU-only runner. The output includes error rate curves, power loss quantification, and comparative visualizations against nominal alpha levels.
 
 ## Technical Context
 
@@ -13,9 +13,9 @@ This project implements a Monte Carlo simulation framework to quantify how non-i
 **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`  
 **Storage**: Local file system (`data/`, `results/`) with checksummed CSV/Parquet files.  
 **Testing**: `pytest` with `conftest` for seed pinning and edge-case coverage.  
-**Target Platform**: GitHub Actions `ubuntu-latest` (2 CPU, 7GB RAM, 14GB Disk).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU, 7GB RAM, 14GB Disk).  
 **Project Type**: Computational Research / Simulation Pipeline.  
-**Performance Goals**: Complete 10,000 replications per config within 6 hours; memory usage < 6GB (leaving 1GB buffer).  
+**Performance Goals**: Complete 10,000 replications per config within 6 hours; memory usage < 6GB (leaving a sufficient buffer).  
 **Constraints**: No GPU; no external API calls during simulation; strict seed reproducibility; no synthetic data generation for the *base* dataset (must use real UCI data with injected dependency).  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
@@ -31,7 +31,7 @@ This project implements a Monte Carlo simulation framework to quantify how non-i
 | **III. Data Hygiene** | Checksummed data; no in-place modification. | `data/raw/` files are checksummed in `state.yaml`. Derived files (injected dependency) written to `data/processed/` with new names. | ✅ |
 | **IV. Single Source of Truth** | Figures trace to `data/` and `code/`. | `results/` contains raw CSVs of simulation outcomes. `code/analysis/plotting.py` reads these exclusively. No manual numbers in reports. | ✅ |
 | **V. Versioning Discipline** | Content hashes for artifacts. | `state.yaml` tracks `artifact_hashes` for `data/`, `code/`, and `results/`. | ✅ |
-| **VI. Dependency Modeling Transparency** | Injection parameters (r, block size) manifest. | `data/dependency_manifest.yaml` records exact `r` values (0, 0.1, 0.2, 0.3, 0.5) and method (AR1, Cluster-Effect) for every run. | ✅ |
+| **VI. Dependency Modeling Transparency** | Injection parameters (r, block size) manifest. | `data/dependency_manifest.yaml` records a range of `r` values (e.g., 0.1, 0.2, 0.3, 0.5) and method (AR1, Cluster-Effect) for every run. | ✅ |
 | **VII. Empirical Error Rate Reporting** | 95% CIs; ≥1,000 replications (target 10k). | `code/analysis/metrics.py` calculates Clopper-Pearson intervals. `config.yaml` enforces `n_replications=10000`. **Logistic regression models** are output to `results/logistic_models.pkl` as required. | ✅ |
 
 ## Project Structure
@@ -96,8 +96,8 @@ projects/PROJ-483-evaluating-the-robustness-of-common-stat/
 | **Cluster-Effect Injection (vs Block Bootstrap)** | Block Bootstrap resamples data, altering N and distribution, violating FR-002. Cluster-Effect Injection adds correlated noise to residuals, preserving N and distribution while inducing dependency. | Block Bootstrap creates a synthetic dataset, not a modified real one. |
 | **Vectorized Simulation Loop** | FR-008 requires 10k reps in 6 hours on 2 cores. Python loops are too slow. | Pure Python loops would exceed the time budget. Vectorized `numpy` operations are required to meet the 6-hour constraint. |
 | **Clopper-Pearson CIs** | SC-003 requires high precision ($\pm [deferred]$) and rigorous error reporting. | Standard Wald intervals are inaccurate for proportions near 0 or 1 (rare false positives) or small sample sizes. Clopper-Pearson is the conservative standard. |
-| **Sensitivity Sweep Task** | FR-007 requires sweeping r ∈ {0, 0.1, 0.2, 0.3, 0.5}. | A single configuration would miss the trend analysis required by the spec. |
-| **Precision Verification Task** | SC-003 requires checking the CI width against the 0.5% target. | Assuming 10k reps is sufficient without verification risks failing the precision target. |
+| **Sensitivity Sweep Task** | FR-007 requires sweeping r ∈ {low, 0.2, 0.3, 0.5}. | A single configuration would miss the trend analysis required by the spec. |
+| **Precision Verification Task** | SC-003 requires checking the CI width against the target precision. | Assuming 10k reps is sufficient without verification risks failing the precision target. |
 
 ## Tasks
 

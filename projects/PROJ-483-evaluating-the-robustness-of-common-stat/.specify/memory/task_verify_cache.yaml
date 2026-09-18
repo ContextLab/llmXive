@@ -1,12 +1,3 @@
-T012:
-  c: false
-  h: dd905158090aaff4cd1e24ca667b704a1d982489c1999f59f38641e9bbc48252
-  r: "The repository contains `code/simulation_runner.py`, but the shown content only\
-    \ defines helper functions (e.g., `run_single_replication`) and does not include\
-    \ the required Monte\u202FCarlo loop that generates many replications and writes\
-    \ the raw p\u2011values to `results/simulation_raw.csv`. Moreover, the expected\
-    \ output file `results/simulation_raw.csv` is absent. The task\u2019s core deliverable\
-    \ \u2013 a producer of simulation data \u2013 is therefore not fulfilled."
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
@@ -21,12 +12,13 @@ T023:
     detection logic or reports the specific correlation\u202F$r$ at which the simulated\
     \ Type\u202FI error rate first exceeds\u202F\u03B1\u202F=\u202F0.10. The required\
     \ artifact is missing, so the task is not satisfied."
-T032b:
+T030:
   c: false
-  h: dbca141dc4fe6585e60814506db0db5134bf0bf6dc95a43e094be7a792057657
-  r: "The required file `results/perf_log.json` does not exist, so no execution time\
-    \ or memory usage data was logged as specified. The task\u2019s deliverable is\
-    \ missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `docs/` directory updates or modifications to `README.md` are present in\
+    \ the provided evidence; only a feature specification excerpt is shown, which\
+    \ does not satisfy the documentation\u2011update requirement. The required documentation\
+    \ artifacts are missing."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
