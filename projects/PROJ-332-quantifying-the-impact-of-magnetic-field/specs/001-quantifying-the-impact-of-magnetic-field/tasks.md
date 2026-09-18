@@ -41,23 +41,27 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` (directories: `code/`, `data/raw/`, `data/processed/`, `artifacts/`, `tests/`)
-- [X] T002 Initialize Python project with `requirements.txt` (pinning `scipy`, `numpy`, `matplotlib`, `pandas`, `pytest`, `requests`, `pyyaml`; **NO** `mdsplus` library)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T001a [P] Create project directory structure per `plan.md`. Explicitly create: `code/`, `data/raw/`, `data/processed/`, `outputs/`, `tests/`, `contracts/`, `.github/workflows/`.
+- [ ] T001b [P] Create `.gitignore` for Python and data artifacts.
+- [X] T002 Initialize Python project with `requirements.txt` (pinning `scipy`, `numpy`, `matplotlib`, `pandas`, `pytest`, `requests`, `pyyaml`; **NO** `mdsplus` library).
+- [ ] T003a [P] Configure `flake8` linting rules. Create `.flake8` file with `max-line-length = 88` and `extend-ignore = E203, W503`.
+- [ ] T003b [P] Configure `black` formatting rules. Create `pyproject.toml` with `[tool.black] line-length = 88`.
+- [ ] T006b [P] [FR-007] Create `.github/workflows/ci.yml` with `timeout-minutes: 360` (6 hours) and `fail-on-error: true` to ensure immediate pipeline abort at the CI level. **DEPENDS ON T001a**.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/data/__init__.py` and `code/analysis/__init__.py`
-- [X] T005 [P] Create `code/main.py` entry point with argument parsing for discharge list
-- [ ] T006 [P] [FR-007] Implement global timeout wrapper and memory guard in `code/utils/limits.py`, wire this wrapper to `code/main.py`, AND explicitly configure the timeout in the GitHub Actions workflow file at `.github/workflows/ci.yml` to ensure immediate pipeline abort on violation at the CI level.
-- [ ] T007 Create base schema definitions in `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`
-- [X] T008 Implement logging infrastructure in `code/utils/logger.py`
+- [X] T004 Implement `code/data/__init__.py` and `code/analysis/__init__.py`.
+- [X] T005 [P] Create `code/main.py` entry point with argument parsing for discharge list.
+- [X] T006a [P] [FR-007] Implement internal timeout wrapper in `code/utils/limits.py` using signal handling to abort the Python process if execution exceeds the threshold, and wire to `code/main.py`. **DEPENDS ON T005**.
+- [ ] T007a [P] Create `contracts/dataset.schema.yaml` defining columns: `discharge_id` (int), `island_width` (float), `tau_e` (float), `confinement_mode` (string), `h98y2` (float), `q_min` (float), `q_max` (float), `resonant_surface_density` (float). **DEPENDS ON T001a**.
+- [ ] T007b [P] Create `contracts/output.schema.yaml` defining fields: `r` (float), `p_value` (float), `ci_lower` (float), `ci_upper` (float), `power` (float), `hypothesis_status` (string), `warning_flags` (list). **DEPENDS ON T001a**.
+- [X] T008 Implement logging infrastructure in `code/utils/logger.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,41 +77,47 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Unit test for MDSplus connection retry logic in `tests/unit/test_retrieval.py` <!-- FAILED: unspecified -->
-- [X] T010 [P] [US1] Integration test for exclusion of discharges with missing data in `tests/integration/test_pipeline.py`
+- [X] T009 [P] [US1] Unit test for MDSplus connection retry logic in `tests/unit/test_retrieval.py`.
+- [X] T010 [P] [US1] Integration test for exclusion of discharges with missing data in `tests/integration/test_pipeline.py`.
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement MDSplus client connection with retry logic (multiple attempts, fixed time intervals) in `code/data/retrieval.py`
+- [X] T011 [US1] Implement MDSplus client connection with retry logic (multiple attempts, fixed time intervals) in `code/data/retrieval.py`.
 - [X] T012 [US1] Implement logic to fetch EFIT, `islands`, `taue`, AND `h98y2` fields from the MDSplus `taue` or `h98y2` tree for a given discharge ID in `code/data/retrieval.py`. **MUST** include `h98y2` retrieval to support confinement mode classification as per `spec.md:FR-003`.
-- [ ] T013 [US1] Implement logic to retrieve pre-calculated `island_width` from MDSplus; if missing, **derive** it using the Rutherford equation approximation with inputs: `local magnetic shear`, `q`, and `Bt` from EFIT as per `spec.md:FR-002`. If derivation inputs are also missing, log warning and exclude discharge. **Do not** strictly exclude if pre-calculated is missing; use derivation as the primary fallback.
-- [X] T014a [US1] Implement parsing logic to convert MDSplus time-series data into a raw structured DataFrame in `code/data/preprocessing.py`
-- [ ] T014b [US1] [FR-009] Implement schema validation logic to validate input/output against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` **before** any parsing or analysis begins in `code/data/validator.py`.
-- [X] T015 [US1] Implement validation: ensure at least 5 valid discharges remain; fail pipeline if fewer [FR-001] in `code/main.py`
-- [ ] T016 [US1] Save unified dataset to `data/processed/unified_analysis.csv` with checksum generation. **Must include** `tau_e` AND the derived `confinement_mode` (L-mode vs H-mode) based on the H98y2 factor (H-mode if H98y2 >= 0.85) as per `spec.md:FR-003` in `code/data/preprocessing.py`. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T013 [US1] [FR-002] Implement logic to retrieve pre-calculated `island_width` from MDSplus. **IF** missing, attempt derivation using Rutherford equation in `code/analysis/metrics.py` (function `derive_island_width`). **MUST** first retrieve derivation inputs: `local_magnetic_shear`, `q_profile`, `Bt_field` from EFIT. **CRITICAL**: If derivation inputs are ALSO missing, THEN exclude the discharge and log warning. **Do not** exclude if only pre-calculated is missing; use derivation as the primary fallback. **Output**: Write `island_width` to `data/processed/metrics.csv`.
+- [ ] T014b [US1] [FR-009] Implement schema validation logic to validate input/output against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` **before** any parsing or analysis begins in `code/data/validator.py`. **DEPENDS ON T007a AND T007b**.
+- [ ] T014a [US1] Implement parsing logic to convert MDSplus EFIT, `islands`, and `taue` time-series data into a unified structured DataFrame in `code/data/preprocessing.py`. **DEPENDS ON T014b**.
+- [X] T015 [US1] Implement validation: ensure at least 5 valid discharges remain; fail pipeline if fewer [FR-001] in `code/main.py`. **This is a hard gate**.
+- [X] T016 [US1] Save unified dataset to `data/processed/unified_analysis.csv` with checksum generation. **Must include** exact columns: `discharge_id`, `island_width`, `tau_e`, `confinement_mode` (L-mode/H-mode), `h98y2`. Logic: `confinement_mode` = 'H-mode' if `h98y2` >= 0.85, else 'L-mode'. Output to `code/data/preprocessing.py`. **DEPENDS ON T015 success**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Topological Metric Calculation (Priority: P2)
+## Phase 4: User Story 2 - Topological Metric Calculation & Pre-Analysis Checks (Priority: P2)
 
-**Goal**: Calculate topological metrics (resonant surface density) and validate edge cases.
+**Goal**: Calculate topological metrics (resonant surface density), perform power analysis, and check multicollinearity BEFORE running correlation.
 
 **Independent Test**: The calculation module can be tested by feeding it a provided reference CSV file containing known values for a set of test discharges and verifying that the output matches the expected values within a reasonable tolerance.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Unit test for resonant surface density calculation against reference values in `tests/unit/test_metrics.py`
+- [X] T017 [P] [US2] Unit test for resonant surface density calculation against reference values in `tests/unit/test_metrics.py`.
+- [X] T017b [P] [US3] Unit test for Power Analysis logic in `tests/unit/test_statistics.py`.
 
-### Implementation for User Story 2
+### Implementation for User Story 2 & Pre-Analysis
 
-- [X] T018 [US2] Implement q-profile extraction from EFIT data in `code/analysis/metrics.py`
-- [X] T019 [US2] Implement outlier detection: flag and exclude discharges where `island_width` > minor radius in `code/analysis/metrics.py`
-- [X] T020a [US2] Handle edge case: if no integer q-values cross minor radius, assign default "zero" density in `code/analysis/metrics.py`
-- [ ] T020b [US2] **NEW**: Calculate `resonant_surface_density` by counting rational surfaces (q=m/n) per unit normalized minor radius (rho_tor) using the EFIT q-profile. A surface is rational if |q - m/n| < 0.01, **implementing a loop where m and n range from a lower bound to an upper bound inclusive** as per `spec.md:FR-002`. If q-profile exists but has no integer crossings, density is 0. Output to `data/processed/metrics.csv`.
+**DEPENDS ON**: T016 (unified_analysis.csv) must be complete before T020b starts.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [X] T018a [US2] Implement q-profile extraction from EFIT data in `code/analysis/metrics.py`.
+- [X] T018b [US2] Implement local magnetic shear calculation from q-profile in `code/analysis/metrics.py`.
+- [X] T019 [US2] Implement outlier detection: flag and exclude discharges where `island_width` > minor radius in `code/analysis/metrics.py`.
+- [X] T020a [US2] Handle edge case: if no integer q-values cross minor radius, assign default "zero" density in `code/analysis/metrics.py`.
+- [ ] T020b [US2] [FR-002] **NEW**: Calculate `resonant_surface_density` by counting rational surfaces (q=m/n) per unit normalized minor radius (rho_tor) using the EFIT q-profile. **MUST** use a loop where m,n ∈ [, 10] and tolerance |q - m/n| < 0.01. If q-profile exists but has no integer crossings, density is 0. **Output**: Write column `resonant_surface_density` to `data/processed/metrics.csv`. **DEPENDS ON T016**.
+- [ ] T028 [US3] [FR-008] **NEW**: Implement Power Analysis calculation using `scipy.stats.power` or manual simulation with `effect_size=0.5`, `alpha=0.05`, `n=current_N`. **MUST** calculate and report the exact power value in `outputs/summary_report.json` under key `power`. **MUST** run BEFORE correlation. If power < 20% to detect |r|=0.5, flag result as "Inconclusive due to low power" in the output. **DEPENDS ON T020b**.
+- [ ] T025b [US3] [FR-011] **NEW**: Implement Multicollinearity Check. Check correlation between `q_max - q_min` and `resonant_surface_density`. If > 0.95, flag as collinear, **exclude** `resonant_surface_density` from any multivariate analysis, and **report only the univariate correlation** for transparency. **Output**: Write `collinearity_flag` (boolean) and `excluded_variables` (list) to `outputs/summary_report.json`. **DEPENDS ON T020b**.
+
+**Checkpoint**: At this point, metrics are calculated, power is assessed, and multicollinearity is checked. Correlation can now proceed safely.
 
 ---
 
@@ -119,20 +129,22 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T023 [P] [US3] Unit test for Spearman correlation and bootstrap resampling logic in `tests/unit/test_correlation.py`
-- [X] T024 [P] [US3] Integration test for "Hypothesis Not Supported" flag logic in `tests/integration/test_analysis.py`
+- [ ] T023 [P] [US3] Unit test for Spearman correlation and bootstrap resampling logic in `tests/unit/test_correlation.py`.
+- [ ] T024 [P] [US3] Integration test for "Hypothesis Not Supported" flag logic in `tests/integration/test_analysis.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement Spearman rank correlation calculation between `island_width`/`resonant_surface_density` and `tau_e`. **MUST include**:
- 1. **Stratification Logic**: Check N per mode (L/H). If N >= 3 for both, calculate separate correlations and **output separate correlation coefficients and p-values for each mode** as per `spec.md:FR-010`. If N < 3 for either, skip stratification, calculate global correlation, and append warning: "Stratification skipped: insufficient samples per mode (N < 3)".
- 2. **Multicollinearity Check**: Check correlation between `q_max - q_min` and `resonant_surface_density`. If > 0.95, flag as collinear, exclude `resonant_surface_density` from multivariate analysis, and report only univariate correlation as per `spec.md:FR-011`.
- 3. **Bootstrap Resampling**: Perform bootstrap with a **fixed random seed** to ensure reproducibility as per `spec.md:FR-005` and Constitution I.
- 4. Calculate confidence intervals.
-- [X] T027 [US3] Implement hypothesis logic: `directional_effect` (r < -0.5) and `statistical_significance` (p < 0.05) in `code/analysis/correlation.py`
-- [ ] T028 [US3] **NEW**: Implement power analysis calculation to determine statistical power for the observed effect size given sample size N. If power < 20% to detect |r|=0.5, flag result as "Inconclusive due to low power" as per `spec.md:FR-008`.
-- [ ] T029 [US3] Generate diagnostic scatter plot (`topology_vs_confinement.png`) with regression line and CI bands in `code/viz/plot.py`
-- [ ] T030 [US3] Generate final summary report artifact consuming outputs from T025, T027, T028, and T029. **Must unconditionally report** the effect size magnitude (|r|) for ALL valid datasets regardless of statistical significance, and include the power analysis result and "Inconclusive" flag if applicable, in `code/main.py`.
+**DEPENDS ON**: T020b (metrics.csv), T028 (Power), and T025b (Multicollinearity) must be complete before T025 starts.
+
+- [ ] T025a [US3] [FR-010] **NEW**: Implement Stratification Logic. Check N per mode (L/H). If N >= 3 for both, calculate separate correlations. If N < 3 for either, skip stratification, calculate global correlation, and **append warning flag: "Stratification skipped: insufficient samples per mode (N < 3)"** to the output artifact. **MUST** precede T025.
+- [ ] T025 [US3] [FR-004] Implement Global Spearman rank correlation calculation between `island_width` and `tau_e`. **MUST include**:
+ 1. **Bootstrap Resampling**: Perform bootstrap with `random_seed=42` and `bootstrap_iterations=1000` (minimum per Constitution Principle VII) to ensure reproducibility and calculate confidence intervals.
+ 2. **Output**: Return `r`, `p_value`, `ci_lower`, `ci_upper` and save to `outputs/summary_report.json`.
+ 3. **Constraint**: If T025b flagged collinearity, this task runs ONLY on `island_width`. **DEPENDS ON T025a**.
+- [ ] T025c [US3] [FR-004] **NEW**: Implement Spearman rank correlation calculation between `resonant_surface_density` and `tau_e`. **MUST** use the same bootstrap parameters as T025 (`random_seed=42`, `iterations=1000`). **MUST** output `r`, `p_value`, `ci_lower`, `ci_upper` to `outputs/summary_report.json`. **MUST** be skipped if T025b flagged collinearity. **DEPENDS ON T025a**.
+- [X] T027 [US3] Implement hypothesis logic: `directional_effect` (r < -0.5) and `statistical_significance` (p < 0.05) in `code/analysis/correlation.py`.
+- [ ] T029 [US3] Generate diagnostic scatter plot (`topology_vs_confinement.png`) with: Title 'Topology vs Confinement', x-axis 'Island Width (m)', y-axis 'Tau_E (s)', regression line style 'linear' with % CI band. **Save plot to `outputs/topology_vs_confinement.png`**. **DEPENDS ON T025**.
+- [ ] T030 [US3] Generate final summary report artifact consuming outputs from T025, T025a, T025b, T025c, T027, T028, T029. **Must unconditionally report** the effect size magnitude (|r|) for ALL valid datasets regardless of statistical significance. **JSON Schema**: `{r, p_value, ci_lower, ci_upper, power, hypothesis_status, warning_flags}`. Output to `code/main.py`. **DEPENDS ON T029**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,10 +154,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Update `quickstart.md` with execution commands and environment setup
-- [ ] T032 Run full pipeline integration test with a known set of DIII-D discharge IDs
-- [ ] T033 Verify memory footprint < 7 GB and execution time < 6 hours in CI environment
-- [ ] T034 [P] Add docstrings to all modules in `code/`
+- [ ] T031a [P] Update `quickstart.md` with execution commands and environment setup.
+- [ ] T031b [P] Update `README.md` with project overview and architecture.
+- [ ] T032a [P] Run data retrieval integration test with a known set of DIII-D discharge IDs.
+- [ ] T032b [P] Run analysis integration test with synthetic data.
+- [ ] T033a [P] Verify memory footprint < 7 GB in CI environment.
+- [ ] T033b [P] Verify execution time < 6 hours in CI environment.
+- [ ] T034a [P] Add docstrings to all modules in `code/data/` and `code/analysis/`.
+- [ ] T034b [P] Add docstrings to all modules in `code/viz/` and `code/utils/`.
 
 ---
 
@@ -177,7 +193,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows) - **Note: In this specific pipeline, data flow (US1->US2->US3) enforces sequential execution, but code structure can be developed in parallel.**
+- Once Foundational phase completes, all user stories can start in parallel (if staffed) - **Note: In this specific pipeline, data flow (US1->US2->US3) enforces sequential execution, but code structure can be developed in parallel.**
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 
@@ -242,3 +258,12 @@ With multiple developers:
 - **CRITICAL**: Stratification by mode is mandatory if N>=3 per mode; otherwise, global correlation with warning (FR-010).
 - **CRITICAL**: Fixed random seed is mandatory for all stochastic processes (FR-005, Constitution I).
 - **CRITICAL**: Power analysis is mandatory and must flag "Inconclusive" if power < 20% (FR-008).
+- **CRITICAL**: T006a must implement internal Python timeout handling; T006b must configure CI timeout.
+- **CRITICAL**: T020b must use m,n ∈ [1, 10] and tolerance |q - m/n| < 0.01.
+- **CRITICAL**: T025 must use `random_seed=42` and `bootstrap_iterations=1000`.
+- **CRITICAL**: T028 must report exact power value in `outputs/summary_report.json` under key `power`.
+- **CRITICAL**: T025c must calculate correlation for `resonant_surface_density` as per FR-004.
+- **CRITICAL**: T025b must exclude `resonant_surface_density` from analysis if collinear.
+- **CRITICAL**: Order: Power (T028) and Multicollinearity (T025b) MUST precede Correlation (T025/T025c).
+- **CRITICAL**: Order: Stratification Logic (T025a) MUST precede Correlation (T025).
+- **CRITICAL**: Order: Schema Validation (T014b) MUST precede Parsing (T014a).

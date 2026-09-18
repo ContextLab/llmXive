@@ -1,0 +1,193 @@
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: retrieve up to 10 DIII-D discharge datasets from MDSplus archive
+  claim_id: c_a2bfc183
+  context: 'Goal: Automatically retrieve up to 10 specific DIII-D discharge datasets
+    from the public MDSplus archive and parse them into a unified analysis-ready format
+    containing island_width (pre-calculated or derived) and tau_e.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must automatically retrieve up to 10 specific DIII-D discharge
+    datasets from the public MDSplus archive.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:37:55Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: fail pipeline if fewer than 5 valid discharges remain
+  claim_id: c_8b6f7a69
+  context: 'T015 [US1] Implement validation: ensure at least 5 valid discharges remain;
+    fail pipeline if fewer [FR-001] in code/main.py. This is a hard gate.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fail_pipeline_if_fewer_than_5_valid_discharges_remain
+  kind: magnitude
+  raw_text: The pipeline must ensure at least 5 valid discharges remain; if fewer,
+    it must fail.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:38:21Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: classify confinement mode as H-mode if h98y2 >= 0.85
+  claim_id: c_091012d0
+  context: 'Logic: confinement_mode = ''H-mode'' if h98y2 >= 0.85, else ''L-mode''.
+    Output to code/data/preprocessing.py.'
+  evidence:
+    asserted: '98.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: magnitude
+  raw_text: Confinement mode is classified as 'H-mode' if h98y2 is greater than or
+    equal to 0.85, otherwise 'L-mode'.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T12:38:21Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: calculate resonant surface density with tolerance |q - m/n| < 0.01
+  claim_id: c_c4fcb117
+  context: "MUST use a loop where m,n \u2208 [small, moderate] and tolerance |q -\
+    \ m/n| < 0.01. If q-profile exists but has no integer crossings, density is 0."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: < 0.01
+    relation: q - m/n
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/calculate_resonant_surface_density_with_tolerance_q_-_m/n_%3C_
+    source_value: https://en.wikipedia.org/wiki/calculate_resonant_surface_density_with_tolerance_q_-_m/n_<_
+    subject: calculate resonant surface density with tolerance
+  kind: relational
+  raw_text: Resonant surface density calculation must use a tolerance of |q - m/n|
+    < 0.01.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:39:08Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: perform power analysis with effect_size 0.5 and alpha 0.05
+  claim_id: c_0ac87535
+  context: Implement Power Analysis calculation using method='pwr.r.test', effect_size=0.5,
+    alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis must be performed with an effect size of 0.5 and an alpha
+    of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:39:44Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: flag result as Inconclusive if power < 20% for |r|=0.5
+  claim_id: c_0a0058b2
+  context: If power < 20% to detect |r|=0.5, flag result as 'Inconclusive due to low
+    power' in the output.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/flag_result_as_Inconclusive_if_power_%3C_20%25_for_%7Cr%7C=0.5
+  kind: magnitude
+  raw_text: If statistical power is less than 20% to detect |r|=0.5, the result must
+    be flagged as 'Inconclusive due to low power'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:40:31Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: flag multicollinearity if correlation > 0.95
+  claim_id: c_13b0c889
+  context: Check correlation between q_max - q_min and resonant_surface_density. If
+    > 0.95, flag as collinear, exclude resonant_surface_density from any multivariate
+    analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/flag_multicollinearity_if_correlation_%3E_0.95
+  kind: magnitude
+  raw_text: Multicollinearity check must flag a correlation greater than 0.95 between
+    q_max - q_min and resonant_surface_density.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:41:54Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling with random_seed 42 and 1000 iterations
+  claim_id: c_4a22a184
+  context: Perform bootstrap with random_seed=42 and bootstrap_iterations=1000 (minimum
+    per Constitution Principle VII) to ensure reproducibility and calculate confidence
+    intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling for correlation must use a random seed of 42 and
+    1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:42:22Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: skip stratification if N < 3 per mode
+  claim_id: c_11a92d90
+  context: If N >= 3 for both, calculate separate correlations. If N < 3 for either,
+    skip stratification, calculate global correlation, and append warning flag.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/skip_stratification_if_N_%3C_3_per_mode
+  kind: magnitude
+  raw_text: Stratification by confinement mode is skipped if the sample size N is
+    less than 3 for either mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:42:47Z'
+- artifact_path: projects/PROJ-332-quantifying-the-impact-of-magnetic-field/specs/001-quantifying-the-impact-of-magnetic-field/tasks.md
+  attempts: 1
+  canonical: resonant surface density uses m,n in range [1, 10]
+  claim_id: c_230c48b9
+  context: "T020b must use m,n \u2208 [1, 10] and tolerance |q - m/n| < 0.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resonant surface density calculation uses integer values for m and
+    n in the range [1, 10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:44:59Z'

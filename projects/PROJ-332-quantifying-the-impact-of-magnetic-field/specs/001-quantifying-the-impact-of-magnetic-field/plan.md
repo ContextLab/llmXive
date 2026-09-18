@@ -83,7 +83,7 @@ projects/PROJ-332-quantifying-the-impact-of-magnetic-field/
 ## Phase Breakdown
 
 ### Phase 0: Data Retrieval, Validation & Reference Check (FR-001, FR-009, Constitution II)
-1.  **Input**: List of 10 target DIII-D discharge IDs.
+1.  **Input**: List of target DIII-D discharge IDs.
 2.  **Action**: Execute `data_retrieval.py` to fetch EFIT, island, and tau_e data from DIII-D public MDSplus via `wget`/`requests`.
 3.  **Retry Logic**: Implement multiple retries with timed intervals on timeout. (Edge Case 1).
 4.  **Fallback**: If live archive fails, attempt to load a static, verified subset of DIII-D data (if available in a verified public repository like Zenodo/HuggingFace) as a *demonstration* only. If no verified static data exists, fail.

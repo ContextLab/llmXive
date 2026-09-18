@@ -1,50 +1,37 @@
-%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: DIII-D Raw Dataset Schema
-description: Schema for raw data retrieved from MDSplus before heavy processing.
+# Schema for the unified analysis dataset (input to analysis phase)
+# Generated for project PROJ-332
 type: object
 required:
   - discharge_id
-  - fields
+  - island_width
+  - tau_e
+  - confinement_mode
+  - h98y2
+  - q_min
+  - q_max
 properties:
   discharge_id:
     type: integer
-    description: The unique DIII-D discharge number.
-  fields:
-    type: object
-    description: Dictionary of retrieved time-series or scalar fields.
-    properties:
-      efit:
-        type: object
-        description: EFIT equilibrium data.
-        properties:
-          q_profile:
-            type: array
-            items:
-              type: number
-            description: q-profile values.
-          r_major:
-            type: number
-            description: Major radius.
-          b_toroidal:
-            type: number
-            description: Toroidal magnetic field.
-      islands:
-        type: object
-        description: Island chain data.
-        properties:
-          width:
-            type: number
-            description: Pre-calculated island width in meters.
-      taue:
-        type: object
-        description: Energy confinement time data.
-        properties:
-          value:
-            type: number
-            description: Confinement time in seconds.
-      h98y2:
-        type: number
-        description: H-factor relative to ITER98y,2 scaling law.
-additionalProperties: true
+    description: Unique DIII-D discharge identifier
+  island_width:
+    type: number
+    description: Magnetic island width in meters (pre-calculated or derived)
+  tau_e:
+    type: number
+    description: Energy confinement time in seconds
+  confinement_mode:
+    type: string
+    description: Confinement mode classification (L-mode or H-mode)
+    enum:
+      - L-mode
+      - H-mode
+  h98y2:
+    type: number
+    description: H-factor relative to ITER98(y,2) scaling
+  q_min:
+    type: number
+    description: Minimum safety factor value in the plasma
+  q_max:
+    type: number
+    description: Maximum safety factor value in the plasma
+additionalProperties: false

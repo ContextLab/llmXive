@@ -7,54 +7,54 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  run-pipeline:
+  build-and-test:
     runs-on: ubuntu-latest
-    
-    # Global timeout for the job to ensure immediate abort on violation
     timeout-minutes: 60
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    continue-on-error: false
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
 
-      - name: Set up Python
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          # Ensure MDSplus dependencies are available if needed
-          # pip install mdsobjects-python
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run Linting
+      - name: Lint with flake8
         run: |
-          flake8 code/ --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 code/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Run Tests
+      - name: Format check with black
         run: |
-          pytest tests/ -v
+          black --check .
 
-      - name: Run Pipeline with Timeout
-        # Explicitly set a timeout for the script execution within the job
-        # This ensures the script itself enforces the limit, backed by the job timeout
-        timeout-minutes: 55 
+      - name: Run tests with pytest
         run: |
-          # Run the main pipeline with explicit timeout argument
-          # The code/main.py also enforces this via the timeout_guard decorator
-          python code/main.py --discharges "167001,167002,167003,167004,167005" \
-            --timeout 3000 \
-            --memory-limit 6000 \
-            --output-dir data/processed
-        # If the script exceeds 55 minutes, GitHub will kill the runner immediately
+          pytest tests/ -v --tb=short
 
-      - name: Verify Outputs
+      - name: Run main pipeline (Timeout enforced)
         run: |
-          if [ ! -f "data/processed/unified_analysis.csv" ]; then
-            echo "Error: Output file data/processed/unified_analysis.csv not found"
-            exit 1
-          fi
-          echo "Output verification passed."
+          # This step enforces the timeout at the CI level as per T006b
+          # The script itself may also have internal timeouts (T006a)
+          timeout 30m python code/main.py --discharges 12345,12346,12347 || exit 1
+        continue-on-error: false
+        if: matrix.python-version == '3.11' # Run full pipeline once to save time

@@ -20,11 +20,9 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # PyInstaller
 *.manifest
@@ -37,18 +35,17 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
-.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
 
 # Translations
+*.mo
 *.pot
 
 # Environments
@@ -60,21 +57,8 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-site/
-
 # Jupyter Notebook
 .ipynb_checkpoints
-
-# pyenv
-.python-version
 
 # IDEs and editors
 .idea/
@@ -83,15 +67,40 @@ site/
 *.swo
 *~
 
-# OS files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Project specific
-data/raw/*.csv
-data/raw/*.h5
-data/processed/*.csv
-artifacts/*.png
-artifacts/*.pdf
+# Project specific data artifacts (raw and processed)
+data/raw/
+data/processed/
+data/*.csv
+data/*.parquet
+data/*.h5
+data/*.nc
+
+# Figures and visualizations
+figures/
+artifacts/
+
+# Logs
 logs/
 *.log
+
+# Schema and contract cache (optional, if generated)
+contracts/.cache/
+
+# Python build artifacts
+*.pyc
+*.pyo
+.python-version
+
+# Temporary files
+tmp/
+temp/
+.tmp/

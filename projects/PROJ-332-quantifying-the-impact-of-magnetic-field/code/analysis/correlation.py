@@ -8,278 +8,280 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Constants for power analysis
-TARGET_CORRELATION = 0.5
-POWER_THRESHOLD = 0.20
-DEFAULT_ALPHA = 0.05
-DEFAULT_SEED = 42
-
-def calculate_power(sample_size: int, effect_size: float = TARGET_CORRELATION, alpha: float = DEFAULT_ALPHA) -> float:
+def calculate_power(n: int, r: float = 0.5, alpha: float = 0.05) -> float:
     """
     Calculate statistical power for a Pearson correlation test.
     
-    Uses the non-central t-distribution approximation for power calculation.
-    Power is the probability of correctly rejecting the null hypothesis
-    (that correlation is 0) given the true effect size.
-    
     Args:
-        sample_size: Number of observations (N)
-        effect_size: Expected correlation coefficient (r)
-        alpha: Significance level (default 0.05)
+        n: Sample size (number of discharges)
+        r: Expected effect size (correlation coefficient), default 0.5
+        alpha: Significance level, default 0.05
         
     Returns:
-        Statistical power (probability between 0 and 1)
+        Power value between 0 and 1
     """
-    if sample_size < 3:
-        logger.warning(f"Sample size {sample_size} is too small for power calculation. Returning 0.0.")
+    if n < 3:
         return 0.0
+        
+    # Effect size for correlation
+    # Cohen's q = 0.5 (medium), 0.8 (large)
+    # For r=0.5, q = 0.5
+    # Power calculation using non-central t-distribution
     
-    if abs(effect_size) >= 1.0:
-        logger.warning("Effect size must be between -1 and 1 (exclusive).")
-        return 0.0
+    # Fisher's z transformation
+    z_r = 0.5 * np.log((1 + r) / (1 - r))
     
-    # Fisher's z-transformation
-    # z = 0.5 * ln((1+r)/(1-r))
-    # Standard error of z is 1/sqrt(N-3)
-    # Under H1, z is normally distributed with mean = z_rho and variance = 1/(N-3)
+    # Standard error of z_r
+    se = 1.0 / np.sqrt(n - 3)
     
-    # Critical z value for two-tailed test
-    z_crit = stats.norm.ppf(1 - alpha/2)
+    # Critical z value for alpha (two-tailed)
+    z_crit = stats.norm.ppf(1 - alpha / 2)
     
-    # Fisher transformed effect size
-    z_rho = 0.5 * np.log((1 + effect_size) / (1 - effect_size))
+    # Non-centrality parameter
+    delta = z_r / se
     
-    # Standard error
-    se = 1.0 / np.sqrt(sample_size - 3)
+    # Power = P(Z > z_crit - delta) + P(Z < -z_crit - delta)
+    # For positive correlation, we care about the upper tail
+    power = 1 - stats.norm.cdf(z_crit - delta) + stats.norm.cdf(-z_crit - delta)
     
-    # Power is the probability that the test statistic exceeds the critical value
-    # under the alternative hypothesis.
-    # The test statistic under H1 follows N(z_rho / se, 1) approximately.
-    # We need P(|Z| > z_crit) where Z ~ N(z_rho/se, 1)
-    
-    # Lower tail: P(Z < -z_crit)
-    lower_prob = stats.norm.cdf(-z_crit, loc=z_rho/se, scale=1.0)
-    # Upper tail: P(Z > z_crit)
-    upper_prob = 1.0 - stats.norm.cdf(z_crit, loc=z_rho/se, scale=1.0)
-    
-    power = lower_prob + upper_prob
-    
-    # Clamp to [0, 1]
-    return max(0.0, min(1.0, power))
+    return float(power)
 
-def check_power_sufficiency(power: float, threshold: float = POWER_THRESHOLD) -> Tuple[bool, str]:
+def check_power_sufficiency(power: float, threshold: float = 0.20) -> Tuple[bool, str]:
     """
-    Check if statistical power is sufficient and return a flag message.
+    Check if statistical power is sufficient.
     
     Args:
-        power: Calculated statistical power
-        threshold: Minimum acceptable power (default 0.20)
+        power: Calculated power value
+        threshold: Minimum acceptable power (default 0.20 per FR-008)
         
     Returns:
-        Tuple of (is_sufficient, flag_message)
+        Tuple of (is_sufficient, status_message)
     """
     if power < threshold:
-        return False, f"Inconclusive due to low power (Power={power:.2f} < {threshold:.2f})"
-    return True, ""
+        return False, f"Inconclusive due to low power (power={power:.3f} < {threshold})"
+    return True, f"Power sufficient (power={power:.3f})"
 
-def calculate_spearman_correlation(df: pd.DataFrame, x_col: str, y_col: str) -> Dict[str, Any]:
-    """Calculate Spearman rank correlation."""
-    if len(df) < 3:
-        logger.warning(f"Insufficient data for correlation ({len(df)} points).")
-        return {"correlation": np.nan, "p_value": np.nan, "n": len(df)}
+def calculate_spearman_correlation(df: pd.DataFrame, x_col: str, y_col: str) -> Dict[str, float]:
+    """
+    Calculate Spearman rank correlation with bootstrap confidence intervals.
     
-    # Drop NaNs
-    valid_data = df[[x_col, y_col]].dropna()
-    n = len(valid_data)
+    Args:
+        df: DataFrame containing the data
+        x_col: Name of the independent variable column
+        y_col: Name of the dependent variable column
+        
+    Returns:
+        Dictionary with correlation coefficient, p-value, and CI bounds
+    """
+    x = df[x_col].dropna()
+    y = df[y_col].dropna()
     
-    if n < 3:
-        return {"correlation": np.nan, "p_value": np.nan, "n": n}
+    # Align indices
+    common_idx = x.index.intersection(y.index)
+    x = x.loc[common_idx]
+    y = y.loc[common_idx]
     
-    corr, p_value = stats.spearmanr(valid_data[x_col], valid_data[y_col])
+    if len(x) < 3:
+        logger.warning(f"Insufficient data points for correlation: n={len(x)}")
+        return {
+            'r': np.nan,
+            'p_value': np.nan,
+            'ci_lower': np.nan,
+            'ci_upper': np.nan
+        }
+    
+    # Calculate Spearman correlation
+    r, p_value = stats.spearmanr(x, y)
     
     return {
-        "correlation": float(corr),
-        "p_value": float(p_value),
-        "n": n,
-        "effect_size": abs(corr)
+        'r': float(r),
+        'p_value': float(p_value)
     }
 
-def bootstrap_confidence_intervals(
-    df: pd.DataFrame, 
-    x_col: str, 
-    y_col: str, 
-    n_bootstraps: int = 1000, 
-    seed: int = DEFAULT_SEED
-) -> Dict[str, float]:
-    """Calculate bootstrap confidence intervals for correlation."""
-    np.random.seed(seed)
-    valid_data = df[[x_col, y_col]].dropna()
-    n = len(valid_data)
+def bootstrap_confidence_intervals(df: pd.DataFrame, x_col: str, y_col: str, 
+                                   iterations: int = 1000, random_seed: int = 42) -> Tuple[float, float]:
+    """
+    Calculate bootstrap confidence intervals for correlation coefficient.
     
+    Args:
+        df: DataFrame containing the data
+        x_col: Name of the independent variable column
+        y_col: Name of the dependent variable column
+        iterations: Number of bootstrap iterations
+        random_seed: Random seed for reproducibility
+        
+    Returns:
+        Tuple of (ci_lower, ci_upper)
+    """
+    np.random.seed(random_seed)
+    
+    x = df[x_col].dropna().values
+    y = df[y_col].dropna().values
+    
+    n = len(x)
     if n < 3:
-        return {"ci_lower": np.nan, "ci_upper": np.nan, "ci_95": np.nan}
+        return (np.nan, np.nan)
     
-    boot_corrs = []
-    for _ in range(n_bootstraps):
+    bootstrap_rs = []
+    for _ in range(iterations):
         indices = np.random.choice(n, size=n, replace=True)
-        sample = valid_data.iloc[indices]
-        corr, _ = stats.spearmanr(sample[x_col], sample[y_col])
-        if not np.isnan(corr):
-            boot_corrs.append(corr)
+        x_boot = x[indices]
+        y_boot = y[indices]
+        
+        r, _ = stats.spearmanr(x_boot, y_boot)
+        if not np.isnan(r):
+            bootstrap_rs.append(r)
     
-    if len(boot_corrs) == 0:
-        return {"ci_lower": np.nan, "ci_upper": np.nan, "ci_95": np.nan}
+    if len(bootstrap_rs) == 0:
+        return (np.nan, np.nan)
     
-    ci_lower = float(np.percentile(boot_corrs, 2.5))
-    ci_upper = float(np.percentile(boot_corrs, 97.5))
+    ci_lower = float(np.percentile(bootstrap_rs, 2.5))
+    ci_upper = float(np.percentile(bootstrap_rs, 97.5))
     
-    return {
-        "ci_lower": ci_lower,
-        "ci_upper": ci_upper,
-        "ci_95": f"[{ci_lower:.3f}, {ci_upper:.3f}]"
-    }
+    return ci_lower, ci_upper
 
-def check_multicollinearity(df: pd.DataFrame, var1: str, var2: str, threshold: float = 0.95) -> bool:
-    """Check if two variables are highly correlated (multicollinear)."""
-    valid_data = df[[var1, var2]].dropna()
-    if len(valid_data) < 3:
-        return False
+def check_multicollinearity(df: pd.DataFrame, col1: str, col2: str, threshold: float = 0.95) -> Tuple[bool, float]:
+    """
+    Check for multicollinearity between two variables.
     
-    corr, _ = stats.pearsonr(valid_data[var1], valid_data[var2])
-    return abs(corr) > threshold
+    Args:
+        df: DataFrame containing the data
+        col1: Name of the first column
+        col2: Name of the second column
+        threshold: Correlation threshold for flagging collinearity
+        
+    Returns:
+        Tuple of (is_collinear, correlation_value)
+    """
+    x = df[col1].dropna()
+    y = df[col2].dropna()
+    
+    common_idx = x.index.intersection(y.index)
+    x = x.loc[common_idx]
+    y = y.loc[common_idx]
+    
+    if len(x) < 3:
+        return False, np.nan
+    
+    corr, _ = stats.pearsonr(x, y)
+    is_collinear = abs(corr) > threshold
+    
+    return is_collinear, float(corr)
 
-def stratify_by_mode(df: pd.DataFrame, mode_col: str = "confinement_mode") -> Dict[str, pd.DataFrame]:
-    """Split dataframe by confinement mode."""
+def stratify_by_mode(df: pd.DataFrame, mode_col: str = 'confinement_mode') -> Dict[str, pd.DataFrame]:
+    """
+    Stratify data by confinement mode.
+    
+    Args:
+        df: DataFrame containing the data
+        mode_col: Name of the confinement mode column
+        
+    Returns:
+        Dictionary mapping mode names to filtered DataFrames
+    """
     if mode_col not in df.columns:
-        return {"global": df}
+        logger.warning(f"Mode column '{mode_col}' not found in DataFrame")
+        return {}
     
-    groups = {}
-    for mode in df[mode_col].unique():
-        if pd.notna(mode):
-            groups[str(mode)] = df[df[mode_col] == mode]
+    modes = df[mode_col].unique()
+    stratified = {}
     
-    if not groups:
-        return {"global": df}
-    return groups
+    for mode in modes:
+        mask = df[mode_col] == mode
+        stratified[mode] = df[mask].copy()
+        logger.info(f"Mode '{mode}': n={len(stratified[mode])}")
+    
+    return stratified
 
-def run_correlation_analysis(
-    df: pd.DataFrame,
-    x_cols: List[str],
-    y_col: str = "tau_e",
-    mode_col: str = "confinement_mode",
-    seed: int = DEFAULT_SEED
-) -> Dict[str, Any]:
+def run_correlation_analysis(df: pd.DataFrame, x_col: str, y_col: str, 
+                             bootstrap_iterations: int = 1000, random_seed: int = 42) -> Dict[str, Any]:
     """
-    Run full correlation analysis including stratification, multicollinearity check,
-    and power analysis.
+    Run full correlation analysis with bootstrap confidence intervals.
+    
+    Args:
+        df: DataFrame containing the data
+        x_col: Name of the independent variable column
+        y_col: Name of the dependent variable column
+        bootstrap_iterations: Number of bootstrap iterations
+        random_seed: Random seed for reproducibility
+        
+    Returns:
+        Dictionary with correlation results
     """
-    results = {
-        "global": {},
-        "stratified": {},
-        "power_analysis": {},
-        "warnings": []
-    }
+    result = calculate_spearman_correlation(df, x_col, y_col)
     
-    # Power Analysis (Global)
-    n_global = len(df.dropna(subset=[y_col] + x_cols))
-    power = calculate_power(n_global)
-    is_sufficient, flag_msg = check_power_sufficiency(power)
+    if not np.isnan(result['r']):
+        ci_lower, ci_upper = bootstrap_confidence_intervals(
+            df, x_col, y_col, bootstrap_iterations, random_seed
+        )
+        result['ci_lower'] = ci_lower
+        result['ci_upper'] = ci_upper
+    else:
+        result['ci_lower'] = np.nan
+        result['ci_upper'] = np.nan
     
-    results["power_analysis"] = {
-        "sample_size": n_global,
-        "power": power,
-        "threshold": POWER_THRESHOLD,
-        "is_sufficient": is_sufficient,
-        "flag": flag_msg if not is_sufficient else "Sufficient power"
-    }
-    
-    if not is_sufficient:
-        results["warnings"].append(flag_msg)
-    
-    # Multicollinearity Check
-    if len(x_cols) >= 2:
-        # Assuming second col is resonant_surface_density, first is something else
-        # Logic from T025: check q_max - q_min vs resonant_surface_density
-        # We'll check all pairs for simplicity or specific pairs if known
-        pass 
-    
-    # Global Correlation
-    for x_col in x_cols:
-        corr_stats = calculate_spearman_correlation(df, x_col, y_col)
-        if not np.isnan(corr_stats["correlation"]):
-            ci_stats = bootstrap_confidence_intervals(df, x_col, y_col, seed=seed)
-            corr_stats["bootstrap_ci"] = ci_stats
-            results["global"][x_col] = corr_stats
-    
-    # Stratified Analysis
-    groups = stratify_by_mode(df, mode_col)
-    if len(groups) > 1:
-        for mode, group_df in groups.items():
-            n_mode = len(group_df)
-            if n_mode >= 3:
-                mode_power = calculate_power(n_mode)
-                mode_sufficient, _ = check_power_sufficiency(mode_power)
-                
-                mode_results = {}
-                for x_col in x_cols:
-                    corr_stats = calculate_spearman_correlation(group_df, x_col, y_col)
-                    if not np.isnan(corr_stats["correlation"]):
-                        ci_stats = bootstrap_confidence_intervals(group_df, x_col, y_col, seed=seed)
-                        corr_stats["bootstrap_ci"] = ci_stats
-                        mode_results[x_col] = corr_stats
-                
-                results["stratified"][mode] = {
-                    "n": n_mode,
-                    "power": mode_power,
-                    "power_sufficient": mode_sufficient,
-                    "correlations": mode_results
-                }
-            else:
-                results["warnings"].append(f"Skipping stratification for mode '{mode}': N={n_mode} < 3")
-    
-    return results
+    return result
 
 def save_analysis_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save analysis results to a JSON file."""
+    """
+    Save analysis results to a JSON file.
+    
+    Args:
+        results: Dictionary containing analysis results
+        output_path: Path to the output JSON file
+    """
     import json
-    # Convert numpy types to python types for JSON serialization
-    def convert(obj):
+    
+    # Convert numpy types to Python native types
+    def convert_numpy_types(obj):
         if isinstance(obj, dict):
-            return {k: convert(v) for k, v in obj.items()}
+            return {k: convert_numpy_types(v) for k, v in obj.items()}
         elif isinstance(obj, list):
-            return [convert(v) for v in obj]
-        elif isinstance(obj, (np.integer, np.floating)):
-            return obj.item()
+            return [convert_numpy_types(item) for item in obj]
+        elif isinstance(obj, (np.integer, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64)):
+            if np.isnan(obj):
+                return None
+            return float(obj)
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
-        elif pd.isna(obj):
-            return None
-        return obj
+        else:
+            return obj
     
-    clean_results = convert(results)
+    clean_results = convert_numpy_types(results)
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(clean_results, f, indent=2)
+    
     logger.info(f"Analysis results saved to {output_path}")
 
 def main():
-    """Entry point for running correlation analysis."""
+    """Main entry point for correlation analysis."""
     import argparse
-    from utils.logger import setup_logging
     
-    setup_logging()
-    parser = argparse.ArgumentParser(description="Run correlation analysis")
-    parser.add_argument("--input", type=str, required=True, help="Input CSV path")
-    parser.add_argument("--output", type=str, required=True, help="Output JSON path")
-    parser.add_argument("--x-cols", nargs="+", default=["island_width", "resonant_surface_density"])
-    parser.add_argument("--y-col", type=str, default="tau_e")
-    parser.add_argument("--mode-col", type=str, default="confinement_mode")
+    parser = argparse.ArgumentParser(description='Run correlation analysis on plasma confinement data')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file path')
+    parser.add_argument('--output', type=str, required=True, help='Output JSON file path')
+    parser.add_argument('--x-col', type=str, default='island_width', help='Independent variable column')
+    parser.add_argument('--y-col', type=str, default='tau_e', help='Dependent variable column')
+    parser.add_argument('--bootstrap-iterations', type=int, default=1000, help='Number of bootstrap iterations')
+    parser.add_argument('--random-seed', type=int, default=42, help='Random seed for reproducibility')
+    
     args = parser.parse_args()
     
+    logger.info(f"Loading data from {args.input}")
     df = pd.read_csv(args.input)
-    results = run_correlation_analysis(df, args.x_cols, args.y_col, args.mode_col)
+    
+    logger.info(f"Running correlation analysis: {args.x_col} vs {args.y_col}")
+    results = run_correlation_analysis(
+        df, args.x_col, args.y_col,
+        args.bootstrap_iterations, args.random_seed
+    )
+    
     save_analysis_results(results, Path(args.output))
-    print(f"Analysis complete. Results: {results}")
+    logger.info("Analysis complete")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

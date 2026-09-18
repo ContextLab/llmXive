@@ -1,381 +1,226 @@
-"""
-Preprocessing module for converting MDSplus time-series data into structured DataFrames.
-
-This module handles the conversion of raw MDSplus signals (EFIT, islands, tau_e, h98y2)
-into a unified pandas DataFrame format suitable for analysis. It includes logic to
-align time-series data, handle missing values, and derive confinement modes.
-"""
-
 import logging
 import numpy as np
 import pandas as pd
+import hashlib
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
-
 from utils.logger import get_logger
-from utils.limits import timeout_guard, TimeoutError
 
-# Configure logger
 logger = get_logger(__name__)
 
-# Constants for time alignment (seconds)
-TIME_TOLERANCE = 0.01  # 10ms tolerance for time alignment
-DEFAULT_TIME_WINDOW = (-0.1, 0.2)  # Relative to shot time (t=0)
-
-def align_time_series(
-    signals: Dict[str, Tuple[np.ndarray, np.ndarray]],
-    reference_signal: str = 'time',
-    time_tolerance: float = TIME_TOLERANCE
-) -> pd.DataFrame:
+def align_time_series(time, *args):
     """
-    Align multiple time-series signals to a common time base.
-
+    Align multiple time-series arrays to the shortest common time base.
+    
     Args:
-        signals: Dictionary mapping signal names to (time, value) tuples.
-        reference_signal: Name of the signal to use as time reference.
-        time_tolerance: Tolerance in seconds for time alignment.
-
+        time: Time array (1D)
+        *args: Data arrays to align (1D or 2D)
+    
     Returns:
-        Aligned DataFrame with columns for each signal.
-
-    Raises:
-        ValueError: If reference signal is missing or time arrays are incompatible.
+        Tuple of (aligned_time, aligned_data_1, aligned_data_2, ...)
     """
-    if reference_signal not in signals:
-        raise ValueError(f"Reference signal '{reference_signal}' not found in signals")
+    min_len = min(len(arr) for arr in [time] + list(args))
+    return tuple(arr[:min_len] for arr in [time] + list(args))
 
-    ref_time, ref_values = signals[reference_signal]
-
-    # Create base DataFrame with reference time
-    df = pd.DataFrame({reference_signal: ref_time})
-
-    # Sort by time
-    df = df.sort_values(reference_signal).reset_index(drop=True)
-
-    # Align other signals
-    for name, (time_arr, values) in signals.items():
-        if name == reference_signal:
-            continue
-
-        # Interpolate values to reference time base
-        try:
-            interpolated = np.interp(df[reference_signal].values, time_arr, values)
-            df[name] = interpolated
-            logger.debug(f"Aligned signal '{name}' with {len(values)} points to {len(ref_time)} reference points")
-        except Exception as e:
-            logger.warning(f"Failed to align signal '{name}': {e}. Dropping from DataFrame.")
-            # Skip this signal but continue with others
-
-    return df
-
-def extract_snapshot(
-    df: pd.DataFrame,
-    time_window: Tuple[float, float] = DEFAULT_TIME_WINDOW,
-    target_time: Optional[float] = None
-) -> pd.DataFrame:
+def extract_snapshot(df: pd.DataFrame, time_col: str, target_time: float, value_col: str) -> Optional[float]:
     """
-    Extract a snapshot of data within a specified time window or at a target time.
-
+    Extract the value at the closest time point to target_time.
+    
     Args:
-        df: Input DataFrame with time column.
-        time_window: (start, end) tuple relative to shot time.
-        target_time: Specific time point to extract (overrides window).
-
+        df: DataFrame containing time series data
+        time_col: Name of the time column
+        target_time: Desired time point
+        value_col: Name of the value column
+    
     Returns:
-        DataFrame containing the snapshot data.
+        Value at closest time point, or None if data is empty
     """
-    if target_time is not None:
-        # Find closest time point
-        mask = np.abs(df['time'] - target_time) < TIME_TOLERANCE
-        if not mask.any():
-            # Fallback to nearest neighbor
-            idx = (df['time'] - target_time).abs().idxmin()
-            return df.loc[[idx]].reset_index(drop=True)
-        return df.loc[mask].reset_index(drop=True)
-    else:
-        # Use time window
-        start, end = time_window
-        mask = (df['time'] >= start) & (df['time'] <= end)
-        if not mask.any():
-            logger.warning(f"No data found in time window [{start}, {end}]")
-            return pd.DataFrame()
-        return df.loc[mask].reset_index(drop=True)
+    if df.empty:
+        return None
+    
+    closest_idx = (df[time_col] - target_time).abs().idxmin()
+    return df.loc[closest_idx, value_col]
 
-def calculate_island_width(
-    df: pd.DataFrame,
-    local_shear: float,
-    q_value: float,
-    magnetic_field: float,
-    r_minor: float
-) -> float:
+def calculate_island_width(raw_data: Dict[str, Any]) -> Optional[float]:
     """
-    Calculate island width using Rutherford equation approximation.
-
+    Calculate island width from raw MDSplus data.
+    
     Args:
-        df: DataFrame containing plasma parameters (used for context).
-        local_shear: Local magnetic shear (s).
-        q_value: Safety factor at rational surface (q).
-        magnetic_field: Toroidal magnetic field (T).
-        r_minor: Minor radius (m).
-
+        raw_data: Dictionary containing island width data or derivation inputs
+    
     Returns:
-        Calculated island width in meters.
-
-    Note:
-        This is a simplified approximation: w ~ sqrt(epsilon * B_r / (s * B_t))
-        where epsilon is the island perturbation amplitude.
+        Island width in meters, or None if calculation fails
     """
-    # Simplified Rutherford approximation
-    # w = 4 * sqrt( (m * B_r) / (s * q * B_t) ) * r_minor
-    # Assuming m=2, n=1 for dominant mode, B_r/B_t ~ 1e-4 (typical perturbation)
-    B_r_ratio = 1e-4  # Typical resonant field perturbation ratio
-    m = 2
-    n = 1
+    # If pre-calculated island width exists, use it
+    if 'island_width' in raw_data and raw_data['island_width'] is not None:
+        return float(raw_data['island_width'])
+    
+    # Otherwise, attempt derivation using Rutherford equation
+    # This function is a placeholder for the actual derivation logic
+    # The real implementation would use local_magnetic_shear, q_profile, Bt_field
+    logger.warning("Pre-calculated island width missing, derivation not fully implemented in this context.")
+    return None
 
-    if local_shear <= 0:
-        logger.warning("Non-positive local shear detected, returning 0 for island width")
-        return 0.0
-
-    # Simplified formula
-    w = 4 * np.sqrt(
-        (m * B_r_ratio) / (local_shear * q_value)
-    ) * r_minor
-
-    return float(w)
-
-def determine_confinement_mode(
-    h98y2: float,
-    threshold: float = 0.85
-) -> str:
+def determine_confinement_mode(h98y2: Optional[float]) -> str:
     """
-    Determine confinement mode based on H98y2 factor.
-
+    Determine confinement mode based on H-factor.
+    
     Args:
-        h98y2: H-factor relative to ITER98y2 scaling.
-        threshold: Threshold for H-mode classification.
-
+        h98y2: H98(y,2) confinement enhancement factor
+    
     Returns:
-        'H-mode' if h98y2 >= threshold, 'L-mode' otherwise.
+        'H-mode' if h98y2 >= 0.85, else 'L-mode'
     """
-    return 'H-mode' if h98y2 >= threshold else 'L-mode'
+    if h98y2 is None or h98y2 < 0.85:
+        return 'L-mode'
+    return 'H-mode'
 
-def parse_discharge_data(
-    discharge_data: Dict[str, Any],
-    discharge_id: int,
-    time_window: Tuple[float, float] = DEFAULT_TIME_WINDOW
-) -> pd.DataFrame:
+def parse_discharge_data(raw_data: Dict[str, Any], discharge_id: int) -> Dict[str, Any]:
     """
-    Parse MDSplus discharge data into a structured DataFrame.
-
+    Parse raw MDSplus data into a structured dictionary.
+    
     Args:
-        discharge_data: Dictionary containing raw MDSplus signals for a discharge.
-        discharge_id: Discharge identifier.
-        time_window: Time window for snapshot extraction.
-
+        raw_data: Raw data dictionary from MDSplus
+        discharge_id: Discharge identifier
+    
     Returns:
-        DataFrame with parsed and aligned data for the discharge.
-
-    Raises:
-        ValueError: If required data fields are missing.
+        Parsed data dictionary with standardized keys
     """
-    required_fields = ['time', 'tau_e', 'h98y2', 'island_width', 'efit']
-
-    missing = [f for f in required_fields if f not in discharge_data]
-    if missing:
-        raise ValueError(f"Missing required fields: {missing}")
-
-    # Extract signals
-    time_arr = discharge_data['time']
-    tau_e_arr = discharge_data['tau_e']
-    h98y2_arr = discharge_data['h98y2']
-    island_width_raw = discharge_data['island_width']
-    efit_data = discharge_data['efit']
-
-    # Prepare signals for alignment
-    signals = {
-        'time': (time_arr, np.ones_like(time_arr)),  # Dummy values for time reference
-        'tau_e': (time_arr, tau_e_arr),
-        'h98y2': (time_arr, h98y2_arr),
+    parsed = {
+        'discharge_id': discharge_id,
+        'island_width': None,
+        'tau_e': None,
+        'h98y2': None,
+        'confinement_mode': 'L-mode',
+        'te_profile': None,
+        'ne_profile': None,
+        'raw_data': raw_data
     }
+    
+    # Extract island width
+    parsed['island_width'] = calculate_island_width(raw_data)
+    
+    # Extract tau_e (energy confinement time)
+    if 'tau_e' in raw_data and raw_data['tau_e'] is not None:
+        parsed['tau_e'] = float(raw_data['tau_e'])
+    
+    # Extract h98y2
+    if 'h98y2' in raw_data and raw_data['h98y2'] is not None:
+        parsed['h98y2'] = float(raw_data['h98y2'])
+        parsed['confinement_mode'] = determine_confinement_mode(parsed['h98y2'])
+    
+    # Extract profiles if available
+    if 'te_profile' in raw_data:
+        parsed['te_profile'] = raw_data['te_profile']
+    if 'ne_profile' in raw_data:
+        parsed['ne_profile'] = raw_data['ne_profile']
+    
+    return parsed
 
-    # Add island_width if it's time-series
-    if isinstance(island_width_raw, (list, np.ndarray)) and len(island_width_raw) == len(time_arr):
-        signals['island_width'] = (time_arr, island_width_raw)
-    else:
-        # Single value, broadcast
-        signals['island_width'] = (time_arr, np.full_like(time_arr, island_width_raw, dtype=float))
-
-    # Add EFIT-derived signals if available
-    if 'q_profile' in efit_data:
-        q_time = efit_data.get('q_time', time_arr)
-        q_vals = efit_data['q_profile']
-        signals['q'] = (q_time, q_vals)
-
-    if 'local_shear' in efit_data:
-        shear_time = efit_data.get('shear_time', time_arr)
-        shear_vals = efit_data['local_shear']
-        signals['local_shear'] = (shear_time, shear_vals)
-
-    if 'btor' in efit_data:
-        btor_time = efit_data.get('btor_time', time_arr)
-        btor_vals = efit_data['btor']
-        signals['btor'] = (btor_time, btor_vals)
-
-    if 'r_minor' in efit_data:
-        r_minor_time = efit_data.get('r_minor_time', time_arr)
-        r_minor_vals = efit_data['r_minor']
-        signals['r_minor'] = (r_minor_time, r_minor_vals)
-
-    # Align signals
-    try:
-        aligned_df = align_time_series(signals)
-    except Exception as e:
-        logger.error(f"Failed to align time series for discharge {discharge_id}: {e}")
-        raise
-
-    # Extract snapshot
-    snapshot_df = extract_snapshot(aligned_df, time_window=time_window)
-
-    if snapshot_df.empty:
-        logger.warning(f"No data in time window for discharge {discharge_id}")
-        return pd.DataFrame()
-
-    # Derive confinement mode
-    h98y2_val = snapshot_df['h98y2'].mean()
-    confinement_mode = determine_confinement_mode(h98y2_val)
-
-    # Add derived fields
-    snapshot_df['discharge_id'] = discharge_id
-    snapshot_df['confinement_mode'] = confinement_mode
-
-    # If island_width was not directly available, derive it from EFIT
-    if 'island_width' not in efit_data or (isinstance(island_width_raw, (float, int)) and np.isnan(island_width_raw)):
-        logger.info(f"Deriving island width for discharge {discharge_id} from EFIT data")
-        local_shear = snapshot_df['local_shear'].mean() if 'local_shear' in snapshot_df else 0.5
-        q_val = snapshot_df['q'].mean() if 'q' in snapshot_df else 3.0
-        btor_val = snapshot_df['btor'].mean() if 'btor' in snapshot_df else 2.0
-        r_minor_val = snapshot_df['r_minor'].mean() if 'r_minor' in snapshot_df else 0.6
-
-        derived_width = calculate_island_width(
-            snapshot_df,
-            local_shear=local_shear,
-            q_value=q_val,
-            magnetic_field=btor_val,
-            r_minor=r_minor_val
-        )
-        snapshot_df['island_width'] = derived_width
-
-    # Ensure numeric columns
-    numeric_cols = ['tau_e', 'h98y2', 'island_width', 'local_shear', 'q', 'btor', 'r_minor']
-    for col in numeric_cols:
-        if col in snapshot_df.columns:
-            snapshot_df[col] = pd.to_numeric(snapshot_df[col], errors='coerce')
-
-    # Drop rows with critical NaNs
-    critical_cols = ['discharge_id', 'tau_e', 'island_width', 'confinement_mode']
-    snapshot_df = snapshot_df.dropna(subset=critical_cols)
-
-    # Select final columns
-    final_columns = [
-        'discharge_id', 'tau_e', 'island_width', 'confinement_mode', 'h98y2',
-        'local_shear', 'q', 'btor', 'r_minor', 'time'
+def process_multiple_discharges(parsed_list: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Convert a list of parsed discharge dictionaries into a DataFrame.
+    
+    Args:
+        parsed_list: List of parsed discharge dictionaries
+    
+    Returns:
+        DataFrame with standardized columns
+    """
+    # Filter out discharges with missing critical data
+    valid_discharges = [
+        d for d in parsed_list 
+        if d['island_width'] is not None and d['tau_e'] is not None
     ]
-    available_cols = [c for c in final_columns if c in snapshot_df.columns]
-    result_df = snapshot_df[available_cols].reset_index(drop=True)
-
-    logger.info(f"Successfully parsed discharge {discharge_id}: {len(result_df)} rows")
-    return result_df
-
-def process_multiple_discharges(
-    discharge_list: List[Dict[str, Any]],
-    time_window: Tuple[float, float] = DEFAULT_TIME_WINDOW
-) -> pd.DataFrame:
-    """
-    Process multiple discharges and combine into a single DataFrame.
-
-    Args:
-        discharge_list: List of dictionaries, each containing discharge data.
-        time_window: Time window for snapshot extraction.
-
-    Returns:
-        Combined DataFrame with all processed discharges.
-    """
-    all_dataframes = []
-
-    for discharge_info in discharge_list:
-        discharge_id = discharge_info.get('discharge_id')
-        data = discharge_info.get('data')
-
-        if data is None:
-            logger.warning(f"Skipping discharge {discharge_id}: no data provided")
-            continue
-
-        try:
-            df = parse_discharge_data(data, discharge_id, time_window)
-            if not df.empty:
-                all_dataframes.append(df)
-                logger.info(f"Processed discharge {discharge_id}: {len(df)} rows")
-            else:
-                logger.warning(f"No valid data for discharge {discharge_id}")
-        except Exception as e:
-            logger.error(f"Failed to process discharge {discharge_id}: {e}")
-            continue
-
-    if not all_dataframes:
-        logger.error("No discharges were successfully processed")
+    
+    if not valid_discharges:
+        logger.warning("No valid discharges found with both island_width and tau_e.")
         return pd.DataFrame()
+    
+    # Create DataFrame
+    data_rows = []
+    for d in valid_discharges:
+        row = {
+            'discharge_id': d['discharge_id'],
+            'island_width': d['island_width'],
+            'tau_e': d['tau_e'],
+            'confinement_mode': d['confinement_mode'],
+            'h98y2': d['h98y2']
+        }
+        data_rows.append(row)
+    
+    return pd.DataFrame(data_rows)
 
-    combined_df = pd.concat(all_dataframes, ignore_index=True)
-    logger.info(f"Combined {len(combined_df)} rows from {len(all_dataframes)} discharges")
-
-    return combined_df
-
-def validate_parsed_data(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+def validate_parsed_data(df: pd.DataFrame) -> bool:
     """
-    Validate the parsed DataFrame against expected schema.
-
+    Validate the parsed DataFrame against basic requirements.
+    
     Args:
-        df: Input DataFrame to validate.
-
+        df: DataFrame to validate
+    
     Returns:
-        Tuple of (is_valid, list of error messages).
+        True if valid, False otherwise
     """
-    errors = []
-    required_columns = ['discharge_id', 'tau_e', 'island_width', 'confinement_mode']
-
-    # Check required columns
-    missing_cols = [c for c in required_columns if c not in df.columns]
+    if df.empty:
+        logger.error("DataFrame is empty.")
+        return False
+    
+    required_cols = ['discharge_id', 'island_width', 'tau_e', 'confinement_mode', 'h98y2']
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
-
-    # Check for NaN in critical columns
-    critical_cols = ['discharge_id', 'tau_e', 'island_width']
+        logger.error(f"Missing required columns: {missing_cols}")
+        return False
+    
+    # Check for NaN values in critical columns
+    critical_cols = ['discharge_id', 'island_width', 'tau_e', 'h98y2']
     for col in critical_cols:
-        if col in df.columns:
-            nan_count = df[col].isna().sum()
-            if nan_count > 0:
-                errors.append(f"Column '{col}' contains {nan_count} NaN values")
+        if df[col].isna().any():
+            logger.warning(f"Column {col} contains NaN values.")
+    
+    return True
 
-    # Check confinement_mode values
-    if 'confinement_mode' in df.columns:
-        valid_modes = ['L-mode', 'H-mode']
-        invalid_modes = df[~df['confinement_mode'].isin(valid_modes)]['confinement_mode'].unique()
-        if len(invalid_modes) > 0:
-            errors.append(f"Invalid confinement modes found: {invalid_modes}")
+def generate_checksum(df: pd.DataFrame) -> str:
+    """
+    Generate a SHA-256 checksum for the DataFrame content.
+    
+    Args:
+        df: DataFrame to checksum
+    
+    Returns:
+        Hex string of the SHA-256 hash
+    """
+    # Convert DataFrame to bytes for hashing
+    csv_content = df.to_csv(index=False).encode('utf-8')
+    return hashlib.sha256(csv_content).hexdigest()
 
-    # Check positive values
-    if 'tau_e' in df.columns:
-        if (df['tau_e'] <= 0).any():
-            errors.append("tau_e contains non-positive values")
+def save_unified_dataset(df: pd.DataFrame, output_path: str) -> Tuple[str, str]:
+    """
+    Save the unified dataset to CSV and generate a checksum.
+    
+    Args:
+        df: DataFrame to save
+        output_path: Path to the output CSV file
+    
+    Returns:
+        Tuple of (file_path, checksum)
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    df.to_csv(output_file, index=False)
+    checksum = generate_checksum(df)
+    
+    logger.info(f"Saved unified dataset to {output_file} with checksum: {checksum}")
+    return str(output_file), checksum
 
-    if 'island_width' in df.columns:
-        if (df['island_width'] < 0).any():
-            errors.append("island_width contains negative values")
+def main():
+    """
+    Main entry point for the preprocessing module.
+    This function is intended to be called by the pipeline orchestrator.
+    """
+    logger.info("Preprocessing module initialized.")
+    # Note: Actual data loading and processing is handled by the pipeline
+    # This function serves as a module entry point for testing or direct invocation.
 
-    return len(errors) == 0, errors
-
-# Main execution for testing
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Preprocessing module loaded successfully")
-    logger.info("Use process_multiple_discharges() to parse MDSplus data into DataFrames")
+    main()

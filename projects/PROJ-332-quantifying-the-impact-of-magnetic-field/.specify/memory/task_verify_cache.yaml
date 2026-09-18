@@ -1,9 +1,52 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`code/`, `data/raw/`,
+    `data/processed/`, `artifacts/`, `tests/`) actually exist in the project; the
+    only artifacts shown are feature specifications, not a filesystem layout. The
+    implementer must create and show the directory structure as specified.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file was presented in the evidence; without an actual, non\u2011\
+    empty `.gitignore` listing Python\u2011related patterns and data\u2011artifact\
+    \ exclusions, the task requirement is not satisfied. The implementer must add\
+    \ a proper `.gitignore` to the repository."
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No flake8 configuration file (e.g., `.flake8`, `setup.cfg` with `[flake8]` section,
+    or `tox.ini`) was provided or referenced, so there is no evidence that linting
+    rules were actually configured. The required artifact is missing.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration file (e.g., `pyproject.toml`, `black.toml`, or similar) or any
+    other artifact defining Black formatting rules is present in the provided evidence.
+    Without such a file, the requirement to configure Black cannot be verified as
+    fulfilled.
 T009:
   c: false
   h: c0ff7142e1900c60fd804c59be8f7d83c790e0fbc455e1a27e8c13fdda99e013
   r: "The required artifact `tests/unit/test_retrieval.py` does not exist in the repository,\
     \ so no unit test for MDSplus connection retry logic is present. The task\u2019\
     s core deliverable is missing."
+T013:
+  c: false
+  h: cc0796298b58ea71ea9785ab062002e55d202f56cb6798035cae7ee5b9c6fadd
+  r: "The repository contains a partial `metrics.py` that defines only q\u2011profile\
+    \ extraction and shear calculation; it does not implement retrieval of `island_width`,\
+    \ the `derive_island_width` fallback, input fetching from EFIT, discharge exclusion\
+    \ logic, or CSV writing. Moreover, the required output file `data/processed/metrics.csv`\
+    \ is absent. These missing components mean the task\u2019s requirements are not\
+    \ satisfied."
+T014b:
+  c: false
+  h: 3c9ebd04fb4cfec9b89dd6bb53a871dab30b75048aaf2a5eaa873ded2d398f1d
+  r: "The validator module exists, but the required schema files (`contracts/dataset.schema.yaml`\
+    \ and `contracts/output.schema.yaml`) are missing, so the validation logic cannot\
+    \ actually be performed. Without these contracts the task\u2019s core requirement\
+    \ is unmet."
 T016:
   c: false
   h: ebd852f436961ae357625a1b7a0cdad575f6e8975646626c74c7f99803a56ecd

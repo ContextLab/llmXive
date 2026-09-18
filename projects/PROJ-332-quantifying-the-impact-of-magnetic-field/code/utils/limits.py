@@ -1,5 +1,6 @@
 """
 Resource limits and guards for timeout and memory constraints.
+Implements FR-007: Internal timeout wrapper to abort execution if threshold exceeded.
 """
 import os
 import signal
@@ -20,19 +21,30 @@ class MemoryLimitError(Exception):
 
 def timeout_guard(seconds: int):
     """
-    Decorator/context manager to enforce a timeout on a function execution.
+    Decorator to enforce a timeout on a function execution.
+    
+    If the function execution exceeds `seconds`, the Python process
+    will be aborted via a signal handler raising TimeoutError.
     
     Args:
         seconds: Maximum execution time in seconds
         
     Returns:
-        Decorated function or context manager
+        Decorated function
     """
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             # Set up signal handler for timeout
             def timeout_handler(signum, frame):
+                # Log the timeout event before exiting if logger is available
+                try:
+                    from utils.logger import get_logger
+                    logger = get_logger()
+                    logger.error(f"Process timeout: {func.__name__} exceeded {seconds}s")
+                except Exception:
+                    pass
+                # Raise the exception to be caught by the caller or let it crash the process
                 raise TimeoutError(f"Function {func.__name__} exceeded timeout of {seconds} seconds")
             
             # Save old handler

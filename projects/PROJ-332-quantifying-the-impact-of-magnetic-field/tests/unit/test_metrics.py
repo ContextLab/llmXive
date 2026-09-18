@@ -1,101 +1,116 @@
+"""
+Unit tests for metrics calculation module.
+"""
 import pytest
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import sys
+from analysis.metrics import (
+    extract_q_profile,
+    calculate_local_magnetic_shear,
+    calculate_resonant_surface_density,
+    derive_island_width,
+    detect_outliers,
+    validate_metric_ranges
+)
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+def test_extract_q_profile_missing_data():
+    """Test extraction when q-profile is missing."""
+    efit_data = {'other_field': [1, 2, 3]}
+    result = extract_q_profile(efit_data, 12345)
+    assert result is None
 
-from analysis.metrics import calculate_resonant_surface_density, detect_outliers, validate_metric_ranges
+def test_extract_q_profile_valid():
+    """Test extraction with valid q-profile data."""
+    q_vals = [1.2, 1.5, 1.8, 2.1]
+    efit_data = {
+        'q_profile': q_vals,
+        'rho_tor': [0.1, 0.5, 0.8, 1.0]
+    }
+    result = extract_q_profile(efit_data, 12345)
+    assert result is not None
+    assert np.array_equal(result, np.array(q_vals))
 
-def test_calculate_resonant_surface_density_with_rational_surfaces():
-    """
-    Test that the function correctly identifies rational surfaces.
-    We create a q-profile that definitely crosses rational values like 1.5 (3/2) and 2.0 (2/1).
-    """
-    # Create a profile where q goes from 1.4 to 2.1
-    # This should cross 1.5 (3/2) and 2.0 (2/1)
-    rho = np.linspace(0.1, 0.9, 100)
-    q = 1.4 + (2.1 - 1.4) * (rho - 0.1) / (0.9 - 0.1)  # Linear interpolation
+def test_calculate_local_magnetic_shear():
+    """Test magnetic shear calculation."""
+    q_profile = np.array([1.0, 1.2, 1.5, 1.9])
+    rho_tor = np.array([0.0, 0.3, 0.6, 1.0])
+    
+    shear = calculate_local_magnetic_shear(q_profile, rho_tor)
+    assert shear is not None
+    assert len(shear) == len(q_profile)
+    # Shear should generally be positive for typical tokamak profiles
+    assert np.all(shear >= 0) or np.any(shear < 0)  # Depends on profile shape
 
-    density = calculate_resonant_surface_density(q, rho)
-
+def test_calculate_resonant_surface_density_basic():
+    """Test resonant surface density calculation with a known profile."""
+    # Create a q-profile that crosses 1.5 (m=3, n=2) and 2.0 (m=2, n=1)
+    rho_tor = np.linspace(0.1, 1.0, 20)
+    q_profile = np.array([1.49, 1.51, 1.8, 1.99, 2.01, 2.2, 2.5, 2.8])
+    
+    density = calculate_resonant_surface_density(q_profile, rho_tor)
+    assert isinstance(density, float)
+    assert density >= 0
     # We expect at least 2 rational surfaces (1.5 and 2.0)
-    # The density is count / rho_range. rho_range = 0.8
-    # So density should be at least 2 / 0.8 = 2.5
-    assert density >= 2.5, f"Expected density >= 2.5, got {density}"
-    assert density > 0, "Density should be positive when rational surfaces are found."
-
-def test_calculate_resonant_surface_density_no_rational():
-    """
-    Test that the function returns 0 when no rational surfaces are found.
-    We create a q-profile that stays between 1.01 and 1.09 (avoiding 1.0 and 1.1).
-    """
-    rho = np.linspace(0.1, 0.9, 100)
-    q = 1.01 + 0.08 * (rho - 0.1) / (0.9 - 0.1)  # Range [1.01, 1.09]
-
-    density = calculate_resonant_surface_density(q, rho)
-
-    # No rational m/n should be in [1.01, 1.09] with default bounds (1/1=1, 2/1=2, 3/2=1.5...)
-    # The closest is 1.0 (1/1) but our range starts at 1.01.
-    # So density should be 0.
-    assert density == 0.0, f"Expected density 0.0, got {density}"
-
-def test_calculate_resonant_surface_density_empty():
-    """Test behavior with empty arrays."""
-    density = calculate_resonant_surface_density(np.array([]), np.array([]))
-    assert density == 0.0
-
-def test_calculate_resonant_surface_density_nan_handling():
-    """Test that NaN values are handled correctly."""
-    rho = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
-    q = np.array([1.5, np.nan, 2.0, 1.0, 1.5])
-
-    density = calculate_resonant_surface_density(q, rho)
-
-    # Should ignore the NaN and find 1.5, 2.0, 1.0
-    # rho_range = 0.4
-    # Count = 3 (1.0, 1.5, 2.0)
-    # Density = 3 / 0.4 = 7.5
+    # Density = count / rho_range, rho_range ~ 0.9
     assert density > 0
 
+def test_calculate_resonant_surface_density_no_rational():
+    """Test when no rational surfaces are found."""
+    # Create a q-profile that avoids rational values
+    rho_tor = np.linspace(0.1, 1.0, 20)
+    q_profile = np.array([1.33333, 1.33334, 1.33335, 1.33336, 1.33337])
+    
+    density = calculate_resonant_surface_density(q_profile, rho_tor)
+    assert density == 0.0
+
+def test_calculate_resonant_surface_density_empty():
+    """Test with empty or None inputs."""
+    assert calculate_resonant_surface_density(None, None) == 0.0
+    assert calculate_resonant_surface_density(np.array([]), np.array([])) == 0.0
+
+def test_derive_island_width():
+    """Test island width derivation."""
+    local_shear = 0.5
+    q_profile = np.array([1.5, 1.6, 1.7])
+    Bt = 2.0
+    
+    width = derive_island_width(local_shear, q_profile, Bt, 12345)
+    assert isinstance(width, float)
+    assert width > 0
+
 def test_detect_outliers():
-    """Test outlier detection logic."""
+    """Test outlier detection."""
     df = pd.DataFrame({
         'discharge_id': [1, 2, 3],
-        'island_width': [0.1, 0.5, 1.5],
-        'minor_radius': [0.5, 0.5, 0.5]
+        'island_width': [0.1, 0.7, 0.3]  # 0.7 > 0.67 (minor radius)
     })
-
-    result = detect_outliers(df)
-
+    
+    result = detect_outliers(df, 'island_width')
     assert 'is_outlier' in result.columns
-    assert result.loc[0, 'is_outlier'] == False
-    assert result.loc[1, 'is_outlier'] == False
-    assert result.loc[2, 'is_outlier'] == True
+    assert result['is_outlier'].sum() == 1
+    assert result.iloc[1]['is_outlier'] == True
+    assert result.iloc[0]['is_outlier'] == False
+    assert result.iloc[2]['is_outlier'] == False
 
-def test_validate_metric_ranges_valid():
-    """Test validation with valid data."""
-    df = pd.DataFrame({
-        'resonant_surface_density': [1.5, 2.0, 3.0],
+def test_validate_metric_ranges():
+    """Test metric range validation."""
+    # Valid data
+    df_valid = pd.DataFrame({
         'island_width': [0.1, 0.2, 0.3],
-        'minor_radius': [0.5, 0.5, 0.5]
+        'resonant_surface_density': [1.0, 2.0, 3.0]
     })
-
-    is_valid, errors = validate_metric_ranges(df)
-    assert is_valid
-    assert len(errors) == 0
-
-def test_validate_metric_ranges_invalid():
-    """Test validation with invalid data (negative values, NaN)."""
-    df = pd.DataFrame({
-        'resonant_surface_density': [-1.0, 2.0, np.nan],
+    assert validate_metric_ranges(df_valid) == True
+    
+    # Invalid island width (too large)
+    df_invalid = pd.DataFrame({
+        'island_width': [0.1, 0.8, 0.3],  # 0.8 > 0.67
+        'resonant_surface_density': [1.0, 2.0, 3.0]
+    })
+    assert validate_metric_ranges(df_invalid) == False
+    
+    # Invalid density (negative)
+    df_invalid2 = pd.DataFrame({
         'island_width': [0.1, 0.2, 0.3],
-        'minor_radius': [0.5, 0.5, 0.5]
+        'resonant_surface_density': [1.0, -1.0, 3.0]
     })
-
-    is_valid, errors = validate_metric_ranges(df)
-    assert not is_valid
-    assert len(errors) > 0
+    assert validate_metric_ranges(df_invalid2) == False

@@ -1,3 +1,10 @@
+"""
+Schema validation module for the plasma confinement analysis pipeline.
+
+This module provides functions to validate input and output data against
+defined YAML schema contracts to ensure data integrity before processing.
+"""
+
 import logging
 import json
 from typing import Any, Dict, List, Optional, Tuple
@@ -9,204 +16,157 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Cache for loaded schemas to avoid re-parsing YAML files
-_schema_cache: Dict[str, Dict[str, Any]] = {}
+# Default paths to schema files
+DATASET_SCHEMA_PATH = Path("contracts/dataset.schema.yaml")
+OUTPUT_SCHEMA_PATH = Path("contracts/output.schema.yaml")
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
     """
-    Load a JSON/YAML schema from disk.
+    Load a schema definition from a YAML file.
     
     Args:
-        schema_path: Path to the schema file.
+        schema_path: Path to the YAML schema file.
         
     Returns:
-        Parsed schema dictionary.
+        Dictionary containing the schema definition.
         
     Raises:
-        FileNotFoundError: If schema file does not exist.
-        ValueError: If schema cannot be parsed.
+        FileNotFoundError: If the schema file does not exist.
+        yaml.YAMLError: If the schema file is not valid YAML.
     """
-    cache_key = str(schema_path)
-    if cache_key in _schema_cache:
-        return _schema_cache[cache_key]
-    
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    try:
-        with open(schema_path, 'r', encoding='utf-8') as f:
-            schema = yaml.safe_load(f)
-        _schema_cache[cache_key] = schema
-        return schema
-    except yaml.YAMLError as e:
-        logger.error(f"Failed to parse schema {schema_path}: {e}")
-        raise ValueError(f"Invalid schema format in {schema_path}") from e
-    except Exception as e:
-        logger.error(f"Unexpected error loading schema {schema_path}: {e}")
-        raise
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        schema = yaml.safe_load(f)
+        
+    logger.info(f"Loaded schema from {schema_path}")
+    return schema
 
-def validate_dataframe_against_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def validate_dataframe_against_schema(
+    df: pd.DataFrame, 
+    schema: Dict[str, Any], 
+    strict: bool = True
+) -> Tuple[bool, List[str]]:
     """
-    Validate a pandas DataFrame against a JSON Schema definition.
-    
-    This is a simplified validator that checks for required columns
-    and basic type constraints (integer, number, string, array) as
-    defined in the output schema.
+    Validate a pandas DataFrame against a JSON Schema-like definition.
     
     Args:
-        df: DataFrame to validate.
-        schema: The loaded schema dictionary.
-        
+        df: The DataFrame to validate.
+        schema: The schema definition dictionary.
+        strict: If True, fail if columns exist that are not in schema properties.
+                
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        A tuple (is_valid, list_of_errors).
     """
     errors = []
     
-    if not isinstance(schema, dict):
-        errors.append("Schema is not a valid dictionary.")
+    # Check required columns
+    required_columns = schema.get('required', [])
+    for col in required_columns:
+        if col not in df.columns:
+            errors.append(f"Missing required column: '{col}'")
+    
+    if errors:
         return False, errors
-
-    # Check top-level type if specified
-    if schema.get("type") == "object":
-        # We are validating a DataFrame which represents a table of objects (rows)
-        pass
-
-    props = schema.get("properties", {})
-    required_fields = schema.get("required", [])
     
-    # 1. Check Required Columns
-    missing_cols = set(required_fields) - set(df.columns)
-    if missing_cols:
-        errors.append(f"Missing required columns: {sorted(missing_cols)}")
+    # Validate column types and constraints
+    properties = schema.get('properties', {})
     
-    # 2. Check Types for existing columns
-    for col_name, col_schema in props.items():
+    for col_name, col_schema in properties.items():
         if col_name not in df.columns:
             continue
         
-        expected_type_str = col_schema.get("properties", {}).get("type", {}).get("enum", [None])[0]
-        if not expected_type_str:
-            # Fallback if structure is slightly different
-            expected_type_str = col_schema.get("properties", {}).get("type", [None])
-            if isinstance(expected_type_str, list):
-                expected_type_str = expected_type_str[0]
-            elif isinstance(expected_type_str, dict):
-                expected_type_str = expected_type_str.get("enum", [None])[0]
-            
-        if expected_type_str is None:
-            continue
-
         col = df[col_name]
-
-        if expected_type_str == "integer":
-            if not pd.api.types.is_integer_dtype(col):
-                # Allow float that are actually integers? Strict check for now.
-                if not pd.api.types.is_float_dtype(col) or not col.apply(lambda x: float(x).is_integer()).all():
-                     errors.append(f"Column '{col_name}' is expected to be integer, got {col.dtype}")
-                     
-        elif expected_type_str == "number":
-            if not (pd.api.types.is_float_dtype(col) or pd.api.types.is_integer_dtype(col)):
-                errors.append(f"Column '{col_name}' is expected to be number, got {col.dtype}")
-                
-        elif expected_type_str == "string":
-            if not pd.api.types.is_string_dtype(col) and not pd.api.types.is_object_dtype(col):
-                errors.append(f"Column '{col_name}' is expected to be string, got {col.dtype}")
-                
-        elif expected_type_str == "array":
-            # Check if column contains lists/arrays
-            if not col.apply(lambda x: isinstance(x, (list, tuple))).all():
-                errors.append(f"Column '{col_name}' is expected to be array, but contains non-array types.")
-
-    # 3. Check for unexpected columns if 'additionalProperties: false' (not strictly enforced here for flexibility)
-    # but we log a warning if strict mode is not implied.
-    
-    is_valid = len(errors) == 0
-    return is_valid, errors
-
-def validate_input_schema(raw_data: Dict[str, Any], schema_path: Path) -> Tuple[bool, List[str]]:
-    """
-    Validate raw input data (dictionary from MDSplus) against the input schema.
-    
-    Args:
-        raw_data: Dictionary containing raw data fields.
-        schema_path: Path to the dataset.schema.yaml.
+        col_type = col_schema.get('type')
         
-    Returns:
-        Tuple of (is_valid, list_of_errors).
-    """
-    schema = load_schema(schema_path)
-    errors = []
+        # Type checking
+        if col_type == 'integer':
+            if not pd.api.types.is_integer_dtype(col):
+                # Allow float that are actually integers
+                if not pd.api.types.is_float_dtype(col) or not (col == col.astype(int)).all():
+                    errors.append(f"Column '{col_name}' must be integer, found {col.dtype}")
+        elif col_type == 'number':
+            if not (pd.api.types.is_float_dtype(col) or pd.api.types.is_integer_dtype(col)):
+                errors.append(f"Column '{col_name}' must be numeric, found {col.dtype}")
+        elif col_type == 'string':
+            if not pd.api.types.is_string_dtype(col) and not pd.api.types.is_object_dtype(col):
+                errors.append(f"Column '{col_name}' must be string, found {col.dtype}")
+        
+        # Enum checking
+        if 'enum' in col_schema:
+            valid_values = set(col_schema['enum'])
+            invalid_values = set(df[col_name].dropna().unique()) - valid_values
+            if invalid_values:
+                errors.append(f"Column '{col_name}' contains invalid values: {invalid_values}")
     
-    # Basic structural checks based on dataset.schema.yaml
-    if "discharge_id" not in raw_data:
-        errors.append("Missing 'discharge_id' in raw data.")
-    else:
-        if not isinstance(raw_data["discharge_id"], int):
-            errors.append("'discharge_id' must be an integer.")
-    
-    if "fields" not in raw_data:
-        errors.append("Missing 'fields' in raw data.")
-    else:
-        fields = raw_data["fields"]
-        if not isinstance(fields, dict):
-            errors.append("'fields' must be a dictionary.")
-        else:
-            # Check for critical nested fields if they exist in schema
-            required_fields = schema.get("required", [])
-            # Note: 'required' in schema is top level, we check presence loosely here
-            # The schema implies specific structure under 'fields'
-            pass
+    # Strict mode: check for extra columns
+    if strict:
+        allowed_columns = set(properties.keys())
+        actual_columns = set(df.columns)
+        extra_columns = actual_columns - allowed_columns
+        if extra_columns:
+            errors.append(f"Unexpected columns found: {extra_columns}")
     
     return len(errors) == 0, errors
 
-def validate_output_schema(df: pd.DataFrame, schema_path: Path) -> Tuple[bool, List[str]]:
+def validate_input_schema(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Validate the final processed DataFrame against the output schema.
-    
-    This function is critical to ensure that the data produced by the pipeline
-    matches the expected format for downstream analysis (US2, US3).
+    Validate a DataFrame against the input dataset schema.
     
     Args:
-        df: The processed DataFrame.
-        schema_path: Path to the output.schema.yaml.
+        df: The DataFrame to validate.
         
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        A tuple (is_valid, list_of_errors).
     """
-    schema = load_schema(schema_path)
-    return validate_dataframe_against_schema(df, schema)
+    try:
+        schema = load_schema(DATASET_SCHEMA_PATH)
+        return validate_dataframe_against_schema(df, schema)
+    except Exception as e:
+        logger.error(f"Failed to validate input schema: {e}")
+        return False, [str(e)]
 
-def validate_parsed_data(df: pd.DataFrame, input_schema_path: Optional[Path] = None, 
-                         output_schema_path: Optional[Path] = None) -> Tuple[bool, List[str]]:
+def validate_output_schema(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Main entry point for validation. Validates input structure (if raw dict provided)
-    and output DataFrame structure.
-    
-    Per FR-009, validation must occur before parsing/analysis begins.
-    This function should be called:
-    1. On raw data fetched from MDSplus (input_schema_path).
-    2. On the DataFrame after preprocessing (output_schema_path).
+    Validate a DataFrame against the output schema.
     
     Args:
-        df: DataFrame to validate.
-        input_schema_path: Path to dataset.schema.yaml.
-        output_schema_path: Path to output.schema.yaml.
+        df: The DataFrame to validate.
         
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        A tuple (is_valid, list_of_errors).
     """
-    all_errors = []
-    is_valid = True
+    try:
+        schema = load_schema(OUTPUT_SCHEMA_PATH)
+        return validate_dataframe_against_schema(df, schema)
+    except Exception as e:
+        logger.error(f"Failed to validate output schema: {e}")
+        return False, [str(e)]
+
+def validate_parsed_data(df: pd.DataFrame) -> bool:
+    """
+    Main entry point for validating parsed data before further processing.
     
-    if output_schema_path:
-        if not df.empty:
-            valid, errors = validate_output_schema(df, output_schema_path)
-            if not valid:
-                all_errors.extend(errors)
-                is_valid = False
-        else:
-            # Empty dataframe might be valid if all data was filtered out, 
-            # but typically we expect data. Log warning.
-            logger.warning("Validating empty DataFrame. Check if all data was filtered out.")
+    This function is called by the preprocessing pipeline to ensure that
+    the data retrieved and parsed from MDSplus conforms to the expected schema.
     
-    return is_valid, all_errors
+    Args:
+        df: The parsed DataFrame to validate.
+        
+    Returns:
+        True if validation passes, False otherwise.
+        
+    Raises:
+        ValueError: If validation fails, with details in the error message.
+    """
+    logger.info("Starting input schema validation...")
+    is_valid, errors = validate_input_schema(df)
+    
+    if not is_valid:
+        error_msg = f"Input schema validation failed:\n" + "\n".join(f"  - {e}" for e in errors)
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    logger.info("Input schema validation passed.")
+    return True
