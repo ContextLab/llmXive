@@ -1,10 +1,10 @@
 status: none
-intent: LoCoMo benchmark dataset download from HuggingFace python package dataset
+intent: LoCoMo benchmark dataset HuggingFace datasets library python package dataset
 required_fields:
 - task_id
 - accuracy
 - latency_seconds
 - node_visitation_count
-cache_key: 004385a27963e26a692885911e83c88e1d7791341dad8db08f40872e5fd2f3b3
-searched_at: '2026-08-28T23:51:54.316745+00:00'
+cache_key: a940d3cf6071940e05c82244172c7f040d9d0bfe069c86894e92dda0bea4d86c
+searched_at: '2026-09-18T00:31:51.394382+00:00'
 retry_count: 1

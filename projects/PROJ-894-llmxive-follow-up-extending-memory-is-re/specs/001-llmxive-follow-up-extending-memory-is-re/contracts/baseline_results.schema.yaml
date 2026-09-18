@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Baseline Results Schema"
+description: "Schema for the output CSV of the Full traversal strategy."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  strategy:
+    type: "string"
+    description: "Strategy name, must be 'Full'."
+    enum:
+      - "Full"
+  nodes_visited:
+    type: "integer"
+    description: "Number of nodes visited during traversal."
+    minimum: 1
+  accuracy:
+    type: "number"
+    description: "Accuracy score (0.0 or 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  latency_ms:
+    type: "number"
+    description: "Execution time in milliseconds."
+    minimum: 0.0
+  status:
+    type: "string"
+    description: "Execution status."
+    enum:
+      - "completed"
+      - "timeout"
+      - "error"
+  evidence_threshold:
+    type: "null"
+    description: "Not applicable for Full strategy."
+required:
+  - task_id
+  - strategy
+  - nodes_visited
+  - accuracy
+  - latency_ms
+  - status
+additionalProperties: false

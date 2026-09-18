@@ -45,6 +45,12 @@ properties:
     items:
       type: "string"
     description: "List of covariates used in regression (e.g., 'critical_path_length')."
+  null_hypothesis:
+    type: "string"
+    description: "Explicit statement of the null hypothesis (e.g., 'Accuracy(Lazy, Noisy) == Accuracy(Baseline, Noisy)')."
+  alternative_hypothesis:
+    type: "string"
+    description: "Explicit statement of the alternative hypothesis."
 required:
   - comparison_pair
   - test_type
@@ -52,4 +58,6 @@ required:
   - test_statistic
   - correlation_coefficient
   - significance_level
+  - null_hypothesis
+  - alternative_hypothesis
 additionalProperties: false

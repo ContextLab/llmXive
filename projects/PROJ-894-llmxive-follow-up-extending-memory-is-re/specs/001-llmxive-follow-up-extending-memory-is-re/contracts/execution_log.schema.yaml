@@ -29,7 +29,7 @@ properties:
   token_count:
     type: "integer"
     minimum: 0
-    description: "Total tokens generated/consumed (Constitution Principle VI)."
+    description: "Total tokens generated/consumed (Constitution Principle VI). Extracted from LLM response metadata."
   status:
     type: "string"
     enum:
@@ -47,10 +47,19 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Evidence threshold used (only for Lazy strategy)."
+    description: "Evidence threshold used (only for Lazy strategy). Must capture the exact value used in sensitivity sweeps."
   noise_applied:
     type: "boolean"
     description: "Whether noise was applied to the graph."
+  hard_cap_applied:
+    type: "boolean"
+    description: "Whether the hard cap on nodes_visited was reached (independent constraint)."
+  construction_model:
+    type: "string"
+    description: "Name of the embedding model used for graph construction."
+  scoring_model:
+    type: "string"
+    description: "Name of the embedding model used for edge scoring (must differ from construction_model)."
 required:
   - task_id
   - strategy
@@ -60,4 +69,7 @@ required:
   - token_count
   - status
   - noise_applied
+  - hard_cap_applied
+  - construction_model
+  - scoring_model
 additionalProperties: false
