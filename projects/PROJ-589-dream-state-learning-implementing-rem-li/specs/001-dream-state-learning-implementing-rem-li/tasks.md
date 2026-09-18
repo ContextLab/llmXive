@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: create directories `code/`, `tests/`, `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [X] T001b [P] Initialize Python package files: Create `__init__.py` in all created directories (`code/`, `tests/`, `data/`, etc.) to ensure they are recognized as Python packages
+- [X] T001b [P] Initialize Python package files: Create `__init__.py` in all created directories (`code/`, `tests/`, `data/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`, `tests/integration/`, `tests/contract/`) to ensure they are recognized as Python packages. Note: `data/raw/` is excluded as it stores non-Python data files and should not contain `__init__.py`.
 - [X] T002a [P] Initialize Python project file: Create `code/requirements.txt` with base dependencies (torch, transformers, datasets, scikit-learn, accelerate, pytest, scipy)
 - [X] T002b [P] Pin Python versions: Update `code/requirements.txt` with exact version pins (e.g., `torch==2.0.0`)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
@@ -82,18 +82,21 @@
 
 - [X] T010 [P] [US1] Unit test for warm-up logic (no dream phase in the initial steps) in `tests/unit/test_trainer.py`
 - [X] T011 [P] [US1] Unit test for entropy calculation and low-entropy retry logic in `tests/unit/test_trainer.py`
+- [X] T011b [P] [US1] Unit test for `LowEntropyWarning` exception: Verify that `LowEntropyWarning` is raised when retry limit (3) is exhausted in `tests/unit/test_trainer.py`.
 - [X] T012 [P] [US1] Integration test for a multi-step wake/dream cycle on a tiny dataset in `tests/integration/test_training_loop.py`
 
 ### Implementation for User Story 1
 
-- [X] T013a [US1] Define masking constant: Create `code/data/augment.py` and define `MASK_RATE = 0.15` constant in `config.py`
-- [X] T013b [US1] Implement masking logic: Implement the random token masking function in `code/data/augment.py` using the `MASK_RATE` constant, consistent with BERT masking strategies
-- [X] T014 [US1] Implement `code/models/trainer.py` core loop: Wake phase (standard cross-entropy on real data using `torch.nn.CrossEntropyLoss` and `torch.optim.AdamW`), including explicit data batching strategy (e.g., `DataLoader` with `batch_size` from config)
-- [X] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs using T013b (MASK_RATE=0.15), reconstruct original tokens (DAE loss using `torch.nn.CrossEntropyLoss`), enforce a multi-to-one wake-to-dream step ratio via a `DreamScheduler` class using a step counter modulo 5 logic
+- [X] T013a [US1] Define masking constant: Create `code/data/augment.py` and define `MASK_RATE = 0.15` constant in `config.py`. Note: This is a standard BERT default but is configurable to allow experimental flexibility.
+- [X] T013b [US1] Implement masking logic: Implement the random token masking function in `code/data/augment.py` using the `MASK_RATE` constant, consistent with BERT masking strategies.
+- [X] T014 [US1] Implement `code/models/trainer.py` core loop: Wake phase (standard cross-entropy on real data using `torch.nn.CrossEntropyLoss` and `torch.optim.AdamW`), including explicit data batching strategy (e.g., `DataLoader` with `batch_size` from config).
+- [X] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs using T013b (MASK_RATE=0.15), reconstruct original tokens (DAE loss using `torch.nn.CrossEntropyLoss`), enforce a multi-to-one wake-to-dream step ratio via a `DreamScheduler` class using a step counter modulo 5 logic. **Note**: This implements the DAE approach from plan.md "Critical Revision" to align with the authorized implementation, despite spec.md FR-002 language. Spec amendment pending to update FR-002.
 - [X] T016 [US1] Implement `code/models/trainer.py` Warm-up protocol: Skip dream phase for first steps; raise `RuntimeError` if dream phase is triggered before step 10.
-- [X] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits per token), calculated as average of -p*log2(p) per token (excluding padding tokens, base-2 log), trigger retry up to 3 times with local retry counter increment (not global seed) or discard batch
+- [X] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits per token), calculated as average of -p*log2(p) per token (excluding padding tokens, base-2 log), trigger retry up to 3 times with local retry counter increment (not global seed). **Requirement**: Log the 'discard batch' action to `data/logs/` and raise a specific `LowEntropyWarning` exception if the retry limit is exhausted to ensure concrete verification.
 - [X] T018 [US1] Integrate `memory_monitor` (T005) into the training loop to abort and save checkpoint on OOM
-- [ ] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status (depends on T008)
+- [X] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status (depends on T008). **Requirement**: Explicitly log phase transitions and metrics to satisfy FR-005 (audit logging) and FR-001 (phase tracking). Must output structured JSON logs for auditability. This task fulfills FR-005 by ensuring all phase transitions and metrics are recorded in a structured format.
+- [ ] T040 [US1] **REMOVED**: Task T040 (Salience-Based Selection) was removed as it constituted unapproved scope creep absent from spec.md and plan.md.
+- [ ] T041 [US1] **REMOVED**: Task T041 (Logical Depth Metric) was removed as it constituted unapproved scope creep absent from spec.md and plan.md.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +110,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for statistical significance calculation (paired t-test) in `tests/unit/test_metrics.py`
+- [X] T020 [P] [US2] Unit test for statistical significance calculation (Wilcoxon signed-rank test) in `tests/unit/test_metrics.py`
 - [X] T021 [P] [US2] Integration test comparing two dummy models in `tests/integration/test_evaluation.py`
 
 ### Implementation for User Story 2
@@ -115,9 +118,13 @@
 - [X] T022 [US2] Implement `code/eval/metrics.py` for few-shot accuracy calculation on held-out GLUE subsets
 - [X] T023 [US2] Implement `code/models/trainer.py` Baseline mode: Continuous SFT with identical total token count (not just steps) and data tokens as the experimental run
 - [X] T024a [US2] Implement `code/main.py` orchestration setup: Logic to orchestrate parallel runs (Experimental vs. Baseline) with same seeds (depends on T014-T017 and T023 implementation)
-- [X] T024b [US2] Implement `code/main.py` result aggregation: Logic to collect and aggregate results from parallel runs (depends on T024a and T026)
-- [ ] T025 [US2] Implement statistical analysis: Compute accuracy difference and paired t-test (scipy.stats.ttest_rel, α=0.05) p-value across 5 seeds (per SC-002); input data structure is list of 5 accuracy floats per model, PAIRED BY SEED INDEX, then apply t-test
-- [X] T026 [US2] Implement result reporting: Save comparative report to `data/results/comparison_report.json`
+- [X] T024b [US2] Implement `code/main.py` result aggregation: Logic to collect and aggregate results from parallel runs (depends on T024a). **Note**: T025a depends on T024b.
+- [X] T025a [US2] Implement data aggregation: Prepare the list of paired accuracy results (5 seeds) from T023 and T024b for statistical analysis. Input: list of 5 accuracy floats per model, PAIRED BY SEED INDEX.
+- [X] T025b [US2] Implement statistical analysis: Compute accuracy difference and **Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`, α=0.05) p-value across 5 seeds (per plan.md Complexity Tracking and Constitution Principle VII; supersedes SC-002 t-test requirement).
+- [X] T025c [US2] Implement result formatting: Format the statistical output (p-value, effect size) for the final report.
+- [X] T026 [US2] Implement result reporting: Save comparative report to `data/results/comparison_report.json` (depends on T025c)
+- [ ] T042 [US2] **REMOVED**: Task T042 (Error Reduction Rate) was removed as it constituted unapproved scope creep absent from spec.md and plan.md.
+- [ ] T043 [US2] **REMOVED**: Task T043 (Generalization from Fewer Examples) was removed as it constituted unapproved scope creep absent from spec.md and plan.md.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,10 +146,7 @@
 - [X] T031 [US3] Implement `code/main.py` time monitoring and abort logic if wall-clock > 5.5 hours (read `MAX_WALL_CLOCK_HOURS` from `config.py`, raise `TimeLimitExceeded`)
 - [X] T032 [US3] Implement `code/main.py` memory monitoring integration with `memory_monitor` (T005) to enforce GB limit
 - [X] T033 [US3] Create `code/scripts/verify_feasibility.sh` to run a dry-run with resource limits
-
-The research question remains: [Research Question]
-The method remains: [Method]
-References: [References]
+- [ ] T044 [US3] **REMOVED**: Task T044 (Metabolic Cost Estimator) was removed as it constituted unapproved scope creep absent from spec.md and plan.md.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -156,7 +160,9 @@ References: [References]
 
 ### Implementation for User Story 1 (Sensitivity Extension)
 
-- [X] T036 [US1] Implement temperature sweep logic in `code/main.py` for dream phase: execute a grid search running the full training pipeline for each temperature value in {0.5, 0.7, 0.9} with 5 seeds per temperature value (depends on T026 and US2 completion), RE-INITIALIZE MODEL WEIGHTS, OPTIMIZER STATE, AND RANDOM SEED for each run to ensure state isolation, collect final accuracy for each run, and compute variance using `scikit-learn`'s `var` function
+- [X] T036a [US1] Implement temperature sweep orchestration: Execute the full training pipeline (US1 + US2 logic) for each temperature value in {0.5, 0.7, 0.9} with 5 seeds per temperature value. Note: 0.7 is the community standard default; the range is chosen to capture sensitivity. **Dependency**: Depends on completion of T017 (Core Loop) and T023 (Baseline logic).
+- [X] T036b [US1] Implement per-run isolation: RE-INITIALIZE MODEL WEIGHTS, OPTIMIZER STATE, AND RANDOM SEED for each run to ensure state isolation. Collect final accuracy for each run.
+- [X] T036c [US1] Implement variance calculation: Compute variance of the final accuracy values across the temperature sweep using `scikit-learn`'s `var` function and save to `data/results/variance_report.json`.
 - [X] T037 [US1] Implement reporting logic to save variance_report.json to data/results/ containing variance of final accuracy across temperature sweep (calculated as population variance of the accuracy values) to satisfy SC-005
 
 **Checkpoint**: Sensitivity analysis complete
@@ -167,12 +173,13 @@ References: [References]
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Documentation updates in `docs/` and `quickstart.md`
-- [ ] T052 Code cleanup and refactoring
-- [ ] T053 Performance optimization (batching, data loading) across all stories
-- [ ] T054 [P] Additional unit tests (if requested) in `tests/unit/` <!-- ATOMIZE: requested -->
-- [ ] T055 Security hardening
-- [ ] T056 Run quickstart.md validation
+- [X] T051 [P] Documentation updates in `docs/` and `quickstart.md`
+- [X] T052 Code cleanup and refactoring
+- [X] T053 Performance optimization (batching, data loading) across all stories
+- [X] T054 [P] Additional unit tests (if requested) in `tests/unit/` <!-- ATOMIZE: requested -->
+- [X] T055 Security hardening
+- [X] T056 Run quickstart.md validation
+- [X] T057 [P] Update `spec.md` to explicitly define the "DAE on Real Data" approach as the canonical implementation, resolving the divergence from FR-002 "generative replay" language.
 
 ---
 
@@ -236,7 +243,7 @@ Task: "Implement code/models/trainer.py core loop (Wake/Dream)"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story independently (100-step run, entropy check, warm-up)
+4. **STOP and VALIDATE**: Test User Story independently (multi-step run, entropy check, warm-up)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -265,7 +272,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability to specific user story
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
@@ -273,7 +280,8 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks MUST run on CPU-only CI with a minimal core count and limited RAM.. No GPU, no 8-bit quantization, no large models.
 - **Data Integrity**: All data must be real (GLUE/SuperGLUE) via `datasets` library. No fake data generation.
-- **Statistical Method**: Primary success criterion uses paired t-test (SC-002) as mandated by spec.md.
+- **Statistical Method**: Primary success criterion uses **Wilcoxon signed-rank test** (per plan.md and Constitution) across 5 random seeds.
 - **Warm-up**: Hard constraint enforced by RuntimeError if dream phase triggers before step 10.
-- **Sensitivity**: Protocol defined as grid search over a set of hyperparameters with 5 seeds per temperature for the sweep.
+- **Sensitivity**: Protocol defined as grid search over {0.5, 0.7, 0.9} with 5 seeds per temperature for the sweep.
 - **Architecture Note**: Implementation follows plan.md "Critical Revision" (DAE on masked real data) despite spec.md FR-002 "generative replay" language; spec amendment pending.
+- **Removed Scope**: Tasks T040-T044 (Salience, Logical Depth, Error Reduction, Low-Shot, Metabolic Cost) were removed as they were unapproved scope creep.

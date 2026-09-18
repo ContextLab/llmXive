@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dream Event Schema"
+description: "Schema for logging dream phase events (entropy, retries)."
+type: "object"
+properties:
+  step:
+    type: "integer"
+    description: "Training step number."
+  entropy_mean:
+    type: "number"
+    description: "Average entropy of generated tokens (bits per token)."
+    minimum: 0.0
+  retry_count:
+    type: "integer"
+    description: "Number of retries due to low entropy."
+    minimum: 0
+  discarded:
+    type: "boolean"
+    description: "True if the batch was discarded after max retries."
+required:
+  - "step"
+  - "entropy_mean"
+  - "retry_count"
+  - "discarded"
+additionalProperties: false

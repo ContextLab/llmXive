@@ -1,0 +1,16 @@
+status: none
+intent: download huggingface datasets GLUE MNLI SST-2 AX LexGLUE CaseHold CodeXGLUE
+  python package dataset
+required_fields:
+- premise
+- hypothesis
+- sentence
+- sentence1
+- sentence2
+- case_text
+- code1
+- code2
+- label
+cache_key: 8fa8e027101be03cc1a1d9dffa832d5c79bff3e30f692047518eb8e2b56ca3fd
+searched_at: '2026-09-18T20:29:34.237697+00:00'
+retry_count: 1

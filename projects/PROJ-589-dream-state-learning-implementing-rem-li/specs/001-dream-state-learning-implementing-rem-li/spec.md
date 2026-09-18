@@ -44,7 +44,7 @@
 **Independent Test**: Can be tested by running the script on a local machine with resource limiting (e.g., `ulimit` or Docker) or a CI runner, verifying no OOM errors occur and execution time stays under the threshold.
 
 **Acceptance Scenarios**:
-1. **Given** the training script is launched on a CPU-only environment with 7GB RAM, **When** the script runs, **Then** the peak memory usage must not exceed 6.5 GB.
+1. **Given** the training script is launched on a CPU-only environment with 7GB RAM, **When** the script runs, **Then** the peak memory usage must remain within acceptable system constraints, consistent with established resource management guidelines [Reference]..
 2. **Given** the full experimental pipeline (training + evaluation), **When** executed on a standard CI runner, **Then** the total wall-clock time must complete within 5 hours.
 
 ---
@@ -59,13 +59,13 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST implement a training loop that alternates between "wake" phases (standard cross-entropy on real data) and "dream" phases (generative replay with masked inputs) with a fixed 4:1 step ratio (See US-1).
+- **FR-001**: System MUST implement a training loop that alternates between "wake" phases (standard cross-entropy on real data) and "dream" phases (generative replay with masked inputs) with a fixed step ratio (See US-1).
 - **FR-002**: System MUST generate pseudo-samples during dream phases using the current model state with a moderate temperature setting. and apply random token masking (masking [deferred] of tokens, consistent with standard BERT masking strategies) before retraining on the original input for reconstruction (See US-1).
 - **FR-003**: System MUST run a parallel baseline training job using continuous supervised fine-tuning with the exact same total number of gradient steps and data tokens as the experimental run (See US-2).
 - **FR-004**: System MUST evaluate both the experimental and baseline models on the same held-out GLUE/SuperGLUE few-shot subsets and compute the accuracy difference (See US-2).
-- **FR-005**: System MUST enforce a hard memory limit check that aborts the job if peak RSS (measured via /proc/self/status) exceeds a predefined threshold. (chosen to leave 0.5 GB headroom for OS overhead within the 7 GB environment limit), saves the current model checkpoint and training state to allow reproducible debugging, and logs the peak usage for audit (See US-3).
+- **FR-005**: System MUST enforce a hard memory limit check that aborts the job if peak RSS (measured via /proc/self/status) exceeds a predefined threshold. (chosen to leave a modest headroom for OS overhead within the 7 GB environment limit), saves the current model checkpoint and training state to allow reproducible debugging, and logs the peak usage for audit (See US-3).
 - **FR-006**: System MUST perform a sensitivity analysis on the dream-phase temperature parameter by sweeping values across a representative range. and reporting the variance in final accuracy to isolate the consolidation effect from generic regularization (See US-1).
-- **FR-007**: System MUST implement a "warm-up" protocol that delays the first dream phase until after 10 wake steps to ensure initial representation stability (See US-1).
+- **FR-007**: System MUST implement a "warm-up" protocol that delays the first dream phase until after a sufficient number of wake steps to ensure initial representation stability (See US-1).
 
 ### Key Entities
 
@@ -91,6 +91,6 @@
 - The GLUE/SuperGLUE datasets used for few-shot evaluation are small enough (≤1000 samples) to fit entirely in RAM during the evaluation phase.
 - The "dream" phase is implemented as a generative replay mechanism using the model's own predictions for input generation, but the training target is the original input (denoising autoencoder style), not a biological simulation of synaptic pruning, which is computationally intractable on CPU.
 - The random seed for the experiment is fixed for reproducibility, with multiple additional seeds used for statistical aggregation.
-- The model architecture is limited to DistilBERT or TinyLlama (≤100M parameters) to ensure the training loop completes within the 6-hour time budget on a 2-core runner.
-- The "temperature" hyperparameter for the dream phase is assumed to be the primary control knob for the "dreaming" intensity, with 0.7 serving as the community-standard default for text generation.
+- The model architecture is limited to DistilBERT or TinyLlama (≤100M parameters) to ensure the training loop completes within the time budget on a -core runner.
+- The "temperature" hyperparameter for the dream phase is assumed to be the primary control knob for the "dreaming" intensity, with a value serving as the community-standard default for text generation.
 - The memory abort threshold is selected to provide a buffer for operating system overhead within the GitHub Actions runner limit..

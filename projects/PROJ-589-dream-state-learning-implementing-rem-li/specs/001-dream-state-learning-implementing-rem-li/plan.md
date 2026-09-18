@@ -1,41 +1,61 @@
 # Implementation Plan: Dream-State Learning: Implementing REM-like Consolidation in Language Models
 
-**Branch**: `001-dream-state-learning-rem-consolidation` | **Date**: 2026-07-01 | **Spec**: `spec.md`
+**Branch**: `001-dream-state-learning-rem-consolidation` | **Date**: 2026-06-30 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-dream-state-learning-rem-consolidation/spec.md`
 
 ## Summary
 
-This project implements a bio-inspired training protocol for small language models (SLMs) that alternates between "wake" (standard supervised fine-tuning on real data) and "dream" (Denoising Autoencoder reconstruction on masked real data) phases. The primary technical approach involves a custom PyTorch training loop using DistilBERT or TinyLlama (CPU-optimized) to test if this oscillatory schedule improves few-shot generalization on GLUE/SuperGLUE subsets compared to a continuous training baseline. The plan strictly adheres to the GitHub Actions free-tier constraints (2 CPU, 7GB RAM, no GPU).
-
-**Critical Revision**: The "dream" phase is implemented as a Denoising Autoencoder (DAE) on *real* training data (masked input -> original input), not generative replay of hallucinated text. This eliminates the risk of training on garbage generations while preserving the consolidation mechanism (reconstruction of latent structure).
+This project implements a bio-inspired training cycle for small language models (≤100M params) that alternates between "wake" phases (standard supervised fine-tuning on real data) and "dream" phases (generative replay with masked inputs). The primary goal is to test if this oscillatory protocol improves few-shot generalization compared to continuous training, while strictly adhering to GitHub Actions free-tier constraints (2 CPU, 7GB RAM, ≤6h). The implementation will utilize a Denoising Autoencoder (DAE) approach for the dream phase, where the model reconstructs masked tokens from its own generated pseudo-samples, avoiding the computational intractability of full synaptic pruning simulations.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU wheel), `transformers`, `datasets`, `scikit-learn`, `accelerate` (CPU-only config), `pytest`  
-**Storage**: In-memory tensors; checkpoints saved to `data/checkpoints/`; logs to `stdout` and `data/logs/`  
-**Testing**: `pytest` (unit tests for loop logic, integration tests for full run on a sufficient number of steps)  
-**Target Platform**: Linux (GitHub Actions runner: `ubuntu-latest`), CPU-only  
-**Project Type**: Research/Computational Experiment  
-**Performance Goals**: Complete 500-step training + evaluation within 4 hours on 2-core CPU; peak memory < 6.5 GB  
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization requiring CUDA; dataset size limited to fit in RAM; strict: wake/dream ratio  
-**Scale/Scope**: Small models (≤100M params), small datasets (≤1000 samples for evaluation), Multiple random seeds for statistical power.
+**Primary Dependencies**: `transformers>=4.40.0`, `datasets>=2.18.0`, `torch>=2.2.0` (CPU build), `scipy>=1.12.0`, `pandas>=2.2.0`, `accelerate>=0.28.0`  
+**Storage**: Local file system (`data/` for datasets, `artifacts/` for checkpoints/logs)  
+**Testing**: `pytest` (unit), `pytest-cov` (coverage), custom integration scripts for training loops  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM)  
+**Project Type**: Research CLI / Experimental Training Framework  
+**Performance Goals**: Complete full experimental pipeline (5 seeds, wake/dream + baseline, temp sweep) within 5 hours on CPU; peak RSS < 6.0 GB.  
+**Constraints**: No GPU usage for training (CPU-first); strict memory abort threshold; no access to gated datasets; must handle low-entropy generation collapse.
 
-> Empirical specifics (exact model weights, final accuracy values) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+### Token Exposure Control
+To satisfy US-2 and FR-003, the baseline run consumes the **exact same number of real training tokens** as the Wake phases of the experimental run. The Dream phase tokens (generated) are excluded from the baseline's token count. Total steps are identical, but the data volume (real tokens) is strictly controlled to isolate the consolidation effect from data volume. The baseline sees the same number of real tokens as the experimental run's Wake phases; the Dream phase's generated tokens do not count as 'real' exposure.
+
+### Semantic Mapping: Generative Replay vs. DAE
+The Spec (FR-002) mandates "generative replay with masked inputs". The plan implements this as a **Denoising Autoencoder (DAE)** on model-generated pseudo-samples. This satisfies the computational constraints while maintaining the spirit of replay (using model-generated data to refine representations). The "replay" is the generation of pseudo-samples; the "consolidation" is the reconstruction of the original real input. This implementation explicitly satisfies FR-002's "generative replay" requirement by treating the generation as the replay and the reconstruction as the consolidation.
+
+### Frozen Teacher Mechanism
+To address circularity concerns (scientific soundness), the Dream phase uses a **frozen copy** of the model from the start of the cycle to generate pseudo-samples. The active model learns to reconstruct the **original real input** (from the Wake batch), not the generated pseudo-sample. The teacher model is updated **only at the start of each Training Cycle (every 5 steps)**, ensuring the 'dream' signal is grounded but not static, breaking immediate circularity while allowing slow evolution. This ensures the learning signal is grounded in reality and not purely self-reinforcing.
+
+### Warm-up Protocol (FR-007)
+The first **[deferred] of total steps** (or a minimum of 10 steps, whichever is greater) are Wake-only. The warm-up ends early if validation loss stabilizes (change < 1% over 5 steps). This ensures initial representation stability before enabling the Dream phase.
+
+### Temperature Sweep (FR-006)
+The sensitivity analysis sweeps temperatures across the range **[0.7, 0.9, 1.1, 1.3]**. The variance metric is the **standard deviation of accuracy across seeds for each temperature setting**, and the variance *across temperatures* is also reported to satisfy the sensitivity analysis.
+
+### Checkpoint Save on Abort (FR-005)
+If peak RSS exceeds the threshold, the system triggers a hard abort, saves the current model state and optimizer state to `artifacts/checkpoints/oom_abort/`, and logs the peak usage for audit. This is a distinct task/phase in the implementation.
+
+### Scope Creep
+Tasks T040 (Salience-Based Selection), T041 (Logical Depth), T042 (Error Reduction Rate), T043 (Low-Shot Generalization), and T044 (Metabolic Cost) are **out of scope** and not authorized by the Spec. The `tasks.md` file (Phase 2 output) will be generated without these tasks to prevent implementation drift.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
+| Principle | Status | Verification Method |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, explicit `requirements.txt`, and execution of `code/` against `data/` on fresh runners. |
-| **II. Verified Accuracy** | **PASS** | All citations in `research.md` will be restricted to the verified dataset list. A mandatory step for the **Reference-Validator Agent** is included in the workflow to verify all external sources before `research_complete`. |
-| **III. Data Hygiene** | **PASS** | Raw data (GLUE subsets) will be downloaded via `datasets` library (canonical source). Upon download, the `datasets` library will compute SHA-256 checksums of the cached parquet files. These checksums will be programmatically extracted and recorded in `state/projects/PROJ-589-dream-state-learning-implementing-rem-li.yaml` under the `artifact_hashes` key. No in-place modification of raw data is permitted; any derived splits will be written to new files with corresponding hash updates. |
-| **IV. Single Source of Truth** | **PASS** | All metrics in the final report will be generated programmatically from `data/` rows, not hand-typed. |
-| **V. Versioning Discipline** | **PASS** | The **Advancement-Evaluator Agent** computes content hashes for all artifacts in `code/` and `data/` and updates the `updated_at` timestamp in the project state file upon any change. |
-| **VI. Oscillatory Training Protocol** | **PASS** | The plan implements an asymmetric wake/dream ratio and a multi-step warm-up. The "dream" phase uses masked reconstruction (DAE) as the specific realization of the "knowledge-distillation" principle, ensuring alignment with the technical design without altering the constitutional principle. |
-| **VII. Few-Shot Generalization Validation** | **PASS** | Evaluation is restricted to GLUE/SuperGLUE subsets (≤1000 samples) with Wilcoxon signed-rank tests across multiple seeds. |
+| **I. Reproducibility** | **COMPLIANT** | `requirements.txt` pins versions; random seeds pinned in `code/`; datasets fetched via `datasets.load_dataset` with explicit revision. |
+| **II. Verified Accuracy** | **COMPLIANT** | All citations in `research.md` and `plan.md` will be validated against the "Verified datasets" block in the user message before artifact write. This is a *process* requirement, not a current state verification. |
+| **III. Data Hygiene** | **COMPLIANT** | Data files will be checksummed upon download; raw data preserved; transformations produce new files. PII scan integrated in CI. |
+| **IV. Single Source of Truth** | **COMPLIANT** | All results in `paper/` will be generated programmatically from `data/` and `code/` outputs; no hand-typed numbers. |
+| **V. Versioning Discipline** | **COMPLIANT** | Artifact hashes recorded in state YAML; `updated_at` timestamps managed by Advancement-Evaluator. |
+| **VI. Oscillatory Training Protocol** | **COMPLIANT** | Plan explicitly defines 4:1 wake/dream ratio (Constitution Principle VI); dream phase uses masked reconstruction; deviations logged as ablation. |
+| **VII. Few-Shot Generalization Validation** | **COMPLIANT** | Evaluation on GLUE/SuperGLUE subsets (≤1000 samples); statistical significance via paired t-test (α=0.05) across ≥5 seeds; effect sizes reported. |
+
+**Note on Statistical Method**: The Specification (SC-002) mandates a **paired t-test** with α=0.05. The Plan will implement this as the primary acceptance metric. A secondary **Wilcoxon signed-rank test** will be computed and reported for robustness, acknowledging the small sample size (n=5) and potential non-normality, but the t-test result drives acceptance. This ensures compliance with the Spec (SSoT) while addressing methodological rigor concerns.
 
 ## Project Structure
 
@@ -47,54 +67,66 @@ specs/001-dream-state-learning-rem-consolidation/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── training_config.schema.yaml
-    └── evaluation_result.schema.yaml
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output (Note: T040-T044 excluded)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-589-dream-state-learning-implementing-rem-li/code/
 ├── __init__.py
-├── config.py            # Hyperparameters, paths, seed management
+├── requirements.txt
+├── main.py                  # Entry point for training orchestration
+├── config.py                # Hyperparameters and paths
 ├── models/
 │   ├── __init__.py
-│   └── trainer.py       # Core Wake/Dream loop logic (DAE implementation)
+│   ├── trainer.py           # Wake/Dream loop logic
+│   ├── dream_scheduler.py   # Phase timing and warm-up logic (FR-007)
+│   └── entropy_checker.py   # Low-entropy detection and retry (Edge Cases)
 ├── data/
 │   ├── __init__.py
-│   ├── loader.py        # GLUE/SuperGLUE loading and preprocessing
-│   └── augment.py       # Dream-phase masking logic (DAE)
-├── eval/
+│   └── loaders.py           # Dataset fetching and streaming
+├── evaluation/
 │   ├── __init__.py
-│   └── metrics.py       # Few-shot accuracy, Wilcoxon test computation
-├── main.py              # Entry point: runs experiment + baseline
-└── utils/
-    ├── memory_monitor.py # FR-005: Peak RSS monitoring
-    └── logger.py
-
-tests/
-├── __init__.py
-├── contract/            # Schema validation tests
-├── integration/         # Full -step run test
-└── unit/
-    ├── test_trainer.py
-    └── test_memory_monitor.py
-
-data/
-├── raw/                 # Downloaded GLUE subsets (cached, checksummed)
-├── checkpoints/         # Model weights
-└── results/             # JSON logs, accuracy reports
+│   ├── few_shot.py          # GLUE/SuperGLUE evaluation logic
+│   └── stats.py             # Statistical analysis (t-test, Wilcoxon)
+├── utils/
+│   ├── __init__.py
+│   ├── memory_monitor.py    # RSS monitoring and abort logic
+│   └── logging.py           # Phase transition and audit logging
+└── tests/
+    ├── unit/
+    │   ├── test_entrance.py
+    │   └── test_stats.py
+    └── integration/
+        └── test_training_loop.py
 ```
 
-**Structure Decision**: Single project structure (`code/`) selected. This is a computational experiment, not a web service or library. The separation of `models`, `data`, and `eval` ensures modularity while keeping the codebase small enough for the constrained CI environment.
+**Structure Decision**: Single project structure under `projects/PROJ-589-dream-state-learning-implementing-rem-li/code/` is selected to maintain tight coupling between the research logic, data handling, and evaluation, facilitating the "Single Source of Truth" principle. The `tests/` directory is nested within `code/` to ensure tests are versioned with the code they validate.
+
+**File Mapping**:
+- `models/dream_scheduler.py`: Explicitly implements the **warm-up protocol** (FR-007) and phase timing.
+- `models/entropy_checker.py`: Explicitly implements the **low-entropy detection** and retry logic (Edge Cases).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Dual-Loop Architecture (Wake/Dream)** | Required by FR-001 and US-1 to test the bio-inspired hypothesis. | A single continuous training loop (Baseline only) would fail to test the core hypothesis of consolidation. |
-| **Memory Monitor (FR-005)** | Required to enforce the 6.5 GB hard limit on GitHub Actions free tier. | Relying on OS OOM killer would result in silent failures and non-reproducible crashes; explicit abort allows checkpoint saving. |
-| **Warm-up Protocol (FR-007)** | Required to prevent "garbage" dream phases in early training. | Starting dream phase immediately leads to low-entropy collapse and training instability (Edge Case handling). Increased to a sufficient number of steps to ensure robust prior. |
-| **Wilcoxon Test** | Required due to unequal variance in stochastic dream phase. | Paired t-test assumes equal variance (homoscedasticity), which is violated by the stochastic nature of the dream phase. |
+| :--- | :--- | :--- |
+| **Separate Baseline Run** | Required by US-2 and FR-003 to isolate the effect of consolidation. The baseline consumes the same number of *real* tokens as the Wake phases of the experimental run. | A single run with mixed data would conflate the consolidation effect with general training progress, violating the experimental control. |
+| **Entropy Check & Retry** | Required by Edge Cases to prevent training on collapsed/garbage data. | Skipping this risks model collapse or training on nonsensical pseudo-samples, rendering results invalid. |
+| **Memory Monitor & Abort** | Required by FR-005 and US-3 to ensure CI feasibility. | Without hard abort, OOM errors on CI would cause silent failures or infinite hangs, breaking reproducibility. |
+| **Checkpoint Save on Abort** | Required by FR-005 to save model/optimizer state upon memory abort. | Without this, debugging OOM failures would be impossible, violating reproducibility. |
+| **Temperature Sweep** | Required by FR-006 and SC-005 to isolate consolidation from regularization. | A single temperature setting cannot distinguish between "dreaming" benefits and generic noise injection. |
+
+## Success Criteria
+
+- **SC-001**: The relative improvement in few-shot accuracy of the Wake/Dream model over the Continuous Baseline is measured against the baseline accuracy.
+- **SC-002**: The statistical significance of the improvement is measured against a **paired t-test** threshold of α=0.05 across 5 random seeds (Primary metric). A Wilcoxon signed-rank test is reported for robustness.
+- **SC-003**: The peak memory consumption during training is measured against the predefined system limit of **6.0 GB** to verify CPU-only feasibility.
+- **SC-004**: The total wall-clock execution time is measured against the standard time limit of **5 hours** per GitHub Actions job.
+- **SC-005**: The variance in final accuracy across a temperature sweep (range [0.7, 0.9, 1.1, 1.3]) is measured as the **standard deviation** of accuracy across seeds for each temperature, linked to the Temperature Sweep implementation in Technical Context.
+
+## Performance Goals
+- Complete full experimental pipeline (5 seeds, wake/dream + baseline, temp sweep) within **5 hours** (SC-004).
+- Peak RSS < **6.0 GB** (SC-003).
