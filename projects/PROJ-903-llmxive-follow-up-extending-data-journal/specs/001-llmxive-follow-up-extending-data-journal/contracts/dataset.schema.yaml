@@ -1,41 +1,32 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Metadata Schema"
-description: "Schema for input dataset metadata and validation status."
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for the input dataset used in the Counterfactual Inspector Agent.
 type: object
 properties:
+  dataset_id:
+    type: string
+    description: Unique identifier for the dataset (e.g., 'uci_har')
   source_url:
     type: string
-    description: "Verified URL from which the dataset was loaded."
-  checksum:
-    type: string
-    description: "SHA256 checksum of the raw dataset file."
+    description: Verified URL or loader identifier for the dataset.
+    pattern: "^https://|^datasets\\.load_dataset"
   row_count:
     type: integer
-    minimum: 0
-    description: "Total number of rows in the dataset."
-  column_count:
-    type: integer
-    minimum: 0
-    description: "Total number of columns in the dataset."
-  numeric_columns:
+    minimum: 1
+    description: Number of rows in the dataset.
+  numeric_features:
     type: array
     items:
       type: string
-    description: "List of column names identified as numeric."
-  missing_values:
-    type: object
-    additionalProperties:
-      type: integer
-    description: "Map of column name to count of missing values."
-  is_valid_for_analysis:
-    type: boolean
-    description: "True if row_count >= 30 and numeric_columns >= 5."
+    description: List of column names that are numeric.
+  missing_value_strategy:
+    type: string
+    enum: ["mean", "median", "drop"]
+    description: Strategy used for handling missing values.
 required:
+  - dataset_id
   - source_url
-  - checksum
   - row_count
-  - column_count
-  - numeric_columns
-  - missing_values
-  - is_valid_for_analysis
+  - numeric_features
+  - missing_value_strategy
 additionalProperties: false

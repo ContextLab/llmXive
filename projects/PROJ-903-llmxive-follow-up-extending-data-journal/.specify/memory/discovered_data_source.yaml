@@ -1,0 +1,38 @@
+status: verified
+kind: pypi_package
+ref: scikit-learn
+access_python: 'from sklearn.datasets import fetch_openml
+
+
+  data = fetch_openml(data_id=43939, as_frame=False, parser=''liac-arff'')
+
+  X = data["data"]
+
+  RECORDS = X.shape[0]
+
+  FIELDS = ",".join(data["feature_names"])
+
+  print(f"RECORDS={RECORDS}")
+
+  print(f"FIELDS={FIELDS}")'
+record_count: 20640
+sample_fields:
+- longitude
+- latitude
+- housing_median_age
+- total_rooms
+- total_bedrooms
+- population
+- households
+- median_income
+- ocean_proximity
+field_coverage: 1.0
+required_fields:
+- median_income
+- median_house_value
+- housing_median_age
+- total_rooms
+- population
+intent: California Housing dataset scikit-learn OpenML with five numeric variables
+  100 rows python package dataset
+cache_key: 820cc392d8d513faaf8affde18cba557e5b11ece238a9b353c9f78bd26776bff

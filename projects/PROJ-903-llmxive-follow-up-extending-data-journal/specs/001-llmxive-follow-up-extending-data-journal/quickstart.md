@@ -1,83 +1,90 @@
-# Quickstart: llmXive Follow-up: Counterfactual Inspector Agent
+# Quickstart: Counterfactual Inspector Agent
 
-## 1. Prerequisites
+## Prerequisites
 
--   Python 3.11+
--   Git
--   Access to HuggingFace (for dataset loading)
--   2 vCPU / 7GB RAM environment (e.g., GitHub Actions, local VM)
+- Python 3.11+
+- `git`
+- Access to a Hugging Face account (for dataset access, if required)
 
-## 2. Installation
+## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-903-llmxive-follow-up-extending-data-journal
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd llmxive-follow-up
+ ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins specific versions of `transformers`, `scipy`, and `datasets` to ensure CPU compatibility.*
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: `requirements.txt` includes `scikit-learn`, `pandas`, `scipy`, `datasets`, `openai`, `pyyaml`.*
 
-## 3. Running the Pipeline
+## Running the Pipeline
 
-### 3.1. Single Dataset Test
-To test the pipeline on a single dataset (e.g., the Synthetic SQL dataset):
-
+### 1. Download Data (Optional)
+If you want to pre-download the dataset:
 ```bash
-python code/main.py --dataset "gretelai/synthetic_text_to_sql" --mode baseline_and_inspector
+python code/data_loader.py --dataset uci_har --mode download
+```
+This creates `data/raw/uci_har_test.csv`.
+
+### 2. Run the Full Pipeline
+Execute the main script with a specific dataset:
+```bash
+python code/main.py --dataset uci_har --seed 42
+```
+- **Output**: Results are saved in `output/`.
+- **Logs**: Detailed logs are in `logs/pipeline_run.log`.
+
+### 3. Inspect Results
+- **Baseline Story**: `output/baseline_stories/uci_har_baseline.json`
+- **Counterfactual Report**: `output/counterfactual_reports/uci_har_counterfactual.json`
+- **Integrated Story**: `output/integrated_stories/uci_har_integrated.json`
+- **Metrics**: `output/metrics_report.json`
+
+## Testing
+
+Run the unit tests to verify statistical logic and query generation:
+```bash
+pytest tests/unit/ -v
 ```
 
-**Expected Output**:
--   A JSON file in `data/processed/` containing the `IntegratedStory`.
--   Console logs showing the Baseline Narrative and any Counterfactual Insights found.
-
-### 3.2. Full Batch Run
-To run the experiment on all available datasets (or the subset defined in config):
-
+Run integration tests for the full pipeline:
 ```bash
-python code/main.py --mode full_experiment --output-dir results/
+pytest tests/integration/ -v
 ```
 
-**Note**: This will take -6 hours on a standard GitHub Actions runner.
+## API Usage (Programmatic)
 
-## 4. Evaluation & Metrics
+You can import the pipeline components directly:
 
-### 4.1. Generating Blinded Stories
-Before expert evaluation, generate anonymized stories:
+```python
+from code.stats_engine import StatsEngine
+from code.query_generator import QueryRetrier
 
-```bash
-python code/evaluation/rubric.py --generate-blinded --output-dir eval_data/
+# Initialize
+stats = StatsEngine()
+trier = QueryRetrier(max_attempts=2)
+
+# Load data
+df = stats.load_data("data/raw/uci_har_test.csv")
+
+# Baseline
+baseline = stats.find_primary_correlation(df)
+
+# Counterfactual
+counterfactuals = trier.generate_and_test(df, baseline)
 ```
 
-### 4.2. Calculating Metrics
-After expert scores are manually entered (or simulated for testing):
+## Troubleshooting
 
-```bash
-python code/evaluation/metrics.py --input eval_data/scores.json
-```
-
-**Output**:
--   `metrics_report.json`: Contains SC-001 (Narrative Depth), SC-002 (Bias), SC-003 (Feasibility), SC-004 (Traceability).
-
-## 5. Troubleshooting
-
--   **OOM Error**: If the process crashes with "Out of Memory", ensure `datasets` is loaded in chunks or use the `--sample-size` flag to limit rows.
--   **LLM Timeout**: If the local LLM takes too long, set `LLM_FALLBACK_MODE=api` in the environment variables to switch to the batched API mode.
--   **No Counterfactuals Found**: This is a valid result. The system will output a story stating "No significant counterfactuals found" rather than hallucinating.
-
-## 6. Verification
-
-Run the contract tests to ensure data integrity:
-
-```bash
-pytest tests/contract/
-```
+- **Low Power Error**: If the dataset has < 30 rows, the system will flag `low_power_flag: true` in the output but continue running.
+- **Query Timeout**: If the LLM query generation times out, the `QueryRetrier` will retry up to 2 times. If it fails, the counterfactual section will be marked "Failed".
+- **Memory Error**: If the dataset is too large, enable streaming in `config.py` (`STREAMING_MODE = True`).
