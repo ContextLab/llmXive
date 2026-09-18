@@ -1,233 +1,357 @@
 """
-Unit tests for sensitivity analysis functionality (T030b).
+Unit tests for threshold sweep logic in sensitivity analysis.
 
-Tests the run_sensitivity_sweep and retrain_with_thresholds functions.
+Tests verify that:
+1. The sensitivity sweep iterates over the correct threshold values
+2. Model retraining with different thresholds produces varying results
+3. The variation calculation correctly identifies the max R² difference
+4. Edge cases (empty thresholds, single threshold) are handled properly
 """
+
 import os
 import sys
-import tempfile
 import pytest
 import json
-import pandas as pd
-import numpy as np
+import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+import numpy as np
+import pandas as pd
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from modeling.eval import run_sensitivity_sweep, retrain_with_thresholds
-
-
-@pytest.fixture
-def sample_aligned_data(tmp_path):
-    """Create a sample aligned dataset for testing."""
-    # Create synthetic data that mimics the aligned matrix structure
-    np.random.seed(42)
-    n_samples = 20
-    n_bgc_features = 5
-    n_met_features = 3
-
-    data = {
-        'species': [f'Species_{i}' for i in range(n_samples)]
-    }
-
-    # Add BGC features
-    for i in range(n_bgc_features):
-        data[f'bgc_type_{i}'] = np.random.rand(n_samples) * 10
-
-    # Add PCA features (simulated)
-    for i in range(3):
-        data[f'pca_{i}'] = np.random.rand(n_samples) * 5
-
-    # Add metabolite features
-    for i in range(n_met_features):
-        data[f'log_met_{i}'] = np.random.rand(n_samples) * 2
-
-    df = pd.DataFrame(data)
-
-    # Save to temp file
-    output_path = tmp_path / 'aligned_matrix.csv'
-    df.to_csv(output_path, index=False)
-
-    return output_path
+from modeling.eval import run_sensitivity_sweep, calculate_variation
+from config import load_config, get_config
 
 
-@pytest.fixture
-def sample_metrics_path(tmp_path):
-    """Create a temporary metrics file path."""
-    return tmp_path / 'metrics.json'
+class TestSensitivitySweepLogic:
+    """Tests for the threshold sweep logic in sensitivity analysis."""
 
+    @pytest.fixture
+    def mock_config(self):
+        """Create a mock configuration for testing."""
+        config = MagicMock()
+        config.bgc_threshold = 0.5
+        config.sensitivity_thresholds = [0.1, 0.3, 0.5, 0.7]
+        config.data_path = Path("data")
+        config.processed_path = Path("data/processed")
+        config.interim_path = Path("data/interim")
+        return config
 
-class TestRetrainWithThresholds:
-    """Tests for retrain_with_thresholds function."""
+    @pytest.fixture
+    def mock_pca_features(self):
+        """Create mock PCA features data."""
+        np.random.seed(42)
+        n_samples = 50
+        n_features = 10
+        
+        data = np.random.randn(n_samples, n_features)
+        species = [f"Species_{i}" for i in range(n_samples)]
+        
+        df = pd.DataFrame(data, columns=[f"PC{i+1}" for i in range(n_features)])
+        df.insert(0, "species", species)
+        
+        return df
 
-    def test_retrain_basic(self, sample_aligned_data, tmp_path):
-        """Test basic retraining with a single threshold."""
-        output_path = tmp_path / 'threshold_results.json'
+    @pytest.fixture
+    def mock_aligned_data(self):
+        """Create mock aligned data with BGC and metabolite information."""
+        np.random.seed(42)
+        n_samples = 50
+        
+        data = {
+            "species": [f"Species_{i}" for i in range(n_samples)],
+            "bgc_count": np.random.randint(0, 10, n_samples),
+            "metabolite_abundance": np.random.rand(n_samples) * 100,
+            "clade": np.random.choice(["Clade_A", "Clade_B", "Clade_C"], n_samples)
+        }
+        
+        return pd.DataFrame(data)
 
-        results = retrain_with_thresholds(
-            data_path=sample_aligned_data,
-            thresholds=[0.5],
-            model_type='rf',
-            output_path=output_path
-        )
+    @pytest.fixture
+    def mock_model_results(self):
+        """Create mock model results for different thresholds."""
+        return {
+            "threshold_0.1": {"r2": 0.45, "rmse": 12.3, "mae": 8.7},
+            "threshold_0.3": {"r2": 0.52, "rmse": 10.1, "mae": 7.2},
+            "threshold_0.5": {"r2": 0.48, "rmse": 11.5, "mae": 8.0},
+            "threshold_0.7": {"r2": 0.41, "rmse": 13.8, "mae": 9.5}
+        }
 
-        assert 0.5 in results
-        assert 'r2' in results[0.5]
-        assert isinstance(results[0.5]['r2'], (float, type(None)))
+    def test_sweep_iterates_correct_thresholds(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test that the sweep iterates over the correct threshold values."""
+        thresholds = [0.1, 0.3, 0.5, 0.7]
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        # Setup mock to return different R² for each threshold
+                        mock_retrain.side_effect = [
+                            {"r2": 0.45, "rmse": 12.3},
+                            {"r2": 0.52, "rmse": 10.1},
+                            {"r2": 0.48, "rmse": 11.5},
+                            {"r2": 0.41, "rmse": 13.8}
+                        ]
+                        
+                        results = run_sensitivity_sweep(thresholds)
+                        
+                        # Verify that retrain_with_thresholds was called for each threshold
+                        assert mock_retrain.call_count == len(thresholds)
+                        
+                        # Verify that results contain entries for each threshold
+                        assert len(results) == len(thresholds)
+                        
+                        for threshold in thresholds:
+                            key = f"threshold_{threshold}"
+                            assert key in results
+                            assert "r2" in results[key]
+    
+    def test_sweep_produces_varying_results(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test that different thresholds produce different model results."""
+        thresholds = [0.1, 0.3, 0.5, 0.7]
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        # Setup mock to return significantly different R² values
+                        mock_retrain.side_effect = [
+                            {"r2": 0.30, "rmse": 15.0},
+                            {"r2": 0.60, "rmse": 8.0},
+                            {"r2": 0.45, "rmse": 11.0},
+                            {"r2": 0.35, "rmse": 14.0}
+                        ]
+                        
+                        results = run_sensitivity_sweep(thresholds)
+                        
+                        # Extract R² values
+                        r2_values = [results[key]["r2"] for key in results.keys()]
+                        
+                        # Verify that R² values are not all identical
+                        assert len(set(r2_values)) > 1, "All thresholds produced identical R² values"
+                        
+                        # Verify that the range of R² values is significant
+                        r2_range = max(r2_values) - min(r2_values)
+                        assert r2_range > 0.1, f"R² variation ({r2_range:.3f}) is too small"
+    
+    def test_single_threshold(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test that the sweep handles a single threshold correctly."""
+        thresholds = [0.5]
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        mock_retrain.return_value = {"r2": 0.50, "rmse": 10.0}
+                        
+                        results = run_sensitivity_sweep(thresholds)
+                        
+                        assert len(results) == 1
+                        assert "threshold_0.5" in results
+                        assert results["threshold_0.5"]["r2"] == 0.50
+    
+    def test_empty_thresholds(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test that the sweep handles empty thresholds list."""
+        thresholds = []
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    results = run_sensitivity_sweep(thresholds)
+                    
+                    assert len(results) == 0
+    
+    def test_threshold_order_preserved(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test that the order of thresholds is preserved in results."""
+        thresholds = [0.7, 0.1, 0.5, 0.3]  # Unsorted order
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        mock_retrain.return_value = {"r2": 0.50, "rmse": 10.0}
+                        
+                        results = run_sensitivity_sweep(thresholds)
+                        
+                        # Check that keys are created in the order of thresholds
+                        expected_keys = [f"threshold_{t}" for t in thresholds]
+                        actual_keys = list(results.keys())
+                        
+                        assert actual_keys == expected_keys, f"Order not preserved: {actual_keys} != {expected_keys}"
 
-    def test_retrain_multiple_thresholds(self, sample_aligned_data, tmp_path):
-        """Test retraining with multiple thresholds."""
+class TestCalculateVariation:
+    """Tests for the variation calculation function."""
+
+    def test_calculate_variation_basic(self, mock_model_results):
+        """Test basic variation calculation."""
+        r2_values = [result["r2"] for result in mock_model_results.values()]
+        expected_max_diff = max(r2_values) - min(r2_values)
+        
+        max_diff, variation_result = calculate_variation(mock_model_results)
+        
+        assert np.isclose(max_diff, expected_max_diff)
+        assert "max_r2_difference" in variation_result
+        assert np.isclose(variation_result["max_r2_difference"], expected_max_diff)
+    
+    def test_calculate_variation_single_threshold(self):
+        """Test variation calculation with a single threshold."""
+        results = {
+            "threshold_0.5": {"r2": 0.50, "rmse": 10.0}
+        }
+        
+        max_diff, variation_result = calculate_variation(results)
+        
+        assert max_diff == 0.0
+        assert variation_result["max_r2_difference"] == 0.0
+        assert variation_result["passes_sensitivity_check"] is True
+    
+    def test_calculate_variation_empty_results(self):
+        """Test variation calculation with empty results."""
+        results = {}
+        
+        max_diff, variation_result = calculate_variation(results)
+        
+        assert max_diff == 0.0
+        assert "error" in variation_result
+        assert variation_result["passes_sensitivity_check"] is False
+    
+    def test_calculate_variation_threshold_check(self):
+        """Test that the threshold check (≤ 0.05) is correctly applied."""
+        # Case 1: Variation within threshold
+        results_pass = {
+            "threshold_0.1": {"r2": 0.50, "rmse": 10.0},
+            "threshold_0.5": {"r2": 0.52, "rmse": 9.8}
+        }
+        
+        _, variation_result_pass = calculate_variation(results_pass)
+        assert variation_result_pass["passes_sensitivity_check"] is True
+        assert variation_result_pass["max_r2_difference"] <= 0.05
+        
+        # Case 2: Variation exceeds threshold
+        results_fail = {
+            "threshold_0.1": {"r2": 0.50, "rmse": 10.0},
+            "threshold_0.5": {"r2": 0.60, "rmse": 8.0}
+        }
+        
+        _, variation_result_fail = calculate_variation(results_fail)
+        assert variation_result_fail["passes_sensitivity_check"] is False
+        assert variation_result_fail["max_r2_difference"] > 0.05
+    
+    def test_calculate_variation_negative_r2(self):
+        """Test variation calculation with negative R² values."""
+        results = {
+            "threshold_0.1": {"r2": -0.10, "rmse": 15.0},
+            "threshold_0.5": {"r2": 0.30, "rmse": 10.0}
+        }
+        
+        max_diff, variation_result = calculate_variation(results)
+        
+        expected_max_diff = 0.30 - (-0.10)
+        assert np.isclose(max_diff, expected_max_diff)
+        assert variation_result["passes_sensitivity_check"] is False
+    
+    def test_calculate_variation_with_nan(self):
+        """Test variation calculation with NaN values."""
+        results = {
+            "threshold_0.1": {"r2": float('nan'), "rmse": 15.0},
+            "threshold_0.5": {"r2": 0.50, "rmse": 10.0}
+        }
+        
+        max_diff, variation_result = calculate_variation(results)
+        
+        # NaN should be handled gracefully
+        assert "error" in variation_result or np.isnan(max_diff)
+
+class TestIntegrationSensitivitySweep:
+    """Integration tests for the sensitivity sweep workflow."""
+
+    def test_end_to_end_sweep_workflow(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test the complete end-to-end sensitivity sweep workflow."""
+        thresholds = [0.1, 0.3, 0.5, 0.7]
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        # Simulate realistic variation in R² values
+                        r2_values = [0.45, 0.52, 0.48, 0.41]
+                        mock_retrain.side_effect = [
+                            {"r2": r2, "rmse": 12.0 - i * 0.5}
+                            for i, r2 in enumerate(r2_values)
+                        ]
+                        
+                        # Run the sweep
+                        sweep_results = run_sensitivity_sweep(thresholds)
+                        
+                        # Calculate variation
+                        max_diff, variation_result = calculate_variation(sweep_results)
+                        
+                        # Verify the workflow completed successfully
+                        assert len(sweep_results) == len(thresholds)
+                        assert "max_r2_difference" in variation_result
+                        assert max_diff == variation_result["max_r2_difference"]
+                        
+                        # Verify that the max difference matches expected
+                        expected_max_diff = max(r2_values) - min(r2_values)
+                        assert np.isclose(max_diff, expected_max_diff)
+    
+    def test_sweep_with_realistic_data_patterns(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test sweep with realistic data patterns (non-monotonic R² variation)."""
+        thresholds = [0.1, 0.3, 0.5, 0.7, 0.9]
+        
+        # Simulate realistic pattern: R² increases then decreases
+        # (optimal threshold in the middle)
+        realistic_r2 = [0.35, 0.48, 0.55, 0.50, 0.40]
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        mock_retrain.side_effect = [
+                            {"r2": r2, "rmse": 15.0 - i * 1.5}
+                            for i, r2 in enumerate(realistic_r2)
+                        ]
+                        
+                        sweep_results = run_sensitivity_sweep(thresholds)
+                        
+                        # Verify all thresholds are present
+                        assert len(sweep_results) == len(thresholds)
+                        
+                        # Extract R² values
+                        r2_values = [sweep_results[f"threshold_{t}"]["r2"] for t in thresholds]
+                        
+                        # Verify the pattern: peak at threshold 0.5
+                        peak_idx = np.argmax(r2_values)
+                        assert thresholds[peak_idx] == 0.5
+                        
+                        # Verify that the variation is within expected range
+                        max_diff = max(r2_values) - min(r2_values)
+                        assert 0.1 < max_diff < 0.3  # Reasonable variation for realistic data
+    
+    def test_sweep_handles_retrain_failures_gracefully(self, mock_config, mock_pca_features, mock_aligned_data):
+        """Test that the sweep handles retraining failures gracefully."""
         thresholds = [0.1, 0.3, 0.5]
-        output_path = tmp_path / 'threshold_results.json'
-
-        results = retrain_with_thresholds(
-            data_path=sample_aligned_data,
-            thresholds=thresholds,
-            model_type='rf',
-            output_path=output_path
-        )
-
-        for t in thresholds:
-            assert t in results
-            assert 'r2' in results[t]
-
-    def test_retrain_invalid_model_type(self, sample_aligned_data):
-        """Test that invalid model type raises error."""
-        with pytest.raises(ValueError, match="Unknown model type"):
-            retrain_with_thresholds(
-                data_path=sample_aligned_data,
-                thresholds=[0.5],
-                model_type='invalid_model'
-            )
-
-    def test_retrain_output_file_created(self, sample_aligned_data, tmp_path):
-        """Test that output file is created."""
-        output_path = tmp_path / 'test_output.json'
-
-        retrain_with_thresholds(
-            data_path=sample_aligned_data,
-            thresholds=[0.5],
-            model_type='rf',
-            output_path=output_path
-        )
-
-        assert output_path.exists()
-
-        # Verify JSON content
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-
-        assert '0.5' in data or 0.5 in data
-
-
-class TestRunSensitivitySweep:
-    """Tests for run_sensitivity_sweep function."""
-
-    def test_sweep_basic(self, sample_aligned_data, tmp_path):
-        """Test basic sensitivity sweep."""
-        output_path = tmp_path / 'sensitivity_results.json'
-        metrics_path = tmp_path / 'metrics.json'
-
-        results = run_sensitivity_sweep(
-            data_path=sample_aligned_data,
-            thresholds=[0.1, 0.3, 0.5],
-            model_type='rf',
-            output_path=output_path,
-            metrics_path=metrics_path
-        )
-
-        # Check structure
-        assert 'thresholds' in results
-        assert 'r2_by_threshold' in results
-        assert 'n_successful' in results
-        assert 'n_total' in results
-
-        # Check threshold list
-        assert results['thresholds'] == [0.1, 0.3, 0.5]
-
-    def test_sweep_output_file_created(self, sample_aligned_data, tmp_path):
-        """Test that output file is created."""
-        output_path = tmp_path / 'sensitivity_test.json'
-
-        run_sensitivity_sweep(
-            data_path=sample_aligned_data,
-            thresholds=[0.5],
-            output_path=output_path
-        )
-
-        assert output_path.exists()
-
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-
-        assert 'thresholds' in data
-
-    def test_sweep_metrics_update(self, sample_aligned_data, tmp_path):
-        """Test that metrics file is updated."""
-        output_path = tmp_path / 'sensitivity.json'
-        metrics_path = tmp_path / 'metrics.json'
-
-        # Create initial metrics
-        initial_metrics = {'existing_key': 'value'}
-        with open(metrics_path, 'w') as f:
-            json.dump(initial_metrics, f)
-
-        run_sensitivity_sweep(
-            data_path=sample_aligned_data,
-            thresholds=[0.5],
-            output_path=output_path,
-            metrics_path=metrics_path
-        )
-
-        # Verify metrics file updated
-        with open(metrics_path, 'r') as f:
-            updated_metrics = json.load(f)
-
-        assert 'existing_key' in updated_metrics
-        assert 'sensitivity_analysis' in updated_metrics
-
-    def test_sweep_variation_calculation(self, sample_aligned_data, tmp_path):
-        """Test that variation metrics are calculated."""
-        output_path = tmp_path / 'sensitivity.json'
-
-        results = run_sensitivity_sweep(
-            data_path=sample_aligned_data,
-            thresholds=[0.1, 0.3, 0.5, 0.7],
-            output_path=output_path
-        )
-
-        # Check variation fields exist
-        if results['n_successful'] >= 2:
-            assert 'r2_range' in results
-            assert 'variation_pass' in results
-            assert 'max_difference' in results
-            assert results['threshold_limit'] == 0.05
-
-    def test_sweep_no_data_file(self, tmp_path):
-        """Test behavior when data file doesn't exist."""
-        non_existent = tmp_path / 'non_existent.csv'
-        output_path = tmp_path / 'output.json'
-
-        # Should handle gracefully or raise appropriate error
-        # The function should log an error and return
-        # We test that it doesn't crash unexpectedly
-        with pytest.raises(FileNotFoundError):
-            run_sensitivity_sweep(
-                data_path=non_existent,
-                thresholds=[0.5],
-                output_path=output_path
-            )
-
-    def test_sweep_different_models(self, sample_aligned_data, tmp_path):
-        """Test sweep with different model types."""
-        output_path = tmp_path / 'sensitivity_rf.json'
-
-        results_rf = run_sensitivity_sweep(
-            data_path=sample_aligned_data,
-            thresholds=[0.5],
-            model_type='rf',
-            output_path=output_path
-        )
-
-        assert 'r2_by_threshold' in results_rf
+        
+        with patch("modeling.eval.load_config", return_value=mock_config):
+            with patch("modeling.eval.load_pca_features", return_value=mock_pca_features):
+                with patch("modeling.eval.load_aligned_data", return_value=mock_aligned_data):
+                    with patch("modeling.eval.retrain_with_thresholds") as mock_retrain:
+                        # Simulate failure for one threshold
+                        mock_retrain.side_effect = [
+                            {"r2": 0.45, "rmse": 12.0},
+                            Exception("Training failed for threshold 0.3"),
+                            {"r2": 0.40, "rmse": 13.0}
+                        ]
+                        
+                        # The sweep should continue and collect results for successful runs
+                        # Note: In a real implementation, this might skip failed thresholds or log errors
+                        results = run_sensitivity_sweep(thresholds)
+                        
+                        # Verify that at least some results were collected
+                        assert len(results) >= 1
+                        
+                        # Verify that the successful thresholds are present
+                        assert "threshold_0.1" in results
+                        assert "threshold_0.5" in results

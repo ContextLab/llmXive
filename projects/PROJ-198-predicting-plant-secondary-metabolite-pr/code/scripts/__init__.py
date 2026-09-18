@@ -1,1 +1,1 @@
-# Scripts module initialization
+"""Scripts package for llmXive project."""

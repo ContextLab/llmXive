@@ -26,9 +26,9 @@ class ConfigSettings(BaseModel):
     bgc_confidence_threshold: float = Field(default=0.5)
     min_species_count: int = Field(default=5)
     
-    # API Keys (placeholders, expected to be overridden by env)
-    ncbi_api_key: Optional[str] = None
-    pmdb_api_key: Optional[str] = None
+    # API Keys (loaded from environment variables)
+    ncbi_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("NCBI_API_KEY"))
+    pmdb_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("PMDB_TOKEN"))
 
     @field_validator('data_path', 'raw_data_path', 'processed_data_path', 'figures_path', 'logs_path', 'model_cache_path', mode='before')
     @classmethod

@@ -1,3 +1,6 @@
 """
-llmXive Project: Predicting Plant Secondary Metabolite Profiles from Genomic Data
+llmXive research pipeline package.
+
+This package contains the core modules for the plant secondary metabolite
+prediction pipeline.
 """

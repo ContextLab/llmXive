@@ -1,14 +1,14 @@
-# Data processing module initialization
-from .download import download_genomes, download_metabolites
-from .preprocess import run_antiasmh_wrapper, harmonize_metabolites, map_bgc_to_metabolite
-from .align import align_data, save_aligned_matrix
-
-__all__ = [
-    "download_genomes",
-    "download_metabolites",
-    "run_antiasmh_wrapper",
-    "harmonize_metabolites",
-    "map_bgc_to_metabolite",
-    "align_data",
-    "save_aligned_matrix",
-]
+"""
+Data module for handling downloads, preprocessing, and alignment.
+"""
+from .download import DownloadError, download_genomes, download_metabolites, main
+from .preprocess import (
+    AntiSMASHError,
+    MIBiGMappingError,
+    map_bgc_to_metabolite,
+    map_bgc_to_metabolite_dataframe,
+    run_antiasmh_wrapper,
+    harmonize_metabolites,
+    main as preprocess_main,
+)
+from .align import align_data, save_aligned_matrix, calculate_alignment_success_rate, main as align_main

@@ -16,10 +16,10 @@ This feature implements a computational pipeline to quantify the extent to which
 **Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM)  
 **Project Type**: Computational Biology Pipeline / CLI  
 **Performance Goals**: Complete data alignment and model training for N=5 (test) and N≥20 (full) within 6 hours on CPU-only infrastructure.  
-**Constraints**: No GPU; antiSMASH must run via command-line wrapper. Data subsets to fit 7GB RAM. Genome assemblies > 500MB are skipped to ensure feasibility.  
+**Constraints**: No GPU; antiSMASH must run via command-line wrapper. Data subsets to fit available RAM. Genome assemblies > 500MB are skipped to ensure feasibility.  
 **Scale/Scope**: Initial dataset a moderate number of matched species; features hundreds of BGC types; targets a broad panel of metabolites. Dimensionality reduction (PCA) applied before multivariate modeling.
 
-> **Note on Compute Feasibility**: The spec mentions "antiSMASH 7.0". Running full antiSMASH on a GitHub Actions runner (limited vCPU, 7GB RAM) for multiple species may exceed the 6-hour limit or 7GB RAM. The plan explicitly commits to a single tool (antiSMASH) for consistency. If antiSMASH fails for a species (timeout or OOM), that species is excluded from the final analysis rather than switching tools, preventing confounding. A strict genome size filter (>500MB skip) is implemented to ensure the pipeline completes within 6 hours.
+> **Note on Compute Feasibility**: The spec mentions "antiSMASH 7.0". Running full antiSMASH on a GitHub Actions runner (limited vCPU, constrained RAM) for multiple species may exceed the 6-hour limit or available memory. The plan explicitly commits to a single tool (antiSMASH) for consistency. If antiSMASH fails for a species (timeout or OOM), that species is excluded from the final analysis rather than switching tools, preventing confounding. A strict genome size filter (>500MB skip) is implemented to ensure the pipeline completes within 6 hours.
 
 ## Constitution Check
 

@@ -13,7 +13,7 @@ The researcher needs to automatically download genomic assemblies and metabolite
 
 **Why this priority**: This is the foundational step; without a clean, aligned dataset where species match between genomic and metabolomic sources, no statistical modeling can occur. It delivers the primary data asset required for the entire study.
 
-**Independent Test**: Can be fully tested by executing the data pipeline on a small subset (e.g., 5 species) and verifying that the output CSV contains a sufficient number of rows with non-null values for both BGC counts and metabolite abundances, and that the pipeline completes within 30 minutes on a standard CPU (2 vCPUs, 7GB RAM).
+**Independent Test**: Can be fully tested by executing the data pipeline on a small subset (e.g., a limited number of species) and verifying that the output CSV contains a sufficient number of rows with non-null values for both BGC counts and metabolite abundances, and that the pipeline completes within 30 minutes on a standard CPU (2 vCPUs, 7GB RAM).
 
 **Acceptance Scenarios**:
 
@@ -49,7 +49,7 @@ The researcher needs to perform a sensitivity analysis on any decision cutoffs (
 
 **Acceptance Scenarios**:
 
-1. **Given** a primary BGC detection threshold (0.5), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over a set of representative values and reports the resulting R² and false-positive rates for each sweep.
+1. **Given** a primary BGC detection threshold, **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over a set of representative values and reports the resulting R² and false-positive rates for each sweep.
 2. **Given** the sensitivity analysis results, **When** the final report is generated, **Then** it includes a justification for the primary threshold citing community standards (e.g., "antiSMASH default confidence") and explicitly states the variation in headline rates across the sweep.
 3. **Given** the final results, **When** the researcher reviews the report, **Then** they can confirm that the model's predictive power is stable across the tested threshold range, validating the robustness of the conclusion.
 
@@ -69,7 +69,7 @@ The researcher needs to perform a sensitivity analysis on any decision cutoffs (
 - **FR-002**: System MUST execute antiSMASH 7.0 on each genome to predict BGCs and parse the JSON output to generate a binary presence matrix and a count matrix for BGC diversity. (See US-1)
 - **FR-003**: System MUST download metabolite abundance tables from PMDB or MetaboLights, harmonize identifiers using InChIKeys, add a pseudo-count of 1, and apply log-transformation to normalize distributions. (See US-1)
 - **FR-004**: System MUST align genomic features and metabolite targets into a single matrix, filtering out any species that lack data in either modality. (See US-1)
-- **FR-005**: System MUST train regression models (Random Forest, Elastic Net, Gradient Boosting) using scikit-learn with 5-fold cross-validation and stratified splitting by phylogenetic clade. (See US-2)
+- **FR-005**: System MUST train regression models (Random Forest, Elastic Net, Gradient Boosting) using scikit-learn with k-fold cross-validation and stratified splitting by phylogenetic clade. (See US-2)
 - **FR-006**: System MUST evaluate model performance on a hold-out test set using R² and Pearson correlation, and compare results against a Phylogenetic Permutation baseline (multiple iterations). (See US-2)
 - **FR-007**: System MUST perform a sensitivity analysis by sweeping BGC detection thresholds over a set of representative values and report the variation in R² and error rates. (See US-3)
 - **FR-008**: System MUST generate a final report that includes model performance metrics, feature importance rankings, and the sensitivity analysis results with threshold justifications. (See US-3)

@@ -1,4 +1,2 @@
-# This directory contains raw, unprocessed data downloaded from external sources
-# (e.g., NCBI RefSeq, PMDB, MetaboLights).
-# DO NOT EDIT FILES IN THIS DIRECTORY DIRECTLY.
-# Placeholder file to ensure directory creation.
+# This directory is for raw downloaded data (genomes, metabolite tables).
+# It is created automatically by the setup script.
