@@ -1,13 +1,16 @@
-# Quickstart Guide: Energy Inequity Causal Analysis Pipeline
+# Quick Start Guide: Energy Systems Causal Analysis Pipeline
 
-This guide explains how to run the full causal inference pipeline to analyze energy inequity in low-income communities using EIA RECS and ACS data.
+This guide provides exact commands to run the full causal inference pipeline for analyzing energy inequity in low-income communities. The pipeline ingests real public data (EIA RECS and ACS), performs propensity score matching, estimates causal effects, and generates a comprehensive report.
 
 ## Prerequisites
 
-- Python 3.9+
-- `pip install -r requirements.txt`
+Ensure you have Python 3.9+ installed and the required dependencies:
 
-## Running the Pipeline
+```bash
+pip install -r requirements.txt
+```
+
+## Running the Full Pipeline
 
 Execute the main pipeline script with the configuration file:
 
@@ -15,47 +18,85 @@ Execute the main pipeline script with the configuration file:
 python code/src/main.py --config code/src/config.yaml
 ```
 
-This command will:
-1. Ingest EIA RECS and ACS data
-2. Filter for low-income households and construct treatment variables
-3. Perform Propensity Score Matching (PSM) with balance validation
-4. Estimate causal effects (ATT) using OLS or DiD fallback
-5. Run sensitivity analysis across caliper values
-6. Generate the final analysis report
+This single command performs the following steps in sequence:
+
+1. **Data Ingestion**: Fetches EIA RECS and ACS data from official sources.
+2. **Preprocessing**: Filters for low-income households, handles missing values, winsorizes outliers, and constructs treatment variables.
+3. **Propensity Score Matching**: Estimates propensity scores, matches treated and control units, and validates covariate balance (SMD <= 0.1).
+4. **Causal Estimation**: Runs OLS regression with cluster-robust standard errors to estimate the Average Treatment Effect on the Treated (ATT).
+5. **Sensitivity Analysis**: Sweeps caliper values to assess robustness of the ATT estimate.
+6. **Result Serialization**: Saves the final analysis results to `data/outputs/analysis_result.json`.
 
 ## Expected Output
 
-Upon successful completion, the pipeline produces:
-- `data/outputs/analysis_result.json`: Contains the ATT estimate, p-values, confidence intervals, methodology details, and sensitivity analysis data.
+Upon successful completion, the pipeline generates `data/outputs/analysis_result.json` containing the following structure:
 
-### Verifying Output Integrity
-
-Verify the JSON output is valid:
-
-```bash
-python -m json.tool data/outputs/analysis_result.json > /dev/null && echo "JSON is valid"
-```
-
-### Expected JSON Structure
-
-The `analysis_result.json` file will contain:
 ```json
 {
+ "metadata": {
+ "timestamp": "ISO-8601-timestamp",
+ "config_path": "code/src/config.yaml",
+ "pipeline_version": "1.0.0"
+ },
+ "data_summary": {
+ "total_households": <int>,
+ "treated_count": <int>,
+ "control_count": <int>,
+ "matched_pairs": <int>
+ },
+ "balance_results": {
+ "max_smd": <float>,
+ "caliper_used": <float>,
+ "balance_status": "PASS",
+ "placebo_p_value": <float>
+ },
+ "causal_estimation": {
+ "methodology": "OLS",
  "att_estimate": <float>,
+ "att_std_error": <float>,
  "p_value": <float>,
- "confidence_interval": [<float>, <float>],
- "methodology": "OLS" | "DiD",
- "balance_status": "PASS" | "FAIL",
+ "confidence_interval_95": [<float>, <float>],
+ "n_observations": <int>
+ },
  "sensitivity_analysis": [
- {"caliper": <float>, "att": <float>, "p_value": <float>},
-...
- ],
- "timestamp": "<ISO8601 timestamp>"
+ {
+ "caliper": <float>,
+ "att_estimate": <float>,
+ "p_value": <float>
+ }
+ ]
 }
+```
+
+### Field Descriptions
+
+- **metadata**: Timestamp of the run, config file path, and pipeline version.
+- **data_summary**: Counts of total households, treated units, control units, and matched pairs.
+- **balance_results**: Maximum Standardized Mean Difference (SMD), caliper value used, balance status ("PASS" or "FAIL"), and placebo test p-value.
+- **causal_estimation**: Methodology used (e.g., "OLS"), ATT estimate, standard error, p-value, 95% confidence interval, and number of observations.
+- **sensitivity_analysis**: Array of sensitivity analysis results for different caliper values, including ATT estimate and p-value.
+
+## Graceful Degradation Protocol
+
+If PSM balance fails and longitudinal data is missing (which is the case for cross-sectional EIA RECS/ACS data), the pipeline will halt with a clear error message:
+
+```
+Causal Identification Failure: PSM Balance Not Achieved and DiD Fallback Impossible (Cross-Sectional Data). Pipeline Halted.
+```
+
+This behavior adheres to the 'Graceful Degradation Protocol' mandated by the project plan, ensuring that invalid causal estimates are not produced.
+
+## Validation
+
+To verify the JSON output structure, run:
+
+```bash
+python -m json.tool code/data/outputs/analysis_result.json
 ```
 
 ## Troubleshooting
 
-- **Missing Data**: Ensure `data/raw/` contains the necessary EIA RECS and ACS files, or that the ingest script can reach the real data sources.
-- **Power Error**: If fewer than 50 adopters remain after filtering, the pipeline will halt with a `PowerError`.
-- **Balance Failure**: If PSM fails to achieve balance (SMD > 0.1) and longitudinal data is missing, the pipeline will halt with a `BalanceFailureError`.
+- **Import Errors**: Ensure all dependencies in `requirements.txt` are installed.
+- **Data Fetch Failures**: The pipeline fetches real data from external sources. Ensure network connectivity and that the specified URLs are accessible.
+- **Balance Failure**: If PSM balance fails, the pipeline halts. Check the logs for SMD values and consider adjusting caliper thresholds in `code/src/config.yaml`.
+- **Missing Longitudinal Data**: The DiD fallback is impossible with cross-sectional data. The pipeline is designed to halt in this scenario rather than produce invalid results.

@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-007-energy-systems",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/src/main.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python -c \"from src.data.ingest import download_datasets; download_datasets()\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-007-energy-systems/src/data/ingest.py\", line 16, in <module>\n    from src.utils.logging import get_logger\nImportError: cannot import name 'get_logger' from 'src.utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-007-energy-systems/src/utils/logging.py)",
+    "python code/src/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-007-energy-systems/code/src/main.py\", line 8, in <module>\n    from src.models.schemas import AnalysisResult, GracefulDegradationStatus\nImportError: cannot import name 'GracefulDegradationStatus' from 'src.models.schemas' (/home/runner/work/llmXive/llmXive/projects/PROJ-007-energy-systems/src/models/schemas.py)"
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-18T14:30:16Z"
+}

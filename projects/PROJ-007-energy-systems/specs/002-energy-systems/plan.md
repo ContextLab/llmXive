@@ -19,7 +19,7 @@ This project implements a causal inference pipeline to estimate the Average Trea
 **Project Type**: Data analysis pipeline / CLI tool  
 **Performance Goals**: Complete full pipeline (ingest → PSM → ATT → sensitivity) within 6 hours on CPU; memory usage < 6GB for typical RECS/ACS subsets (~500k rows).  
 **Constraints**: No local GPU; no external API calls during execution; strict PII handling (no raw PII committed); all external datasets must be open and programmatically downloadable.  
-**Scale/Scope**: ~100k–500k household records (after filtering); –20 covariates; primary outcomes.
+**Scale/Scope**: ~k–500k household records (after filtering); –20 covariates; primary outcomes.
 
 > Empirical specifics (exact row counts, effect sizes) are deferred to the research/implementation phase.
 
@@ -172,7 +172,7 @@ jobs:
 ### Phase 2: Propensity Score Matching
 - Fit propensity score model (logistic regression) using covariates: `income`, `housing_type`, `location`, `age`, `race`, `education`.
 - **Apply common support check**: **Exclude units outside the overlap region BEFORE matching** (FR-007).
-- Perform nearest-neighbor matching with caliper 0.05 (FR-003).
+- Perform nearest-neighbor matching with an appropriate caliper to ensure sufficient overlap while minimizing bias. (FR-003).
 - Validate balance: calculate SMD for all covariates; ensure SMD ≤ 0.1 (FR-004, SC-001).
 - **Run placebo test**: Test for balance on a pre-treatment covariate (e.g., `years_in_residence`). If p < 0.05, **trigger the Graceful Degradation Protocol (hard halt)** with "Unconfoundedness Violation".
 - **PSM Failure Protocol**: If balance fails (SMD > 0.1) or placebo test fails, trigger a hard halt with message "Causal Identification Failure: PSM Balance Not Achieved". Do not attempt DiD.

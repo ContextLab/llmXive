@@ -1,46 +1,52 @@
-# Quickstart Guide: Energy Systems Causal Inference Pipeline
+# Quickstart Guide: Energy Systems Causal Pipeline
 
-This guide provides the exact commands to run the full causal inference pipeline
-for analyzing energy inequity in low-income communities using EIA RECS and ACS data.
+This guide details how to run the full causal inference pipeline to analyze energy inequity in low-income communities using EIA RECS and ACS data.
 
 ## Prerequisites
 
-- Python 3.9+
-- Dependencies installed: `pip install -r requirements.txt`
+1. **Python Environment**: Ensure you are using Python 3.9+.
+2. **Dependencies**: Install all required packages:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. **Data Access**: The pipeline will attempt to download real data from the EIA RECS and US Census APIs. Ensure your environment has internet access.
+ * **Note**: If data download fails due to API restrictions, the pipeline will halt with a clear error message. Do not use synthetic data.
 
-## Running the Pipeline
+## Running the Full Pipeline
 
-Execute the main pipeline script with the configuration file:
+The main entry point for the causal analysis is `src/main.py`. It orchestrates the following steps:
+1. **Ingestion**: Fetches EIA RECS and ACS data.
+2. **Preprocessing**: Filters for low-income households, handles missing values, and constructs treatment variables.
+3. **Propensity Score Matching (PSM)**: Matches treated and control groups to ensure covariate balance.
+4. **Causal Estimation**: Calculates the Average Treatment Effect on the Treated (ATT) using OLS.
+5. **Sensitivity Analysis**: Sweeps caliper values to test robustness.
+6. **Output**: Generates a JSON report.
+
+Execute the pipeline with the default configuration:
 
 ```bash
-python src/main.py --config src/config.yaml
+python code/src/main.py --config code/src/config.yaml
 ```
 
-This command will:
-1. Ingest EIA RECS and ACS data
-2. Filter for low-income households (income < 150% FPL)
-3. Construct treatment variables (solar/microgrid adoption)
-4. Perform Propensity Score Matching (PSM) with balance validation
-5. Estimate causal effects using OLS (or DiD if PSM fails and longitudinal data exists)
-6. Run sensitivity analysis across caliper values
-7. Generate the final analysis report
+### Expected Behavior
 
-## Expected Output
+* **Success**: The script completes without error, writing the results to `code/data/outputs/analysis_result.json`.
+* **Graceful Degradation**: If PSM balance is not achieved (SMD > 0.1) and longitudinal data is missing (making DiD impossible), the pipeline will halt with a `DataUnavailableError` and a clear log message: "Causal Identification Failure: PSM Balance Not Achieved and DiD Fallback Impossible (Cross-Sectional Data). Pipeline Halted."
 
-Upon successful completion, the pipeline produces:
+## Output Format
 
-### Primary Output File
+Upon successful completion, the pipeline generates `code/data/outputs/analysis_result.json`. This file contains the full analysis results, including metadata, data summaries, balance metrics, causal estimates, and sensitivity analysis.
 
-`data/outputs/analysis_result.json`
+### JSON Structure
 
-This file contains the complete causal inference results in the following JSON structure:
+The output JSON follows this schema:
 
 ```json
 {
  "metadata": {
- "timestamp": "ISO8601 timestamp",
- "config_path": "path to config file",
- "pipeline_version": "version string"
+ "timestamp": "ISO-8601-timestamp",
+ "config_path": "path/to/config.yaml",
+ "pipeline_version": "1.0.0"
  },
  "data_summary": {
  "total_households": <int>,
@@ -51,11 +57,11 @@ This file contains the complete causal inference results in the following JSON s
  "balance_results": {
  "max_smd": <float>,
  "caliper_used": <float>,
- "balance_status": "PASS" or "FAIL",
+ "balance_status": "PASS",
  "placebo_p_value": <float>
  },
  "causal_estimation": {
- "methodology": "OLS" or "DiD",
+ "methodology": "OLS",
  "att_estimate": <float>,
  "att_std_error": <float>,
  "p_value": <float>,
@@ -67,30 +73,26 @@ This file contains the complete causal inference results in the following JSON s
  "caliper": <float>,
  "att_estimate": <float>,
  "p_value": <float>
- }
+ },
+...
  ]
 }
 ```
 
-### Output Validation
+### Field Descriptions
 
-To verify the JSON output is valid:
+* **metadata**: Execution context information.
+* **data_summary**: Counts of households processed and matched pairs formed.
+* **balance_results**: Metrics verifying the quality of the PSM match. `max_smd` should be <= 0.1.
+* **causal_estimation**: The primary result. `att_estimate` represents the estimated reduction in energy cost burden due to solar/microgrid adoption.
+* **sensitivity_analysis**: A list of results from running the analysis with different caliper values to assess robustness.
 
-```bash
-python -m json.tool data/outputs/analysis_result.json > /dev/null && echo "JSON is valid"
-```
+## Validation
 
-## Troubleshooting
-
-- **PowerError**: If the filtered dataset has fewer than 50 treated households, the pipeline will halt with a `PowerError`.
-- **BalanceFailureError**: If PSM cannot achieve SMD <= 0.1 after maximum iterations, the pipeline may fall back to DiD (if longitudinal data exists) or halt.
-- **DataUnavailableError**: If DiD is triggered but longitudinal data columns are missing, the pipeline will halt with a clear error message.
-
-## Next Steps
-
-After running the pipeline, review the results in `data/outputs/analysis_result.json`
-and generate the final report using:
+To verify the output is valid JSON, run:
 
 ```bash
-python src/reporting/generate_final_report.py --input data/outputs/analysis_result.json --output data/outputs/final_report.md
+python -m json.tool code/data/outputs/analysis_result.json > /dev/null
 ```
+
+If the command exits with code 0, the output structure is valid.
