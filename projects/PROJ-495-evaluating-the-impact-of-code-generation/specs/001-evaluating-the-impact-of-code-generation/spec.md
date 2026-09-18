@@ -1,6 +1,6 @@
 # Feature Specification: Evaluating the Impact of Code Generation on Code Vulnerability Density
 
-**Feature Branch**: `001-evaluating-impact-of-code-generation`  
+**Feature Branch**: `001-evaluating-the-impact-of-code-generation`  
 **Created**: 2024-05-21  
 **Status**: Draft  
 **Input**: User description: "Evaluating the Impact of Code Generation on Code Vulnerability Density"
@@ -39,7 +39,7 @@ The system must calculate vulnerability density (vulnerabilities per [deferred] 
 
 ### User Story 3 - Perform Statistical Comparison and Generate Visualizations (Priority: P3)
 
-The system must execute a two-sample t-test and a Mann-Whitney U test to compare vulnerability densities between LLM and human code groups, and generate boxplots and bar charts visualizing the distribution of densities and vulnerability types.
+The system must execute a Negative Binomial regression and a Mann-Whitney U test to compare vulnerability densities between LLM and human code groups, and generate boxplots and bar charts visualizing the distribution of densities and vulnerability types.
 
 **Why this priority**: This addresses the research hypothesis directly by determining if observed differences are statistically significant and provides visual evidence for the findings. It relies on the outputs of the previous stories.
 
@@ -47,7 +47,7 @@ The system must execute a two-sample t-test and a Mann-Whitney U test to compare
 
 **Acceptance Scenarios**:
 
-1. **Given** two groups of density values with a significant difference, **When** the statistical test module runs, **Then** the system outputs a p-value < 0.05 for the t-test and Mann-Whitney U test, and flags the result as "statistically significant."
+1. **Given** two groups of density values with a significant difference, **When** the statistical test module runs, **Then** the system outputs a p-value < 0.05 for the Negative Binomial regression and flags the result as "statistically significant."
 2. **Given** the analysis results, **When** the visualization module runs, **Then** the system generates at least one boxplot comparing the two groups and one bar chart showing the distribution of vulnerability classes (e.g., injection, XSS) for each group.
 
 ### Edge Cases
@@ -63,15 +63,18 @@ The system must execute a two-sample t-test and a Mann-Whitney U test to compare
 - **FR-001**: System MUST download the CodeVulnBench dataset and a verified human-written code subset (e.g., Juliet Test Suite) from public repositories, ensuring all files are accessible and valid before analysis begins (See US-1).
 - **FR-002**: System MUST execute static analysis tools (Bandit, Semgrep, SonarQube) on all downloaded code samples using only CPU resources, extracting vulnerability counts and CWE classifications for each file (See US-1).
 - **FR-003**: System MUST calculate vulnerability density (vulnerabilities per [deferred] lines of code) for each file, handling division-by-zero cases by marking the result as "undefined" or zero (See US-2).
-- **FR-004**: System MUST perform a two-sample t-test and a Mann-Whitney U test to compare the mean vulnerability density between the LLM-generated and human-written code groups, outputting p-values for both tests (See US-3).
+- **FR-004**: System MUST perform a Negative Binomial regression to compare the mean vulnerability density between the LLM-generated and human-written code groups (primary test), and a Mann-Whitney U test as a non-parametric robustness check (secondary test), outputting p-values for both (See US-3).
 - **FR-005**: System MUST generate visualizations including a boxplot of vulnerability density by code source and a bar chart of vulnerability class distribution, saving them as standard image formats (PNG/SVG) (See US-3).
 - **FR-006**: System MUST implement a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) if more than one hypothesis test is performed on the same dataset, adjusting the significance threshold accordingly (See US-3).
+- **FR-007**: System MUST select a stratified random sample of detected vulnerabilities (minimum 5% of total findings or 100 samples, whichever is smaller) for manual human audit to establish a ground truth baseline for precision and recall (See US-2).
+- **FR-008**: System MUST calculate and report the False Positive Rate (FPR) for both the LLM and human code groups based on the human audit results to account for differential tool calibration (See US-2).
 
 ### Key Entities
 
 - **CodeSample**: Represents an individual code file, containing attributes for file path, lines of code (LOC), code source (LLM or human), and raw vulnerability count.
 - **VulnerabilityRecord**: Represents a detected vulnerability, containing attributes for CWE ID, severity, and the associated CodeSample ID.
 - **AnalysisResult**: Represents the aggregated output for a group, containing attributes for mean density, median density, standard deviation, and p-values from statistical tests.
+- **AuditRecord**: Represents a manual verification of a vulnerability, containing attributes for the VulnerabilityRecord ID, human-verdict (true-positive/false-positive), and auditor ID.
 
 ## Success Criteria
 
@@ -81,11 +84,13 @@ The system must execute a two-sample t-test and a Mann-Whitney U test to compare
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Vulnerability density difference between LLM and human code groups is measured against the null hypothesis of no difference using a two-sample t-test (See FR-004).
+- **SC-001**: Vulnerability density difference between LLM and human code groups is measured against the null hypothesis of no difference using a Negative Binomial regression model (See FR-004).
 - **SC-002**: Statistical significance of the density difference is measured against the adjusted alpha level (after multiple-comparison correction) to control family-wise error rate (See FR-006).
-- **SC-003**: Analysis execution time is measured against the 6-hour limit of the GitHub Actions free-tier runner to ensure feasibility (See FR-002, FR-004).
+- **SC-003**: Analysis execution time is measured against the GitHub Actions free-tier runner time limit to ensure feasibility (See FR-002, FR-004).
 - **SC-004**: Memory usage during static analysis is measured against the 7 GB RAM constraint of the runner to verify no out-of-memory errors occur (See FR-002).
-- **SC-005**: The proportion of code files successfully analyzed (vs. skipped due to errors or size) is measured against a target of ≥ 95% coverage to ensure data validity (See FR-002).
+- **SC-005**: The proportion of code files successfully analyzed is measured against the total number of files in the input manifest to ensure data validity (See FR-002).
+- **SC-006**: Precision and recall of the static analysis tools are measured against the human audit ground truth (See FR-007).
+- **SC-007**: The difference in False Positive Rates (FPR) between LLM and human code groups is measured to detect tool bias (See FR-008).
 
 ## Assumptions
 
@@ -96,3 +101,4 @@ The system must execute a two-sample t-test and a Mann-Whitney U test to compare
 - The dataset contains sufficient sample sizes in both the LLM and human groups to perform a meaningful statistical test (n ≥ 30 per group is assumed; if not, the study will be limited to descriptive statistics only).
 - The analysis is observational; therefore, any findings will be framed as associational differences in vulnerability density, not causal effects of LLM usage on code security.
 - The GitHub Actions free-tier runner provides consistent performance (2 CPU cores, ~7 GB RAM) without significant variability that would impact the reproducibility of the analysis.
+- Human auditors are available to perform the manual verification of the stratified sample required for ground truth validation (FR-007).

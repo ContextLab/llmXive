@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`) <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, pymatgen, shap, numpy, pyyaml, requests, tqdm, scipy, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -68,7 +68,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `src/data/download.py`: NIMS fetch with exponential backoff, duplicate handling (averaging rupture times), and missing value filtering.
+- [ ] T015 [US1] Implement `src/data/download.py`: NIMS fetch with exponential backoff, duplicate handling (averaging rupture times), and missing value filtering. <!-- FAILED: unspecified -->
 - [X] T016 [US1] Implement `src/data/generate.py`: Synthetic data generation using Arrhenius/Power-law laws, signal injection, and statistical target validation (KS distance, mean/SD). **Mandatory**: If statistical targets (KS distance > 0.05 or mean/SD mismatch > 10%) are not met, the system MUST raise an error and halt execution immediately, preventing the pipeline from proceeding to modeling.
 - [X] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
 - [X] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch) using `pymatgen`.
@@ -108,7 +108,7 @@
  - **Mandatory**: Perform sensitivity analysis sweeping cutoffs {0.01, 0.05, 0.1} specifically on the **Permutation Test p-value**.
  - Output results to logs: Permutation Test p-value, Bootstrap CI bounds, and sensitivity analysis results.
  - **Note**: This task implements the Permutation Test as mandated by the research plan and plan.md. The spec FR-005 (mandating Corrected Resampled t-test) is flagged for a kickback due to its potential scientific invalidity in this context.
-- [ ] T025 [US2] Implement `src/models/main_eval.py`: Orchestration script to run training, evaluation, and print the final comparison table (R² delta, CI, significance).
+- [X] T025 [US2] Implement `src/models/main_eval.py`: Orchestration script to run training, evaluation, and print the final comparison table (R² delta, CI, significance).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,9 +149,9 @@
 
 - [ ] T029 [P] Update `README.md` with quickstart instructions and execution commands
 - [ ] T030 [P] Add `.gitignore` and CI configuration (GitHub Actions) for CPU-only runner
-- [ ] T031 [P] Create `tests/integration/test_runtime.py` script to run the full pipeline, capture execution time, and **log the specific duration value** to stdout and a log file as a measured outcome for SC-005. Also assert pipeline duration < 6h and log failure if exceeded.
+- [X] T031 [P] Create `tests/integration/test_runtime.py` script to run the full pipeline, capture execution time, and **log the specific duration value** to stdout and a log file as a measured outcome for SC-005. Also assert pipeline duration < 6h and log failure if exceeded.
 - [X] T032 [P] Create `src/utils/runtime_logger.py` to ensure the total execution time is explicitly logged to standard output and a dedicated log file (`logs/runtime.log`) as a measured outcome for SC-005. This task ensures the artifact (the logged time value) is produced for the report, distinct from the pass/fail assertion in T031.
-- [ ] T033 Verify all artifacts (CSVs, plots, reports) are hashed and state updated per `src/utils/hash.py`
+- [X] T033 Verify all artifacts (CSVs, plots, reports) are hashed and state updated per `src/utils/hash.py`
 
 ---
 

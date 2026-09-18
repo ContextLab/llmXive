@@ -463,3 +463,518 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T19:12:24Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Wikidata Q115139582 dataset identified as Q115139582
+  claim_id: c_dedca530
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    entailment_evidence: Wikidata Q115139582 dataset identified as Q115139582
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q115139582_dataset_identified_as_Q115139582
+  kind: entity_fact
+  raw_text: download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582)
+  resolved_value: Wikidata Q115139582 dataset identified as Q115139582
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T18:23:23Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Python package versions pinned in requirements.txt
+  claim_id: c_0fb3312c
+  context: 'T002a Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0, pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0,
+    torch==2.0.1+cpu, transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0,
+    pytest==7.4.0, pytest-cov==4.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:24:12Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Dynamic batch size calculator ensures under 7 GB RAM usage
+  claim_id: c_a5c1673d
+  context: T005 [P] Implement `code/utils.py` with dynamic batch size calculator (ensuring
+    <7GB RAM usage)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensuring <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:24:12Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Download retry logic asserts retry count of 3
+  claim_id: c_8614c602
+  context: T011 [P] [US1] Integration test for download retry logic in `tests/integration/test_end_to_end.py`
+    (mock `datasets.load_dataset` to raise HTTPError on first call; assert retry count
+    == 3 and final state is failure)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert retry count == 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:24:37Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Metrics match pre-calculated values within 0.01 tolerance
+  claim_id: c_f2e4c736
+  context: 'Independent Test: Run on hardcoded reference data; verify metrics match
+    pre-calculated values within 0.01 tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify metrics match pre-calculated values within 0.01 tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:24:58Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Runtime verified under 6 hours on free-tier
+  claim_id: c_c500793c
+  context: "T045 Performance optimization (verify runtime \u2264 6 hours on free-tier)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify runtime \u2264 6 hours on free-tier"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:24:58Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: download Wikidata Q115139582
+  claim_id: c_f6a6df51
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_Wikidata_Q115139582
+  kind: entity_fact
+  raw_text: download Wikidata Q115139582
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:26:14Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_1a66a553
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:26:32Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_512c80cb
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:26:53Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3
+  claim_id: c_0b036d93
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:27:09Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_d807fa45
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:27:25Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0
+  claim_id: c_813bb74d
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:27:56Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: torch version 2.0.1+cpu
+  claim_id: c_3f3df004
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.0.1+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:28:24Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: transformers version 4.30.2
+  claim_id: c_bb20db0e
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.30.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:28:51Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.12.2
+  claim_id: c_b5e500df
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.12.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:29:09Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.2
+  claim_id: c_c94a6aae
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.7.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:29:37Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0
+  claim_id: c_39662f1f
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:30:13Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_3ede6202
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:30:27Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: pytest-cov version 4.1.0
+  claim_id: c_94a3ee08
+  context: 'Create `code/requirements.txt` with pinned versions: datasets==2.14.0,
+    pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu,
+    transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0,
+    pytest-cov==4.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest-cov==4.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:30:40Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: golden ratio
+  claim_id: c_ffb97d46
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties. ({{claim:c_aad724a3}}
+    (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio);) on raw download BEFORE
+    filtering, placed after T016 execution in pipeline)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: entity_fact
+  raw_text: golden_ratio
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:31:13Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: retry count equals 3
+  claim_id: c_94e3724e
+  context: Integration test for download retry logic in `tests/integration/test_end_to_end.py`
+    (mock `datasets.load_dataset` to raise HTTPError on first call; assert retry count
+    == 3 and final state is failure)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry count == 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:31:37Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: model ID 2511.22313
+  claim_id: c_943fd264
+  context: Implement `code/metrics.py` with sentiment analysis using `{{claim:c_bbc37927}}
+    (2511.22313, 2511.22313)` (CPU mode) and fallback model loading logic (via config/env
+    var) if default fails
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2511.22313'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:31:52Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: runtime less than or equal to 6 hours
+  claim_id: c_6d4b2b89
+  context: "Performance optimization (verify runtime \u2264 6 hours on free-tier)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "runtime \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:32:12Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: filter sessions with 3 or more turns
+  claim_id: c_83b06297
+  context: "Goal: Download {{claim:c_3ed349d2}} (Wikidata Q115139582, https://www.wikidata.org/wiki/Q115139582),\
+    \ filter for valid sessions (\u22653 turns), and persist clean data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "filter for valid sessions (\u22653 turns)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:32:12Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: metrics match pre-calculated values within 0.01 tolerance
+  claim_id: c_38cf0b2a
+  context: 'Independent Test: Run on hardcoded reference data; verify metrics match
+    pre-calculated values within 0.01 tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify metrics match pre-calculated values within 0.01 tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:32:12Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: coefficients and p-values match theoretical results within 5%
+  claim_id: c_4eff4a9f
+  context: 'Independent Test: Run on synthetic mock data (r=0.5, n=1000); verify coefficients
+    and p-values match theoretical results within 5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify coefficients and p-values match theoretical results within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:32:12Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: ensure RAM usage less than 7GB
+  claim_id: c_48cb76d4
+  context: Implement `code/utils.py` with dynamic batch size calculator (ensuring
+    <7GB RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_RAM_usage_less_than_7GB
+  kind: magnitude
+  raw_text: ensuring <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:32:49Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Cryptographic hash functions ensure data integrity in distributed systems
+  claim_id: c_a60a4683
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cryptographic_hash_functions_ensure_data_integrity_in_distri
+  kind: entity_fact
+  raw_text: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:33:51Z'
+- artifact_path: projects/PROJ-502-the-impact-of-perceived-ai-personality-c/specs/001-the-impact-of-perceived-ai-personality-c/tasks.md
+  attempts: 1
+  canonical: Systematic literature review and comparative analysis of hash algorithm
+    properties used as method
+  claim_id: c_c1f07578
+  context: The research question investigates whether cryptographic hash functions
+    can ensure data integrity in distributed systems. The method involves a systematic
+    literature review and comparative analysis of hash algorithm properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Systematic_literature_review_and_comparative_analysis_of_has
+  kind: entity_fact
+  raw_text: The method involves a systematic literature review and comparative analysis
+    of hash algorithm properties.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T18:34:44Z'

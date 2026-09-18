@@ -44,15 +44,15 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a Create `code/` directory (`code/__init__.py`)
-- [ ] T001b Create `tests/` directory (`tests/__init__.py`)
+- [X] T001b Create `tests/` directory (`tests/__init__.py`)
 - [ ] T001c Create `tests/unit/` directory
 - [ ] T001d Create `tests/contract/` directory
 - [ ] T001e Create `tests/integration/` directory
 - [ ] T001f Create `data/` directory (`data/raw/`, `data/processed/`)
-- [~] T001g Create `output/` directory (`output/figures/`, `output/reports/`)
-- [X] T002a Create `code/requirements.txt` with pinned versions: datasets==2.14.0 [UNRESOLVED-CLAIM: c_df95789a — status=not_enough_info], pandas==2.0.3 [UNRESOLVED-CLAIM: c_1d2fa06d — status=not_enough_info], numpy==1.24.3 [UNRESOLVED-CLAIM: c_2a36a529 — status=not_enough_info], scikit-learn==1.3.0 [UNRESOLVED-CLAIM: c_2d2a80ac — status=not_enough_info], statsmodels==0.14.0 [UNRESOLVED-CLAIM: c_6daca785 — status=not_enough_info], torch==2.0.1+cpu [UNRESOLVED-CLAIM: c_06d9e788 — status=not_enough_info], transformers==4.30.2 [UNRESOLVED-CLAIM: c_5f15c112 — status=not_enough_info], seaborn==0.12.2 [UNRESOLVED-CLAIM: c_66932fd3 — status=not_enough_info], matplotlib==3.7.2 [UNRESOLVED-CLAIM: c_2a89cbfd — status=not_enough_info], pyyaml==6.0 [UNRESOLVED-CLAIM: c_7f1e2cb0 — status=not_enough_info], pytest==7.4.0 [UNRESOLVED-CLAIM: c_e4b6de38 — status=not_enough_info], pytest-cov==4.1.0 [UNRESOLVED-CLAIM: c_16c2e4d8 — status=not_enough_info]
-- [~] T002b Initialize git repository in the project root <!-- FAILED: unspecified -->
-- [~] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T001g Create `output/` directory (`output/figures/`, `output/reports/`)
+- [X] T002a Create `code/requirements.txt` with pinned versions: datasets==2.14.0, pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0, torch==2.0.1+cpu, transformers==4.30.2, seaborn==0.12.2, matplotlib==3.7.2, pyyaml==6.0, pytest==7.4.0, pytest-cov==4.1.0
+- [ ] T002b Initialize git repository in the project root <!-- FAILED: unspecified -->
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -83,17 +83,17 @@
 
 - [ ] T009 [P] [US1] Unit test for session filtering logic in `tests/unit/test_ingestion.py` (verify <3 turns excluded, ≥3 included)
 - [ ] T010 [P] [US1] Contract test for data output schema in `tests/contract/test_schemas.py` (function: `test_sessions_schema_matches_yaml` validating `specs/contracts/dataset.schema.yaml`)
-- [ ] T011 [P] [US1] Integration test for download retry logic in `tests/integration/test_end_to_end.py` (mock `datasets.load_dataset` to raise HTTPError on first call; assert retry count == 3 [UNRESOLVED-CLAIM: c_0bec590c — status=not_enough_info] and final state is failure)
+- [ ] T011 [P] [US1] Integration test for download retry logic in `tests/integration/test_end_to_end.py` (mock `datasets.load_dataset` to raise HTTPError on first call; assert retry count == 3 and final state is failure)
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `code/ingestion.py` to download {{claim:c_3ed349d2}} from HuggingFace `datasets` library
-- [ ] T013 [US1] Implement session filtering logic in `code/ingestion.py` (keep only sessions with ≥3 turns [UNRESOLVED-CLAIM: c_19582a1d — status=not_enough_info])
+- [ ] T013 [US1] Implement session filtering logic in `code/ingestion.py` (keep only sessions with ≥3 turns)
 - [ ] T014 [US1] Implement null-value check and error handling in `code/ingestion.py` (fail gracefully if row count is 0)
 - [ ] T016 [US1] Persist filtered data to `data/processed/sessions.json` (or CSV)
 - [ ] T015 [US1] Implement checksumming of raw data in `code/ingestion.py` (Cryptographic hash validation
 
-The research question investigates whether cryptographic hash functions can ensure data integrity in distributed systems. The method involves a systematic literature review and comparative analysis of hash algorithm properties. ({{claim:c_aad724a3}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio);) on raw download BEFORE filtering, placed after T016 execution in pipeline)
+The research question investigates whether cryptographic hash functions can ensure data integrity in distributed systems. [UNRESOLVED-CLAIM: c_a60a4683 — status=not_enough_info] The method involves a systematic literature review and comparative analysis of hash algorithm properties. [UNRESOLVED-CLAIM: c_c1f07578 — status=not_enough_info] ({{claim:c_aad724a3}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio);) on raw download BEFORE filtering, placed after T016 execution in pipeline)
 - [ ] T017 [US1] Add logging for download status and filtering results
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,7 +104,7 @@ The research question investigates whether cryptographic hash functions can ensu
 
 **Goal**: Compute "Consistency Score" (sentiment variance + lexical diversity) and "Engagement Indicators" (interaction length, session count). *Note: 'Trust' and 'Session Frequency (days)' are replaced per Plan constraints due to missing timestamps.*
 
-**Independent Test**: Run on hardcoded reference data; verify metrics match pre-calculated values within 0.01 tolerance [UNRESOLVED-CLAIM: c_5a53edfa — status=not_enough_info].
+**Independent Test**: Run on hardcoded reference data; verify metrics match pre-calculated values within 0.01 tolerance.
 
 ### Tests for User Story 2
 
@@ -137,7 +137,7 @@ The research question investigates whether cryptographic hash functions can ensu
 
 ### Tests for User Story 3
 
-- [ ] T031 [P] [US3] Unit test for Poisson Regression model fitting on synthetic data in `tests/unit/test_analysis.py` (generate data with r=0.5, n=1000; assert coefficients match within 5% tolerance [UNRESOLVED-CLAIM: c_49f3c317 — status=not_enough_info])
+- [ ] T031 [P] [US3] Unit test for Poisson Regression model fitting on synthetic data in `tests/unit/test_analysis.py` (generate data with r=0.5, n=1000; assert coefficients match within 5% tolerance)
 - [ ] T032 [P] [US3] Unit test for Regression logic in `tests/unit/test_analysis.py` (function: `test_regression_fit_returns_expected_model`; input: list of predictors/outcomes; assert output: GLM object with expected parameters)
 - [ ] T033 [P] [US3] Integration test for end-to-end visualization generation in `tests/integration/test_end_to_end.py`
 
@@ -164,7 +164,7 @@ The research question investigates whether cryptographic hash functions can ensu
 - [ ] T043a Update `README.md` with usage instructions and scope limitations (AI Personality removed, Survival Analysis replaced by Poisson Regression)
 - [ ] T043b Add docstrings to `code/ingestion.py`, `code/metrics.py`, and `code/analysis.py`
 - [ ] T044 Code cleanup and refactoring
-- [ ] T045 Performance optimization (verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_47a2c9c9 — status=not_enough_info] on free-tier)
+- [ ] T045 Performance optimization (verify runtime ≤ 6 hours on free-tier)
 - [ ] T046 [P] Additional unit tests (if requested) in `tests/unit/`
 - [ ] T047 Security hardening (ensure no PII leakage in logs)
 - [ ] T048 Run `quickstart.md` validation

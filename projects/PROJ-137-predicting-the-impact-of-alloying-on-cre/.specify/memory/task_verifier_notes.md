@@ -8,7 +8,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T015** — declared artifact(s) missing/empty/invalid: src/data/download.py
 - **T020** — No code, data files, or logs were supplied; the implementer did not provide the required data acquisition/preprocessing pipeline script, the processed CSV, or any evidence (e.g., logs, schema validation) that the pipeline meets the detailed acceptance criteria. Consequently the task’s core deliverable is missing.
-- **T025** — declared artifact(s) missing/empty/invalid: src/models/main_eval.py
 - **T029** — No README.md content was supplied or referenced, so there is no evidence that quickstart instructions and execution commands were added. The required artifact is missing, preventing verification that the task was fulfilled.
 - **T030** — No `.gitignore` file or GitHub Actions workflow (e.g., `.github/workflows/ci.yml`) was presented or referenced in the provided evidence, so the required artifacts for adding a CPU‑only CI configuration are missing.
-- **T031** — declared artifact(s) missing/empty/invalid: tests/integration/test_runtime.py

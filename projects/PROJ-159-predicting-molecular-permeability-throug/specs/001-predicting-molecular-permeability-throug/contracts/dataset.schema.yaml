@@ -1,0 +1,97 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gas-MOF Pair Dataset Schema"
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier for the gas-MOF pair"
+  molecule_smiles:
+    type: "string"
+    description: "SMILES string of the permeant molecule"
+  molecule_graph:
+    type: "object"
+    properties:
+      node_features:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "number"
+      edge_index:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "integer"
+      edge_features:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "number"
+  framework_id:
+    type: "string"
+    description: "Identifier for the porous framework (e.g., MOF-1)"
+  framework_graph:
+    type: "object"
+    properties:
+      node_features:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "number"
+      edge_index:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "integer"
+      edge_features:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "number"
+  cross_edges:
+    type: "object"
+    properties:
+      index:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "integer"
+      distances:
+        type: "array"
+        items:
+          type: "number"
+  target_geometric_proxy:
+    type: "number"
+    description: "Computed geometric proxy (Surface Area or Pore Volume) derived from structure"
+  source_url:
+    type: "string"
+    description: "URL of the verified dataset source"
+  hand_crafted_features:
+    type: "object"
+    properties:
+      molecular_weight:
+        type: "number"
+      atom_count:
+        type: "integer"
+      framework_density:
+        type: "number"
+      unit_cell_volume:
+        type: "number"
+    description: "Simple descriptors used for the linear baseline (MW, Atom Count, Density, Unit Cell Volume). Note: Surface Area and Pore Volume are NOT included here as they are the target."
+required:
+  - pair_id
+  - molecule_smiles
+  - molecule_graph
+  - framework_id
+  - framework_graph
+  - cross_edges
+  - target_geometric_proxy
+  - source_url
+  - hand_crafted_features
+additionalProperties: false

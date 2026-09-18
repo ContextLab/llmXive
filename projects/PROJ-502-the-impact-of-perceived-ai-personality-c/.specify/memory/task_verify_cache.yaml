@@ -1,0 +1,38 @@
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/unit/` directory was provided; the implementer did not
+    supply any files or folder listing showing that the required directory exists
+    or contains any test files. The task remains undone.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `tests/contract/` directory exists in the repository,
+    nor any files within it. The required artifact (the directory itself) is missing,
+    so the task is not satisfied.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `tests/integration/` directory exists in the
+    repository, nor any files within it; the claim lacks any artifact confirming the
+    directory was created.
+T001g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of an `output/` directory (or its subfolders `output/figures/` and
+    `output/reports/`) is provided; the artifact list is empty, so the required directories
+    have not been shown to exist.
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Git repository (e.g., a `.git` directory, `git init` command
+    output, or commit history) is present in the provided artifacts; the task required
+    initializing a Git repo in the project root, which is not demonstrated.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, pre\u2011commit hook scripts) are present, and the provided artifacts\
+    \ relate only to data ingestion and analysis, not to the required linting setup.\
+    \ The task\u2019s core requirement\u2014configuring flake8/black\u2014is therefore\
+    \ unmet."

@@ -1,0 +1,18 @@
+status: none
+intent: download CoRE MOF 2019 IZA Zeolite gas permeability python package dataset
+required_fields:
+- mof_id
+- mof_structure_file
+- mof_graph_node_atomic_number
+- mof_graph_edge_distance
+- gas_name
+- gas_smiles
+- gas_graph_node_stereochemistry
+- gas_graph_node_hybridization
+- gas_graph_edge_attributes
+- permeability_value
+- temperature
+- pressure
+cache_key: 9548bcbde25dc2f796cb45adbec2f643c3bd7bb6bcc8231be6417152e43d9f7d
+searched_at: '2026-09-18T18:45:59.023373+00:00'
+retry_count: 1

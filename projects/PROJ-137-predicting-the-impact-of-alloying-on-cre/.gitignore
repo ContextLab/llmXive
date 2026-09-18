@@ -2,75 +2,52 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
+*.pyd
+*.pyc
+.pytest_cache/
 .coverage
-coverage.xml
-*.cover
-.tox/
-.nox/
+htmlcov/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
+# Virtual Environments
 venv/
 ENV/
 env/
 .venv/
 
-# IDEs
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS
+# OS Files
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Project Specific Data & Logs
 data/raw/
 data/processed/
 data/external/
 logs/
+data/outputs/
 figures/
 docs/reports/
-.pytest_cache/
+
+# Config Secrets (do not commit API keys)
+config/secrets.yaml
+.env
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# CI/CD local artifacts
 .mypy_cache/
 .ruff_cache/

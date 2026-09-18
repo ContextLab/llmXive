@@ -1,7 +1,7 @@
 """
-Contract tests for llmXive research pipeline.
+Contract tests for data schemas and API interfaces.
 
-These tests verify that data artifacts conform to the schemas defined in
-specs/contracts/*.yaml.
+These tests verify that data outputs match the specifications defined
+in specs/contracts/*.yaml.
 """
 pass

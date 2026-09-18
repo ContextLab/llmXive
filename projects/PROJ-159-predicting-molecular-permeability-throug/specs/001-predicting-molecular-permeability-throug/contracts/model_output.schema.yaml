@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique hash of the experiment configuration"
+  model_type:
+    type: "string"
+    enum:
+      - "heterogeneous_gnn"
+      - "linear_regression"
+      - "gcn_baseline"
+      - "ablated_gnn"
+  metrics:
+    type: "object"
+    properties:
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error"
+      r_squared:
+        type: "number"
+        description: "Coefficient of Determination"
+      mae:
+        type: "number"
+        description: "Mean Absolute Error"
+      pearson_r:
+        type: "number"
+        description: "Pearson Correlation Coefficient between predicted and computed log10(Geometric Proxy)"
+    required:
+      - rmse
+      - r_squared
+      - mae
+      - pearson_r
+  cross_validation:
+    type: "object"
+    properties:
+      folds:
+        type: "integer"
+        description: "Number of folds used (should be 5)"
+      mean_rmse:
+        type: "number"
+      std_rmse:
+        type: "number"
+      mean_pearson_r:
+        type: "number"
+      std_pearson_r:
+        type: "number"
+    required:
+      - folds
+      - mean_rmse
+      - std_rmse
+      - mean_pearson_r
+      - std_pearson_r
+  ablation_delta:
+    type: "number"
+    description: "Difference in RMSE between full model and ablated model (only for ablation studies)"
+  sensitivity_variance:
+    type: "array"
+    items:
+      type: "number"
+    description: "Variance in RMSE across {0.01, 0.05, 0.1} nm thresholds"
+  threshold_sweep_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "The specific threshold values swept (must be [0.01, 0.05, 0.1])"
+  timestamp:
+    type: "string"
+    format: "date-time"
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility"
+required:
+  - experiment_id
+  - model_type
+  - metrics
+  - cross_validation
+  - timestamp
+  - seed
+  - threshold_sweep_values
+additionalProperties: false

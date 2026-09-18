@@ -33,7 +33,7 @@ As a researcher, I want to train a simplified heterogeneous GNN on the prepared 
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed dataset, **When** the training script executes, **Then** training completes within 100 epochs or stops early if validation loss does not improve for 10 epochs, and outputs a test set RMSE and Pearson r value.
+1. **Given** the preprocessed dataset, **When** the training script executes, **Then** training completes within 100 epochs or stops early if validation loss does not improve for a defined patience period, and outputs a test set RMSE and Pearson r value.
 2. **Given** the trained heterogeneous GNN, **When** compared to the linear regression baseline, **Then** the report explicitly states whether the GNN achieved a lower RMSE.
 3. **Given** a held-out test set, **When** predictions are generated, **Then** the model does not use any information from the training set in the final evaluation.
 
@@ -51,7 +51,7 @@ As a researcher, I want to conduct an ablation study by removing heterogeneous c
 
 1. **Given** the trained heterogeneous model, **When** the ablation study runs, **Then** it produces a performance delta metric showing the drop in accuracy when cross-edges are removed.
 2. **Given** a specific cutoff for non-covalent contacts, **When** the sensitivity analysis sweeps the threshold, **Then** the report shows how the variance in RMSE varies across the set {0.01, 0.05, 0.1} nm.
-3. **Given** the model predictions, **When** feature importance is calculated, **Then** the output lists the top 5 molecular and framework features contributing to permeability variance.
+3. **Given** the model predictions, **When** feature importance is calculated, **Then** the output lists the top molecular and framework features contributing to permeability variance.
 
 ### Edge Cases
 
@@ -71,7 +71,7 @@ As a researcher, I want to conduct an ablation study by removing heterogeneous c
 - **FR-006**: The system MUST perform an ablation study removing cross-edges to quantify the contribution of joint encoding to prediction accuracy. (See US-3)
 - **FR-007**: The system MUST execute a sensitivity analysis on the non-covalent contact distance threshold, sweeping values across the set {0.01, 0.05, 0.1} nm and reporting the variance in prediction error. (See US-3)
 - **FR-008**: The system MUST frame all reported correlations as associational, explicitly avoiding causal claims unless the dataset includes randomized assignment. (See US-2)
-- **FR-009**: The system MUST perform stratified 5-fold cross-validation and report the mean and standard deviation of metrics across folds to validate generalization on small datasets. (See US-2)
+- **FR-009**: The system MUST perform stratified k-fold cross-validation and report the mean and standard deviation of metrics across folds to validate generalization on small datasets. (See US-2)
 
 ### Key Entities
 

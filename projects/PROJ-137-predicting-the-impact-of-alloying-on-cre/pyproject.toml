@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-creep-prediction"
 version = "0.1.0"
 description = "Predicting the impact of alloying on creep resistance via public data"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -18,27 +17,51 @@ dependencies = [
     "requests",
     "tqdm",
     "scipy",
-]
-
-[project.optional-dependencies]
-dev = [
     "pytest",
-    "pytest-cov",
     "ruff",
     "black",
 ]
 
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = ["E", "F", "W", "I", "N", "UP"]
-ignore = ["E501"]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"] # allow assertions in tests
+
+[tool.ruff.isort]
+known-first-party = ["src"]
+force-sort-within-sections = true
