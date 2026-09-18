@@ -95,7 +95,7 @@ The system MUST train a shallow Multi-Layer Perceptron (MLP) or Random Forest cl
 
 ## Assumptions
 
-- The LingBot-Video model weights and the associated dataset (or a valid proxy like RoboNet) are publicly available and can be downloaded via `wget` within the CI runner's 10 GB disk limit.
+- The LingBot-Video model weights and the associated dataset (or a valid proxy like RoboNet) are publicly available and can be downloaded via `wget` within the CI runner's disk limit.
 - The CPU-based physics simulation engine (e.g., PyBullet) can generate valid labels for the selected video clips within a feasible job limit, even for the full a large-scale clip subset, provided the 3D reconstruction step is successful.
 - The internal activation patterns of the LingBot-Video model contain sufficient information to predict physical validity; if the model learns no such representation, the study will correctly report a null result (accuracy near random).
 - The video clip subset is representative of the broader domain of embodied intelligence tasks and contains a sufficient mix of valid and invalid physical states for training.

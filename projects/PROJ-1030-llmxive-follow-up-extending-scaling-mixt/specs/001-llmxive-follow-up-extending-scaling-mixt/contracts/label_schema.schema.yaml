@@ -27,10 +27,14 @@ properties:
   kinematic_valid:
     type: "boolean"
     description: "Whether the reconstructed trajectory passed the kinematic consistency check"
+  perturbation_type:
+    type: "string"
+    description: "Type of perturbation applied (e.g., 'gravity_defiance', 'jitter')"
 required:
   - clip_id
   - label
   - simulation_success
   - reconstruction_confidence
   - kinematic_valid
+  - perturbation_type
 additionalProperties: false

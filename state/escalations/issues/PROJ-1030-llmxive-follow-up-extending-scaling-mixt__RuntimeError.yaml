@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-18T20:50:34.484913+00:00'
+issue_number: 1397
+project_id: PROJ-1030-llmxive-follow-up-extending-scaling-mixt

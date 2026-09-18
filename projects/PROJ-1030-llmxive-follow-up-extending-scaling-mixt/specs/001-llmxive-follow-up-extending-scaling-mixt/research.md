@@ -1,94 +1,66 @@
 # Research: llmXive follow-up: extending "Scaling Mixture-of-Experts Video Pretraining for Embodied Intelligence"
 
-## Executive Summary
+## Summary of Approach
 
-This research investigates whether the internal latent representations of video models (specifically MoE architectures, with a ViT fallback) encode physical laws governing embodied intelligence. By extracting expert activation masks and latent vectors from intermediate DiT/ViT layers and correlating them with independent ground-truth labels generated via 3D reconstruction (with kinematic checks) and physics simulation, we aim to determine if specific sub-networks are consistently predictive of physical validity (e.g., collision, gravity violation).
+This research investigates whether the internal activation patterns of the LingBot-Video MoE model encode physical laws. The methodology involves extracting latent vectors and expert masks from the model, generating independent ground-truth labels via 3D reconstruction and *synthetic perturbation*, and training a lightweight classifier to predict physical validity. The study is strictly observational, framing all findings as **associational**. The "ground truth" for the "invalid" class is the *known perturbation logic*, not the depth estimate, breaking the circularity of using depth estimation as a ground truth.
+
+**Note on Causal Claims**: The hypothesis that the model "encodes physical laws" is tested by demonstrating a statistically significant association between internal states and physical validity, *after* rigorously ruling out confounds (e.g., depth estimation artifacts). The classifier performance alone does not prove causality; it provides evidence of encoding.
 
 ## Dataset Strategy
 
-The project relies on verified, open datasets for robot manipulation. The strategy prioritizes programmatic access to ensure reproducibility on CI runners.
+The project will utilize the **RoboNet** and **Ego4D** datasets, specifically subsets known to contain robot manipulation videos. These datasets are chosen for their visual fidelity (texture, lighting) which is required for monocular depth estimation to produce plausible trajectories.
 
-| Dataset Role | Source Name | Verified URL | Access Method | Notes |
+| Dataset | Source URL | Loading Method | Variables Needed | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **Primary Video Clips** | BridgeData V2 | `https://huggingface.co/datasets/rail-berkeley/bridgedata_v2` | `datasets.load_dataset(..., streaming=True)` | Contains diverse robot manipulation clips. Verified public access. |
-| **Secondary Video Clips** | RoboNet (via Robomimic) | `https://huggingface.co/datasets/robomimic/robomimic` | `datasets.load_dataset(..., streaming=True)` | Fallback if BridgeData lacks specific physical scenarios. |
-| **Model Weights (MoE)** | VideoMoE (or DiT-MoE) | `https://huggingface.co/[verified-moe-model]` | `transformers` | **Fallback**: If no public MoE model with accessible DiT layers is found, the pipeline defaults to **VideoMAE** (ViT) as a negative control. |
-| **Model Weights (ViT)** | VideoMAE | `https://huggingface.co/MCG-NJU/videomae-base` | `transformers` | Used if MoE model is unavailable. |
+| **RoboNet** | `https://huggingface.co/datasets/RoboNet/robonet` | `datasets.load_dataset(..., streaming=True)` | Video frames | Primary source. Filtered by texture score. |
+| **Ego4D** | `https://huggingface.co/datasets/Ego4D/ego4d` | `datasets.load_dataset(..., streaming=True)` | Video frames | Supplementary source. Filtered by texture score. |
 
-**Dataset Fit Verification**:
-The selected datasets contain video clips of robot interactions. The study requires variables: `video_frames` (for feature extraction), `action_context` (for 3D reconstruction).
-- **Missing Variable Check**: The datasets provide video frames. The study *needs* 3D state estimates (positions, velocities) which are **not** in the dataset.
-- **Resolution**: The plan explicitly includes a **3D Reconstruction Step** (US-2) using `monodepth2` (default) to derive these variables from the video frames. This is a computational transformation, not a missing data gap.
+**Data Availability & Feasibility**:
+- The selected datasets are directly downloadable via Hugging Face `datasets` library with streaming enabled, ensuring they can be processed on the CI runner without exceeding disk limits.
+- **No access-gated data** is used. All sources are public and open.
+- **Visual Fidelity Check**: Clips are filtered based on a pre-computed 'texture score' (variance of pixel intensities) to ensure they contain sufficient visual cues for monocular depth estimation. Clips failing this check are excluded *before* depth estimation.
+- **Streaming Strategy**: To handle large datasets within the 7 GB RAM limit, the pipeline will use `streaming=True` to iterate over clips one at a time, processing and saving results immediately without loading the entire dataset into memory.
 
 ## Methodological Rigor
 
-### Statistical Approach
-1.  **Classification Task**: Binary classification (Valid vs. Invalid).
-    -   **Model**: Shallow MLP or Random Forest (CPU-tractable).
-    -   **Metrics**: F1-score, Precision, Recall (SC-001).
-    -   **Baseline**: Random guessing (chance level).
-2.  **Power & Sample Size (Dynamic)**:
-    -   **Test**: Logistic Regression (to estimate odds ratios of expert activation).
-    -   **Assumptions**: Effect size (Cohen's h) = 0.5 (medium), Power (1-β) = 0.8, α = 0.05.
-    -   **Calculation**: The script calculates the minimum N required for these parameters.
-    -   **Feasibility Constraint**: If the calculated N exceeds the available clips or the 6-hour runtime budget, the study **does not** fabricate data. Instead, it reports the **achieved power** and the **minimum detectable effect size (MDES)** for the available sample. This explicitly addresses the risk of underpowering.
-3.  **Feature Importance**:
- - Method: **KernelSHAP** with a limited background sample (n=100) and a [deferred] sampling budget to handle sparsity and correlation in expert masks.
-    -   Fallback: If KernelSHAP exceeds the 30-minute time limit, the script falls back to **Permutation Importance** with a strict time cap.
-    -   Goal: Identify if specific MoE experts correlate with physical violations (SC-002).
-4.  **Multiple Comparisons**:
-    -   If testing individual expert contributions, apply **False Discovery Rate (FDR)** control (Benjamini-Hochberg) to the p-values.
-5.  **Causal Claims**:
-    -   **Strictly Associational**: As per FR-007, the study will frame results as correlations between latent states and physical validity. No causal claims will be made.
+### Statistical Rigor (Quantitative Studies)
 
-### Control Experiments & Interpretation
-To distinguish "genuine physical understanding" from "spurious visual correlations":
-1.  **Label Shuffling**: Train on shuffled labels. Expected F ≈ 0.5.
-2.  **Visual Texture Baseline**: Train a classifier on raw image patches (no latent extraction). If MoE performance is not significantly better than this, the signal may be texture-based.
-3.  **ViT Baseline**: Train on a non-MoE model (VideoMAE).
-4.  **Decision Rule**: "Genuine physical understanding" is supported **only if**:
-    -   MoE F1 > ViT F1 (p < 0.05 via McNemar's test).
-    -   MoE F1 > Texture Baseline F1 (p < 0.05).
-    -   MoE F1 > Chance Level.
+- **Multiple-Comparison Correction**: If multiple hypotheses are tested (e.g., different expert masks), a Bonferroni correction or False Discovery Rate (FDR) control will be applied to the p-values.
+- **Sample-Size / Power Justification**: A 'Power Analysis for Imbalanced Data' is performed. The Minimum Detectable Effect (MDE) is calculated based on an assumed noise floor derived from the depth estimator's reported confidence scores. If the MDE exceeds a reasonable threshold (e.g., Cohen's h > 0.5), the study will report this limitation and not claim a negative result.
+- **Causal Inference Assumptions**: The study is **observational**. No causal claims will be made. The correlation between expert activations and physical validity will be framed as associational. The independence of the label generation process (perturbation logic) from the feature extraction process (LingBot) is crucial to avoid circularity.
+- **Measurement Validity**: The monocular depth estimator and physics engine (PyBullet) are standard tools in robotics research. Their validity is assumed based on prior literature, but the study will report confidence scores for depth estimation to filter low-quality labels. The "ground truth" is the *perturbation*, not the depth estimate.
+- **Predictor Collinearity**: Expert activation masks are likely correlated. The study will report the correlation structure and acknowledge that independent effects cannot be claimed for highly collinear predictors.
+- **Label Noise Estimation**: A 'Label Noise Estimation' step calculates the Signal-to-Noise Ratio (SNR) upper bound based on the variance of the depth estimates to quantify the ambiguity of the null result.
 
-### Dataset-Variable Fit & Limitations
--   **Variable**: `Expert Activation Mask`.
-    -   **Source**: Extracted from Video Model intermediate layers.
-    -   **Validity**: Directly measured.
--   **Variable**: `Physical Label` (Valid/Invalid).
-    -   **Source**: Generated via PyBullet on reconstructed 3D states.
-    -   **Risk**: Monocular depth estimation is noisy.
-    -   **Mitigation**:
-        1.  **Kinematic Consistency Check**: Before labeling, the reconstructed trajectory is checked for continuity and non-zero velocity. Samples failing this are labeled 'null'.
-        2.  **Scale Normalization**: Relative depth is normalized to the first frame's bounding box and scaled by a heuristic average object size to ensure PyBullet compatibility.
-        3.  **Confidence Filter**: Samples with reconstruction confidence < 0.9 are filtered out.
+### Control Experiments (Addressing Confounds)
 
-## Compute Feasibility & GPU Strategy
+To ensure the classifier is not learning artifacts of the labeling pipeline (e.g., depth estimation confidence) rather than physical validity:
+1.  **Label Shuffle Control**: The labels ("valid"/"invalid") are randomly shuffled. The classifier should perform at chance level. If it performs well, the model is learning a spurious correlation with the input features unrelated to the label.
+2.  **Random Depth Control**: A subset of clips is processed with random noise instead of actual depth maps. The resulting "invalid" labels (based on random physics) should not be predictable from the LingBot features if the features encode real physics.
+3.  **Depth Confidence Check**: The `label_independence_score` (correlation between depth confidence and perturbation type) must be < 0.1. A higher score indicates the "invalid" label is correlated with the quality of the depth estimate, not the physical perturbation.
 
-### CPU-First Strategy
-The entire pipeline is designed for the GitHub Actions free-tier (limited vCPU, limited RAM, No GPU).
--   **Feature Extraction**: `torch.no_grad()` and chunking.
--   **Physics Simulation**: PyBullet is CPU-native.
--   **Classifier**: Scikit-learn (Random Forest/MLP).
--   **SHAP**: KernelSHAP with limited samples (n=100) to fit time budget.
+### Computational Feasibility
 
-### GPU Escape Hatch (Kaggle Auto-Offload)
-If the depth estimation or model inference exceeds CPU limits:
--   **Trigger**: CUDA requirement or OOM.
--   **Action**: Re-run on Kaggle GPU with reduced sample size (first 50 clips).
--   **Note**: No synthetic stand-ins.
+- **CPU-First**: The entire pipeline (feature extraction, depth estimation, physics simulation, classification) is designed to run on CPU.
+- **Memory Management**: Frame subsampling and temporal chunking will be used to ensure processing stays within the 7 GB RAM limit. A 'Verify Memory Chunking' task logs peak RAM usage.
+- **GPU Escape Hatch**: If the monocular depth estimation fails on CPU or is too slow, the pipeline may offload this specific step to a Kaggle GPU (scaled down). However, the primary plan assumes CPU execution.
+- **Dataset Streaming**: The `datasets` library with `streaming=True` will be used to avoid loading the entire dataset into memory.
 
-## Decision Rationale
+## Constitution Check
 
-| Decision | Rationale |
-| :--- | :--- |
-| **monodepth2 (Default)** | Selected as the **only** supported default for reproducibility. MiDaS/Depth Anything are research-only alternatives. |
-| **Kinematic Consistency Check** | Filters out samples where the *motion* is physically impossible due to reconstruction artifacts, addressing systematic errors in velocity. |
-| **Prior Audit** | Checks for shared training data between video and depth models. If overlap > 50%, switches to SfM (COLMAP) to ensure independence. |
-| **Relative to Rigid Translation** | Normalizes relative depth to a unit scale using heuristic object sizes, allowing PyBullet to run without absolute scale. |
-| **KernelSHAP Approximation** | Balances the need for handling sparse/correlated features with the 30-minute CPU time limit. |
+- **Principle VI (Latent-Space Grounding)**: The plan ensures that the physics engine labels are mechanically decoupled from the LingBot model's internal states. The `prior_audit.py` script and `label_independence_score` metric verify this independence.
+- **Principle VII (CPU-Tractable Efficiency)**: The plan prioritizes CPU-tractable methods. The `torch.no_grad()` context and memory chunking are explicitly included. The 'Verify Memory Chunking' task logs peak RAM usage.
+- **Principle I (Reproducibility)**: Random seeds are pinned, and all data sources are verified. The pipeline is designed to run end-to-end on a fresh runner.
 
-## Ethical & Safety Considerations
--   **Bias**: The dataset may be biased towards specific robot types. The study will acknowledge this.
--   **Safety**: No real-world robot control.
--   **Privacy**: Datasets are open-source.
+## Risks & Mitigations
+
+- **Risk**: Monocular depth estimation fails or produces low-confidence outputs.
+  - **Mitigation**: Filter out samples with confidence < 0.9 (FR-008). Use a robust depth estimator and log excluded samples. Apply 'Visual Fidelity Check' to filter unusable videos.
+- **Risk**: Physics simulation crashes due to numerical instability.
+  - **Mitigation**: Catch exceptions, log the clip ID, and exclude the sample from the training set. 'Simulation Stability Check' distinguishes between reconstruction failure and physical violation.
+- **Risk**: Dataset lacks sufficient physical violations.
+  - **Mitigation**: Use a 'Synthetic Perturbation' strategy to generate the 'invalid' class. Use a 'Control Perturbation' strategy to verify robustness.
+- **Risk**: Memory overflow during feature extraction.
+  - **Mitigation**: Implement frame subsampling and temporal chunking (FR-006). 'Verify Memory Chunking' task logs peak RAM usage.
+- **Risk**: Label noise from depth estimation.
+  - **Mitigation**: Calculate 'SNR Upper Bound' and report it. Use 'Perturbation Independence Check' to ensure labels are not correlated with depth confidence.

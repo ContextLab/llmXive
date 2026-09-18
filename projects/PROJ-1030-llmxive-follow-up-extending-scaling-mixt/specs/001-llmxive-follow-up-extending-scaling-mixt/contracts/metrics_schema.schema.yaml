@@ -40,6 +40,14 @@ properties:
   min_detectable_effect:
     type: "number"
     description: "Minimum detectable effect size (Cohen's h) for the given sample size"
+  baseline_f1:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "F1-score of the Majority Class Predictor baseline"
+  framing_statement:
+    type: "string"
+    description: "Mandatory associational framing statement"
 required:
   - model_type
   - f1_score
@@ -49,4 +57,6 @@ required:
   - sample_size
   - achieved_power
   - min_detectable_effect
+  - baseline_f1
+  - framing_statement
 additionalProperties: false
