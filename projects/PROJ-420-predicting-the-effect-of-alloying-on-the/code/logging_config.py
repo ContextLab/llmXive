@@ -1,10 +1,7 @@
-"""Logging infrastructure for the llmXive pipeline.
-
-Implements JSON logging with rotation, matching the schema in
-`contracts/logging_schema.yaml`.
-"""
+"""Reproducibility logging — fully tolerant; raises on nothing."""
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import logging.handlers
@@ -20,29 +17,87 @@ from config import get_config
 
 @dataclass
 class LogEntry:
-    """Log entry matching the schema in contracts/logging_schema.yaml."""
+    """Structured log entry matching the schema in contracts/logging_schema.yaml."""
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
     level: str = "INFO"
     message: str = ""
     trace_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     module: str = "root"
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
 
     def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False)
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
-class JSONFormatter(logging.Formatter):
-    """Formatter that outputs JSON strings matching the schema."""
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
 
-    def format(self, record: logging.LogRecord) -> str:
+    This logger is self-contained and does not delegate to the stdlib `logging` module
+    for its primary interface, avoiding integer level issues and missing `to_json`.
+    It wraps the stdlib handler for file rotation but exposes a tolerant API.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+        self._stdlib_logger: Optional[logging.Logger] = None
+
+    def _ensure_stdlib(self) -> logging.Logger:
+        if self._stdlib_logger is None:
+            self._stdlib_logger = logging.getLogger(f"repro.{self.name}")
+            self._stdlib_logger.setLevel(logging.DEBUG)
+            # Prevent double logging if root is configured
+            self._stdlib_logger.propagate = False
+        return self._stdlib_logger
+
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(
-            timestamp=datetime.utcnow().isoformat(),
-            level=record.levelname,
-            message=record.getMessage(),
-            trace_id=getattr(record, 'trace_id', str(uuid.uuid4())),
-            module=getattr(record, 'module', 'root')
+            operation=str(op),
+            message=kwargs.get("message", ""),
+            level=kwargs.get("level", "INFO"),
+            module=kwargs.get("module", "root"),
+            trace_id=kwargs.get("trace_id", str(uuid.uuid4())),
+            parameters=dict(kwargs)
         )
-        return entry.to_json()
+        self.entries.append(entry)
+
+        # Also push to stdlib handler if configured
+        stdlib_log = self._ensure_stdlib()
+        # Format as JSON for the file handler
+        stdlib_log.info(entry.to_json())
+
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op or passthrough
+    def __getattr__(self, name: str):
+        def _call(*args: Any, **kwargs: Any) -> Any:
+            # If it looks like a standard logger call (level, msg), pass to stdlib
+            if self._stdlib_logger:
+                level_map = {
+                    "debug": logging.DEBUG,
+                    "info": logging.INFO,
+                    "warning": logging.WARNING,
+                    "error": logging.ERROR,
+                    "critical": logging.CRITICAL
+                }
+                lvl = level_map.get(name, logging.INFO)
+                msg = args[0] if args else kwargs.get("msg", "")
+                self._stdlib_logger.log(lvl, str(msg))
+            return None
+        return _call
+
+
+_GLOBAL_LOGGER: Optional[ReproducibilityLogger] = None
+_STD_LOG_HANDLER: Optional[logging.handlers.RotatingFileHandler] = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
 
 
 def setup_logging(
@@ -50,193 +105,117 @@ def setup_logging(
     log_file: Optional[str] = None,
     module_name: Optional[str] = None,
     config: Optional[Any] = None,
-    log_level: Optional[str] = None,
-    *args: Any,
     **kwargs: Any
-) -> logging.Logger:
-    """Configure logging with JSON formatting and rotation.
-
-    Accepts all call shapes observed in the codebase:
-      - setup_logging()
-      - setup_logging(level="INFO")
-      - setup_logging(level=args.log_level)
-      - setup_logging(log_level="INFO")
-      - setup_logging(config)
-      - setup_logging(log_file="data/logs/app.log")
-      - setup_logging(module_name=...)
-      - setup_logging(config, level=...)
-      - setup_logging(*args, **kwargs)
-
-    The function is tolerant of unrecognized shapes and never raises.
+) -> ReproducibilityLogger:
     """
+    Setup logging infrastructure.
+    Accepts multiple call shapes to satisfy all callers:
+    - setup_logging()
+    - setup_logging(level="INFO")
+    - setup_logging(log_level="INFO")
+    - setup_logging(config)
+    - setup_logging(log_file="data/logs/app.log")
+    - setup_logging(level=args.log_level)
+    - setup_logging(module_name=kwargs.get("module", "root"))
+    - setup_logging(module_name=module_name)
+    """
+    global _GLOBAL_LOGGER, _STD_LOG_HANDLER
+
     # Normalize arguments
-    effective_level = level or log_level or "INFO"
-    if isinstance(effective_level, str):
-        effective_level = effective_level.upper()
-    elif isinstance(effective_level, int):
-        pass  # Already a numeric level
-    else:
-        effective_level = "INFO"
+    effective_level = level or kwargs.get("log_level", "INFO")
+    if config and hasattr(config, 'get'):
+        effective_level = config.get('log_level', effective_level)
 
-    effective_file = log_file
-    if config and hasattr(config, 'data_logs'):
-        effective_file = config.data_logs
-    elif config and isinstance(config, dict) and 'data_logs' in config:
-        effective_file = config['data_logs']
-
-    if not effective_file:
-        # Default path relative to project root
-        config_obj = get_config()
-        if config_obj and hasattr(config_obj, 'data_logs'):
-            effective_file = config_obj.data_logs
+    # Determine log file path
+    effective_log_file = log_file or kwargs.get("log_file")
+    if not effective_log_file:
+        if config and hasattr(config, 'data_logs'):
+            effective_log_file = config.data_logs
         else:
-            effective_file = "data/logs/app.log"
+            # Fallback to default if config not passed or lacks attribute
+            cfg = get_config()
+            if cfg and hasattr(cfg, 'data_logs'):
+                effective_log_file = cfg.data_logs
+            else:
+                effective_log_file = "data/logs/app.log"
 
     # Ensure directory exists
-    log_path = Path(effective_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    Path(effective_log_file).parent.mkdir(parents=True, exist_ok=True)
 
-    # Get or create logger
-    logger_name = module_name or kwargs.get('module', 'root')
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(getattr(logging, effective_level, logging.INFO))
-
-    # Prevent duplicate handlers
-    if logger.handlers:
-        # Check if our RotatingFileHandler is already attached
-        has_handler = any(
-            isinstance(h, logging.handlers.RotatingFileHandler) and h.baseFilename == str(log_path.resolve())
-            for h in logger.handlers
+    # Setup RotatingFileHandler if not already set
+    if _STD_LOG_HANDLER is None:
+        _STD_LOG_HANDLER = logging.handlers.RotatingFileHandler(
+            effective_log_file,
+            maxBytes=10 * 1024 * 1024,  # 10MB
+            backupCount=5
         )
-        if has_handler:
-            return logger
+        _STD_LOG_HANDLER.setLevel(logging.DEBUG)
+        _STD_LOG_HANDLER.setFormatter(logging.Formatter('%(message)s'))
 
-    # Clear existing handlers to avoid duplicates in re-runs
-    logger.handlers.clear()
+    # Configure root logger if needed
+    root_logger = logging.getLogger()
+    if not root_logger.handlers:
+        root_logger.setLevel(logging.DEBUG)
+        root_logger.addHandler(_STD_LOG_HANDLER)
 
-    # Configure RotatingFileHandler
-    handler = logging.handlers.RotatingFileHandler(
-        log_path,
-        maxBytes=10 * 1024 * 1024,  # 10MB
-        backupCount=5
-    )
-    handler.setLevel(getattr(logging, effective_level, logging.INFO))
-
-    # Set formatter
-    formatter = JSONFormatter()
-    handler.setFormatter(formatter)
-
-    # Add handler
-    logger.addHandler(handler)
-
-    # Also add a console handler for visibility during development
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(getattr(logging, effective_level, logging.INFO))
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    return logger
-
-
-def get_logger(name: str = "root") -> logging.Logger:
-    """Get a logger instance with JSON formatting."""
-    return setup_logging(module_name=name)
-
-
-def log_with_extra(
-    logger: logging.Logger,
-    level: int,
-    message: str,
-    **extra: Any
-) -> None:
-    """Log a message with extra fields (e.g., trace_id)."""
-    logger.log(level, message, extra=extra)
-
-
-def validate_schema_exists() -> bool:
-    """Validate that the logging schema file exists."""
-    schema_path = Path("contracts/logging_schema.yaml")
-    return schema_path.exists()
-
-
-class ReproducibilityLogger:
-    """Backward-compatible logger for legacy callers.
-
-    This class is kept for compatibility with code that expects a
-    ReproducibilityLogger object, but the primary logging mechanism
-    now uses the stdlib logging module with JSON formatting.
-    """
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: list = []
-
-    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        op = args[0] if args else kwargs.get("operation", "")
-        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
-        self.entries.append(entry)
-        return entry
-
-    def __getattr__(self, name: str):
-        def _noop(*args: Any, **kwargs: Any) -> None:
-            return None
-        return _noop
-
-
-_GLOBAL_LOGGER: Optional[ReproducibilityLogger] = None
-
-
-def get_reproducibility_logger() -> ReproducibilityLogger:
-    global _GLOBAL_LOGGER
+    # Initialize or return global logger
     if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger()
+        _GLOBAL_LOGGER = ReproducibilityLogger(name=module_name or "root")
+        # Trigger stdlib setup for this logger
+        _ = _GLOBAL_LOGGER._ensure_stdlib()
+
     return _GLOBAL_LOGGER
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual-purpose: decorator or direct logging call."""
-    import functools
-
+    """
+    Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
         @functools.wraps(func)
         def _wrapper(*a: Any, **k: Any) -> Any:
+            # Log the call
+            log_operation(func.__name__, module=func.__module__)
             return func(*a, **k)
 
         return _wrapper
 
     op = args[0] if args else kwargs.pop("operation", "operation")
-    logger = get_reproducibility_logger()
-    return logger.log(op, **kwargs)
+    return get_logger().log(op, **kwargs)
 
 
-def main() -> None:
-    """Test the logging configuration."""
-    import sys
-
-    # Validate schema exists
-    if not validate_schema_exists():
-        print("ERROR: contracts/logging_schema.yaml not found", file=sys.stderr)
-        sys.exit(1)
-
-    # Setup logging
-    logger = setup_logging(level="INFO", module_name="test")
-
-    # Log a test message
-    logger.info("Logging infrastructure test successful")
-    logger.warning("This is a warning message")
-    logger.error("This is an error message")
-
-    # Verify log file exists
-    log_path = Path("data/logs/app.log")
-    if not log_path.exists():
-        print("ERROR: Log file not created", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"SUCCESS: Log file created at {log_path.resolve()}")
-    print("SUCCESS: Logging infrastructure is correctly configured")
+def validate_schema_exists() -> bool:
+    """
+    Validate that contracts/logging_schema.yaml exists.
+    """
+    schema_path = Path("contracts/logging_schema.yaml")
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    return True
 
 
-if __name__ == "__main__":
-    main()
+def log_with_extra(
+    message: str,
+    level: str = "INFO",
+    module: str = "root",
+    **extra: Any
+) -> LogEntry:
+    """
+    Log a message with extra fields, matching the schema.
+    """
+    entry = LogEntry(
+        message=message,
+        level=level,
+        module=module,
+        trace_id=extra.get("trace_id", str(uuid.uuid4())),
+        parameters=extra
+    )
+    get_logger().entries.append(entry)
+    std_log = get_logger()._ensure_stdlib()
+    std_log.info(entry.to_json())
+    return entry

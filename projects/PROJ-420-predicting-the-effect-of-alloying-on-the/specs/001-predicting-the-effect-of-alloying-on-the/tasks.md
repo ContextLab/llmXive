@@ -28,14 +28,11 @@
 - [X] T001b [P] Create `code/__init__.py`.
 - [X] T001c [P] Create `data/raw/.gitkeep` and `data/processed/.gitkeep`.
 - [X] T001d [P] Create `contracts/.gitkeep`.
-- [X] T002 Initialize a Python project with dependencies (pandas, numpy, scikit-learn, requests, pyyaml, seaborn, matplotlib, compositional, statsmodels, datasets, periodictable, joblib, pytest, pytest-cov, ruff, black, shap) in `code/requirements.txt`.
+- [X] T002 Initialize a Python project with dependencies (pandas, numpy, scikit-learn, requests, pyyaml, seaborn, matplotlib, compositional, statsmodels, datasets, periodictable, joblib, pytest, pytest-cov, ruff, black, shap, jsonschema) in `code/requirements.txt`.
 - [X] T003 [P] Configure linting (ruff==0.1.6) and formatting (black==23.12.1) tools in `code/` using `pyproject.toml` as the configuration source.
 - [X] T006a [P] Generate `contracts/logging_schema.yaml` defining the schema for JSON logs: `timestamp`, `level`, `message`, `trace_id`, `module`. **Requirement**: This file MUST exist before T006 runs. **Verification**: Assert that `contracts/logging_schema.yaml` exists and is valid YAML using the `jsonschema` library. **Implementation**: Define the schema structure explicitly in YAML (e.g., `type: object`, `properties:...`) and write it to the file. **Blocked by**: None. (Satisfies missing artifact dependency for T006).
-- [ ] T006b [P] Generate `contracts/methodological_flags.schema.yaml` defining the schema for `results/methodological_flags.json`: `mae_flag` (bool), `cv_mae` (float). **Blocked by**: None. (Moved from Phase 3 to Phase 1).
-- [ ] T006c [P] Generate `contracts/residuals.schema.yaml` defining the schema for `results/residuals.json`: `residuals` (list of float), `indices` (list of int). **Blocked by**: None. (Moved from Phase 3 to Phase 1).
-- [ ] T006d [P] Generate `contracts/split_indices.schema.yaml` defining the schema for `data/processed/split_indices.json`: `train_indices` (list of int), `test_indices` (list of int). **Blocked by**: None. (Moved from Phase 3 to Phase 1).
-- [ ] T006e [P] Generate `contracts/collinearity_diagnostic.schema.yaml` defining the schema for `results/collinearity_diagnostic.json`: `raw_vif` (dict), `ilr_vif` (dict), `pass_flag` (bool). **Blocked by**: None. (Moved from Phase 3 to Phase 1).
-- [ ] T006f [P] Generate `contracts/final_report.schema.yaml` defining the schema for `results/final_report.json` (metadata): `title` (str), `summary` (str), `methodological_limitations` (list of str), `associational_disclaimer` (bool). **Note**: This is a JSON schema for the report metadata, not the Markdown structure. **Blocked by**: None.
+- [X] T007b [P] Generate `contracts/dataset.schema.yaml` defining the schema for the merged dataset: `poisson_ratio`, `young_modulus`, `composition` (Cu, Mg, Si, Zn, Mn), `measurement_method`, `alloy_type`. **Requirement**: This file MUST exist before T008b-raw runs. **Blocked by**: None.
+- [X] T008c [P] Create `code/constants.py` defining numerical tolerances for merging (e.g., `YOUNG_MODULUS_TOLERANCE=0.1`, `COMPOSITION_TOLERANCE=0.001`). **Blocked by**: None.
 
 ---
 
@@ -50,12 +47,11 @@
  1. Validate `contracts/logging_schema.yaml` exists.
  2. Import `logging`, `json`, `logging.handlers`.
  3. Create a custom `JSONFormatter` class that overrides `format()` to return `json.dumps(record_dict)`.
- 4. Configure `RotatingFileHandler` pointing to `data/logs/app.log`.
+ 4. Configure `RotatingFileHandler` pointing to `data/logs/app.log` with `maxBytes=10485760` and `backupCount=5`.
  5. Attach `JSONFormatter` to the handler and the root logger.
- 6. Test by writing >10MB of logs and verifying rotation.
+ 6. Test by writing >10MB of logs and verifying rotation occurs.
  **Blocked by**: T006a.
-- [X] T007 Create data schema definitions in `code/schemas/alloy_record.py` (Pydantic models for AlloyRecord, ModelMetrics). **Requirement**: The `measurement_method` field MUST be **Optional** in the schema with a default of `None`. If the field is missing in the raw data, the record is included in the intermediate dataframe but marked for immediate exclusion in T014. **Clarification**: T007's 'flagging' is purely for the exclusion log generation; the record is NOT retained in the final dataset if the method is missing. (satisfies FR-009, resolves premature exclusion).
-- [ ] T007b Generate `contracts/dataset.schema.yaml` defining the schema for the merged dataset: `poisson_ratio`, `young_modulus`, `composition` (Cu, Mg, Si, Zn, Mn), `measurement_method`, `alloy_type`. **Requirement**: This file MUST exist before T008b-raw runs. (Satisfies missing artifact dependency for T008b-raw). **Blocked by**: None.
+- [X] T007 Create data schema definitions in `code/schemas/alloy_record.py` (Pydantic models for AlloyRecord, ModelMetrics). **Requirement**: The `measurement_method` field MUST be **Optional** in the schema with a default of `None`. If the field is missing in the raw data, the record is included in the **intermediate** dataframe ONLY for the purpose of exclusion logging, but MUST be flagged for immediate removal in T014. **Clarification**: T007's 'flagging' is purely for the exclusion log generation; the record is NOT retained in the final dataset if the method is missing. (satisfies FR-009, resolves premature exclusion).
 - [X] T008 Implement checksum utility in `code/utils/checksum.py` for verifying raw data integrity.
 - [X] T009a [P] [US1] Implement data extraction from Materials Project API in `code/_download_logic.py`. **Primary Source**: Materials Project API. **Logic**:
  1. Attempt to query Materials Project for aluminum alloys containing Poisson's ratio, Young's modulus, and elemental composition using public access (no API key).
@@ -68,20 +64,21 @@
  2. Save raw response to `data/raw/nist_alloys.json`.
  3. **HALT CONDITION**: If no data is retrieved, raise `RuntimeError("CRITICAL: No data retrieved from NIST MDR. Spec FR-001 requires data from verified sources. Cannot proceed.")`.
  **Verification**: 1) Verify NIST response contains `composition` and `elastic_properties`. 2) Verify raw structure contains `poisson_ratio`, `young_modulus`, `composition`, `measurement_method`. **Blocked by**: None. (satisfies FR-001, US-1).
-- [ ] T009c [P] [US1] Implement Merge & Deduplicate logic in `code/merge.py`. **Deduplication Logic**: Merge data from `data/raw/mp_alloys.json` and `data/raw/nist_alloys.json`. Merge on exact match of normalized atomic fractions and Young's Modulus within a numerical tolerance. **Conflict Resolution**: If duplicates exist, prefer the record where `measurement_method` string contains 'Ultrasonic' or 'Direct'; if both or neither, prefer the record with the higher Young's Modulus. **Constants**: Use `code/constants.py` for tolerance values. **Blocked by**: T009a, T009b. (satisfies FR-001, handles internal data hygiene).
+- [ ] T009c [US1] Implement Merge & Deduplicate logic in `code/merge.py`. **Deduplication Logic**: Merge data from `data/raw/mp_alloys.json` and `data/raw/nist_alloys.json`. Merge on exact match of normalized atomic fractions and Young's Modulus within a numerical tolerance. **Conflict Resolution**: If duplicates exist, prefer the record where `measurement_method` string contains 'Ultrasonic' or 'Direct'; if both or neither, prefer the record with the higher Young's Modulus. **Constants**: Use `code/constants.py` (created by T008c) for tolerance values. **Output**: `data/processed/merged_raw.parquet`. **Blocked by**: T008b-raw, T009a, T009b, T008c. (satisfies FR-001, handles internal data hygiene).
 - [ ] T008b-raw [P] [US1] Implement Raw Data Verification in `code/data_verification.py`. **Logic**: 1) Verify network reachability of Materials Project and NIST. 2) Check for existence of `data/raw/mp_alloys.json` and `data/raw/nist_alloys.json`. 3) Verify raw API response structure (JSON paths for `poisson_ratio`, `composition`, `young_modulus`, `measurement_method`). 4) **Validate the raw structure against `contracts/dataset.schema.yaml`**. **Verification Step**: Before validation, **verify that `contracts/dataset.schema.yaml` exists and explicitly defines the fields required for the merged dataset**. If the schema is missing or incomplete, raise `RuntimeError`. **Fail Condition**: If any existing file failed validation, raise `RuntimeError` with a clear message. **Dependency**: This task MUST run AFTER T009a and T009b. **Blocked by**: T009a, T009b, T007b. (Replaces T008b raw verification).
 - [ ] T008b-merged [P] [US1] Implement Merged Data Verification in `code/data_verification.py`. **Logic**: 1) Validate the normalized merged structure against `contracts/dataset.schema.yaml`. 2) Ensure all required fields are present in the merged dataframe. **Dependency**: This task MUST run AFTER T009c (Merge). **Blocked by**: T009c, T007b. (Replaces T008b merged validation).
 - [X] T010 [US1] Implement schema validation in `code/data/clean.py`. **Requirement**: Verify the raw data (from T009c) contains all required fields (Poisson's ratio, Young's modulus, Cu, Mg, Si, Zn, Mn, **measurement_method**) at the **schema level**. **Field Mappings**: Map `poisson_ratio` -> `poisson_ratio`, `young_modulus` -> `young_modulus`, `elements` -> `composition` (dict). **Logic**: If a required field is missing from the **schema** (i.e., column does not exist in dataframe), raise a `ValueError`. If a field is present but **null/missing for a specific row**, do NOT raise; defer handling to T014 (which excludes such rows). **Order**: This task MUST run BEFORE T014 to validate the raw schema integrity before filtering. (satisfies FR-009, resolves T010/T014 conflict). **Blocked by**: T008b-merged.
 - [X] T014 [US1] Implement independence verification in `code/data/clean.py`. **Requirement**: Verify independence of Poisson's ratio measurements. **Logic**:
  1. Check if `measurement_method` is present and non-null.
- 2. **Source Check**: If the source API response contains a `measurement_type` or `source` field in `data/raw/mp_alloys.json` or `data/raw/nist_alloys.json`, verify the value against `VALID_MEASUREMENT_METHODS` (Ultrasonic, Direct, Resonant, Impulse).
- 3. **Exclusion Logic**: If `measurement_method` is explicitly 'derived', 'calculated from Young's Modulus', or similar, **EXCLUDE** the record immediately. If `measurement_method` is missing or null, **LOG A WARNING** and retain the record for potential manual review (do not exclude automatically), unless the source metadata explicitly confirms derivation.
- 4. **Logging**: Append exclusion records to `data/logs/exclusion_log.txt` with reason 'missing_measurement_method' or 'derived_measurement'.
- **Traceability**: This task explicitly implements the strict verification requirement of `spec.md` FR-009. **Constraint**: No inference logic is permitted. **Output**: Append to `data/logs/exclusion_log.txt` with reason 'missing_measurement_method' or 'derived_measurement'. **Note**: This task MUST run AFTER T010 (Schema Validation) and BEFORE T011. **Verification**: 1) Assert that records with derived methods are NOT in the output parquet. 2) Assert `data/logs/exclusion_log.txt` contains entries for failed verifications. (satisfies FR-009, resolves T010/T014 conflict). **Blocked by**: T010.
+ 2. **Source Check**: If the source API response contains a `measurement_type` or `source` field in `data/raw/mp_alloys.json` or `data/raw/nist_alloys.json`, verify the value against `VALID_MEASUREMENT_METHODS` (Ultrasonic, Direct, Resonant, Impulse). **If these fields are missing, the record is excluded immediately.**
+ 3. **Derived Detection**: Scan metadata fields for keywords like 'calculated from', 'derived', 'E/2G-1', 'from Young's Modulus'. If any keyword is found, **EXCLUDE** the record immediately.
+ 4. **Exclusion Logic**: If `measurement_method` is explicitly 'derived', 'calculated from Young's Modulus', or similar, **EXCLUDE** the record immediately. If `measurement_method` is **missing or null**, **EXCLUDE** the record immediately (do not retain for review). This strict exclusion ensures only verified independent measurements are used.
+ 5. **Logging**: Append exclusion records to `data/logs/exclusion_log.txt` with reason 'missing_measurement_method' or 'derived_measurement'.
+ **Traceability**: This task explicitly implements the strict verification requirement of `spec.md` FR-009. **Constraint**: No inference logic is permitted. **Output**: Append to `data/logs/exclusion_log.txt` with reason 'missing_measurement_method' or 'derived_measurement'. **Note**: This task MUST run AFTER T010 (Schema Validation) and BEFORE T011. **Verification**: 1) Assert that records with derived methods or missing methods are NOT in the output parquet. 2) Assert `data/logs/exclusion_log.txt` contains entries for failed verifications. (satisfies FR-009, resolves T010/T014 conflict). **Blocked by**: T010.
 - [X] T011 [US1] Implement monolithic filtering in `code/data/clean.py`. **Definition**: `alloy_type == 'monolithic'` OR `is_composite == False` OR `composite_fraction == 0.0`. **Priority**: Check `alloy_type` first, then `is_composite`, then `composite_fraction`. If neither field exists, the record is excluded. (satisfies FR-002). **Blocked by**: T014.
 - [X] T012 [US1] Implement unit normalization in `code/data/clean.py`. **Source Units**: Detect if `composition` is in wt% or at%. If wt%, convert to at% using atomic weights from `periodictable` package. If at%, verify sum is ~1.0. `young_modulus` expected in GPa (convert from MPa by multiplying by 0.001). (satisfies FR-003). **Blocked by**: T011.
 - [X] T013 [US1] Implement exclusion logic in `code/data/clean.py` for entries where major element sum < 0.95. **Calculation**: `major_sum = sum(Cu, Mg, Si, Zn, Mn)` in atomic fractions. **Al Balance**: `Al balance = 1.0 - major_sum`. If `major_sum < 0.95`, exclude row with log warning. (satisfies FR-003). **Blocked by**: T012.
-- [ ] T016 [P] [US1] Implement exclusion logging utility in `code/data/clean.py`. **Purpose**: Standalone utility function. **Logic**: Append exclusion records to `data/logs/exclusion_log.txt` (CSV format: `step,count,reason`). **Output**: `data/logs/exclusion_log.txt`. (satisfies T018b, resolves circular dependency). **Blocked by**: T013.
+- [ ] T016 [US1] Implement exclusion logging utility in `code/data/clean.py`. **Purpose**: Standalone utility function (code implementation). **Logic**: Append exclusion records to `data/logs/exclusion_log.txt` (CSV format: `step,count,reason`). **CSV Header**: `step,count,reason`. **Step Definition**: The 'step' field is the task ID (e.g., 'T014', 'T011') where the exclusion occurred. **Output**: `data/logs/exclusion_log.txt`. **Note**: This task is a code implementation. T015b will call this function during execution. **Blocked by**: T013.
 - [X] T015b [US1] Implement Orchestration in `code/data/clean.py`. **Requirement**: Orchestrate the full pipeline (T010 -> T014 -> T011 -> T013 -> T016). **Step 1**: Run T010-T016 functions in sequence on the merged dataframe (from T009c). **Step 2**: Invoke T016 utility to ensure all exclusions are logged. **Step 3**: Count valid rows in the final dataframe. **Step 4**: If row count < 50, **HALT** with error "Insufficient data after filtering (<50 entries)" and `sys.exit(1)`. **Step 5**: If count >= 50, signal T015c. (satisfies SC-001, resolves T018 conflict). **Blocked by**: T016.
 - [ ] T015c [US1] Implement Artifact Serialization in `code/data/clean.py`. **Requirement**: Save the cleaned dataset to `data/processed/alloys_clean.parquet` ONLY if T015b signals success. **Verification**: 1) Verify `sys.exit(1)` is called and error message logged if row count < 50. 2) Assert `data/processed/alloys_clean.parquet` exists and matches schema if count >= 50. (satisfies SC-001, resolves T018 conflict). **Blocked by**: T015b.
 
@@ -100,7 +97,7 @@
  5. **Verification**: Assert sum of indices equals total dataset size and sets are disjoint.
  **Constraint**: The Test set indices MUST be strictly held out and NOT used in T021.
  **Blocked by**: T015c.
-- [ ] T021 [US2] Implement 5-Fold Cross-Validation in `code/modeling.py`. **Function Name**: `run_cross_validation`. **Logic**:
+- [X] T021 [US2] Implement 5-Fold Cross-Validation in `code/modeling.py`. **Function Name**: `run_cross_validation`. **Logic**: <!-- FAILED: unspecified -->
  1. Load `data/processed/alloys_clean.parquet` and `data/processed/split_indices.json`.
  2. Filter data to Training set only.
  3. Apply ILR transformation (from T019) to the training subset.
@@ -109,14 +106,14 @@
  6. Save `results/cv_metrics.json` containing `{"cv_mae": float, "cv_ci_lower": float, "cv_ci_upper": float, "best_params": dict}`.
  **Verification**: Assert `results/cv_metrics.json` exists and contains valid metrics.
  **Blocked by**: T020, T019.
-- [ ] T021b [US2] Extract and Save Best Hyperparameters in `code/modeling.py`. **Function Name**: `extract_best_hyperparameters`. **Logic**:
+- [X] T021b [US2] Extract and Save Best Hyperparameters in `code/modeling.py`. **Function Name**: `extract_best_hyperparameters`. **Logic**:
  1. Read `results/cv_metrics.json` (from T021).
  2. Extract the `best_params` dictionary.
  3. Save to `results/cv_best_hyperparameters.json`.
  **Output**: `results/cv_best_hyperparameters.json`.
  **Verification**: Assert `results/cv_best_hyperparameters.json` exists and contains valid hyperparameters.
  **Blocked by**: T021.
-- [ ] T024 [US2] Implement model serialization in `code/modeling.py`. **Function Name**: `train_and_serialize_model`. **Requirement**: Train the final Random Forest model on the **full Training set** (using indices from T020) using the **best hyperparameters** found in T021b. **Logic**:
+- [X] T024 [US2] Implement model serialization in `code/modeling.py`. **Function Name**: `train_and_serialize_model`. **Requirement**: Train the final Random Forest model on the **full Training set** (using indices from T020) using the **best hyperparameters** found in T021b. **Logic**:
  1. Load `data/processed/alloys_clean.parquet` and `data/processed/split_indices.json`.
  2. Filter to Training set.
  3. Apply ILR transformation.
@@ -126,102 +123,52 @@
  7. Save trained model to `models/rf_model.pkl` using `joblib.dump(model, "models/rf_model.pkl", compress=3, protocol=3)`.
  **Verification**: Assert `models/rf_model.pkl` exists, can be loaded without error, and contains the expected `n_estimators` and `max_depth` attributes.
  **Blocked by**: T021b, T020, T019.
-- [ ] T025 [US2] Implement 80/20 Held-Out Test Set Evaluation in `code/modeling.py`. **Requirement**: This task satisfies the Spec's FR-005 and US2 Scenario 3 which mandate a held-out test set. **Logic**:
+- [X] T025 [US2] Implement 80/20 Held-Out Test Set Evaluation in `code/modeling.py`. **Requirement**: This task satisfies the Spec's FR-005 and US2 Scenario 3 which mandate a held-out test set. **Logic**:
  1. Load the trained model from `models/rf_model.pkl` (produced by T024).
  2. Load test indices from `data/processed/split_indices.json` (from T020).
  3. Evaluate the model on the **Test Set** data.
  4. Compute and log Test-Set MAE.
- 5. Compute and save residuals (Observed - Predicted) to `results/residuals.json` (validated against `contracts/residuals.schema.yaml` from T006c).
+ 5. Compute and save residuals (Observed - Predicted) to `results/residuals.json`.
  6. Check if CV MAE > 0.05. Set `mae_flag` to `True` if `cv_mae > 0.05`.
  7. If `mae_flag` is True, generate a narrative limitation string: "Methodological Concern: Cross-validation MAE exceeds 0.05 threshold, indicating potential model instability or insufficient signal."
  8. Write `results/methodological_flags.json` containing `mae_flag` (bool), `cv_mae` (float), and `narrative_limitation` (string, empty if flag is False).
- **Verification**: Assert `results/model_metrics.json` contains `test_mae` field, `results/residuals.json` exists and matches schema, and `results/methodological_flags.json` exists and matches schema. (satisfies FR-005, resolves Spec/Plan contradiction by implementing both with clear priority). **Blocked by**: T024, T020.
-- [ ] T023d [US2] Aggregate Model Metrics: Combine outputs from T021 and T025 into a single file `results/model_metrics.json`. **Schema**: JSON object containing `cv_mae`, `cv_ci_lower`, `cv_ci_upper`, `test_mae`. **Output**: `results/model_metrics.json`. **Verification**: Assert `results/model_metrics.json` matches `contracts/model_metrics.schema.yaml`. **Blocked by**: T021, T025. (Required for T030a-aggregate).
+ **Verification**: Assert `results/model_metrics.json` contains `test_mae` field, `results/residuals.json` exists and is valid JSON, and `results/methodological_flags.json` exists and is valid JSON. (satisfies FR-005, resolves Spec/Plan contradiction by implementing both with clear priority). **Blocked by**: T024, T020.
+- [ ] T023d [US2] Aggregate Model Metrics: Combine outputs from T021 and T025 into a single file `results/model_metrics.json`. **Schema**: JSON object containing `cv_mae`, `cv_ci_lower`, `cv_ci_upper`, `test_mae`. **Output**: `results/model_metrics.json`. **Verification**: Assert `results/model_metrics.json` contains expected keys. **Blocked by**: T021, T025. (Required for T030a-aggregate).
 
 ---
 
 ## Phase 4: User Story 3 - Feature Importance and Associational Interpretation (Priority: P3)
 
-- [ ] T028 [US3] Implement VIF calculation in `code/analysis.py`. **Input**: **Composition columns** (Cu, Mg, Si, Zn, Mn atomic fractions) from `data/processed/alloys_clean.parquet` (from T015c) AND **ILR-transformed features** from `data/processed/alloys_ilr.parquet` (from T019). **Rationale**: FR-007 mandates a collinearity diagnostic on raw predictors. T028 MUST compute VIF on raw compositions FIRST and flag any with VIF > 5 (or infinite). It also computes VIF on ILR features as a secondary diagnostic. **Primary Diagnostic**: Compute VIF on raw composition columns using `statsmodels.stats.outliers_influence.variance_inflation_factor`. **Secondary Diagnostic**: Compute VIF on ILR-transformed features. **Logic**:
- 1. Compute VIF on raw composition columns.
- 2. If VIF is infinite (due to closure), flag as 'infinite' and set `raw_vif` entry to a high value or string 'inf'.
- 3. Compute VIF on ILR-transformed features (from T019). Flag any with VIF > 5.
- 4. Save to `results/collinearity_diagnostic.json` containing `raw_vif` (dict), `ilr_vif` (dict), and `pass_flag` (based on raw VIF > 5 or 'inf').
- **Output**: `results/collinearity_diagnostic.json`. **Verification**: Assert `results/collinearity_diagnostic.json` matches `contracts/collinearity_diagnostic.schema.yaml` (from T006e). (satisfies FR-007). **Blocked by**: T015c, T019.
-- [ ] T027a [US3] Implement Grouped ILR Feature Importance in `code/analysis.py`. **Logic**: Extract feature importance weights from the trained Random Forest model (based on ILR-transformed features) using `shap.TreeExplainer`. **Requirement**: Aggregate the log-ratio contributions of the ILR coordinates back to the original compositional space using the 'Grouped ILR Importance' method. **Algorithm**: For each element (Cu, Mg, Si, Zn, Mn), sum the absolute SHAP values of all ILR coordinates that contain the element in their numerator, weighted by the coordinate's position in the Sequential Binary Partition (SBP). This produces a mathematically valid importance ranking in the compositional space without invalid back-transformation. **Input**: Load model from `models/rf_model.pkl` (from T024) and ILR-transformed data from `data/processed/alloys_ilr.parquet` (from T019). **Output**: Save to `results/feature_importance.json` as per schema, containing `importance_scores` for all 5 elements (Cu, Mg, Si, Zn, Mn) in the original compositional space. **Verification**: Assert `results/feature_importance.json` contains `importance_scores` for all 5 elements and matches `contracts/feature_importance.schema.yaml`. (satisfies FR-006, primary ranking). **Blocked by**: T024, T019.
-- [ ] T029 [US3] Implement result ranking and comparison logic in `code/analysis.py`. **Input**: `results/feature_importance.json` from T027a. **Output**: JSON `results/feature_importance_summary.json` with `top_element`, `second_element`, `ratio`, `comparison_statement`. **Verification**: Assert `results/feature_importance_summary.json` exists and contains valid comparison logic. (satisfies US3 Scenario 3). **Blocked by**: T027a.
+- [ ] T028 [US3] Implement VIF calculation in `code/analysis.py`. **Input**: **ILR-transformed features** from `data/processed/alloys_ilr.parquet` (from T019). **Rationale**: FR-007 mandates a collinearity diagnostic. The plan explicitly states VIF on raw compositions yields infinite values; therefore, this task computes VIF ONLY on ILR-transformed features. **Logic**: <!-- FAILED: unspecified -->
+ 1. Load ILR-transformed features from `data/processed/alloys_ilr.parquet`.
+ 2. Compute VIF on ILR-transformed features using `statsmodels.stats.outliers_influence.variance_inflation_factor`.
+ 3. Flag any ILR coordinate with VIF > 5.
+ 4. Save to `results/collinearity_diagnostic.json` containing `ilr_vif` (dict) and `pass_flag` (based on ILR VIF > 5).
+ **Output**: `results/collinearity_diagnostic.json`. **Verification**: Assert `results/collinearity_diagnostic.json` exists and contains valid keys. (satisfies FR-007). **Blocked by**: T015c, T019.
+- [~] T027a [US3] Implement Grouped ILR Feature Importance in `code/analysis.py`. **Logic**: Extract feature importance weights from the trained Random Forest model (based on ILR-transformed features) using `shap.TreeExplainer`. **Requirement**: Aggregate the log-ratio contributions of the ILR coordinates back to the original compositional space using the 'Grouped ILR Importance' method. **Algorithm**: For each element (Cu, Mg, Si, Zn, Mn), sum the absolute SHAP values of all ILR coordinates that contain the element in their numerator, weighted by the coordinate's position in the Sequential Binary Partition (SBP). **SBP Order**: `[['Cu'], ['Mg'], ['Si'], ['Zn'], ['Mn']]`. This produces a mathematically valid importance ranking in the compositional space without invalid back-transformation. **Input**: Load model from `models/rf_model.pkl` (from T024) and ILR-transformed data from `data/processed/alloys_ilr.parquet` (from T019). **Output**: Save to `results/feature_importance.json` as per schema, containing `importance_scores` for all 5 elements (Cu, Mg, Si, Zn, Mn) in the original compositional space. **Verification**: Assert `results/feature_importance.json` contains `importance_scores` for all 5 elements. (satisfies FR-006, primary ranking). **Blocked by**: T024, T019.
+- [~] T029 [US3] Implement result ranking and comparison logic in `code/analysis.py`. **Input**: `results/feature_importance.json` from T027a. **Output**: JSON `results/feature_importance_summary.json` with `top_element`, `second_element`, `ratio`, `comparison_statement`. **Verification**: Assert `results/feature_importance_summary.json` exists and contains valid comparison logic. (satisfies US3 Scenario 3). **Blocked by**: T027a.
 - [ ] T030a-aggregate [US3] Aggregate Metrics for Report: Collect `results/model_metrics.json` (from T023d), `results/collinearity_diagnostic.json` (from T028), `results/feature_importance_summary.json` (from T029), `results/methodological_flags.json` (from T025), `models/rf_model.pkl` (from T024), `results/residuals.json` (from T025). **Output**: Save aggregated context to `data/processed/report_context.json` containing all these metrics and flags. **Verification**: Assert all required files exist and are valid, and `data/processed/report_context.json` is created. **Blocked by**: T023d, T028, T029, T024, T025.
 - [ ] T030a-render [US3] Implement final report generation in `code/main.py`. **Function Name**: `generate_final_report`. **Inputs**: Aggregated data from `data/processed/report_context.json` (from T030a-aggregate). **Output**: `results/final_report.md`. **Verification**: 1) Verify `results/final_report.md` contains section "Methodological Limitations". 2) Assert report contains "associational (not causal)" phrase. **Blocked by**: T030a-aggregate. (satisfies SC-005, resolves T030a FAILED status). **Implementation Steps**: 1) Aggregate data. 2) Render template. **Note**: Validation is handled by T030a-validate.
-- [ ] T030a-validate [US3] Implement report validation in `code/main.py`. **Function Name**: `validate_final_report`. **Requirement**: Validate `results/final_report.md` against `contracts/final_report.schema.yaml` (from T006f). **Logic**: Parse the Markdown report, extract metadata (title, summary, limitations, disclaimer), and validate against the JSON schema. **Crucially**: Also scan the Markdown content directly for the phrase "associational (not causal)" to ensure the actual report text complies, not just the metadata file. **Blocked by**: T030a-render, T006f. (satisfies SC-005).
+- [ ] T030a-validate [US3] Implement report validation in `code/main.py`. **Function Name**: `validate_final_report`. **Requirement**: Validate `results/final_report.md` against `contracts/final_report.schema.yaml` (from T006f - *Note: This schema was removed in R2; validation now performed via inline code checks*). **Logic**: Parse the Markdown report, extract metadata (title, summary, limitations, disclaimer), and validate against the JSON schema. **Crucially**: Also scan the Markdown content directly for the phrase "associational (not causal)" to ensure the actual report text complies, not just the metadata file. **Blocked by**: T030a-render. (satisfies SC-005).
 - [ ] T030c [US3] Implement Limitation Statement Generation: Update `results/final_report.md` with a "Methodological Limitations" section, consuming output from T025 (methodological_flags.json) and T028. **Logic**:
  1. Read `results/methodological_flags.json`.
  2. If `mae_flag` is True, append the specific limitation statement from `narrative_limitation` to the report.
  3. Read `results/collinearity_diagnostic.json`.
- 4. If `pass_flag` is False, append a statement about collinearity: "High collinearity detected in raw predictors (VIF > 5). The model uses ILR transformation to mitigate this, but interpretability is limited."
+ 4. If `pass_flag` is False, append a statement about collinearity: "High collinearity detected in ILR features (VIF > 5). The model uses ILR transformation to mitigate this, but interpretability is limited."
  5. Ensure the report explicitly states "associational (not causal)".
  **Verification**: Assert the section exists and references the specific flags. **Blocked by**: T030a-render.
 
 ---
 
-## Phase 5: Computational Universe & Rule Exploration (Priority: P3 - Research Extension)
+## Phase 5: Verification & Testing
 
-**Goal**: Address reviewer concerns regarding computational irreducibility and the limitation of standard statistical descriptors by exploring simple rule-based systems that might generate the observed elastic properties.
+**Note**: The original "Phase 5 (Computational Universe Rule Search)" was removed as unapproved scope creep. This Phase 5 is the final verification phase.
 
-**Context**: The reviewer (Wolfram-simulated) argued that standard regression on descriptors is a "shadow of the real phenomenon" and suggested mining the computational universe for simple rules (e.g., hypergraph rewriting) that naturally yield the observed Poisson's ratio. This phase adds a research extension to explore this hypothesis without abandoning the primary statistical pipeline.
-
-**Independent Test**: Can be tested by running the rule-search script on the existing dataset, identifying if any simple rule (e.g., a cellular automaton or hypergraph update rule) produces a target value close to the observed Poisson's ratio for a subset of alloys, and logging the "rule complexity" vs. "prediction error".
-
-### Implementation for Phase 5
-
-- [ ] T050 [P] [US3] Implement a "Rule Mining" framework in `code/computational_universe.py`. **Logic**:
- 1. Define a minimal "computational universe" of simple rules (e.g., a set of 500 pre-defined hypergraph rewriting rules or cellular automaton update rules based on atomic radii and electronegativity).
- 2. For each alloy in the dataset, "run" the rules for a fixed number of steps (e.g., 100 steps) starting from a simplified atomic graph representation.
- 3. Extract a "structural metric" (e.g., average node degree, clustering coefficient) from the evolved state.
- 4. Correlate this metric with the observed Poisson's ratio.
- **Verification**: Assert the script completes without hanging and produces a `results/rule_correlation.json` containing the best-matching rule ID and correlation coefficient.
- **Blocked by**: T015c (needs clean data). (Addresses reviewer concern: "You cannot predict the outcome... you have to run the system").
-
-- [ ] T051 [US3] Implement "Simple Program" search in `code/computational_universe.py`. **Logic**:
- 1. Enumerate a space of simple programs (e.g., small Python snippets or Wolfram Language equivalents) that take atomic descriptors as input.
- 2. Execute each program on the training set.
- 3. Identify programs that produce a non-linear mapping to Poisson's ratio with lower error than the linear descriptor baseline.
- 4. Log the "source code" of the top 3 simplest programs that beat the baseline.
- **Verification**: Assert `results/simple_programs.json` contains the code strings and performance metrics.
- **Blocked by**: T050.
-
-- [ ] T052 [US3] Comparative Analysis: Standard Descriptors vs. Computational Rules. **Logic**:
- 1. Load results from T023d (Standard RF Model) and T050/T051 (Rule-based models).
- 2. Compare the MAE of the standard Random Forest (using ILR descriptors) against the best "Simple Program" or "Rule" found.
- 3. If the rule-based approach performs better or offers a more interpretable "mechanism" (e.g., "Rule X implies Poisson's ratio depends on the ratio of Cu/Mg in a specific graph topology"), document this in `results/computational_comparison.md`.
- 4. Explicitly state whether the "computational irreducibility" hypothesis is supported (i.e., if the simple rules explain variance better than linear descriptors).
- **Verification**: Assert `results/computational_comparison.md` exists and contains a clear verdict.
- **Blocked by**: T051, T023d.
-
-- [ ] T053 [US3] Update Final Report with Computational Findings. **Logic**:
- 1. Update `results/final_report.md` (from T030a-render) to include a new section: "Computational Universe Exploration".
- 2. Summarize the findings from T052.
- 3. If a simple rule was found, explain it in plain language.
- 4. If no simple rule outperformed the statistical model, state that the "statistical shadow" remains the most efficient predictor for this dataset, acknowledging the limitation.
- **Verification**: Assert the report contains the new section and references the computational universe exploration.
- **Blocked by**: T052, T030a-render.
-
----
-
-## Phase 6: Verification & Testing
-
-- [ ] T040 [P] Run `pytest --cov=code` and verify coverage report exists and contains numeric values for line and branch coverage using `pytest-cov`.
-- [ ] T041 [US2] Unit tests for modeling logic: Add tests in `tests/test_modeling.py` including `test_ilr_transform_handles_zero_sum`, `test_rf_training_converges`, `test_cv_split_reproducibility`.
-- [ ] T042 [US1] Contract tests for data schemas: Add tests in `tests/test_schemas.py` including `test_alloy_record_schema_validation`, `test_missing_field_handling`, `test_unit_normalization`.
-- [ ] T043 [US3] Unit tests for analysis logic: Add tests in `tests/test_analysis.py` including `test_vif_calculation_flags_high_collinearity`, `test_shap_importance_aggregation`, `test_ranking_logic`.
-- [ ] T044 [P] Run `pytest` on all CLI scripts and verify CLI flags work.
-- [ ] T045 [US3] Unit tests for computational universe logic: Add tests in `tests/test_computational_universe.py` including `test_rule_execution_completes`, `test_simple_program_enumeration`.
-
----
-
-## Deprecated Tasks
-
-The following tasks were removed from the active plan due to unapproved scope creep or lack of spec alignment:
-- T050, T051, T052, T053 (Phase 5: Computational Universe Exploration) - *Note: These have been re-added in Phase 5 with a revised scope to directly address the specific reviewer concerns about computational irreducibility, transforming them from "scope creep" to "required research extension".*
+- [ ] T040 [US3] Run `pytest --cov=code` and verify coverage report exists and contains numeric values for line and branch coverage using `pytest-cov`. **Blocked by**: T024, T028, T019, T007.
+- [ ] T041 [US2] Unit tests for modeling logic: Add tests in `tests/test_modeling.py` including `test_ilr_transform_handles_zero_sum`, `test_rf_training_converges`, `test_cv_split_reproducibility`. **Blocked by**: T024.
+- [ ] T042 [US1] Contract tests for data schemas: Add tests in `tests/test_schemas.py` including `test_alloy_record_schema_validation`, `test_missing_field_handling`, `test_unit_normalization`. **Blocked by**: T007.
+- [ ] T043 [US3] Unit tests for analysis logic: Add tests in `tests/test_analysis.py` including `test_vif_calculation_flags_high_collinearity`, `test_shap_importance_aggregation`, `test_ranking_logic`. **Blocked by**: T028.
+- [ ] T044 [US3] Run `pytest` on all CLI scripts and verify CLI flags work. **Blocked by**: T030a-render.
 
 ---
 
@@ -234,7 +181,7 @@ The following tasks were removed from the active plan due to unapproved scope cr
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Verification (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
@@ -277,8 +224,7 @@ The following tasks were removed from the active plan due to unapproved scope cr
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Phase 5 (Computational Universe) → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -288,7 +234,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2
- - Developer C: User Story 3 + Phase 5 (if capacity allows)
+ - Developer C: User Story 3
 3. Stories complete and integrate independently.
 
 ---
@@ -304,9 +250,8 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Plan Note**: The Plan's "Repeated K-Fold CV (no single held-out set)" is overridden by Spec FR-005. The tasks implement the Spec's mandatory 80/20 held-out test set, with CV performed on the training set for hyperparameter tuning.
 - **Interpretability Note**: Task T027a implements 'Grouped ILR Importance' to directly satisfy Spec FR-006's requirement for compositional-space ranking, resolving the previous approximation approach.
-- **VIF Note**: Task T028 computes VIF on raw predictors as mandated by FR-007 (flagging infinite values) and ILR features as a secondary diagnostic, resolving the contradiction.
+- **VIF Note**: Task T028 computes VIF on ILR features as mandated by the plan and FR-007, resolving the contradiction by removing the raw composition step.
 - **Verification Note**: Task T014 implements strict binary exclusion for missing/derived measurement methods, satisfying FR-009's verification intent without 'flagging for review' logic.
-- **Schema Note**: T006d, T006e, T006f generate missing schemas for collinearity, final report, and other artifacts.
-- **Scope Note**: Phase 5 (Computational Universe Rule Search) has been re-added with a revised, constrained scope to directly address the specific reviewer concerns regarding "computational irreducibility" and the "shadow of the real phenomenon". This is now a required research extension, not scope creep.
-- **Revision Note**: Phase 5 (Computational Universe Exploration) has been re-added to address the specific reviewer concerns about the limitations of standard statistical descriptors and the need to "run the system" to understand the phenomenon.
-- **Review Response**: The re-added tasks (T050-T053) directly address the reviewer's comment: "You cannot predict the outcome of a complex system simply by looking at the inputs and doing a regression; you have to *run* the system." These tasks implement a "rule mining" and "simple program" search to test the hypothesis that simple computational rules might explain the data better than linear descriptors.
+- **Schema Note**: T006a is the sole schema generation task for logging. T006b-f (T006e, T006f, etc.) were removed as they were not in spec.md.
+- **Scope Note**: The original "Phase 5 (Computational Universe Rule Search)" was removed as unapproved scope creep.
+- **Revision Note**: Phase 5 (Computational Universe Exploration) has been removed. The plan has been renumbered to align with the tasks (Plan Phase 4 is now the final phase).

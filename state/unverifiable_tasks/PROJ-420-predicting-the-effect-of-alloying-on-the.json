@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
+  "tasks": [
+    {
+      "task_key": "T009c",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required input files `data/raw/mp_alloys.json` and `data/raw/nist_alloys.json`, and the expected output `data/processed/merged_raw.parquet` is not present. Moreover, the provided `code/merge.py` is truncated and does not show the full merge, deduplication, conflict\u2011resolution, or parquet\u2011writing logic required by the task. These missing artifacts must be added and the script completed for the task to be considered done.",
+      "first_seen": "2026-09-18T17:50:29.529492+00:00",
+      "last_seen": "2026-09-18T17:50:29.529492+00:00"
+    }
+  ],
+  "updated_at": "2026-09-18T17:50:29.529492+00:00"
+}

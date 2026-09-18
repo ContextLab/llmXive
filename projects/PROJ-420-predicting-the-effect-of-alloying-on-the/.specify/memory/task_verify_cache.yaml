@@ -1,12 +1,12 @@
-T009c:
+T006:
   c: false
-  h: d636b60e92948b20c6291bc496c475a842149502eda6e4163a81b636e6246904
-  r: "The `code/merge.py` file exists but is truncated and does not show a complete\
-    \ implementation of the required deduplication and conflict\u2011resolution logic.\
-    \ Moreover, the essential input files `data/raw/mp_alloys.json`, `data/raw/nist_alloys.json`,\
-    \ and the constants module `code/constants.py` are missing, so the script cannot\
-    \ function as specified. The missing data files and constants, plus the incomplete\
-    \ code, must be provided/fixed for the task to be considered complete."
+  h: 8f8743f070f3afd8fbfb68056b018be98d37c3a5f9c222ae30da6cb714510f0c
+  r: The provided `logging_config.py` does not configure a `RotatingFileHandler` pointing
+    to `data/logs/app.log` with the required size limits, and the `data/logs/app.log`
+    file is missing. Moreover, the JSON output includes extra fields (`operation`,
+    `parameters`) not defined in `logging_schema.yaml`, so entries would not validate
+    against the schema. The rotation behavior and schema validation are therefore
+    not satisfied.
 T014:
   c: false
   h: dc995f972425f645f30b08c05c2c144194b598347f1b8fcb32646f8594abced5
@@ -19,27 +19,26 @@ T014:
     entries are written.
 T015c:
   c: false
-  h: 580b8b4065da45c4e876ffccf0f4074fa520c96fd63b9d94451de0a91f408dff
-  r: "The `code/data/clean.py` file shown does not contain any logic that writes a\
-    \ Parquet file, checks the row count against 50, calls `sys.exit(1)`, or conditions\
-    \ the write on T015b\u2019s success. Moreover, the expected output file `data/processed/alloys_clean.parquet`\
-    \ is absent from the repository. These missing pieces mean the task\u2019s requirements\
-    \ are not satisfied."
+  h: ecd6b90ac34332fe48e82df71ed923acefd78e495efdf159ff4617dc51a90990
+  r: "The repository lacks the required output file `data/processed/alloys_clean.parquet`,\
+    \ and the provided `clean.py` snippet does not show any logic that writes a parquet\
+    \ file, checks the row count against the 50\u2011row threshold, logs an error,\
+    \ or calls `sys.exit(1)`. Consequently the task\u2019s serialization and validation\
+    \ requirements are not met."
 T016:
   c: false
-  h: 889b604103d290238ef572a3f49945a82a9fef8d6790d98cd824e000b820f337
-  r: "`code/data/clean.py` contains the `log_exclusion` function that writes CSV lines\
-    \ to `data/logs/exclusion_log.txt`, satisfying the code\u2011side requirement,\
-    \ but the required output file `data/logs/exclusion_log.txt` is missing from the\
-    \ repository. The task demands the artifact (the log file) to exist (and be non\u2011\
-    empty), which is not provided. The implementer must create the file (or demonstrate\
-    \ its creation) to complete the task."
+  h: 5403ed77d2e25fdb6d0fd9dea86594f3faa24edc8026f1318f466e7dfcce3e4e
+  r: "The `code/data/clean.py` file shows no implementation of an exclusion\u2011\
+    logging utility (no function that writes to `data/logs/exclusion_log.txt`), and\
+    \ the required `data/logs/exclusion_log.txt` file does not exist. Consequently\
+    \ the task\u2019s required artifact and behavior are missing."
 T019:
   c: false
-  h: 93cc70f1ce724a67a5a0f65da77ff7d9ace27634ecc2b4717a68e3741290ef09
-  r: "The repository contains `code/data/clean.py`, but the required output file `data/processed/alloys_ilr.parquet`\
-    \ is absent, so the ILR\u2011transformed data was not saved as specified. Consequently\
-    \ the task\u2019s deliverable is not present."
+  h: 379e5372bba0e1b08f039f2066b2c4e4595b1ae490d88706ab28f09ff22bbf89
+  r: "The repository lacks the required `data/processed/alloys_ilr.parquet` file,\
+    \ and the shown portion of `code/data/clean.py` does not contain any implementation\
+    \ that applies `compositional.ilr` to the specified elements or writes the transformed\
+    \ data to that path. Consequently the task\u2019s core requirement is not satisfied."
 T021b:
   c: false
   h: 8b9a790577cc4282f877776dc687b0ad98c3b8bc106e924e3bfecab2705d3044
@@ -75,12 +74,11 @@ T027a:
     are both missing. The task therefore remains unfinished.
 T028:
   c: false
-  h: 8b7c36cf7531726172abee806762e4bcf7f3b18a27fee0236245e24a61e0b68e
-  r: "The provided `code/analysis.py` contains only permutation\u2011importance logic\
-    \ and does not implement any Variance Inflation Factor calculation for the raw\
-    \ atomic fractions, nor does it write a `results/collinearity_diagnostic.json`\
-    \ file. The required JSON output is missing entirely. The task therefore remains\
-    \ unfinished."
+  h: 7d78ee32dbcdf7d300e738604ee452b0f5d145f1e5517076fc17b830dbf75344
+  r: The provided `code/analysis.py` contains loading and SHAP importance logic but
+    no implementation of variance inflation factor (VIF) calculation, and the required
+    `data/processed/alloys_ilr.parquet` file is absent. Both the core functionality
+    and the necessary input data are missing.
 T029:
   c: false
   h: 23094fad1671b21d3c210a8dc34e355bdf6f29bfa496eb45bac98e36d3a3f112
