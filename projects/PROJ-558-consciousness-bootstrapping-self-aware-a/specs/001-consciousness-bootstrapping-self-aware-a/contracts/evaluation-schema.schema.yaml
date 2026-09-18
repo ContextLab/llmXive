@@ -9,9 +9,6 @@ required:
   - generated_paths
   - majority_vote
   - is_correct
-  - confidence_scores
-  - avg_confidence
-  - consistency_score
   - metrics
   - tie_breaker_used
 properties:
@@ -27,35 +24,28 @@ properties:
   generated_paths:
     type: array
     items:
-      type: string
-    description: "List of 10 generated answer strings."
-    minItems: 10
-    maxItems: 10
+      type: object
+      properties:
+        path_id:
+          type: integer
+        text:
+          type: string
+        confidence_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Confidence score for this path."
+        is_correct:
+          type: boolean
+    description: "List of 5 generated answer paths."
+    minItems: 5
+    maxItems: 5
   majority_vote:
     type: string
     description: "The answer chosen by majority vote."
   is_correct:
     type: boolean
     description: "Whether the majority vote matches the ground truth."
-  confidence_scores:
-    type: array
-    items:
-      type: number
-      minimum: 0
-      maximum: 1
-    description: "Confidence score for each of the 10 paths."
-    minItems: 10
-    maxItems: 10
-  avg_confidence:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Mean confidence across paths."
-  consistency_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Proportion of paths matching the majority vote."
   tie_breaker_used:
     type: boolean
     description: "True if the tie-breaking rule (max avg confidence) was applied."

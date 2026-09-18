@@ -24,13 +24,16 @@ properties:
             type: number
           effect_size:
             type: number
-          adjusted_p_value:
+          bonferroni_adjusted_p:
+            type: number
+          percentage_difference:
             type: number
         required:
           - mean_diff
           - p_value
           - effect_size
-          - adjusted_p_value
+          - bonferroni_adjusted_p
+          - percentage_difference
       brier_score:
         type: object
         properties:
@@ -40,13 +43,16 @@ properties:
             type: number
           effect_size:
             type: number
-          adjusted_p_value:
+          bonferroni_adjusted_p:
+            type: number
+          percentage_difference:
             type: number
         required:
           - mean_diff
           - p_value
           - effect_size
-          - adjusted_p_value
+          - bonferroni_adjusted_p
+          - percentage_difference
       roc_auc:
         type: object
         properties:
@@ -56,13 +62,16 @@ properties:
             type: number
           effect_size:
             type: number
-          adjusted_p_value:
+          bonferroni_adjusted_p:
+            type: number
+          percentage_difference:
             type: number
         required:
           - mean_diff
           - p_value
           - effect_size
-          - adjusted_p_value
+          - bonferroni_adjusted_p
+          - percentage_difference
     required:
       - self_consistency
       - brier_score
@@ -71,7 +80,6 @@ properties:
     type: string
     enum:
       - bonferroni
-      - benjamini_hochberg
     description: Method used for multiple comparison correction.
   conclusion:
     type: string

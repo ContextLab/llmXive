@@ -1,58 +1,75 @@
 # Quickstart: Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
 
-## 1. Prerequisites
+## Prerequisites
 
 - Python 3.11+
 - Git
-- Sufficient RAM available (for CPU run)
-- Internet connection (for dataset streaming)
+- Access to HuggingFace Hub (for datasets)
 
-## 2. Installation
+## Installation
 
+1. **Clone the repository** and navigate to the project directory.
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-558-consciousness-bootstrapping-self-aware-a
+   ```
+
+2. **Create a virtual environment** and install dependencies.
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
+   ```
+
+3. **Verify dataset access** (optional but recommended).
+   ```bash
+   python -c "from datasets import load_dataset; load_dataset('openai/gsm8k', 'main', split='test', streaming=True)"
+   ```
+
+## Running the Pipeline
+
+The pipeline consists of three stages: Training, Evaluation, and Analysis.
+
+### Step 1: Training
+Train both the recursive and baseline models.
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd projects/PROJ-558-consciousness-bootstrapping-self-aware-a
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
+python code/training/train_loop.py --mode all --seeds 0 1 2 3 4
 ```
+- This will download the `arXiv` subset of The Pile (streamed).
+- It will train multiple models across several seeds and architectures.
+- Checkpoints are saved to `data/checkpoints/`.
 
-## 3. Running the Experiment
-
-### Step 1: Train Models
-Run the training script. This will train both the recursive and baseline models on a large-scale corpus.
+### Step 2: Evaluation
+Evaluate the trained models on GSM8K and MMLU.
 ```bash
-python code/training/train.py --seeds 42 123 456 789 101 --epochs 1 --tokens 100000
+python code/evaluation/runner.py --checkpoints data/checkpoints/ --benchmarks gsm8k mmlu
 ```
-*Note: This may take up to 4 hours on CPU. If it fails, the system will attempt to offload to Kaggle.*
+- This generates `EvaluationResult` JSON files in `data/results/`.
+- It handles multiple reasoning paths (5 per question) and calculates metrics.
 
-### Step 2: Evaluate Models
-Run the evaluation script on GSM8K and MMLU.
+### Step 3: Analysis
+Perform statistical tests and generate the report.
 ```bash
-python code/evaluation/benchmarks.py --seeds 42 123 456 789 101 --dataset gsm8k,mmlu
+python code/analysis/stats.py --results data/results/
 ```
-*Note: This script saves both 'first pass' and 'recursive refinement' outputs for T043.*
+- This produces `data/results/statistical_report.json` with p-values and effect sizes.
 
-### Step 3: Statistical Analysis
-Run the analysis script to generate the report.
+## Expected Outputs
+
+- `data/checkpoints/`: Model weights for all seeds and architectures.
+- `data/results/eval_results_*.json`: Raw evaluation metrics per seed.
+- `data/results/statistical_report.json`: Final statistical analysis.
+- `code/`: Source code with `__init__.py` files in all directories.
+
+## Troubleshooting
+
+- **OOM Error**: If training fails with `CUDA out of memory` or `CPU OOM`, the system will attempt to offload to a Kaggle GPU if configured. If not, reduce `batch_size` in `code/training/train_loop.py`.
+- **Dataset Errors**: Ensure you have accepted the HuggingFace terms of service for the datasets if required.
+
+## Verification
+
+To verify the installation and data integrity:
 ```bash
-python code/analysis/stats.py --input-dir artifacts/reports --output artifacts/reports/statistical_report.yaml
+pytest tests/
 ```
-
-## 4. Verifying Results
-
-Check the generated `statistical_report.yaml` for p-values and effect sizes.
-```bash
-cat artifacts/reports/statistical_report.yaml
-```
-
-## 5. Troubleshooting
-
-- **OOM Error**: Reduce `--tokens` to 50000 or `--batch-size` to 2.
-- **Dataset Download Failure**: Check internet connection; ensure HF token is set if required (not required for public datasets).
-- **CUDA Error on CPU**: Ensure `torch` is installed without CUDA support or set `CUDA_VISIBLE_DEVICES=""`.
+This runs unit tests for metrics and integration tests for the training loop.

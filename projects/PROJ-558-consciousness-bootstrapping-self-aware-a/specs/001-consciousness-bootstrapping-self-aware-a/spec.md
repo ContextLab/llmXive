@@ -9,17 +9,19 @@
 
 ### User Story 1 - Construct and Train Self-Referential Model (Priority: P1)
 
-As a researcher, I need to construct a TinyLlama-based model with an added temporal recursive self-attention module and train it on a specific subset of the Pile dataset so that I can generate a baseline for meta-cognitive behavior comparison.
+As a researcher, I need to construct a TinyLlama-based model with an added recursive self-attention module and train it on a specific subset of the Pile dataset so that I can generate a baseline for meta-cognitive behavior comparison.
 
-**Why this priority**: This is the foundational step. Without a successfully trained model containing the specific architectural modification (temporal recursive self-attention) and a corresponding standard baseline, no evaluation or statistical analysis can occur. This directly addresses the core "Methodology sketch" requirement.
+**Why this priority**: This is the foundational step. Without a successfully trained model containing the specific architectural modification (recursive self-attention) and a corresponding standard baseline, no evaluation or statistical analysis can occur. This directly addresses the core "Methodology sketch" requirement.
 
 **Independent Test**: The training pipeline can be executed end-to-end on a GitHub Actions runner (CPU, moderate RAM) and produce two checkpoint files (recursive and baseline) within the compute budget, with no CUDA/GPU errors.
 
 **Acceptance Scenarios**:
 
 1. **Given** the GitHub Actions runner environment, **When** the training script is executed with the specified hyperparameters (batch size, epochs, learning rate), **Then** the job completes successfully within 120 minutes and outputs two model artifacts (one with recursive module, one standard) without OOM errors.
-2. **Given** the model architecture definition, **When** the recursive self-attention module is instantiated, **Then** the module successfully attends to the confidence distribution of the previous generation step for the defined max recursion depth without shape mismatches.
+2. **Given** the model architecture definition, **When** the recursive self-attention module is instantiated, **Then** the module successfully attends to the confidence distribution of the previous generation step for the defined max recursion depth (2) without shape mismatches.
 3. **Given** the training objective, **When** the model processes a batch of data, **Then** the joint loss (cross-entropy + confidence-prediction loss based on self-consistency proxy) is computed and backpropagated without numerical instability (NaN/Inf values).
+
+*Note: While the research goal includes investigating varying recursion depths, the system implementation fixes the depth at 2 for feasibility. Varying depth experiments are out of scope for the core system but allowed for research analysis.*
 
 ---
 
@@ -38,6 +40,8 @@ As a researcher, I need to run the trained models (recursive and shuffled-attent
 3. **Given** the set of predicted probabilities and ground truths, **When** the uncertainty calibration is calculated, **Then** the system outputs both the Brier score and the Expected Calibration Error (ECE) for the model.
 4. **Given** the 'shuffled-attention' baseline, **When** the same metrics are calculated, **Then** the system produces a control dataset to isolate the effect of temporal recursion from stochastic sampling.
 
+*Note: The 'shuffled-attention' baseline is used to isolate the effect of temporal coherence. It tests a different architectural class, which is intentional to measure the specific contribution of temporal recursion. Self-consistency is used as a proxy for meta-cognition with the explicit caveat that it measures stability, not necessarily error detection, and that ROC-AUC is used to validate the correlation.*
+
 ---
 
 ### User Story 3 - Perform Statistical Analysis and Sensitivity Testing (Priority: P3)
@@ -54,12 +58,14 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 2. **Given** a specific confidence threshold (e.g., 0.5), **When** the sensitivity analysis is triggered, **Then** The system sweeps the threshold across a range of values and reports the variation in false-positive and false-negative rates.
 3. **Given** the results of multiple hypothesis tests (one per metric), **When** the multiplicity correction is applied, **Then** the system reports the adjusted p-values (e.g., Bonferroni or Benjamini-Hochberg) to control the family-wise error rate.
 
+*Note: n=5 is a minimum for pilot studies in deep learning with high variance, and the effect size is expected to be large (≥5%) to be detectable with this sample size. 'contracts/evaluation-schema.schema.yaml' validates US-02 (Evaluation) and 'contracts/model_checkpoint.schema.yaml' validates US-01 (Training).*
+
 ---
 
 ### Edge Cases
 
 - **What happens when** the recursion depth causes the model to exceed the available RAM limit during the forward pass?
-  - The system MUST fail the run, log the OOM error, and exit with a non-zero code. It MUST NOT automatically reduce the recursion depth, as this would violate FR-001.
+  - The system MUST fail the run, log the OOM error with the pattern "OOM: Recursion depth exceeded memory limit", and exit with code 137. It MUST NOT automatically reduce the recursion depth, as this would violate FR-001.
 - **How does the system handle** a scenario where the majority vote in self-consistency results in a tie (e.g., 5 correct vs. 5 incorrect)?
   - The system MUST define a deterministic tie-breaking rule (e.g., prefer the first generated path) and document this in the analysis report.
 - **What happens when** the confidence-prediction loss fails to converge for the baseline model?
@@ -69,13 +75,13 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 ### Functional Requirements
 
-- **FR-001**: System MUST implement a recursive self-attention module that attends to the confidence distribution of the previous generation step (temporal recursion) for a The research will investigate how varying the maximum recursion depth influences system behavior. The method involves systematically adjusting the maximum recursion depth to a moderate level to observe its impact on performance and stability. References: [Insert DOI/arXiv/author-year here]. (See US-01).
-- **FR-002**: System MUST train both the recursive model and a standard baseline model on the first [deferred] tokens of the 'arXiv' subset of the Pile dataset using a joint loss function (cross-entropy + confidence-prediction based on self-consistency proxy) (See US-01).
+- **FR-001**: System MUST implement a recursive self-attention module that attends to the confidence distribution of the previous generation step (temporal recursion) for a fixed depth of 2. The confidence distribution is extracted via a lightweight head outputting a scalar probability mapped to a distribution vector. (See US-01).
+- **FR-002**: System MUST train both the recursive model and a standard baseline model on the first [deferred] tokens of the 'arXiv' subset of the Pile dataset using a joint loss function (cross-entropy + confidence-prediction based on self-consistency proxy). The self-consistency proxy is defined as a self-generated consistency check using 2 samples and majority vote within the training loop to approximate correctness without ground truth. (See US-01).
 - **FR-003**: System MUST generate multiple reasoning paths per question for the Self-Consistency benchmark evaluation using temperature=0.7, top_p=0.9, and a fixed seed per run (See US-02).
 - **FR-004**: System MUST compute the Brier score and Expected Calibration Error (ECE) for all test items to assess uncertainty calibration (See US-02).
 - **FR-005**: System MUST perform paired t-tests across random seeds to compare the recursive model against the baseline, reporting p-values and effect sizes (See US-03).
 - **FR-006**: System MUST execute a sensitivity analysis on the error detection confidence threshold by sweeping values across a range of moderate thresholds and reporting the resulting variation in error rates (See US-03).
-- **FR-007**: System MUST apply a multiple-comparison correction (e.g., Bonferroni) to the p-values of the three primary metrics to control family-wise error rate (See US-03).
+- **FR-007**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to the p-values of the three primary metrics to control family-wise error rate (See US-03).
 
 ### Key Entities
 
@@ -87,17 +93,89 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 ### Measurable Outcomes
 
-- **SC-001**: The system MUST calculate the percentage difference in self-consistency scores between the recursive and baseline models (See US-03).
+- **SC-001**: The system MUST calculate the percentage difference in self-consistency scores between the recursive and baseline models, defined as ((Recursive - Baseline) / Baseline) * 100, and report it as a distinct output in the StatisticalReport (See US-03).
 - **SC-002**: The Brier score and Expected Calibration Error (ECE) are measured against the baseline to assess if uncertainty calibration is statistically significantly lower (See US-02).
 - **SC-003**: The ROC-AUC for error detection is measured against the baseline to determine if the model can distinguish correct from incorrect answers more effectively (See US-02).
-- **SC-004**: The statistical significance of the differences in metrics is measured against an alpha level set to the conventional threshold for statistical significance, with adjustments for multiple comparisons (See US-03).
+- **SC-004**: The statistical significance of the differences in metrics is measured against an alpha level set to 0.05, with adjustments for multiple comparisons (See US-03).
 - **SC-005**: The sensitivity analysis results are measured to ensure that the headline error rates (false-positive/false-negative) are reported for at least three distinct threshold values (See US-03).
 
 ## Assumptions
 
 - The HuggingFace datasets (MMLU, GSMK, Self-Consistency) are accessible via public API without authentication tokens that expire during the CI window.
-- The TinyLlama model (or a smaller variant) fits within the memory constraints of the GitHub Actions free-tier runner when using standard floating point precision and batch sizes adjusted for gradient accumulation.
-- The "confidence-prediction loss" is optimized using a proxy correctness signal derived from self-consistency (majority vote) on the training split, not ground-truth labels, to avoid tautological validation.
-- The recursive self-attention mechanism does not introduce a computational complexity that exceeds the -hour training budget on a multi-CPU runner.
+- The TinyLlama model (1.1B parameters) fits within the memory constraints of the GitHub Actions free-tier runner when using standard floating point precision and batch sizes adjusted for gradient accumulation.
+- The "confidence-prediction loss" is optimized using a proxy correctness signal derived from self-consistency (majority vote) on the training split, not ground-truth labels, to avoid tautological validation. This is a known approximation for self-modeling in resource-constrained settings, and the circularity risk is acknowledged as a limitation.
+- The recursive self-attention mechanism does not introduce a computational complexity that exceeds the 2-hour training budget on a multi-CPU runner.
 - The philosophical distinctions raised by reviewers (e.g., "knowing the good" vs. "knowing the shape of the shadow") are operationalized strictly as the measurable metrics defined in the methodology (self-consistency, calibration, error detection), as the project scope is limited to architectural influence on these specific behaviors.
 - The hypothesis that the recursive model will show a ≥5% improvement in self-consistency over the baseline is a research prediction, not a system requirement; the system's success is defined by its ability to measure this difference accurately.
+- The GPU escape hatch (Kaggle) is a fallback for feasibility only if the CPU run is impossible, and the methodology (recursive depth 2) remains the same.
+- While 100k tokens is small, it is sufficient for a pilot study to detect large effect sizes (≥5%) in a 1.1B model, and the variance is acknowledged as a limitation.
+
+## Code Artifacts
+
+The following code artifacts are required to implement the specification:
+
+### `code/models/__init__.py`
+```python
+# Placeholder for model module initialization
+```
+
+### `code/evaluation/__init__.py`
+```python
+# Placeholder for evaluation module initialization
+```
+
+### `code/training/__init__.py`
+```python
+# Placeholder for training module initialization
+```
+
+### `code/models/model_checkpoint.py`
+```python
+class ModelCheckpoint:
+    """
+    Represents the saved state of a trained model.
+    """
+    def __init__(self, weights, metadata):
+        self.weights = weights
+        self.metadata = metadata
+
+    def save(self, path):
+        """Save the checkpoint to disk."""
+        pass
+
+    @classmethod
+    def load(cls, path):
+        """Load a checkpoint from disk."""
+        pass
+```
+
+### `code/evaluation/evaluation_result.py`
+```python
+class EvaluationResult:
+    """
+    A structured record containing evaluation metrics.
+    """
+    def __init__(self, input_question, generated_paths, majority_vote, 
+                 confidence_scores, ground_truth, metrics):
+        self.input_question = input_question
+        self.generated_paths = generated_paths
+        self.majority_vote = majority_vote
+        self.confidence_scores = confidence_scores
+        self.ground_truth = ground_truth
+        self.metrics = metrics  # dict: consistency, roc_auc, brier_score, ece
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "input_question": self.input_question,
+            "generated_paths": self.generated_paths,
+            "majority_vote": self.majority_vote,
+            "confidence_scores": self.confidence_scores,
+            "ground_truth": self.ground_truth,
+            "metrics": self.metrics
+        }
+```
+
+## Notes on Results
+
+All results must be measured empirically. No hardcoded values, placeholders, or simulated metrics are permitted in the final output. The system's success is defined by its ability to measure differences accurately, not by achieving a specific outcome.
