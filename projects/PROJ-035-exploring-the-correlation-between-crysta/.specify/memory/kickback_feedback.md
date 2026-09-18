@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or any of the required folders (src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/) were presented. Without concrete evidence of these directories existing, the task’s requirement is not satisfied.
+- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: src/config/env.py
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T008` (rejected 1x): No code or configuration files were provided showing a `--seed` argument or `random_state=42` being set in the modules listed (src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/). Without any artifact demonstrating deterministic seed handling, the requirement is not satisfied.
 
 ## Required change
 

@@ -1,248 +1,434 @@
 """
-Unit tests for descriptor calculation (Task T016).
-Tests octahedral tilting angles, bond-length variance, tolerance factor, and unit cell volume.
+Unit tests for descriptor calculation module (src/descriptors/compute_descriptors.py).
+
+These tests verify the correctness of:
+- Tolerance factor calculation
+- Octahedral tilting angle calculation
+- Bond length variance calculation
+- Unit cell volume calculation
+- The combined compute_all_descriptors function
+- The dataframe processing pipeline
+
+Tests use mock pymatgen structures to ensure deterministic behavior without
+requiring live API access or complex structure generation.
 """
 import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
 import sys
-from typing import Dict, Any
+import os
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add src to path for imports if running standalone
+src_path = Path(__file__).parent.parent.parent / "code" / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
 from descriptors.compute_descriptors import (
     calculate_tolerance_factor,
+    calculate_octahedral_tilting_angles,
     calculate_bond_length_variance,
-    calculate_octahedral_tilting,
     calculate_unit_cell_volume,
-    compute_all_descriptors
+    compute_all_descriptors,
+    process_dataframe,
+    setup_logger_module
 )
 
 
 class TestToleranceFactor:
-    """Tests for Goldschmidt tolerance factor calculation."""
+    """Tests for tolerance factor calculation."""
 
-    def test_perovskite_ideal(self):
-        """Ideal cubic perovskite (t=1)."""
-        # Ideal: A-O = 2*rA + 2*rO, B-O = 2*rB + 2*rO, t = (rA+rO)/sqrt(2)*(rB+rO)
-        # For t=1: rA+rO = sqrt(2)*(rB+rO)
-        # Example: rO=1.4, rB=0.6 -> rB+rO=2.0 -> sqrt(2)*2.0 = 2.828
-        # rA+rO = 2.828 -> rA = 1.428
-        r_A = 1.428
-        r_B = 0.6
-        r_O = 1.4
+    def test_tolerance_factor_ideal_perovskite(self):
+        """Test tolerance factor for ideal cubic perovskite (rA = rB + rX*sqrt(2))."""
+        # Ideal: t = 1.0 when rA = sqrt(2)*(rB + rX)
+        # Using standard ionic radii for ideal case
+        rA = 1.34  # A-site cation (e.g., La3+)
+        rB = 0.60  # B-site cation (e.g., Ti4+)
+        rX = 1.40  # X-site anion (e.g., O2-)
         
-        t = calculate_tolerance_factor(r_A, r_B, r_O)
-        assert np.isclose(t, 1.0, atol=0.01), f"Expected t≈1.0, got {t}"
-
-    def test_perovskite_distorted(self):
-        """Distorted perovskite (t < 1)."""
-        r_A = 1.2
-        r_B = 0.6
-        r_O = 1.4
+        # Ideal t = rA / (sqrt(2) * (rB + rX))
+        expected = rA / (np.sqrt(2) * (rB + rX))
         
-        t = calculate_tolerance_factor(r_A, r_B, r_O)
-        assert t < 1.0, f"Expected t<1.0 for distorted, got {t}"
-        assert t > 0.7, f"Expected t>0.7 for stable perovskite, got {t}"
+        result = calculate_tolerance_factor(rA, rB, rX)
+        
+        assert np.isclose(result, expected, rtol=1e-6)
+        assert 0.8 < result < 1.2, "Ideal perovskite should have t near 1.0"
 
-    def test_invalid_radii(self):
-        """Negative or zero radii should raise ValueError."""
+    def test_tolerance_factor_tilted_perovskite(self):
+        """Test tolerance factor for a known tilted perovskite (t < 1)."""
+        # Example: CaTiO3 has t ~ 0.97
+        rA = 1.00  # Ca2+
+        rB = 0.605 # Ti4+
+        rX = 1.40  # O2-
+        
+        result = calculate_tolerance_factor(rA, rB, rX)
+        
+        assert result < 1.0, "Tilted perovskite should have t < 1.0"
+        assert result > 0.7, "Tolerance factor should be positive"
+
+    def test_tolerance_factor_invalid_radii(self):
+        """Test that negative radii raise an error."""
         with pytest.raises(ValueError):
             calculate_tolerance_factor(-1.0, 0.6, 1.4)
-        
+
+    def test_tolerance_factor_zero_denominator(self):
+        """Test handling of zero sum of B and X radii."""
         with pytest.raises(ValueError):
-            calculate_tolerance_factor(1.2, 0.0, 1.4)
-
-
-class TestBondLengthVariance:
-    """Tests for bond-length variance calculation."""
-
-    def test_uniform_bonds(self):
-        """All bonds equal -> variance = 0."""
-        bonds = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-        var = calculate_bond_length_variance(bonds)
-        assert np.isclose(var, 0.0, atol=1e-6), f"Expected 0.0, got {var}"
-
-    def test_varying_bonds(self):
-        """Varying bonds -> positive variance."""
-        bonds = [1.9, 2.0, 2.1, 2.0, 1.95, 2.05]
-        var = calculate_bond_length_variance(bonds)
-        assert var > 0.0, f"Expected positive variance, got {var}"
-        # Mean = (1.9+2.0+2.1+2.0+1.95+2.05)/6 = 12.0/6 = 2.0
-        # Variance = ((0.1^2 + 0 + 0.1^2 + 0 + 0.05^2 + 0.05^2)/6)
-        # = (0.01 + 0 + 0.01 + 0 + 0.0025 + 0.0025)/6 = 0.025/6 ≈ 0.00417
-        expected = np.var(bonds, ddof=0)
-        assert np.isclose(var, expected, atol=1e-6), f"Expected {expected}, got {var}"
-
-    def test_empty_bonds(self):
-        """Empty list should raise ValueError."""
-        with pytest.raises(ValueError):
-            calculate_bond_length_variance([])
-
-    def test_single_bond(self):
-        """Single bond -> variance = 0."""
-        bonds = [2.0]
-        var = calculate_bond_length_variance(bonds)
-        assert np.isclose(var, 0.0, atol=1e-6)
+            calculate_tolerance_factor(1.0, 0.0, 0.0)
 
 
 class TestOctahedralTilting:
     """Tests for octahedral tilting angle calculation."""
 
-    def test_no_tilt(self):
-        """No tilt -> angle = 0."""
-        # Perfect cubic: all bond angles = 180°
-        angles = [180.0, 180.0, 180.0]
-        tilt = calculate_octahedral_tilting(angles)
-        assert np.isclose(tilt, 0.0, atol=1e-6), f"Expected 0.0, got {tilt}"
-
-    def test_with_tilt(self):
-        """With tilt -> positive angle."""
-        # Example: some bonds deviate from 180°
-        angles = [175.0, 178.0, 180.0]
-        tilt = calculate_octahedral_tilting(angles)
-        assert tilt > 0.0, f"Expected positive tilt, got {tilt}"
-        # Tilt is typically defined as deviation from 180°
-        # Average deviation = (5 + 2 + 0)/3 = 2.33
-        expected_avg_deviation = np.mean([abs(180 - a) for a in angles])
-        assert np.isclose(tilt, expected_avg_deviation, atol=1e-1), f"Expected ~{expected_avg_deviation}, got {tilt}"
-
-    def test_invalid_angles(self):
-        """Angles outside valid range should raise ValueError."""
-        with pytest.raises(ValueError):
-            calculate_octahedral_tilting([180.0, 190.0, 180.0])
+    def test_ideal_cubic_no_tilting(self):
+        """Test that ideal cubic structure has zero tilting."""
+        # Mock structure with perfect 90-degree angles
+        mock_angles = [90.0, 90.0, 90.0, 90.0, 90.0, 90.0]
+        mock_structure = Mock()
+        mock_structure.sites = []
         
+        # Simulate perfect cubic case
+        result = calculate_octahedral_tilting_angles(mock_angles)
+        
+        assert all(np.isclose(angle, 0.0) for angle in result), \
+            "Perfect cubic should have zero tilting angles"
+
+    def test_tilted_structure_positive_angles(self):
+        """Test calculation for a tilted structure."""
+        # Simulate angles deviating from 90 degrees
+        mock_angles = [88.5, 91.2, 89.8, 90.5, 88.9, 91.1]
+        
+        result = calculate_octahedral_tilting_angles(mock_angles)
+        
+        # All tilting angles should be non-negative deviations
+        assert all(angle >= 0.0 for angle in result), \
+            "Tilting angles should be non-negative"
+        assert len(result) == len(mock_angles), \
+            "Should return one tilting angle per input angle"
+
+    def test_average_tilting_calculation(self):
+        """Test that average tilting is computed correctly."""
+        mock_angles = [85.0, 95.0, 88.0, 92.0, 87.0, 93.0]
+        deviations = [abs(90 - a) for a in mock_angles]
+        expected_avg = np.mean(deviations)
+        
+        result = calculate_octahedral_tilting_angles(mock_angles)
+        actual_avg = np.mean(result)
+        
+        assert np.isclose(actual_avg, expected_avg, rtol=1e-6), \
+            "Average tilting should be mean of absolute deviations from 90"
+
+
+class TestBondLengthVariance:
+    """Tests for bond length variance calculation."""
+
+    def test_uniform_bond_lengths_zero_variance(self):
+        """Test that uniform bond lengths give zero variance."""
+        bond_lengths = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+        
+        result = calculate_bond_length_variance(bond_lengths)
+        
+        assert np.isclose(result, 0.0, atol=1e-6), \
+            "Uniform bonds should have zero variance"
+
+    def test_varying_bond_lengths_positive_variance(self):
+        """Test calculation with varying bond lengths."""
+        bond_lengths = [1.9, 2.0, 2.1, 1.95, 2.05, 2.0]
+        
+        result = calculate_bond_length_variance(bond_lengths)
+        
+        assert result > 0, "Varying bonds should have positive variance"
+        # Verify calculation: variance of [1.9, 2.0, 2.1, 1.95, 2.05, 2.0]
+        expected = np.var(bond_lengths, ddof=0)
+        assert np.isclose(result, expected, rtol=1e-6)
+
+    def test_single_bond_variance(self):
+        """Test behavior with a single bond length."""
+        bond_lengths = [2.0]
+        
+        result = calculate_bond_length_variance(bond_lengths)
+        
+        assert np.isclose(result, 0.0, atol=1e-6), \
+            "Single bond should have zero variance"
+
+    def test_empty_bond_lengths(self):
+        """Test handling of empty list."""
         with pytest.raises(ValueError):
-            calculate_octahedral_tilting([180.0, 170.0, 180.0])
+            calculate_bond_length_variance([])
 
 
 class TestUnitCellVolume:
     """Tests for unit cell volume calculation."""
 
-    def test_cubic_cell(self):
-        """Cubic cell: V = a^3."""
-        a = 4.0
-        volume = calculate_unit_cell_volume(a, a, a, 90.0, 90.0, 90.0)
-        assert np.isclose(volume, 64.0, atol=1e-6), f"Expected 64.0, got {volume}"
+    def test_cubic_unit_cell(self):
+        """Test volume calculation for cubic cell."""
+        # a = b = c = 4.0, alpha = beta = gamma = 90
+        a, b, c = 4.0, 4.0, 4.0
+        alpha, beta, gamma = 90.0, 90.0, 90.0
+        
+        result = calculate_unit_cell_volume(a, b, c, alpha, beta, gamma)
+        
+        expected = a * b * c  # For cubic
+        assert np.isclose(result, expected, rtol=1e-6), \
+            f"Cubic volume should be a*b*c, got {result} vs {expected}"
 
-    def test_orthorhombic_cell(self):
-        """Orthorhombic cell: V = a*b*c."""
+    def test_tetragonal_unit_cell(self):
+        """Test volume calculation for tetragonal cell."""
+        # a = b = 4.0, c = 6.0, all angles 90
+        a, b, c = 4.0, 4.0, 6.0
+        alpha, beta, gamma = 90.0, 90.0, 90.0
+        
+        result = calculate_unit_cell_volume(a, b, c, alpha, beta, gamma)
+        
+        expected = a * b * c
+        assert np.isclose(result, expected, rtol=1e-6)
+
+    def test_monoclinic_unit_cell(self):
+        """Test volume calculation for monoclinic cell (beta != 90)."""
+        # a=4, b=5, c=6, alpha=90, beta=110, gamma=90
         a, b, c = 4.0, 5.0, 6.0
-        volume = calculate_unit_cell_volume(a, b, c, 90.0, 90.0, 90.0)
-        assert np.isclose(volume, 120.0, atol=1e-6), f"Expected 120.0, got {volume}"
+        alpha, beta, gamma = 90.0, 110.0, 90.0
+        
+        result = calculate_unit_cell_volume(a, b, c, alpha, beta, gamma)
+        
+        # V = a*b*c * sqrt(1 - cos^2(alpha) - cos^2(beta) - cos^2(gamma) 
+        #               + 2*cos(alpha)*cos(beta)*cos(gamma))
+        # Simplified for alpha=gamma=90: V = a*b*c*sin(beta)
+        expected = a * b * c * np.sin(np.radians(beta))
+        
+        assert np.isclose(result, expected, rtol=1e-6), \
+            f"Monoclinic volume mismatch: {result} vs {expected}"
 
-    def test_tetragonal_cell(self):
-        """Tetragonal cell: V = a^2*c."""
-        a, c = 4.0, 6.0
-        volume = calculate_unit_cell_volume(a, a, c, 90.0, 90.0, 90.0)
-        assert np.isclose(volume, 96.0, atol=1e-6), f"Expected 96.0, got {volume}"
+    def test_negative_volume_prevention(self):
+        """Test that invalid angles don't produce negative volume."""
+        # Invalid angles that would mathematically give negative under root
+        a, b, c = 4.0, 4.0, 4.0
+        alpha, beta, gamma = 170.0, 170.0, 170.0
+        
+        with pytest.raises(ValueError):
+            calculate_unit_cell_volume(a, b, c, alpha, beta, gamma)
 
 
 class TestComputeAllDescriptors:
-    """Integration test for the full descriptor computation pipeline."""
+    """Tests for the combined descriptor computation function."""
 
-    def test_computes_all_descriptors(self):
-        """Verify that compute_all_descriptors returns a dict with all required keys."""
-        # Mock input structure data
-        mock_structure = {
-            'a': 4.0,
-            'b': 4.0,
-            'c': 4.0,
-            'alpha': 90.0,
-            'beta': 90.0,
-            'gamma': 90.0,
-            'r_A': 1.428,
-            'r_B': 0.6,
-            'r_O': 1.4,
+    def test_compute_all_returns_dict(self):
+        """Test that compute_all_descriptors returns a dictionary."""
+        mock_structure_data = {
+            'rA': 1.34, 'rB': 0.60, 'rX': 1.40,
             'bond_lengths': [2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
-            'bond_angles': [180.0, 180.0, 180.0]
+            'tilting_angles': [90.0, 90.0, 90.0, 90.0, 90.0, 90.0],
+            'a': 4.0, 'b': 4.0, 'c': 4.0,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0
         }
         
-        descriptors = compute_all_descriptors(mock_structure)
+        result = compute_all_descriptors(mock_structure_data)
         
-        required_keys = [
-            'tolerance_factor',
-            'bond_length_variance',
-            'octahedral_tilting',
-            'unit_cell_volume'
-        ]
-        
-        for key in required_keys:
-            assert key in descriptors, f"Missing key: {key}"
-            assert isinstance(descriptors[key], (int, float, np.number)), f"Key {key} is not numeric"
+        assert isinstance(result, dict), "Result should be a dictionary"
+        assert 'tolerance_factor' in result
+        assert 'octahedral_tilting' in result
+        assert 'bond_length_variance' in result
+        assert 'unit_cell_volume' in result
 
-    def test_computes_with_distorted_structure(self):
-        """Test with a distorted perovskite structure."""
-        mock_structure = {
-            'a': 4.1,
-            'b': 4.2,
-            'c': 4.0,
-            'alpha': 90.0,
-            'beta': 90.0,
-            'gamma': 90.0,
-            'r_A': 1.3,
-            'r_B': 0.6,
-            'r_O': 1.4,
-            'bond_lengths': [1.9, 2.0, 2.1, 2.0, 1.95, 2.05],
-            'bond_angles': [175.0, 178.0, 180.0]
+    def test_compute_all_with_realistic_values(self):
+        """Test with realistic perovskite parameters."""
+        mock_structure_data = {
+            'rA': 1.34,  # La
+            'rB': 0.60,  # Ti
+            'rX': 1.40,  # O
+            'bond_lengths': [1.95, 2.05, 2.00, 1.98, 2.02, 2.01],
+            'tilting_angles': [89.5, 90.5, 89.8, 90.2, 89.9, 90.1],
+            'a': 3.90, 'b': 3.90, 'c': 3.90,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0
         }
         
-        descriptors = compute_all_descriptors(mock_structure)
+        result = compute_all_descriptors(mock_structure_data)
         
-        # Check that values are reasonable
-        assert descriptors['tolerance_factor'] < 1.0, "Distorted structure should have t < 1.0"
-        assert descriptors['bond_length_variance'] > 0.0, "Varying bonds should have positive variance"
-        assert descriptors['octahedral_tilting'] > 0.0, "Tilted bonds should have positive tilt"
-        assert descriptors['unit_cell_volume'] > 0.0, "Volume should be positive"
+        # Check reasonable ranges
+        assert 0.7 < result['tolerance_factor'] < 1.3
+        assert result['octahedral_tilting'] >= 0
+        assert result['bond_length_variance'] >= 0
+        assert result['unit_cell_volume'] > 0
 
-    def test_invalid_structure_raises(self):
-        """Invalid structure data should raise an error."""
-        invalid_structure = {
-            'a': -4.0,  # Negative lattice parameter
-            'b': 4.0,
-            'c': 4.0,
-            'alpha': 90.0,
-            'beta': 90.0,
-            'gamma': 90.0,
-            'r_A': 1.428,
-            'r_B': 0.6,
-            'r_O': 1.4,
-            'bond_lengths': [],  # Empty bond lengths
-            'bond_angles': [180.0, 180.0, 180.0]
+    @patch('descriptors.compute_descriptors.setup_logger_module')
+    def test_compute_all_logging(self, mock_logger):
+        """Test that logging is set up correctly."""
+        mock_structure_data = {
+            'rA': 1.34, 'rB': 0.60, 'rX': 1.40,
+            'bond_lengths': [2.0]*6,
+            'tilting_angles': [90.0]*6,
+            'a': 4.0, 'b': 4.0, 'c': 4.0,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0
         }
         
-        with pytest.raises((ValueError, IndexError)):
-            compute_all_descriptors(invalid_structure)
+        result = compute_all_descriptors(mock_structure_data)
+        
+        assert result is not None
 
-    def test_dataframe_integration(self):
-        """Test that descriptors can be computed for a DataFrame of structures."""
-        # Create a mock DataFrame
-        data = {
-            'structure_id': ['P1', 'P2'],
-            'a': [4.0, 4.1],
-            'b': [4.0, 4.2],
-            'c': [4.0, 4.0],
+
+class TestProcessDataFrame:
+    """Tests for dataframe processing pipeline."""
+
+    def test_process_dataframe_with_valid_input(self):
+        """Test processing a valid dataframe with required columns."""
+        # Create mock dataframe with necessary structure data
+        df = pd.DataFrame({
+            'structure_id': ['mp-123', 'mp-456'],
+            'rA': [1.34, 1.00],
+            'rB': [0.60, 0.605],
+            'rX': [1.40, 1.40],
+            'bond_lengths': [
+                [2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
+                [1.95, 2.05, 2.00, 1.98, 2.02, 2.01]
+            ],
+            'tilting_angles': [
+                [90.0, 90.0, 90.0, 90.0, 90.0, 90.0],
+                [89.5, 90.5, 89.8, 90.2, 89.9, 90.1]
+            ],
+            'a': [3.90, 3.85],
+            'b': [3.90, 3.85],
+            'c': [3.90, 3.85],
             'alpha': [90.0, 90.0],
             'beta': [90.0, 90.0],
-            'gamma': [90.0, 90.0],
-            'r_A': [1.428, 1.3],
-            'r_B': [0.6, 0.6],
-            'r_O': [1.4, 1.4],
-            'bond_lengths': [
-                [[2.0, 2.0, 2.0, 2.0, 2.0, 2.0]],
-                [[1.9, 2.0, 2.1, 2.0, 1.95, 2.05]]
-            ],
-            'bond_angles': [
-                [[180.0, 180.0, 180.0]],
-                [[175.0, 178.0, 180.0]]
-            ]
-        }
-        df = pd.DataFrame(data)
+            'gamma': [90.0, 90.0]
+        })
         
-        # This would normally call compute_all_descriptors for each row
-        # For unit test, we verify the function exists and handles the structure
-        # Full integration is tested in test_full_pipeline.py
-        assert len(df) == 2
-        assert 'structure_id' in df.columns
+        result_df = process_dataframe(df)
+        
+        assert isinstance(result_df, pd.DataFrame)
+        assert len(result_df) == 2
+        assert 'tolerance_factor' in result_df.columns
+        assert 'octahedral_tilting' in result_df.columns
+        assert 'bond_length_variance' in result_df.columns
+        assert 'unit_cell_volume' in result_df.columns
+        assert 'structure_id' in result_df.columns
+
+    def test_process_dataframe_missing_columns(self):
+        """Test handling of dataframe with missing required columns."""
+        df = pd.DataFrame({
+            'structure_id': ['mp-123'],
+            'rA': [1.34]
+            # Missing rB, rX, etc.
+        })
+        
+        with pytest.raises(ValueError):
+            process_dataframe(df)
+
+    def test_process_dataframe_empty(self):
+        """Test handling of empty dataframe."""
+        df = pd.DataFrame(columns=['structure_id', 'rA', 'rB', 'rX'])
+        
+        result_df = process_dataframe(df)
+        
+        assert isinstance(result_df, pd.DataFrame)
+        assert len(result_df) == 0
+
+    def test_process_dataframe_preserves_original_columns(self):
+        """Test that original columns are preserved in output."""
+        df = pd.DataFrame({
+            'structure_id': ['mp-123'],
+            'rA': [1.34],
+            'rB': [0.60],
+            'rX': [1.40],
+            'bond_lengths': [[2.0]*6],
+            'tilting_angles': [[90.0]*6],
+            'a': [3.90],
+            'b': [3.90],
+            'c': [3.90],
+            'alpha': [90.0],
+            'beta': [90.0],
+            'gamma': [90.0],
+            'extra_column': ['test']
+        })
+        
+        result_df = process_dataframe(df)
+        
+        assert 'extra_column' in result_df.columns
+        assert result_df['extra_column'].iloc[0] == 'test'
+
+    @patch('descriptors.compute_descriptors.setup_logger_module')
+    def test_process_dataframe_logging(self, mock_logger):
+        """Test that logging is used during processing."""
+        df = pd.DataFrame({
+            'structure_id': ['mp-123'],
+            'rA': [1.34],
+            'rB': [0.60],
+            'rX': [1.40],
+            'bond_lengths': [[2.0]*6],
+            'tilting_angles': [[90.0]*6],
+            'a': [3.90],
+            'b': [3.90],
+            'c': [3.90],
+            'alpha': [90.0],
+            'beta': [90.0],
+            'gamma': [90.0]
+        })
+        
+        result_df = process_dataframe(df)
+        
+        assert result_df is not None
+
+
+class TestIntegration:
+    """Integration tests combining multiple descriptor functions."""
+
+    def test_full_pipeline_consistency(self):
+        """Test that individual functions produce consistent results with combined function."""
+        data = {
+            'rA': 1.34, 'rB': 0.60, 'rX': 1.40,
+            'bond_lengths': [1.95, 2.05, 2.00, 1.98, 2.02, 2.01],
+            'tilting_angles': [89.5, 90.5, 89.8, 90.2, 89.9, 90.1],
+            'a': 3.90, 'b': 3.90, 'c': 3.90,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0
+        }
+        
+        # Individual calculations
+        tf = calculate_tolerance_factor(data['rA'], data['rB'], data['rX'])
+        ot = calculate_octahedral_tilting_angles(data['tilting_angles'])
+        blv = calculate_bond_length_variance(data['bond_lengths'])
+        ucv = calculate_unit_cell_volume(data['a'], data['b'], data['c'],
+                                        data['alpha'], data['beta'], data['gamma'])
+        
+        # Combined calculation
+        combined = compute_all_descriptors(data)
+        
+        # Verify consistency
+        assert np.isclose(combined['tolerance_factor'], tf, rtol=1e-6)
+        assert np.isclose(np.mean(combined['octahedral_tilting']), np.mean(ot), rtol=1e-6)
+        assert np.isclose(combined['bond_length_variance'], blv, rtol=1e-6)
+        assert np.isclose(combined['unit_cell_volume'], ucv, rtol=1e-6)
+
+    def test_dataframe_vs_individual_consistency(self):
+        """Test that dataframe processing matches individual function calls."""
+        df = pd.DataFrame({
+            'structure_id': ['mp-123'],
+            'rA': [1.34],
+            'rB': [0.60],
+            'rX': [1.40],
+            'bond_lengths': [[1.95, 2.05, 2.00, 1.98, 2.02, 2.01]],
+            'tilting_angles': [[89.5, 90.5, 89.8, 90.2, 89.9, 90.1]],
+            'a': [3.90],
+            'b': [3.90],
+            'c': [3.90],
+            'alpha': [90.0],
+            'beta': [90.0],
+            'gamma': [90.0]
+        })
+        
+        result_df = process_dataframe(df)
+        
+        # Individual calculation
+        data = {
+            'rA': 1.34, 'rB': 0.60, 'rX': 1.40,
+            'bond_lengths': [1.95, 2.05, 2.00, 1.98, 2.02, 2.01],
+            'tilting_angles': [89.5, 90.5, 89.8, 90.2, 89.9, 90.1],
+            'a': 3.90, 'b': 3.90, 'c': 3.90,
+            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0
+        }
+        combined = compute_all_descriptors(data)
+        
+        # Verify consistency
+        assert np.isclose(result_df['tolerance_factor'].iloc[0], combined['tolerance_factor'], rtol=1e-6)
+        assert np.isclose(result_df['bond_length_variance'].iloc[0], combined['bond_length_variance'], rtol=1e-6)
+        assert np.isclose(result_df['unit_cell_volume'].iloc[0], combined['unit_cell_volume'], rtol=1e-6)

@@ -1,302 +1,294 @@
 """
 Unit tests for sensitivity analysis module.
 
-Tests FR-009: p-value threshold sensitivity analysis.
-Verifies that the analysis correctly evaluates correlations across
-different significance thresholds (0.01, 0.05, 0.1).
+FR-009: Verify p-value sweep output includes results for {0.01, 0.05, 0.1}.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
-from typing import Dict, Any
 import json
 import tempfile
+from typing import Dict, Any
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root / 'code'))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from src.analysis.sensitivity import (
+from src.utils.sensitivity import (
     run_sensitivity_analysis,
-    _compute_thresholded_correlations,
-    _generate_sensitivity_summary,
     save_sensitivity_report,
     setup_logger_module
 )
 
 
 class TestSensitivityAnalysis:
-    """Test suite for sensitivity analysis functionality."""
+    """Test suite for sensitivity analysis functions."""
 
     @pytest.fixture
-    def sample_data(self):
-        """Create sample dataframe for testing."""
+    def sample_correlation_data(self) -> pd.DataFrame:
+        """Create sample correlation data for testing."""
         np.random.seed(42)
         n_samples = 100
 
-        # Create correlated data
-        tolerance = np.random.normal(0.9, 0.05, n_samples)
-        tilting = np.random.normal(5.0, 1.0, n_samples)
-        bond_var = np.random.normal(0.02, 0.005, n_samples)
-        volume = np.random.normal(100, 10, n_samples)
+        # Create sample data with known correlations
+        data = {
+            'feature_A': np.random.randn(n_samples),
+            'feature_B': np.random.randn(n_samples),
+            'feature_C': np.random.randn(n_samples),
+            'thermal_conductivity': np.random.randn(n_samples)
+        }
 
-        # Create thermal conductivity with some correlation to descriptors
-        thermal = (
-            10.0
-            - 5.0 * (tolerance - 0.9)
-            - 0.5 * (tilting - 5.0)
-            + 100.0 * bond_var
-            + 0.01 * (volume - 100)
-            + np.random.normal(0, 1, n_samples)
-        )
+        df = pd.DataFrame(data)
 
-        # Create chemistry classes
-        chemistry = np.random.choice(['oxide', 'halide', 'nitride'], n_samples)
+        # Calculate correlations and p-values
+        results = []
+        for feature in ['feature_A', 'feature_B', 'feature_C']:
+            corr = df[feature].corr(df['thermal_conductivity'])
+            # Calculate p-value using t-distribution
+            n = len(df)
+            t_stat = corr * np.sqrt((n - 2) / (1 - corr**2))
+            p_value = 2 * (1 - abs(t_stat) / (abs(t_stat) + np.sqrt((n - 2))))
 
-        df = pd.DataFrame({
-            'tolerance_factor': tolerance,
-            'octahedral_tilting_angle': tilting,
-            'bond_length_variance': bond_var,
-            'unit_cell_volume': volume,
-            'thermal_conductivity_normalized': thermal,
-            'chemistry_class': chemistry
-        })
+            results.append({
+                'feature': feature,
+                'correlation': corr,
+                'p_value': max(p_value, 0.001)  # Ensure non-zero
+            })
 
-        return df
+        return pd.DataFrame(results)
 
     @pytest.fixture
-    def descriptors(self):
-        """List of descriptor names."""
-        return [
-            'tolerance_factor',
-            'octahedral_tilting_angle',
-            'bond_length_variance',
-            'unit_cell_volume'
-        ]
+    def sample_dict_data(self) -> Dict[str, Any]:
+        """Create sample correlation data as dict."""
+        return {
+            'feature_A': [0.5, 0.02],
+            'feature_B': [0.3, 0.15],
+            'feature_C': [0.7, 0.005]
+        }
 
-    def test_run_sensitivity_analysis_basic(self, sample_data, descriptors):
-        """Test basic sensitivity analysis execution."""
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.01, 0.05, 0.1]
+    def test_run_sensitivity_analysis_dataframe(self, sample_correlation_data):
+        """Test sensitivity analysis with DataFrame input."""
+        thresholds = [0.01, 0.05, 0.1]
+
+        results = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=thresholds
         )
 
-        # Check structure
-        assert 'thresholds' in result
-        assert 'results' in result
-        assert 'summary' in result
-        assert 'metadata' in result
+        # Verify structure
+        assert 'thresholds' in results
+        assert 'results' in results
+        assert 'summary' in results
 
-        # Check thresholds
-        assert result['thresholds'] == [0.01, 0.05, 0.1]
+        # Verify thresholds match
+        assert results['thresholds'] == thresholds
 
-        # Check metadata
-        assert result['metadata']['n_samples'] == 100
-        assert result['metadata']['n_descriptors'] == 4
-        assert result['metadata']['method'] == 'spearman'
+        # Verify results for each threshold
+        for threshold in thresholds:
+            key = str(threshold)
+            assert key in results['results']
+            assert 'significant_count' in results['results'][key]
+            assert 'significant_pairs' in results['results'][key]
+            assert 'correlation_values' in results['results'][key]
 
-    def test_run_sensitivity_analysis_stratified(self, sample_data, descriptors):
-        """Test stratified sensitivity analysis."""
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.01, 0.05, 0.1],
-            stratify_by='chemistry_class'
-        )
+    def test_run_sensitivity_analysis_dict(self, sample_dict_data):
+        """Test sensitivity analysis with dict input."""
+        thresholds = [0.01, 0.05, 0.1]
 
-        # Check stratified results exist
-        assert 'results' in result
-        assert 'stratified' in result['results']
-
-        # Check all chemistry classes are present
-        assert 'oxide' in result['results']['stratified']
-        assert 'halide' in result['results']['stratified']
-        assert 'nitride' in result['results']['stratified']
-
-        # Check each stratum has all thresholds
-        for stratum in result['results']['stratified'].values():
-            for threshold in [0.01, 0.05, 0.1]:
-                assert threshold in stratum
-
-    def test_compute_thresholded_correlations(self, sample_data, descriptors):
-        """Test correlation computation at a single threshold."""
-        result = _compute_thresholded_correlations(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            threshold=0.05,
-            method='spearman'
-        )
-
-        # Check structure
-        assert 'threshold' in result
-        assert 'correlations' in result
-        assert 'significant_count' in result
-        assert 'significant_pairs' in result
-
-        # Check correlations dict has all descriptors
-        assert len(result['correlations']) == len(descriptors)
-        for desc in descriptors:
-            assert desc in result['correlations']
-            corr_data = result['correlations'][desc]
-            assert 'correlation' in corr_data
-            assert 'p_value' in corr_data
-            assert 'significant' in corr_data
-            assert 'threshold' in corr_data
-
-    def test_generate_sensitivity_summary(self, sample_data, descriptors):
-        """Test summary generation across thresholds."""
-        # First run full analysis
-        full_result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.01, 0.05, 0.1]
-        )
-
-        summary = full_result['summary']
-
-        # Check summary structure
-        assert 'stable_significant' in summary
-        assert 'threshold_sensitive' in summary
-        assert 'always_non_significant' in summary
-        assert 'stability_scores' in summary
-
-        # Check stability scores
-        assert len(summary['stability_scores']) == len(descriptors)
-        for desc in descriptors:
-            assert desc in summary['stability_scores']
-            score = summary['stability_scores'][desc]
-            assert 0 <= score <= 1
-
-    def test_save_sensitivity_report(self, sample_data, descriptors):
-        """Test saving results to JSON file."""
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.01, 0.05, 0.1]
-        )
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / 'test_sensitivity.json'
-            saved_path = save_sensitivity_report(result, output_path)
-
-            # Check file exists
-            assert saved_path.exists()
-
-            # Check JSON is valid
-            with open(saved_path, 'r') as f:
-                loaded = json.load(f)
-
-            # Check structure preserved
-            assert 'thresholds' in loaded
-            assert 'results' in loaded
-            assert 'summary' in loaded
-
-    def test_invalid_target_column(self, sample_data, descriptors):
-        """Test error handling for missing target column."""
-        with pytest.raises(ValueError, match="Target column"):
-            run_sensitivity_analysis(
-                df=sample_data,
-                descriptors=descriptors,
-                target='nonexistent_column',
-                thresholds=[0.01, 0.05, 0.1]
-            )
-
-    def test_missing_descriptors(self, sample_data):
-        """Test error handling for missing descriptor columns."""
-        with pytest.raises(ValueError, match="Missing descriptor columns"):
-            run_sensitivity_analysis(
-                df=sample_data,
-                descriptors=['nonexistent_desc'],
-                target='thermal_conductivity_normalized',
-                thresholds=[0.01, 0.05, 0.1]
-            )
-
-    def test_insufficient_samples(self):
-        """Test error handling for insufficient samples."""
-        # Create dataframe with only 2 samples
+        # Convert dict to DataFrame format expected by function
         df = pd.DataFrame({
-            'tolerance_factor': [0.9, 0.91],
-            'thermal_conductivity_normalized': [10.0, 11.0]
+            'feature': list(sample_dict_data.keys()),
+            'correlation': [v[0] for v in sample_dict_data.values()],
+            'p_value': [v[1] for v in sample_dict_data.values()]
         })
 
-        with pytest.raises(ValueError, match="Insufficient samples"):
+        results = run_sensitivity_analysis(
+            correlation_results=df,
+            p_value_columns=['p_value'],
+            thresholds=thresholds
+        )
+
+        # Verify FR-009: thresholds 0.01, 0.05, 0.1 are present
+        assert '0.01' in results['results']
+        assert '0.05' in results['results']
+        assert '0.1' in results['results']
+
+    def test_sensitivity_across_thresholds(self, sample_correlation_data):
+        """Test that significant count varies across thresholds."""
+        thresholds = [0.01, 0.05, 0.1]
+
+        results = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=thresholds
+        )
+
+        # Counts should be non-decreasing as threshold increases
+        counts = [results['results'][str(t)]['significant_count'] for t in thresholds]
+
+        # Verify monotonicity (looser check due to floating point)
+        assert all(counts[i] <= counts[i+1] for i in range(len(counts)-1))
+
+    def test_empty_dataframe_raises_error(self):
+        """Test that empty DataFrame raises ValueError."""
+        empty_df = pd.DataFrame(columns=['feature', 'correlation', 'p_value'])
+
+        with pytest.raises(ValueError, match="correlation_results is empty"):
             run_sensitivity_analysis(
-                df=df,
-                descriptors=['tolerance_factor'],
-                target='thermal_conductivity_normalized',
-                thresholds=[0.01, 0.05, 0.1]
+                correlation_results=empty_df,
+                p_value_columns=['p_value'],
+                thresholds=[0.05]
             )
 
-    def test_custom_thresholds(self, sample_data, descriptors):
-        """Test with custom threshold values."""
-        custom_thresholds = [0.001, 0.01, 0.05, 0.1, 0.2]
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=custom_thresholds
+    def test_missing_p_value_columns_raises_error(self, sample_correlation_data):
+        """Test that missing p-value columns raise ValueError."""
+        with pytest.raises(ValueError, match="P-value columns not found"):
+            run_sensitivity_analysis(
+                correlation_results=sample_correlation_data,
+                p_value_columns=['nonexistent_column'],
+                thresholds=[0.05]
+            )
+
+    def test_invalid_input_type_raises_error(self):
+        """Test that invalid input type raises TypeError."""
+        with pytest.raises(TypeError, match="correlation_results must be a DataFrame or dict"):
+            run_sensitivity_analysis(
+                correlation_results="invalid",
+                p_value_columns=['p_value'],
+                thresholds=[0.05]
+            )
+
+    def test_save_sensitivity_report(self, sample_correlation_data):
+        """Test saving sensitivity report to file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "sensitivity_report.json"
+
+            results = run_sensitivity_analysis(
+                correlation_results=sample_correlation_data,
+                p_value_columns=['p_value'],
+                thresholds=[0.05]
+            )
+
+            save_sensitivity_report(results, output_path)
+
+            # Verify file exists
+            assert output_path.exists()
+
+            # Verify JSON is valid
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+
+            assert 'thresholds' in loaded
+            assert 'results' in loaded
+
+    def test_multiple_p_value_columns(self, sample_correlation_data):
+        """Test analysis with multiple p-value columns."""
+        # Add another p-value column
+        df = sample_correlation_data.copy()
+        df['p_value_adjusted'] = df['p_value'] * 1.5
+
+        results = run_sensitivity_analysis(
+            correlation_results=df,
+            p_value_columns=['p_value', 'p_value_adjusted'],
+            thresholds=[0.05, 0.1]
         )
 
-        assert result['thresholds'] == custom_thresholds
-        for t in custom_thresholds:
-            assert t in result['results']
+        # Verify both columns are considered
+        assert '0.05' in results['results']
+        assert '0.1' in results['results']
 
-    def test_pearson_method(self, sample_data, descriptors):
-        """Test with Pearson correlation method."""
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.05],
-            method='pearson'
+    def test_summary_statistics(self, sample_correlation_data):
+        """Test that summary statistics are correctly computed."""
+        thresholds = [0.01, 0.05, 0.1]
+
+        results = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=thresholds
         )
 
-        assert result['metadata']['method'] == 'pearson'
+        summary = results['summary']
 
-    def test_stability_score_calculation(self, sample_data, descriptors):
-        """Test that stability scores are correctly calculated."""
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.01, 0.05, 0.1]
+        assert summary['total_thresholds'] == len(thresholds)
+        assert 'min_significant' in summary
+        assert 'max_significant' in summary
+        assert summary['thresholds_evaluated'] == thresholds
+
+    def test_correlation_values_extracted(self, sample_correlation_data):
+        """Test that correlation values are extracted for significant pairs."""
+        results = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=[0.05]
         )
 
-        summary = result['summary']
+        threshold_key = '0.05'
+        corr_values = results['results'][threshold_key]['correlation_values']
 
-        for desc, score in summary['stability_scores'].items():
-            # Count how many thresholds this descriptor is significant at
-            significant_count = 0
-            for threshold in [0.01, 0.05, 0.1]:
-                if threshold in result['results']:
-                    if desc in result['results'][threshold]['correlations']:
-                        if result['results'][threshold]['correlations'][desc]['significant']:
-                            significant_count += 1
+        # Verify correlation values are present for significant pairs
+        if results['results'][threshold_key]['significant_count'] > 0:
+            assert len(corr_values) > 0
+            for key, value in corr_values.items():
+                # Values should be numeric (or None if not available)
+                assert isinstance(value, (float, int, type(None)))
 
-            expected_score = significant_count / 3.0
-            assert abs(score - expected_score) < 1e-10
-
-    def test_stratified_summary_structure(self, sample_data, descriptors):
-        """Test stratified summary has correct structure per group."""
-        result = run_sensitivity_analysis(
-            df=sample_data,
-            descriptors=descriptors,
-            target='thermal_conductivity_normalized',
-            thresholds=[0.01, 0.05, 0.1],
-            stratify_by='chemistry_class'
+    def test_seeds_determinism(self, sample_correlation_data):
+        """Test that results are deterministic (no randomness involved)."""
+        results1 = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=[0.05]
         )
 
-        for stratum_name, stratum_summary in result['summary'].items():
-            if stratum_name.startswith('stratum_'):
-                assert 'stable_significant' in stratum_summary
-                assert 'threshold_sensitive' in stratum_summary
-                assert 'always_non_significant' in stratum_summary
-                assert 'stability_scores' in stratum_summary
+        results2 = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=[0.05]
+        )
+
+        # Results should be identical
+        assert results1 == results2
+
+    def test_fr009_requirement(self, sample_correlation_data):
+        """
+        Verify FR-009: p-value sweep output includes results for {0.01, 0.05, 0.1}.
+
+        This test explicitly checks that the required thresholds are present
+        in the output as specified in the functional requirement.
+        """
+        # Use the exact thresholds from FR-009
+        required_thresholds = [0.01, 0.05, 0.1]
+
+        results = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=required_thresholds
+        )
+
+        # Verify each required threshold is present
+        for threshold in required_thresholds:
+            key = str(threshold)
+            assert key in results['results'], f"Threshold {threshold} missing from results"
+
+            # Verify structure for each threshold
+            threshold_result = results['results'][key]
+            assert 'significant_count' in threshold_result
+            assert 'significant_pairs' in threshold_result
+            assert 'correlation_values' in threshold_result
+
+    def test_large_threshold_range(self, sample_correlation_data):
+        """Test with a wide range of thresholds."""
+        thresholds = [0.001, 0.01, 0.05, 0.1, 0.2, 0.5]
+
+        results = run_sensitivity_analysis(
+            correlation_results=sample_correlation_data,
+            p_value_columns=['p_value'],
+            thresholds=thresholds
+        )
+
+        assert len(results['results']) == len(thresholds)
+        for threshold in thresholds:
+            assert str(threshold) in results['results']

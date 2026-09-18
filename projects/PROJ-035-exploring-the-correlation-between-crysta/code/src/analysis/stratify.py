@@ -1,3 +1,7 @@
+"""
+Stratification utilities for perovskite data analysis.
+Implements deterministic seed handling for any sampling.
+"""
 import sys
 import logging
 from pathlib import Path
@@ -5,69 +9,83 @@ from typing import Dict, List, Optional, Tuple, Any
 import pandas as pd
 import numpy as np
 
-# Import seed utilities
+# Import seed manager
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils.seed_manager import init_seed, add_seed_argument
+from utils.seed_manager import init_seed, get_seed, add_seed_argument
 
-def setup_logger_module(name: str) -> logging.Logger:
+def setup_logger_module(name: str = "stratify", level: int = logging.INFO) -> logging.Logger:
+    """Setup a module-specific logger."""
     logger = logging.getLogger(name)
+    logger.setLevel(level)
     if not logger.handlers:
-        handler = logging.StreamHandler()
+        handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
     return logger
 
-logger = setup_logger_module(__name__)
+logger = setup_logger_module()
 
 def classify_chemistry(formula: str) -> str:
-    """Classify perovskite chemistry class (oxide, halide, nitride)."""
+    """
+    Classify perovskite chemistry class based on formula.
+
+    Args:
+        formula: Chemical formula string
+
+    Returns:
+        Class name: 'oxide', 'halide', 'nitride', or 'unknown'
+    """
     formula_lower = formula.lower()
-    if 'o' in formula_lower:
+    if 'o' in formula_lower and 'x' not in formula_lower:
         return 'oxide'
-    elif 'cl' in formula_lower or 'br' in formula_lower or 'i' in formula_lower:
+    elif 'f' in formula_lower or 'cl' in formula_lower or 'br' in formula_lower or 'i' in formula_lower:
         return 'halide'
-    elif 'n' in formula_lower:
+    elif 'n' in formula_lower and 'no' not in formula_lower:
         return 'nitride'
     return 'unknown'
 
-def stratify_dataframe(df: pd.DataFrame, seed: Optional[int] = None) -> Dict[str, pd.DataFrame]:
-    """Stratify dataframe by chemistry class."""
-    init_seed(seed)
-    
-    df = df.copy()
-    df['chemistry_class'] = df['formula'].apply(classify_chemistry)
-    
-    stratified = {}
-    for class_name, group in df.groupby('chemistry_class'):
-        stratified[class_name] = group.reset_index(drop=True)
-    
-    return stratified
+def stratify_dataframe(df: pd.DataFrame, strategy_col: str = 'chemistry_class', seed: int = 42) -> pd.DataFrame:
+    """
+    Stratify dataframe by chemistry class.
 
-def save_stratified_data(stratified_data: Dict[str, pd.DataFrame], output_dir: Path) -> None:
-    """Save stratified data to separate CSV files."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for class_name, df in stratified_data.items():
-        out_path = output_dir / f"stratified_{class_name}.csv"
-        df.to_csv(out_path, index=False)
-        logger.info(f"Saved {class_name} data to {out_path}")
+    Args:
+        df: Input dataframe
+        strategy_col: Column to stratify by
+        seed: Random seed
+
+    Returns:
+        Dataframe with stratification labels
+    """
+    init_seed(seed)
+    logger.info(f"Stratifying by '{strategy_col}' with seed={seed}")
+    
+    if strategy_col not in df.columns:
+        # Auto-classify if column missing
+        df = df.copy()
+        df[strategy_col] = df['formula'].apply(classify_chemistry)
+    
+    return df
+
+def save_stratified_data(df: pd.DataFrame, output_path: str) -> None:
+    """Save stratified data to CSV."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved stratified data to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Stratify Perovskite Data")
-    add_seed_argument(parser)
-    parser.add_argument('--input', type=Path, required=True)
-    parser.add_argument('--output-dir', type=Path, required=True)
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="Stratify perovskite data")
+    parser = add_seed_argument(parser)
+    parser.add_argument('--input', type=str, required=True)
+    parser.add_argument('--output', type=str, required=True)
+    
     args = parser.parse_args()
     
-    init_seed(args.seed)
-    
-    if not args.input.exists():
-        raise FileNotFoundError(f"Input file not found: {args.input}")
-    
     df = pd.read_csv(args.input)
-    stratified = stratify_dataframe(df, seed=args.seed)
-    save_stratified_data(stratified, args.output_dir)
+    df_strat = stratify_dataframe(df, seed=args.seed)
+    save_stratified_data(df_strat, args.output)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

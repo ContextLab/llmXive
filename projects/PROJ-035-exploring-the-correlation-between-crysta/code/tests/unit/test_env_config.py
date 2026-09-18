@@ -1,82 +1,92 @@
-"""
-Unit tests for environment configuration management.
-"""
 import os
+import sys
 import pytest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
-import sys
+import tempfile
 
 # Ensure the code directory is in the path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from src.config.env import (
-    get_api_key, 
-    load_materials_project_api_key, 
-    validate_environment,
-    _ENV_PATH
-)
-
+from src.config.env import load_api_key, validate_environment, setup_logger
 
 class TestGetApiKey:
-    """Tests for get_api_key function."""
+    def test_load_api_key_existing(self):
+        """Test loading an existing API key."""
+        with patch.dict(os.environ, {"TEST_KEY": "secret_value"}):
+            result = load_api_key("TEST_KEY")
+            assert result == "secret_value"
 
-    def test_get_existing_key(self):
-        """Test retrieving an existing environment variable."""
-        with patch.dict(os.environ, {"TEST_VAR": "test_value"}):
-            result = get_api_key("TEST_VAR", required=False)
-            assert result == "test_value"
-
-    def test_get_missing_key_not_required(self):
-        """Test retrieving a missing environment variable when not required."""
+    def test_load_api_key_missing(self):
+        """Test loading a missing API key raises KeyError."""
         with patch.dict(os.environ, {}, clear=True):
-            result = get_api_key("NON_EXISTENT", required=False)
-            assert result is None
-
-    def test_get_missing_key_required_raises(self):
-        """Test that retrieving a missing required key raises RuntimeError."""
-        with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(RuntimeError) as exc_info:
-                get_api_key("NON_EXISTENT", required=True)
-            
-            assert "NON_EXISTENT" in str(exc_info.value)
-
-    def test_key_stripped(self):
-        """Test that the returned key is stripped of whitespace."""
-        with patch.dict(os.environ, {"TEST_VAR": "  value_with_spaces  "}):
-            result = get_api_key("TEST_VAR", required=False)
-            assert result == "value_with_spaces"
-
+            with pytest.raises(KeyError, match="Environment variable 'MISSING_KEY' is not set."):
+                load_api_key("MISSING_KEY")
 
 class TestLoadMaterialsProjectApiKey:
-    """Tests for load_materials_project_api_key function."""
+    def test_mp_api_key_present(self):
+        """Test that MP_API_KEY is loaded correctly when present."""
+        with patch.dict(os.environ, {"MP_API_KEY": "mp_12345"}):
+            result = load_api_key("MP_API_KEY")
+            assert result == "mp_12345"
 
-    def test_load_mp_key(self):
-        """Test loading the MP API key."""
-        fake_key = "mp-1234567890abcdef"
-        with patch.dict(os.environ, {"MP_API_KEY": fake_key}):
-            result = load_materials_project_api_key()
-            assert result == fake_key
-
-    def test_load_mp_key_missing(self):
-        """Test that missing MP API key raises error."""
+    def test_mp_api_key_missing_raises(self):
+        """Test that MP_API_KEY missing raises KeyError."""
         with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(RuntimeError) as exc_info:
-                load_materials_project_api_key()
-            
-            assert "MP_API_KEY" in str(exc_info.value)
-
+            with pytest.raises(KeyError):
+                load_api_key("MP_API_KEY")
 
 class TestValidateEnvironment:
-    """Tests for validate_environment function."""
+    @patch('src.config.env.sys.exit')
+    @patch('src.config.env.setup_logger')
+    def test_validate_environment_success(self, mock_logger, mock_exit):
+        """Test validation passes when MP_API_KEY is set."""
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+        
+        with patch.dict(os.environ, {"MP_API_KEY": "valid_key"}):
+            result = validate_environment()
+            
+            assert result is True
+            mock_exit.assert_not_called()
+            mock_logger_instance.info.assert_called_with("Environment validation successful. All required API keys present.")
 
-    def test_validate_success(self):
-        """Test validation passes when key exists."""
-        with patch.dict(os.environ, {"MP_API_KEY": "fake_key"}):
-            assert validate_environment() is True
-
-    def test_validate_failure(self):
-        """Test validation fails when key is missing."""
+    @patch('src.config.env.sys.exit')
+    @patch('src.config.env.setup_logger')
+    def test_validate_environment_mp_api_key_missing(self, mock_logger, mock_exit):
+        """Test validation fails with exit code 1 when MP_API_KEY is missing."""
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+        
         with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(RuntimeError):
-                validate_environment()
+            validate_environment()
+            
+            mock_exit.assert_called_once_with(1)
+            mock_logger_instance.error.assert_called_with("MP_API_KEY not set")
+
+    @patch('src.config.env.sys.exit')
+    @patch('src.config.env.setup_logger')
+    def test_validate_environment_other_key_missing(self, mock_logger, mock_exit):
+        """Test validation fails for other missing keys."""
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+        
+        with patch.dict(os.environ, {"MP_API_KEY": "valid_key"}):
+            # Test with a different required key
+            validate_environment(required_keys=["OTHER_KEY"])
+            
+            mock_exit.assert_called_once_with(1)
+            mock_logger_instance.error.assert_called_with("Missing required environment variables: ['OTHER_KEY']")
+
+class TestSetupLogger:
+    def test_setup_logger_creates_handler(self):
+        """Test that setup_logger creates a handler if none exist."""
+        logger = setup_logger("test_logger_unique")
+        assert len(logger.handlers) > 0
+    
+    def test_setup_logger_returns_existing(self):
+        """Test that setup_logger returns existing logger configuration."""
+        logger1 = setup_logger("test_logger_shared")
+        logger2 = setup_logger("test_logger_shared")
+        assert logger1 is logger2
+        assert len(logger1.handlers) == 1 # Should not add another handler

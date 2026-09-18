@@ -1,13 +1,11 @@
 """
 Validation utilities for the perovskite thermal conductivity pipeline.
 
-Provides functions for:
+This module provides functions for:
 - Variance Inflation Factor (VIF) calculation for multicollinearity detection
-- Error handling with structured logging
+- Causal language scanning to prevent overinterpretation
 - Logger setup with consistent formatting
-- Causal language scanning to prevent scientific overstatement
 """
-
 import logging
 import sys
 from typing import List, Optional, Union, Dict, Any
@@ -16,279 +14,308 @@ import numpy as np
 import pandas as pd
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+# Prohibited causal keywords that indicate overinterpretation
+PROHIBITED_CAUSAL_KEYWORDS = {
+    "cause", "causes", "causing",
+    "leads to", "lead to", "led to",
+    "driven by", "drives", "driving",
+    "effect of", "effects of",
+    "result of", "results in", "resulting in",
+    "determines", "determined by",
+    "causally", "causation"
+}
 
-def setup_logger(name: str, level: Union[int, str] = logging.INFO) -> logging.Logger:
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure and return a logger with consistent formatting.
-
+    Set up a logger with consistent formatting.
+    
     Args:
         name: Logger name (typically __name__)
-        level: Logging level (e.g., logging.INFO, 'DEBUG', 20)
-
+        level: Logging level (default: INFO)
+    
     Returns:
         Configured logger instance
+    
+    Raises:
+        None
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
+    
     # Avoid adding duplicate handlers if logger already configured
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(level)
-
+        
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         handler.setFormatter(formatter)
+        
         logger.addHandler(handler)
-
+    
     return logger
 
-
-def handle_error(message: str, level: str = 'critical') -> None:
+def handle_error(error: Exception, context: str = "") -> None:
     """
-    Handle errors with appropriate logging and optional exit.
-
+    Handle errors with consistent logging and exit behavior.
+    
     Args:
-        message: Error message to log
-        level: Severity level ('debug', 'info', 'warning', 'error', 'critical')
-
-    Raises:
-        SystemExit: For critical errors
+        error: The exception to handle
+        context: Optional context string to include in error message
+    
+    Returns:
+        None (exits program with code 1)
     """
-    level_map = {
-        'debug': logging.DEBUG,
-        'info': logging.INFO,
-        'warning': logging.WARNING,
-        'error': logging.ERROR,
-        'critical': logging.CRITICAL
-    }
-
-    log_level = level_map.get(level.lower(), logging.ERROR)
-    logger = logging.getLogger(__name__)
-    logger.log(log_level, message)
-
-    if level.lower() == 'critical':
-        sys.exit(1)
-
+    logger = setup_logger(__name__)
+    error_msg = str(error)
+    if context:
+        error_msg = f"{context}: {error_msg}"
+    
+    logger.error(f"Error occurred: {error_msg}")
+    sys.exit(1)
 
 def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> pd.DataFrame:
     """
-    Calculate Variance Inflation Factor (VIF) for a list of predictor variables.
-
-    VIF quantifies the severity of multicollinearity in a regression model.
-    VIF > 5 indicates potential multicollinearity issues.
-
+    Calculate Variance Inflation Factor (VIF) for each predictor variable.
+    
+    VIF measures how much the variance of a regression coefficient is 
+    inflated due to multicollinearity with other predictors.
+    
     Args:
         df: DataFrame containing predictor variables
         predictors: List of column names to calculate VIF for
-
+    
     Returns:
-        DataFrame with columns: ['predictor', 'vif']
+        DataFrame with columns: 'predictor', 'VIF'
+        VIF > 5 indicates problematic multicollinearity
+    
+    Raises:
+        ValueError: If any predictor column is not in DataFrame
+        ValueError: If any predictor contains non-numeric data
+        ValueError: If DataFrame is empty
     """
-    if not all(col in df.columns for col in predictors):
-        missing = [col for col in predictors if col not in df.columns]
-        raise ValueError(f"Missing predictors in dataframe: {missing}")
-
-    # Ensure we have numeric data
-    X = df[predictors].dropna()
-    if X.empty:
-        raise ValueError("No valid data after dropping NaN values")
-
-    # Add constant for intercept
-    X_with_const = sm.add_constant(X)
-
-    vif_data = []
-    for i, col in enumerate(X_with_const.columns):
-        if col == 'const':
-            continue
+    if not predictors:
+        raise ValueError("Predictors list cannot be empty")
+    
+    # Validate columns exist
+    missing_cols = [col for col in predictors if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Predictors not found in DataFrame: {missing_cols}")
+    
+    # Extract predictor data
+    X = df[predictors].copy()
+    
+    # Check for numeric data
+    if not np.issubdtype(X.values.dtype, np.number):
+        # Try to convert, but fail if not possible
         try:
-            vif = variance_inflation_factor(X_with_const.values, i)
-            vif_data.append({'predictor': col, 'vif': vif})
+            X = X.apply(pd.to_numeric)
+        except (ValueError, TypeError) as e:
+            raise ValueError(f"Predictors must contain numeric data: {str(e)}")
+    
+    # Check for empty DataFrame
+    if X.empty:
+        raise ValueError("DataFrame is empty")
+    
+    # Check for constant columns (VIF undefined)
+    constant_cols = [col for col in X.columns if X[col].std() == 0]
+    if constant_cols:
+        raise ValueError(f"Constant columns detected (VIF undefined): {constant_cols}")
+    
+    # Calculate VIF for each predictor
+    vif_data = []
+    for i, col in enumerate(predictors):
+        # Create design matrix without the current column
+        X_design = X.drop(columns=[col])
+        
+        # Add intercept column
+        X_design_with_intercept = X_design.copy()
+        X_design_with_intercept['intercept'] = 1.0
+        
+        try:
+            vif = variance_inflation_factor(
+                X_design_with_intercept.values, 
+                X_design_with_intercept.columns.get_loc(col) if col in X_design_with_intercept.columns else 0
+            )
         except Exception as e:
-            # Handle cases where VIF cannot be calculated (e.g., constant column)
-            vif_data.append({'predictor': col, 'vif': np.nan})
-
+            # Handle cases where VIF cannot be calculated
+            vif = float('inf')
+        
+        vif_data.append({'predictor': col, 'VIF': vif})
+    
     return pd.DataFrame(vif_data)
 
-
-def get_high_vif_predictors(df: pd.DataFrame, predictors: List[str], threshold: float = 5.0) -> List[str]:
+def get_high_vif_predictors(vif_df: pd.DataFrame, threshold: float = 5.0) -> List[str]:
     """
     Identify predictors with VIF above a specified threshold.
-
+    
     Args:
-        df: DataFrame containing predictor variables
-        predictors: List of column names to check
-        threshold: VIF threshold (default 5.0)
-
+        vif_df: DataFrame from calculate_vif() with 'predictor' and 'VIF' columns
+        threshold: VIF threshold above which predictors are considered problematic (default: 5.0)
+    
     Returns:
         List of predictor names with VIF > threshold
+    
+    Raises:
+        ValueError: If input DataFrame lacks required columns
     """
-    vif_df = calculate_vif(df, predictors)
-    high_vif = vif_df[vif_df['vif'] > threshold]
-    return high_vif['predictor'].tolist()
-
+    if 'predictor' not in vif_df.columns or 'VIF' not in vif_df.columns:
+        raise ValueError("Input DataFrame must contain 'predictor' and 'VIF' columns")
+    
+    high_vif = vif_df[vif_df['VIF'] > threshold]['predictor'].tolist()
+    return high_vif
 
 def scan_causal_language(text: str) -> Dict[str, Any]:
     """
-    Scan text for prohibited causal language that implies causation in correlational research.
-
-    Prohibited keywords: {cause, causes, caused, leads to, led to, driven by,
-    effect of, result of, resulting from, induces, triggers}
-
+    Scan text for prohibited causal language that indicates overinterpretation.
+    
+    This function checks for keywords and phrases that suggest causal relationships
+    where only correlation has been demonstrated.
+    
     Args:
-        text: Text content to scan (e.g., markdown report, comments)
-
+        text: Text string to scan for causal language
+    
     Returns:
         Dictionary with:
             - 'found': Boolean indicating if prohibited language was found
-            - 'matches': List of found prohibited phrases and their context
-            - 'count': Number of prohibited phrases found
+            - 'matches': List of tuples (matched_text, position)
+            - 'count': Number of matches found
+    
+    Raises:
+        TypeError: If input is not a string
     """
-    # Pattern matches whole words to avoid false positives in compound words
-    prohibited_patterns = [
-        r'\bcause\b', r'\bcauses\b', r'\bcaused\b',
-        r'\bleads to\b', r'\bled to\b',
-        r'\bdriven by\b',
-        r'\beffect of\b',
-        r'\bresult of\b', r'\bresulting from\b',
-        r'\binduces\b', r'\btriggers\b'
-    ]
-
-    matches = []
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    
     text_lower = text.lower()
-
-    for pattern in prohibited_patterns:
-        # Find all matches with their positions
-        for match in re.finditer(pattern, text_lower, re.IGNORECASE):
-            # Get context around the match (50 chars before and after)
-            start = max(0, match.start() - 50)
-            end = min(len(text), match.end() + 50)
-            context = text[start:end]
-
-            # Highlight the match in context
-            matched_text = match.group()
-            context_highlighted = (
-                context[:match.start() - start] +
-                f"***{matched_text}***" +
-                context[match.end() - start:]
-            )
-
+    matches = []
+    
+    for keyword in PROHIBITED_CAUSAL_KEYWORDS:
+        # Search for the keyword in the text
+        pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+        for match in pattern.finditer(text):
             matches.append({
-                'phrase': matched_text,
-                'pattern': pattern,
-                'context': context_highlighted,
-                'position': match.start()
+                'keyword': keyword,
+                'position': match.start(),
+                'context': text[max(0, match.start()-20):min(len(text), match.end()+20)]
             })
-
+    
     return {
         'found': len(matches) > 0,
         'matches': matches,
         'count': len(matches)
     }
 
-
-def validate_causal_language(text: str, fail_on_found: bool = True) -> bool:
+def validate_causal_language(text: str, fail_on_violation: bool = True) -> bool:
     """
-    Validate text against prohibited causal language.
-
+    Validate text for prohibited causal language.
+    
     Args:
-        text: Text to validate
-        fail_on_found: If True, raise SystemExit when violations are found
-
+        text: Text string to validate
+        fail_on_violation: If True, raise SystemExit on violation (default: True)
+    
     Returns:
         True if no violations found, False otherwise
-
+    
     Raises:
-        SystemExit: If fail_on_found is True and violations are detected
+        SystemExit: If fail_on_violation is True and violations are found
     """
-    scan_result = scan_causal_language(text)
-
-    if scan_result['found']:
-        logger = logging.getLogger(__name__)
-        logger.error("Prohibited causal language detected:")
-        for match in scan_result['matches']:
-            logger.error(f"  - '{match['phrase']}' found in: {match['context']}")
-
-        if fail_on_found:
+    result = scan_causal_language(text)
+    
+    if result['found']:
+        logger = setup_logger(__name__)
+        logger.warning(f"Found {result['count']} instances of prohibited causal language:")
+        for match in result['matches']:
+            logger.warning(f"  - '{match['keyword']}' at position {match['position']}: ...{match['context']}...")
+        
+        if fail_on_violation:
             handle_error(
-                f"Causal language violation detected: {scan_result['count']} prohibited phrase(s) found. "
-                "Please rephrase to use correlational language (e.g., 'associated with', 'correlated with').",
-                level='critical'
+                ValueError("Prohibited causal language detected in text"),
+                "Causal language validation failed"
             )
         return False
-
+    
     return True
 
-
-def validate_dataframe_columns(df: pd.DataFrame, required_columns: List[str]) -> bool:
+def validate_dataframe_columns(df: pd.DataFrame, required_columns: List[str]) -> None:
     """
     Validate that a DataFrame contains all required columns.
-
+    
     Args:
         df: DataFrame to validate
-        required_columns: List of required column names
-
-    Returns:
-        True if all columns present, False otherwise
+        required_columns: List of column names that must be present
+    
+    Raises:
+        ValueError: If any required columns are missing
     """
-    missing = [col for col in required_columns if col not in df.columns]
-    if missing:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Missing required columns: {missing}")
-        return False
-    return True
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
 
-
-def validate_no_nulls(df: pd.DataFrame, columns: Optional[List[str]] = None) -> bool:
+def validate_no_nulls(df: pd.DataFrame, columns: Optional[List[str]] = None) -> Dict[str, int]:
     """
     Validate that specified columns contain no null values.
-
+    
     Args:
         df: DataFrame to validate
-        columns: List of columns to check (None checks all columns)
-
+        columns: List of columns to check. If None, checks all columns.
+    
     Returns:
-        True if no nulls found, False otherwise
+        Dictionary mapping column names to null counts (only columns with nulls)
+    
+    Raises:
+        ValueError: If any checked column contains null values
     """
-    cols_to_check = columns if columns else df.columns
-    null_counts = df[cols_to_check].isnull().sum()
-    has_nulls = (null_counts > 0).any()
+    if columns is None:
+        columns = df.columns.tolist()
+    
+    null_counts = {}
+    for col in columns:
+        if col not in df.columns:
+            raise ValueError(f"Column '{col}' not found in DataFrame")
+        
+        count = df[col].isnull().sum()
+        if count > 0:
+            null_counts[col] = count
+    
+    if null_counts:
+        error_msg = f"Null values found in columns: {null_counts}"
+        raise ValueError(error_msg)
+    
+    return null_counts
 
-    if has_nulls:
-        logger = logging.getLogger(__name__)
-        null_summary = null_counts[null_counts > 0].to_dict()
-        logger.error(f"Null values found in columns: {null_summary}")
-        return False
-
-    return True
-
-
-def validate_data_types(df: pd.DataFrame, expected_types: Dict[str, type]) -> bool:
+def validate_data_types(df: pd.DataFrame, column_types: Dict[str, type]) -> None:
     """
     Validate that columns have expected data types.
-
+    
     Args:
         df: DataFrame to validate
-        expected_types: Dictionary mapping column names to expected types
-
-    Returns:
-        True if all types match, False otherwise
+        column_types: Dictionary mapping column names to expected types
+    
+    Raises:
+        ValueError: If any column has incorrect data type
     """
-    for col, expected_type in expected_types.items():
+    for col, expected_type in column_types.items():
         if col not in df.columns:
-            logger = logging.getLogger(__name__)
-            logger.error(f"Column '{col}' not found in DataFrame")
-            return False
-
-        # Check if dtype is compatible (e.g., int64 is compatible with int)
-        actual_dtype = df[col].dtype
-        if not np.issubdtype(actual_dtype, expected_type):
-            logger = logging.getLogger(__name__)
-            logger.error(
-                f"Column '{col}' has dtype {actual_dtype}, expected {expected_type}"
-            )
-            return False
-
-    return True
+            raise ValueError(f"Column '{col}' not found in DataFrame")
+        
+        actual_type = df[col].dtype
+        # Handle pandas extension dtypes
+        if not np.issubdtype(actual_type, np.number) and expected_type in [int, float, np.number]:
+            # Check if it can be converted to numeric
+            try:
+                pd.to_numeric(df[col])
+            except (ValueError, TypeError):
+                raise ValueError(
+                    f"Column '{col}' has incorrect type: {actual_type}, "
+                    f"expected numeric type"
+                )
+        elif not isinstance(df[col].iloc[0], expected_type) if len(df) > 0 else True:
+            # For non-numeric types, check the actual type
+            if len(df) > 0 and not isinstance(df[col].iloc[0], expected_type):
+                raise ValueError(
+                    f"Column '{col}' has incorrect type: {type(df[col].iloc[0])}, "
+                    f"expected {expected_type}"
+                )

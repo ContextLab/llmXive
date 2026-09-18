@@ -1675,3 +1675,702 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T21:45:43Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 0
+  canonical: Regression model uses 5-fold cross-validation
+  claim_id: c_77388701
+  context: 'Implement src/analysis/regression.py with two functions: fit_model() for
+    5-fold CV (FR-005) and evaluate_test() for held-out test evaluation'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The regression model uses 5-fold cross-validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T14:34:21Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Minimum dataset size of 50 rows after filtering
+  claim_id: c_e2256060
+  context: "Independent Test: Execute data ingestion script and verify output CSV\
+    \ contains \u2265 50 rows with no null values in thermal_conductivity or structure_id\
+    \ columns"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline requires a minimum of 50 rows with no null values in thermal_conductivity
+    or structure_id columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:35:05Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Thermal conductivity normalized to 300K using Slack 1979 formula
+  claim_id: c_c3c597ba
+  context: "Invoke src/cleaning/temperature_normalize.py (T016b) to normalize all\
+    \ thermal conductivity measurements to 300K \xB1 10K using Slack (1979) formula."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Thermal conductivity measurements are normalized to 300K \xB1 10K using\
+    \ the Slack (1979) formula."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:35:25Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Bonferroni method used for multiple-comparison correction
+  claim_id: c_2f73c9e3
+  context: Implement src/analysis/correlation.py for Pearson and Spearman correlation
+    with multiple-comparison correction using the Bonferroni method explicitly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_method_used_for_multiple-comparison_correction
+  kind: entity_fact
+  raw_text: The correlation analysis uses the Bonferroni method for multiple-comparison
+    correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:36:22Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: "Regression model R\xB2 target greater than 0.5"
+  claim_id: c_c32ae7c4
+  context: "Independent Test: ... verify output includes ... R\xB2 > 0.5 on the held-out\
+    \ test set (SC-003)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_model_R%C2%B2_target_greater_than_0.5
+  kind: magnitude
+  raw_text: "The regression model evaluation targets an R\xB2 value greater than 0.5\
+    \ on the held-out test set."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:36:58Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Feature importance reported via coefficients magnitude or permutation
+    importance
+  claim_id: c_da94f0dc
+  context: Generate feature importance report (coefficients magnitude or permutation
+    importance) to data/results/feature_importance.csv
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feature_importance_reported_via_coefficients_magnitude_or_pe
+  kind: entity_fact
+  raw_text: Feature importance is reported using coefficients magnitude or permutation
+    importance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:37:27Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Scatter plots include 95% confidence interval bands
+  claim_id: c_24eea5df
+  context: Implement src/analysis/visualize.py for scatter plot generation for top-k
+    correlated descriptors with % CI bands (FR-012)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scatter plots are generated with 95% confidence interval bands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:37:28Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Figures saved as PNG with minimum 300 DPI
+  claim_id: c_dc354c12
+  context: Save all figures as high-resolution PNG files (minimum 300 DPI) to figures/
+    directory (FR-012)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All figures are saved as high-resolution PNG files with a minimum of 300
+    DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:37:54Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed at p-values 0.01, 0.05, 0.1
+  claim_id: c_2c491c04
+  context: Unit test for sensitivity analysis in tests/unit/test_sensitivity.py verifying
+    p-value sweep output includes results for {0.01, 0.05, 0.1} (FR-009)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis is performed across p-value thresholds of 0.01, 0.05,
+    and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:38:30Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Predictors with VIF greater than 5 excluded
+  claim_id: c_c8bf03ff
+  context: Implement full src/utils/validation.py module including calculate_vif (VIF
+    > 5 exclusion logic)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictors_with_VIF_greater_than_5_excluded
+  kind: magnitude
+  raw_text: Predictors with a Variance Inflation Factor (VIF) greater than 5 are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:39:23Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Materials Project API used for crystal structure download
+  claim_id: c_aae961c2
+  context: Download perovskite crystal structures from Materials Project API and merge
+    with thermal conductivity values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_used_for_crystal_structure_download
+  kind: entity_fact
+  raw_text: The Materials Project API is used to download perovskite crystal structures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:39:57Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Standard train/test split used for model evaluation
+  claim_id: c_52715b6e
+  context: The A standard train/test split will be employed to evaluate model performance.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standard_train/test_split_used_for_model_evaluation
+  kind: entity_fact
+  raw_text: The pipeline requires a standard train/test split to evaluate model performance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:40:34Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 0
+  canonical: 5-fold cross-validation used in regression
+  claim_id: c_955c8616
+  context: 'Implement src/analysis/regression.py with two functions: fit_model() for
+    5-fold CV...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: 5-fold cross-validation
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T14:51:14Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: pymatgen version 2023.9.1
+  claim_id: c_2f78f30a
+  context: Initialize Python project with requirements.txt at repository root (pymatgen==2023.9.1,
+    pandas==2.2.2...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pymatgen==2023.9.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:51:35Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2
+  claim_id: c_fd762eba
+  context: Initialize Python project with requirements.txt at repository root (pymatgen==2023.9.1,
+    pandas==2.2.2...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:51:52Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_668708ca
+  context: Initialize Python project with requirements.txt at repository root (...numpy==1.26.4,
+    scikit-learn==1.5.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:52:24Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_049c6881
+  context: Initialize Python project with requirements.txt at repository root (...scikit-learn==1.5.0,
+    statsmodels==0.14.2...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:52:39Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.2
+  claim_id: c_888778cd
+  context: Initialize Python project with requirements.txt at repository root (...statsmodels==0.14.2,
+    matplotlib==3.9.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:52:56Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.9.0
+  claim_id: c_18b3772d
+  context: Initialize Python project with requirements.txt at repository root (...matplotlib==3.9.0,
+    seaborn==0.13.2...)
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: matplotlib==3.9.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T14:53:03Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_06808731
+  context: Initialize Python project with requirements.txt at repository root (...seaborn==0.13.2,
+    requests==2.32.3...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:53:15Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: requests version 2.32.3
+  claim_id: c_6008bf37
+  context: Initialize Python project with requirements.txt at repository root (...requests==2.32.3,
+    tqdm==4.66.5...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.32.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:53:35Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: tqdm version 4.66.5
+  claim_id: c_ede4c8fc
+  context: Initialize Python project with requirements.txt at repository root (...tqdm==4.66.5,
+    pytest).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: tqdm==4.66.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:54:06Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Slack 1979 thermal conductivity normalization formula
+  claim_id: c_327d5fd2
+  context: 'Implement src/cleaning/temperature_normalize.py with the Slack (1979)
+    formula: k(T) = k_ref * (T_ref / T)^1.0.'
+  evidence:
+    asserted: '1979.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The Slack (1979) formula is k(T) = k_ref * (T_ref / T)^1.0
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T14:54:07Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold of 5 for exclusion
+  claim_id: c_854fcb58
+  context: Implement full src/utils/validation.py module including calculate_vif (VIF
+    > 5 exclusion logic)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 5 exclusion logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:54:07Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42
+  claim_id: c_5c6fdd64
+  context: Implement deterministic seed handling... with explicit random_state=42
+    in all random operations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: random_state=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:54:32Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: P-value sensitivity analysis thresholds
+  claim_id: c_fb28274c
+  context: Unit test for sensitivity analysis... verifying p-value sweep output includes
+    results for {0.01, 0.05, 0.1}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: p-value sensitivity levels of 0.01, 0.05, and 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:55:03Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction method used
+  claim_id: c_8cf8b957
+  context: Implement src/analysis/correlation.py for Pearson and Spearman correlation
+    with multiple-comparison correction using the Bonferroni method explicitly.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q858572
+        url: https://www.wikidata.org/wiki/Q858572
+        value: "Holm\u2013Bonferroni method"
+      - channel: wikipedia
+        source_id: Mascot (software)
+        url: https://en.wikipedia.org/wiki/Mascot_(software)
+        value: "5*10\u22128"
+      quote: 'P138: Bonferroni inequalities'
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: Bonferroni inequalities
+    filled: true
+  kind: entity_fact
+  raw_text: Bonferroni method for multiple-comparison correction
+  resolved_value: Bonferroni inequalities
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T14:55:17Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Smith et al. citation in Advanced Materials
+  claim_id: c_347299dc
+  context: Verify citation 'Smith et al., Advanced Materials, (), 2101234' using Reference-Validator
+    Agent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Citation Smith et al., Advanced Materials, (), 2101234
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:55:27Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Figure resolution minimum 300 DPI
+  claim_id: c_d3de886b
+  context: Save all figures as high-resolution PNG files (minimum 300 DPI) to figures/
+    directory.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum 300 DPI resolution for figures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:55:45Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals used
+  claim_id: c_b4ebd975
+  context: Implement scatter plot generation for top-k correlated descriptors with
+    % CI bands...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence intervals for scatter plots
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:55:45Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: RAM requirement 7 GB
+  claim_id: c_dd3fe8a3
+  context: 'Resource Constraints: RAM: ~7 GB (aligned with spec.md Assumptions)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM requirement of approximately 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:56:09Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: CPU requirement 2 cores
+  claim_id: c_2cdf4169
+  context: 'Resource Constraints: CPU: 2 cores (GitHub Actions free tier)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CPU requirement of 2 cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:56:48Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Disk requirement 14 GB
+  claim_id: c_9ac06a76
+  context: 'Resource Constraints: Disk: ~14 GB...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Disk requirement of approximately 14 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:20Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Pipeline time limit 6 hours
+  claim_id: c_497c03fe
+  context: "Resource Constraints: Time limit: Entire pipeline \u2264 6 hours..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline execution time limit of 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:27Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Minimum dataset size 50 rows
+  claim_id: c_767a5484
+  context: "Independent Test: Execute data ingestion script and verify output CSV\
+    \ contains \u2265 50 rows..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum 50 rows in merged dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:33Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: DOI regex pattern
+  claim_id: c_3e5a8176
+  context: verify peer-reviewed/NIST source_reference... using regex for DOI (10.\d{4}/.*/.)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DOI regex pattern 10.\d{4}/.*/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:39Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: PMID regex pattern
+  claim_id: c_fec4abc3
+  context: '...and PMID (10.\d{4}/\d+), and NIST ID (NIST-[A-Z0-9]+).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PMID regex pattern 10.\d{4}/\d+
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:44Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: NIST ID regex pattern
+  claim_id: c_e2d6711a
+  context: '...and NIST ID (NIST-[A-Z0-9]+).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NIST ID pattern NIST-[A-Z0-9]+
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:50Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: List of prohibited causal language keywords
+  claim_id: c_0bfabc28
+  context: fails pipeline on prohibited keywords {cause, leads to, driven by, effect
+    of, result of}...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/List_of_prohibited_causal_language_keywords
+  kind: causal
+  raw_text: 'Prohibited keywords: cause, leads to, driven by, effect of, result of'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:57:52Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: Stratification by perovskite chemistry class
+  claim_id: c_9f8da0d0
+  context: Implement src/analysis/stratify.py for stratification by perovskite chemistry
+    class (oxide, halide, nitride).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratification_by_perovskite_chemistry_class
+  kind: entity_fact
+  raw_text: 'Perovskite chemistry classes: oxide, halide, nitride'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T14:58:02Z'

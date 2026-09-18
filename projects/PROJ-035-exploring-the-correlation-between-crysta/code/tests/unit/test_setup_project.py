@@ -5,55 +5,62 @@ from pathlib import Path
 from setup_project import setup_project_structure
 
 class TestSetupProject:
-    def test_directory_creation(self):
-        """Test that the setup function creates the required directories."""
+    """Unit tests for project structure creation."""
+
+    def test_creates_all_required_directories(self):
+        """Verify that all required directories are created."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmp_dir)
-                result = setup_project_structure()
-                assert result is True
+            base_path = Path(tmp_dir)
+            setup_project_structure(base_path)
+            
+            required_dirs = [
+                "src",
+                "tests",
+                "data/raw",
+                "data/cleaned",
+                "data/results",
+                "figures",
+                "contracts"
+            ]
+            
+            for dir_name in required_dirs:
+                dir_path = base_path / dir_name
+                assert dir_path.exists(), f"Directory {dir_path} was not created"
+                assert dir_path.is_dir(), f"Path {dir_path} exists but is not a directory"
 
-                # Verify critical directories exist
-                required_dirs = [
-                    "src",
-                    "tests",
-                    "data/raw",
-                    "data/cleaned",
-                    "data/results",
-                    "figures",
-                    "contracts"
-                ]
-
-                for dir_name in required_dirs:
-                    dir_path = Path(tmp_dir) / dir_name
-                    assert dir_path.exists(), f"Directory {dir_name} was not created"
-                    assert dir_path.is_dir(), f"{dir_name} is not a directory"
-
-            finally:
-                os.chdir(original_cwd)
-
-    def test_package_initialization(self):
-        """Test that __init__.py files are created for packages."""
+    def test_nested_data_directories_created(self):
+        """Verify that nested data directories (data/raw, etc.) are created."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmp_dir)
-                setup_project_structure()
+            base_path = Path(tmp_dir)
+            setup_project_structure(base_path)
+            
+            # Check specific nested paths
+            assert (base_path / "data" / "raw").exists()
+            assert (base_path / "data" / "cleaned").exists()
+            assert (base_path / "data" / "results").exists()
 
-                # Verify __init__.py files exist in key packages
-                init_files = [
-                    "src/__init__.py",
-                    "tests/__init__.py",
-                    "src/ingest/__init__.py",
-                    "src/cleaning/__init__.py",
-                    "src/analysis/__init__.py"
-                ]
-
-                for init_file in init_files:
-                    file_path = Path(tmp_dir) / init_file
-                    assert file_path.exists(), f"Init file {init_file} was not created"
-                    assert file_path.is_file(), f"{init_file} is not a file"
-
-            finally:
-                os.chdir(original_cwd)
+    def test_idempotent_operation(self):
+        """Verify that running the function twice does not raise errors."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            # Run first time
+            setup_project_structure(base_path)
+            # Run second time
+            setup_project_structure(base_path)
+            
+            # Verify structure still exists
+            assert (base_path / "src").exists()
+            assert (base_path / "contracts").exists()
+            
+    def test_existing_directory_not_overwritten(self):
+        """Verify that existing directories are not modified unnecessarily."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_path = Path(tmp_dir)
+            # Pre-create one directory
+            (base_path / "src").mkdir()
+            
+            # Run setup
+            setup_project_structure(base_path)
+            
+            # Verify it still exists and is a directory
+            assert (base_path / "src").is_dir()

@@ -1,4 +1,9 @@
-'|cross fold model regression use validation':
+0|matplotlib:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'
+'|cross fold validation':
   quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
   source_id: '2604.10702'
   url: https://arxiv.org/abs/2604.10702

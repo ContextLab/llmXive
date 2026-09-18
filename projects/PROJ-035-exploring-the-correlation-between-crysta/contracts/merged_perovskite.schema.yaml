@@ -1,103 +1,75 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Merged Perovskite Dataset Schema
 description: >
-  JSON Schema for validating the merged_perovskite.csv dataset.
-  This schema ensures data integrity for the correlation analysis between
-  crystal structure and thermal conductivity in perovskites.
+  Schema for the merged perovskite dataset containing crystal structure
+  and thermal conductivity data. Used for validation of data ingestion
+  and cleaning pipelines (FR-002, FR-010).
 type: object
 required:
-  - properties
-  - definitions
+  - structure_id
+  - thermal_conductivity
+  - source_reference
+  - chemistry_class
+  - temperature
+  - tilting_angle
+  - bond_length_variance
+  - tolerance_factor
+  - unit_cell_volume
 properties:
-  properties:
-    type: array
-    items:
-      type: object
-      required:
-        - structure_id
-        - formula
-        - chemistry_class
-        - thermal_conductivity
-        - temperature
-        - source_reference
-      properties:
-        structure_id:
-          type: string
-          description: "Unique identifier for the crystal structure (e.g., mp-1234)"
-          pattern: "^mp-\\d+$"
-        formula:
-          type: string
-          description: "Chemical formula in standard notation (e.g., SrTiO3)"
-          pattern: "^[A-Z][a-z]?\\d*(?:[A-Z][a-z]?\\d*)*$"
-        chemistry_class:
-          type: string
-          description: "Classification of the perovskite type"
-          enum:
-            - oxide
-            - halide
-            - nitride
-        thermal_conductivity:
-          type: number
-          description: "Thermal conductivity in W/(m·K)"
-          minimum: 0
-        temperature:
-          type: number
-          description: "Measurement temperature in Kelvin"
-          minimum: 0
-        tolerance_factor:
-          type: number
-          description: "Goldschmidt tolerance factor"
-          minimum: 0
-          maximum: 2
-        octahedral_tilting:
-          type: number
-          description: "Average octahedral tilting angle in degrees"
-          minimum: 0
-          maximum: 90
-        bond_length_variance:
-          type: number
-          description: "Variance of bond lengths in the octahedron"
-          minimum: 0
-        unit_cell_volume:
-          type: number
-          description: "Unit cell volume in Å³"
-          minimum: 0
-        source_reference:
-          type: string
-          description: "DOI, PMID, or NIST ID of the source"
-          pattern: "^(10\\.\\d{4}/.*|10\\.\\d{4}/\\d+|NIST-[A-Z0-9]+)$"
-        provenance_status:
-          type: string
-          enum:
-            - valid
-            - invalid
-            - missing
-        normalized_thermal_conductivity:
-          type: number
-          description: "Thermal conductivity normalized to 300K using Slack formula"
-          minimum: 0
-        vif_score:
-          type: number
-          description: "Variance Inflation Factor for this entry's predictors"
-          minimum: 1
-      additionalProperties: false
-  definitions:
-    type: object
-    properties:
-      version:
-        type: string
-        const: "1.0.0"
-      created_at:
-        type: string
-        format: date-time
-      author:
-        type: string
-        const: "llmXive Pipeline"
-      license:
-        type: string
-        const: "MIT"
-    required:
-      - version
-      - created_at
-      - author
-      - license
+  structure_id:
+    type: string
+    description: >
+      Unique identifier for the crystal structure. Typically the
+      Materials Project ID (e.g., mp-1234) or a generated UUID.
+    minLength: 1
+  thermal_conductivity:
+    type: number
+    description: >
+      Thermal conductivity value in W/(m·K). Must be a non-negative float.
+      Normalized to 300K if applicable.
+    minimum: 0
+  source_reference:
+    type: string
+    description: >
+      Provenance reference for the data point. Must be a valid DOI,
+      PMID, or NIST ID (e.g., '10.1038/s41563-020-00892-3', 'NIST-XYZ123').
+    pattern: '^(10\.\d{4}/.*|10\.\d{4}/\d+|NIST-[A-Z0-9]+)$'
+  chemistry_class:
+    type: string
+    description: >
+      Classification of the perovskite material.
+      Allowed values: 'oxide', 'halide', 'nitride'.
+    enum:
+      - oxide
+      - halide
+      - nitride
+  temperature:
+    type: number
+    description: >
+      Temperature at which the thermal conductivity was measured (in Kelvin).
+      Should be close to 300K after normalization.
+    minimum: 0
+  tilting_angle:
+    type: number
+    description: >
+      Octahedral tilting angle in degrees. Calculated from crystal structure.
+      May be null if not calculable for specific structures.
+    minimum: 0
+  bond_length_variance:
+    type: number
+    description: >
+      Variance of bond lengths within the octahedron. Calculated metric.
+      Must be non-negative.
+    minimum: 0
+  tolerance_factor:
+    type: number
+    description: >
+      Goldschmidt tolerance factor. Dimensionless metric for perovskite stability.
+      Typically ranges between 0.8 and 1.1 for stable perovskites.
+  unit_cell_volume:
+    type: number
+    description: >
+      Volume of the unit cell in cubic Angstroms (Å³).
+      Must be positive.
+    minimum: 0
+additionalProperties: false

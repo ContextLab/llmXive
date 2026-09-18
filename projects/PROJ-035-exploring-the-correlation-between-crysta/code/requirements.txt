@@ -8,3 +8,8 @@ seaborn==0.13.2
 requests==2.32.3
 tqdm==4.66.5
 pytest
+pyyaml
+huggingface_hub
+flake8
+black
+mypy

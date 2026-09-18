@@ -2,8 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No directory tree or any of the required folders (src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/) were presented. Without concrete evidence of these directories existing, the task’s requirement is not satisfied.
-- **T004** — declared artifact(s) missing/empty/invalid: src/config/env.py
-- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T007** — declared artifact(s) missing/empty/invalid: src/utils/validation.py
-- **T008** — No code or configuration files were provided showing a `--seed` argument or `random_state=42` being set in the modules listed (src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/). Without any artifact demonstrating deterministic seed handling, the requirement is not satisfied.
+- **T001** — No directory tree or any of the required folders (src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/) were presented in the evidence; thus the claimed project structure cannot be verified.
+- **T038** — No evidence of a `research.md` file containing a documented conflict between Constitution VII and FR‑010, nor any flag or note indicating a required specification amendment, was provided. The required artifact is missing.
+- **T041** — No script checking Constitution VII against FR‑010 is provided, nor is there any “research.md” entry or amendment evidence. The only artifacts shown relate to perovskite data analysis, which do not satisfy the verification task. The required verification code and documented alignment are missing.
+- **T024** — declared artifact(s) missing/empty/invalid: src/utils/sensitivity.py
+- **T005b** — The repository contains a `src/utils/metadata.py` file, but the required output file `data/metadata.yaml` is absent, indicating the script has not been executed or does not correctly write the metadata file. The missing `metadata.yaml` means the task’s core requirement is not satisfied.
+- **T014b** — The provided `src/ingest/fetch_thermal.py` is truncated and does not show the actual data‑fetching, validation, and CSV‑writing logic required by T014b, and the expected output file `data/raw/thermal_raw.csv` is absent. Consequently the implementation cannot be confirmed to meet the specification.
+- **T014** — declared artifact(s) missing/empty/invalid: src/cleaning/provenance_validator.py, data/cleaned/provenance_report.json
+- **T016** — The required output file `data/cleaned/normalized_thermal.csv` does not exist, so the normalization step was not executed or its results were not saved. Without this file the task’s core requirement is unmet.
+- **T015** — The required file `src/cleaning/clean_merge.py` does not exist, so none of the specified merging, validation, normalization, or error‑handling logic is present. The task cannot be considered fulfilled until the script is created with the described functionality.
+- **T011** — The repository contains `tests/contract/test_schema.py`, but the required `merged_perovskite.schema.yaml` file is missing, causing the test to fail on file existence. Additionally, the test file is truncated and does not fully implement CSV validation. The task is therefore not genuinely completed.
