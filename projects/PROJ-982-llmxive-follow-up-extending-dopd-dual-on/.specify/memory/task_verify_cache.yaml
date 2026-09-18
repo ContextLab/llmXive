@@ -1,3 +1,29 @@
+T022:
+  c: false
+  h: 291d1a53c7fe81ea3f9a973b5ccc796f9d58971c194104558402268faf846e3e
+  r: "The provided `dopd_distillation.py` defines `calculate_advantage_gap` but the\
+    \ `calculate_dynamic_lambda` method is truncated and never logs any lambda\u2011\
+    switch event. Moreover, the required `data/raw/training_log.json` file does not\
+    \ exist. Hence the task\u2019s logging requirement and a complete implementation\
+    \ are not met."
+T023:
+  c: false
+  h: 291d1a53c7fe81ea3f9a973b5ccc796f9d58971c194104558402268faf846e3e
+  r: "The provided `dopd_distillation.py` is truncated and does not show logging of\
+    \ the lambda switch to `data/raw/training_log.json`, and the required `training_log.json`\
+    \ file is missing entirely. Consequently the task\u2019s logging and fallback\
+    \ requirements are not met."
+T025:
+  c: false
+  h: d7c6a77f4acaeae0dec364a4700326465f2618a05026de67f7907a4c4a8af48d
+  r: "The provided `code/utils/logging.py` defines a generic `TrainingLogger` that\
+    \ writes metrics to a user\u2011specified output directory, but it never creates\
+    \ or initializes `data/raw/training_log.json`, nor does it automatically log accuracy,\
+    \ convergence steps, and action entropy to that exact file as required. Moreover,\
+    \ the expected `data/raw/training_log.json` file is absent from the repository.\
+    \ The task\u2019s core requirement\u2014initializing the specific JSON log file\
+    \ with the proper schema and updating it each training step\u2014is therefore\
+    \ not satisfied."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,3 +39,10 @@ T031:
     \ test artifact that demonstrates the DOPD Student\u2019s higher entropy/self\u2011\
     correction when Teacher advantage is low is missing. The implementer must provide\
     \ the actual test implementation and its output evidence."
+T066#1:
+  c: false
+  h: b747e482d3cb708ae0e41c1539230f02e8ec650653666db6d4c4746d1358e734
+  r: "The provided `run_experiment.py` does not show a loop over 50 seeds nor any\
+    \ code that writes aggregated results to `data/raw/training_log.json`, and that\
+    \ JSON file is missing from the repository. Consequently the required 50\u2011\
+    seed execution and logging artifact are absent."

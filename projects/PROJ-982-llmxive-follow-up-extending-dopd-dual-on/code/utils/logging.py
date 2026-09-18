@@ -9,7 +9,7 @@ from datetime import datetime
 
 class TrainingLogger:
     """
-    Logger for training metrics and results.
+    Logger for training metrics.
     """
     def __init__(self, run_id: str, output_dir: str, seed: int = None):
         self.run_id = run_id

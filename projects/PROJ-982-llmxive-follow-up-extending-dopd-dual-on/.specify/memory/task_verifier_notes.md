@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T022** — The provided `dopd_distillation.py` defines `calculate_advantage_gap` but the `calculate_dynamic_lambda` method is truncated and never logs any lambda‑switch event. Moreover, the required `data/raw/training_log.json` file does not exist. Hence the task’s logging requirement and a complete implementation are not met.
+- **T023** — The provided `dopd_distillation.py` is truncated and does not show logging of the lambda switch to `data/raw/training_log.json`, and the required `training_log.json` file is missing entirely. Consequently the task’s logging and fallback requirements are not met.
+- **T025** — The provided `code/utils/logging.py` defines a generic `TrainingLogger` that writes metrics to a user‑specified output directory, but it never creates or initializes `data/raw/training_log.json`, nor does it automatically log accuracy, convergence steps, and action entropy to that exact file as required. Moreover, the expected `data/raw/training_log.json` file is absent from the repository. The task’s core requirement—initializing the specific JSON log file with the proper schema and updating it each training step—is therefore not satisfied.
+- **T030** — declared artifact(s) missing/empty/invalid: data/raw/training_log.json
+- **T066#1** — The provided `run_experiment.py` does not show a loop over 50 seeds nor any code that writes aggregated results to `data/raw/training_log.json`, and that JSON file is missing from the repository. Consequently the required 50‑seed execution and logging artifact are absent.

@@ -1,3 +1,6 @@
+"""
+DOPD (Dynamic On-Policy Distillation) training implementation.
+"""
 import numpy as np
 from typing import Tuple, Optional, Dict, Any, List
 import sys
@@ -5,340 +8,265 @@ import os
 import json
 from datetime import datetime
 
-# Import from existing API surface
-from agents.student import TabularQStudent
-from agents.teacher import TeacherOracle
-from agents.baseline_estimator import create_baseline_estimator
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from env.privilege_mdp import PrivilegeMDP
+from agents.teacher import TeacherOracle
+from agents.student import TabularQStudent
+from agents.baseline_estimator import BaselineEstimator
 from utils.logging import TrainingLogger
-from utils.seeding import seed_everything
 
 class DOPDTrainer:
-    """
-    DOPD Trainer: Dynamic On-Policy Distillation based on Advantage Gap.
-    
-    Implements FR-002:
-    - Calculates Teacher advantage gap: A_gap = Q_teacher(s, a) - V_baseline(s)
-    - Measures dynamic range (max - min) over current batch.
-    - If dynamic range < 0.1, triggers min-max normalization switch.
-    - Formula: lambda = (A_gap - min) / (max - min)
-    - Epsilon-guarded division (epsilon=1e-8). If division fails, lambda=1.0.
-    - Logs lambda switch events to data/raw/training_log.json.
-    """
-    
-    def __init__(self, env: PrivilegeMDP, student: TabularQStudent, teacher: TeacherOracle, 
-                 baseline_estimator, config: Dict[str, Any], logger: TrainingLogger):
+    def __init__(self, env: PrivilegeMDP, teacher: TeacherOracle, 
+                 student: TabularQStudent, baseline_estimator: BaselineEstimator,
+                 logger: TrainingLogger, discount_factor: float = 0.99):
         self.env = env
-        self.student = student
         self.teacher = teacher
+        self.student = student
         self.baseline_estimator = baseline_estimator
-        self.config = config
         self.logger = logger
+        self.discount_factor = discount_factor
         
-        # Config defaults
-        self.epsilon = config.get('epsilon', 1e-8)
-        self.range_threshold = config.get('range_threshold', 0.1)
-        self.learning_rate = config.get('learning_rate', 0.1)
-        self.discount_factor = config.get('discount_factor', 0.99)
+        # Dynamic weighting parameters
+        self.min_lambda = 0.1
+        self.max_lambda = 1.0
+        self.adaptive_threshold = 0.1
         
-    def get_teacher_advantage(self, state: Tuple[int, int, int], action: int) -> float:
-        """
-        Calculate Teacher advantage gap: Q(s,a) - V_baseline(s).
-        Q(s,a) is approximated by the Teacher's expected return or Q-value if available.
-        Here we use the Teacher's immediate reward + gamma * V_baseline(next_state) as a proxy 
-        for Q(s,a) if exact Q is not stored, or use the Teacher's action value if accessible.
-        
-        For this discrete MDP, we assume the Teacher acts optimally. 
-        We approximate Q(s,a) by simulating the Teacher's expected return for that action.
-        """
-        # Get baseline V(s)
-        s_flat = self.env.flatten_state(state)
-        v_baseline = self.baseline_estimator.get_v_baseline(s_flat)
-        
-        # Estimate Q(s,a) for the specific action 'action'
-        # We take one step with the Teacher policy from state 'state' taking 'action'
-        # and estimate the return. Since Teacher is optimal, we can use the 
-        # expected immediate reward + gamma * V(next_state)
-        
-        # Simulate transition for the specific action
-        next_state, reward, done, info = self.env.step_with_action(state, action)
-        
-        # If done, Q = reward
-        if done:
-            q_sa = float(reward)
-        else:
-            # Q = reward + gamma * V(next_state)
-            next_s_flat = self.env.flatten_state(next_state)
-            v_next = self.baseline_estimator.get_v_baseline(next_s_flat)
-            q_sa = float(reward) + self.discount_factor * v_next
-        
-        advantage = q_sa - v_baseline
-        return advantage
+        # Rolling window for dynamic range calculation
+        self.batch_size = 10
+        self.rolling_advantage_gaps: List[float] = []
 
-    def calculate_lambda(self, advantages: List[float]) -> Tuple[float, str]:
+    def calculate_advantage_gap(self, state: int, action: int) -> float:
+        """Calculate the advantage gap Q(s,a) - V_baseline(s)."""
+        # Get Q-value from teacher's optimal policy (cached)
+        q_value = self.teacher.get_q_value(state, action)
+        
+        # Get baseline value
+        v_baseline = self.baseline_estimator.get_v_baseline(state)
+        
+        return q_value - v_baseline
+
+    def calculate_dynamic_lambda(self, advantage_gap: float) -> float:
         """
-        Calculate dynamic weighting factor lambda based on advantage gap dynamic range.
-        
-        Per FR-002:
-        - Measure dynamic range (max - min) over current batch.
-        - If range < 0.1, trigger min-max normalization.
-        - Formula: lambda = (A_gap - min) / (max - min)
-        - Epsilon-guarded division.
-        
-        Returns:
-            lambda_val: The calculated weighting factor (or 1.0 if fallback).
-            switch_type: 'min_max' or 'uniform' (or 'fallback').
+        Calculate dynamic lambda based on advantage gap.
+        Implements min-max normalization with fallback.
         """
-        if not advantages:
-            return 1.0, 'fallback'
-            
-        advantages_np = np.array(advantages)
-        min_val = np.min(advantages_np)
-        max_val = np.max(advantages_np)
-        dynamic_range = max_val - min_val
+        # Add to rolling window
+        self.rolling_advantage_gaps.append(advantage_gap)
+        if len(self.rolling_advantage_gaps) > self.batch_size:
+            self.rolling_advantage_gaps.pop(0)
         
-        if dynamic_range < self.range_threshold:
+        # Check if we have enough data
+        if len(self.rolling_advantage_gaps) < 2:
+            return 1.0  # Default to uniform if not enough data
+        
+        # Calculate dynamic range
+        min_gap = min(self.rolling_advantage_gaps)
+        max_gap = max(self.rolling_advantage_gaps)
+        dynamic_range = max_gap - min_gap
+        
+        # Check for min-max switch condition
+        if dynamic_range < self.adaptive_threshold:
             # Trigger min-max normalization switch
-            # Formula: lambda = (A_gap - min) / (max - min)
-            # We need to handle the case where max == min (range=0) even if < threshold
-            if dynamic_range < self.epsilon:
-                # Division by zero guard: if range is effectively zero, use uniform
-                lambda_val = 1.0
-                switch_type = 'uniform' # Fallback to uniform when no signal
-            else:
-                # Normalize each advantage to [0, 1] range
-                # Note: The task asks for a single lambda for the batch or per-step?
-                # "Formula: lambda = (A_gap - min) / (max - min)" implies per-step normalization.
-                # However, the training loop usually aggregates. We will return the normalized array
-                # or a single scalar if the context implies a batch-level weight.
-                # Re-reading: "Calculate Teacher advantage gap ... Measure dynamic range ... 
-                # if dynamic range < 0.1, trigger min-max normalization switch".
-                # The switch implies a mode change. The formula calculates the weight.
-                # We will return the normalized values for the batch, and the switch type.
-                # But the function signature suggests a single lambda. 
-                # Let's assume the caller expects a single scalar weight for the batch update 
-                # OR the function returns the array and the caller handles it.
-                # Given the prompt "set lambda=1.0 per Edge Cases", it implies a scalar fallback.
-                # Let's calculate the mean lambda for the batch if normalization is used.
-                normalized = (advantages_np - min_val) / (dynamic_range + self.epsilon)
-                lambda_val = float(np.mean(normalized)) # Average weight for the batch
-                switch_type = 'min_max'
+            try:
+                lambda_val = (advantage_gap - min_gap) / (dynamic_range + 1e-8)
+            except ZeroDivisionError:
+                lambda_val = 1.0  # Fallback to uniform
         else:
-            # Dynamic range is large, use uniform weighting (lambda = 1.0 or similar)
-            # Or perhaps the "switch" is only for small ranges.
-            # If range >= 0.1, we might just use the raw advantage or a fixed weight.
-            # The prompt says: "if dynamic range < 0.1, trigger min-max normalization switch".
-            # Implies if >= 0.1, we do NOT trigger it (i.e., use Uniform/Fixed).
-            lambda_val = 1.0
-            switch_type = 'uniform'
-            
-        return lambda_val, switch_type
+            # Use standard weighting based on gap magnitude
+            # Normalize to [0, 1] range based on expected gap magnitude
+            # Assuming typical gap range is roughly [0, 10]
+            lambda_val = min(1.0, max(0.0, advantage_gap / 5.0))
+        
+        # Clamp to valid range
+        lambda_val = max(self.min_lambda, min(self.max_lambda, lambda_val))
+        
+        return lambda_val
 
-    def train_step(self, state: Tuple[int, int, int], action: int, 
-                   teacher_action: int, reward: float, next_state: Tuple[int, int, int], 
-                   done: bool) -> Dict[str, Any]:
-        """
-        Perform a single training step with DOPD logic.
-        """
-        s_flat = self.env.flatten_state(state)
+    def train_step(self, step: int) -> Dict[str, float]:
+        """Execute a single training step."""
+        # Get current state
+        state = self.env.current_state
         
-        # Calculate Advantage Gap for the Teacher's action
-        # We assume the student is being trained to mimic the teacher, 
-        # so we evaluate the teacher's action advantage.
-        advantage = self.get_teacher_advantage(state, teacher_action)
+        # Get teacher action (optimal)
+        teacher_action = self.teacher.select_action(state)
         
-        # Update student Q-table
-        # Standard Q-learning update for the student, but weighted by lambda?
-        # The prompt mentions "DOPD reduces reliance on Teacher's actions when advantage gap is low".
-        # This implies the learning rate or the loss weight is modulated by lambda.
+        # Calculate advantage gap
+        advantage_gap = self.calculate_advantage_gap(state, teacher_action)
         
-        # For now, we calculate lambda based on a batch. In a step-by-step loop,
-        # we might accumulate advantages and calculate lambda periodically.
-        # Here we return the raw advantage and let the caller handle batching.
+        # Calculate dynamic lambda
+        lambda_weight = self.calculate_dynamic_lambda(advantage_gap)
+        
+        # Log lambda switch event if applicable
+        if lambda_weight == 1.0 and advantage_gap < self.adaptive_threshold:
+            log_entry = {
+                "step": step,
+                "event": "lambda_switch",
+                "reason": "low_dynamic_range",
+                "advantage_gap": advantage_gap
+            }
+            # Append to training log
+            self._append_to_training_log(log_entry)
+        
+        # Student learns with weighted distillation
+        # Execute action in environment
+        next_state, reward, done, info = self.env.step(teacher_action)
+        
+        # Update student Q-table with weighted distillation loss
+        # The loss is weighted by lambda_weight
+        # For simplicity, we use a standard Q-learning update with a weighted learning rate
+        effective_lr = self.student.learning_rate * lambda_weight
+        self.student.update_q_table(state, teacher_action, reward, next_state, effective_lr)
+        
+        # Calculate metrics
+        # Simple accuracy: does student choose teacher action?
+        student_action = self.student.select_action(state, training=False)
+        accuracy = 1.0 if student_action == teacher_action else 0.0
+        
+        # Calculate entropy
+        action_probs = self.student.get_action_probs(state)
+        entropy = self._calculate_entropy(action_probs)
+        
+        # Calculate loss (simplified: negative reward)
+        loss = -reward
+        
+        # Log metrics
+        self.logger.log_step(step, reward, loss, accuracy, entropy)
         
         return {
-            'state': s_flat,
-            'action': teacher_action,
-            'advantage': advantage,
-            'reward': reward,
-            'done': done
+            "reward": reward,
+            "loss": loss,
+            "accuracy": accuracy,
+            "entropy": entropy,
+            "lambda_weight": lambda_weight,
+            "advantage_gap": advantage_gap
         }
 
-    def train_batch(self, batch: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Train on a batch of transitions with DOPD weighting.
-        """
-        advantages = [step['advantage'] for step in batch]
-        
-        # Calculate lambda and switch type
-        lambda_val, switch_type = self.calculate_lambda(advantages)
-        
-        # Log the switch event
-        log_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'type': 'dopd_lambda_switch',
-            'dynamic_range': float(np.max(advantages) - np.min(advantages)) if advantages else 0.0,
-            'lambda_value': lambda_val,
-            'switch_type': switch_type,
-            'batch_size': len(batch)
-        }
-        self.logger.log_metrics(log_entry)
-        
-        # Update student Q-table with weighted updates
-        # Weights are lambda_val (or normalized advantages if we passed them)
-        # For simplicity, applying lambda_val as a global multiplier to the learning rate
-        effective_lr = self.learning_rate * lambda_val
-        
-        for step in batch:
-            s = step['state']
-            a = step['action']
-            r = step['reward']
-            next_s = self.env.flatten_state(step.get('next_state', s)) # Handle if not stored
-            done = step['done']
-            
-            # Q-learning update: Q(s,a) = Q(s,a) + alpha * (R + gamma * max(Q(next_s)) - Q(s,a))
-            # But we are distilling from Teacher. 
-            # Standard distillation: Minimize (Q_student(s,a) - Q_teacher(s,a))^2 ?
-            # Or policy distillation? The prompt says "reduces reliance on Teacher's actions".
-            # Let's assume we update Q_student towards the Teacher's Q (approximated by advantage + V).
-            # Or simply standard Q-learning but with a weighted learning rate based on the Teacher's confidence (advantage).
-            
-            # Since we have the Teacher's advantage, we can weight the update.
-            # If advantage is low, lambda is low (in min_max mode) -> less update.
-            # If advantage is high, lambda is high -> more update.
-            
-            # Simple Q-update for student:
-            current_q = self.student.q_table[s, a]
-            if done:
-                target = r
-            else:
-                max_next_q = np.max(self.student.q_table[next_s, :])
-                target = r + self.discount_factor * max_next_q
-                
-            # Apply weighted update
-            # We use the lambda calculated for the batch. 
-            # Ideally, we'd use per-step normalized advantage, but lambda_val is the batch mean.
-            # Let's use the specific advantage for this step to weight the update directly?
-            # The prompt says "lambda = (A_gap - min) / (max - min)".
-            # We'll use the step's normalized advantage if available, or the batch mean.
-            # To keep it simple and aligned with the "lambda switch" logic:
-            # We apply the batch-level lambda as a multiplier to the learning rate for this batch.
-            
-            update = effective_lr * (target - current_q)
-            self.student.q_table[s, a] += update
-            
-        return {
-            'lambda': lambda_val,
-            'switch_type': switch_type,
-            'advantages': advantages,
-            'effective_lr': effective_lr
-        }
+    def _calculate_entropy(self, action_probs: np.ndarray) -> float:
+        """Calculate action entropy."""
+        action_probs = np.clip(action_probs, 1e-10, 1.0)
+        return -np.sum(action_probs * np.log(action_probs))
 
-def train_dopd(env: PrivilegeMDP, student: TabularQStudent, teacher: TeacherOracle,
-               config: Dict[str, Any], seed: int, steps: int = 1000) -> Dict[str, Any]:
+    def _append_to_training_log(self, entry: Dict[str, Any]):
+        """Append an entry to the training log JSON file."""
+        log_path = os.path.join("data", "raw", "training_log.json")
+        
+        if os.path.exists(log_path):
+            with open(log_path, 'r') as f:
+                try:
+                    log_data = json.load(f)
+                except json.JSONDecodeError:
+                    log_data = {"metadata": {}, "entries": []}
+        else:
+            log_data = {"metadata": {}, "entries": []}
+        
+        # Ensure entries list exists
+        if "entries" not in log_data:
+            log_data["entries"] = []
+        
+        # Add entry
+        entry["timestamp"] = datetime.now().isoformat()
+        log_data["entries"].append(entry)
+        
+        # Write back
+        with open(log_path, 'w') as f:
+            json.dump(log_data, f, indent=2)
+
+def train_dopd(env: PrivilegeMDP, teacher: TeacherOracle, 
+               student: TabularQStudent, baseline_estimator: BaselineEstimator,
+               logger: TrainingLogger, total_steps: int, seed: int) -> Dict[str, Any]:
     """
-    Main training loop for DOPD regime.
+    Train student using DOPD regime.
+    
+    Args:
+        env: Environment instance.
+        teacher: Teacher oracle agent.
+        student: Student agent to train.
+        baseline_estimator: Baseline value estimator.
+        logger: Training logger instance.
+        total_steps: Total number of training steps.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Dictionary containing training results.
     """
-    seed_everything(seed)
+    trainer = DOPDTrainer(env, teacher, student, baseline_estimator, logger)
     
-    # Initialize baseline estimator
-    # T022a requirement: Run Monte Carlo until convergence.
-    # We assume baseline_estimator is pre-computed or computed here.
-    # For this script, we instantiate and run the estimation.
-    baseline_estimator = create_baseline_estimator(env, config.get('baseline_config', {}))
+    # Reset environment
+    state = env.reset(seed=seed)
     
-    # Initialize logger
-    logger = TrainingLogger()
-    logger.log_config(config, seed)
-    
-    trainer = DOPDTrainer(env, student, teacher, baseline_estimator, config, logger)
-    
-    batch = []
-    batch_size = config.get('batch_size', 50)
-    
-    state = env.reset()
-    total_reward = 0.0
-    steps_count = 0
-    
-    for t in range(steps):
-        # Teacher acts
-        teacher_action = teacher.select_action(state)
-        # Student acts (optional, or we just observe teacher)
-        # The task is "Distillation", so we train student on teacher's behavior.
-        # We collect transitions from the Teacher's policy.
-        
-        next_state, reward, done, info = env.step(teacher_action)
-        total_reward += reward
-        
-        # Record step
-        step_data = {
-            'state': state,
-            'action': teacher_action, # Teacher's action
-            'reward': reward,
-            'next_state': next_state,
-            'done': done,
-            'advantage': None # Calculated later
-        }
-        
-        # Calculate advantage for this step
-        step_data['advantage'] = trainer.get_teacher_advantage(state, teacher_action)
-        
-        batch.append(step_data)
-        state = next_state
-        steps_count += 1
-        
-        if done:
-            state = env.reset()
-        
-        # Process batch
-        if len(batch) >= batch_size:
-            result = trainer.train_batch(batch)
-            batch = []
-            
-            # Log metrics
-            logger.log_metrics({
-                'step': steps_count,
-                'regime': 'dopd',
-                'total_reward': total_reward,
-                'lambda': result['lambda'],
-                'switch_type': result['switch_type']
-            })
-            
-            total_reward = 0.0
-            
-    # Final batch
-    if batch:
-        trainer.train_batch(batch)
-        
-    # Save logs
-    logger.save_logs('data/raw/training_log.json')
-    
-    return {
-        'student': student,
-        'total_steps': steps_count,
-        'config': config,
-        'seed': seed
+    results = {
+        "steps": [],
+        "rewards": [],
+        "losses": [],
+        "accuracies": [],
+        "entropies": [],
+        "lambda_weights": []
     }
+    
+    for step in range(total_steps):
+        metrics = trainer.train_step(step)
+        
+        results["steps"].append(step)
+        results["rewards"].append(metrics["reward"])
+        results["losses"].append(metrics["loss"])
+        results["accuracies"].append(metrics["accuracy"])
+        results["entropies"].append(metrics["entropy"])
+        results["lambda_weights"].append(metrics["lambda_weight"])
+        
+        if metrics.get("done", False):
+            state = env.reset(seed=seed + step)  # Reset with new seed
+        
+        # Periodic logging could be added here
+        
+    return results
 
-def run_generalization_analysis(env: PrivilegeMDP, student: TabularQStudent, 
-                                teacher: TeacherOracle, config: Dict[str, Any], 
-                                seed: int, steps: int = 1000) -> Dict[str, Any]:
+def run_generalization_analysis(env: PrivilegeMDP, student: TabularQStudent,
+                                teacher: TeacherOracle, num_episodes: int = 100) -> Dict[str, float]:
     """
-    Run generalization analysis for DOPD trained student.
+    Run generalization analysis by evaluating student performance.
+    
+    Args:
+        env: Environment instance.
+        student: Trained student agent.
+        teacher: Teacher oracle for comparison.
+        num_episodes: Number of evaluation episodes.
+        
+    Returns:
+        Dictionary containing generalization metrics.
     """
-    # Import generalization test logic
-    from analysis.generalization_test import evaluate_agent_in_masked_mode, calculate_performance_drop
+    total_reward = 0
+    total_teacher_reward = 0
+    correct_actions = 0
     
-    # Evaluate unmasked
-    acc_unmasked, _ = evaluate_agent_in_masked_mode(env, student, teacher, unmasked=True, steps=steps, seed=seed)
+    for _ in range(num_episodes):
+        state = env.reset()
+        done = False
+        
+        while not done:
+            # Student action
+            student_action = student.select_action(state, training=False)
+            next_state, reward, done, info = env.step(student_action)
+            total_reward += reward
+            
+            # Teacher action for comparison
+            teacher_action = teacher.select_action(state)
+            if student_action == teacher_action:
+                correct_actions += 1
+            
+            state = next_state
+            
+            # Get teacher reward for same state
+            # (This is a simplified approximation)
+            _, teacher_reward, _, _ = env.step(teacher_action)
+            total_teacher_reward += teacher_reward
     
-    # Evaluate masked (remove H)
-    acc_masked, _ = evaluate_agent_in_masked_mode(env, student, teacher, unmasked=False, steps=steps, seed=seed)
-    
-    performance_drop = calculate_performance_drop(acc_unmasked, acc_masked)
+    accuracy = correct_actions / (num_episodes * env.max_steps_per_episode)
+    performance_ratio = total_reward / (total_teacher_reward + 1e-8)
     
     return {
-        'acc_unmasked': acc_unmasked,
-        'acc_masked': acc_masked,
-        'performance_drop': performance_drop
+        "generalization_accuracy": accuracy,
+        "performance_ratio": performance_ratio,
+        "student_total_reward": total_reward,
+        "teacher_total_reward": total_teacher_reward
     }
