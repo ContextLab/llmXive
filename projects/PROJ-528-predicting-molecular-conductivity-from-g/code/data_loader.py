@@ -1,5 +1,7 @@
 import os
+import sys
 import pandas as pd
+import numpy as np
 from typing import List, Tuple, Optional
 import logging
 from rdkit import Chem
@@ -44,16 +46,69 @@ def load_and_validate_target(path: str) -> pd.DataFrame:
       return pd.DataFrame()
 
 def validate_target_variable(path: str):
-    """Validates the target variable in a CSV file."""
-    df = load_and_validate_target(path)
-    if df.empty:
-        logging.error("No valid target variable found.")
-        return False
-    return True
+    """
+    Validates the target variable in a CSV file loaded directly from config.RAW_DATA_PATH.
+    
+    Logic:
+    1. Load raw data directly from `path` (config.RAW_DATA_PATH).
+    2. Check for 'conductivity' or 'charge_carrier_mobility' column.
+    3. If found: Verify dynamic range (>= 3 orders of magnitude). If valid, proceed.
+    4. If NOT found: Check for 'HOMO_LUMO_gap'. If found: Log warning and proceed.
+    5. If NEITHER found: sys.exit(1).
+    """
+    import config
+    
+    # Load raw data directly from the provided path
+    try:
+        df = pd.read_csv(path)
+    except FileNotFoundError:
+        logging.critical(f"CRITICAL: Raw data file not found at {path}")
+        sys.exit(1)
+    except Exception as e:
+        logging.critical(f"CRITICAL: Failed to load raw data from {path}: {e}")
+        sys.exit(1)
+
+    # Check for primary target variables
+    primary_targets = ['conductivity', 'charge_carrier_mobility']
+    found_primary = None
+    
+    for target in primary_targets:
+        if target in df.columns:
+            found_primary = target
+            break
+    
+    if found_primary:
+        # Verify dynamic range (>= 3 orders of magnitude)
+        # Assuming the values are in a linear scale where difference >= 3 implies 3 orders of magnitude
+        # or if they are log-scaled, range >= 3.0. 
+        # Based on T005 and T028 context, we check range >= 3.0.
+        values = df[found_primary].dropna()
+        if len(values) == 0:
+            logging.critical(f"CRITICAL: No valid values found for {found_primary}")
+            sys.exit(1)
+        
+        dynamic_range = values.max() - values.min()
+        if dynamic_range >= 3.0:
+            logging.info(f"Target variable '{found_primary}' validated with dynamic range {dynamic_range:.2f} >= 3.0")
+            return True
+        else:
+            logging.warning(f"Target variable '{found_primary}' has dynamic range {dynamic_range:.2f} < 3.0. Proceeding but caution advised.")
+            return True
+
+    # If primary not found, check for HOMO-LUMO gap proxy
+    if 'HOMO_LUMO_gap' in df.columns:
+        logging.warning("CRITICAL WARNING: Conductivity missing. Using HOMO-LUMO gap as proxy for Electronic Delocalization Potential.")
+        return True
+    
+    # If neither found
+    logging.critical("CRITICAL: No valid target variable found (Conductivity or HOMO-LUMO gap missing).")
+    sys.exit(1)
 
 def validate_target_range(values: np.ndarray, min_log_range: float = 3.0) -> bool:
     """Validates the dynamic range of the target variable."""
-    if values.max() - values.min() >= 10**min_log_range:
+    if len(values) == 0:
+        return False
+    if values.max() - values.min() >= min_log_range:
         return True
     else:
         return False

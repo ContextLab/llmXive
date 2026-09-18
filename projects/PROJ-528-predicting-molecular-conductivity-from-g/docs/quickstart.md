@@ -1,65 +1,64 @@
 # Quickstart Guide
 
+This guide outlines the steps to run the full pipeline for predicting molecular conductivity.
+
 ## Prerequisites
 
 - Python 3.11+
-- Virtual environment with dependencies installed
+- Virtual environment activated
 
 ## Installation
 
-1. Create virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Run Pipeline
-
-The pipeline consists of several steps. Run them in order:
-
-1. **Generate Descriptors**:
- ```bash
- python code/run_descriptor_pipeline.py --input data/raw/sample_smiles.csv --output data/processed/descriptors.csv
- ```
-
-2. **Train Models and Run Sensitivity Analysis**:
- ```bash
- python code/save_model_results.py --data data/processed/descriptors.csv --output data/processed/model_results.json --sensitivity-output data/processed/sensitivity_analysis.json
- ```
-
-3. **Run Feature Importance Analysis**:
- ```bash
- python code/feature_importance.py --data data/processed/descriptors.csv --output data/processed/feature_importance.csv
- ```
-
-4. **Generate Analysis Summary**:
- ```bash
- python code/analysis_summary.py --feature-importance data/processed/feature_importance.csv --output data/processed/analysis_summary.json
- ```
-
-5. **Generate Plots**:
- ```bash
- python code/plot_top_features.py --data data/processed/descriptors.csv --importance data/processed/feature_importance.csv --output data/processed/corr_plot_top5.png
- ```
-
-## Validate Results
-
-Check that all output files exist:
-- `data/processed/descriptors.csv`
-- `data/processed/model_results.json`
-- `data/processed/sensitivity_analysis.json`
-- `data/processed/feature_importance.csv`
-- `data/processed/analysis_summary.json`
-- `data/processed/corr_plot_top5.png`
-
-## Full Pipeline Validation
-
-Run the full validation script:
 ```bash
-python code/run_quickstart_validation.py
+pip install -r requirements.txt
+```
+
+## Data Preparation
+
+Ensure you have a raw SMILES file at `data/raw/smiles.csv` with columns `smiles` and `conductivity` (or `HOMO_LUMO_gap`).
+
+## Execution Steps
+
+### 1. Compute Descriptors
+This step parses SMILES and computes graph-based descriptors.
+```bash
+python code/descriptors.py --output data/processed/descriptors.csv
+```
+
+### 2. Train Models and Save Results
+This step trains Random Forest and Gradient Boosting models and saves initial results.
+```bash
+python code/save_model_results.py --data data/processed/descriptors.csv --output data/processed/model_results.json
+```
+
+### 3. Run Sensitivity Analysis (Optional but Recommended)
+```bash
+python code/run_sensitivity_analysis.py --data data/processed/descriptors.csv --output data/processed/sensitivity_analysis.json
+```
+
+### 4. Compute Feature Importance
+```bash
+python code/feature_importance.py --data data/processed/descriptors.csv --output data/processed/feature_importance.csv
+```
+
+### 5. Compute Correlations and Adjusted P-values
+```bash
+python code/correlation_analysis.py --data data/processed/descriptors.csv --output data/processed/correlation_results.json
+```
+
+### 6. Generate Analysis Summary
+```bash
+python code/run_analysis_summary.py
+```
+
+### 7. Generate Plots
+```bash
+python code/plot_top_features.py --output data/processed/corr_plot_top5.png
+```
+
+## Validation
+
+Run the validation script to ensure all artifacts match schemas.
+```bash
+python code/validators.py --validate-all
 ```

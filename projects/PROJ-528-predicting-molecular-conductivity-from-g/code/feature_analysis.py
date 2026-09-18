@@ -1,102 +1,91 @@
-"""
-Feature analysis module including Benjamini-Hochberg correction.
-"""
 import numpy as np
 import pandas as pd
 from typing import List, Tuple, Optional
 import logging
+from scipy import stats
+from statsmodels.stats.multitest import multipletests
 
 logger = logging.getLogger(__name__)
 
-def calculate_correlation_pvalues(df: pd.DataFrame, target_col: str, feature_cols: Optional[List[str]] = None) -> Dict[str, Tuple[float, float]]:
+def calculate_correlation_pvalues(df: pd.DataFrame, target_col: str) -> Dict[str, Tuple[float, float]]:
     """
-    Calculate Pearson correlation coefficient and p-value for each feature vs target.
-    """
-    from scipy.stats import pearsonr
+    Calculate Pearson correlation coefficient and p-value for each feature against target.
     
-    if feature_cols is None:
-        feature_cols = [col for col in df.columns if col not in ['smiles', 'status', target_col]]
-    
-    results = {}
-    for feature in feature_cols:
-        if feature not in df.columns:
-            continue
+    Args:
+        df: DataFrame with features and target.
+        target_col: Name of the target column.
         
-        x = df[feature].dropna()
+    Returns:
+        Dictionary mapping feature names to (correlation, p_value).
+    """
+    results = {}
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    if target_col in numeric_cols:
+        numeric_cols.remove(target_col)
+        
+    for col in numeric_cols:
+        x = df[col].dropna()
         y = df[target_col].loc[x.index].dropna()
         
-        if len(x) < 3:
-            results[feature] = (0.0, 1.0)
+        if len(x) < 2:
             continue
-        
-        corr, p_val = pearsonr(x, y)
-        results[feature] = (corr, p_val)
-    
+            
+        try:
+            corr, p_val = stats.pearsonr(x, y)
+            results[col] = (float(corr), float(p_val))
+        except Exception as e:
+            logger.warning(f"Failed to calculate correlation for {col}: {e}")
+            
     return results
 
 def benjamini_hochberg(p_values: List[float]) -> List[float]:
     """
-    Apply Benjamini-Hochberg FDR correction to a list of p-values.
+    Apply Benjamini-Hochberg procedure to adjust p-values.
+    
+    Args:
+        p_values: List of raw p-values.
+        
+    Returns:
+        List of adjusted p-values.
     """
-    n = len(p_values)
-    if n == 0:
+    if not p_values:
         return []
-    
-    # Sort p-values and keep original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array(p_values)[sorted_indices]
-    
-    # Calculate adjusted p-values
-    adjusted = np.zeros(n)
-    for i in range(n):
-        adjusted[sorted_indices[i]] = sorted_p_values[i] * n / (i + 1)
-    
-    # Ensure monotonicity (cumulative min from the end)
-    for i in range(n - 2, -1, -1):
-        adjusted[sorted_indices[i]] = min(adjusted[sorted_indices[i]], adjusted[sorted_indices[i+1]])
-    
-    # Clip to [0, 1]
-    adjusted = np.clip(adjusted, 0, 1)
-    
-    return adjusted.tolist()
+    _, adjusted, _, _ = multipletests(p_values, method='fdr_bh')
+    return list(adjusted)
 
-def apply_bh_correction_to_df(df: pd.DataFrame, p_value_col: str = 'p_value', result_col: str = 'adj_p_value') -> pd.DataFrame:
+def apply_bh_correction_to_df(corr_results: Dict[str, Tuple[float, float]]) -> Dict[str, float]:
     """
-    Apply Benjamini-Hochberg correction to a DataFrame column of p-values.
+    Apply BH correction to p-values in correlation results.
+    
+    Args:
+        corr_results: Dictionary of (corr, p_val).
+        
+    Returns:
+        Dictionary mapping feature to adjusted p-value.
     """
-    p_values = df[p_value_col].tolist()
-    adj_p_values = benjamini_hochberg(p_values)
-    df[result_col] = adj_p_values
-    return df
+    p_values = [v[1] for v in corr_results.values()]
+    adjusted = benjamini_hochberg(p_values)
+    
+    # Map back to features (order preserved)
+    features = list(corr_results.keys())
+    return {features[i]: adjusted[i] for i in range(len(features))}
 
 def main():
-    """
-    Main entry point for feature analysis.
-    """
     import argparse
-    from config import DATA_PATH, TARGET_VAR
-    import json
-
-    parser = argparse.ArgumentParser(description="Feature Analysis")
-    parser.add_argument('--data', type=str, default=DATA_PATH, help='Path to processed data CSV')
-    parser.add_argument('--output', type=str, default='data/processed/correlation_results.json', help='Output path for correlation results')
+    parser = argparse.ArgumentParser(description="Feature analysis and correlation.")
+    parser.add_argument("--data", type=str, required=True)
+    parser.add_argument("--target", type=str, required=True)
+    parser.add_argument("--output", type=str, required=True)
     args = parser.parse_args()
     
-    logging.basicConfig(level=logging.INFO)
-    
     df = pd.read_csv(args.data)
-    if df.empty:
-        logger.error("Loaded dataframe is empty")
-        sys.exit(1)
+    corr_results = calculate_correlation_pvalues(df, args.target)
+    adjusted = apply_bh_correction_to_df(corr_results)
     
-    target_col = TARGET_VAR if TARGET_VAR in df.columns else 'HOMO_LUMO_gap'
-    results = calculate_correlation_pvalues(df, target_col)
-    
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    import json
     with open(args.output, 'w') as f:
-        json.dump({k: list(v) for k, v in results.items()}, f, indent=2)
-    
-    logger.info(f"Saved correlation results to {args.output}")
+        json.dump(adjusted, f, indent=2)
+    logger.info(f"Saved adjusted p-values to {args.output}")
 
 if __name__ == "__main__":
     main()

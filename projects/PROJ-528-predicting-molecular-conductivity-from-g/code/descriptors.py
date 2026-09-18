@@ -1,7 +1,11 @@
 """
-Compute graph-based molecular descriptors using RDKit.
-Implements standard topological descriptors, aromaticity metrics, conjugation analysis,
-and resonance proxies as specified in FR-001 and FR-008.
+Molecular Descriptor Computation Module (T014a-d)
+
+Computes graph-based descriptors using RDKit:
+- T014a: Base Graph Descriptors
+- T014b: Aromaticity & Ring Descriptors
+- T014c: Conjugation Descriptors
+- T014d: Resonance Proxies (RDKit Only)
 """
 import logging
 from typing import List, Dict, Any, Optional, Tuple
@@ -10,378 +14,227 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors, Descriptors, rdmolops
 from rdkit.Chem.Scaffolds import MurckoScaffold
+from code.logging_config import setup_logging
+
+# Set up logger
+logger = setup_logging()
 
 def compute_degree_statistics(mol: Chem.Mol) -> Dict[str, float]:
-    """
-    Compute degree-based graph descriptors.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Dictionary with degree_mean, degree_std, degree_max, degree_min
-    """
+    """T014a: Compute degree statistics (mean, std, max, min)."""
     try:
         degrees = [atom.GetDegree() for atom in mol.GetAtoms()]
         if not degrees:
-            return {'degree_mean': np.nan, 'degree_std': np.nan, 
-                    'degree_max': np.nan, 'degree_min': np.nan}
+            return {'degree_mean': np.nan, 'degree_std': np.nan, 'degree_max': np.nan, 'degree_min': np.nan}
         
         return {
-            'degree_mean': np.mean(degrees),
-            'degree_std': np.std(degrees),
-            'degree_max': max(degrees),
-            'degree_min': min(degrees)
+            'degree_mean': float(np.mean(degrees)),
+            'degree_std': float(np.std(degrees)),
+            'degree_max': float(np.max(degrees)),
+            'degree_min': float(np.min(degrees))
         }
     except Exception as e:
-        logging.warning(f"Error computing degree statistics: {e}")
-        return {'degree_mean': np.nan, 'degree_std': np.nan, 
-                'degree_max': np.nan, 'degree_min': np.nan}
+        logger.warning(f"Degree statistics computation failed: {e}")
+        return {'degree_mean': np.nan, 'degree_std': np.nan, 'degree_max': np.nan, 'degree_min': np.nan}
 
 def compute_path_length_statistics(mol: Chem.Mol) -> Dict[str, float]:
-    """
-    Compute path length-based graph descriptors.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Dictionary with path_length_mean, path_length_std, path_length_max, path_length_min
-    """
+    """T014a: Compute path length statistics (mean, std, max, min)."""
     try:
-        # Get all pairs of atoms and their shortest path lengths
-        distances = []
-        for i in range(mol.GetNumAtoms()):
-            for j in range(i + 1, mol.GetNumAtoms()):
-                dist = rdmolops.GetShortestPath(mol, i, j)
-                if dist is not None:
-                    distances.append(len(dist) - 1)  # Convert to edge count
+        # Get all pairs shortest paths
+        dist_matrix = rdmolops.GetDistanceMatrix(mol)
         
-        if not distances:
-            return {'path_length_mean': np.nan, 'path_length_std': np.nan,
-                    'path_length_max': np.nan, 'path_length_min': np.nan}
+        # Extract upper triangle (excluding diagonal)
+        paths = []
+        n = dist_matrix.shape[0]
+        for i in range(n):
+            for j in range(i + 1, n):
+                if dist_matrix[i, j] > 0:  # Exclude self-loops
+                    paths.append(dist_matrix[i, j])
+        
+        if not paths:
+            return {'path_length_mean': np.nan, 'path_length_std': np.nan, 'path_length_max': np.nan, 'path_length_min': np.nan}
         
         return {
-            'path_length_mean': np.mean(distances),
-            'path_length_std': np.std(distances),
-            'path_length_max': max(distances),
-            'path_length_min': min(distances)
+            'path_length_mean': float(np.mean(paths)),
+            'path_length_std': float(np.std(paths)),
+            'path_length_max': float(np.max(paths)),
+            'path_length_min': float(np.min(paths))
         }
     except Exception as e:
-        logging.warning(f"Error computing path length statistics: {e}")
-        return {'path_length_mean': np.nan, 'path_length_std': np.nan,
-                'path_length_max': np.nan, 'path_length_min': np.nan}
-
-def compute_ring_count(mol: Chem.Mol) -> int:
-    """
-    Compute the number of rings in the molecule.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Number of rings
-    """
-    try:
-        return mol.GetRingInfo().NumRings()
-    except Exception as e:
-        logging.warning(f"Error computing ring count: {e}")
-        return np.nan
+        logger.warning(f"Path length statistics computation failed: {e}")
+        return {'path_length_mean': np.nan, 'path_length_std': np.nan, 'path_length_max': np.nan, 'path_length_min': np.nan}
 
 def compute_aromaticity_index(mol: Chem.Mol) -> float:
-    """
-    Compute the aromaticity index (ratio of aromatic atoms to total atoms).
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Aromaticity index between 0 and 1
-    """
+    """T014b: Compute aromaticity index (fraction of aromatic atoms)."""
     try:
-        if mol.GetNumAtoms() == 0:
+        total_atoms = mol.GetNumAtoms()
+        if total_atoms == 0:
             return np.nan
         
         aromatic_atoms = sum(1 for atom in mol.GetAtoms() if atom.GetIsAromatic())
-        return aromatic_atoms / mol.GetNumAtoms()
+        return float(aromatic_atoms / total_atoms)
     except Exception as e:
-        logging.warning(f"Error computing aromaticity index: {e}")
+        logger.warning(f"Aromaticity index computation failed: {e}")
         return np.nan
 
-def compute_huckel_aromaticity_count(mol: Chem.Mol) -> int:
-    """
-    Count rings that satisfy Hückel's rule (4n+2 π electrons).
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Number of Hückel-aromatic rings
-    """
+def compute_ring_count(mol: Chem.Mol) -> int:
+    """T014b: Compute total ring count."""
     try:
-      count = 0
-      ring_info = mol.GetRingInfo()
-      for ring in ring_info.AtomRings():
-          # Check if ring is aromatic
-          if all(mol.GetAtomWithIdx(i).GetIsAromatic() for i in ring):
-              # Count π electrons (simplified: assume sp2 atoms contribute 1 π electron)
-              pi_electrons = sum(1 for i in ring if mol.GetAtomWithIdx(i).GetIsAromatic())
-              # Check Hückel's rule: 4n+2
-              n = (pi_electrons - 2) / 4
-              if n >= 0 and abs(n - round(n)) < 1e-6:
-                  count += 1
-      return count
+        return int(Chem.GetSSSR(mol))
     except Exception as e:
-        logging.warning(f"Error computing Hückel aromaticity count: {e}")
-        return np.nan
-
-def compute_clar_aromaticity_proxy(mol: Chem.Mol) -> int:
-    """
-    Compute a proxy for Clar aromaticity (number of disjoint aromatic sextets).
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Clar aromaticity proxy count
-    """
-    try:
-        # Simplified proxy: count benzene-like rings (6-membered aromatic rings)
-        count = 0
-        ring_info = mol.GetRingInfo()
-        for ring in ring_info.AtomRings():
-            if len(ring) == 6:
-                if all(mol.GetAtomWithIdx(i).GetIsAromatic() for i in ring):
-                    count += 1
-        return count
-    except Exception as e:
-        logging.warning(f"Error computing Clar aromaticity proxy: {e}")
+        logger.warning(f"Ring count computation failed: {e}")
         return np.nan
 
 def compute_conjugation_length(mol: Chem.Mol) -> float:
-    """
-    Compute the longest conjugated path length in the molecule.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Longest conjugated path length
-    """
+    """T014c: Compute longest conjugated path length."""
     try:
-        # Find conjugated bonds (alternating single/double or aromatic)
+        # Identify conjugated bonds (alternating single/double or aromatic)
         conjugated_bonds = []
         for bond in mol.GetBonds():
-            if bond.GetBondType() == Chem.BondType.DOUBLE or \
-               bond.GetBondType() == Chem.BondType.AROMATIC or \
-               bond.GetBondType() == Chem.BondType.SINGLE:
-                # Check if this bond is part of a conjugated system
-                begin_atom = bond.GetBeginAtom()
-                end_atom = bond.GetEndAtom()
-                if begin_atom.GetIsAromatic() or end_atom.GetIsAromatic() or \
-                   begin_atom.GetHybridization() == Chem.HybridizationType.SP2 or \
-                   end_atom.GetHybridization() == Chem.HybridizationType.SP2:
-                    conjugated_bonds.append(bond.GetIdx())
+            bond_type = bond.GetBondType()
+            if bond_type in [Chem.BondType.DOUBLE, Chem.BondType.TRIPLE, Chem.BondType.AROMATIC]:
+                conjugated_bonds.append(bond.GetIdx())
         
         if not conjugated_bonds:
             return 0.0
         
-        # Build graph of conjugated bonds and find longest path
-        # Simplified: count number of conjugated bonds
-        return len(conjugated_bonds)
+        # Build conjugated subgraph and find longest path
+        # Simplified: count consecutive conjugated bonds
+        max_path = 0
+        current_path = 0
+        
+        for i, bond in enumerate(mol.GetBonds()):
+            if bond.GetIdx() in conjugated_bonds:
+                current_path += 1
+                max_path = max(max_path, current_path)
+            else:
+                current_path = 0
+        
+        return float(max_path)
     except Exception as e:
-        logging.warning(f"Error computing conjugation length: {e}")
+        logger.warning(f"Conjugation length computation failed: {e}")
         return np.nan
 
 def compute_num_conjugated_bonds(mol: Chem.Mol) -> int:
-    """
-    Count the number of conjugated bonds in the molecule.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Number of conjugated bonds
-    """
+    """T014c: Count number of conjugated bonds."""
     try:
         count = 0
         for bond in mol.GetBonds():
-            if bond.GetBondType() == Chem.BondType.DOUBLE or \
-               bond.GetBondType() == Chem.BondType.AROMATIC:
+            bond_type = bond.GetBondType()
+            if bond_type in [Chem.BondType.DOUBLE, Chem.BondType.TRIPLE, Chem.BondType.AROMATIC]:
                 count += 1
-            elif bond.GetBondType() == Chem.BondType.SINGLE:
-                # Check if adjacent to double/aromatic bonds
-                begin_atom = bond.GetBeginAtom()
-                end_atom = bond.GetEndAtom()
-                begin_neighbors = [a.GetIsAromatic() or a.GetHybridization() == Chem.HybridizationType.SP2 
-                                 for a in begin_atom.GetNeighbors()]
-                end_neighbors = [a.GetIsAromatic() or a.GetHybridization() == Chem.HybridizationType.SP2 
-                               for a in end_atom.GetNeighbors()]
-                if any(begin_neighbors) or any(end_neighbors):
-                    count += 1
         return count
     except Exception as e:
-        logging.warning(f"Error computing number of conjugated bonds: {e}")
+        logger.warning(f"Conjugated bond count computation failed: {e}")
         return np.nan
 
 def compute_conjugation_density(mol: Chem.Mol) -> float:
-    """
-    Compute conjugation density (conjugated bonds / total bonds).
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Conjugation density between 0 and 1
-    """
+    """T014c: Compute conjugation density (conjugated bonds / total bonds)."""
     try:
-        if mol.GetNumBonds() == 0:
+        total_bonds = mol.GetNumBonds()
+        if total_bonds == 0:
             return np.nan
         
-        num_conjugated = compute_num_conjugated_bonds(mol)
-        return num_conjugated / mol.GetNumBonds()
+        conjugated_count = compute_num_conjugated_bonds(mol)
+        return float(conjugated_count / total_bonds)
     except Exception as e:
-        logging.warning(f"Error computing conjugation density: {e}")
+        logger.warning(f"Conjugation density computation failed: {e}")
         return np.nan
 
 def compute_aromatic_ring_count(mol: Chem.Mol) -> int:
-    """
-    Count the number of aromatic rings using RDKit's built-in methods.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Number of aromatic rings
-    """
+    """T014d: Count aromatic rings using RDKit."""
     try:
         return rdMolDescriptors.CalcNumAromaticRings(mol)
     except Exception as e:
-        logging.warning(f"Error computing aromatic ring count: {e}")
+        logger.warning(f"Aromatic ring count computation failed: {e}")
         return np.nan
 
 def compute_conjugated_ring_count(mol: Chem.Mol) -> int:
-    """
-    Count the number of conjugated rings (rings with alternating double bonds).
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Number of conjugated rings
-    """
+    """T014d: Count conjugated rings (rings with alternating double bonds)."""
     try:
-        # Simplified: count rings that are aromatic or have conjugated bonds
+        # Approximation: count rings with at least one aromatic bond
+        rings = list(Chem.GetSymmSSSR(mol))
         count = 0
-        ring_info = mol.GetRingInfo()
-        for ring in ring_info.AtomRings():
-            # Check if ring has any conjugated bonds
+        for ring in rings:
             has_conjugated = False
-            for i in range(len(ring)):
-                atom1 = mol.GetAtomWithIdx(ring[i])
-                atom2 = mol.GetAtomWithIdx(ring[(i + 1) % len(ring)])
-                bond = mol.GetBondBetweenAtoms(ring[i], ring[(i + 1) % len(ring)])
-                if bond and (bond.GetBondType() == Chem.BondType.DOUBLE or 
-                           bond.GetBondType() == Chem.BondType.AROMATIC):
+            for idx in ring:
+                bond = mol.GetBondWithIdx(idx)
+                if bond.GetBondType() in [Chem.BondType.DOUBLE, Chem.BondType.AROMATIC]:
                     has_conjugated = True
                     break
             if has_conjugated:
                 count += 1
         return count
     except Exception as e:
-        logging.warning(f"Error computing conjugated ring count: {e}")
+        logger.warning(f"Conjugated ring count computation failed: {e}")
         return np.nan
 
-def compute_standard_descriptors(mol: Chem.Mol) -> Dict[str, Any]:
+def compute_all_descriptors(smiles_list: List[str]) -> List[Dict[str, Any]]:
     """
-    Compute a set of standard RDKit descriptors.
-    
-    Args:
-        mol: RDKit Mol object
-        
-    Returns:
-        Dictionary of standard descriptors
-    """
-    try:
-        return {
-            'mol_wt': Descriptors.MolWt(mol),
-            'logp': Descriptors.MolLogP(mol),
-            'num_h_donors': Descriptors.NumHDonors(mol),
-            'num_h_acceptors': Descriptors.NumHAcceptors(mol),
-            'num_rotatable_bonds': Descriptors.NumRotatableBonds(mol),
-            'tpsa': Descriptors.TPSA(mol),
-        }
-    except Exception as e:
-        logging.warning(f"Error computing standard descriptors: {e}")
-        return {}
-
-def compute_all_descriptors(smiles_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Compute all descriptors for a dataframe of SMILES strings.
-    
-    Args:
-        smiles_df: DataFrame with 'smiles' column
-        
-    Returns:
-        DataFrame with all computed descriptors
+    Compute all descriptors for a list of SMILES strings.
+    Returns list of dictionaries with descriptor values.
     """
     results = []
     
-    for idx, row in smiles_df.iterrows():
-        smiles = row['smiles']
-        mol = Chem.MolFromSmiles(smiles)
-        
-        if mol is None:
-            logging.warning(f"Invalid SMILES at index {idx}: {smiles}")
-            results.append({
-                'smiles': smiles,
-                'status': 'invalid',
-                'error_msg': 'Invalid SMILES'
-            })
-            continue
-        
+    for i, smiles in enumerate(smiles_list):
         try:
-            descriptor_row = {
-                'smiles': smiles,
-                'status': 'valid',
-                **compute_degree_statistics(mol),
-                **compute_path_length_statistics(mol),
-                'ring_count': compute_ring_count(mol),
-                'aromaticity_index': compute_aromaticity_index(mol),
-                'huckel_aromaticity_count': compute_huckel_aromaticity_count(mol),
-                'clar_aromaticity_proxy': compute_clar_aromaticity_proxy(mol),
-                'conjugation_length': compute_conjugation_length(mol),
-                'num_conjugated_bonds': compute_num_conjugated_bonds(mol),
-                'conjugation_density': compute_conjugation_density(mol),
-                'aromatic_ring_count': compute_aromatic_ring_count(mol),
-                'conjugated_ring_count': compute_conjugated_ring_count(mol),
+            mol = Chem.MolFromSmiles(smiles)
+            if mol is None:
+                logger.warning(f"Invalid SMILES at index {i}: {smiles}")
+                results.append({
+                    'degree_mean': np.nan, 'degree_std': np.nan, 'degree_max': np.nan, 'degree_min': np.nan,
+                    'path_length_mean': np.nan, 'path_length_std': np.nan, 'path_length_max': np.nan, 'path_length_min': np.nan,
+                    'aromaticity_index': np.nan, 'ring_count': np.nan,
+                    'conjugation_length': np.nan, 'num_conjugated_bonds': np.nan, 'conjugation_density': np.nan,
+                    'aromatic_ring_count': np.nan, 'conjugated_ring_count': np.nan
+                })
+                continue
+            
+            # T014a: Base Graph Descriptors
+            degree_stats = compute_degree_statistics(mol)
+            path_stats = compute_path_length_statistics(mol)
+            
+            # T014b: Aromaticity & Ring Descriptors
+            aromaticity_idx = compute_aromaticity_index(mol)
+            ring_cnt = compute_ring_count(mol)
+            
+            # T014c: Conjugation Descriptors
+            conj_len = compute_conjugation_length(mol)
+            num_conj_bonds = compute_num_conjugated_bonds(mol)
+            conj_density = compute_conjugation_density(mol)
+            
+            # T014d: Resonance Proxies
+            arom_ring_cnt = compute_aromatic_ring_count(mol)
+            conj_ring_cnt = compute_conjugated_ring_count(mol)
+            
+            result = {
+                **degree_stats,
+                **path_stats,
+                'aromaticity_index': aromaticity_idx,
+                'ring_count': ring_cnt,
+                'conjugation_length': conj_len,
+                'num_conjugated_bonds': num_conj_bonds,
+                'conjugation_density': conj_density,
+                'aromatic_ring_count': arom_ring_cnt,
+                'conjugated_ring_count': conj_ring_cnt
             }
             
-            # Add standard descriptors
-            std_desc = compute_standard_descriptors(mol)
-            descriptor_row.update(std_desc)
-            
-            results.append(descriptor_row)
+            results.append(result)
             
         except Exception as e:
-            logging.warning(f"Error computing descriptors for {smiles}: {e}")
+            logger.warning(f"Descriptor computation failed for SMILES {i}: {e}")
             results.append({
-                'smiles': smiles,
-                'status': 'error',
-                'error_msg': str(e)
+                'degree_mean': np.nan, 'degree_std': np.nan, 'degree_max': np.nan, 'degree_min': np.nan,
+                'path_length_mean': np.nan, 'path_length_std': np.nan, 'path_length_max': np.nan, 'path_length_min': np.nan,
+                'aromaticity_index': np.nan, 'ring_count': np.nan,
+                'conjugation_length': np.nan, 'num_conjugated_bonds': np.nan, 'conjugation_density': np.nan,
+                'aromatic_ring_count': np.nan, 'conjugated_ring_count': np.nan
             })
     
-    return pd.DataFrame(results)
+    return results
 
 def compute_descriptors_batch(smiles_list: List[str]) -> pd.DataFrame:
     """
-    Compute descriptors for a list of SMILES strings.
-    
-    Args:
-        smiles_list: List of SMILES strings
-        
-    Returns:
-        DataFrame with computed descriptors
+    Compute descriptors for a batch of SMILES and return as DataFrame.
     """
-    smiles_df = pd.DataFrame({'smiles': smiles_list})
-    return compute_all_descriptors(smiles_df)
+    results = compute_all_descriptors(smiles_list)
+    return pd.DataFrame(results)
