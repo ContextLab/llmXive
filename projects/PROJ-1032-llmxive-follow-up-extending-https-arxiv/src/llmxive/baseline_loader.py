@@ -1,74 +1,43 @@
-"""Baseline loading and validation."""
+"""Load and validate baseline manifests."""
 import json
 import os
 from typing import Dict, Any, Optional, Tuple
 from pathlib import Path
-from src.llmxive.exceptions import DATA_INTEGRITY_ERROR
+from src.llmxive.exceptions import DATA_INTEGRITY_ERROR, ERR_SEED_UNSTABLE
 
-def load_baseline_manifest(
-    seed: int,
-    manifest_dir: Path
-) -> Dict[str, Any]:
-    """
-    Load a baseline manifest for a specific seed.
+BASELINE_DIR = Path("data/processed/baseline_manifests")
+
+def load_baseline_manifest(model_id: str, seed: int) -> Dict[str, Any]:
+    """Load a baseline manifest from disk."""
+    manifest_path = BASELINE_DIR / f"{model_id}_{seed}.json"
     
-    Args:
-        seed: The seed ID.
-        manifest_dir: Directory containing manifests.
-    
-    Returns:
-        The manifest dictionary.
-    
-    Raises:
-        DATA_INTEGRITY_ERROR: If manifest is missing or invalid.
-    """
-    manifest_path = manifest_dir / f"{seed}.json"
     if not manifest_path.exists():
-        raise DATA_INTEGRITY_ERROR(f"Baseline manifest not found for seed {seed}.")
+        raise DATA_INTEGRITY_ERROR(f"Manifest not found: {manifest_path}")
     
-    try:
-        with open(manifest_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise DATA_INTEGRITY_ERROR(f"Invalid JSON in manifest for seed {seed}: {e}")
-    
-    if "mean_reward" not in data or "mean_grad_norm" not in data:
-        raise DATA_INTEGRITY_ERROR(f"Manifest for seed {seed} missing required fields.")
-    
-    return data
+    with open(manifest_path, 'r') as f:
+        return json.load(f)
 
-def get_baseline_thresholds(
-    manifest: Dict[str, Any],
-    reward_drop_factor: float = 0.8,
-    grad_spike_factor: float = 2.0
-) -> Tuple[float, float]:
-    """
-    Compute divergence thresholds from a manifest.
+def verify_seed_stability(manifest: Dict[str, Any], threshold_pct: float = 5.0) -> bool:
+    """Verify seed stability from manifest."""
+    if manifest.get("status") != "STABLE":
+        return False
     
-    Args:
-        manifest: The baseline manifest.
-        reward_drop_factor: Factor below mean to trigger drop.
-        grad_spike_factor: Factor above mean to trigger spike.
+    mean_reward = manifest.get("mean_reward", 0)
+    std_reward = (manifest.get("variance_reward", 0)) ** 0.5
     
-    Returns:
-        Tuple of (reward_threshold, grad_threshold).
-    """
-    reward_threshold = manifest["mean_reward"] * reward_drop_factor
-    grad_threshold = manifest["mean_grad_norm"] * grad_spike_factor
-    return reward_threshold, grad_threshold
+    if mean_reward == 0:
+        return False
+    
+    cv = (std_reward / abs(mean_reward)) * 100
+    return cv < threshold_pct
 
-def verify_seed_stability(
-    manifest: Dict[str, Any],
-    variance_threshold: float = 0.05
-) -> bool:
-    """
-    Verify the stability status in the manifest.
+def get_baseline_thresholds(manifest: Dict[str, Any]) -> Tuple[float, float]:
+    """Get reward and gradient thresholds from manifest."""
+    if manifest.get("status") != "STABLE":
+        raise ERR_SEED_UNSTABLE("Cannot get thresholds from unstable manifest")
     
-    Args:
-        manifest: The baseline manifest.
-        variance_threshold: Unused in this simplified version.
-    
-    Returns:
-        True if status is STABLE.
-    """
-    return manifest.get("status") == "STABLE"
+    return manifest["mean_reward"], manifest["mean_grad_norm"]
+
+def get_valid_seed_for_model(model_id: str, seed_pool: list) -> int:
+    """Get a valid seed for the model (placeholder)."""
+    return seed_pool[0] if seed_pool else 1

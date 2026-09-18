@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): The implementer only supplied a feature specification and user stories; no evidence of the required project directories (`src/llmxive`, `src/cli`, `src/utils`, `tests/`, `data/`) or any files within them was provided. Consequently, the claimed project structure cannot be verified as existing.
-- `T003` (rejected 1x): No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `black` settings, or a `pre-commit` hook) are present in the provided evidence, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration files and ensure they are non‑empty and correctly set up.
+- `T016` (rejected 1x): The repository contains `src/llmxive/seed_manager.py`, but the required output file `data/processed/seed_audit.json` is absent, indicating the implementation does not produce the mandated audit JSON. Without this artifact, the task’s core requirement is unmet.
 
 ## Required change
 

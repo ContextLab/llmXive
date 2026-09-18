@@ -26,7 +26,7 @@ This feature implements a CPU-optimized asynchronous Reinforcement Learning (RL)
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - **Principle I (Reproducibility)**: **COMPLIANT**. The plan mandates pinned seeds (`FR-004`), deterministic `torch` settings, and the use of the `datasets` library to fetch GSM8K from a canonical source (`openai/gsmk`) on every run. No manual data intervention is allowed.
-- **Principle II (Verified Accuracy)**: **COMPLIANT**. All citations to the parent paper (arXiv:2607.07508) and dataset sources (HuggingFace GSM8K) will be validated against the `Verified datasets` block. No hallucinated URLs.
+- **Principle II (Verified Accuracy)**: **COMPLIANT**. All citations to the parent paper (arXiv:2607.07508) and dataset sources (HuggingFace GSMK) will be validated against the `Verified datasets` block. No hallucinated URLs.
 - **Principle III (Data Hygiene)**: **COMPLIANT**. The plan includes a data loader that downloads GSM8K, checksums the raw parquet files, and stores them in `data/raw/`. Derived manifests (baseline stats) go to `data/processed/`. No in-place modification.
 - **Principle IV (Single Source of Truth)**: **COMPLIANT**. The `data/processed/` logs serve as the single source for all analysis. **All figures in the final paper MUST be generated programmatically** via `generate_plots.py` from these logs, ensuring no hand-calculated statistics.
 - **Principle V (Versioning Discipline)**: **COMPLIANT**. The `requirements.txt` pins all dependencies. The `state` YAML will be updated with content hashes of the `code/` and `data/` artifacts upon successful runs.

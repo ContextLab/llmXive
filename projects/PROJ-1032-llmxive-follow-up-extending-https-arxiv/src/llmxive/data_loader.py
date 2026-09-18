@@ -1,69 +1,49 @@
-"""Data loading module for GSM8K with integrity checks."""
-import hashlib
+"""Data loader for GSM8K dataset with integrity checks."""
 import os
-from typing import Generator, Dict, Any, Optional
+from typing import Iterator, Dict, Any
+from pathlib import Path
 from datasets import load_dataset
 from src.llmxive.exceptions import DATA_INTEGRITY_ERROR
-import logging
 
-logger = logging.getLogger(__name__)
-
-def load_gsm8k_stream(
-    split: str = "train",
-    streaming: bool = True,
-    seed: Optional[int] = None
-) -> Generator[Dict[str, Any], None, None]:
-    """
-    Stream GSM8K dataset.
+class GSM8KLoader:
+    """Loader for GSM8K dataset with streaming and integrity verification."""
     
-    Args:
-        split: Dataset split ('train' or 'test').
-        streaming: Whether to stream the dataset.
-        seed: Random seed for reproducibility (if not streaming).
+    def __init__(self, split: str = "train", streaming: bool = True):
+        self.split = split
+        self.streaming = streaming
+        self.data_source = os.getenv("LLMXIVE_DATA_SOURCE", "openai/gsm8k")
+        
+        # Load dataset with streaming to prevent OOM
+        try:
+            self.dataset = load_dataset(
+                self.data_source,
+                split=split,
+                streaming=streaming
+            )
+        except Exception as e:
+            raise DATA_INTEGRITY_ERROR(f"Failed to load dataset {self.data_source}: {str(e)}")
     
-    Returns:
-        Generator yielding dataset examples.
+    def __iter__(self) -> Iterator[Dict[str, Any]]:
+        """Iterate over dataset examples."""
+        for item in self.dataset:
+            yield item
     
-    Raises:
-        DATA_INTEGRITY_ERROR: If data integrity checks fail.
-    """
-    try:
-        if streaming:
-            dataset = load_dataset("openai/gsm8k", "main", split=split, streaming=True)
+    def get_sample(self, n: int = 100) -> list:
+        """Get a sample of n examples (for testing)."""
+        if self.streaming:
+            # For streaming, we must iterate
+            samples = []
+            for i, item in enumerate(self.dataset):
+                if i >= n:
+                    break
+                samples.append(item)
+            return samples
         else:
-            dataset = load_dataset("openai/gsm8k", "main", split=split, seed=seed)
-        
-        # Basic integrity check: ensure dataset is not empty
-        first_item = next(iter(dataset))
-        if not first_item:
-            raise DATA_INTEGRITY_ERROR("Dataset stream returned empty item.")
-        
-        # Re-inject the first item since we consumed it
-        dataset = load_dataset("openai/gsm8k", "main", split=split, streaming=streaming)
-        
-        return iter(dataset)
-    except Exception as e:
-        logger.error(f"Failed to load GSM8K dataset: {e}")
-        raise DATA_INTEGRITY_ERROR(f"Data loading failed: {str(e)}") from e
-
-def verify_no_overlap(train_indices: set, test_indices: set) -> bool:
-    """
-    Verify that training and test indices do not overlap.
+            return list(self.dataset)[:n]
     
-    Args:
-        train_indices: Set of indices used for training.
-        test_indices: Set of indices used for testing.
-    
-    Returns:
-        True if no overlap.
-    
-    Raises:
-        DATA_INTEGRITY_ERROR: If overlap is detected.
-    """
-    overlap = train_indices.intersection(test_indices)
-    if overlap:
-        raise DATA_INTEGRITY_ERROR(
-            f"Data integrity error: Found {len(overlap)} overlapping indices between "
-            f"training and test sets."
-        )
-    return True
+    def verify_no_overlap(self, training_indices: set, test_indices: set) -> bool:
+        """Verify no overlap between training and test indices."""
+        overlap = training_indices.intersection(test_indices)
+        if overlap:
+            raise DATA_INTEGRITY_ERROR(f"Data overlap detected: {overlap}")
+        return True

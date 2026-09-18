@@ -292,3 +292,490 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T18:38:28Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: System testable by fixed staleness training job outputting reward and
+    gradient norms without OOM or CUDA errors
+  claim_id: c_f459b1e4
+  context: 'Independent Test: The system can be tested by running a single training
+    job with a fixed staleness value and verifying that the training log outputs a
+    sequence of reward values and gradient norms without crashing due to OOM or CUDA
+    errors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_testable_by_fixed_staleness_training_job_outputting_r
+  kind: entity_fact
+  raw_text: The system can be tested by running a single training job with a fixed
+    staleness value and verifying that the training log outputs a sequence of reward
+    values and gradient norms without crashing due to OOM or CUDA errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:31:21Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Seed audit output contains discarded seeds with reasons defined as variance
+    greater than 5 percent of mean
+  claim_id: c_0ed0382a
+  context: 'Output: data/processed/seed_audit.json containing discarded_seeds, reasons
+    (variance > 5% of mean), and final_sequence.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Seed_audit_output_contains_discarded_seeds_with_reasons_defi
+  kind: magnitude
+  raw_text: 'Output: data/processed/seed_audit.json containing discarded_seeds, reasons
+    (variance > 5% of mean), and final_sequence.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:32:12Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Baseline stability verified over first 50 steps with variance less than
+    5 percent of mean
+  claim_id: c_faa196d8
+  context: Logic to perform synchronous run, compute static mean reward/gradient of
+    the first 50 steps, verify stability (variance < 5% of mean calculated over the
+    first 50 steps), and save manifest.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_stability_verified_over_first_50_steps_with_varianc
+  kind: magnitude
+  raw_text: Logic to perform synchronous run, compute static mean reward/gradient
+    of the first 50 steps, verify stability (variance < 5% of mean calculated over
+    the first 50 steps), and save manifest.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:32:50Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Integration test verifies no CUDA fallback during CPU model loading
+  claim_id: c_7eed97ff
+  context: Integration test for CPU model loading in tests/integration/test_cpu_load.py
+    (verify no CUDA fallback)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_verifies_no_CUDA_fallback_during_CPU_model
+  kind: entity_fact
+  raw_text: Verify no CUDA fallback
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:33:18Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Integration test verifies 500 steps complete in less than 45 minutes
+    without OOM
+  claim_id: c_774d6da1
+  context: Integration test for training loop with staleness=0 in tests/integration/test_sync_loop.py
+    (verify 500 steps < 45 mins, no OOM)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_verifies_500_steps_complete_in_less_than_45
+  kind: magnitude
+  raw_text: verify 500 steps < 45 mins, no OOM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:34:03Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Statistical report outputs p-value and significance statement at alpha
+    of 0.05
+  claim_id: c_205ad157
+  context: Generate statistical report outputting p-value, significance statement
+    (alpha=0.05), and hypothesis confirmation status (SC-003, SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate statistical report outputting p-value, significance statement
+    (alpha=0.05), and hypothesis confirmation status
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:34:36Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Hypothesis confirmed if reward variance ratio between low and high staleness
+    is greater than 1.5
+  claim_id: c_77bc0c82
+  context: Implement calculation of reward variance ratio (Low vs High staleness)
+    and log confirmation status if ratio > 1.5 to confirm hypothesis (SC-001).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_confirmed_if_reward_variance_ratio_between_low_an
+  kind: magnitude
+  raw_text: log confirmation status if ratio > 1.5 to confirm hypothesis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:35:03Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Hypothesis not confirmed if reward variance ratio is less than or equal
+    to 1.5
+  claim_id: c_165b95c4
+  context: 'If ratio <= 1.5, log HYPOTHESIS_NOT_CONFIRMED: ratio <= 1.5 at INFO level
+    and continue; do NOT assert/fail.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_not_confirmed_if_reward_variance_ratio_is_less_th
+  kind: magnitude
+  raw_text: 'if ratio <= 1.5, log HYPOTHESIS_NOT_CONFIRMED: ratio <= 1.5 at INFO level'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:35:46Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Data loader processes GSM8K in chunks to prevent loading full dataset
+    into memory
+  claim_id: c_e168553e
+  context: Add a streaming=True flag enforcement in src/llmxive/data_loader.py to
+    ensure GSM8K is processed in chunks, preventing OOM on a resource-constrained
+    runner with limited RAM. Verify that the loader does not attempt to load the full
+    dataset into memory.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_processes_GSM8K_in_chunks_to_prevent_loading_ful
+  kind: entity_fact
+  raw_text: Verify that the loader does not attempt to load the full dataset into
+    memory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:36:30Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Single training job with fixed staleness outputs reward values and gradient
+    norms without OOM or CUDA errors
+  claim_id: c_603e3ecf
+  context: 'Independent Test: The system can be tested by running a single training
+    job with a fixed staleness value and verifying that the training log outputs a
+    sequence of reward values and gradient norms without crashing due to OOM or CUDA
+    errors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Single_training_job_with_fixed_staleness_outputs_reward_valu
+  kind: entity_fact
+  raw_text: The system can be tested by running a single training job with a fixed
+    staleness value and verifying that the training log outputs a sequence of reward
+    values and gradient norms without crashing due to OOM or CUDA errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:45:38Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Pre-generated log file with known divergence point is correctly flagged
+    as 'diverged' by analysis script
+  claim_id: c_16815214
+  context: 'Independent Test: The system can be tested by feeding a pre-generated
+    log file with a known divergence point and verifying that the analysis script
+    correctly flags the run as ''diverged''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pre-generated_log_file_with_known_divergence_point_is_correc
+  kind: entity_fact
+  raw_text: The system can be tested by feeding a pre-generated log file with a known
+    divergence point and verifying that the analysis script correctly flags the run
+    as 'diverged'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:46:19Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Mock dataset with known means and variances returns correct p-value from
+    t-test
+  claim_id: c_7f234c1d
+  context: 'Independent Test: The system can be tested by running a mock dataset with
+    known means and variances and verifying that the t-test returns the correct p-value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mock_dataset_with_known_means_and_variances_returns_correct
+  kind: entity_fact
+  raw_text: The system can be tested by running a mock dataset with known means and
+    variances and verifying that the t-test returns the correct p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:47:06Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Data loader raises DATA_INTEGRITY_ERROR on datasets.load_dataset failure
+  claim_id: c_ec23e74d
+  context: Add explicit unit tests in tests/unit/test_data_loader.py to verify that
+    data_loader.py raises DATA_INTEGRITY_ERROR when datasets.load_dataset fails, ensuring
+    no silent fallback occurs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_raises_DATA_INTEGRITY_ERROR_on_datasets.load_dat
+  kind: entity_fact
+  raw_text: The loader must raise DATA_INTEGRITY_ERROR when datasets.load_dataset
+    fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:48:17Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Staleness clamped to buffer_size - 1 if exceeded
+  claim_id: c_1a258ac1
+  context: Implement src/llmxive/staleness_queue.py to buffer gradients; MUST clamp
+    staleness to buffer_size - 1 if exceeded (Edge Case)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The loader must clamp staleness to buffer_size - 1 if exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:49:58Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: System raises ERR_CPU_LOAD_FAIL on OOM during model loading
+  claim_id: c_c16eeb55
+  context: Implement src/llmxive/model_factory.py to load Phi-2 and Qwen1.5-1.8B with
+    8-bit CPU quantization; MUST raise ERR_CPU_LOAD_FAIL (from T005a) if OOM (FR-001,
+    Edge Case)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_raises_ERR_CPU_LOAD_FAIL_on_OOM_during_model_loading
+  kind: entity_fact
+  raw_text: The system must raise ERR_CPU_LOAD_FAIL if OOM occurs during model loading.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:50:33Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Synchronous baseline stability verified with variance less than 5% of
+    mean over first 50 steps
+  claim_id: c_f50a4cf8
+  context: 'Implement src/llmxive/baseline_generator.py: Logic to perform synchronous
+    run, compute static mean reward/gradient of the first 50 steps, verify stability
+    (variance < 5% of mean calculated over the first 50 steps), and save manifest.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synchronous_baseline_stability_verified_with_variance_less_t
+  kind: magnitude
+  raw_text: The system must verify stability (variance < 5% of mean) for the first
+    50 steps of the synchronous baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:51:20Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Divergence flagged if reward is less than baseline mean for 50 consecutive
+    steps
+  claim_id: c_07e163be
+  context: 'Implement src/llmxive/divergence_detector.py (Static Mean Baseline): MUST
+    implement Spec FR-003 as the primary method: Flag if reward < baseline_mean_reward
+    (from T020) for 50 consecutive steps OR gradient norm > 2x baseline_mean_grad_norm
+    (from T020) for 50 consecutive steps.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Divergence_flagged_if_reward_is_less_than_baseline_mean_for
+  kind: magnitude
+  raw_text: The system must flag divergence if reward is less than baseline_mean_reward
+    for 50 consecutive steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:52:13Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Divergence flagged if gradient norm is greater than 2 times baseline
+    mean gradient norm for 50 consecutive steps
+  claim_id: c_a32301bf
+  context: 'Implement src/llmxive/divergence_detector.py (Static Mean Baseline): MUST
+    implement Spec FR-003 as the primary method: Flag if reward < baseline_mean_reward
+    (from T020) for 50 consecutive steps OR gradient norm > 2x baseline_mean_grad_norm
+    (from T020) for 50 consecutive steps.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Divergence_flagged_if_gradient_norm_is_greater_than_2_times
+  kind: magnitude
+  raw_text: The system must flag divergence if gradient norm is greater than 2x baseline_mean_grad_norm
+    for 50 consecutive steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:52:53Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Training loop with staleness 0 completes 500 steps in less than 45 minutes
+    without OOM
+  claim_id: c_7d507ed1
+  context: Integration test for training loop with staleness=0 in tests/integration/test_sync_loop.py
+    (verify 500 steps < 45 mins, no OOM)
+  evidence:
+    candidates:
+    - - Training loop with staleness 0 completes
+      - 500.0
+    - - Log in Training loop with staleness
+      - 0.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Training_loop_with_staleness_0_completes_500_steps_in_less_t
+  kind: magnitude
+  raw_text: The integration test for training loop with staleness=0 must complete
+    500 steps in less than 45 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-18T13:53:29Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: System aborts if peak RAM usage exceeds 6.5 GB
+  claim_id: c_71c264b3
+  context: Add memory monitoring in trainer.py to log peak RAM usage and abort if
+    > 6.5 GB (FR-001, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must abort if peak RAM usage exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:54:04Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Two-Sample T-Test used for equality of means on final reward
+  claim_id: c_cb8b43c0
+  context: Implement src/llmxive/stats.py with two-sample t-test for equality of means
+    on final reward (FR-005, US-3).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-Sample_T-Test_used_for_equality_of_means_on_final_reward
+  kind: entity_fact
+  raw_text: The system must use a Two-Sample T-Test for equality of means on final
+    reward.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:54:56Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Hypothesis confirmation logged if reward variance ratio is greater than
+    1.5
+  claim_id: c_1fb52c1c
+  context: Implement calculation of reward variance ratio (Low vs High staleness)
+    and log confirmation status if ratio > 1.5 to confirm hypothesis (SC-001).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_confirmation_logged_if_reward_variance_ratio_is_g
+  kind: magnitude
+  raw_text: The system must log a hypothesis confirmation status if the reward variance
+    ratio (Low vs High staleness) is greater than 1.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:56:13Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: Threshold for 1.8B model is greater than threshold for 1.4B model
+  claim_id: c_2d757299
+  context: 'Verify Non-Linear Trend: Programmatically assert that threshold(1.8B)
+    > threshold(1.4B) and log success/failure to data/processed/trend_verification.json.'
+  evidence:
+    candidates:
+    - - Threshold for
+      - 1.8
+    - - B model is greater than threshold for
+      - 1.4
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Threshold_for_1.8B_model_is_greater_than_threshold_for_1.4B
+  kind: magnitude
+  raw_text: The system must programmatically assert that the threshold for the 1.8B
+    model is greater than the threshold for the 1.4B model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-18T13:57:35Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: GSM8K processed in chunks to prevent OOM on 7GB RAM runner
+  claim_id: c_19bcccfc
+  context: Add a streaming=True flag enforcement in src/llmxive/data_loader.py to
+    ensure GSM8K is processed in chunks, preventing OOM on the 7GB RAM runner. Verify
+    that the loader does not attempt to load the full dataset into memory.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_processed_in_chunks_to_prevent_OOM_on_7GB_RAM_runner
+  kind: entity_fact
+  raw_text: The loader must ensure GSM8K is processed in chunks to prevent OOM on
+    a 7GB RAM runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T13:58:31Z'

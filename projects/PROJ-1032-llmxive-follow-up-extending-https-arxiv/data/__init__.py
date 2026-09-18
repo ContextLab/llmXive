@@ -1,1 +1,1 @@
-"""Data directory for llmXive artifacts."""
+"""Data artifacts and processed outputs for llmXive."""

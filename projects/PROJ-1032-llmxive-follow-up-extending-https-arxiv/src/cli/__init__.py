@@ -1,1 +1,1 @@
-"""Command-line interface for llmXive."""
+"""Command-line interface entry points for llmXive."""

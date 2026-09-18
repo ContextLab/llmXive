@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`src/llmxive`, `src/cli`, `src/utils`,\
+    \ `tests/`, `data/`) or any files within them is provided; the claim contains\
+    \ only a feature specification, not the actual project structure. The implementer\
+    \ must supply the created folder hierarchy and non\u2011empty placeholder files\
+    \ to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries
+    for ruff/black, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) were presented,
+    nor any scripts/instructions to run them. Without these artifacts the requirement
+    to configure ruff and black is not satisfied.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,14 +27,6 @@ T015:
   r: "No `trainer.py` file or diff showing added memory\u2011monitoring logic is provided;\
     \ there is no code that logs peak RAM usage nor aborts when usage exceeds 6.5\u202F\
     GB, nor any test output demonstrating the behavior. The required artifact is missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or documentation implementing seed management is
-    present; the only artifacts described relate to a training loop and staleness
-    simulation, not to deterministic seeding. The required artifact (e.g., a function/module
-    that sets random seeds across libraries and ensures reproducibility) is missing,
-    so the task is not satisfied.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,10 +34,3 @@ T017:
     `staleness_level`, `seed`, and `reward_curve` fields is present. The implementer
     only restated the task and spec without providing the required logging implementation
     or sample output. The required artifact is missing.
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data/processed/baseline_manifests/{seed}.json` files (or any other artifacts)
-    were presented, and there is no code or logs showing that a synchronous run with
-    `staleness=0` was performed, mean reward/gradient computed, and results saved.
-    The required output is missing, so the task is not satisfied.

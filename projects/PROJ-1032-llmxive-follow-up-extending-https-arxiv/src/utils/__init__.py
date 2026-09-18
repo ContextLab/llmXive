@@ -1,1 +1,1 @@
-"""Utility modules for llmXive."""
+"""Utility functions and shared helpers for llmXive."""
