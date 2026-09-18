@@ -1,107 +1,94 @@
 import json
 import os
-import random
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 from engines.oracle_policy import OraclePolicyEngine
 
 
 class FullContextEngine:
-    """Engine for executing workflows with full policy context."""
+    """Executes workflows with full context."""
 
     def __init__(self):
-        """Initialize the engine with an Oracle Policy Engine."""
         self.oracle = OraclePolicyEngine()
 
     def execute(self, workflow: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute a workflow with full context validation.
+        """Execute a workflow with full context.
 
         Args:
-            workflow: The workflow to execute.
+            workflow: Workflow dictionary.
 
         Returns:
             Execution log dictionary.
         """
-        nodes = workflow.get("nodes", {})
-        metadata = workflow.get("metadata", {})
+        workflow_id = workflow["id"]
+        nodes = workflow["nodes"]
+        edges = workflow["edges"]
+        metadata = workflow["metadata"]
 
-        # Handle edge cases
+        # Check for edge cases
         if len(nodes) <= 1 or metadata.get("depth", 0) == 0:
             return {
-                "workflow_id": workflow.get("id", "unknown"),
+                "workflow_id": workflow_id,
                 "compression_depth": 0,
                 "token_count": 0,
+                "policy_violations": [],
                 "context_reduction_pct": "[deferred]",
                 "is_valid": True,
-                "status": "edge_case",
-                "policy_violations": [],
-                "violation_details": [],
-                "depth": metadata.get("depth", 0),
-                "complexity": metadata.get("complexity", 0),
+                "status": "edge_case"
             }
 
-        # Validate each node using Oracle
         violations = []
-        violation_details = []
-        is_valid = True
+        valid = True
 
-        for node_id, node in nodes.items():
-            constraints = node.get("constraints", [])
-            for constraint in constraints:
-                rule_id = constraint.get("id", "unknown")
-                # Simulate Oracle validation (in real implementation, this would be more complex)
-                # For synthetic data, we simulate some violations
-                if random.random() < 0.05:  # 5% chance of violation
-                    violations.append(f"Policy violation: {rule_id}")
-                    violation_details.append({
-                        "node_id": node_id,
-                        "rule_id": rule_id,
-                        "reason": "Oracle policy violation detected"
-                    })
-                    is_valid = False
+        # Validate each node against Oracle
+        for node_id, node_data in nodes.items():
+            result = self.oracle.validate(workflow, node_data)
+            if not result["compliant"]:
+                violations.append({
+                    "node_id": node_id,
+                    "rule_id": result.get("rule_id", "unknown"),
+                    "details": result.get("details", "Constraint violation")
+                })
+                valid = False
 
-        # Calculate token count (full context)
-        full_json = json.dumps(workflow)
-        # Mock token count for demonstration (real implementation would use tiktoken)
-        token_count = len(full_json) // 4  # Approximate
+        # Calculate token count (mock for now, replaced by T022 integration)
+        # Using a simple heuristic based on node count and constraints
+        token_count = len(str(workflow)) * 4  # Rough estimate
 
         return {
-            "workflow_id": workflow.get("id", "unknown"),
+            "workflow_id": workflow_id,
             "compression_depth": 0,
             "token_count": token_count,
-            "context_reduction_pct": 0.0,
-            "is_valid": is_valid,
-            "status": "normal" if not is_valid else "valid",
             "policy_violations": violations,
-            "violation_details": violation_details,
-            "depth": metadata.get("depth", 0),
-            "complexity": metadata.get("complexity", 0),
+            "context_reduction_pct": 0.0,
+            "is_valid": valid and len(violations) == 0,
+            "status": "normal" if valid else "violation_detected"
         }
 
 
 def main() -> None:
-    """Main entry point for full context engine."""
+    """Main entry point for full context execution."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Full Context Engine")
-    parser.add_argument("--workflow", type=str, required=True, help="Workflow JSON file")
+    parser.add_argument("--workflow", type=str, required=True, help="Input workflow file")
     parser.add_argument("--output", type=str, required=True, help="Output log file")
 
     args = parser.parse_args()
 
-    with open(args.workflow, "r") as f:
-        workflow = json.load(f)
-
     engine = FullContextEngine()
+    
+    with open(args.workflow, 'r') as f:
+        workflow = json.load(f)
+    
     log = engine.execute(workflow)
-
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w") as f:
+    
+    os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
+    with open(args.output, 'w') as f:
         json.dump(log, f, indent=2)
-
-    print(f"Execution log saved to {args.output}")
+    
+    print(f"Executed {args.workflow} -> {args.output}")
 
 
 if __name__ == "__main__":

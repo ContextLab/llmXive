@@ -85,7 +85,7 @@ projects/PROJ-866-llmxive-follow-up-extending-foundation-p/
 ### Phase 0: Research & Feasibility
 - **Goal**: Validate dataset strategy (synthetic generation logic) and statistical methods.
 - **Tasks**:
-  - Confirm `networkx` can generate a sufficient number of unique DAGs with depth -20 and 1-10 constraints.
+  - Confirm `networkx` can generate a sufficient number of unique DAGs with depth in a high range and 1-10 constraints.
   - Verify `tiktoken` `clk_base` tokenization speed and memory footprint on CPU.
   - Select regression model (Logistic Regression on individual observations) for error rate vs. reduction %.
   - Define multiple-comparison correction method (Bonferroni) for secondary robustness checks.

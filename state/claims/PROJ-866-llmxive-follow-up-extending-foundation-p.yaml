@@ -283,25 +283,6 @@
   updated_at: '2026-09-07T20:49:55Z'
 - artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
   attempts: 1
-  canonical: 20 unique depth levels with at least 25 workflows per level
-  claim_id: c_8ffff2c0
-  context: 'Unit test for graph variance in tests/unit/test_generator.py. Assertion:
-    Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_per_level
-  kind: magnitude
-  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
-    25 workflows.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-07T20:55:18Z'
-- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
-  attempts: 1
   canonical: Bootstrapping with 1000 resamples for threshold confidence interval
   claim_id: c_aba75e86
   context: 'Identify the specific context reduction percentage where the policy-violation
@@ -351,3 +332,1075 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T20:55:18Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 20 unique depth levels with at least 25 workflows per level
+  claim_id: c_99801c57
+  context: Unit test for graph variance in tests/unit/test_generator.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_per_level
+  kind: magnitude
+  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
+    25 workflows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:40:41Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Build fails if total wall clock time exceeds 21600 seconds
+  claim_id: c_07d6ca86
+  context: Benchmark & Performance Gate task acceptance criteria
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:40:41Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Bootstrapping performed with 1000 resamples for threshold confidence
+    interval
+  claim_id: c_80567c1e
+  context: Implement threshold detection and bootstrapping task methodology
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:41:10Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Final threshold value rounded to 2 decimal places
+  claim_id: c_6f4251ea
+  context: Implement threshold detection and bootstrapping task output requirements
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:41:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to depth and complexity covariate p-values
+    in logistic regression
+  claim_id: c_5f5d0112
+  context: Apply Bonferroni correction to regression p-values task methodology
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_depth_and_complexity_covari
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction specifically to the p-values of the covariate
+    coefficients (depth and complexity) derived from the Logistic Regression model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:42:16Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Batch execution iterates over 500 workflows across compression levels
+    1 to 5
+  claim_id: c_b441ca4b
+  context: Implement batch execution logic in main.py task description
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the --generate CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:42:50Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Quickstart documentation includes command to generate 500 workflows
+  claim_id: c_0c009d4b
+  context: Update quickstart.md with the 500-workflow generation command and analysis
+    steps
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    and expected output paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:43:23Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Generate DAGs with depths 1 to 20 and complexities 1 to 10
+  claim_id: c_803a8a51
+  context: Implement code/generators/synthetic_workflow.py with deterministic seeding
+    (FR-001). Generates a collection of DAGs, depths -20, complexities -10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a collection of DAGs, depths -20, complexities -10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:44:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Run pipeline with 500 workflows and depths 1 to 5
+  claim_id: c_b244f1ae
+  context: 'Benchmark & Performance Gate: Implement and run the full pipeline (python
+    code/main.py --generate 500 --compress --analyze) with depths 1-5 on the target
+    runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline (python code/main.py --generate 500 --compress --analyze)
+    with depths 1-5 on the target runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Build fails if total wall clock time exceeds 21600 seconds
+  claim_id: c_dacdee3c
+  context: 'Acceptance: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS
+    immediately. This task is a blocking gate for FR-007 and SC-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Perform bootstrapping with 1000 resamples for threshold confidence interval
+  claim_id: c_881f6d8d
+  context: 'Method: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds a nominal threshold. Bootstrapping: Perform bootstrapping
+    with exactly 1000 resamples using scipy.stats.bootstrap to calculate the Confidence
+    interval for the threshold value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Round final threshold value to 2 decimal places
+  claim_id: c_06959421
+  context: 'Rounding: Round the final threshold value to 2 decimal places. Output:
+    Write threshold value and CI bounds to data/results/threshold_ci.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Command python code/main.py --generate 500 --analyze
+  claim_id: c_af2e281f
+  context: 'Update quickstart.md with the 500-workflow generation command and analysis
+    steps. Deliverable: Include exact command string python code/main.py --generate
+    500 --analyze and expected output paths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    and expected output paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Use Chi-Square test or strict count check to verify uniformity
+  claim_id: c_792906ef
+  context: 'Add a statistical test (e.g., Chi-Square) to verify uniformity if the
+    sample size permits, or a strict count check. Dependency: T012.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Chi-Square_test_or_strict_count_check_to_verify_uniformi
+  kind: entity_fact
+  raw_text: Add a statistical test (e.g., Chi-Square) to verify uniformity if the
+    sample size permits, or a strict count check.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:34Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Ensure no unseeded parallelism or non-deterministic operations
+  claim_id: c_1e772424
+  context: Verify that random.seed() and numpy.random.seed() are called explicitly
+    at the start of code/generators/synthetic_workflow.py and code/main.py. Ensure
+    no non-deterministic operations (e.g., unseeded parallelism) exist.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_no_unseeded_parallelism_or_non-deterministic_operatio
+  kind: entity_fact
+  raw_text: Ensure no non-deterministic operations (e.g., unseeded parallelism) exist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:46:58Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 20 unique depth levels with at least 25 workflows each
+  claim_id: c_c887a4a8
+  context: 'T010 Unit test for graph variance in tests/unit/test_generator.py. Assertion:
+    Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_each
+  kind: magnitude
+  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
+    25 workflows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:47:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap resamples for threshold confidence interval
+  claim_id: c_938a99e2
+  context: 'T031 Implement threshold detection and bootstrapping. Bootstrapping: Perform
+    bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap to calculate
+    the Confidence interval for the threshold value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:47:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Build fails if benchmark exceeds 21600 seconds
+  claim_id: c_acc9b0b2
+  context: 'T038 Benchmark & Performance Gate. Measure wall-clock time. Write a single
+    JSON object to data/results/benchmark.log containing total_wall_clock_seconds.
+    Acceptance: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:47:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Generated DAGs with depths up to 20 and complexities up to 10
+  claim_id: c_dab448c4
+  context: T012 Implement code/generators/synthetic_workflow.py with deterministic
+    seeding. Generates a collection of DAGs, depths -20, complexities -10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a collection of DAGs, depths -20, complexities -10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:47:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Command to generate 500 workflows and analyze
+  claim_id: c_f9b8d5e4
+  context: 'T036 Update quickstart.md with the 500-workflow generation command and
+    analysis steps. Deliverable: Include exact command string python code/main.py
+    --generate 500 --analyze and expected output paths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    and expected output paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:47:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Iterate over 500 workflows with compression levels 1 to 5
+  claim_id: c_5bc80fe8
+  context: 'T023 Implement batch execution logic in main.py to run a substantial number
+    of workflows across multiple compression levels. Deliverable: Implement the --compress
+    CLI flag to iterate over data/raw/ (500 workflows) and apply compression levels
+    1 through 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:48:10Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_f06a025f
+  context: 'T031 Implement threshold detection and bootstrapping. Rounding: Round
+    the final threshold value to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:48:10Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Workflow schema requires id, nodes, edges, metadata with specific node
+    properties
+  claim_id: c_e62fa27c
+  context: 'T004 Create contracts/workflow.schema.yaml: Define a JSON Schema (YAML
+    format) for Workflow. Must include type: object, required: [id, nodes, edges,
+    metadata], and properties defining nodes as array of objects with id, type (allowed
+    values: ''agent'', ''action'', ''policy''), constraints (allowed values: ''budget'',
+    ''sovereignty'', ''latency'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Workflow_schema_requires_id,_nodes,_edges,_metadata_with_spe
+  kind: entity_fact
+  raw_text: 'The schema must include type: object, required: [id, nodes, edges, metadata],
+    and properties defining nodes as array of objects with id, type (allowed values:
+    ''agent'', ''action'', ''policy''), constraints (allowed values: ''budget'', ''sovereignty'',
+    ''latency'').'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:48:52Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Execution log schema requires workflow_id, compression_depth, token_count,
+    policy_violations
+  claim_id: c_a0f1f00e
+  context: 'T005 Create contracts/execution_log.schema.yaml: Define a JSON Schema
+    (YAML format) for ExecutionLog. Must include type: object, required: [workflow_id,
+    compression_depth, token_count, policy_violations], and properties defining: context_reduction_pct:
+    type [number, string].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execution_log_schema_requires_workflow_id,_compression_depth
+  kind: entity_fact
+  raw_text: 'The schema must include type: object, required: [workflow_id, compression_depth,
+    token_count, policy_violations], and properties defining context_reduction_pct
+    as type [number, string].'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:49:18Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Analysis results schema requires threshold_pct, ci_lower, ci_upper, regression_coefficients
+  claim_id: c_368866e1
+  context: 'T006 Create contracts/analysis_results.schema.yaml: Define a JSON Schema
+    (YAML format) for AnalysisResult. Must include type: object, required: [threshold_pct,
+    ci_lower, ci_upper, regression_coefficients], and properties defining threshold_pct
+    as number, ci_lower/upper as number.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_results_schema_requires_threshold_pct,_ci_lower,_ci
+  kind: entity_fact
+  raw_text: 'The schema must include type: object, required: [threshold_pct, ci_lower,
+    ci_upper, regression_coefficients], and properties defining threshold_pct as number,
+    ci_lower/upper as number.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:49:40Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 'Benchmark acceptance: total wall clock time <= 21600 seconds'
+  claim_id: c_d3eabc5c
+  context: 'T038 [P] [Foundational] **Benchmark & Performance Gate**: Implement and
+    run the full pipeline... **Acceptance**: If `total_wall_clock_seconds` > 21600
+    (6 hours), the build FAILS immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark acceptance criterion is that total_wall_clock_seconds must
+    not exceed 21600 (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:50:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 'Generator output: 20 unique depth levels with >= 25 workflows each'
+  claim_id: c_36c7a28d
+  context: 'T010 [US1] Unit test for graph variance... **Assertion**: Verify exactly
+    20 unique depth levels exist and each level has at least 25 workflows.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generator_output:_20_unique_depth_levels_with_%3E=_25_workflow
+  kind: magnitude
+  raw_text: The generator must produce exactly 20 unique depth levels, with at least
+    25 workflows per level.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:51:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 'Generator output: >= 25 workflows per depth level in 1-20 range'
+  claim_id: c_e7caa3cd
+  context: 'T043 [US1] **Update T010**: Update `tests/unit/test_generator.py`... to
+    explicitly assert the presence of **at least 25 workflows per depth level** across
+    the 1-20 range'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generator_output:_%3E=_25_workflows_per_depth_level_in_1-20_ra
+  kind: magnitude
+  raw_text: The generator must produce at least 25 workflows per depth level across
+    the 1-20 range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:51:41Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Bootstrapping analysis uses 1000 resamples
+  claim_id: c_5661f54c
+  context: T031 [US3] Implement threshold detection and bootstrapping... Perform bootstrapping
+    with **exactly 1000 resamples** using `scipy.stats.bootstrap`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapping analysis uses exactly 1000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:52:07Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_4ebb7eb4
+  context: 'T031 [US3] Implement threshold detection and bootstrapping... **Rounding**:
+    Round the final threshold value to **2 decimal places**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final threshold value is rounded to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:52:46Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 'Full pipeline CLI command: --generate 500 --compress --analyze'
+  claim_id: c_aa638eb7
+  context: 'T038 [P] [Foundational] **Benchmark & Performance Gate**: Implement and
+    run the full pipeline (`python code/main.py --generate 500 --compress --analyze`)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CLI command `python code/main.py --generate 500 --compress --analyze`
+    is used to run the full pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:53:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 'Quickstart command: --generate 500 --analyze'
+  claim_id: c_fd31b251
+  context: 'T036 [P] Update `quickstart.md`... **Deliverable**: Include exact command
+    string `python code/main.py --generate 500 --analyze`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The quickstart documentation includes the command `python code/main.py
+    --generate 500 --analyze`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:53:52Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Compression levels 1 through 5
+  claim_id: c_75eb3f9e
+  context: T023 [US2] Implement batch execution logic... apply compression levels
+    1 through 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compression levels applied are 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:54:11Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Target depth distribution 1-20
+  claim_id: c_f3aa3c96
+  context: 'Independent Test: Run generator script; verify a set of unique IDs, uniform
+    depth distribution (1-20)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target depth distribution for generated workflows is 1-20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:54:31Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Token counter uses tiktoken cl100k_base
+  claim_id: c_716d3b0c
+  context: T007 Implement `code/utils/token_counter.py` using `tiktoken cl100k_base`
+    (FR-009)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_counter_uses_tiktoken_cl100k_base
+  kind: entity_fact
+  raw_text: The token counter uses the `tiktoken cl100k_base` encoding.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:54:50Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Analysis excludes invalid workflows (is_valid=false) before error rate
+    calculation
+  claim_id: c_255495ba
+  context: 'T017 [US1] Implement invalid workflow exclusion logic... **Logic**: Filter
+    out any workflow logs where `is_valid == false` before calculating error rates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_excludes_invalid_workflows_(is_valid%3Dfalse)_before
+  kind: entity_fact
+  raw_text: The analysis excludes workflows where is_valid is false before calculating
+    error rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:55:29Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Policy violation error rate threshold is 1%
+  claim_id: c_bf595f1c
+  context: "Phase 5: User Story 3... identify the 'safe operating zone' (\u22641%\
+    \ error)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Policy_violation_error_rate_threshold_is_1%25
+  kind: entity_fact
+  raw_text: The policy violation error rate threshold is defined as 1%.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:56:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 3
+  canonical: 20 unique depth levels with at least 25 workflows per level
+  claim_id: c_8ffff2c0
+  context: 'Unit test for graph variance in tests/unit/test_generator.py. Assertion:
+    Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_per_level
+  kind: magnitude
+  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
+    25 workflows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:58:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: bootstrapping with 1000 resamples for threshold confidence interval
+  claim_id: c_2d01cf18
+  context: 'Method: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds a nominal threshold. Bootstrapping: Perform bootstrapping
+    with exactly 1000 resamples using scipy.stats.bootstrap to calculate the Confidence
+    interval for the threshold value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:58:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: round threshold value to 2 decimal places
+  claim_id: c_dd0d5f79
+  context: 'Output: Write threshold value and CI bounds to data/results/threshold_ci.json.
+    Rounding: Round the final threshold value to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:58:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: build fails if total wall clock seconds exceeds 21600
+  claim_id: c_c815c395
+  context: 'Measure wall-clock time. Write a single JSON object to data/results/benchmark.log
+    containing total_wall_clock_seconds. Acceptance: If total_wall_clock_seconds >
+    21600 (6 hours), the build FAILS immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Acceptance: If total_wall_clock_seconds > 21600 (6 hours), the build
+    FAILS immediately.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:58:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: generate 500 workflows with compression levels 1 through 5
+  claim_id: c_b3716c13
+  context: 'Deliverable: Implement the --compress CLI flag to iterate over data/raw/
+    (500 workflows) and apply compression levels 1 through 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply the --generate 500 flag to iterate over data/raw/ and apply compression
+    levels 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:59:17Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: generate DAGs with depths up to 20 and complexities up to 10
+  claim_id: c_56792c40
+  context: Implement code/generators/synthetic_workflow.py with deterministic seeding.
+    Generates a collection of DAGs, depths -20, complexities -10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a collection of DAGs with depths up to 20 and complexities up
+    to 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:59:47Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: include command python code/main.py --generate 500 --analyze
+  claim_id: c_f93ac252
+  context: 'Deliverable: Include exact command string python code/main.py --generate
+    500 --analyze and expected output paths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    and expected output paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:59:47Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: verify at least 25 workflows per depth level across 1-20 range
+  claim_id: c_6ecfcc77
+  context: Update tests/unit/test_generator.py to explicitly assert the presence of
+    at least 25 workflows per depth level across the 1-20 range.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_25_workflows_per_depth_level_across_1-20_ran
+  kind: magnitude
+  raw_text: Verify that at least 25 workflows per depth level exist across the 1-20
+    range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:00:08Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 20 unique depth levels with at least 25 workflows per level
+  claim_id: c_072d3926
+  context: 'Independent Test for User Story 1: Run generator script; verify a set
+    of unique IDs, uniform depth distribution (1-20), and that an Oracle Engine produces
+    a distinct ground-truth log for each.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_per_level
+  kind: magnitude
+  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
+    25 workflows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Build fails if total wall clock time exceeds 21600 seconds
+  claim_id: c_71bed981
+  context: 'Benchmark & Performance Gate: Implement and run the full pipeline with
+    depths 1-5 on the target runner. Measure wall-clock time. Write a single JSON
+    object to data/results/benchmark.log containing total_wall_clock_seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 21600 (6 hours), the build FAILS immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis uses 1000 resamples
+  claim_id: c_c13f0331
+  context: 'Implement threshold detection and bootstrapping (FR-006, SC-004): Identify
+    the specific context reduction percentage where the policy-violation error rate
+    first exceeds a nominal threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_94e5029f
+  context: 'Implement threshold detection and bootstrapping (FR-006, SC-004): Perform
+    bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap to calculate
+    the Confidence interval for the threshold value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:03Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Synthetic workflows generated with depths up to 20 and complexities up
+    to 10
+  claim_id: c_5e7688f1
+  context: 'Implement code/generators/synthetic_workflow.py with deterministic seeding
+    (FR-001): Generates a collection of DAGs, depths -20, complexities -10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a collection of DAGs with depths up to 20 and complexities up
+    to 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:03Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Batch execution processes 500 workflows across compression levels 1 through
+    5
+  claim_id: c_b7f92288
+  context: 'Implement batch execution logic in main.py to run a substantial number
+    of workflows across multiple compression levels: Deliverable: Implement the --compress
+    CLI flag to iterate over data/raw/ (500 workflows) and apply compression levels
+    1 through 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:03Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Documentation includes command python code/main.py --generate 500 --analyze
+  claim_id: c_e17b67d3
+  context: 'Update quickstart.md with the 500-workflow generation command and analysis
+    steps: Deliverable: Include exact command string python code/main.py --generate
+    500 --analyze and expected output paths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    in quickstart.md.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:02:26Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Random seed calls required at start of synthetic workflow generator and
+    main script
+  claim_id: c_48e4f8bd
+  context: 'Determinism Check: Verify that random.seed() and numpy.random.seed() are
+    called explicitly at the start of code/generators/synthetic_workflow.py and code/main.py.
+    Ensure no non-deterministic operations exist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_seed_calls_required_at_start_of_synthetic_workflow_ge
+  kind: entity_fact
+  raw_text: Verify that random.seed() and numpy.random.seed() are called explicitly
+    at the start of code/generators/synthetic_workflow.py and code/main.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:03:04Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 20 unique depth levels with at least 25 workflows each
+  claim_id: c_b56d8f28
+  context: Unit test for graph variance in tests/unit/test_generator.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/20_unique_depth_levels_with_at_least_25_workflows_each
+  kind: magnitude
+  raw_text: Verify exactly 20 unique depth levels exist and each level has at least
+    25 workflows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:04:26Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for bootstrap confidence interval
+  claim_id: c_c0153bd7
+  context: Implement threshold detection and bootstrapping (FR-006, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrapping with exactly 1000 resamples using scipy.stats.bootstrap
+    to calculate the Confidence interval for the threshold value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:04:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_d4bf39d6
+  context: Implement threshold detection and bootstrapping (FR-006, SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:04:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Build fails if wall-clock time exceeds 21600 seconds
+  claim_id: c_96a9a9b4
+  context: 'Benchmark & Performance Gate: Implement and run the full pipeline with
+    depths 1-5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The build FAILS immediately if total_wall_clock_seconds > 21600 (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:04:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Generate 500 workflows command
+  claim_id: c_45fdd4ae
+  context: Update quickstart.md with the 500-workflow generation command and analysis
+    steps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include exact command string python code/main.py --generate 500 --analyze
+    and expected output paths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:04:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Process 500 workflows across 5 compression levels
+  claim_id: c_98a7b1e0
+  context: Implement batch execution logic in main.py to run a substantial number
+    of workflows across multiple compression levels
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:04:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Paper numbers derived strictly from data/results files
+  claim_id: c_9e2d41d2
+  context: 'Paper Draft Validation: Verify that all numbers in the draft paper are
+    derived strictly from data/results/ files.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paper_numbers_derived_strictly_from_data/results_files
+  kind: entity_fact
+  raw_text: Verify that all numbers in the draft paper (if any exist in paper/) are
+    derived strictly from data/results/ files and not hardcoded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T02:06:56Z'

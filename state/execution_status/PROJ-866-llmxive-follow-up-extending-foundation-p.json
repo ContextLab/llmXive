@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-866-llmxive-follow-up-extending-foundation-p",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/generators/synthetic_workflow.py --count 500 --seed 42 (rc=2); python code/engines/full_context.py --input data/raw/workflows.json (rc=2); python code/engines/compressed_context.py --input data/raw/workflows.json --depths 2 4 6 8 10 (rc=2); 3 declared deliverable(s) absent: data/processed/corrected_pvalues.json; data/results/threshold_ci.json; data/results/tradeoff_curve.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/generators/synthetic_workflow.py --count 500 --seed 42 -> rc=2\n    usage: synthetic_workflow.py [-h] [--count COUNT] --output OUTPUT\n                             [--seed SEED]\nsynthetic_workflow.py: error: the following arguments are required: --output",
+    "python code/engines/full_context.py --input data/raw/workflows.json -> rc=2\n    usage: full_context.py [-h] --workflow WORKFLOW --output OUTPUT\nfull_context.py: error: the following arguments are required: --workflow, --output",
+    "python code/engines/compressed_context.py --input data/raw/workflows.json --depths 2 4 6 8 10 -> rc=2\n    usage: compressed_context.py [-h] --workflow WORKFLOW [--depth DEPTH]\n                             [--method {bfs,dfs}] --output OUTPUT\ncompressed_context.py: error: the following arguments are required: --workflow, --output",
+    "python code/analysis/tradeoff_model.py --full data/processed/full_context_logs.json --compressed data/processed/compressed_context_logs.json -> rc=1\n    No logs found for analysis."
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-18T01:38:12Z"
+}

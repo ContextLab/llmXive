@@ -17,6 +17,12 @@ class SyntheticWorkflowGenerator:
         """
         self.seed = seed
         random.seed(seed)
+        # Explicitly seed numpy if available to ensure full determinism
+        try:
+            import numpy as np
+            np.random.seed(seed)
+        except ImportError:
+            pass
 
     def _generate_node(
         self, node_id: str, depth: int, complexity: int
@@ -153,6 +159,14 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
 
     args = parser.parse_args()
+
+    # Ensure deterministic seeding at entry point
+    random.seed(args.seed)
+    try:
+        import numpy as np
+        np.random.seed(args.seed)
+    except ImportError:
+        pass
 
     generator = SyntheticWorkflowGenerator(seed=args.seed)
     workflows = generator.generate_workflows(args.count)

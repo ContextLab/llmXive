@@ -1,139 +1,77 @@
 # llmXive Quickstart Guide
 
-This guide provides instructions for running the llmXive automated science pipeline
-to generate workflows, execute them with compressed context, and analyze the
-trade-off between context reduction and policy violations.
-
 ## Prerequisites
 
-- Python 3.11 or higher
-- Required dependencies installed (see `requirements.txt`)
+- Python 3.11+
+- Install dependencies: `pip install -r requirements.txt`
+
+## Quick Start
+
+### 1. Generate Workflows
+
+Generate 500 synthetic workflows with deterministic seeding:
 
 ```bash
-pip install -r requirements.txt
+python code/generators/synthetic_workflow.py --count 500 --output data/raw --seed 42
 ```
 
-## Project Structure
+### 2. Execute Full Context
 
-```
-.
-├── code/ # Source code
-│ ├── main.py # Orchestrator
-│ ├── generators/ # Workflow generators
-│ ├── engines/ # Execution engines
-│ ├── analysis/ # Trade-off analysis
-│ ├── utils/ # Utility functions
-│ └──...
-├── data/
-│ ├── raw/ # Generated workflow definitions
-│ ├── processed/ # Execution logs
-│ └── results/ # Analysis outputs
-├── contracts/ # JSON Schemas
-├── state/ # Project state registry
-└── tests/ # Test suite
-```
-
-## Running the Full Pipeline
-
-The pipeline consists of three main stages:
-1. **Generate**: Create synthetic workflow baselines
-2. **Compress**: Execute workflows with compressed context
-3. **Analyze**: Model the trade-off curve and identify safe operating thresholds
-
-### Command to Run the Complete Pipeline
-
-To generate 500 workflows, execute them with compressed context across multiple
-depth levels, and perform the full trade-off analysis:
+Run the full context engine on all generated workflows:
 
 ```bash
-python code/main.py --generate 500 --analyze
+# Note: This is typically done via the main orchestrator (see below)
+# To run manually on a single file:
+python code/engines/full_context.py --workflow data/raw/wf_0000.json --output data/processed/full_wf_0000.json
 ```
 
-This single command will:
-- Generate 500 deterministic synthetic workflows with varying depths (1-20) [UNRESOLVED-CLAIM: c_476da6c0 — status=not_enough_info]
-- Execute each workflow with the Full Context engine (ground truth)
-- Execute each workflow with Compressed Context engines at multiple depth levels
-- Perform logistic regression analysis on the results
-- Apply Bonferroni correction for multiple comparisons
-- Calculate the safe operating threshold with bootstrapped confidence intervals
-- Generate all output artifacts
+### 3. Execute Compressed Context
 
-### Expected Output Files
-
-After successful execution, the following files will be created:
-
-**Raw Data** (`data/raw/`):
-- `workflow_{id}.json`: Generated workflow definitions
-
-**Processed Data** (`data/processed/`):
-- `log_{workflow_id}_{depth}.json`: Execution logs for each workflow at each compression depth
-- `corrected_pvalues.json`: Bonferroni-corrected p-values for regression covariates
-
-**Results** (`data/results/`):
-- `threshold_ci.json`: Safe operating threshold with 95% confidence interval
-- `tradeoff_curve.csv`: Raw regression data for the paper (reduction_pct, error_rate, depth, ci_lower, ci_upper)
-- `benchmark.log`: Wall-clock timing information (if benchmark task is run)
-
-**State Registry** (`state/projects/`):
-- `PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`: Updated with artifact hashes
-
-## Step-by-Step Execution (Optional)
-
-If you prefer to run each stage independently:
-
-### 1. Generate Workflows Only
+Run compressed context execution:
 
 ```bash
-python code/main.py --generate 500
+# Note: This is typically done via the main orchestrator (see below)
+# To run manually on a single file:
+python code/engines/compressed_context.py --workflow data/raw/wf_0000.json --depth 2 --output data/processed/compressed_wf_0000_depth2.json
 ```
 
-### 2. Execute with Compressed Context Only
+### 4. Run Full Pipeline (Recommended)
 
-(Requires workflows to already exist in `data/raw/`)
+The main orchestrator handles generation, execution, and analysis in one command:
 
 ```bash
-python code/main.py --compress
+python code/main.py --generate 500 --compress --analyze
 ```
 
-### 3. Analyze Trade-offs Only
+This command:
+1. Generates 500 workflows to `data/raw/`
+2. Executes full context validation
+3. Executes compressed context for depths 1-5
+4. Runs analysis (regression, Bonferroni correction, threshold detection)
+5. Outputs results to `data/results/`
 
-(Requires processed execution logs in `data/processed/`)
+### 5. Verify Results
+
+Check the output files:
 
 ```bash
-python code/main.py --analyze
-```
-
-## Verifying Results
-
-After the pipeline completes, you can verify the outputs:
-
-```bash
-# Check that all expected files exist
-ls -la data/raw/
-ls -la data/processed/
 ls -la data/results/
-
-# View the threshold analysis results
-cat data/results/threshold_ci.json
-
-# View the regression curve data
-head -n 20 data/results/tradeoff_curve.csv
+# Should contain:
+# - tradeoff_curve.csv
+# - threshold_ci.json
+# - corrected_pvalues.json (in data/processed/)
 ```
-
-## Running Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Configuration
-
-- **Compression Depths**: The pipeline automatically tests depths 1-5 by default [UNRESOLVED-CLAIM: c_b7f9a7fd — status=not_enough_info].
-- **Bootstrap Resamples**: {{claim:c_b6f08e48}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics)).
-- **Safety Threshold**: The safe operating zone is defined as ≤1% policy violation error rate [UNRESOLVED-CLAIM: c_d0a67692 — status=not_enough_info].
 
 ## Troubleshooting
 
-- **Missing dependencies**: Run `pip install -r requirements.txt`
-- **Schema validation errors**: Ensure all generated JSON files conform to schemas in `contracts/`
-- **Memory issues**: For very large workflow sets, consider reducing the number of workflows or running in stages
+### Missing Output Files
+
+If output files are missing, ensure the pipeline ran to completion. Check for errors in the console output.
+
+### Determinism Issues
+
+Ensure you are using the same `--seed` value for reproducible results. The pipeline explicitly seeds `random` and `numpy.random` at startup.
+
+### CLI Argument Errors
+
+If you encounter `argparse` errors, ensure you are using the correct flags as shown above. The scripts require `--output` for generators and `--workflow`/`--output` for engines.

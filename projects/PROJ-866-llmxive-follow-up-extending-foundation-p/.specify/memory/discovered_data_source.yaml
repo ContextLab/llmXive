@@ -1,0 +1,14 @@
+status: none
+intent: synthetic multi-agent workflow generator with cl100k_base and Oracle Policy
+  Engine python package dataset
+required_fields:
+- workflow_id
+- delegation_depth
+- policy_complexity_constraints
+- policy_nodes
+- ground_truth_execution_log
+- actual_token_reduction_percent
+- budget_cap_value
+cache_key: 5df3ea8ba093fe1bf35633dd4e16cfa9c9e3a506805f406490896f36ad2483b8
+searched_at: '2026-09-18T01:39:17.040025+00:00'
+retry_count: 1

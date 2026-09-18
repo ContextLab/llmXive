@@ -65,12 +65,12 @@ The system MUST perform statistical analysis to model the relationship between c
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate 500 synthetic multi-agent workflows with varying delegation depths (1-20) and policy complexities (1-10 constraints) using a deterministic seed to ensure reproducibility. (See US-1)
+- **FR-001**: System MUST generate a substantial set of synthetic multi-agent workflows with varying delegation depths and policy complexities using a deterministic seed to ensure reproducibility. (See US-1)
 - **FR-002**: System MUST implement a "Full Context" baseline engine that executes workflows with complete policy graphs and produces a ground-truth log of required policy nodes and violations against the Oracle Policy Engine. (See US-1)
 - **FR-003**: System MUST implement a "Compressed Context" engine that uses constrained BFS/DFS to extract minimal policy subgraphs based on a configurable traversal depth parameter. (See US-2)
 - **FR-004**: System MUST record the total token count (calculated via standard tokenizer) and the frequency of policy-violation error rate for every execution run against the Oracle Policy Engine ground truth. (See US-2)
 - **FR-005**: System MUST perform a regression analysis to model the functional relationship between context reduction percentage and policy-violation error rate, and apply a multiple-comparison correction to statistical significance tests. (See US-3)
-- **FR-006**: System MUST identify and report the specific context reduction percentage threshold where the policy-violation error rate exceeds the 1% threshold, rounded to 2 decimal places. (See US-3)
+- **FR-006**: System MUST identify and report the specific context reduction percentage threshold where the policy-violation error rate exceeds a minimal significance threshold, rounded to 2 decimal places. (See US-3)
 - **FR-007**: System MUST execute the entire simulation and analysis pipeline on a CPU-only environment without requiring GPU acceleration or large model inference. (See US-2)
 - **FR-008**: System MUST implement an independent Oracle Policy Engine that defines the ground-truth validity of workflow steps, separate from the Full Context or Compressed Context execution engines, to prevent circular validation. (See US-1)
 - **FR-009**: System MUST simulate actual token usage by applying a standard tokenizer (e.g., tiktoken cl100k_base) to the policy subgraph text before counting, rather than using node count as a proxy. (See US-2)
