@@ -1,35 +1,52 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Dataset Schema
-description: Schema for the raw dataset containing code snippets.
+description: Schema for raw dataset records downloaded from HuggingFace.
 type: object
 required:
   - id
-  - language
   - source
+  - language
   - code
-  - test_prompt
+  - prompt
+  - test
+  - stratum
 properties:
   id:
     type: string
-    description: Unique identifier for the code snippet.
-  language:
-    type: string
-    enum: [python, javascript, java]
-    description: Programming language of the code.
+    description: Unique identifier for the dataset record.
   source:
     type: string
-    description: Origin dataset (e.g., HumanEval, CodeXGLUE, TheStack).
+    enum:
+      - human-eval
+      - codexglue-javascript
+      - codexglue-java
+      - the-stack
+    description: Source dataset identifier.
+  language:
+    type: string
+    enum:
+      - python
+      - javascript
+      - java
+    description: Programming language of the code snippet.
   code:
     type: string
     description: The actual code snippet content.
-  test_prompt:
+  prompt:
     type: string
-    description: The prompt or test cases associated with the code.
+    description: The prompt or description associated with the code.
+  test:
+    type: string
+    description: The test case associated with the code.
+  stratum:
+    type: string
+    description: Stratification label for the record.
   static_only:
     type: boolean
     default: false
-    description: Flag indicating if the snippet is for static-only analysis.
-  created_at:
-    type: string
-    format: date-time
-    description: Timestamp of ingestion.
+    description: Flag indicating if the record is for static-only analysis.
+  metadata:
+    type: object
+    additionalProperties: true
+    description: Additional metadata fields.
+additionalProperties: false

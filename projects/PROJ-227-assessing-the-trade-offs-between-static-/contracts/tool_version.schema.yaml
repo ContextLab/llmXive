@@ -1,24 +1,39 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Tool Version Schema
-description: Schema for recording versions of analysis tools used.
+description: Schema for recording tool versions used in the pipeline.
 type: object
 required:
   - tool_name
   - version
-  - installation_date
+  - installed_at
+  - path
 properties:
   tool_name:
     type: string
-    enum: [codeql, sonarqube, pylint, eslint, pytest, jest, junit]
+    enum:
+      - codeql
+      - sonarqube
+      - pylint
+      - eslint
+      - pytest
+      - jest
+      - junit
+      - python
+      - node
+      - java
+    description: Name of the tool.
   version:
     type: string
-    description: Semantic version string.
-  installation_date:
+    description: Version string of the tool.
+  installed_at:
     type: string
     format: date-time
+    description: Timestamp when the tool was installed/verified.
   path:
     type: string
     description: Path to the tool executable.
-  checksum:
-    type: string
-    description: SHA256 checksum of the tool binary.
+  metadata:
+    type: object
+    additionalProperties: true
+    description: Additional metadata about the tool installation.
+additionalProperties: false

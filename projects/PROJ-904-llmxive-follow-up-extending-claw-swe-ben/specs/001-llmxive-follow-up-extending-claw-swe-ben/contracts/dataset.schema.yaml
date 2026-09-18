@@ -1,38 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SWE-Bench Filtered Dataset Schema"
-description: "Schema for the filtered SWE-bench dataset containing instances with >500 lines of relevant history."
+description: "Schema for the filtered SWE-bench Verified dataset used in the experiment."
 type: "object"
 properties:
   instance_id:
     type: "string"
     description: "Unique identifier for the task instance."
-  repo:
+  repo_name:
     type: "string"
-    description: "Repository path (e.g., 'sphinx-doc/sphinx')."
+    description: "Name of the repository (e.g., 'matplotlib/matplotlib')."
   problem_statement:
     type: "string"
     description: "The issue description text."
-  relevant_files:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of file paths relevant to the issue."
-  file_history_length:
+  relevant_line_count:
     type: "integer"
-    description: "Total lines of relevant files. Must be >= 500."
     minimum: 500
-  test_patch:
+    description: "Number of lines in relevant file history (static analysis)."
+  files:
+    type: "array"
+    description: "List of file objects containing path and content."
+    items:
+      type: "object"
+      properties:
+        path:
+          type: "string"
+        content:
+          type: "string"
+      required: ["path", "content"]
+  ground_truth_patch_hash:
     type: "string"
-    description: "Ground truth test patch (diff format)."
-  base_commit:
-    type: "string"
-    description: "Git commit hash for the base state."
+    description: "SHA256 hash of the ground truth patch."
 required:
   - instance_id
-  - repo
+  - repo_name
   - problem_statement
-  - relevant_files
-  - file_history_length
-  - test_patch
-  - base_commit
+  - relevant_line_count
+  - files
+  - ground_truth_patch_hash
 additionalProperties: false

@@ -1,24 +1,10 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided; the required `projects/PROJ-181-predicting-species-distribution-shifts-u/`
-    folder with all specified subdirectories is absent from the evidence. The implementer
-    must create and show the full directory structure.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I could find no linting or formatting configuration files (e.g., .flake8, pyproject.toml\
-    \ with black settings, or a pre\u2011commit hook) in the provided repository snapshot,\
-    \ nor any documentation indicating that flake8 and black have been set up. Without\
-    \ these artifacts, the requirement to configure linting and formatting tools is\
-    \ not satisfied."
 T010:
   c: false
-  h: bd4104f02dada0977b946a6bdd84429e7bbc441a5bd508f073aa890d75030efe
-  r: "The repository contains a `code/download.py` file, but it is truncated (ends\
-    \ mid\u2011loop) and does not include logic to write the fetched records to `data/raw/occurrence_1970_2000.csv`.\
-    \ Moreover, the required CSV output file is absent. Consequently the implementation\
-    \ does not fulfill the task\u2019s requirement."
+  h: 1781ba93a882168019228b4467ea7be97005f678362b2c7024ad2d522b373007
+  r: The `code/download.py` file is present but does not contain logic that writes
+    the fetched records to `data/raw/occurrence_1970_2000.csv`, and the file `data/raw/occurrence_1970_2000.csv`
+    is missing. Consequently the required output artifact is not produced, so the
+    task is not fulfilled.
 T010c:
   c: false
   h: c061bd3552f30557980c88a8e9578a3991ac00cfaca4fe2f1302975a859f78cc

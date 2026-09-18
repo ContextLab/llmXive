@@ -1,123 +1,118 @@
 import os
 import json
 import csv
+import tempfile
+import shutil
 import pytest
 from pathlib import Path
 import networkx as nx
 
-# Ensure we can import the module
+# Import the function to test
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from metrics import process_batch, calculate_global_connectivity, calculate_average_branching_factor
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from metrics import process_batch, load_graph_from_json, calculate_global_connectivity, calculate_average_branching_factor
 
 @pytest.fixture
-def temp_graph_dir(tmp_path):
+def temp_graph_dir():
     """Create a temporary directory with sample graph JSON files."""
-    graph_dir = tmp_path / "graphs"
-    graph_dir.mkdir()
-
-    # Create a valid graph with 3 nodes and 2 edges
+    temp_dir = tempfile.mkdtemp()
+    
+    # Create sample graph 1: 3 nodes, 2 edges
     G1 = nx.DiGraph()
-    G1.add_nodes_from([1, 2, 3])
-    G1.add_edges_from([(1, 2), (2, 3)])
+    G1.add_nodes_from(['A', 'B', 'C'])
+    G1.add_edges_from([('A', 'B'), ('B', 'C')])
+    data1 = {'nodes': list(G1.nodes()), 'edges': list(G1.edges())}
+    with open(os.path.join(temp_dir, 'trajectory_001.json'), 'w') as f:
+        json.dump(data1, f)
     
-    with open(graph_dir / "trajectory_001.json", 'w') as f:
-        json.dump({
-            "nodes": list(G1.nodes()),
-            "edges": list(G1.edges())
-        }, f)
-
-    # Create another valid graph
+    # Create sample graph 2: 2 nodes, 1 edge
     G2 = nx.DiGraph()
-    G2.add_nodes_from([10, 20])
-    G2.add_edges_from([(10, 20)])
+    G2.add_nodes_from(['X', 'Y'])
+    G2.add_edges_from([('X', 'Y')])
+    data2 = {'nodes': list(G2.nodes()), 'edges': list(G2.edges())}
+    with open(os.path.join(temp_dir, 'trajectory_002.json'), 'w') as f:
+        json.dump(data2, f)
     
-    with open(graph_dir / "trajectory_002.json", 'w') as f:
-        json.dump({
-            "nodes": list(G2.nodes()),
-            "edges": list(G2.edges())
-        }, f)
-
-    # Create an empty graph (0 edges)
+    # Create sample graph 3: 1 node, 0 edges (edge case)
     G3 = nx.DiGraph()
-    G3.add_nodes_from([5, 6, 7])
-    
-    with open(graph_dir / "trajectory_003.json", 'w') as f:
-        json.dump({
-            "nodes": list(G3.nodes()),
-            "edges": list(G3.edges())
-        }, f)
+    G3.add_node('Z')
+    data3 = {'nodes': list(G3.nodes()), 'edges': []}
+    with open(os.path.join(temp_dir, 'trajectory_003.json'), 'w') as f:
+        json.dump(data3, f)
 
-    return str(graph_dir)
+    yield temp_dir
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
 @pytest.fixture
-def temp_output_path(tmp_path):
-    """Create a temporary path for the output CSV."""
-    return str(tmp_path / "metrics.csv")
+def temp_output_csv():
+    """Create a temporary path for output CSV."""
+    temp_dir = tempfile.mkdtemp()
+    output_path = os.path.join(temp_dir, 'metrics.csv')
+    yield output_path
+    shutil.rmtree(temp_dir)
 
-def test_process_batch_writes_csv(temp_graph_dir, temp_output_path):
+def test_process_batch_writes_csv(temp_graph_dir, temp_output_csv):
     """
     Integration test for T023: Verify process_batch writes a valid CSV 
-    with the correct schema and row count.
+    with the correct schema and row count matching input graph files.
     """
-    # Execute the batch processing
-    process_batch(temp_graph_dir, temp_output_path)
-
+    # Run the batch processing
+    process_batch(temp_graph_dir, temp_output_csv)
+    
     # Verify the file exists
-    output_file = Path(temp_output_path)
-    assert output_file.exists(), "Output CSV file was not created."
-
-    # Verify the CSV content
-    with open(output_file, 'r', newline='') as f:
+    assert os.path.exists(temp_output_csv), "Output CSV file was not created."
+    
+    # Read and validate the CSV content
+    with open(temp_output_csv, 'r', newline='') as f:
         reader = csv.DictReader(f)
         rows = list(reader)
-
-    # Check row count matches input graph count
-    assert len(rows) == 3, f"Expected 3 rows, found {len(rows)}"
-
-    # Check schema
+    
+    # Check row count matches input files (3 graphs)
+    assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"
+    
+    # Check headers
     expected_headers = ['trajectory_id', 'global_connectivity', 'avg_branching_factor']
     assert reader.fieldnames == expected_headers, f"Headers mismatch: {reader.fieldnames}"
-
-    # Verify specific values for trajectory_001 (3 nodes, 2 edges)
-    # Connectivity = 2 / (3*2) = 2/6 = 0.333...
-    # Branching = (1+1+0) / 3 = 0.666...
+    
+    # Validate specific values for known graphs
+    # trajectory_001: 3 nodes, 2 edges -> Connectivity = 2/(3*2) = 0.333..., Branching = 2/3 = 0.666...
     row1 = next(r for r in rows if r['trajectory_id'] == 'trajectory_001')
-    assert float(row1['global_connectivity']) == pytest.approx(0.333333, rel=0.01)
-    assert float(row1['avg_branching_factor']) == pytest.approx(0.666666, rel=0.01)
-
-    # Verify trajectory_003 (3 nodes, 0 edges) -> Connectivity 0.0
+    assert abs(float(row1['global_connectivity']) - (2/6)) < 1e-6
+    assert abs(float(row1['avg_branching_factor']) - (2/3)) < 1e-6
+    
+    # trajectory_003: 1 node, 0 edges -> Connectivity = 0.0, Branching = 0.0
     row3 = next(r for r in rows if r['trajectory_id'] == 'trajectory_003')
     assert float(row3['global_connectivity']) == 0.0
     assert float(row3['avg_branching_factor']) == 0.0
 
-def test_process_batch_handles_malformed_json(temp_path):
+def test_process_batch_handles_malformed_json(temp_output_csv):
     """
-    Test that process_batch logs an error and continues when encountering malformed JSON.
+    Test that process_batch logs errors for malformed JSON but continues processing.
     """
-    graph_dir = temp_path / "graphs"
-    graph_dir.mkdir()
-    output_path = str(temp_path / "metrics.csv")
-
+    temp_dir = tempfile.mkdtemp()
+    
     # Create a valid graph
     G_valid = nx.DiGraph()
-    G_valid.add_nodes_from([1, 2])
-    G_valid.add_edges_from([(1, 2)])
-    with open(graph_dir / "valid.json", 'w') as f:
-        json.dump({"nodes": [1, 2], "edges": [(1, 2)]}, f)
-
-    # Create a malformed JSON file
-    with open(graph_dir / "malformed.json", 'w') as f:
-        f.write("{ this is not valid json }")
-
-    # Run process_batch - it should not crash
-    process_batch(str(graph_dir), output_path)
-
-    # Verify the valid file was processed
-    with open(output_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    G_valid.add_nodes_from(['A', 'B'])
+    G_valid.add_edges_from([('A', 'B')])
+    data_valid = {'nodes': list(G_valid.nodes()), 'edges': list(G_valid.edges())}
+    with open(os.path.join(temp_dir, 'valid_trajectory.json'), 'w') as f:
+        json.dump(data_valid, f)
     
-    assert len(rows) == 1
-    assert rows[0]['trajectory_id'] == 'valid'
+    # Create a malformed JSON file
+    with open(os.path.join(temp_dir, 'malformed_trajectory.json'), 'w') as f:
+        f.write("{ invalid json }")
+    
+    try:
+        process_batch(temp_dir, temp_output_csv)
+        
+        # Should have written at least one row for the valid file
+        assert os.path.exists(temp_output_csv)
+        with open(temp_output_csv, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        assert len(rows) == 1, "Should have processed the valid file despite the malformed one."
+    finally:
+        shutil.rmtree(temp_dir)

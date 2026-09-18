@@ -1,87 +1,102 @@
-# Research: llmXive Follow-up: Context Fidelity vs. Model Scaling Trade-offs
+# Research: Context Fidelity vs. Model Scaling Trade-offs
 
-## Problem Statement
+## 1. Research Question & Hypotheses
 
-The research question investigates whether optimizing context fidelity (via retrieval or summarization) can substitute for model scaling in Small Language Models (SLMs) when solving complex software engineering tasks. Specifically, does a 1B-parameter model with high-fidelity context outperform a 7B-parameter model with naive context?
+**Primary Question**: Can high-fidelity context compression strategies (retrieval, summarization) substitute for model parameter scaling in resolving complex software engineering tasks under strict CPU constraints?
 
-## Dataset Strategy
+**Hypotheses**:
+- **H1 (Fidelity Effect)**: High-fidelity context strategies (TF-IDF, Heuristic Keyword-Proxy, Summarization) will yield significantly higher Pass@1 scores than naive truncation for both 1B and 7B models.
+- **H2 (Scaling Effect)**: The 7B model will outperform the 1B model across all context strategies.
+- **H3 (Interaction)**: We will estimate the magnitude of the interaction effect between model size and context strategy. **Note**: Due to sample size constraints, the study is **Exploratory** regarding H3 if N < 800. We will report the **Odds Ratio (OR) with 95% Confidence Interval** for the interaction term. A null result does not prove the absence of an effect; it indicates insufficient power to detect it. If N >= 800, we will attempt a confirmatory test. **Crucially, given the likely sample size (N < 400) for binary outcomes, the study is underpowered to detect significant interaction effects. The primary claim will be the effect magnitude (OR) rather than statistical significance.**
 
-The study relies on the **SWE-bench** ecosystem, specifically the "Claw-SWE-Bench" variant which focuses on agent harness evaluation.
+## 2. Dataset Strategy
 
-| Dataset Name | Purpose | Source / Loader | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **SWE-bench Verified** | Primary source of task instances (issue, repo, tests). | `datasets.load_dataset("SWE-bench/SWE-bench_Verified", split="test")` | **Verified**: https://huggingface.co/datasets/SWE-bench/SWE-bench_Verified/resolve/main/data/test-00000-of-00001.parquet |
-| **SWE-bench Dev** | Validation set for hyperparameter tuning (if needed). | `datasets.load_dataset("SWE-bench/SWE-bench", split="dev")` | **Verified**: https://huggingface.co/datasets/SWE-bench/SWE-bench/resolve/main/data/dev-00000-of-00001.parquet |
+### 2.1 Source Selection
+The experiment utilizes the **Claw-SWE-Bench** dataset as the primary source.
+- **Primary Source URL**: (Use the verified URL from the "# Verified datasets" block for Claw-SWE-Bench).
+- **Verification**: This URL is listed in the "# Verified datasets" block. It is a direct Parquet download, suitable for programmatic fetching via `datasets.load_dataset`.
+- **Access**: Open access; no credentials required.
+- **Fallback**: If Claw-SWE-Bench is unavailable, **SWE-bench Verified** will be used as a fallback, with explicit schema adaptation notes (mapping `problem_statement` to `issue_description`).
 
-**Dataset Suitability Check**:
-- **Variables Required**: Issue description, repository file contents, ground-truth unit tests, expected pass/fail labels.
-- **Dataset Availability**: The SWE-bench Verified dataset contains all required fields (`problem_statement`, `repo`, `test_patch`, `base_commit`, `instance_id`).
-- **Complexity Filter**: The dataset must be filtered for instances where the "relevant file history" exceeds 500 lines. This is a derived metric calculated via **Import Graph Traversal** (see below), NOT directory depth.
-- **Gap Analysis**: The dataset does not explicitly provide a "relevant file history length" column. The implementation must compute this via static analysis (FR-001). If the filtered set drops below a sufficient threshold for statistical power, the study is underpowered (Assumption 1).
+### 2.2 Filtering & Complexity Definition (FR-001)
+To satisfy the requirement for "context-bound complexity," the dataset will be filtered programmatically using a **Hybrid IR-Seeding** approach to avoid circularity with the test strategies:
+1. **Keyword Extraction**: Parse the `issue_description` (or `problem_statement`) via regex to extract file paths (e.g., `.*\.[py|js|ts]`).
+2. **Hybrid IR-Seeding**: If no paths are found, use a **frozen generic CodeBERT-base** model to embed the issue description and retrieve the **top-5 files** from the repo based on code similarity. This model is **independent** of the TF-IDF/Diff-Aware strategies.
+3. **Graph Traversal**: For each identified file, load the file and count lines. Traverse the import graph (if available) to include direct dependencies, summing their line counts.
+4. **Threshold**: Retain only instances where the sum of relevant file lines > 500.
+5. **Fallback**: If no instances meet the threshold, the system logs an error and halts (as per Edge Case handling).
+6. **Independence Check**: Verify that the correlation between the generic retriever's scores and the experimental strategies is low (<0.3) to ensure the complexity metric is not a function of the strategy.
+7. **Representativeness Validation**: Compare the distribution of `Task_Difficulty` (files in patch) and `Issue_Length` between the filtered subset (N>=800) and the full dataset using **Kolmogorov-Smirnov tests**. If p < 0.05, the study will report the selection bias magnitude and include `Task_Difficulty` as a mandatory covariate in the GLM to adjust for the bias.
 
-### Complexity Filter Algorithm (FR-001)
-To ensure 'context-bound complexity' is a valid construct and not arbitrary:
-1. Parse the `problem_statement` for explicit file paths or function names.
-2. For each identified file, build a **static import graph** (files that import or are imported by the target).
-3. Traverse the graph up to a depth of multiple levels (direct imports and imports of imports).
-4. Sum the lines of code for all unique files in this subgraph.
-5. **Filter**: Retain instances where this sum > 500 lines.
-*Rationale*: This measures the scope of the codebase affected by the issue, avoiding the noise of arbitrary directory depth heuristics.
+### 2.3 Data Hygiene
+- **Checksumming**: All raw and filtered Parquet files, intermediate JSONL logs, and final aggregated CSVs will be checksummed (SHA256).
+- **State Recording**: Checksums and artifact paths will be recorded in `state/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben.yaml`.
+- **No Modification**: Raw data is preserved; filtered data is written to a new file (`data/filtered_swe_bench_v1.parquet`). **No data may be modified in place; every transformation MUST produce a new file.**
 
-## Context Compression Strategies
+## 3. Methodology & Statistical Rigor
 
-1.  **Baseline (Naive Truncation)**: Takes the first N lines of the relevant file. Low fidelity, high noise.
-2.  **TF-IDF/BM25 Retrieval**: Ranks code snippets by relevance to the issue description using term frequency-inverse document frequency. **Vectors are computed on-the-fly** from the code corpus of the specific repository instance; no external word frequency datasets are used. High fidelity for keyword matching.
-3.  **Diff-Aware Sliding Window**: Uses **structural heuristics** to identify relevant lines:
-    - Identifies files modified in the **last 5 commits** (excluding the ground-truth patch) using local git history.
-    - Identifies files that **call functions** mentioned in the issue description (static call graph analysis).
-    - Includes a fixed window of surrounding lines around these structural markers.
-    *Note*: This strategy explicitly **excludes** the ground-truth patch to avoid tautology.
-4.  **Rule-Based Semantic Summarization**: Extracts **function signatures, docstrings, and complete control flow blocks** (including variable definitions, if/else/while blocks, and their bodies) rather than just first/last sentences, to preserve logical structure. These blocks are concatenated with a '...' separator, limited to a maximum sequence length. This strategy is designed to be **high-fidelity** by retaining the semantic logic required for reasoning, avoiding the construct validity failure of discarding critical code via heuristic sentence selection.
+### 3.1 Experimental Design
+A 2x4 factorial design:
+- **Factor A (Model Size)**: 1B (e.g., `Llama-3.1-1B` or similar CPU-runnable), 7B (Quantized `Q4_K_M`).
+- **Factor B (Context Strategy)**:
+  1. **Baseline**: First-N-lines truncation (N = 4096 tokens or 8000 lines).
+  2. **TF-IDF/BM25**: Relevance-ranked snippets.
+  3. **Heuristic Keyword-Proxy**: Identify lines in "relevant files" containing keywords ('fix', 'bug', 'error', 'TODO') and include a 10-line window around them. **Note**: This is a construct validity limitation; the plan acknowledges this is a lower-bound proxy for "diff-aware" retrieval.
+  4. **Summarization**: Rule-based (first sentence of paragraph, last sentence of function).
 
-## Model Strategy
+### 3.2 Statistical Analysis (FR-006, SC-003)
+- **Model**: Generalized Linear Model (GLM) with Binomial link function.
+- **Formula**: `Pass ~ Model_Size + Context_Strategy + Model_Size:Context_Strategy + Task_Difficulty + Quantization_Penalty`
+- **Outcome**: Binary Pass/Fail (Pass@1).
+- **Predictors**: `Model_Size`, `Context_Strategy`, `Task_Difficulty` (covariate), `Quantization_Penalty` (if needed), and interaction `Model_Size:Context_Strategy`.
+- **Correction**: **Firth's Penalized Likelihood** will be used to handle sparse data (separation issues) common in small sample sizes (n < 50 per cell). This is critical for convergence and unbiased coefficient estimation. If `statsmodels` does not support Firth, the system will fallback to `firth-logistic` (Python) or `logistf` via `rpy2`.
+- **Multiple Comparisons**: Post-hoc pairwise comparisons will use Bonferroni correction to control Family-Wise Error Rate (FWER).
+- **Power Limitation**: If the filtered dataset yields < 800 instances, the study is **underpowered** for detecting interaction effects with >0.80 power. The primary claim will be the **Effect Size** (Odds Ratio with 95% CI) of the interaction term. A null result (p > 0.05) will be interpreted as "insufficient evidence to detect an effect" rather than "no effect". **Given the likely sample size (N < 400), the study is explicitly underpowered for detecting significant interaction effects in binary outcomes. The primary claim is the magnitude of the effect (OR), not statistical significance.**
+- **Power Calculation**: 
+  - For N=400 (n=50/cell), power to detect a medium interaction effect (Cohen's h=0.3) is ~0.35.
+  - For N=800 (n=100/cell), power increases to ~0.80.
+  - For N=1200, power reaches ~0.90.
+  - The study will proceed with N>=800 for confirmatory claims. If N < 800, the study is strictly Exploratory.
 
-- **Small Model**: **TinyLlama-1.1B** (or Phi-2 if TinyLlama unavailable). Loaded with `load_in_4bit=True` (Q4_K_M) to fit 7GB RAM.
-- **Large Model**: **Mistral-7B-v0.1**. Loaded with `load_in_4bit=True` (Q4_K_M) to fit 7GB RAM.
-- **Hardware Constraints**: Execution must occur on a CPU-only runner. Both models are quantized to the **same level (Q4_K_M)** to isolate 'Model Size' from 'Quantization Noise'.
-- **Fallback**: If the 7B model exceeds memory, the run is flagged as "Resource Constraint" and excluded from the final analysis (Edge Case).
+### 3.3 Failure Mode Analysis (FR-008)
+- **Classifier**: Deterministic rule-based classifier.
+- **Rules**:
+  - "Missing Context": Output contains "file not found", "cannot locate", or references file not in input.
+  - "Reasoning Error": File exists in context, but logic fails.
+- **Metric**: Distribution of failure modes across strategies to validate H1.
 
-## Statistical Methodology
+## 4. Compute Feasibility & Hardware Strategy
 
-### Generalized Linear Mixed Model (GLMM) / Firth's GLM
-To test the interaction between context strategy and model size:
-- **Response Variable**: `Pass@1` (Binary: 0/1).
-- **Predictors**:
-  - `Model_Size` (Categorical: 1B, 7B)
-  - `Context_Strategy` (Categorical: Baseline, TF-IDF, Diff-Aware, Summarization)
-  - `Interaction`: `Model_Size` × `Context_Strategy`
-- **Link Function**: Binomial (Logit).
-- **Handling Sparse Data**: If the baseline success rate is <5%, a standard GLM may fail to converge. We will use **Firth's Penalized Likelihood GLM** (via `statsmodels` or `brglm2` equivalent in Python) or a **GLMM with random intercepts** for `instance_id` (if applicable).
-- **Robustness Check**: If convergence fails, a **Permutation Test** will be used to assess the significance of the interaction term.
+### 4.1 CPU-First Approach
+- **Hardware**: GitHub Actions Free Tier (2 vCPU, 7GB RAM, ~14GB Disk).
+- **Model Loading**:
+  - **1B Model**: Runs natively in default precision.
+  - **7B Model**: Must use **Q4_K_M** quantization (GGUF format) to fit within 7GB RAM. The `models/quantization.py` module will handle loading via `llama-cpp-python` or `transformers` with `load_in_8bit` fallback if GGUF is unavailable.
+- **Inference**: Batched execution with strict timeout (60 min/instance).
+- **Quantization Calibration**: **Mandatory Phase 0 step**. A [deferred] stratified sample of instances will be run with both FP16 (if RAM permits) and Q4_K_M. If the performance drop > 5%, the 'Quantization Penalty' is calculated and added as a confounding factor in the GLM. The 7B results are explicitly labeled as "Quantized-7B".
 
-### Power Analysis & Metric Selection
-- **Assumption**: Minimum 50 instances per cell (2 models × 4 strategies = 8 cells → 400 total).
-- **Low Success Regime**: If Pass@1 is <5% for SLMs, the study will switch to **Pass@k** (k=5 or 10) or a 'Time-to-Solution' metric if available, to ensure sufficient variance for statistical testing.
-- **Limitation**: If the filtered dataset yields <400 instances, the study will be underpowered to detect small interaction effects. This will be reported as a limitation.
+### 4.2 GPU Escape Hatch
+- **Condition**: If CPU inference for 7B model fails due to OOM despite Q4_K_M.
+- **Action**: The execution runner will detect the error and re-run the specific instance on a **Kaggle Free GPU** (T4/P100, ~16GB VRAM).
+- **Scaling**: On GPU, the model will be loaded in **Q4_K_M** or **FP16** (if VRAM permits) with a reduced batch size to ensure stability.
+- **Note**: No synthetic CPU approximation will be used for GPU-bound tasks.
 
-### Multiple Comparison Correction
-- Post-hoc pairwise comparisons (e.g., 1B-HighFidelity vs. 7B-Baseline) will use **Bonferroni correction** or **Holm-Bonferroni** to control the family-wise error rate (FWER) given the multiple configurations.
+### 4.3 Runtime Budget
+- **Per Instance**: 60 minutes (timeout enforced).
+- **Total**: ≤ 72 hours (parallel batching of up to 4 instances per runner).
+- **Optimization**: Streaming data loading to avoid disk I/O bottlenecks.
+- **Global Timeout**: If the total runtime exceeds 72 hours, the system will terminate and report a "Timeout" status for remaining instances.
 
-## Computational Feasibility & Escape Hatch
+## 5. Decision Rationale
 
-- **CPU-First**: All context processing (TF-IDF, Diff, Import Graph) and statistical analysis (GLMM) are CPU-native.
-- **Model Inference**:
-  - **1B Model**: Trivial for CPU.
-  - **7B Model**: Requires Q4_K_M quantization. If the 7B Q4 model fails to load or exceeds 7GB RAM on the runner, the run will terminate with a "Resource Constraint" flag.
-  - **GPU Escape Hatch**: The spec assumes CPU-only execution. However, if the implementation detects a CUDA-capable environment (unlikely on free-tier), it may offload. The plan does **not** rely on a GPU escape hatch for the 7B model; it relies on aggressive quantization. If quantization fails, the run is aborted, not synthesized.
-
-## Risk Mitigation
-
-- **Data Sparsity**: If <50 instances pass the >500 line filter (Import Graph), the experiment will fail with "Insufficient Context-Bound Data".
-- **Memory Overrun**: The `runner.py` will implement a memory watchdog. If RAM usage > 6.5GB, the process is killed to prevent CI hang.
-- **Timeout**: Hard timeout per instance.
-- **Failure Mode Classification**: The `failure_classifier.py` will analyze **sandbox execution logs (stderr/stdout)** captured by the evaluation harness.
-  - "Missing Context": Regex match on logs for "FileNotFoundError", "ModuleNotFoundError", "No such file".
-  - "Reasoning Error": If logs are clean but tests fail.
-  - "Timeout": If execution exceeds a substantial duration.
-  - *Note*: This relies on the harness explicitly streaming stderr to the analysis module.
+| Decision | Rationale |
+|----------|-----------|
+| **Claw-SWE-Bench** | Primary dataset mandated by spec. Verified open source with ground-truth unit tests for code generation. |
+| **Hybrid IR-Seeding** | Required to avoid circularity where the complexity metric depends on the test strategies. Uses a frozen generic model independent of experimental strategies. |
+| **Q4_K_M Quantization** | Only method to fit 7B model in 7GB RAM without losing critical reasoning capacity. |
+| **Firth GLM** | Standard GLM fails on sparse binary data; Firth correction is the statistical standard for this scenario. |
+| **Exploratory Design** | N=800 is the target for confirmatory tests. If N < 800, the study is Exploratory and reports effect sizes. **Given likely N < 400, the study is underpowered for interaction significance; primary claim is effect magnitude.** |
+| **Rule-Based Summarization** | Spec mandates "first sentence of paragraph, last sentence of function"; LLM-based summarization is too costly for this phase. |
+| **Heuristic Keyword-Proxy** | Ground-truth diff is unavailable in zero-shot; keyword-based heuristic is the only viable proxy. Acknowledged as a construct validity limitation. |
+| **Quantization Calibration** | Mandatory to verify Q4_K_M performance and adjust for any 'Quantization Penalty' in the GLM. |
+| **Representativeness Validation** | KS-test comparison of filtered vs. full dataset to ensure external validity. |

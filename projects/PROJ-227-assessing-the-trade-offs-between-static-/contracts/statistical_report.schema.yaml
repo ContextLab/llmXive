@@ -6,61 +6,100 @@ required:
   - report_id
   - generated_at
   - metrics
-  - correlation_tests
+  - correlations
+  - stratified_results
+  - sensitivity_analysis
+  - deviation_notes
 properties:
   report_id:
     type: string
+    description: Unique identifier for the report.
   generated_at:
     type: string
     format: date-time
-  methodology_note:
-    type: string
-    description: Note on deviations from original spec (e.g., SPEC_AMENDMENT_001).
+    description: Timestamp of report generation.
   metrics:
     type: object
+    required:
+      - issue_detection_rate
+      - pass_rate
     properties:
       issue_detection_rate:
         type: number
-        format: float
+        minimum: 0
+        maximum: 1
+        description: Rate of issues detected by static analysis.
       pass_rate:
         type: number
-        format: float
+        minimum: 0
+        maximum: 1
+        description: Rate of passing dynamic tests.
       precision:
         type: string
         const: "N/A"
+        description: Explicitly N/A due to lack of security ground truth.
       recall:
         type: string
         const: "N/A"
+        description: Explicitly N/A due to lack of security ground truth.
       f1_score:
         type: string
         const: "N/A"
-  correlation_tests:
-    type: array
-    items:
-      type: object
-      required:
-        - test_type
-        - coefficient
-        - p_value
-      properties:
-        test_type:
-          type: string
-          enum: [spearman, chi_squared]
-        coefficient:
-          type: number
-          format: float
-        p_value:
-          type: number
-          format: float
-        alpha:
-          type: number
-          format: float
-        corrected:
-          type: boolean
-          description: Whether Bonferroni correction was applied.
+        description: Explicitly N/A due to lack of security ground truth.
+  correlations:
+    type: object
+    required:
+      - spearman
+      - chi_squared
+      - mcnemar
+    properties:
+      spearman:
+        type: object
+        required:
+          - coefficient
+          - p_value
+        properties:
+          coefficient:
+            type: number
+          p_value:
+            type: number
+        description: Spearman's rank correlation results.
+      chi_squared:
+        type: object
+        required:
+          - statistic
+          - p_value
+          - degrees_of_freedom
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+          degrees_of_freedom:
+            type: integer
+        description: Chi-squared test results.
+      mcnemar:
+        type: string
+        const: "N/A"
+        description: Explicitly N/A due to distinct constructs.
   stratified_results:
     type: object
     description: Results broken down by language stratum.
+    additionalProperties:
+      type: object
   sensitivity_analysis:
     type: object
-    description: Results for different alpha levels {0.01, 0.05, 0.1}.
+    description: Results for different alpha levels.
+    properties:
+      alpha_0_01:
+        type: object
+      alpha_0_05:
+        type: object
+      alpha_0_1:
+        type: object
+  deviation_notes:
+    type: array
+    items:
+      type: string
+    description: Notes on deviations from original spec (e.g., SPEC_AMENDMENT_001).
+additionalProperties: false

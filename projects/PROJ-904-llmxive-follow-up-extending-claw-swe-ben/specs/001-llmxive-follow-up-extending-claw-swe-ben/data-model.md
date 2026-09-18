@@ -1,69 +1,99 @@
-# Data Model: llmXive Follow-up: Context Fidelity vs. Model Scaling Trade-offs
+# Data Model: Context Fidelity vs. Model Scaling Trade-offs
 
-## Overview
+## 1. Entity Relationship Diagram (Conceptual)
 
-This document defines the data schemas for the experiment, ensuring strict adherence to the "Single Source of Truth" principle. All data flows from the raw SWE-bench dataset through filtering, context processing, and execution to the final results table.
+```mermaid
+erDiagram
+    TASK_INSTANCE ||--o{ EXECUTION_RESULT : "generated_by"
+    CONTEXT_STRATEGY ||--o{ EXECUTION_RESULT : "applied_in"
+    MODEL_CONFIG ||--o{ EXECUTION_RESULT : "executed_with"
+    
+    TASK_INSTANCE {
+        string instance_id PK
+        string repo_name
+        string issue_description
+        int relevant_line_count
+        int task_difficulty
+        string ground_truth_patch_hash
+    }
+    
+    EXECUTION_RESULT {
+        string run_id PK
+        string instance_id FK
+        string model_size
+        string context_strategy
+        bool pass_fail
+        int token_count
+        string failure_mode
+        string context_snapshot_hash
+    }
+    
+    CONTEXT_STRATEGY {
+        string strategy_id PK
+        string strategy_name
+        string description
+    }
+    
+    MODEL_CONFIG {
+        string model_id PK
+        string model_name
+        string quantization_level
+        int param_count
+    }
+```
 
-## Entities
+## 2. Data Schema Definitions
 
-### 1. Task Instance
-Represents a single software engineering problem from the benchmark.
-- **Source**: SWE-bench Verified (raw).
-- **Derivation**: Filtered by static analysis of file history length (Import Graph Traversal).
+### 2.1 Raw/Filtered Dataset (Parquet)
+- **Source**: `data/raw/swe_bench_verified.parquet` → `data/filtered/swe_bench_v1.parquet`
+- **Key Fields**:
+  - `instance_id`: Unique identifier.
+  - `repo_name`: Repository name.
+  - `problem_statement`: Issue description.
+  - `relevant_line_count`: **Pre-computed** via Hybrid IR-Seeding (FR-001) using a generic CodeBERT model. This metric is **immutable** for each instance and is not a function of the experimental strategies.
+  - `task_difficulty`: Number of unique files in the ground-truth patch (used as covariate).
+  - `files`: List of file paths and contents (truncated for storage if needed, full content in memory during execution).
+
+### 2.2 Execution Results (JSONL)
+- **Location**: `data/intermediate/baseline_run.jsonl`, `data/intermediate/hf_run_1b.jsonl`, etc.
 - **Fields**:
-  - `instance_id`: Unique identifier (string).
-  - `repo`: Repository path (string).
-  - `problem_statement`: Issue description (string).
-  - `relevant_files`: List of file paths involved (list[string]).
-  - `file_history_length`: Total lines of relevant files (integer).
-  - `test_patch`: Ground truth test changes (string).
-  - `base_commit`: Git commit hash (string).
+  - `run_id`: UUID.
+  - `instance_id`: FK to Task Instance.
+  - `model_size`: "1B" or "7B".
+  - `context_strategy`: "baseline", "tfidf", "diff_aware", "summarization".
+  - `pass_fail`: Boolean (True if all unit tests pass).
+  - `token_count`: Total tokens consumed.
+  - `failure_mode`: "missing_context", "reasoning_error", "timeout", "none".
+  - `context_snapshot_hash`: SHA256 of the context passed to the model.
+  - `quantization_level`: "Q4_K_M" or "FP16".
 
-### 2. Context Configuration
-Defines the specific input context provided to the model.
-- **Source**: Derived from Task Instance + Context Strategy.
+### 2.3 Aggregated Results (CSV)
+- **Location**: `data/results.csv`
 - **Fields**:
-  - `instance_id`: Reference to Task Instance.
-  - `strategy`: Strategy name (enum: "baseline", "tfidf", "diff_aware", "summarization").
-  - `model_size`: Model size (enum: "1b", "7b").
-  - `context_content`: The actual text passed to the model (string).
-  - `token_count`: Number of tokens in context (integer).
+  - `model_size`: "1B", "7B".
+  - `context_strategy`: Strategy name.
+  - `n_instances`: Count of instances.
+  - `pass_rate`: Pass@1 rate (float).
+  - `avg_tokens`: Average token consumption.
+  - `failure_dist`: JSON string of failure mode distribution.
+  - `interaction_or`: Odds Ratio for the interaction term (from GLM).
+  - `interaction_ci_lower`: Lower bound of 95% CI for interaction OR.
+  - `interaction_ci_upper`: Upper bound of 95% CI for interaction OR.
 
-### 3. Execution Result
-The outcome of running a model on a specific context configuration.
-- **Source**: Inference engine output.
-- **Fields**:
-  - `run_id`: Unique execution identifier (string).
-  - `instance_id`: Reference to Task Instance.
-  - `strategy`: Context strategy used.
-  - `model_size`: Model size used.
-  - `pass_status`: Boolean (True/False) based on unit test execution.
-  - `failure_mode`: Classification (enum: "missing_context", "reasoning_error", "timeout", "resource_constraint", "none").
-  - `tokens_generated`: Number of tokens generated by the model (integer).
-  - `runtime_seconds`: Wall-clock time for execution (float).
-  - `sandbox_stderr`: Raw stderr output from the sandbox execution (string, optional).
+## 3. Data Flow & Transformation
 
-### 4. GLM Output
-Aggregated statistical results.
-- **Source**: `analysis/glm_analyzer.py`.
-- **Fields**:
-  - `coefficient`: Model coefficient name (string).
-  - `estimate`: Coefficient value (float).
-  - `std_error`: Standard error (float).
-  - `p_value`: P-value (float).
-  - `significance`: Boolean (True if p < 0.05).
+1. **Fetch**: `loader.py` downloads raw Parquet from verified URL.
+2. **Filter**: `loader.py` applies Hybrid IR-Seeding (>500 lines), writes filtered Parquet. **`relevant_line_count` is pre-computed and immutable.**
+3. **Execute**: `experiments/` scripts generate JSONL logs per configuration.
+4. **Classify**: `analysis/failure_classifier.py` annotates failure modes in JSONL.
+5. **Aggregate**: `analysis/metrics.py` merges JSONL into `results.csv`.
+6. **Analyze**: `analysis/glm_analyzer.py` consumes `results.csv` for statistical inference (GLM with Firth).
+7. **Checksum**: `utils/checksum.py` records SHA256 hashes for all Parquet, JSONL, and CSV files in `state/...yaml`.
 
-## Data Flow
+## 4. Integrity Constraints
 
-1.  **Ingestion**: Raw SWE-bench parquet file → `data_loader.py` → `Task Instance` (filtered).
-2.  **Processing**: `Task Instance` + `Strategy` → `Context Configuration`.
-3.  **Execution**: `Context Configuration` + `Model` → `Execution Result` (written to `data/intermediate/*.jsonl`).
-4.  **Aggregation**: `data/intermediate/*.jsonl` → `merge_results.py` → `data/results.csv` (SSoT).
-5.  **Analysis**: `data/results.csv` → `analysis/glm_analyzer.py` → `GLM Output`.
-
-## Constraints
-
-- **Immutability**: Raw data files in `data/` are never modified. Derivations create new files with versioned filenames (e.g., `filtered_v1.parquet`).
-- **Validation**: All `Execution Result` records must pass schema validation before aggregation.
-- **Traceability**: Every `run_id` must map back to a specific `instance_id` and `strategy`.
-- **Failure Classification**: The `failure_mode` is derived from `sandbox_stderr` content, not model generation text.
+- **Checksums**: All Parquet and JSONL files must have corresponding SHA256 entries in `state/...yaml`.
+- **Uniqueness**: `run_id` must be unique across all executions.
+- **Referential Integrity**: `instance_id` in results must exist in filtered dataset.
+- **Immutability**: Once written, `results.csv` is read-only; re-runs produce new files with version suffixes.
+- **Independence**: `relevant_line_count` is derived from a generic retriever and is not a function of the experimental strategies.

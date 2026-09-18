@@ -1,60 +1,62 @@
 """
 Verification script for T004: Configuration Management.
-Loads code/config.yaml and asserts schema types.
+Loads projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml
+and asserts types for all required keys.
 """
 import sys
 import yaml
 from pathlib import Path
 
+CONFIG_PATH = Path(__file__).parent / "config.yaml"
+
+REQUIRED_SCHEMA = {
+    "human_eval_url": str,
+    "codeql_path": str,
+    "sonar_path": str,
+    "max_cpu": int,
+    "max_ram_gb": int,
+}
+
 def main():
-    config_path = Path(__file__).parent / "config.yaml"
-    
-    if not config_path.exists():
-        print(f"ERROR: Config file not found at {config_path}")
+    if not CONFIG_PATH.exists():
+        print(f"ERROR: Configuration file not found at {CONFIG_PATH}")
         sys.exit(1)
 
     try:
-        with open(config_path, 'r') as f:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
     except yaml.YAMLError as e:
         print(f"ERROR: Failed to parse YAML: {e}")
         sys.exit(1)
 
     if not isinstance(config, dict):
-        print("ERROR: Config root must be a dictionary")
+        print("ERROR: Config root must be a mapping (dict).")
         sys.exit(1)
 
-    # Define schema requirements
-    required_keys = {
-        'human_eval_url': str,
-        'codeql_path': str,
-        'sonar_path': str,
-        'max_cpu': int,
-        'max_ram_gb': int
-    }
-
     errors = []
-    for key, expected_type in required_keys.items():
+    for key, expected_type in REQUIRED_SCHEMA.items():
         if key not in config:
-            errors.append(f"Missing required key: {key}")
+            errors.append(f"Missing required key: '{key}'")
             continue
-        
+
         value = config[key]
         if not isinstance(value, expected_type):
-            errors.append(f"Type mismatch for {key}: expected {expected_type.__name__}, got {type(value).__name__}")
+            # Special case for int: yaml might load bool as int subclass, but we want strict int
+            if expected_type == int and isinstance(value, bool):
+                errors.append(f"Key '{key}' is bool, expected int.")
+            elif not isinstance(value, expected_type):
+                errors.append(f"Key '{key}' is {type(value).__name__}, expected {expected_type.__name__}.")
 
     if errors:
-        print("VALIDATION FAILED:")
+        print("CONFIGURATION VALIDATION FAILED:")
         for err in errors:
             print(f"  - {err}")
         sys.exit(1)
 
-    print("Configuration validation successful.")
-    print(f"  human_eval_url: {config['human_eval_url']}")
-    print(f"  codeql_path: {config['codeql_path']}")
-    print(f"  sonar_path: {config['sonar_path']}")
-    print(f"  max_cpu: {config['max_cpu']}")
-    print(f"  max_ram_gb: {config['max_ram_gb']}")
+    print("CONFIGURATION VALIDATION SUCCESSFUL:")
+    for key, value in config.items():
+        print(f"  {key}: {value} ({type(value).__name__})")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

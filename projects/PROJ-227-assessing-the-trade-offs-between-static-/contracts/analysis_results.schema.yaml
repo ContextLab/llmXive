@@ -1,41 +1,36 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Results Schema
-description: Aggregated results combining static and dynamic analysis outcomes.
+description: Schema for aggregated analysis results per snippet.
 type: object
 required:
-  snippet_id
-  static_analysis_status
-  dynamic_analysis_status
-  correlation_data
+  - dataset_id
+  - static_issues_count
+  - dynamic_pass
+  - static_tool_used
+  - dynamic_tool_used
 properties:
-  snippet_id:
+  dataset_id:
     type: string
-  static_analysis_status:
-    type: object
-    properties:
-      passed:
-        type: boolean
-      issue_count:
-        type: integer
-      detection_rate:
-        type: number
-        format: float
-  dynamic_analysis_status:
-    type: object
-    properties:
-      passed:
-        type: boolean
-      test_coverage:
-        type: number
-        format: float
-      pass_rate:
-        type: number
-        format: float
-  correlation_data:
-    type: object
-    properties:
-      static_issue_density:
-        type: number
-      dynamic_pass_fail:
-        type: integer
-        enum: [0, 1]
+    description: Reference to the dataset record.
+  static_issues_count:
+    type: integer
+    minimum: 0
+    description: Number of issues found by static analysis.
+  dynamic_pass:
+    type: boolean
+    description: Whether the dynamic tests passed.
+  static_tool_used:
+    type: string
+    description: The static analysis tool that produced results.
+  dynamic_tool_used:
+    type: string
+    description: The dynamic analysis tool that produced results.
+  static_issues:
+    type: array
+    items:
+      type: object
+    description: Detailed list of static issues.
+  dynamic_output:
+    type: string
+    description: Raw output from dynamic tests.
+additionalProperties: false

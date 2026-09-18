@@ -563,3 +563,432 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T15:59:44Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Download and verify at least 500 code snippets from HumanEval, CodeXGLUE,
+    and BigCode across Python, JS, and Java
+  claim_id: c_9a004c74
+  context: "Phase 3: User Story 1 - Data Ingestion & Validation (Priority: P1) Goal:\
+    \ Download and verify \u2265500 code snippets from HumanEval, CodeXGLUE, and BigCode\
+    \ (TheStack) across Python, JS, and Java."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_and_verify_at_least_500_code_snippets_from_HumanEva
+  kind: magnitude
+  raw_text: "The project will download and verify \u2265500 code snippets from HumanEval,\
+    \ CodeXGLUE, and BigCode (TheStack) across Python, JS, and Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:20:23Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch HumanEval Python dataset from openai/human-eval
+  claim_id: c_0c3d6e12
+  context: T011 [P] [US1] Implement code/download.py to fetch HumanEval (Python) from
+    openai/human-eval to data/raw/humaneval.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HumanEval_Python_dataset_from_openai/human-eval
+  kind: entity_fact
+  raw_text: The project will fetch HumanEval (Python) from openai/human-eval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:20:52Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch CodeXGLUE JavaScript and Java datasets from codeparrot repositories
+  claim_id: c_3a5fd922
+  context: T012 [P] [US1] Implement code/download.py to fetch CodeXGLUE (JS/Java)
+    from codeparrot/codeXGLUE-javascript and codeparrot/codeXGLUE-java to data/raw/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_CodeXGLUE_JavaScript_and_Java_datasets_from_codeparrot
+  kind: entity_fact
+  raw_text: The project will fetch CodeXGLUE (JS/Java) from codeparrot/codeXGLUE-javascript
+    and codeparrot/codeXGLUE-java.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:21:11Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch additional samples from bigcode/the-stack if HumanEval and CodeXGLUE
+    total is less than 500
+  claim_id: c_d24c7cdc
+  context: "T012 [P] [US1] Logic: If total records from HumanEval + CodeXGLUE < 500,\
+    \ fetch additional samples from bigcode/the-stack until total \u2265 500."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_additional_samples_from_bigcode/the-stack_if_HumanEval
+  kind: magnitude
+  raw_text: If the total records from HumanEval and CodeXGLUE are less than 500, additional
+    samples will be fetched from bigcode/the-stack until the total is at least 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:21:53Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Ensure at least 30 samples per language stratum for Python, JS, and Java
+  claim_id: c_5fd44579
+  context: "T014 [US1] Verify: Count \u2265 30 per language stratum (Python, JS, Java)\
+    \ AND total count \u2265 500."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_at_least_30_samples_per_language_stratum_for_Python,
+  kind: magnitude
+  raw_text: The project will ensure a count of at least 30 per language stratum (Python,
+    JS, Java).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:22:55Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Enforce CPU limit of 2 cores
+  claim_id: c_b86878a6
+  context: "T007 [P] Implement resource constraint wrapper... Enforce CPU \u2264 2,\
+    \ RAM \u2264 7GB, Time \u2264 6h."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will enforce a CPU limit of 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:23:14Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Enforce RAM limit of 7GB
+  claim_id: c_61166386
+  context: "T007 [P] Implement resource constraint wrapper... Enforce CPU \u2264 2,\
+    \ RAM \u2264 7GB, Time \u2264 6h."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_RAM_limit_of_7GB
+  kind: entity_fact
+  raw_text: The project will enforce a RAM limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:23:38Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Enforce time limit of 6 hours
+  claim_id: c_4e47716c
+  context: "T007 [P] Implement resource constraint wrapper... Enforce CPU \u2264 2,\
+    \ RAM \u2264 7GB, Time \u2264 6h."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will enforce a time limit of 6 hours per task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:23:57Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use alpha set 0.01, 0.05, 0.1 for sensitivity analysis
+  claim_id: c_ec3b855f
+  context: 'T029 [US3] Implement sensitivity analysis sweep: Execute statistical tests
+    for each alpha in the set {0.01, 0.05, 0.1} as required by FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use the alpha set {0.01, 0.05, 0.1} for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:24:21Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use Python 3.11
+  claim_id: c_7c9e4d28
+  context: T002 Initialize Python 3.11 project with projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:24:38Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use datasets version 2.14.0
+  claim_id: c_a3360272
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    datasets==2.14.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use datasets version 2.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:24:55Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use pandas version 2.0.3
+  claim_id: c_318af372
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    ...pandas==2.0.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use pandas version 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:25:16Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use scipy version 1.11.0
+  claim_id: c_080e9f19
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    ...scipy==1.11.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use scipy version 1.11.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:25:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use pytest version 7.4.0
+  claim_id: c_b0816155
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    ...pytest==7.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:25:45Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use requests version 2.31.0
+  claim_id: c_be36740d
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    ...requests==2.31.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use requests version 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:26:14Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use pyyaml version 6.0.1
+  claim_id: c_052c43f8
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    ...pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:26:30Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use psutil version 5.9.5
+  claim_id: c_8319c1e4
+  context: 'T002 Initialize Python 3.11 project... containing pinned dependencies:
+    ...psutil==5.9.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will use psutil version 5.9.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:26:42Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Set flake8 max-line-length to 88
+  claim_id: c_2d84f95c
+  context: 'T003 [P] Configure linting and formatting: Create .flake8 with max-line-length=88...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will set max-line-length to 88 for flake8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:27:08Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Set black line-length to 88
+  claim_id: c_3d168dfe
+  context: 'T003 [P] Configure linting and formatting: ...and pyproject.toml with
+    [tool.black] line-length = 88.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will set line-length to 88 for black.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:27:31Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Log CPU and RAM metrics every 5 seconds
+  claim_id: c_0df1152c
+  context: 'T006 [P] Setup logging infrastructure... Hook: Implement psutil hook to
+    log cpu_percent and ram_percent every 5 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will log CPU and RAM metrics every 5 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:27:51Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Retry static analysis max 3 times with 2s initial delay and 2.0 multiplier
+  claim_id: c_ecfa6fb3
+  context: 'T018 [P] [US2] Implement code/static_analysis.py with CodeQL CLI execution
+    wrapper. Retry: Max 3 retries, initial delay 2s, multiplier 2.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project will retry static analysis a maximum of 3 times with an initial
+    delay of 2 seconds and a multiplier of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:28:13Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Do not use Precision, Recall, or F1 for static analysis due to lack of
+    security ground truth
+  claim_id: c_8ab09901
+  context: 'Notes: Statistical Validity: No Precision/Recall/F1 for static analysis
+    (no security ground truth). Use Issue Detection Rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Do_not_use_Precision,_Recall,_or_F1_for_static_analysis_due
+  kind: entity_fact
+  raw_text: The project will not use Precision, Recall, or F1 for static analysis
+    due to lack of security ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:28:48Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Do not use McNemar's test due to distinct constructs
+  claim_id: c_de7dcd43
+  context: 'Notes: Statistical Validity: No McNemar''s test (distinct constructs).
+    Use Spearman/Chi-squared.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Do_not_use_McNemar's_test_due_to_distinct_constructs
+  kind: entity_fact
+  raw_text: The project will not use McNemar's test due to distinct constructs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:29:11Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use Spearman's Rank Correlation and Chi-squared Test of Independence
+  claim_id: c_8dcb3d42
+  context: 'Notes: Statistical Validity: No McNemar''s test (distinct constructs).
+    Use Spearman/Chi-squared.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Spearman's_Rank_Correlation_and_Chi-squared_Test_of_Inde
+  kind: entity_fact
+  raw_text: The project will use Spearman's Rank Correlation and Chi-squared Test
+    of Independence for statistical analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:29:50Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Use Issue Detection Rate instead of Precision/Recall/F1
+  claim_id: c_3301b379
+  context: 'Notes: Statistical Validity: No Precision/Recall/F1 for static analysis
+    (no security ground truth). Use Issue Detection Rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Issue_Detection_Rate_instead_of_Precision/Recall/F1
+  kind: entity_fact
+  raw_text: The project will use Issue Detection Rate instead of Precision/Recall/F1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T21:30:37Z'

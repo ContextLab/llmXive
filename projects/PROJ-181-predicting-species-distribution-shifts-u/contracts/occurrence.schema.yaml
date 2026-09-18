@@ -1,119 +1,83 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Occurrence Record Schema
-description: JSON Schema for validating species occurrence records (raw and processed)
+title: Species Occurrence Record Schema
+description: Schema for validating occurrence records (raw and processed) including metadata requirements from Constitution Principle VI.
 type: object
 required:
   - species
-  - latitude
-  - longitude
+  - decimalLatitude
+  - decimalLongitude
   - year
+  - source_identifier
+  - download_timestamp
+  - original_dataset_name
 properties:
   species:
     type: string
     description: Scientific name of the species
     minLength: 1
-  latitude:
+  decimalLatitude:
     type: number
-    minimum: -90.0
-    maximum: 90.0
-    description: WGS84 latitude
-  longitude:
+    description: Latitude in decimal degrees (WGS84)
+    minimum: -90
+    maximum: 90
+  decimalLongitude:
     type: number
-    minimum: -180.0
-    maximum: 180.0
-    description: WGS84 longitude
+    description: Longitude in decimal degrees (WGS84)
+    minimum: -180
+    maximum: 180
   year:
     type: integer
+    description: Year of occurrence
     minimum: 1900
-    maximum: 2100
-    description: Year of observation
+    maximum: 2099
   month:
     type: integer
+    description: Month of occurrence (optional)
     minimum: 1
     maximum: 12
-    description: Month of observation (optional)
   day:
     type: integer
+    description: Day of occurrence (optional)
     minimum: 1
     maximum: 31
-    description: Day of observation (optional)
+  basisOfRecord:
+    type: string
+    description: Basis of record (e.g., 'HUMAN_OBSERVATION', 'OBSERVATION')
+  individualCount:
+    type: integer
+    description: Number of individuals observed (optional)
+    minimum: 1
+  sex:
+    type: string
+    description: Sex of the individual (optional)
+  lifeStage:
+    type: string
+    description: Life stage (optional)
+  coordinateUncertaintyInMeters:
+    type: number
+    description: Coordinate uncertainty in meters (optional)
+    minimum: 0
   source_identifier:
     type: string
-    description: Unique identifier for the source dataset (Constitution Principle VI)
-    minLength: 1
-  original_dataset_name:
-    type: string
-    description: Name of the original dataset (Constitution Principle VI)
+    description: Unique identifier for the source record (Constitution Principle VI)
     minLength: 1
   download_timestamp:
     type: string
     format: date-time
-    description: Timestamp when data was downloaded (Constitution Principle VI)
-  dataset_id:
+    description: ISO 8601 timestamp of when the data was downloaded (Constitution Principle VI)
+  original_dataset_name:
     type: string
-    description: GBIF dataset UUID or similar identifier
-  occurrence_id:
-    type: string
-    description: Unique occurrence identifier from source
-  basis_of_record:
-    type: string
-    description: Basis of record (e.g., 'HUMAN_OBSERVATION', 'MACHINE_OBSERVATION')
-  individual_count:
-    type: integer
-    minimum: 1
-    description: Number of individuals observed
-  sex:
-    type: string
-    description: Sex of the individual
-  life_stage:
-    type: string
-    description: Life stage of the individual
-  event_date:
-    type: string
-    format: date
-    description: Full event date (YYYY-MM-DD)
-  decimal_latitude:
+    description: Name of the original dataset from which the record was sourced (Constitution Principle VI)
+    minLength: 1
+  bias_weight:
     type: number
-    minimum: -90.0
-    maximum: 90.0
-    description: Decimal latitude (alias for latitude)
-  decimal_longitude:
-    type: number
-    minimum: -180.0
-    maximum: 180.0
-    description: Decimal longitude (alias for longitude)
-  coordinate_uncertainty_in_meters:
-    type: number
+    description: Calculated bias weight from effort data (optional, for processed data)
     minimum: 0.0
-    description: Uncertainty of coordinates in meters
-  geodetic_datum:
-    type: string
-    default: WGS84
-    description: Geodetic datum used
-  country:
-    type: string
-    description: Country code or name
-  state_province:
-    type: string
-    description: State or province
-  locality:
-    type: string
-    description: Locality description
-  comments:
-    type: string
-    description: Additional comments
-  flags:
-    type: array
-    items:
-      type: string
-    description: List of validation flags (e.g., 'INSUFFICIENT_TRAINING_DATA')
-  climate_data:
-    type: object
-    description: Extracted climate variables (added in preprocessing)
-    additionalProperties:
-      type: number
-  is_valid:
-    type: boolean
-    default: true
-    description: Flag indicating if the record passed validation
-additionalProperties: false
+  climate_1970_2000_bio1:
+    type: number
+    description: Extracted climate variable BIO1 (Annual Mean Temperature) for 1970-2000 (optional)
+  climate_1970_2000_bio12:
+    type: number
+    description: Extracted climate variable BIO12 (Annual Precipitation) for 1970-2000 (optional)
+  # Additional climate variables can be added as needed
+additionalProperties: true

@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 import requests
 import pandas as pd
-import yaml
+import json
 
 from config import DATA_DIR, RND_SEED
 from logging_config import get_logger
@@ -16,208 +16,159 @@ RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 logger = get_logger(__name__)
 
-GBIF_API_BASE = "https://api.gbif.org/v2/occurrence/search"
-
-# Target species (North American birds) - simplified list for MVP
-# In a full implementation, this would be a larger curated list
-TARGET_SPECIES = [
-    "Turdus migratorius",  # American Robin
-    "Setophaga ruticilla", # American Redstart
-    "Cardinalis cardinalis", # Northern Cardinal
-    "Sialia sialis",       # Eastern Bluebird
-    "Poecile carolinensis" # Carolina Chickadee
-]
-
-def fetch_occurrences(year_start: int, year_end: int, output_file: Path) -> pd.DataFrame:
+def fetch_occurrences(species_name, year_start, year_end, max_results=10000):
     """
-    Fetches bird occurrence data from GBIF API for a given year range.
-    Implements pagination and year filtering.
+    Fetch occurrence data from GBIF API for a specific species and year range.
+    Implements pagination to handle large datasets.
     """
+    url = "https://api.gbif.org/v1/occurrence/search"
+    params = {
+        "scientificName": species_name,
+        "year": f"{year_start},{year_end}",
+        "limit": 1000,  # GBIF max per request
+        "offset": 0,
+        "hasCoordinate": True,
+        "hasGeospatialIssue": False
+    }
+
     all_records = []
-    max_results_per_request = 300
-    total_fetched = 0
+    total_count = 0
+    fetched_count = 0
 
-    for species in TARGET_SPECIES:
-        logger.info(f"Fetching data for species: {species}")
-        
-        # GBIF API parameters
-        params = {
-            'taxonKey': None, # We will search by scientificName as taxonKey lookup is complex without a registry
-            'scientificName': species,
-            'year': f"{year_start},{year_end}",
-            'hasCoordinate': True,
-            'limit': max_results_per_request,
-            'offset': 0,
-            'country': 'US,CA,MX' # North America focus
-        }
+    logger.info(f"Fetching occurrences for {species_name} ({year_start}-{year_end})")
 
-        # Note: GBIF does not support direct scientificName search with year filter in a single call easily
-        # without a taxonKey. We will use the scientificName filter which is supported.
-        # The API endpoint 'search' allows scientificName.
-        
-        has_more = True
-        while has_more:
-            try:
-                # GBIF API requires a valid email in the User-Agent header
-                headers = {
-                    'User-Agent': 'llmXive-sdm-pipeline (research@example.com)'
-                }
-                
-                response = requests.get(GBIF_API_BASE, params=params, headers=headers, timeout=60)
-                response.raise_for_status()
-                data = response.json()
-                
-                results = data.get('results', [])
-                if not results:
-                    has_more = False
-                    break
-                
-                for record in results:
-                    # Filter for valid coordinates
-                    if 'decimalLatitude' in record and 'decimalLongitude' in record:
-                        all_records.append(record)
-                
-                total_fetched += len(results)
-                params['offset'] += max_results_per_request
-                
-                # Check if we got fewer results than requested (last page)
-                if len(results) < max_results_per_request:
-                    has_more = False
-                
-                # Rate limiting: GBIF suggests 5 requests per second max
-                time.sleep(0.25)
-                
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Error fetching data for {species}: {e}")
-                has_more = False
+    while True:
+        try:
+            response = requests.get(url, params=params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+
+            if "results" not in data:
+                logger.warning(f"No results key in response for {species_name}")
                 break
 
-    if not all_records:
-        logger.warning("No records fetched. Returning empty dataframe.")
-        return pd.DataFrame()
+            records = data["results"]
+            if not records:
+                break
 
-    # Convert to DataFrame
-    df = pd.DataFrame(all_records)
-    
-    # Select relevant columns
-    columns_to_keep = [
-        'scientificName', 'decimalLatitude', 'decimalLongitude', 
-        'eventDate', 'year', 'basisOfRecord', 'institutionCode',
-        'datasetName', 'occurrenceID'
-    ]
-    
-    # Filter columns that exist
-    existing_columns = [c for c in columns_to_keep if c in df.columns]
-    df = df[existing_columns].copy()
-    
-    # Ensure year is integer for filtering if needed (though API filters it)
-    if 'year' in df.columns:
-        df['year'] = pd.to_numeric(df['year'], errors='coerce')
-        df = df.dropna(subset=['year'])
-        df = df[(df['year'] >= year_start) & (df['year'] <= year_end)]
-    
-    # Remove duplicates based on occurrenceID
-    if 'occurrenceID' in df.columns:
-        df = df.drop_duplicates(subset=['occurrenceID'])
-    
-    logger.info(f"Fetched {len(df)} records for {year_start}-{year_end}")
+            all_records.extend(records)
+            fetched_count += len(records)
+            total_count = data.get("count", 0)
+
+            logger.debug(f"Fetched {fetched_count} records (total available: {total_count})")
+
+            if fetched_count >= total_count or fetched_count >= max_results:
+                break
+
+            params["offset"] += params["limit"]
+            time.sleep(1)  # Rate limiting
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching data: {e}")
+            break
+
+    logger.info(f"Total records fetched: {len(all_records)}")
+    return all_records
+
+def add_metadata_columns(df, source_identifier, original_dataset_name):
+    """
+    Add Constitution Principle VI metadata columns to the DataFrame.
+    """
+    timestamp = datetime.now().isoformat()
+    df["source_identifier"] = source_identifier
+    df["download_timestamp"] = timestamp
+    df["original_dataset_name"] = original_dataset_name
     return df
 
-def add_metadata_columns(df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
+def derive_effort_data(occurrence_df, grid_size=0.1):
     """
-    Adds required metadata columns per Constitution Principle VI:
-    - source_identifier
-    - download_timestamp
-    - original_dataset_name
+    Derive target-group effort data (all-observer density) from occurrence data.
+    This serves as a bias proxy for bias correction.
     """
-    if df.empty:
-        logger.warning("DataFrame is empty, cannot add metadata.")
-        return df
-
-    download_timestamp = datetime.now().isoformat()
-    
-    # Create metadata columns
-    df['source_identifier'] = 'GBIF_API'
-    df['download_timestamp'] = download_timestamp
-    
-    # Map datasetName to original_dataset_name (if present, else default)
-    if 'datasetName' in df.columns:
-        df['original_dataset_name'] = df['datasetName']
-    else:
-        df['original_dataset_name'] = 'Unknown_GBIF_Dataset'
-    
-    # Reorder columns to put metadata at the end or specific position
-    # Let's put them at the end for clarity
-    meta_cols = ['source_identifier', 'download_timestamp', 'original_dataset_name']
-    other_cols = [c for c in df.columns if c not in meta_cols]
-    df = df[other_cols + meta_cols]
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved metadata-enhanced data to {output_path}")
-    
-    return df
-
-def derive_effort_data(df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
-    """
-    Derives target-group effort data (all-observer density) from the occurrence data.
-    This is an internal derivation, not an external download.
-    """
-    if df.empty:
-        logger.warning("Empty input for effort data derivation.")
+    if occurrence_df.empty:
+        logger.warning("Empty occurrence dataframe, returning empty effort data")
         return pd.DataFrame()
-    
-    # Simple binning approach for density:
-    # 1. Create a grid (e.g., 0.1 degree bins)
-    # 2. Count occurrences per bin
-    # This is a simplified proxy for "target-group" effort.
-    
-    # Create grid keys
-    lat_bins = pd.cut(df['decimalLatitude'], bins=100, labels=False)
-    lon_bins = pd.cut(df['decimalLongitude'], bins=100, labels=False)
-    
-    df_temp = df.copy()
-    df_temp['lat_bin'] = lat_bins
-    df_temp['lon_bin'] = lon_bins
-    
-    effort = df_temp.groupby(['lat_bin', 'lon_bin']).size().reset_index(name='count')
-    
-    effort.to_csv(output_path, index=False)
-    logger.info(f"Derived effort data saved to {output_path}")
+
+    # Simplified effort derivation: count records per grid cell
+    occurrence_df["grid_lon"] = (occurrence_df["decimalLongitude"] / grid_size).round() * grid_size
+    occurrence_df["grid_lat"] = (occurrence_df["decimalLatitude"] / grid_size).round() * grid_size
+
+    effort = occurrence_df.groupby(["grid_lon", "grid_lat"]).size().reset_index(name="record_count")
+    effort["grid_lon"] = effort["grid_lon"].astype(float)
+    effort["grid_lat"] = effort["grid_lat"].astype(float)
+
+    logger.info(f"Derived effort data with {len(effort)} grid cells")
     return effort
 
 def main():
     """
-    Main entry point for T010: Fetch historical data (1970-2000).
+    Main function to download historical occurrence data (1970-2000)
+    with metadata columns as per Constitution Principle VI.
     """
-    logger.info("Starting historical data download (1970-2000)...")
+    # Example species for demonstration - in real use, iterate over species list
+    species_list = ["Turdus migratorius", "Setophaga ruticilla", "Cardinalis cardinalis"]
+    
     output_file = RAW_DIR / "occurrence_1970_2000.csv"
     
-    df = fetch_occurrences(1970, 2000, output_file)
-    if not df.empty:
-        add_metadata_columns(df, output_file)
+    all_occurrences = []
+    
+    for species in species_list:
+        records = fetch_occurrences(species, 1970, 2000, max_results=50000)
+        
+        if not records:
+            logger.warning(f"No records found for {species}")
+            continue
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(records)
+        
+        # Standardize column names for GBIF response
+        if "decimalLatitude" in df.columns:
+            df["latitude"] = df["decimalLatitude"]
+        if "decimalLongitude" in df.columns:
+            df["longitude"] = df["decimalLongitude"]
+        
+        # Add metadata columns (Constitution Principle VI)
+        df = add_metadata_columns(
+            df,
+            source_identifier=f"GBIF_{species}_1970_2000",
+            original_dataset_name="GBIF Occurrence Download"
+        )
+        
+        all_occurrences.append(df)
+        logger.info(f"Processed {len(df)} records for {species}")
+    
+    if all_occurrences:
+        combined_df = pd.concat(all_occurrences, ignore_index=True)
+        combined_df.to_csv(output_file, index=False)
+        logger.info(f"Saved combined occurrence data to {output_file}")
+        print(f"Download complete. Saved {len(combined_df)} records to {output_file}")
     else:
-        logger.error("Failed to fetch historical data.")
-        # Create empty file with headers to satisfy downstream checks if needed, 
-        # but strictly speaking, we should fail loudly if no data.
-        # Per constraints: "FAIL LOUDLY — never fall back to synthetic".
-        raise RuntimeError("No historical data fetched from GBIF.")
+        logger.error("No occurrence data downloaded")
+        raise RuntimeError("Failed to download any occurrence data")
 
 def main_effort():
     """
-    Main entry point for T010c: Derive effort data from historical data.
+    Main function to derive effort data from historical occurrence data.
     """
-    logger.info("Starting effort data derivation...")
     input_file = RAW_DIR / "occurrence_1970_2000.csv"
     output_file = RAW_DIR / "effort_data.csv"
     
     if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_file}. Run main() first.")
+        logger.error(f"Input file {input_file} does not exist. Run main() first.")
+        raise FileNotFoundError(f"Input file {input_file} not found")
     
-    df = pd.read_csv(input_file)
-    derive_effort_data(df, output_file)
+    occurrence_df = pd.read_csv(input_file)
+    effort_df = derive_effort_data(occurrence_df)
+    
+    if not effort_df.empty:
+        effort_df.to_csv(output_file, index=False)
+        logger.info(f"Saved effort data to {output_file}")
+        print(f"Effort data derived. Saved {len(effort_df)} grid cells to {output_file}")
+    else:
+        logger.warning("No effort data could be derived")
 
 if __name__ == "__main__":
-    # Check which function to run based on environment or args could be added
-    # For now, run historical fetch
     main()
+    # Uncomment to also generate effort data
+    # main_effort()
