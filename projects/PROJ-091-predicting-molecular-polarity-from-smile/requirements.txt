@@ -7,6 +7,5 @@ shap
 pyyaml
 pytest
 safety
+requests
 datasets
-rdkit
-pyarrow

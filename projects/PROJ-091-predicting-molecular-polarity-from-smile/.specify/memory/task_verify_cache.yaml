@@ -1,3 +1,25 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/contract/` directory or any schema validator files (e.g., JSON/YAML
+    schemas, Python validation scripts) are present in the provided evidence. Consequently,
+    the required artifact for setting up dataset and model output validators is missing.
+T014c:
+  c: false
+  h: 913532decb9e19c6663919047b55c01f59dae28a54057bb21c0cdc84bd3d4a98
+  r: "The repository does not contain the required `data/processed/descriptors_filtered.parquet`\
+    \ file, and the shown portion of `code/data/preprocess_2d.py` stops before any\
+    \ implementation of Pearson\u2011correlation filtering or writing a filtered matrix.\
+    \ Consequently the core logic (computing correlations, dropping features with\
+    \ |r|\u202F>\u202F0.85, and saving the result) is absent."
+T014d:
+  c: false
+  h: 335772cbbd398eee6bd4334974a3e69521855b3a2eca4573738dcba9afb6def7
+  r: "The required output files `data/processed/descriptors.parquet` and `data/processed/descriptors_no_filter.parquet`\
+    \ are missing, and the provided `preprocess_2d.py` does not contain any implementation\
+    \ of the \u201Cno\u2011filter\u201D correlation logic nor a copy operation to\
+    \ create the `_no_filter` file. The task\u2019s core requirement is therefore\
+    \ not satisfied."
 T019:
   c: false
   h: 4683cc7f733dab10e6e50c6b1756059c6f1e6a2f0fd6218a4a016f8be3271534
@@ -22,14 +44,6 @@ T034a:
     \ similarity of the top feature clusters. The implementer supplied no artifact\
     \ (e.g., script, notebook, CSV, or figure) containing the required similarity\
     \ calculations, so the task\u2019s core requirement is unmet."
-T039d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest test files, code diffs, or reports are present that demonstrate unused\
-    \ imports have been removed or that logging has been standardized. The only artifacts\
-    \ shown relate to molecular descriptor generation and model training, which do\
-    \ not address the \u201Cverify unused import removal and logging standardization\u201D\
-    \ requirement. Consequently, the required evidence is missing."
 T042b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,11 +53,3 @@ T042b:
     \ address the required CI safety\u2011check implementation. The task lacks the\
     \ necessary artifact (e.g., updated `.github/workflows/*.yml` or a new CI script)\
     \ to satisfy the claim."
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI workflow logs, memory\u2011profile reports, or runtime measurements are\
-    \ present; there is no artifact showing that the pipeline was executed on a GitHub\
-    \ Actions free\u2011tier runner and that it stayed within the \u22646\u202Fh /\
-    \ \u22646\u202FGB limits. The required evidence of the CI execution and constraint\
-    \ verification is missing."

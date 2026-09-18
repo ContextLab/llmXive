@@ -1,0 +1,24 @@
+{
+  "project_id": "PROJ-091-predicting-molecular-polarity-from-smile",
+  "ok": false,
+  "reason": "7 command(s) failed: python code/data/download_qm9.py (rc=1); python code/main.py (rc=1); python code/data/preprocess_2d.py (rc=1); 1 declared deliverable(s) absent: data/processed/descriptors.parquet",
+  "artifacts": [],
+  "failures": [
+    "python code/data/download_qm9.py -> rc=1\n    Failed to download https://zenodo.org/record/7298654/files/qm9_smiles.csv.gz: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/7298654/files/qm9_smiles.csv.gz\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/download_qm9.py\", line 104, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/data/download_qm9.py\", line 92, in main\n    download_file(QM9_URL, output_file",
+    "python code/main.py -> rc=1\n    cts/PROJ-091-predicting-molecular-polarity-from-smile/logs\n2026-09-18 23:35:39,728 - __main__ - WARNING - Required file missing (may be downloaded later): /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/data/raw/qm9_smiles.csv\n2026-09-18 23:35:39,728 - __main__ - INFO - Validating 2D-only compliance...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/main.py\", line 149, in <module>\n    main()\n  File \"/home/runner/work/llmXive/",
+    "python code/data/preprocess_2d.py -> rc=1\n    Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/data/raw/qm9_smiles.csv.gz",
+    "python code/data/feature_clustering.py -> rc=1\n    uet(data_path)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/.venv/lib/python3.11/site-packages/pandas/io/parquet.py\", line 671, in read_parquet\n    return impl.read(\n           ^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/.venv/lib/python3.11/site-packages/pandas/io/parquet.py\", line 253, in read\n    path_or_handle, handles, filesystem = _get_path_or_handle(\n                   ",
+    "python code/models/train_lightgbm.py -> rc=1\n    Data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/data/processed/descriptors.parquet",
+    "python code/models/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/models/evaluate.py\", line 62, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/models/evaluate.py\", line 59, in main\n    run_evaluation(model_path, data_path, output_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/code/models/evaluate.py\", line 44, in run_evaluation\n    with o",
+    "python code/models/interpret.py -> rc=2\n    usage: interpret.py [-h] --model MODEL --data DATA --clusters CLUSTERS\n                    [--output OUTPUT]\ninterpret.py: error: the following arguments are required: --model, --data, --clusters"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/data/download_qm9.py"
+  ],
+  "updated_at": "2026-09-18T23:35:48Z"
+}

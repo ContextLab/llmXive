@@ -1,0 +1,51 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  # Load the QM9 dataset using a specific config that contains the full data
+
+  dataset_dict = load_dataset(''jablonkagroup/qm9'', ''raw_data'')
+
+
+  # Compute total number of records across all splits
+
+  total_records = sum(len(split) for split in dataset_dict.values())
+
+  print(f"RECORDS={total_records}")
+
+
+  # Print the field names from the first split (all splits share the same schema)
+
+  first_split = next(iter(dataset_dict.values()))
+
+  print("FIELDS=" + ",".join(first_split.column_names))'
+record_count: 133885
+sample_fields:
+- inchi
+- SMILES
+- rotational_constant_a
+- rotational_constant_b
+- rotational_constant_c
+- dipole_moment
+- polarizability
+- homo
+- lumo
+- gap
+- r2
+- zero_point_energy
+- u0
+- u298
+- h298
+- g298
+- heat_capacity
+- split
+- __index_level_0__
+field_coverage: 0.667
+required_fields:
+- smiles
+- molecule_id
+- dipole_moment
+intent: download QM9 dataset python package dataset
+cache_key: 47eecf33e69d4ee255da274d245e086ac4da4a40fe043e073c68fb75dbd187a9

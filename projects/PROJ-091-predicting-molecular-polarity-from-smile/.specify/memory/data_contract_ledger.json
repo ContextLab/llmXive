@@ -1,0 +1,22 @@
+[
+  {
+    "data_file": "data/processed/descriptors.parquet",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/model.pkl",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/data/processed/descriptors.parquet",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-091-predicting-molecular-polarity-from-smile/data/raw/qm9_smiles.csv",
+    "required": []
+  },
+  {
+    "data_file": "zenodo.org/records/7298654/files/qm9_smiles.csv",
+    "required": []
+  }
+]
