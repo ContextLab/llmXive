@@ -2,38 +2,31 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "Baseline Metrics Schema"
 type: object
 required:
-  - dataset_id
+  - dataset
   - test_type
   - p_value
-  - p_value_delta
   - ci_lower
   - ci_upper
   - effect_size
-  - assumptions_met
 properties:
-  dataset_id:
+  dataset:
     type: string
+    description: "Dataset name matching entry in dataset_metadata.json."
   test_type:
     type: string
-    enum: ["t-test", "welch-t-test", "linear-regression"]
+    enum: [chi2, fisher, logistic_regression, welch_t, ols]
+    description: "Statistical test performed."
   p_value:
     type: number
     minimum: 0
     maximum: 1
-    description: "Three‑decimal precision required."
-  p_value_delta:
-    type: number
-    const: 0.0
-    description: "Baseline delta is always at its reference level."
+    description: "P‑value reported with ≥ 3 decimal precision."
   ci_lower:
     type: number
+    description: "Lower bound of the confidence interval at a conventional confidence level."
   ci_upper:
     type: number
+    description: "Upper bound of the confidence interval at a conventional confidence level."
   effect_size:
     type: number
-  assumptions_met:
-    type: boolean
-  # Optional fields for future extensions (allowed but not required)
-  additional_info:
-    type: object
-    additionalProperties: true
+    description: "Cohen's d for continuous, odds ratio for binary."

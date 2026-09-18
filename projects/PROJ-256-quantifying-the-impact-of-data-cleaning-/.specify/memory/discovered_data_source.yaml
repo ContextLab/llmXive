@@ -1,33 +1,8 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: 'import openml, pandas as pd
-
-  # Iris dataset (UCI) is available on OpenML with ID 61
-
-  dataset = openml.datasets.get_dataset(61)
-
-  X, y, _, _ = dataset.get_data(dataset_format=''dataframe'')
-
-  # Combine features and target, naming the target column ''outcome''
-
-  df = X.copy()
-
-  df[''outcome''] = y
-
-  print(f"RECORDS={len(df)}")
-
-  print("FIELDS=" + ",".join(df.columns))'
-record_count: 150
-sample_fields:
-- sepallength
-- sepalwidth
-- petallength
-- petalwidth
-- class
-- outcome
-field_coverage: 1.0
+status: none
+intent: UCI wine har breastcancer shopper heart sms spam openml huggingface python
+  package dataset
 required_fields:
-- outcome column
-intent: UCI Machine Learning Repository OpenML python package dataset
-cache_key: 3d41822129b21ffce34e868c0cd80edbe9358abc3a1349c330607dd904fd8ba9
+- target
+cache_key: 669ebd718a19836763d4cef2576a130a47aab4cfa22c27c72e4cf15f86e14172
+searched_at: '2026-09-18T15:46:02.768926+00:00'
+retry_count: 1

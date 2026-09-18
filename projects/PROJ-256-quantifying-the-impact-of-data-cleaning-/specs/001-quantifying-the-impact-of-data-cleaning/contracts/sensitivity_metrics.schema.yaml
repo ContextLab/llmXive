@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Metrics Schema"
+type: object
+required:
+  - size_bin
+  - missingness_level
+  - datasets
+properties:
+  size_bin:
+    type: string
+    enum: ["<64", "64-200", ">200"]
+  missingness_level:
+    type: string
+    enum: ["M0", "M1", "M2", "M3"]
+  datasets:
+    type: array
+    items:
+      type: object
+      required:
+        - dataset
+        - delta_metrics
+      properties:
+        dataset:
+          type: string
+        delta_metrics:
+          $ref: "delta_metrics.schema.yaml"

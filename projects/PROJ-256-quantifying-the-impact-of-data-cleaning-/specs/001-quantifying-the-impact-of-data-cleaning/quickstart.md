@@ -1,63 +1,59 @@
-# Quickstart: Running the Data‑Cleaning Impact Pipeline
+# Quickstart: Quantifying the Impact of Data Cleaning
 
 ## Prerequisites
-- Python 3.11 installed (the CI runner provides it).
-- Git 2.40+ and internet access to download the open datasets.
-- No GPU required.
+- Python 3.11 (installed on the runner or locally).  
+- Git (to clone the repository).  
+- Internet access (to download OpenML datasets).
 
-## Step‑by‑Step
+## Step‑by‑Step Guide
 
-```bash
-# 1️⃣ Clone the repository
-git clone
-cd quantify-cleaning-impact
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/quantify-cleaning-impact.git
+   cd quantify-cleaning-impact
+   ```
 
-# 2️⃣ Create a virtual environment and install dependencies
-python -m venv.venv
-source.venv/bin/activate
-pip install -r requirements.txt # pins all versions as listed in plan.md
+2. **Create a virtual environment and install dependencies**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-# 3️⃣ Run the full pipeline (this will download data, run analyses, and produce artefacts)
-python -m code.main
-```
+3. **Run the full pipeline**
+   ```bash
+   python -m src.main
+   ```
+   The script will:
+   - Download and checksum the multiple datasets (`data/raw/`).
+   - Generate `dataset_metadata.json`.
+   - Perform baseline analyses.
+   - Apply all cleaning variants (outlier thresholds, imputation, recoding).
+   - Run assumption checks and robust fall‑backs.
+   - Execute a sufficient number of bootstrap iterations.
+   - Compute delta metrics and sensitivity analyses.
+   - Produce `power_analysis.txt`, figures, and `comparison_report.json`.
 
-### What `code.main` does
-| Stage | Output file(s) | Brief description |
-|-------|----------------|-------------------|
-| Data download & checksum | `data/raw/*`, `state/projects/…yaml` | Retrieves verified datasets, records SHA‑256. |
-| Metadata generation | `data/processed/dataset_metadata.json` | Stores outcome column, size, missingness. |
-| Baseline analysis | `data/processed/baseline_metrics.json`, `data/processed/analysis_results.json` | t‑tests / regressions on raw data. |
-| Cleaning variants | `data/processed/cleaned_metrics.json`, `data/processed/null_fpr_metrics.json` | All outlier‑removal, imputation, recoding combos. |
-| Bootstrap CI | `data/processed/bootstrap_metrics.json` | 1000 resamples per variant. |
-| Permutation FPR | `data/processed/null_fpr_metrics.json` (adds FPR) | Outcome permuted **after** cleaning; outcome excluded from cleaning. |
-| Multiple‑comparison correction | `data/processed/cleaned_metrics.json` (adds `adjusted_p_value`) | Holm‑Bonferroni per dataset. |
-| Sensitivity analysis | `data/processed/sensitivity_metrics.json` | Factorial (cleaning × missingness) stratification. |
-| Power analysis | `power_analysis.txt` | Wilcoxon‑based per‑dataset power checks. |
-| Hypothesis testing | `data/processed/hypothesis_test_results.json` | Wilcoxon on Δ‑metrics. |
-| Final report & figures | `data/processed/comparison_report.json`, `output/figures/*.png` | Forest plot, CI heatmap, summary table. |
-| Validation | Console output `All schemas validated ✅` | Runs `code/validation.py` against contracts. |
+4. **Validate artefacts**
+   ```bash
+   pytest -q tests/contract
+   ```
+   All contract tests must pass. The citation‑validation script will also run automatically at the end of the pipeline; its log appears in `logs/citation_validation.log`.
 
-### Running a Subset (for debugging)
-```bash
-# Only download data
-python -m code.data_loader
+5. **Inspect results**
+   - JSON artefacts are under `data/processed/`.  
+   - Figures are under `output/figures/`.  
+   - The aggregated report can be opened with any JSON viewer or loaded into a notebook for further exploration.
 
-# Run baseline only
-python -m code.analysis --stage baseline
+## Re‑Running with Custom Settings
+- To change the number of bootstrap iterations, edit `src/config.py`:
+  ```python
+  BOOTSTRAP_ITERATIONS = 2000   # any positive integer
+  ```
+- To use a different random seed, modify `RANDOM_SEED` in the same file.
 
-# Run cleaning + bootstrap for a single dataset (example)
-python -m code.main --dataset-id wine_quality --stage cleaning_bootstrap
-```
-
-### Re‑producibility Tips
-- All random seeds are defined in `code/config.py`. Changing the seed requires a full pipeline rerun to maintain hash consistency.
-- The pipeline logs every major step to `logs/pipeline.log`.
-
-### Expected Runtime
-- Full run on the GitHub Actions free tier: **≈ 4 h 30 m**.
-- Memory peak: **≈ 5.5 GB** (during permutation FPR for the largest dataset).
-
-If the job exceeds the 6‑hour limit, the CI will automatically cancel; you can resume by re‑running the workflow (the pipeline is checkpointed after each stage).
+## Expected Runtime
+On the GitHub Actions free tier (2 CPU cores, ≈ 7 GB RAM) the full pipeline completes in **[deferred]**. Memory usage stays below **5 GB** thanks to streaming for the largest dataset.
 
 ---
 

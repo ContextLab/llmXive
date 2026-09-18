@@ -1,25 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Bootstrap Metrics Schema"
-type: "object"
+type: object
 required:
-  - "dataset_id"
-  - "cleaning_variant"
-  - "bootstrap_ci_lower"
-  - "bootstrap_ci_upper"
-  - "iterations"
+  - dataset
+  - variant_id
+  - bootstrap_iterations
+  - p_value_ci
+  - effect_size_ci
 properties:
-  dataset_id:
-    type: "string"
-  cleaning_variant:
-    type: "string"
-  bootstrap_ci_lower:
-    type: "number"
-    description: "Lower bound of bootstrap confidence interval for effect size."
-  bootstrap_ci_upper:
-    type: "number"
-    description: "Upper bound of bootstrap confidence interval at a conventional confidence level for effect size."
-  iterations:
-    type: "integer"
-    minimum: a sufficiently large sample size
-    description: "Number of bootstrap resamples used."
-additionalProperties: false
+  dataset:
+    type: string
+  variant_id:
+    type: string
+  bootstrap_iterations:
+    type: integer
+    minimum: 1
+    description: "Number of bootstrap samples used (must equal config.BOOTSTRAP_ITERATIONS)."
+  p_value_ci:
+    type: object
+    required: [lower, upper]
+    properties:
+      lower:
+        type: number
+        minimum: 0
+        maximum: 1
+      upper:
+        type: number
+        minimum: 0
+        maximum: 1
+  effect_size_ci:
+    type: object
+    required: [lower, upper]
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number

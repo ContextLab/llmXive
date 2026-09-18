@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Delta Metrics Schema"
+type: object
+required:
+  - dataset
+  - variant_id
+  - p_value_delta
+  - direction
+  - ci_overlap
+  - effect_size_change
+properties:
+  dataset:
+    type: string
+  variant_id:
+    type: string
+  p_value_delta:
+    type: number
+    description: "Baseline p‑value minus cleaned p‑value, three‑decimal precision."
+  direction:
+    type: string
+    enum: ["increase", "decrease"]
+  ci_overlap:
+    type: number
+    minimum: 0
+    maximum: 1
+  effect_size_change:
+    type: number

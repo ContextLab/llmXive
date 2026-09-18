@@ -2,84 +2,38 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "Comparison Report Schema"
 type: object
 required:
-  - overall_delta_summary
-  - per_dataset
-  - fpr_summary
-  - power_analysis_summary
+  - generated_at
+  - aggregated_deltas
 properties:
-  overall_delta_summary:
-    type: object
-    required:
-      - mean_p_value_delta
-      - mean_ci_overlap
-      - mean_effect_size_change
-    properties:
-      mean_p_value_delta:
-        type: number
-      mean_ci_overlap:
-        type: number
-      mean_effect_size_change:
-        type: number
-  per_dataset:
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of report generation."
+  aggregated_deltas:
     type: array
+    description: "One entry per dataset‑variant pair."
     items:
       type: object
       required:
-        - dataset_id
-        - variants
+        - dataset
+        - variant_id
+        - p_value_delta
+        - direction
+        - ci_overlap
+        - effect_size_change
       properties:
-        dataset_id:
+        dataset:
           type: string
-        variants:
-          type: array
-          items:
-            type: object
-            required:
-              - variant_id
-              - p_value_delta
-              - direction
-              - ci_overlap
-              - effect_size_change
-              - fpr
-            properties:
-              variant_id:
-                type: string
-              p_value_delta:
-                type: number
-              direction:
-                type: string
-                enum: ["increase", "decrease"]
-              ci_overlap:
-                type: number
-                minimum: 0
-                maximum: 1
-              effect_size_change:
-                type: number
-              fpr:
-                type: number
-                minimum: 0
-                maximum: 1
-  fpr_summary:
-    type: object
-    required:
-      - overall_fpr
-    properties:
-      overall_fpr:
-        type: number
-        minimum: 0
-        maximum: 1
-  power_analysis_summary:
-    type: object
-    required:
-      - required_total_n
-      - achieved_total_n
-      - power_estimate
-    properties:
-      required_total_n:
-        type: integer
-      achieved_total_n:
-        type: integer
-      power_estimate:
-        type: number
-        minimum: 0
-        maximum: 1
+        variant_id:
+          type: string
+        p_value_delta:
+          type: number
+        direction:
+          type: string
+          enum: ["increase", "decrease"]
+        ci_overlap:
+          type: number
+          minimum: 0
+          maximum: 1
+        effect_size_change:
+          type: number
