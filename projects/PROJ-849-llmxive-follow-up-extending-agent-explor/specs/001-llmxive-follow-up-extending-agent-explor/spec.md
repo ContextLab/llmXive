@@ -76,7 +76,7 @@
 - **FR-006**: System MUST train a logistic regression classifier using the semantic metrics to predict the binary success/failure outcome of the simulated RL attempts and report accuracy on a hold-out set. (See US-3)
 - **FR-007**: System MUST enforce a memory limit of ≤ 7 GB RAM and a CPU-only execution environment, automatically downsampling the dataset to 300 records if the full dataset exceeds these constraints. Additionally, the system MUST enforce a hard timeout of 5 hours; if exceeded, the job MUST abort and report a "Timeout Exceeded" error. (See US-1, US-2, US-3)
 - **FR-008**: System MUST execute the original AXPO agent (or a cached simulation of it) on the same problem subset to generate ground-truth success/failure outcomes for each problem, storing these as `simulated_failure_rate`. (See US-2, US-3)
-- **FR-009**: System MUST ensure that the tool descriptions used for embedding are exactly the strings returned by the BM25 retrieval from the `mathvista_tool_map.json` file. (See US-1)
+- **FR-009**: System MUST ensure that the tool descriptions used for embedding are exactly the strings returned by the sparse retrieval from the `mathvista_tool_map.json` file. (See US-1)
 - **FR-010**: System MUST verify that the dataset size N is ≥ 30 before performing correlation or classification. If N < 30, the system MUST halt and report "Insufficient Sample Size for Power Analysis". (See US-2, US-3)
 
 ### Key Entities

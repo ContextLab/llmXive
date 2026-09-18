@@ -1,14 +1,11 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 3 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T003` (rejected 1x): The implementer provided only a feature specification for semantic divergence diagnostics and no linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or Black settings). There is no evidence that ruff and black have been installed, configured, or integrated into the project, so the task requirement is unmet.
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: src/lib/config.py
-- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/lib/data_loader.py
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- T022 (US2) depends on T008-impl-cache. T008-impl-cache depends on T008-exec-axpo. The 'Critical Dependency Chains' section correctly lists T008-exec-axpo -> T008-impl-cache. However, T008-impl-cache is listed in Phase 2 with a [P] tag. Since it consumes the output of T008-exec-axpo (also in Phase 2), it cannot be parallel with T008-exec-axpo. The [P] tag on T008-impl-cache is incorrect and creates a false parallel opportunity.
+- T015 is marked [P] but explicitly states 'Depends on T014'. T014 is in the same phase (Phase 3). Tasks within the same phase marked [P] must be parallel-safe. T015 cannot run in parallel with T014. The [P] tag on T015 is incorrect.
+- T004-ext requires raising 'TimeoutExceededError' or 'MemoryLimitExceededError'. The task does not define the module path for these exceptions or instruct the implementer to create them. An implementer cannot execute this without knowing where to import or define these custom error classes.

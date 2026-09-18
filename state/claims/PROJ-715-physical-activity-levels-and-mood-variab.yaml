@@ -967,3 +967,269 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T08:13:27Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Full pipeline integration test execution time within 6 hours
+  claim_id: c_034390c5
+  context: "T036 [P] Run full pipeline integration test in tests/integration/test_full_pipeline.py\
+    \ to verify end\u2011to\u2011end execution within 6 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete end-to-end execution within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:12:45Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations count is 1000
+  claim_id: c_95215d1f
+  context: T031c [US3] ... executes a bootstrap sampling loop with config.BOOTSTRAP_ITERATIONS
+    (1000) iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap sampling loop executes 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:13:33Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Black line-length configuration is 88
+  claim_id: c_3bd7f8a6
+  context: T003b [P] Create pyproject.toml in code/ with [tool.black] section, line-length
+    = 88
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code quality standard requires a line-length of 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:13:57Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: P-value consistency threshold is 0.05
+  claim_id: c_4789a596
+  context: T029 [US3] ... boolean flags for sign_consistent and pvalue_consistent
+    (p < 0.05 ... status matches primary model)
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "compared with the nominal signi\uFB01cance level of 0.05 to determine\
+        \ whe ther or not to reject"
+      source_id: '1809.08503'
+      url: https://arxiv.org/abs/1809.08503
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The p-value threshold for consistency checks is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T01:14:45Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: full pipeline integration test execution time within 6 hours
+  claim_id: c_41e823e0
+  context: "Phase 8: Polish & Cross\u2011Cutting Concerns, T036: Run full pipeline\
+    \ integration test in tests/integration/test_full_pipeline.py to verify end\u2011\
+    to\u2011end execution within 6 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is required to run end-to-end execution within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:16:24Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: StudentLife dataset source OSF DOI or HuggingFace mirror
+  claim_id: c_57fa4782
+  context: 'Phase 2: Foundational (Blocking Prerequisites), T007: Create code/ingest.py
+    to download StudentLife dataset from OSF DOI specified in code/config.py... T063:
+    Attempt download from OSF DOI (primary). If OSF fails... attempt download from
+    the verified HuggingFace mirror (fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StudentLife_dataset_source_OSF_DOI_or_HuggingFace_mirror
+  kind: entity_fact
+  raw_text: The StudentLife dataset is sourced from an OSF DOI or a verified HuggingFace
+    mirror.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:16:47Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: bootstrap sampling loop 1000 iterations
+  claim_id: c_061263c1
+  context: 'Phase 5: User Story 3 - Validation and Sensitivity Analysis, T031c: Implement
+    code/analysis.py function run_bootstrap_loop() that executes a bootstrap sampling
+    loop with config.BOOTSTRAP_ITERATIONS (1000) iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap sampling loop is configured with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:17:26Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: bootstrap random seed 42 incremented by iteration index
+  claim_id: c_0b6acff8
+  context: 'Phase 5: User Story 3 - Validation and Sensitivity Analysis, T031c: For
+    each iteration i: 1. Set np.random.seed(42 + i) (seed 42 defined in T004, incremented
+    by iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the bootstrap loop is initialized at 42 and incremented
+    by the iteration index.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:17:48Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: LOPO cross-validation coefficient sign consistency at least 90 percent
+  claim_id: c_afdca7bf
+  context: "Phase 5: User Story 3 - Validation and Sensitivity Analysis, Independent\
+    \ Test: Verify final report contains LOPO coefficient consistency (\u2265 90%\
+    \ sign stability)... T026: ...asserting sign_consistency >= 0.90."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOPO_cross-validation_coefficient_sign_consistency_at_least
+  kind: magnitude
+  raw_text: The Leave-One-Participant-Out (LOPO) cross-validation requires a coefficient
+    sign consistency of at least 90%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:18:47Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: single-rating bootstrap consistency threshold at least 80 percent
+  claim_id: c_1e7e6c2d
+  context: "Phase 5: User Story 3 - Validation and Sensitivity Analysis, Independent\
+    \ Test: Verify final report contains ... bootstrap consistency for single\u2011\
+    rating handling (\u2265 80%). ... T031d: Calculate a boolean pass flag (True if\
+    \ percentage >= 80%, False otherwise)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single-rating_bootstrap_consistency_threshold_at_least_80_pe
+  kind: magnitude
+  raw_text: The single-rating bootstrap consistency check requires a pass threshold
+    of at least 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:19:22Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: weekdays-only sensitivity analysis p-value threshold 0.05
+  claim_id: c_7f06f6ee
+  context: 'Phase 5: User Story 3 - Validation and Sensitivity Analysis, T029: ...boolean
+    flags for sign_consistent and pvalue_consistent (p < 0.05 (1501.05788, https://arxiv.org/abs/1501.05788)
+    status matches primary model) for merging.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value threshold for the weekdays-only sensitivity analysis consistency
+    check is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:19:54Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: participants with fewer than 3 valid days excluded from random-effects
+    model
+  claim_id: c_a7658f05
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing, T050: Implement
+    code/preprocess.py function handle_sparse_participants() to identify participants
+    with < 3 valid days. Action: Log a warning and exclude these participants from
+    the random-effects model fitting...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_with_fewer_than_3_valid_days_excluded_from_rand
+  kind: magnitude
+  raw_text: Participants with fewer than 3 valid days are excluded from the random-effects
+    model fitting.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:20:29Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: days with fewer than 2 mood ratings excluded from final daily aggregates
+  claim_id: c_8b796a45
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing, T015: Implement
+    code/preprocess.py function write_daily_aggregates() to write the filtered dataset
+    (excluding days with n_mood_ratings < 2) to data/processed/daily_aggregates.csv.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Days_with_fewer_than_2_mood_ratings_excluded_from_final_dail
+  kind: magnitude
+  raw_text: Days with fewer than 2 mood ratings are excluded from the final daily
+    aggregates dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:20:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: log transformation formula log mood_std plus epsilon
+  claim_id: c_c34a59a3
+  context: 'Phase 4: User Story 2 - Statistical Modeling and Association Testing,
+    T019c: Implement code/analysis.py function apply_log_transform(mood_std: np.ndarray)
+    -> np.ndarray that returns np.log(mood_std + epsilon).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_transformation_formula_log_mood_std_plus_epsilon
+  kind: entity_fact
+  raw_text: The log transformation for mood standard deviation uses the formula log(mood_std
+    + epsilon).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T01:21:14Z'

@@ -1,6 +1,6 @@
-'|analysi consistency sensitivity threshold':
-  quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
-    parameters
-  source_id: '1501.05788'
-  url: https://arxiv.org/abs/1501.05788
+'|check consistency threshold':
+  quote: "compared with the nominal signi\uFB01cance level of 0.05 to determine whe\
+    \ ther or not to reject"
+  source_id: '1809.08503'
+  url: https://arxiv.org/abs/1809.08503
   value: '0.05'

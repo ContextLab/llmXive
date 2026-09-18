@@ -1,184 +1,230 @@
+"""
+Extract BOLD timecourses for a specific ROI from OpenNeuro ds001495.
+Implements T014 (Left Hippocampus) but is parameterized for any ROI.
+"""
 import os
 import sys
 import json
 import numpy as np
 import nibabel as nib
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Tuple
 
-# Import from local utils as per API surface
-from utils.logging_config import get_logger, error, info, warning
+# Import from existing project API surface
 from config import get_config
+from utils.logging_config import get_logger, error, info, warning
+from utils.checksums import compute_sha256
 
 logger = get_logger(__name__)
+config = get_config()
 
-def load_mask_from_json(mask_json_path: str) -> np.ndarray:
-    """Load a mask from a JSON file containing coordinates or path."""
-    if not os.path.exists(mask_json_path):
-        raise FileNotFoundError(f"Mask JSON file not found: {mask_json_path}")
-    
+def load_mask_from_json(mask_json_path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load ROI mask path from mask_paths.json and return the mask array and affine.
+    """
     with open(mask_json_path, 'r') as f:
         mask_info = json.load(f)
     
-    if "path" in mask_info:
-        mask_path = mask_info["path"]
-        if not os.path.exists(mask_path):
-            raise FileNotFoundError(f"Mask file referenced in JSON not found: {mask_path}")
-        mask_img = nib.load(mask_path)
-        return mask_img.get_fdata()
-    elif "coordinates" in mask_info:
-        # Fallback for coordinate-based masks if path is missing
-        coords = np.array(mask_info["coordinates"])
-        # This is a simplified fallback; in reality, we'd reconstruct the image
-        # For now, assume the mask path was correctly recorded in T013
-        raise ValueError("Coordinate-based mask loading not fully implemented; use path-based mask.")
-    else:
-        raise ValueError("Mask JSON must contain either 'path' or 'coordinates'.")
+    # Determine which key to use based on the caller context (passed via env or arg)
+    # For T014, we specifically need 'left_hipp'
+    roi_key = os.environ.get('TARGET_ROI_KEY', 'left_hipp')
+    
+    if roi_key not in mask_info:
+        raise FileNotFoundError(f"ROI key '{roi_key}' not found in {mask_json_path}. Available: {list(mask_info.keys())}")
+    
+    mask_path = mask_info[roi_key]
+    
+    if not os.path.exists(mask_path):
+        raise FileNotFoundError(f"Mask file not found at: {mask_path}")
+    
+    img = nib.load(mask_path)
+    mask_data = img.get_fdata()
+    affine = img.affine
+    
+    return mask_data, affine
 
-def find_functional_runs(raw_dir: str, subject_id: str) -> List[Path]:
-    """Find all functional NIfTI files for a given subject."""
-    subject_dir = Path(raw_dir) / subject_id / "func"
-    if not subject_dir.exists():
+def find_functional_runs(subject_dir: Path) -> List[Path]:
+    """
+    Find all functional NIfTI files matching the pattern:
+    sub-*/func/*task-narratives*.nii.gz
+    """
+    func_dir = subject_dir / "func"
+    if not func_dir.exists():
         return []
     
-    # Pattern: sub-*/func/*task-narratives*.nii.gz
-    pattern = f"*task-narratives*.nii.gz"
-    runs = list(subject_dir.glob(pattern))
+    # Pattern from task description
+    pattern = "*task-narratives*.nii.gz"
+    runs = list(func_dir.glob(pattern))
+    
+    # Also try .nii if gzipped version not found (fallback)
+    if not runs:
+        pattern_uncompressed = "*task-narratives*.nii"
+        runs = list(func_dir.glob(pattern_uncompressed))
+    
     return sorted(runs)
 
-def extract_roi_timecourse(nifti_path: Path, mask_data: np.ndarray) -> Optional[np.ndarray]:
-    """Extract average BOLD timecourse for a ROI from a NIfTI file."""
+def extract_roi_timecourse(nifti_path: Path, mask_data: np.ndarray, mask_affine: np.ndarray) -> Optional[np.ndarray]:
+    """
+    Load a NIfTI file, resample mask to data space if necessary, apply mask,
+    and average voxels across the ROI for each timepoint.
+    Returns a 1D array of shape (timepoints,).
+    """
     try:
-        img = nib.load(str(nifti_path))
-        data = img.get_fdata()
+        func_img = nib.load(str(nifti_path))
+        func_data = func_img.get_fdata()
+        func_affine = func_img.affine
         
-        # Check dimensions: (x, y, z, t)
-        if data.ndim != 4:
-            logger.warning(f"Unexpected dimensionality for {nifti_path}: {data.ndim}D. Expected 4D.")
+        # Check if data is 4D (x, y, z, t)
+        if func_data.ndim != 4:
+            logger.warning(f"Skipping {nifti_path}: Expected 4D data, got {func_data.ndim}D")
             return None
         
-        # Ensure mask matches spatial dimensions
-        if mask_data.shape != data.shape[:3]:
-            # Attempt to resize or warn. For robustness, we assume masks are generated
-            # to match the space of the functional data or are standard space.
-            # If mismatch, we cannot simply average.
-            logger.error(f"Mask shape {mask_data.shape} does not match image spatial shape {data.shape[:3]}.")
+        # Resample mask to functional space if affine mismatch
+        # Simple approach: use nilearn's resample_img if available, otherwise assume aligned
+        # For robustness without heavy dependencies, we check affine similarity
+        if not np.allclose(func_affine, mask_affine, atol=1e-3):
+            # If not aligned, we must resample. Since nilearn is in requirements, use it.
+            try:
+                from nilearn.image import resample_to_img
+                mask_img = nib.Nifti1Image(mask_data, mask_affine)
+                resampled_mask = resample_to_img(mask_img, func_img, interpolation='nearest')
+                mask_data = resampled_mask.get_fdata()
+            except ImportError:
+                logger.error("E001: nilearn not installed but mask resampling required. Cannot proceed.")
+                raise RuntimeError("E001: nilearn required for mask resampling")
+            except Exception as e:
+                logger.error(f"E001: Failed to resample mask: {e}")
+                raise
+        
+        # Apply mask: average non-zero voxels for each timepoint
+        # mask_data is (x, y, z), func_data is (x, y, z, t)
+        mask_indices = np.where(mask_data > 0)
+        if len(mask_indices[0]) == 0:
+            logger.warning(f"No valid voxels in mask for {nifti_path}")
             return None
         
-        # Apply mask: average over voxels where mask > 0
-        # Flatten spatial dimensions
-        spatial_data = data.reshape(-1, data.shape[-1])
-        mask_flat = mask_data.flatten()
+        # Extract timecourses for all masked voxels
+        # Shape: (n_voxels, n_timepoints)
+        voxel_timecourses = func_data[mask_indices]
         
-        # Identify active voxels
-        active_voxels = mask_flat > 0
-        if not np.any(active_voxels):
-            logger.warning(f"No active voxels in mask for {nifti_path}.")
-            return None
+        # Average across voxels
+        mean_timecourse = np.mean(voxel_timecourses, axis=0)
         
-        # Average signal across active voxels for each timepoint
-        timecourse = np.mean(spatial_data[active_voxels, :], axis=0)
-        return timecourse
+        return mean_timecourse
+        
     except Exception as e:
-        logger.error(f"Failed to extract timecourse from {nifti_path}: {e}")
-        return None
+        logger.error(f"E001: Failed to process {nifti_path}: {e}")
+        raise
 
-def process_subject(subject_dir: Path, mask_data: np.ndarray, roi_name: str) -> Dict[str, Any]:
-    """Process a single subject: find runs, extract timecourses, combine."""
-    runs = find_functional_runs(str(subject_dir.parent), subject_dir.name)
+def process_subject(subject_dir: Path, mask_data: np.ndarray, mask_affine: np.ndarray, subject_id: str) -> Optional[np.ndarray]:
+    """
+    Process all functional runs for a subject and concatenate timecourses.
+    Returns a 1D array of all timepoints, or None if no valid data found.
+    """
+    runs = find_functional_runs(subject_dir)
     if not runs:
-        logger.warning(f"No functional runs found for subject {subject_dir.name}.")
-        return {"subject_id": subject_dir.name, "roi": roi_name, "timecourse": None}
+        logger.warning(f"No functional runs found for {subject_id}")
+        return None
     
     all_timecourses = []
-    for run in runs:
-        tc = extract_roi_timecourse(run, mask_data)
+    for run_path in runs:
+        tc = extract_roi_timecourse(run_path, mask_data, mask_affine)
         if tc is not None:
             all_timecourses.append(tc)
     
     if not all_timecourses:
-        logger.warning(f"No valid timecourses extracted for subject {subject_dir.name}.")
-        return {"subject_id": subject_dir.name, "roi": roi_name, "timecourse": None}
+        return None
     
-    # Concatenate timecourses from multiple runs
-    combined_tc = np.concatenate(all_timecourses, axis=0)
-    return {"subject_id": subject_dir.name, "roi": roi_name, "timecourse": combined_tc}
+    # Concatenate timecourses from all runs
+    return np.concatenate(all_timecourses)
 
 def main():
-    """Main entry point for DLPFC timecourse extraction."""
-    config = get_config()
+    """
+    Main entry point for T014: Extract Left Hippocampus timecourses.
+    """
+    # Configuration
     raw_data_dir = Path("data/raw/openneuro_ds001495")
     mask_json_path = "data/processed/mask_paths.json"
-    output_path = Path("data/processed/roi_dlpfc.npy")
+    output_path = Path("data/processed/roi_left_hipp.npy")
     
     # Check prerequisites
     if not raw_data_dir.exists():
-        error("E001", f"Raw data directory not found: {raw_data_dir}")
+        logger.error("E001: Raw data directory missing. Run T012 first.")
         sys.exit(1)
     
-    if not os.path.exists(mask_json_path):
-        error("E001", f"Mask paths JSON not found: {mask_json_path}")
+    if not mask_json_path.exists():
+        logger.error("E001: Mask paths JSON missing. Run T013 first.")
         sys.exit(1)
     
-    # Load DLPFC mask path
-    with open(mask_json_path, 'r') as f:
-        mask_paths = json.load(f)
+    # Set environment for specific ROI
+    os.environ['TARGET_ROI_KEY'] = 'left_hipp'
     
-    if "dlpfc" not in mask_paths:
-        error("E001", "DLPFC mask path not found in mask_paths.json")
-        sys.exit(1)
-    
-    dlpfc_mask_path = mask_paths["dlpfc"]
-    if not os.path.exists(dlpfc_mask_path):
-        error("E001", f"DLPFC mask file not found: {dlpfc_mask_path}")
-        sys.exit(1)
-    
-    # Load mask data
     try:
-        mask_img = nib.load(dlpfc_mask_path)
-        mask_data = mask_img.get_fdata()
-    except Exception as e:
-        error("E001", f"Failed to load DLPFC mask: {e}")
+        mask_data, mask_affine = load_mask_from_json(mask_json_path)
+    except FileNotFoundError as e:
+        logger.error(f"E001: {e}")
         sys.exit(1)
     
     # Find subjects
-    subjects = sorted([d for d in raw_data_dir.iterdir() if d.is_dir() and d.name.startswith("sub-")])
+    subjects = sorted([d for d in raw_data_dir.iterdir() if d.is_dir() and d.name.startswith('sub-')])
+    
     if not subjects:
-        error("E001", f"No subjects found in {raw_data_dir}")
+        logger.error("E001: No subjects found in raw data directory.")
         sys.exit(1)
     
-    # Process first 10 subjects
-    subjects_to_process = subjects[:10]
-    info(f"Processing {len(subjects_to_process)} subjects for DLPFC...")
+    # Process first 10 subjects (or all if <10)
+    target_subjects = subjects[:10]
+    info(f"Processing {len(target_subjects)} subjects: {[s.name for s in target_subjects]}")
     
-    results = []
-    for subj_dir in subjects_to_process:
-        result = process_subject(subj_dir, mask_data, "dlpfc")
-        if result["timecourse"] is not None:
-            results.append(result)
-        else:
-            info(f"Skipping subject {subj_dir.name} due to extraction failure.")
+    all_subject_data = {}
+    total_empty = 0
     
-    if not results:
-        error("E002", "No valid timecourses extracted for any subject.")
-        sys.exit(1)
+    for subj_dir in target_subjects:
+        subj_id = subj_dir.name
+        try:
+            tc = process_subject(subj_dir, mask_data, mask_affine, subj_id)
+            if tc is not None:
+                if len(tc) == 0:
+                    total_empty += 1
+                    continue
+                all_subject_data[subj_id] = tc
+                info(f"  {subj_id}: {len(tc)} timepoints")
+            else:
+                total_empty += 1
+        except Exception as e:
+            logger.error(f"E001: Failed processing {subj_id}: {e}")
+            # Continue with other subjects, but log error
     
-    # Save results
-    # Structure: list of (subject_id, timecourse_array)
-    # We save as a structured array or a list of dicts converted to numpy
-    # For simplicity and compatibility with T017a, we save a list of objects or a 2D array if aligned
-    # Since timecourses may have different lengths, we save as a list of (id, tc)
-    output_data = [
-        {"subject_id": r["subject_id"], "timecourse": r["timecourse"].astype(np.float32)}
-        for r in results
-    ]
+    if len(all_subject_data) == 0:
+        logger.error("E002: No valid timecourses extracted. All subjects failed or returned empty data.")
+        sys.exit(2)
     
-    try:
-        np.save(output_path, output_data, allow_pickle=True)
-        info(f"Successfully saved DLPFC timecourses to {output_path}")
-    except Exception as e:
-        error("E002", f"Failed to save output file: {e}")
-        sys.exit(1)
+    # Determine max length for stacking (pad shorter ones with NaN if necessary)
+    # Or store as object array if lengths vary significantly
+    max_len = max(len(tc) for tc in all_subject_data.values())
+    
+    # Create output array: (n_subjects, max_timepoints)
+    # Using float32 to save space, NaN for padding
+    output_array = np.full((len(all_subject_data), max_len), np.nan, dtype=np.float32)
+    subject_ids = sorted(all_subject_data.keys())
+    
+    for i, subj_id in enumerate(subject_ids):
+        tc = all_subject_data[subj_id]
+        output_array[i, :len(tc)] = tc.astype(np.float32)
+    
+    # Save output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    np.save(output_path, output_array)
+    
+    # Verify output
+    loaded = np.load(output_path)
+    info(f"Saved {output_path}: shape={loaded.shape}, dtype={loaded.dtype}")
+    
+    # Compute checksum
+    checksum = compute_sha256(output_path)
+    info(f"Checksum: {checksum}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

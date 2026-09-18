@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T00:35:28.358599Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-980-llmxive-follow-up-extending-naturebench
-last_run_id: 053328f5-580c-4f2b-806e-fdcbeb681019
+last_run_id: 09a17b7b-e9b8-4fd7-b0c3-94bfb057a790
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "NatureBench: Can Coding Agents Match the Published
   SOTA of Nature-Fami"'
-updated_at: '2026-09-17T18:23:59.126692Z'
+updated_at: '2026-09-18T00:44:44.028540Z'
