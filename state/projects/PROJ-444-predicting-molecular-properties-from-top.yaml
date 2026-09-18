@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T15:40:53.450524Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-444-predicting-molecular-properties-from-top
-last_run_id: 438dcb4b-c2a3-44e2-85ec-dc3e9c97b1df
+last_run_id: 82236a7c-fead-487e-a06d-4d84c905eb8e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top
 title: Predicting Molecular Properties from Topological Data Analysis of Molecular
   Structures
-updated_at: '2026-07-07T15:29:38.624039Z'
+updated_at: '2026-09-18T13:19:09.503470Z'

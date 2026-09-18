@@ -31,13 +31,12 @@ T017a:
     \ are absent. The script therefore does not fulfill the full preprocessing requirements."
 T017b:
   c: false
-  h: e47b7c999fa5572157192f599c3a7525b3514c086123baef774af930d45c645f
-  r: "The provided `02_preprocessing_noaa.py` is truncated and does not show the implementation\
-    \ of monthly aggregation, missing\u2011month warnings, zero\u2011intensity dropping,\
-    \ or the final write\u2011out to `data/processed/noaa_preprocessed_target.csv`\
-    \ and `...control.csv`. Moreover, the expected processed CSV files are absent\
-    \ from the repository. The required functionality is therefore not demonstrably\
-    \ present."
+  h: a51ded2a53dc9064af08036c6ce587c3f502a580724eeaec09ae210562e545ca
+  r: "The provided `02_preprocessing_noaa.py` is truncated (the `handle_missing_months`\
+    \ function ends abruptly) and does not contain logic to drop zero\u2011intensity\
+    \ months or to write the required `noaa_preprocessed_target.csv` and `noaa_preprocessed_control.csv`\
+    \ files. Consequently the output CSVs are missing from `data/processed/`. The\
+    \ task\u2019s full requirements are therefore not satisfied."
 T017c:
   c: false
   h: 0fb166fa57bf0eab933c6e53633fbea4015ca11c4609dcce7c9ada691aad6df9

@@ -40,7 +40,7 @@
 - [X] T005 [P] Implement `code/utils/graph_builder.py` for RDKit molecular graph construction with validity checks
 - [X] T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling
 - [ ] T007 Implement `code/00_checksum_verify.py` to compute SHA256 hashes of raw data and record them in `data/checksums.txt` (Constitution III)
-- [X] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128), enforce min scaffolds check, and ensure random seed pinning (fixed value)
+- [X] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128) [UNRESOLVED-CLAIM: c_0e734a39 — status=not_enough_info], enforce min scaffolds check, and ensure random seed pinning (fixed value)
 - [ ] T010 [P] [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
 - [X] T011 [P] [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
@@ -65,7 +65,7 @@
 - [X] T013 [US1] Implement `code/02_tda_computation.py`: Vectorization to persistence images of appropriate resolution
 
 The research question, method, and references remain unchanged as per the planning document requirements. (FR-002) for the **Primary Experiment**; include zero-vector fallback for empty diagrams; implement `run_sweep(resolutions=[10, 20, 30])` function to support sensitivity analysis (FR-006)
-- [ ] T015 [US1] Add error handling for invalid SMILES (log to `data/logs/invalid_smiles.log` and skip) and implement sparse matrix logic with memory threshold checks for shortest-path computation to handle extremely large molecular weights (Edge Case)
+- [X] T015 [US1] Add error handling for invalid SMILES (log to `data/logs/invalid_smiles.log` and skip) and implement sparse matrix logic with memory threshold checks for shortest-path computation to handle extremely large molecular weights (Edge Case)
 - [ ] T016 [US1] Generate `data/processed/tda_features.csv` (primary dimensions) and `data/processed/traditional_descriptors.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -84,7 +84,7 @@ The research question, method, and references remain unchanged as per the planni
 - [X] T018 [US2] Implement `code/04_model_training.py`: Stratified scaffold split
 
 The research question, method, and references remain unchanged as per the planning document requirements, with the specific fold count replaced by a qualitative description of the cross-validation strategy. (Bemis-Murcko) with **explicit ScaffoldSplitter(seed=42)** initialization (FR-004)
-- [X] T019 [US2] Implement `code/04_model_training.py`: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets (FR-003)
+- [X] T019 [US2] Implement `code/04_model_training.py`: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets [UNRESOLVED-CLAIM: c_23550167 — status=not_enough_info] (FR-003)
 - [X] T020 [US2] Implement `code/04_model_training.py`: Calculate R² and RMSE per fold; aggregate metrics
 - [ ] T021 [US2] Add runtime GPU check (FR-008) using generic CUDA detection (checking `CUDA_VISIBLE_DEVICES` and library-specific GPU flags) to raise `SystemExit(1)` if any GPU acceleration is detected; do not rely on `torch`
 - [ ] T022 [US2] Generate `reports/metrics/model_performance.json` with all metrics and feature importance
@@ -104,7 +104,7 @@ The research question, method, and references remain unchanged as per the planni
 - [ ] T023 [US3] Implement `code/05_sensitivity_analysis.py`: Execute sensitivity sweeps on resolutions including low, medium, and high settings. using the pipeline from T013; measure and report R² variance (FR-006, SC-002); requires outputs from Phase 4 (US2)
 - [ ] T024 [US3] Generate `reports/metrics/sensitivity_analysis.json` aggregating sweep results
 - [ ] T025 [US3] Implement `code/06_diagnostics.py`: Apply Holm-Bonferroni correction to p-values (per plan.md amendment to FR-005, replacing spec's Bonferroni for correlated tests)
-- [ ] T026 [US3] Implement `code/06_diagnostics.py`: Calculate VIF; flag predictors > 5 (FR-007)
+- [ ] T026 [US3] Implement `code/06_diagnostics.py`: Calculate VIF; flag predictors > 5 [UNRESOLVED-CLAIM: c_21985238 — status=not_enough_info] (FR-007)
 - [ ] T027 [US3] Implement `code/06_diagnostics.py`: Calculate Mutual Information between traditional and topological feature sets (FR-009)
 - [ ] T028 [US3] Generate `reports/metrics/diagnostics.json` with VIF flags, corrected p-values, and MI scores
 - [ ] T029 [US3] Implement `code/07_resource_monitor.py` to log RAM/CPU usage to `reports/metrics/resource_usage.json`; integrate into main pipeline execution context (SC-004)
@@ -119,7 +119,7 @@ The research question, method, and references remain unchanged as per the planni
 
 - [ ] T030 [P] Documentation updates: Update `docs/` and `quickstart.md` with specific sections on TDA methodology and reproducibility steps
 - [ ] T031 [P] Code cleanup: Refactor `code/utils/graph_builder.py` to reduce cyclomatic complexity to < 10
-- [ ] T032 [P] Performance optimization: Profile `code/02_tda_computation.py` and optimize memory usage to ensure total runtime < 5.4h (SC-004)
+- [ ] T032 [P] Performance optimization: Profile `code/02_tda_computation.py` and optimize memory usage to ensure total runtime < 5.4h [UNRESOLVED-CLAIM: c_7d769de5 — status=not_enough_info] (SC-004)
 - [ ] T033 [P] Additional unit tests: Implement `tests/unit/` for graph builder and persistence utils
 - [ ] T034 [P] Run quickstart.md validation to ensure full pipeline reproducibility
 

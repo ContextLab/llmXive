@@ -1,1 +1,2 @@
-# This file ensures the raw data directory is tracked by git
+# This file ensures the raw directory exists
+# Actual data will be downloaded by 01_data_ingestion.py

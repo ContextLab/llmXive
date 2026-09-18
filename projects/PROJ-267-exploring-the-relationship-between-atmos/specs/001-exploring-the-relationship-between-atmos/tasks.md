@@ -191,9 +191,9 @@ The `anomaly_value` represents the perturbation in the gravitational potential a
 ```markdown
 ### Frame of Reference and Coordinate System
 
-The analysis utilizes the perturbation in gravitational potential at the GRACE‑FO satellite altitude (≈ low Earth orbit) as the proxy for mass redistribution. [UNRESOLVED-CLAIM: c_e1c4c031 — status=not_enough_info] This is distinct from the geoid height at the Earth's surface.
+The analysis utilizes the perturbation in gravitational potential at the GRACE‑FO satellite altitude (≈ low Earth orbit) as the proxy for mass redistribution. [UNRESOLVED-CLAIM: c_cf9ee8b4 — status=not_enough_info] This is distinct from the geoid height at the Earth's surface.
 
-GRACE‑FO measures changes in the Earth's gravity field by tracking inter‑satellite distance variations, which are converted to spherical‑harmonic (Stokes) coefficients. The resulting "anomaly" is a coordinate‑dependent quantity derived in the satellite's reference frame.
+GRACE‑FO measures changes in the Earth's gravity field by tracking inter‑satellite distance variations, which are converted to spherical‑harmonic (Stokes) coefficients. [UNRESOLVED-CLAIM: c_d58ec9f2 — status=not_enough_info] The resulting "anomaly" is a coordinate‑dependent quantity derived in the satellite's reference frame.
 
 While the field equations demand a fully covariant description, the monthly averaging process effectively integrates over orbital perturbations, yielding a scalar potential anomaly in the satellite's reference frame. It is critical to acknowledge that "static" anomalies in this context are coordinate artifacts within a dynamic gravitational field. The analysis assumes a static, non‑rotating frame for the duration of the monthly aggregation.
 ```
@@ -206,7 +206,7 @@ While the field equations demand a fully covariant description, the monthly aver
 
 **Purpose**: Fetch standard GRACE-FO correction coefficients (degree-1, C20) from the canonical source to ensure reproducibility and avoid unverified local artifacts.
 
-- [ ] T011a [Sequential] Create script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_fetch_coefficients.py` to fetch degree-1 and C20 coefficients from the CSR/JPL GRACE-FO repository. **Prerequisite**: T008 (citation verification). The script (1) reads the canonical URL from `config/urls.yaml` or uses hardcoded CSR URL for coefficients, (2) fetches the latest degree-1 and C20 values, (3) writes them to `coeffs/degree1.yaml` and `coeffs/c20.yaml` in the project root. **This task MUST run BEFORE T017a.**
+- [ ] T011a [Sequential] Create script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_fetch_coefficients.py` to fetch degree-1 and C20 coefficients from the CSR/JPL GRACE-FO repository. **Prerequisite**: T008 (citation verification). The script (1) reads the canonical URL from `config/urls.yaml` or uses hardcoded CSR URL for coefficients, (2) fetches the latest degree-1 and C20 values, (3) writes them to `coeffs/degree1.yaml` and `coeffs/c20.yaml` in the project root. **This task MUST run BEFORE T017a.** <!-- FAILED: unspecified -->
 ```python
 import requests
 import yaml

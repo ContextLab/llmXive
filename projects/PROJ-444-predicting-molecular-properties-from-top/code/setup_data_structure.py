@@ -1,90 +1,53 @@
-"""
-Task T004: Setup data directory structure and state tracking.
-
-Creates the required directory hierarchy:
-- data/raw/
-- data/processed/
-- data/logs/
-- state/
-
-Initializes the state tracking file (state/pipeline_state.json) if it does not exist.
-"""
 import os
 import json
 from pathlib import Path
 from typing import List
 
-# Project root relative to this script (assuming script is in code/)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Directories to ensure exist
-DIRECTORIES = [
-    "data/raw",
-    "data/processed",
-    "data/logs",
-    "state"
-]
-
-# Files to initialize if missing
-STATE_FILE = "state/pipeline_state.json"
-
-
 def ensure_directory(dir_path: Path) -> None:
     """Ensure a directory exists, creating it if necessary."""
-    if not dir_path.exists():
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-    else:
-        if not dir_path.is_dir():
-            raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
+    dir_path.mkdir(parents=True, exist_ok=True)
 
-
-def initialize_file(file_path: Path, initial_content: dict) -> None:
-    """Initialize a JSON state file if it doesn't exist."""
-    if not file_path.exists():
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(initial_content, f, indent=2)
-        print(f"Initialized state file: {file_path}")
-    else:
-        # Validate existing file is valid JSON
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                json.load(f)
-        except json.JSONDecodeError:
-            raise RuntimeError(f"State file exists but is not valid JSON: {file_path}")
-
+def initialize_file(file_path: Path, content: str = "") -> None:
+    """Initialize a file with optional content, creating parent directories if needed."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(content)
 
 def main() -> None:
-    """Main entry point for T004."""
-    print(f"Setting up data structure for project at: {PROJECT_ROOT}")
+    """Create the project structure for PROJ-444-predicting-molecular-properties-from-top."""
+    base_path = Path("projects/PROJ-444-predicting-molecular-properties-from-top")
     
-    # Ensure all required directories exist
-    for dir_name in DIRECTORIES:
-        dir_path = PROJECT_ROOT / dir_name
-        ensure_directory(dir_path)
+    # Create base directories
+    ensure_directory(base_path)
+    ensure_directory(base_path / "code")
+    ensure_directory(base_path / "code/utils")
+    ensure_directory(base_path / "data")
+    ensure_directory(base_path / "data/raw")
+    ensure_directory(base_path / "data/processed")
+    ensure_directory(base_path / "data/logs")
+    ensure_directory(base_path / "tests")
+    ensure_directory(base_path / "tests/unit")
+    ensure_directory(base_path / "tests/integration")
+    ensure_directory(base_path / "tests/contract")
+    ensure_directory(base_path / "reports")
+    ensure_directory(base_path / "reports/metrics")
+    ensure_directory(base_path / "reports/figures")
+    ensure_directory(base_path / "specs")
+    ensure_directory(base_path / "state")
     
     # Initialize state tracking file
-    state_path = PROJECT_ROOT / STATE_FILE
-    if not state_path.exists():
-        initial_state = {
-            "pipeline_version": "1.0.0",
-            "last_run": None,
-            "tasks_completed": [],
-            "data_sources": [],
-            "checksums": {},
-            "config": {
-                "random_seed": 42,
-                "splits": 5,
-                "model_params": {}
-            }
-        }
-        initialize_file(state_path, initial_state)
-    else:
-        print(f"State file already exists: {state_path}")
+    initialize_file(
+        base_path / "state" / "pipeline_state.json",
+        json.dumps({"last_run": None, "status": "initialized"}, indent=2)
+    )
     
-    print("Data structure setup complete.")
-
+    # Initialize empty log file
+    initialize_file(base_path / "data" / "logs" / "invalid_smiles.log")
+    
+    # Initialize .gitkeep files to ensure directories are tracked in git
+    gitkeep_content = "# Keep this directory in git\n"
+    for dir_path in base_path.rglob("*"):
+        if dir_path.is_dir():
+            initialize_file(dir_path / ".gitkeep", gitkeep_content)
 
 if __name__ == "__main__":
     main()

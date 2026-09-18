@@ -1,37 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project directory `projects/PROJ-444-predicting-molecular-properties-from-top/`
-    or any files within it are present in the provided evidence, so the required project
-    structure has not been demonstrated. The task remains undone.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration artifacts (e.g., ruff settings, black
-    config, or pyproject.toml entries) are present; therefore the requirement to configure
-    ruff and black is not satisfied.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data/` directory with the required `raw/` and `processed/` subfolders, nor
-    any `state/` tracking artifacts are present in the provided evidence. The implementer
-    did not supply the filesystem structure or files that would demonstrate the task
-    was completed.
-T007:
-  c: false
-  h: b38530626c081ea92ec590164546cef76c78173068fcb379f55d34c03492f59c
-  r: "The repository contains a partially\u2011implemented `code/00_checksum_verify.py`\
-    \ (the file ends abruptly and never calls `write_checksums`), and the required\
-    \ output file `data/checksums.txt` is absent. Consequently the script does not\
-    \ actually compute and record SHA256 hashes of the raw data as the task specifies."
-T010:
-  c: false
-  h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b
-  r: The `tests/contract/test_tda_schema.py` file is present but ends abruptly with
-    an incomplete `test_feature_vector_length` function (truncated line and missing
-    closing parentheses), making the test syntactically invalid. Consequently, the
-    contract test does not fully implement the required schema checks. The missing
-    or broken test code must be completed for the task to be considered done.
 T010#1:
   c: true
   h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b

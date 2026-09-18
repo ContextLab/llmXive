@@ -2,27 +2,24 @@ import hashlib
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
-# Import from local utils if available, otherwise assume standard layout
-# For T001 structure, we assume code/ is in the path
 try:
     from setup_data_structure import ensure_directory
 except ImportError:
-    # Fallback if running from root
     sys.path.insert(0, str(Path(__file__).parent))
     from setup_data_structure import ensure_directory
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA256 hash of a file."""
+    """Compute SHA256 hash of a file in chunks to handle large files."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def get_raw_data_files(data_dir: str) -> list:
-    """Get list of all files in data/raw directory."""
+def get_raw_data_files(data_dir: str) -> List[str]:
+    """Get list of all non-placeholder files in data/raw directory."""
     raw_dir = Path(data_dir) / "raw"
     if not raw_dir.exists():
         return []
@@ -40,6 +37,7 @@ def write_checksums(checksums: dict, output_path: str) -> None:
     ensure_directory(os.path.dirname(output_path))
     with open(output_path, 'w', encoding='utf-8') as f:
         for file_path, checksum in checksums.items():
+            # Standard checksum format: <hash>  <filename>
             f.write(f"{checksum}  {file_path}\n")
 
 def verify_checksums(checksum_file: str, data_dir: str) -> bool:
@@ -102,8 +100,7 @@ def main():
     raw_files = get_raw_data_files(str(data_dir))
     if not raw_files:
         print("No raw data files found. Run data ingestion first.")
-        # If data ingestion hasn't run yet, we create an empty checksum file
-        # to indicate the state, but warn the user.
+        # Create empty checksum file to indicate state
         ensure_directory(str(checksum_file.parent))
         checksum_file.touch()
         print(f"Created empty checksum file at {checksum_file}")

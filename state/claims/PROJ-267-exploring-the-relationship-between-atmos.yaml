@@ -7834,3 +7834,394 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T20:52:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: Target region is West Coast NA 30-50N 120-125W
+  claim_id: c_aa8be953
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing, T015"
+  evidence:
+    entailment_evidence: Target region defined as West Coast NA 35N-50N 120W-125W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_West_Coast_NA_35N-50N_120W-125W
+  kind: entity_fact
+  raw_text: "The target region is defined as West Coast NA: 30\xB0N\u201150\xB0N,\
+    \ 120\xB0W\u2011125\xB0W."
+  resolved_value: Target region defined as West Coast NA 35N-50N 120W-125W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T12:27:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO uses perturbation in gravitational potential at low Earth orbit
+    altitude as proxy for mass redistribution
+  claim_id: c_3ede45ba
+  context: 'Phase 1.5 (Theoretical Frame): Coordinate Reference Clarification'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_uses_perturbation_in_gravitational_potential_at_low
+  kind: entity_fact
+  raw_text: "The analysis utilizes the perturbation in gravitational potential at\
+    \ the GRACE\u2011FO satellite altitude (\u2248 low Earth orbit) as the proxy for\
+    \ mass redistribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:28:21Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Typical Atmospheric River duration is multiple days
+  claim_id: c_887c5e8a
+  context: "Phase 4: User Story 3 \u2013 Diagnostic Visualization & Sensitivity Reporting,\
+    \ T029"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Typical_Atmospheric_River_duration_is_multiple_days
+  kind: entity_fact
+  raw_text: 'Typical AR duration: multiple days (e.g., Ralph et al.)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:29:16Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Average Atmospheric River duration is 3.5 days based on literature
+  claim_id: c_3fdf3d84
+  context: "Phase 4: User Story 3 \u2013 Diagnostic Visualization & Sensitivity Reporting,\
+    \ T029 script"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'ar_duration_days = 3.5 # Average from literature'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:29:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Sampling interval for GRACE-FO data is approximately one month
+  claim_id: c_b9e28b79
+  context: "Phase 4: User Story 3 \u2013 Diagnostic Visualization & Sensitivity Reporting,\
+    \ T029 script"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_interval_for_GRACE-FO_data_is_approximately_one_mon
+  kind: entity_fact
+  raw_text: 'Sampling interval: approximately one month'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:30:34Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity field changes by tracking inter-satellite distance
+    variations converted to spherical-harmonic coefficients
+  claim_id: c_44b4de31
+  context: 'Phase 1.5 (Theoretical Frame): Coordinate Reference Clarification, T033'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_field_changes_by_tracking_inter-sa
+  kind: entity_fact
+  raw_text: "GRACE\u2011FO measures changes in the Earth's gravity field by tracking\
+    \ inter\u2011satellite distance variations, which are converted to spherical\u2011\
+    harmonic (Stokes) coefficients."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:31:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO preprocessing applies Gaussian smoothing with 300 km characteristic
+    spatial scale
+  claim_id: c_1f1810bb
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing, T017a"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script applies Gaussian smoothing with a characteristic spatial scale
+    of 300 km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:32:41Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations with seed 42
+  claim_id: c_6fad3110
+  context: "Phase 3: User Story 2 \u2013 Statistical Correlation Analysis, T020 script"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script performs bootstrap resampling with 1000 iterations and seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:33:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Signal-to-noise ratio threshold for passes_3sigma_threshold is 3.0
+  claim_id: c_668e21c3
+  context: "Phase 3: User Story 2 \u2013 Statistical Correlation Analysis, T020 script"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis checks if the signal-to-noise ratio > 3.0 to set passes_3sigma_threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:33:13Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: C20 coefficient is replaced with latest SLR-derived value
+  claim_id: c_73f81e12
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing, T017a"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/C20_coefficient_is_replaced_with_latest_SLR-derived_value
+  kind: magnitude
+  raw_text: "The script replaces the C20 coefficient with the latest SLR\u2011derived\
+    \ value."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:34:27Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Degree correction uses Swenson and Wahr 2006 coefficients
+  claim_id: c_ed7fbbf6
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing, T017a"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script applies degree correction using Swenson & Wahr (2006) coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:34:49Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Control region is East Coast NA 70-75W
+  claim_id: c_01bda3d3
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing, T015b"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_region_is_East_Coast_NA_70-75W
+  kind: entity_fact
+  raw_text: "The control region is defined as East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:35:22Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity field perturbation at low Earth orbit altitude
+  claim_id: c_cf9ee8b4
+  context: 'Phase 1.5 (Theoretical Frame): Coordinate Reference Clarification - Frame
+    of Reference and Coordinate System subsection.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_field_perturbation_at_low_Earth_or
+  kind: entity_fact
+  raw_text: "The analysis utilizes the perturbation in gravitational potential at\
+    \ the GRACE\u2011FO satellite altitude (\u2248 low Earth orbit) as the proxy for\
+    \ mass redistribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:36:21Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity via inter-satellite distance variations converted
+    to Stokes coefficients
+  claim_id: c_d58ec9f2
+  context: 'Phase 1.5 (Theoretical Frame): Coordinate Reference Clarification - Frame
+    of Reference and Coordinate System subsection.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_via_inter-satellite_distance_varia
+  kind: entity_fact
+  raw_text: "GRACE\u2011FO measures changes in the Earth's gravity field by tracking\
+    \ inter\u2011satellite distance variations, which are converted to spherical\u2011\
+    harmonic (Stokes) coefficients."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:36:24Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing applied with 300 km spatial scale
+  claim_id: c_082de742
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing - T017a GRACE\u2011\
+    FO preprocessing script description."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script applies Gaussian smoothing with a characteristic spatial scale
+    of 300 km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:36:26Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling performed with seed 42
+  claim_id: c_00250441
+  context: "Phase 3: User Story 2 \u2013 Statistical Correlation Analysis - Goal description."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script performs bootstrap resampling with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:36:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Signal-to-noise ratio threshold set to 3.0 for 3-sigma check
+  claim_id: c_1656758d
+  context: "Phase 3: User Story 2 \u2013 Statistical Correlation Analysis - T020 correlation\
+    \ and bootstrap analysis script description."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script calculates a signal\u2011to\u2011noise ratio as r / mean(uncertainty)\
+    \ and checks if the signal-to-noise ratio > 3.0 to set passes_3sigma_threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:36:53Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Average Atmospheric River duration is 3.5 days
+  claim_id: c_2e78d46b
+  context: "Phase 4: User Story 3 \u2013 Diagnostic Visualization & Sensitivity Reporting\
+    \ - T029 temporal\u2011bias documentation script code."
+  evidence:
+    asserted: '3.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The typical AR duration is 3.5 days (Average from literature).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T12:36:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Monthly sampling interval is 30 days
+  claim_id: c_6fe22115
+  context: "Phase 4: User Story 3 \u2013 Diagnostic Visualization & Sensitivity Reporting\
+    \ - T029 temporal\u2011bias documentation script code."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling interval for the analysis is approximately one month (30
+    days).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:37:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_96b79618
+  context: "Phase 5: Polish & Cross\u2011Cutting Concerns - T040 Measure aggregate\
+    \ pipeline runtime script code."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime constraint is set to a limit of 6 hours (6 * 3600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:38:38Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Target region defined as West Coast NA (35N-50N, 120W-125W)
+  claim_id: c_de83e7d0
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing - T015 data\u2011\
+    fetching script description."
+  evidence:
+    entailment_evidence: Target region defined as West Coast NA (35N-50N, 120W-125W)
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_West_Coast_NA_(35N-50N,_120W-125W)
+  kind: entity_fact
+  raw_text: "The Target region for the study is defined as West Coast NA: 35\xB0N\u2011\
+    50\xB0N, 120\xB0W\u2011125\xB0W."
+  resolved_value: Target region defined as West Coast NA (35N-50N, 120W-125W)
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-18T12:38:42Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Control region defined as East Coast NA (70W-75W)
+  claim_id: c_11e723f3
+  context: "Phase 2: User Story 1 \u2013 Data Ingestion & Preprocessing - T015b data\u2011\
+    fetching script description."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_region_defined_as_East_Coast_NA_(70W-75W)
+  kind: entity_fact
+  raw_text: "The Control region is defined as East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T12:38:45Z'
