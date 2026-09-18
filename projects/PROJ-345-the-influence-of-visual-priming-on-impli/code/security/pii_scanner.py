@@ -1,230 +1,170 @@
-"""
-PII Scanner for Security Hardening (Task T042).
-
-Verifies no PII leakage in data/processed/ outputs by scanning text fields
-for patterns like emails, phone numbers, SSNs, and names.
-"""
 import os
 import re
 import csv
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
-from dataclasses import dataclass
-from config import get_path
+from typing import List, Dict, Any, Optional, Set
+from code.config import Config
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# PII Regex Patterns
+# PII Patterns: Email, Phone, SSN, Credit Card, IP Address
 PII_PATTERNS = {
-    "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
-    "phone_us": re.compile(r"(?:\+1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}"),
-    "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
-    "credit_card": re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),
-    "ip_address": re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
-    "date_of_birth": re.compile(r"\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b"),
+    "email": re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'),
+    "phone_us": re.compile(r'(\+1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}'),
+    "ssn": re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),
+    "credit_card": re.compile(r'\b(?:\d{4}[-.\s]?){3}\d{4}\b'),
+    "ip_address": re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b'),
+    "driver_license": re.compile(r'\b[A-Z0-9]{6,9}\b'), # Generic broad pattern, context dependent
 }
 
-# Common names list (subset for demonstration, in production use a larger list or external API)
-COMMON_NAMES = {
-    "john", "jane", "doe", "smith", "johnson", "williams", "brown", "jones",
-    "garcia", "miller", "davis", "rodriguez", "martinez", "hernandez", "lopez"
-}
-
-@dataclass
 class PIIResult:
-    file_path: str
-    line_number: int
-    column: Optional[int]
-    field_name: str
-    pii_type: str
-    matched_text: str
+    def __init__(self, file_path: str, line_number: int, pattern_type: str, matched_text: str):
+        self.file_path = file_path
+        self.line_number = line_number
+        self.pattern_type = pattern_type
+        self.matched_text = matched_text
 
-def scan_text_for_pii(text: str, line_num: int = 0, field_name: str = "unknown") -> List[PIIResult]:
-    """Scan a string for PII patterns."""
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "file_path": self.file_path,
+            "line_number": self.line_number,
+            "pattern_type": self.pattern_type,
+            "matched_text": self.matched_text
+        }
+
+def scan_text_for_pii(text: str, file_path: str) -> List[PIIResult]:
+    """Scan a block of text for PII patterns."""
     results = []
-    if not isinstance(text, str):
-        return results
-    
-    for pii_type, pattern in PII_PATTERNS.items():
-        matches = pattern.finditer(text)
-        for match in matches:
-            results.append(PIIResult(
-                file_path="unknown",
-                line_number=line_num,
-                column=match.start(),
-                field_name=field_name,
-                pii_type=pii_type,
-                matched_text=match.group()
-            ))
-    
-    # Simple name check (case-insensitive)
-    words = text.lower().split()
-    for word in words:
-        if word in COMMON_NAMES and len(word) > 3:
-            results.append(PIIResult(
-                file_path="unknown",
-                line_number=line_num,
-                column=text.lower().find(word),
-                field_name=field_name,
-                pii_type="common_name",
-                matched_text=word
-            ))
-    
+    lines = text.splitlines()
+    for line_num, line in enumerate(lines, 1):
+        for p_type, pattern in PII_PATTERNS.items():
+            matches = pattern.findall(line)
+            for match in matches:
+                # Ensure we capture the full match string if findall returns groups
+                if isinstance(match, tuple):
+                    full_match = next((m for m in match if m), match[0])
+                else:
+                    full_match = match
+                
+                # Avoid false positives for IP addresses that are just numbers
+                if p_type == "ip_address":
+                    parts = full_match.split('.')
+                    if not all(0 <= int(p) <= 255 for p in parts):
+                        continue
+
+                results.append(PIIResult(file_path, line_num, p_type, full_match))
     return results
 
 def scan_csv_file(file_path: Path) -> List[PIIResult]:
-    """Scan a CSV file for PII in text fields."""
+    """Scan a CSV file for PII."""
     results = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for line_num, row in enumerate(reader, start=2):  # Start at 2 (header is 1)
-                for field_name, value in row.items():
-                    if value and isinstance(value, str):
-                        found = scan_text_for_pii(value, line_num, field_name)
-                        for res in found:
-                            res.file_path = str(file_path)
-                            results.append(res)
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            reader = csv.reader(f)
+            for line_num, row in enumerate(reader, 1):
+                for cell in row:
+                    cell_results = scan_text_for_pii(cell, str(file_path))
+                    # Adjust line number if we want to be more granular, but row index is fine
+                    results.extend(cell_results)
     except Exception as e:
         logger.error(f"Error scanning CSV {file_path}: {e}")
     return results
 
 def scan_json_file(file_path: Path) -> List[PIIResult]:
-    """Scan a JSON file for PII in string values."""
+    """Scan a JSON file for PII."""
     results = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        def traverse(obj, path=""):
-            if isinstance(obj, dict):
-                for k, v in obj.items():
-                    traverse(v, f"{path}.{k}")
-            elif isinstance(obj, list):
-                for i, item in enumerate(obj):
-                    traverse(item, f"{path}[{i}]")
-            elif isinstance(obj, str):
-                found = scan_text_for_pii(obj, 0, path)
-                for res in found:
-                    res.file_path = str(file_path)
-                    results.append(res)
-        
-        traverse(data)
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        # Simple recursive scan of string values
+        # For large files, a streaming approach might be needed, but text scan covers all strings
+        results = scan_text_for_pii(content, str(file_path))
     except Exception as e:
         logger.error(f"Error scanning JSON {file_path}: {e}")
     return results
 
-def scan_directory_for_pii(directory: Path) -> Dict[str, List[PIIResult]]:
+def scan_directory_for_pii(directory: Path) -> List[PIIResult]:
     """Recursively scan a directory for PII in text-based files."""
-    all_results = {}
-    
+    all_results = []
     if not directory.exists():
         logger.warning(f"Directory does not exist: {directory}")
         return all_results
+
+    # Extensions to scan
+    extensions = {'.csv', '.json', '.txt', '.log', '.tsv', '.yaml', '.yml'}
     
-    for file_path in directory.rglob("*"):
-        if file_path.is_file():
-            suffix = file_path.suffix.lower()
-            results = []
-            
-            if suffix == ".csv":
-                results = scan_csv_file(file_path)
-            elif suffix == ".json":
-                results = scan_json_file(file_path)
-            elif suffix in [".txt", ".md", ".log"]:
-                # Scan text files line by line
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        for line_num, line in enumerate(f, start=1):
-                            found = scan_text_for_pii(line, line_num, "line")
-                            for res in found:
-                                res.file_path = str(file_path)
-                                results.append(res)
-                except Exception as e:
-                    logger.error(f"Error scanning text file {file_path}: {e}")
-            
-            if results:
-                all_results[str(file_path)] = results
-    
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if Path(file).suffix.lower() in extensions:
+                file_path = Path(root) / file
+                if file_path.suffix.lower() == '.csv':
+                    all_results.extend(scan_csv_file(file_path))
+                elif file_path.suffix.lower() == '.json':
+                    all_results.extend(scan_json_file(file_path))
+                else:
+                    # Default to text scan for others
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            content = f.read()
+                        all_results.extend(scan_text_for_pii(content, str(file_path)))
+                    except Exception as e:
+                        logger.error(f"Error reading {file_path}: {e}")
     return all_results
 
-def generate_security_report(results: Dict[str, List[PIIResult]], output_path: Path) -> bool:
-    """Generate a security report JSON file."""
+def generate_security_report(results: List[PIIResult], output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Generate a summary report of PII findings."""
     report = {
-        "scan_summary": {
-            "total_files_scanned": len(results),
-            "files_with_pii": len([r for r in results.values() if r]),
-            "total_pii_findings": sum(len(r) for r in results.values())
-        },
-        "findings": []
+        "total_pii_found": len(results),
+        "files_affected": len(set(r.file_path for r in results)),
+        "leaks": []
     }
     
-    for file_path, findings in results.items():
-        for finding in findings:
-            report["findings"].append({
-                "file": finding.file_path,
-                "line": finding.line_number,
-                "column": finding.column,
-                "field": finding.field_name,
-                "type": finding.pii_type,
-                "masked_value": f"{finding.matched_text[:2]}***{finding.matched_text[-2:]}" if len(finding.matched_text) > 4 else "***"
-            })
+    if results:
+        report["leaks"] = [r.to_dict() for r in results]
+        logger.warning(f"Found {len(results)} potential PII leaks.")
+    else:
+        logger.info("No PII leaks detected.")
     
-    try:
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2)
-        logger.info(f"Security report generated: {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to write security report: {e}")
-        return False
+        logger.info(f"Security report written to {output_path}")
+    
+    return report
 
-def run_pii_security_check() -> bool:
-    """
-    Main entry point for T042: Security hardening.
-    Scans data/processed/ for PII and generates a report.
-    Returns True if no PII found or if PII is acceptable (e.g., anonymized IDs), False if critical PII detected.
-    """
-    processed_dir = get_path("data", "processed")
-    report_path = get_path("state", "projects", "PROJ-345", "security_report.json")
+def run_pii_security_check(target_directory: Optional[Path] = None, output_file: Optional[Path] = None) -> Dict[str, Any]:
+    """Main entry point for running the security check."""
+    if target_directory is None:
+        target_directory = Path(Config.DATA_PROCESSED)
     
-    logger.info(f"Scanning directory: {processed_dir}")
-    results = scan_directory_for_pii(processed_dir)
+    logger.info(f"Scanning directory: {target_directory}")
+    results = scan_directory_for_pii(target_directory)
     
-    if not results:
-        logger.info("No text files found in data/processed/ or no PII detected.")
-        # Still generate an empty report
-        generate_security_report({}, report_path)
-        return True
+    if output_file is None:
+        output_file = Path(Config.REPORTS) / "pii_scan.json"
     
-    # Generate report
-    generate_security_report(results, report_path)
-    
-    # Check for critical PII
-    critical_types = {"email", "phone_us", "ssn", "credit_card"}
-    critical_found = False
-    
-    for file_path, findings in results.items():
-        for finding in findings:
-            if finding.pii_type in critical_types:
-                critical_found = True
-                logger.critical(f"CRITICAL PII FOUND: {finding.pii_type} in {file_path} at line {finding.line_number}")
-    
-    if critical_found:
-        logger.error("SECURITY HARDENING FAILED: Critical PII detected in processed data.")
-        return False
-    
-    logger.info("SECURITY HARDENING PASSED: No critical PII detected.")
-    return True
+    return generate_security_report(results, output_file)
 
 def main():
-    """CLI entry point."""
-    success = run_pii_security_check()
-    exit(0 if success else 1)
+    """CLI entry point for PII scanning."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Scan for PII in project data.")
+    parser.add_argument("--target-dir", type=str, default=None, help="Directory to scan")
+    parser.add_argument("--output", type=str, default=None, help="Output JSON path")
+    args = parser.parse_args()
+
+    target = Path(args.target_dir) if args.target_dir else None
+    output = Path(args.output) if args.output else None
+
+    report = run_pii_security_check(target_directory=target, output_file=output)
+    
+    if report["total_pii_found"] > 0:
+        sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
+    import sys
     main()

@@ -1,111 +1,58 @@
-# The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
+# llmXive Project: The Influence of Visual Priming on Implicit Attitudes
 
-## Project Overview
-
-This research project investigates how visual priming influences implicit attitudes towards ambiguous social stimuli. The study utilizes a multi-phase approach to data ingestion, statistical modeling, and reporting, ensuring rigorous adherence to scientific principles and reproducibility.
-
-## Key Features
-
-- **Data Ingestion**: Automated downloading and processing of IAT datasets from verified OSF/HF sources.
-- **Stimulus Metadata Extraction**: Mapping trial data to visual stimulus metadata with integrity checks.
-- **Statistical Modeling**: Linear Mixed-Effects Models (LMM) with proper random effects structure and confounding checks.
-- **Reporting**: Automated generation of PDF reports with interaction plots, coefficient tables, and sensitivity analyses.
+## Overview
+This project implements an automated scientific pipeline to analyze the influence of visual priming on implicit attitudes towards ambiguous social stimuli. It adheres to strict data integrity principles (Principle V & VI) and reproducibility standards.
 
 ## Project Structure
+- `code/`: Core Python implementation modules
+- `data/`: Raw, processed, and stimulus data
+ - `raw/`: Original downloaded datasets
+ - `processed/`: Cleaned, linked, and aggregated data
+ - `primes/`: Visual prime stimuli images
+ - `targets/`: Target stimuli images
+- `state/`: Version control and execution logs
+- `tests/`: Unit and integration tests
+- `docs/`: Documentation
+- `reports/`: Generated PDF reports and analysis summaries
 
-```
-.
-├── code/ # Source code
-│ ├── data/ # Data ingestion and preprocessing
-│ ├── models/ # Statistical modeling
-│ ├── reports/ # Report generation
-│ ├── viz/ # Visualization
-│ ├── state/ # State management
-│ ├── security/ # Security and PII scanning
-│ ├── validation/ # Validation scripts
-│ ├── config.py # Configuration and paths
-│ └── main.py # Entry point
-├── data/ # Data directories
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed data
-│ ├── primes/ # Prime stimuli
-│ └── targets/ # Target stimuli
-├── docs/ # Documentation
-├── state/ # State management files
-├── tests/ # Test suite
-├── requirements.txt # Dependencies
-├── quickstart.md # Quick start guide
-└── README.md # This file
-```
+## Prerequisites
+- Python 3.11+
+- Dependencies listed in `requirements.txt`
 
-## Installation
-
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
-
-2. Create a Python 3.11 virtual environment:
+## Quick Start
+1. **Setup Environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. Install dependencies:
- ```bash
  pip install -r requirements.txt
  ```
 
-## Usage
+2. **Initialize Project State**:
+ ```bash
+ python code/run_state_init.py
+ ```
 
-### Running the Pipeline
+3. **Run Data Ingestion**:
+ ```bash
+ python code/data/ingest.py
+ ```
+ *Note: This downloads real data from verified OSF repositories.*
 
-The main entry point is `code/main.py`. It orchestrates the entire pipeline from data ingestion to report generation.
+4. **Run Preprocessing & Modeling**:
+ ```bash
+ python code/data/preprocess.py
+ python code/models/lmm.py
+ ```
 
-```bash
-python code/main.py
-```
+5. **Generate Report**:
+ ```bash
+ python code/reports/generate_report.py
+ ```
 
-### Individual Components
-
-- **Data Ingestion**: `python code/data/ingest.py`
-- **Preprocessing**: `python code/data/preprocess.py`
-- **Modeling**: `python code/models/lmm.py`
-- **Reporting**: `python code/reports/generate_report.py`
-- **Validation**: `python code/validation/validate_quickstart.py`
-
-### Configuration
-
-Edit `code/config.py` to modify paths, random seeds, and other configuration parameters.
-
-## Testing
-
-Run the test suite with:
-
-```bash
-pytest tests/
-```
-
-## Reproducibility
-
-This project adheres to strict reproducibility guidelines:
-
-- All random seeds are pinned.
-- Data sources are verified and checksums are recorded.
-- State management ensures version control of all artifacts.
-- All analyses are associational, with explicit limitations noted.
+## Data Integrity & Safety
+- **Principle V (Versioning)**: All artifacts are tracked in `state/projects/PROJ-345/state.yaml`.
+- **Principle VI (Distinct Stimulus Sets)**: Primes and targets are validated to ensure no premature merging.
+- **PII Scanning**: Run `python code/main.py --scan-pii` to ensure no personally identifiable information leaks into processed data.
 
 ## Limitations
-
-- **Observational Nature**: Findings are associational, not causal.
-- **Derived Prime Valence**: Prime valence scores are derived via CPU-optimized VAD regression models, which may introduce approximation errors.
-- **Synthetic Ambiguity**: When human-rated ambiguity is unavailable, synthetic derivation is used, which may not fully capture human perception.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please follow the project's coding standards and submit pull requests for review.
+This pipeline produces **associational** findings only. Prime valence is derived via VAD inference models, and human-rated ambiguity is required for valid interaction testing. Synthetic derivation of ambiguity is strictly prohibited per project design constraints.

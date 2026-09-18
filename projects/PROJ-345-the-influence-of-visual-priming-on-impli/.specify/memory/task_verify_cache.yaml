@@ -1,3 +1,19 @@
+T004:
+  c: false
+  h: a35067f29585011c6b532fbfd507089b1ad3341e1325e2fd326889965c17a987
+  r: "The `pyproject.toml` is present and correctly configures ruff and black, but\
+    \ the required `.pre-commit-config.yaml` file is missing, so the pre\u2011commit\
+    \ hook configuration cannot be verified or installed. The task is therefore not\
+    \ fully satisfied."
+T007:
+  c: false
+  h: 8881e564ae4ebc05bc2e79bb90d0e64004ad64addbb64e642c7896dfbc96ab51
+  r: "The generated `state/projects/PROJ-345/state.yaml` does not contain the required\
+    \ top\u2011level keys `project_id`, `created_at`, and `artifact_hashes`; instead\
+    \ it has unrelated fields. Moreover, the `init_state.py` script writes to `state/PROJ-345/state.yaml`\
+    \ (missing the required `projects/` subdirectory), so it would not create the\
+    \ file at the specified location. The correct schema and path are therefore not\
+    \ satisfied."
 T011:
   c: false
   h: 2a525523383cc1bc2d5bfbd6e9d0d7e288e23ffaff2884f60867c65a8fcc431f
@@ -10,6 +26,13 @@ T012:
   r: "The required file `tests/integration/test_ingest_integration.py` is missing\
     \ from the repository, so no integration test for missing image handling exists.\
     \ The task\u2019s primary artifact is absent, making the claim unsubstantiated."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output artifacts were provided; the claim contains only a\
+    \ description of user stories unrelated to the \u201CHuman\u2011Rated Ambiguity\
+    \ Verification Gate\u201D task, and there is no evidence that any required script,\
+    \ model, or report was created. The required deliverables are missing."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,15 +40,6 @@ T029:
     \ the model\u2019s results being phrased as \u201Cassociational\u201D rather than\
     \ causal. Without such artifact, we cannot verify that the requirement of framing\
     \ findings as associational has been satisfied."
-T035:
-  c: false
-  h: 468d92dc51dd3305f11e18a4bb853cc063e78531f6193752aca0188956e9d8c4
-  r: "The provided `code/models/metrics.py` contains VIF, Benjamini\u2011Hochberg,\
-    \ and other utilities but no implementation that sweeps significance thresholds\
-    \ (e.g., \u03B1\u202F=\u202F0.10) and writes a `data/processed/sensitivity_analysis.csv`\
-    \ with the required `alpha, significance_rate` columns. Moreover, the expected\
-    \ CSV file is absent from the repository. The task\u2019s core output is therefore\
-    \ missing."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,13 +48,6 @@ T037:
     \ valence\u201D limitation. Without a tangible artifact containing those statements,\
     \ the task is not satisfied. The next implementer must supply the final report\
     \ (e.g., PDF or markdown) where these limitations are clearly mentioned."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated documentation files (`docs/` contents or a modified `quickstart.md`)
-    were provided; the claim lacks any tangible artifacts to verify that the required
-    documentation changes were made. The implementer must add the revised docs and
-    quickstart files.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,19 +62,13 @@ T040:
     \ has been optimized to handle >7\u202FGB datasets is present; the only artifacts\
     \ described relate to data ingestion, modeling, and reporting, not to performance\
     \ optimization. The required performance\u2011related artifact is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No new unit test files are present in the `tests/unit/` directory, and there
-    is no evidence of tests covering the specified edge cases (missing metadata, high
-    collinearity). The required additional tests are missing, so the task is not satisfied.
 T042:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact was provided that demonstrates a security\u2011hardening check of\
-    \ the `data/processed/` directory, such as a script, log, or report confirming\
-    \ that no personally identifiable information (PII) appears in the processed outputs.\
-    \ Consequently, the requirement to verify the absence of PII leakage is not satisfied."
+  h: 2b9b35add2f9dfbea2bfc07cb69b238e335f2cfeb60c42781064c8956ca05795
+  r: The required output file `reports/pii_scan.json` does not exist, and the provided
+    `code/main.py` is truncated (ends abruptly at `ensure_direct`) indicating the
+    implementation is incomplete and cannot generate the expected JSON report. Consequently
+    the verification step cannot be satisfied.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

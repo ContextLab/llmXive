@@ -26,6 +26,17 @@ _PATHS: Dict[str, Path] = {
 # Default Random Seed for Reproducibility
 _RANDOM_SEED: int = 42
 
+class Config:
+    """
+    Configuration container providing direct access to paths and seed.
+    """
+    DATA_RAW: Path = _PATHS["raw"]
+    DATA_PROCESSED: Path = _PATHS["processed"]
+    PRIMES: Path = _PATHS["primes"]
+    TARGETS: Path = _PATHS["targets"]
+    STATE: Path = _PATHS["state"]
+    SEED: int = _RANDOM_SEED
+
 def ensure_directories() -> None:
     """
     Creates all base data and state directories if they do not exist.
@@ -73,10 +84,6 @@ def set_seed(seed: Optional[int] = None) -> None:
     
     random.seed(seed)
     np.random.seed(seed)
-    
-    # Log the seed setting for audit purposes (using standard print or logging if configured)
-    # We avoid importing logging here to prevent circular dependencies during early init
-    # unless explicitly needed.
     
 def get_seed() -> int:
     """

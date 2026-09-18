@@ -1,226 +1,223 @@
-import os
-import sys
+"""
+Unit tests for edge cases: missing metadata and high collinearity.
+
+Tests cover:
+1. Handling of missing stimulus metadata in preprocessing.
+2. Handling of high collinearity (VIF > 5.0) in model metrics.
+"""
 import pytest
 import pandas as pd
 import numpy as np
+import json
+import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import from the project's code modules
-from data.preprocess import check_confounding
-from models.metrics import calculate_vif, check_collinearity
-from data.linkage import derive_stimulus_id_from_trial_id
-from data.models import Trial
+# Import from project modules based on API surface
+from code.data.preprocess import check_confounding, load_human_rated_ambiguity
+from code.models.metrics import calculate_vif, check_collinearity, run_vif_analysis
 
-class TestEdgeCasesMissingMetadata:
-    """Tests for edge cases involving missing metadata."""
 
-    def test_derive_stimulus_id_missing_mapping(self):
-        """Test derivation when no mapping exists for trial IDs."""
-        # Create a mock scenario where linkage fails
-        trial_ids = ['trial_001', 'trial_002', 'trial_003']
-        
-        # Simulate a scenario where derivation fails for all
-        with patch('data.linkage.load_iat_csv') as mock_load:
-            mock_load.return_value = []
-            
-            # The function should return empty or handle gracefully
-            # depending on implementation, but we test the edge case
-            result = derive_stimulus_id_from_trial_id(
-                pd.DataFrame({'trial_id': trial_ids}),
-                Path('data/primes'),
-                Path('data/targets')
-            )
-            
-            # Verify it doesn't crash and returns a valid structure
-            assert result is not None
-            assert 'stimulus_id' in result.columns or len(result) == 0
+class TestMissingMetadata:
+    """Tests for handling missing metadata scenarios."""
 
-    def test_missing_metadata_in_preprocessing(self):
-        """Test preprocessing handles missing metadata files gracefully."""
-        # Create a temporary directory structure
-        with patch('data.preprocess.Path.exists') as mock_exists:
-            # Simulate missing human-rated ambiguity file
-            mock_exists.return_value = False
+    def test_missing_human_rated_ambiguity_file(self):
+        """Test that missing human-rated ambiguity file raises appropriate error."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            missing_path = Path(tmpdir) / "nonexistent_ambiguity.csv"
             
-            # This should not raise an exception, but handle the missing file
-            try:
-                # Call the function that would check for human ratings
-                # We expect it to handle the missing file case
-                pass  # The actual logic is tested in integration
-            except FileNotFoundError:
-                pytest.fail("Preprocessing should handle missing metadata gracefully")
+            # Should raise FileNotFoundError or similar
+            with pytest.raises(FileNotFoundError):
+                load_human_rated_ambiguity(missing_path)
 
-    def test_high_missing_rate_linkage(self):
-        """Test linkage derivation with >10% missing rate."""
-        # Create a dataset where most trials have no mapping
-        df = pd.DataFrame({
-            'trial_id': [f'trial_{i}' for i in range(100)],
-            'response_time': [1000.0] * 100
-        })
-        
-        # Mock a scenario where 90% of trials cannot be linked
-        with patch('data.linkage.derive_stimulus_id_from_trial_id') as mock_derive:
-            # Return a dataframe with only 10% linked
-            linked_df = df.head(10).copy()
-            linked_df['stimulus_id'] = [f'stim_{i}' for i in range(10)]
-            mock_derive.return_value = linked_df
+    def test_empty_metadata_dataframe(self):
+        """Test handling of empty metadata dataframe."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            empty_file = Path(tmpdir) / "empty_ambiguity.csv"
+            # Create empty CSV with headers only
+            pd.DataFrame(columns=["stimulus_id", "ambiguity"]).to_csv(empty_file, index=False)
             
-            # The function should handle this case (either warn or halt)
-            # depending on the specific implementation logic
-            result = derive_stimulus_id_from_trial_id(
-                df,
-                Path('data/primes'),
-                Path('data/targets')
-            )
-            
-            assert result is not None
+            df = load_human_rated_ambiguity(empty_file)
+            assert df.empty, "Expected empty dataframe for empty CSV"
 
-class TestEdgeCasesHighCollinearity:
-    """Tests for edge cases involving high collinearity."""
+    def test_partial_missing_metadata(self):
+        """Test handling of partial missing metadata (some stimuli without ratings)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            partial_file = Path(tmpdir) / "partial_ambiguity.csv"
+            # Create CSV with some missing ambiguity values
+            data = {
+                "stimulus_id": ["stim1", "stim2", "stim3"],
+                "ambiguity": [0.5, None, 0.8]
+            }
+            pd.DataFrame(data).to_csv(partial_file, index=False)
+            
+            df = load_human_rated_ambiguity(partial_file)
+            assert len(df) == 3, "Expected 3 rows"
+            assert df["ambiguity"].isna().sum() == 1, "Expected 1 missing value"
+
+
+class TestHighCollinearity:
+    """Tests for handling high collinearity scenarios."""
 
     def test_vif_calculation_with_perfect_collinearity(self):
-        """Test VIF calculation when variables are perfectly collinear."""
-        # Create a dataset with perfect collinearity
-        np.random.seed(42)
+        """Test VIF calculation with perfect collinearity (should return very high VIF)."""
+        # Create data with perfect collinearity
         n = 100
         x1 = np.random.randn(n)
-        x2 = x1 * 2  # Perfectly collinear
+        x2 = x1 * 2  # Perfectly correlated
         
         df = pd.DataFrame({
-            'y': np.random.randn(n),
-            'x1': x1,
-            'x2': x2
+            "y": np.random.randn(n),
+            "x1": x1,
+            "x2": x2
         })
         
-        # This should return very high VIF values
-        vif_results = calculate_vif(df, ['x1', 'x2'])
+        vif_results = calculate_vif(df[["x1", "x2"]])
         
-        # At least one VIF should be extremely high (approaching infinity)
-        assert any(vif > 100 for vif in vif_results.values()), \
-            "Perfect collinearity should result in very high VIF"
+        # At least one VIF should be very high (approaching infinity)
+        assert any(vif_results["VIF"] > 1000), "Expected very high VIF for perfect collinearity"
 
     def test_vif_calculation_with_high_collinearity(self):
-        """Test VIF calculation when variables are highly correlated."""
-        np.random.seed(42)
+        """Test VIF calculation with high collinearity (VIF > 5.0)."""
+        n = 100
+        x1 = np.random.randn(n)
+        x2 = x1 * 0.95 + np.random.randn(n) * 0.1  # High correlation (~0.95)
+        
+        df = pd.DataFrame({
+            "y": np.random.randn(n),
+            "x1": x1,
+            "x2": x2
+        })
+        
+        vif_results = calculate_vif(df[["x1", "x2"]])
+        
+        # Check that VIF > 5.0 for high collinearity
+        assert any(vif_results["VIF"] > 5.0), "Expected VIF > 5.0 for high collinearity"
+
+    def test_check_collinearity_flagging(self):
+        """Test that check_collinearity correctly flags high collinearity."""
         n = 100
         x1 = np.random.randn(n)
         x2 = x1 * 0.95 + np.random.randn(n) * 0.1  # High correlation
         
         df = pd.DataFrame({
-            'y': np.random.randn(n),
-            'x1': x1,
-            'x2': x2
+            "y": np.random.randn(n),
+            "x1": x1,
+            "x2": x2
         })
         
-        vif_results = calculate_vif(df, ['x1', 'x2'])
+        result = check_collinearity(df[["x1", "x2"]])
         
-        # VIF should be elevated (> 5.0)
-        assert any(vif > 5.0 for vif in vif_results.values()), \
-            "High collinearity should result in VIF > 5.0"
+        assert result["is_confounded"] is True, "Expected is_confounded=True for high collinearity"
+        assert result["max_vif"] > 5.0, "Expected max_vif > 5.0"
 
-    def test_collinearity_check_with_threshold(self):
-        """Test collinearity check with configurable threshold."""
-        np.random.seed(42)
+    def test_vif_analysis_with_multiple_predictors(self):
+        """Test VIF analysis with multiple predictors where some are collinear."""
         n = 100
         x1 = np.random.randn(n)
-        x2 = x1 * 0.99  # Very high correlation
+        x2 = x1 * 0.9 + np.random.randn(n) * 0.2  # High correlation with x1
+        x3 = np.random.randn(n)  # Independent
+        x4 = x3 * 0.3 + np.random.randn(n) * 0.8  # Low correlation with x3
         
         df = pd.DataFrame({
-            'y': np.random.randn(n),
-            'x1': x1,
-            'x2': x2
+            "y": np.random.randn(n),
+            "x1": x1,
+            "x2": x2,
+            "x3": x3,
+            "x4": x4
         })
         
-        # Test with default threshold (5.0)
-        is_collinear, vif_dict = check_collinearity(df, ['x1', 'x2'], threshold=5.0)
-        assert is_collinear, "Should detect collinearity with threshold 5.0"
+        vif_results = calculate_vif(df[["x1", "x2", "x3", "x4"]])
         
-        # Test with higher threshold
-        is_collinear_high, _ = check_collinearity(df, ['x1', 'x2'], threshold=100.0)
-        # May or may not detect depending on exact VIF value
+        # x1 and x2 should have high VIF
+        x1_vif = vif_results[vif_results["feature"] == "x1"]["VIF"].values[0]
+        x2_vif = vif_results[vif_results["feature"] == "x2"]["VIF"].values[0]
+        
+        assert x1_vif > 5.0, "Expected x1 VIF > 5.0"
+        assert x2_vif > 5.0, "Expected x2 VIF > 5.0"
+        
+        # x3 and x4 should have lower VIF
+        x3_vif = vif_results[vif_results["feature"] == "x3"]["VIF"].values[0]
+        x4_vif = vif_results[vif_results["feature"] == "x4"]["VIF"].values[0]
+        
+        assert x3_vif < 5.0, "Expected x3 VIF < 5.0"
+        assert x4_vif < 5.0, "Expected x4 VIF < 5.0"
 
-    def test_confounding_check_with_constant_variable(self):
-        """Test confounding check when a variable is constant."""
-        # Create data where prime condition is constant
+    def test_run_vif_analysis_output_structure(self):
+        """Test that run_vif_analysis returns expected structure."""
+        n = 100
+        x1 = np.random.randn(n)
+        x2 = np.random.randn(n)  # Independent
+        
         df = pd.DataFrame({
-            'prime_condition': [1] * 100,
-            'trial_order': list(range(100)),
-            'response_time': np.random.randn(100) * 100 + 500
+            "y": np.random.randn(n),
+            "x1": x1,
+            "x2": x2
         })
         
-        # This should handle the constant variable gracefully
-        # (either skip it or flag it as problematic)
-        try:
-            result = check_confounding(df, 'prime_condition', 'trial_order')
-            # Should not crash
-            assert result is not None
-        except Exception as e:
-            # If it raises, it should be a clear error message
-            assert "constant" in str(e).lower() or "variance" in str(e).lower()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "vif_report.json"
+            
+            result = run_vif_analysis(df[["x1", "x2"]], output_path)
+            
+            assert "max_vif" in result, "Expected max_vif in result"
+            assert "is_confounded" in result, "Expected is_confounded in result"
+            assert "vif_by_feature" in result, "Expected vif_by_feature in result"
+            
+            # Verify JSON file was written
+            assert output_path.exists(), "Expected vif report JSON file to exist"
+            
+            with open(output_path) as f:
+                saved_data = json.load(f)
+                assert saved_data == result, "Expected saved JSON to match return value"
+
+
+class TestConfoundingCheckEdgeCases:
+    """Tests for confounding check edge cases."""
+
+    def test_confounding_check_with_zero_variance(self):
+        """Test confounding check with zero variance in one variable."""
+        n = 50
+        data = {
+            "prime_order": [1] * n,  # Zero variance
+            "block": list(range(n))
+        }
+        df = pd.DataFrame(data)
+        
+        # Should handle gracefully, likely return no correlation or warning
+        result = check_confounding(df, "prime_order", "block")
+        
+        assert "prime_order_correlation" in result
+        assert "is_confounded" in result
 
     def test_confounding_check_with_small_sample(self):
         """Test confounding check with very small sample size."""
-        # Create data with only a few observations
-        df = pd.DataFrame({
-            'prime_condition': [0, 1, 0, 1, 0],
-            'trial_order': [1, 2, 3, 4, 5],
-            'response_time': [500, 600, 550, 580, 520]
-        })
+        n = 5
+        data = {
+            "prime_order": [1, 2, 3, 4, 5],
+            "block": [1, 2, 3, 4, 5]
+        }
+        df = pd.DataFrame(data)
         
-        # Should handle small sample gracefully
-        try:
-            result = check_confounding(df, 'prime_condition', 'trial_order')
-            assert result is not None
-        except Exception as e:
-            # If it raises, it should be a clear warning about small sample
-            assert "small" in str(e).lower() or "sample" in str(e).lower()
-
-class TestEdgeCasesDataQuality:
-    """Tests for various data quality edge cases."""
-
-    def test_empty_dataframe_handling(self):
-        """Test that functions handle empty dataframes gracefully."""
-        empty_df = pd.DataFrame(columns=['trial_id', 'response_time', 'stimulus_id'])
+        result = check_confounding(df, "prime_order", "block")
         
-        # Test VIF calculation with empty dataframe
-        try:
-            vif_results = calculate_vif(empty_df, ['response_time'])
-            # Should handle empty input
-            assert isinstance(vif_results, dict)
-        except Exception as e:
-            # If it raises, it should be a clear error
-            assert "empty" in str(e).lower()
+        assert "prime_order_correlation" in result
+        assert "is_confounded" in result
 
-    def test_single_observation_handling(self):
-        """Test handling of single observation."""
-        single_df = pd.DataFrame({
-            'y': [1.0],
-            'x1': [2.0],
-            'x2': [3.0]
-        })
+    def test_confounding_check_with_categorical_data(self):
+        """Test confounding check with categorical data."""
+        n = 100
+        data = {
+            "prime_condition": np.random.choice(["A", "B"], n),
+            "block": np.random.choice([1, 2, 3], n)
+        }
+        df = pd.DataFrame(data)
         
-        # VIF requires at least 2 observations
-        try:
-            vif_results = calculate_vif(single_df, ['x1', 'x2'])
-            # Should handle gracefully
-            assert isinstance(vif_results, dict)
-        except Exception as e:
-            # If it raises, it should be a clear error about sample size
-            assert "sample" in str(e).lower() or "observation" in str(e).lower()
-
-    def test_non_numeric_data_in_numeric_column(self):
-        """Test handling of non-numeric data in numeric columns."""
-        df = pd.DataFrame({
-            'y': [1.0, 2.0, 'invalid', 4.0],
-            'x1': [2.0, 3.0, 4.0, 5.0]
-        })
+        # Convert to numeric for correlation
+        df["prime_condition_num"] = df["prime_condition"].map({"A": 0, "B": 1})
         
-        # Should handle non-numeric data gracefully
-        try:
-            vif_results = calculate_vif(df, ['x1'])
-            # May drop invalid rows or raise error
-            assert isinstance(vif_results, dict)
-        except (ValueError, TypeError) as e:
-            # Expected for invalid data
-            pass
+        result = check_confounding(df, "prime_condition_num", "block")
+        
+        assert "prime_order_correlation" in result
+        assert "is_confounded" in result

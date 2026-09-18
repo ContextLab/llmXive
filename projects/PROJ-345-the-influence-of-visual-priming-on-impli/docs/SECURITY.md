@@ -1,23 +1,20 @@
-# Security Policy
+# Security & PII Handling
 
-## Reporting a Vulnerability
+## PII Scanning
+The pipeline includes a PII scanning module (`code/security/pii_scanner.py`) that checks all text and CSV files for personally identifiable information.
 
-If you discover a security vulnerability, please report it immediately to the project maintainers. Do not disclose the vulnerability publicly until it has been addressed.
+## Execution
+Run the PII scan before exporting any data:
+```bash
+python code/main.py --scan-pii
+```
+- **Output**: `reports/pii_scan.json`
+- **Pass Condition**: `{"leaks": []}`
 
-## Security Measures
-
-- **PII Scanning**: The pipeline includes a PII scanner to detect and prevent data leakage.
-- **Access Control**: Access to data and code is restricted to authorized personnel.
-- **Encryption**: Data is encrypted at rest and in transit.
-- **Audit Logs**: All access and changes are logged for audit purposes.
+## Data Sanitization
+If PII is detected, the system will log the specific fields and halt further processing until the issue is resolved.
 
 ## Best Practices
-
-- Keep dependencies up to date.
-- Use strong, unique passwords for all accounts.
-- Enable two-factor authentication where possible.
-- Regularly review and update security policies.
-
-## Contact
-
-For security-related inquiries, please contact the project maintainers.
+- Never commit raw data with PII to the repository.
+- Use anonymized participant IDs in all processed datasets.
+- Regularly scan `data/processed/` for accidental PII leakage.

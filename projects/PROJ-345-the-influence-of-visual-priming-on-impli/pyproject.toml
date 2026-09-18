@@ -3,41 +3,29 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-345"
+name = "llmxive-visual-priming"
 version = "0.1.0"
-description = "The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli"
+description = "Automated science pipeline for visual priming analysis"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.3",
     "numpy==1.24.3",
     "statsmodels==0.14.0",
     "scikit-learn==1.3.0",
+    "torch",
     "requests==2.31.0",
     "pyyaml==6.0.1",
     "pillow==10.0.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pre-commit>=3.5.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in dataclasses)
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+select = ["E", "F", "W", "I", "N", "B", "C4"]
+ignore = ["E501", "B008"]
 
 [tool.black]
 line-length = 88
@@ -46,16 +34,13 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
-
-[tool.setuptools]
-packages = ["code", "tests"]

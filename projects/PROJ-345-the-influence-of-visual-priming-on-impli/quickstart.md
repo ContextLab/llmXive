@@ -1,114 +1,83 @@
-# Quick Start Guide
+# Quickstart Guide: Visual Priming Analysis Pipeline
 
-This guide provides a step-by-step walkthrough to get the research pipeline up and running quickly.
+This guide walks you through the end-to-end execution of the `PROJ-345` pipeline.
 
-## Prerequisites
+## 1. Environment Setup
 
-- Python 3.11 or higher
-- pip package manager
-- Git (for cloning the repository)
-
-## Step 1: Clone the Repository
+Ensure you have Python 3.11 installed. Create a virtual environment and install dependencies:
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
-```
-
-## Step 2: Set Up the Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+python -m venv.venv
+source.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Step 3: Verify Directory Structure
-
-Ensure the following directories exist:
-
-```
-data/raw
-data/processed
-data/primes
-data/targets
-code/
-tests/
-state/
-```
-
-If any are missing, run:
-
+Verify the environment:
 ```bash
-python code/setup_directories.py
+bash scripts/verify_env.sh
 ```
 
-## Step 4: Initialize State
+## 2. Initialize Project State
+
+The pipeline requires an initialized state file to track artifacts and checksums.
 
 ```bash
 python code/run_state_init.py
 ```
 
-## Step 5: Run the Full Pipeline
+This creates `state/projects/PROJ-345/state.yaml`.
 
-The main script orchestrates the entire pipeline:
+## 3. Data Ingestion (User Story 1)
+
+Download and process real IAT data from OSF.
 
 ```bash
-python code/main.py
+python code/data/ingest.py
 ```
 
-This will:
-1. Ingest data from verified sources.
-2. Preprocess and validate data.
-3. Fit statistical models.
-4. Generate reports and visualizations.
+**Output**:
+- `data/processed/linked_trials.csv`: Trial-level data linked to stimuli.
+- `data/processed/ingest_metrics.json`: Metrics including `linked_metadata_percentage`.
+- Logs will indicate if >10% images are missing (HALT) or if linkage is <90% (HALT).
 
-## Step 6: Validate Results
+## 4. Preprocessing & Modeling (User Story 2)
 
-Run the validation script to ensure all outputs are correct:
+Run VAD inference, check confounding, and fit Linear Mixed-Effects Models.
+
+```bash
+python code/data/preprocess.py
+python code/models/lmm.py
+```
+
+**Outputs**:
+- `data/processed/stimulus_metadata.csv`: Valence scores.
+- `data/processed/confounding_report.json`: Confounding checks.
+- `state/model_convergence_metrics.json`: Convergence rates.
+
+**Note**: This step requires human-rated ambiguity scores. If missing, the script will halt with a specific error message.
+
+## 5. Reporting (User Story 3)
+
+Generate the final PDF report with plots and sensitivity analysis.
+
+```bash
+python code/reports/generate_report.py
+```
+
+**Output**:
+- `reports/final_analysis.pdf`: Contains interaction plots, coefficient tables, and limitations.
+- `data/processed/sensitivity_analysis.csv`: Alpha sensitivity sweep results.
+
+## 6. Validation
+
+Run the full pipeline validator to ensure reproducibility:
 
 ```bash
 python code/validation/validate_quickstart.py
 ```
 
-This script checks:
-- Directory structure
-- Data ingestion completeness
-- Preprocessing outputs
-- Model convergence and metrics
-- Report generation
+## Important Notes
 
-## Step 7: Review Outputs
-
-Key output files:
-
-- `data/processed/linked_trials.csv`: Trial-level data with stimulus linkage.
-- `data/processed/confounding_report.json`: Confounding analysis results.
-- `data/processed/sensitivity_analysis.csv`: Sensitivity analysis across alpha levels.
-- `state/model_convergence_metrics.json`: Model convergence statistics.
-- `figures/`: Generated plots and visualizations.
-- `reports/`: Final PDF report.
-
-## Troubleshooting
-
-### Missing Data
-
-If data ingestion fails, verify network connectivity and the availability of the OSF/HF URLs. The system will halt if >10% images are missing.
-
-### Model Convergence Issues
-
-If models fail to converge, the pipeline will retry with alternative optimizers. Check `state/model_convergence_metrics.json` for details.
-
-### PII Detection
-
-If PII is detected in the data, the pipeline will halt and generate a security report. Review `data/security_report.json` for details.
-
-## Next Steps
-
-- Customize configuration in `code/config.py`.
-- Extend the pipeline with additional analyses.
-- Contribute to the project by submitting pull requests.
-
-## Support
-
-For issues or questions, please open an issue on the project repository.
+- **Real Data Only**: This pipeline does not support synthetic data generation for inputs. If real data sources are unreachable, the process will fail loudly.
+- **Associational Findings**: All statistical outputs are framed as associational, not causal.
+- **Ambiguity Constraint**: The model will not run without verified human-rated ambiguity scores.
