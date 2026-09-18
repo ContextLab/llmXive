@@ -1,1 +1,3 @@
-# Unit tests module initialization
+"""
+Unit Tests Package
+"""

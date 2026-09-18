@@ -1,53 +1,59 @@
 """
-Script to install and configure linting and formatting tools (ruff, black).
+Script to initialize and verify linting/formatting configuration for the project.
+This script ensures that ruff and black are configured correctly via pyproject.toml
+and optional standalone config files, and provides a command to run checks.
 """
 import subprocess
 import sys
+import os
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> None:
+
+def run_command(cmd: list[str], check: bool = True) -> None:
     """Run a shell command and raise on failure."""
     print(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, check=False)
-    if result.returncode != 0:
-        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        if check:
+            print(f"Error running command: {e}")
+            sys.exit(1)
+        else:
+            print(f"Command failed (expected): {e}")
+
 
 def check_tool_installed(tool: str) -> bool:
-    """Check if a tool is installed and available."""
+    """Check if a tool is installed and accessible."""
     try:
-        subprocess.run([tool, "--version"], check=True, capture_output=True)
+        subprocess.run([tool, "--version"], capture_output=True, check=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
+
 def main() -> None:
-    """Main entry point for setup_linting."""
-    print("Setting up linting and formatting tools...")
+    """Entry point for linting setup verification."""
+    print("Checking linting and formatting tools...")
 
-    # Check for pip
-    if not check_tool_installed("pip"):
-        print("Error: pip not found. Please install Python and pip.")
-        sys.exit(1)
+    # Check ruff
+    if not check_tool_installed("ruff"):
+        print("⚠️  ruff not found. Installing...")
+        run_command([sys.executable, "-m", "pip", "install", "ruff"])
 
-    # Install dev dependencies
-    print("Installing dev dependencies (ruff, black, pytest)...")
-    run_command([sys.executable, "-m", "pip", "install", "-e", ".[dev]"])
+    # Check black
+    if not check_tool_installed("black"):
+        print("⚠️  black not found. Installing...")
+        run_command([sys.executable, "-m", "pip", "install", "black"])
 
-    # Verify installation
-    tools = ["ruff", "black", "pytest"]
-    for tool in tools:
-        if check_tool_installed(tool):
-            print(f"✓ {tool} is installed.")
-        else:
-            print(f"✗ {tool} installation failed.")
-            sys.exit(1)
+    print("✅ Tools ready.")
+    print("Configuration files (.ruff.toml, pyproject.toml, .pre-commit-config.yaml) should be present in the project root.")
+    print("To run checks manually:")
+    print("  ruff check .")
+    print("  black --check .")
+    print("To auto-fix and format:")
+    print("  ruff check --fix .")
+    print("  black .")
 
-    # Create .ruff.toml and .black.toml if they don't exist (optional, mostly for IDEs)
-    # The primary config is in pyproject.toml.
-    print("Linting and formatting setup complete.")
-    print("Run 'ruff check .' to lint.")
-    print("Run 'black .' to format.")
-    print("Run 'pytest' to test.")
 
 if __name__ == "__main__":
     main()

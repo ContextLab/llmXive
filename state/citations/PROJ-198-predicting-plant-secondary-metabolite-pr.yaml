@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://docs.antismash.secondarymetabolites.org/
   verified_at: '2026-07-10T17:28:42.653438Z'
+- artifact_hash: b246bc7e702391533cacbac71433562393e95a7b12f96b810371cac29020bf20
+  artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/docs/user-guide.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-198-predicting-plant-secondary-metabolite-pr.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-198-predicting-plant-secondary-metabolite-pr
+  verified_at: '2026-09-18T04:36:44.156708Z'

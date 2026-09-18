@@ -1,258 +1,151 @@
-"""
-Phylogenetic analysis utilities for plant secondary metabolite prediction.
-
-This module provides functions to load phylogenetic trees, construct
-phylogenetic covariance matrices, and perform phylogenetic generalized
-least squares (PGLS) regression.
-"""
-
 import os
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
-
 import dendropy
 import numpy as np
-import pandas as pd
+from scipy.spatial.distance import squareform
 import statsmodels.api as sm
-from scipy.spatial.distance import cdist
 
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
-
+logger = logging.getLogger(__name__)
 
 class PhylogenyError(Exception):
-    """Custom exception for phylogenetic analysis errors."""
+    """Exception raised for phylogeny-related errors."""
     pass
 
-
-def load_phylogeny(tree_path: Union[str, Path]) -> dendropy.Tree:
+def load_phylogeny(tree_path: str) -> dendropy.Tree:
     """
-    Load a phylogenetic tree from a Newick format file.
+    Load a phylogenetic tree from a Newick file.
     
     Args:
-        tree_path: Path to the Newick tree file.
+        tree_path: Path to Newick file
         
     Returns:
-        A DendroPy Tree object.
-        
-    Raises:
-        PhylogenyError: If the file cannot be read or parsed.
+        Dendropy Tree object
     """
-    tree_path = Path(tree_path)
-    
-    if not tree_path.exists():
+    if not os.path.exists(tree_path):
         raise PhylogenyError(f"Tree file not found: {tree_path}")
-    
+        
     try:
-        tree = dendropy.Tree.get(
-            path=str(tree_path),
-            schema="newick",
-            rooting="force-rooted"
-        )
-        logger.info(f"Loaded phylogenetic tree with {len(tree.leaf_nodes())} tips from {tree_path}")
+        tree = dendropy.Tree.get(path=tree_path, schema='newick')
+        logger.info(f"Loaded tree with {len(tree.taxon_namespace)} taxa")
         return tree
     except Exception as e:
-        raise PhylogenyError(f"Failed to parse tree file {tree_path}: {e}")
+        raise PhylogenyError(f"Failed to parse tree: {e}")
 
-
-def construct_covariance_matrix(
-    tree: dendropy.Tree,
-    species_list: Optional[List[str]] = None
-) -> Tuple[np.ndarray, List[str]]:
+def construct_covariance_matrix(tree: Union[str, dendropy.Tree]) -> np.ndarray:
     """
-    Construct a phylogenetic covariance matrix from a DendroPy tree.
-    
-    The covariance matrix is computed based on the shared branch length
-    from the root to the most recent common ancestor for each pair of species.
-    This assumes a Brownian motion model of evolution.
+    Construct phylogenetic covariance matrix from a tree.
     
     Args:
-        tree: A DendroPy Tree object.
-        species_list: Optional list of species names to include in the matrix.
-                     If None, all tip labels are used.
-                     
+        tree: Path to Newick file or Dendropy Tree object
+        
     Returns:
-        A tuple containing:
-            - covariance_matrix: np.ndarray of shape (n_species, n_species)
-            - species_order: List of species names corresponding to matrix rows/cols
-        
-    Raises:
-        PhylogenyError: If species in species_list are not found in the tree.
+        Covariance matrix (n_taxa, n_taxa)
     """
-    # Get all tip labels from the tree
-    all_tips = [leaf.taxon.label for leaf in tree.leaf_nodes()]
-    all_tips_set = set(all_tips)
-    
-    # Determine which species to include
-    if species_list is not None:
-        # Filter to only species present in the tree
-        missing = set(species_list) - all_tips_set
-        if missing:
-            logger.warning(f"Species not found in tree and will be excluded: {missing}")
+    if isinstance(tree, str):
+        tree = load_phylogeny(tree)
         
-        species_order = [s for s in species_list if s in all_tips_set]
-        
-        if len(species_order) == 0:
-            raise PhylogenyError("No valid species found in the provided list.")
-    else:
-        species_order = all_tips
-    
-    n = len(species_order)
-    logger.info(f"Constructing {n}x{n} phylogenetic covariance matrix")
-    
-    # Create a mapping from taxon label to taxon object for faster lookup
-    taxon_map = {leaf.taxon.label: leaf.taxon for leaf in tree.leaf_nodes()}
+    # Calculate cophenetic distance matrix
+    distance_matrix = tree.phylogenetic_distance_matrix()
+    taxa = tree.taxon_namespace
+    n = len(taxa)
     
     # Initialize covariance matrix
-    covariance_matrix = np.zeros((n, n))
+    cov_matrix = np.zeros((n, n))
     
-    # For each pair of species, compute the shared path length from root
-    for i, sp1 in enumerate(species_order):
-        taxon1 = taxon_map[sp1]
-        node1 = tree.taxon_namespace[taxon1]
-        
-        # Get the path from root to tip1
-        path1_nodes = set(tree.get_path_to_node(node1).nodes())
-        
-        for j, sp2 in enumerate(species_order):
-            taxon2 = taxon_map[sp2]
-            node2 = tree.taxon_namespace[taxon2]
-            
-            # Get the path from root to tip2
-            path2_nodes = set(tree.get_path_to_node(node2).nodes())
-            
-            # Find shared nodes (from root to MRCA)
-            shared_nodes = path1_nodes.intersection(path2_nodes)
-            
-            # Sum the edge lengths for shared path
-            shared_length = 0.0
-            for node in shared_nodes:
-                if node.edge is not None:
-                    shared_length += node.edge.length or 0.0
-            
-            covariance_matrix[i, j] = shared_length
-    
-    # Ensure symmetry (numerical stability)
-    covariance_matrix = (covariance_matrix + covariance_matrix.T) / 2.0
-    
-    logger.info("Phylogenetic covariance matrix constructed successfully")
-    return covariance_matrix, species_order
-
+    for i, taxon_i in enumerate(taxa):
+        for j, taxon_j in enumerate(taxa):
+            if i == j:
+                # Variance is the distance from root to tip
+                path_length = distance_matrix.path_length(taxon_i, taxon_j)
+                # In Brownian motion, variance is proportional to time from root
+                # Approximate root distance as max path length
+                max_dist = max([distance_matrix.path_length(t, t) for t in taxa])
+                cov_matrix[i, j] = max_dist
+            else:
+                # Covariance is the shared path length from root to MRCA
+                cov_matrix[i, j] = distance_matrix.path_length(taxon_i, taxon_j)
+                
+    logger.info(f"Constructed {n}x{n} phylogenetic covariance matrix")
+    return cov_matrix
 
 def train_pgls(
-    X: pd.DataFrame,
-    y: pd.Series,
-    covariance_matrix: np.ndarray,
-    species_order: List[str],
-    add_intercept: bool = True
-) -> Dict[str, Union[float, Dict[str, float], sm.regression.linear_model.RegressionResults]]:
+    X: np.ndarray,
+    y: np.ndarray,
+    species: List[str],
+    phylogenetic_covariance: np.ndarray
+) -> Dict[str, Any]:
     """
-    Train a Phylogenetic Generalized Least Squares (PGLS) regression model.
-    
-    This function accounts for non-independence of data points due to shared
-    evolutionary history by using the phylogenetic covariance matrix as the
-    error structure.
+    Train a Phylogenetic Generalized Least Squares (PGLS) model.
     
     Args:
-        X: DataFrame of features (predictors). Rows must be ordered to match
-           the species_order used to construct the covariance matrix.
-        y: Series of target values (responses). Must be ordered to match
-           the species_order.
-        covariance_matrix: The phylogenetic covariance matrix (n x n).
-        species_order: List of species names corresponding to rows/cols of
-                       the covariance matrix and X/y.
-        add_intercept: Whether to add an intercept term to the model.
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+        species: List of species names (must match covariance matrix order)
+        phylogenetic_covariance: Phylogenetic covariance matrix
         
     Returns:
-        A dictionary containing:
-            - 'r_squared': R-squared value of the model
-            - 'adj_r_squared': Adjusted R-squared value
-            - 'coefficients': Dictionary of feature names to coefficients
-            - 'p_values': Dictionary of feature names to p-values
-            - 'model': The fitted statsmodels GLS model object
-            - 'results': The full RegressionResults object
-        
-    Raises:
-        PhylogenyError: If dimensions of X, y, and covariance_matrix are inconsistent.
-        PhylogenyError: If the covariance matrix is singular or near-singular.
+        Dictionary containing model results
     """
-    # Validate dimensions
-    n_samples = len(species_order)
-    if X.shape[0] != n_samples:
-        raise PhylogenyError(
-            f"Number of samples in X ({X.shape[0]}) does not match "
-            f"number of species ({n_samples})"
-        )
-    if len(y) != n_samples:
-        raise PhylogenyError(
-            f"Length of y ({len(y)}) does not match "
-            f"number of species ({n_samples})"
-        )
-    if covariance_matrix.shape != (n_samples, n_samples):
-        raise PhylogenyError(
-            f"Covariance matrix shape {covariance_matrix.shape} does not match "
-            f"number of species ({n_samples})"
-        )
-    
-    logger.info(f"Training PGLS model with {n_samples} species and {X.shape[1]} features")
-    
-    # Add intercept if requested
-    if add_intercept:
-        X_model = sm.add_constant(X)
-    else:
-        X_model = X
-    
-    # Fit the GLS model with the phylogenetic covariance structure
+    if len(X) != len(y):
+        raise ValueError("X and y must have the same number of samples")
+        
+    if len(X) != phylogenetic_covariance.shape[0]:
+        raise ValueError("Number of samples must match covariance matrix dimension")
+        
     try:
-        model = sm.GLS(y, X_model, sigma=covariance_matrix)
+        import statsmodels.api as sm
+        
+        # Add intercept
+        X_with_intercept = sm.add_constant(X)
+        
+        # Fit PGLS using GLS with covariance structure
+        # Note: statsmodels GLS expects the inverse of the covariance matrix
+        try:
+            cov_inv = np.linalg.inv(phylogenetic_covariance)
+        except np.linalg.LinAlgError:
+            logger.warning("Covariance matrix is singular, adding small regularization")
+            cov_inv = np.linalg.inv(phylogenetic_covariance + 1e-6 * np.eye(phylogenetic_covariance.shape[0]))
+        
+        model = sm.GLS(y, X_with_intercept, sigma=phylogenetic_covariance)
         results = model.fit()
-    except np.linalg.LinAlgError as e:
-        raise PhylogenyError(f"Failed to fit PGLS model: Covariance matrix is singular. {e}")
-    
-    # Extract results
-    r_squared = results.rsquared
-    adj_r_squared = results.rsquared_adj
-    
-    # Get feature names
-    feature_names = list(X.columns)
-    if add_intercept:
-        feature_names = ['intercept'] + feature_names
-    
-    coefficients = dict(zip(feature_names, results.params))
-    p_values = dict(zip(feature_names, results.pvalues))
-    
-    logger.info(f"PGLS model fitted successfully. R² = {r_squared:.4f}, "
-                f"Adjusted R² = {adj_r_squared:.4f}")
-    
-    return {
-        'r_squared': r_squared,
-        'adj_r_squared': adj_r_squared,
-        'coefficients': coefficients,
-        'p_values': p_values,
-        'model': model,
-        'results': results
-    }
-
+        
+        # Calculate R²
+        y_pred = results.fittedvalues
+        ss_res = np.sum((y - y_pred) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot)
+        
+        # Extract coefficients
+        coefficients = {
+            'intercept': float(results.params[0]),
+            'features': {species[i]: float(results.params[i+1]) for i in range(X.shape[1])}
+        }
+        
+        # Feature importance (absolute coefficient magnitude)
+        feature_importance = {
+            species[i]: float(abs(results.params[i+1])) for i in range(X.shape[1])
+        }
+        
+        logger.info(f"PGLS R² = {r_squared:.4f}")
+        
+        return {
+            'r_squared': float(r_squared),
+            'p_value': float(results.f_pvalue),
+            'coefficients': coefficients,
+            'feature_importance': feature_importance,
+            'n_samples': len(y),
+            'n_features': X.shape[1]
+        }
+        
+    except Exception as e:
+        logger.error(f"PGLS fitting failed: {e}")
+        raise PhylogenyError(f"PGLS training failed: {e}")
 
 def main():
-    """
-    Main entry point for testing phylogenetic covariance matrix construction and PGLS.
-    This function loads a tree, constructs the covariance matrix, and demonstrates PGLS usage.
-    """
-    import sys
-    from utils.logging import setup_logging
-    
-    # Setup logging
-    setup_logging()
-    
-    logger.info("Phylogenetic analysis module loaded.")
-    logger.info("Functions available:")
-    logger.info("  - load_phylogeny(tree_path)")
-    logger.info("  - construct_covariance_matrix(tree, species_list)")
-    logger.info("  - train_pgls(X, y, covariance_matrix, species_order)")
-    logger.info("Use these functions to perform phylogenetic comparative analysis.")
+    """Main entry point for phylogeny utilities."""
+    logger.info("Phylogeny utilities module loaded")
 
 if __name__ == "__main__":
     main()

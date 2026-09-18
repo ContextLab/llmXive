@@ -1,12 +1,7 @@
-"""
-Environment configuration management.
-Loads settings from .env file and provides access to API keys and paths.
-"""
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Set
-
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 class EnvConfig(BaseSettings):
     """
-    Pydantic model for environment variables.
+    Configuration for environment variables.
+    Loads from .env file, environment variables, and defaults.
     """
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -23,35 +19,37 @@ class EnvConfig(BaseSettings):
         extra="ignore"
     )
 
-    # API Keys
-    ncbi_api_key: Optional[str] = Field(None, description="NCBI API Key")
-    metabolights_api_key: Optional[str] = Field(None, description="MetaboLights API Key")
+    # API Keys (Optional - only required if specific integrations are used)
+    NCBI_API_KEY: Optional[str] = Field(None, description="NCBI E-utilities API key")
+    PHYTOZOME_API_KEY: Optional[str] = Field(None, description="Phytozome API key")
+    METABOLIGHTS_API_KEY: Optional[str] = Field(None, description="MetaboLights API key")
+    PMDB_API_KEY: Optional[str] = Field(None, description="PMDB API key")
 
-    # Paths
-    data_raw_path: Path = Field(Path("data/raw"), description="Path to raw data directory")
-    data_processed_path: Path = Field(Path("data/processed"), description="Path to processed data directory")
-    data_interim_path: Path = Field(Path("data/interim"), description="Path to interim data directory")
-    logs_path: Path = Field(Path("code/logs"), description="Path to logs directory")
-    figures_path: Path = Field(Path("figures"), description="Path to figures directory")
-    phylogeny_path: Path = Field(Path("data/raw/phylogeny/tree.newick"), description="Path to phylogeny tree file")
+    # Local Paths
+    DATA_ROOT: Path = Field(Path("data"), description="Root directory for data")
+    CODE_ROOT: Path = Field(Path("code"), description="Root directory for code")
+    LOGS_DIR: Path = Field(Path("logs"), description="Directory for log files")
+    FIGURES_DIR: Path = Field(Path("figures"), description="Directory for output figures")
+    STATE_DIR: Path = Field(Path("state"), description="Directory for project state")
 
-    # Configuration
-    max_genome_size_mb: int = Field(500, description="Maximum genome size to download in MB")
-    antismash_timeout: int = Field(3600, description="AntiSMASH timeout in seconds")
-    log_level: str = Field("INFO", description="Logging level")
+    # Optional: Custom paths for external tools
+    ANTIMASH_PATH: Optional[str] = Field(None, description="Path to antiSMASH executable")
+    HMMER_PATH: Optional[str] = Field(None, description="Path to HMMER tools")
 
-    @field_validator('data_raw_path', 'data_processed_path', 'data_interim_path', 'logs_path', 'figures_path', 'phylogeny_path')
+    @field_validator('DATA_ROOT', 'CODE_ROOT', 'LOGS_DIR', 'FIGURES_DIR', 'STATE_DIR')
     @classmethod
-    def validate_paths(cls, v: Path) -> Path:
-        """Ensure paths are absolute if relative, or resolve them relative to project root."""
-        # Assuming project root is two levels up from code/
-        # This logic might need adjustment based on execution context
-        return v.resolve()
+    def validate_path(cls, v: Path) -> Path:
+        if isinstance(v, str):
+            return Path(v)
+        return v
 
 def load_environment() -> EnvConfig:
     """
-    Load environment configuration from .env file.
+    Load environment configuration from .env file and system variables.
+    Returns:
+        EnvConfig: Validated configuration object
     """
+    logger.info("Loading environment configuration...")
     try:
         config = EnvConfig()
         logger.info("Environment configuration loaded successfully.")
@@ -63,177 +61,140 @@ def load_environment() -> EnvConfig:
 def ensure_directories(config: EnvConfig) -> None:
     """
     Ensure all required directories exist.
+    Creates directories if they don't exist.
     """
     directories = [
-        config.data_raw_path,
-        config.data_processed_path,
-        config.data_interim_path,
-        config.logs_path,
-        config.figures_path,
-        config.phylogeny_path.parent
+        config.DATA_ROOT,
+        config.DATA_ROOT / "raw",
+        config.DATA_ROOT / "processed",
+        config.DATA_ROOT / "interim",
+        config.CODE_ROOT,
+        config.LOGS_DIR,
+        config.FIGURES_DIR,
+        config.STATE_DIR,
+        config.STATE_DIR / "projects"
     ]
-    
+
     for directory in directories:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-            logger.debug(f"Ensured directory exists: {directory}")
-        except Exception as e:
-            logger.error(f"Failed to create directory {directory}: {e}")
-            raise
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Ensured directory exists: {directory}")
 
-def get_api_key(service: str) -> Optional[str]:
+def get_api_key(service: str, config: EnvConfig) -> Optional[str]:
     """
-    Retrieve an API key for a specific service.
-    
+    Get API key for a specific service.
     Args:
-        service: Name of the service (e.g., 'ncbi', 'metabolights')
-        
+        service: Service name (e.g., 'NCBI', 'PHYTOZOME')
+        config: Environment configuration
     Returns:
-        The API key string or None if not set.
+        API key string or None if not set
     """
-    config = load_environment()
-    
-    if service.lower() == 'ncbi':
-        return config.ncbi_api_key
-    elif service.lower() == 'metabolights':
-        return config.metabolights_api_key
-    else:
-        logger.warning(f"Unknown service requested for API key: {service}")
-        return None
-
-def get_data_path(subdir: Optional[str] = None) -> Path:
-    """
-    Get the path to the data directory, optionally with a subdirectory.
-    
-    Args:
-        subdir: Optional subdirectory name.
-        
-    Returns:
-        Path object.
-    """
-    config = load_environment()
-    base_path = config.data_processed_path
-    
-    if subdir:
-        return base_path / subdir
-    return base_path
-
-def get_logs_path() -> Path:
-    """
-    Get the path to the logs directory.
-    
-    Returns:
-        Path object.
-    """
-    config = load_environment()
-    return config.logs_path
-
-def get_figures_path() -> Path:
-    """
-    Get the path to the figures directory.
-    
-    Returns:
-        Path object.
-    """
-    config = load_environment()
-    return config.figures_path
-
-def validate_required_env_vars(required_vars: Set[str]) -> bool:
-    """
-    Validate that required environment variables are set.
-    
-    Args:
-        required_vars: Set of variable names to check.
-        
-    Returns:
-        True if all required vars are present, False otherwise.
-    """
-    config = load_environment()
-    missing = []
-    
-    # Map variable names to config attributes
-    var_map = {
-        'NCBI_API_KEY': 'ncbi_api_key',
-        'METABOLIGHTS_API_KEY': 'metabolights_api_key',
-        'DATA_RAW_PATH': 'data_raw_path',
-        'DATA_PROCESSED_PATH': 'data_processed_path',
-        'LOGS_PATH': 'logs_path',
-        'FIGURES_PATH': 'figures_path'
+    key_map = {
+        'NCBI': config.NCBI_API_KEY,
+        'PHYTOZOME': config.PHYTOZOME_API_KEY,
+        'METABOLIGHTS': config.METABOLIGHTS_API_KEY,
+        'PMDB': config.PMDB_API_KEY
     }
-    
-    for var in required_vars:
-        attr = var_map.get(var)
-        if attr and getattr(config, attr) is None:
-            missing.append(var)
-        
+    key = key_map.get(service.upper())
+    if key:
+        logger.debug(f"API key found for {service}")
+    else:
+        logger.warning(f"No API key found for {service}. Some features may be limited.")
+    return key
+
+def get_data_path(config: EnvConfig, sub_path: Optional[str] = None) -> Path:
+    """
+    Get full path for data files.
+    Args:
+        config: Environment configuration
+        sub_path: Optional sub-path within data directory
+    Returns:
+        Full Path object
+    """
+    base = config.DATA_ROOT
+    if sub_path:
+        return base / sub_path
+    return base
+
+def get_logs_path(config: EnvConfig, filename: Optional[str] = None) -> Path:
+    """
+    Get full path for log files.
+    Args:
+        config: Environment configuration
+        filename: Optional filename for the log file
+    Returns:
+        Full Path object
+    """
+    base = config.LOGS_DIR
+    if filename:
+        return base / filename
+    return base
+
+def get_figures_path(config: EnvConfig, filename: Optional[str] = None) -> Path:
+    """
+    Get full path for figure files.
+    Args:
+        config: Environment configuration
+        filename: Optional filename for the figure file
+    Returns:
+        Full Path object
+    """
+    base = config.FIGURES_DIR
+    if filename:
+        return base / filename
+    return base
+
+def validate_required_env_vars(config: EnvConfig, required_services: Set[str]) -> bool:
+    """
+    Validate that API keys are present for required services.
+    Args:
+        config: Environment configuration
+        required_services: Set of service names that require API keys
+    Returns:
+        True if all required keys are present, False otherwise
+    """
+    missing = []
+    for service in required_services:
+        if not get_api_key(service, config):
+            missing.append(service)
+
     if missing:
-        logger.error(f"Missing required environment variables: {missing}")
+        logger.error(f"Missing API keys for required services: {missing}")
         return False
-    
+
+    logger.info("All required API keys are present.")
     return True
 
-def create_env_file_template() -> None:
+def create_env_file_template() -> str:
     """
-    Create a template .env.example file if it doesn't exist.
+    Create a template .env file content.
+    Returns:
+        String content for .env file
     """
-    project_root = Path(__file__).parent.parent
-    env_example_path = project_root / "code" / ".env.example"
-    
-    if env_example_path.exists():
-        return
-    
-    template = """# Environment Variables for Plant Secondary Metabolite Prediction Pipeline
-# Copy this file to .env and fill in your specific values.
-# This file is gitignored. Do not commit real secrets.
+    return """# Environment Configuration for Plant Secondary Metabolite Prediction Project
+# Copy this file to .env and fill in your values
 
-# --- API Keys (Optional, only if specific services require authentication) ---
-# NCBI API Key (Optional, increases rate limits for Entrez queries)
-# Get one from: https://www.ncbi.nlm.nih.gov/account/
-NCBI_API_KEY=
+# API Keys (Optional - only required if using specific services)
+NCBI_API_KEY=your_ncbi_api_key_here
+PHYTOZOME_API_KEY=your_phytozome_api_key_here
+METABOLIGHTS_API_KEY=your_metabolights_api_key_here
+PMDB_API_KEY=your_pmdb_api_key_here
 
-# MetaboLights API Key (Optional, for restricted datasets)
-# Check documentation at: https://www.ebi.ac.uk/metabolights/
-METABOLIGHTS_API_KEY=
+# Local Paths (Optional - defaults to project root subdirectories)
+# DATA_ROOT=data
+# CODE_ROOT=code
+# LOGS_DIR=logs
+# FIGURES_DIR=figures
+# STATE_DIR=state
 
-# --- Local Paths ---
-# Root directory for raw data downloads (FASTA, GFF, etc.)
-DATA_RAW_PATH=data/raw
-
-# Root directory for processed data (aligned matrices, features)
-DATA_PROCESSED_PATH=data/processed
-
-# Root directory for interim data (PCA features, temporary files)
-DATA_INTERIM_PATH=data/interim
-
-# Directory for log files
-LOGS_PATH=code/logs
-
-# Directory for generated figures/plots
-FIGURES_PATH=figures
-
-# Path to the phylogeny tree file (Newick format)
-PHYLOGENY_PATH=data/raw/phylogeny/tree.newick
-
-# --- Configuration ---
-# Maximum genome size to download (in MB)
-MAX_GENOME_SIZE_MB=500
-
-# AntiSMASH timeout in seconds
-ANITSMASH_TIMEOUT=3600
-
-# Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-LOG_LEVEL=INFO
+# Optional: Custom paths for external tools
+# ANTIMASH_PATH=/path/to/antismash
+# HMMER_PATH=/path/to/hmmer
 """
-    with open(env_example_path, 'w', encoding='utf-8') as f:
-        f.write(template)
-    
-    logger.info(f"Created .env.example template at {env_example_path}")
 
 def get_env_config() -> EnvConfig:
     """
-    Get the environment configuration.
-    
+    Get the global environment configuration.
     Returns:
-        EnvConfig instance.
+        EnvConfig: Validated configuration object
     """
     return load_environment()

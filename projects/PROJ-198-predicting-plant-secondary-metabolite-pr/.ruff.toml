@@ -1,4 +1,34 @@
-# Extends the main pyproject.toml config if needed, or standalone config
-# For this project, we rely on [tool.ruff] in pyproject.toml.
-# This file exists to satisfy tool discovery if pyproject is ignored.
-extend = "pyproject.toml"
+# T036: Ruff configuration file
+# This file configures the ruff linter for the project
+
+[lint]
+# Enable all rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]  # Allow assert in tests
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Align closing brackets with opening brackets
+# (black default)

@@ -49,7 +49,7 @@ The researcher needs to perform a sensitivity analysis on any decision cutoffs (
 
 **Acceptance Scenarios**:
 
-1. **Given** a primary BGC detection threshold, **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over a set of representative values and reports the resulting R² and false-positive rates for each sweep.
+1. **Given** a primary BGC detection threshold (a predefined value), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over a set of representative values and reports the resulting R² and false-positive rates for each sweep.
 2. **Given** the sensitivity analysis results, **When** the final report is generated, **Then** it includes a justification for the primary threshold citing community standards (e.g., "antiSMASH default confidence") and explicitly states the variation in headline rates across the sweep.
 3. **Given** the final results, **When** the researcher reviews the report, **Then** they can confirm that the model's predictive power is stable across the tested threshold range, validating the robustness of the conclusion.
 

@@ -1,44 +1,65 @@
-"""
-Script to initialize the environment configuration for the project.
-Creates the .env file from .env.example if it doesn't exist.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
     """
-    Main entry point for environment setup.
+    Setup script for environment configuration.
+    Creates .env file template and ensures required directories exist.
     """
-    # Determine project root (assuming script is in code/scripts/)
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent.parent
-    
-    env_example_path = project_root / "code" / ".env.example"
-    env_path = project_root / "code" / ".env"
-    
-    if not env_example_path.exists():
-        print(f"Error: Template file not found at {env_example_path}")
-        sys.exit(1)
-    
-    if env_path.exists():
-        print(f".env file already exists at {env_path}. Skipping creation.")
-        print("Please review and update the values in the existing .env file.")
-        return
-    
-    # Copy .env.example to .env
-    try:
-        with open(env_example_path, 'r', encoding='utf-8') as f_src:
-            content = f_src.read()
-        
-        with open(env_path, 'w', encoding='utf-8') as f_dst:
-            f_dst.write(content)
-        
-        print(f"Successfully created .env file at {env_path}")
-        print("Please update the values in the .env file before running the pipeline.")
-    except Exception as e:
-        print(f"Error creating .env file: {e}")
-        sys.exit(1)
+    print("Setting up environment configuration...")
+
+    # Create .env file template if it doesn't exist
+    env_file = Path(".env")
+    if not env_file.exists():
+        template_content = """# Environment Configuration for Plant Secondary Metabolite Prediction Project
+# Copy this file to .env and fill in your values
+
+# API Keys (Optional - only required if using specific services)
+# NCBI_API_KEY=your_ncbi_api_key_here
+# PHYTOZOME_API_KEY=your_phytozome_api_key_here
+# METABOLIGHTS_API_KEY=your_metabolights_api_key_here
+# PMDB_API_KEY=your_pmdb_api_key_here
+
+# Local Paths (Optional - defaults to project root subdirectories)
+# DATA_ROOT=data
+# CODE_ROOT=code
+# LOGS_DIR=logs
+# FIGURES_DIR=figures
+# STATE_DIR=state
+
+# Optional: Custom paths for external tools
+# ANTIMASH_PATH=/path/to/antismash
+# HMMER_PATH=/path/to/hmmer
+"""
+        with open(env_file, "w", encoding="utf-8") as f:
+            f.write(template_content)
+        print(f"Created .env file template at {env_file}")
+        print("Please edit .env and add your API keys if needed.")
+    else:
+        print(f".env file already exists at {env_file}")
+
+    # Ensure directories exist
+    directories = [
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/interim",
+        "code",
+        "logs",
+        "figures",
+        "state",
+        "state/projects"
+    ]
+
+    for directory in directories:
+        dir_path = Path(directory)
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+    print("Environment setup complete.")
+    print("Next steps:")
+    print("1. Edit .env file to add your API keys (if needed)")
+    print("2. Run the pipeline with 'python -m code.cli.main'")
 
 if __name__ == "__main__":
     main()

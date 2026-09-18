@@ -1,5 +1,5 @@
 """
-Modeling module for phylogenetic analysis and model training.
+Modeling Package
 """
 from .phylo import PhylogenyError, load_phylogeny, construct_covariance_matrix, train_pgls, main
 from .train import (

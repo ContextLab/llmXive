@@ -27,3 +27,17 @@ T032:
     \ does not contain a `generate_report()` function (the file is truncated and only\
     \ defines loading/formatting helpers). Consequently, the required report\u2011\
     generation functionality is not implemented."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any unit test files under `tests/unit/` was provided, and there
+    is no listing or content showing tests that cover the specified edge cases (zero
+    BGCs, missing metabolites). The required artifact is missing, so the task is not
+    satisfied.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CI validation artifacts (e.g., CI workflow files, logs, or a passed `quickstart.md`
+    execution report) are present. The provided material only describes feature specifications
+    and user stories, without any evidence that the quickstart steps were run or succeeded
+    on continuous integration. The required proof of successful validation is missing.

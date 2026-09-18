@@ -1,1 +1,3 @@
-# Integration tests module initialization
+"""
+Integration Tests Package
+"""

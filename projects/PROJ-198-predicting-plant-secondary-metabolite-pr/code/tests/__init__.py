@@ -1,1 +1,3 @@
-# Tests module initialization
+"""
+Tests Package
+"""

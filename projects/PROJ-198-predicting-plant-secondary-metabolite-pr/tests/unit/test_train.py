@@ -1,163 +1,143 @@
 import os
 import sys
+import tempfile
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 
 # Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from modeling.train import (
-    apply_pca, 
-    train_models_loo, 
-    train_models_5fold, 
+from code.modeling.train import (
+    train_pgls_with_pca_optimization,
+    apply_pca,
     determine_cv_method,
-    load_pca_features,
     ModelTrainingError
 )
+from code.modeling.phylo import construct_covariance_matrix, PhylogenyError
 
 @pytest.fixture
-def sample_data():
-    """Create sample feature and target data."""
+def sample_features():
+    """Generate sample feature matrix."""
     np.random.seed(42)
-    n_samples = 15
-    n_features = 10
-    
-    X = pd.DataFrame(
-        np.random.randn(n_samples, n_features),
-        columns=[f'feature_{i}' for i in range(n_features)]
-    )
-    y = pd.Series(np.random.randn(n_samples), name='target')
-    
-    return X, y
+    return np.random.randn(30, 15)  # 30 samples, 15 features
 
 @pytest.fixture
-def sample_large_data():
-    """Create larger sample data for 5-fold CV testing."""
+def sample_target():
+    """Generate sample target vector."""
     np.random.seed(42)
-    n_samples = 25
-    n_features = 10
-    
-    X = pd.DataFrame(
-        np.random.randn(n_samples, n_features),
-        columns=[f'feature_{i}' for i in range(n_features)]
-    )
-    y = pd.Series(np.random.randn(n_samples), name='target')
-    
-    return X, y
+    return np.random.randn(30)
 
-def test_determine_cv_method():
-    """Test CV method selection logic."""
-    assert determine_cv_method(10) == 'loo'
-    assert determine_cv_method(19) == 'loo'
-    assert determine_cv_method(20) == '5fold'
-    assert determine_cv_method(50) == '5fold'
+@pytest.fixture
+def mock_phylogeny_path(tmp_path):
+    """Create a mock phylogenetic tree file."""
+    tree_content = "(A:1.0, (B:0.5, C:0.5):0.5, D:1.5);"
+    tree_path = tmp_path / "mock_tree.nwk"
+    tree_path.write_text(tree_content)
+    return tree_path
 
-def test_apply_pca_creates_output(tmp_path):
-    """Test that PCA creates output file and reduces dimensions."""
-    np.random.seed(42)
-    n_samples = 20
-    n_features = 10
+def test_apply_pca_reduction(sample_features):
+    """Test that PCA reduces dimensionality correctly."""
+    X_pca, pca_model, scaler = apply_pca(sample_features, n_components=5)
     
-    X = pd.DataFrame(
-        np.random.randn(n_samples, n_features),
-        columns=[f'feature_{i}' for i in range(n_features)]
-    )
-    
-    output_path = tmp_path / "pca_test.csv"
-    result = apply_pca(X, n_components=3, output_path=str(output_path))
-    
-    assert result.shape[1] == 3
-    assert result.shape[0] == n_samples
-    assert output_path.exists()
-    
-    # Check column names
-    assert all(col.startswith('PC') for col in result.columns)
+    assert X_pca.shape[1] == 5
+    assert X_pca.shape[0] == sample_features.shape[0]
+    assert hasattr(pca_model, 'explained_variance_ratio_')
 
-def test_apply_pca_variance_threshold(tmp_path):
+def test_apply_pca_variance_threshold(sample_features):
     """Test PCA with variance threshold."""
-    np.random.seed(42)
-    n_samples = 20
-    n_features = 10
+    X_pca, pca_model, scaler = apply_pca(sample_features, n_components=0.95)
     
-    X = pd.DataFrame(
-        np.random.randn(n_samples, n_features),
-        columns=[f'feature_{i}' for i in range(n_features)]
+    # Should explain at least 95% variance
+    assert pca_model.explained_variance_ratio_.sum() >= 0.95
+
+def test_determine_cv_method_loo():
+    """Test CV method selection for small datasets."""
+    assert determine_cv_method(15) == 'loo'
+    assert determine_cv_method(19) == 'loo'
+
+def test_determine_cv_method_5fold():
+    """Test CV method selection for larger datasets."""
+    assert determine_cv_method(20) == '5fold'
+    assert determine_cv_method(100) == '5fold'
+
+def test_train_pgls_with_pca_optimization_high_features(
+    sample_features, sample_target, mock_phylogeny_path
+):
+    """Test that PCA is applied when features > samples."""
+    # Create scenario where features > samples
+    X_large = np.random.randn(10, 50)  # 10 samples, 50 features
+    y_small = np.random.randn(10)
+    
+    result = train_pgls_with_pca_optimization(
+        X_large, y_small, mock_phylogeny_path,
+        feature_threshold=10
     )
     
-    output_path = tmp_path / "pca_variance.csv"
-    result = apply_pca(X, output_path=str(output_path))
+    assert result['pca_applied'] is True
+    assert 'pca_info' in result
+    assert result['pca_info']['original_features'] == 50
+    assert result['pca_info']['reduced_features'] < 50
+
+def test_train_pgls_with_pca_optimization_low_features(
+    sample_features, sample_target, mock_phylogeny_path
+):
+    """Test that PCA is NOT applied when features <= samples."""
+    result = train_pgls_with_pca_optimization(
+        sample_features, sample_target, mock_phylogeny_path,
+        feature_threshold=20
+    )
     
-    # Should keep enough components for 95% variance
-    assert result.shape[1] <= n_features
-    assert result.shape[0] == n_samples
+    # With 15 features and 30 samples, PCA should not be applied
+    assert result['pca_applied'] is False
+
+def test_train_pgls_with_pca_optimization_default_threshold(
+    sample_features, sample_target, mock_phylogeny_path
+):
+    """Test default threshold behavior (threshold = n_samples)."""
+    # 30 samples, 15 features -> PCA not needed
+    result = train_pgls_with_pca_optimization(
+        sample_features, sample_target, mock_phylogeny_path
+    )
+    
+    assert result['pca_applied'] is False
+
+def test_train_pgls_with_pca_optimization_edge_case(
+    sample_features, sample_target, mock_phylogeny_path
+):
+    """Test edge case where features == samples."""
+    X_equal = np.random.randn(20, 20)
+    y_equal = np.random.randn(20)
+    
+    result = train_pgls_with_pca_optimization(
+        X_equal, y_equal, mock_phylogeny_path
+    )
+    
+    # Features == samples, should not apply PCA with default threshold
+    assert result['pca_applied'] is False
+
+def test_train_pgls_with_pca_optimization_invalid_tree(
+    sample_features, sample_target, tmp_path
+):
+    """Test error handling with invalid phylogeny."""
+    invalid_tree = tmp_path / "invalid.nwk"
+    invalid_tree.write_text("invalid tree content")
+    
+    with pytest.raises((PhylogenyError, ModelTrainingError, Exception)):
+        train_pgls_with_pca_optimization(
+            sample_features, sample_target, invalid_tree
+        )
+
+def test_pca_output_path(tmp_path, sample_features):
+    """Test that PCA features are saved when path is provided."""
+    output_path = tmp_path / "pca_output.csv"
+    
+    X_pca, pca_model, scaler = apply_pca(
+        sample_features, n_components=5, output_path=output_path
+    )
+    
     assert output_path.exists()
-
-def test_train_models_loo(sample_data, tmp_path):
-    """Test LOO training returns valid results."""
-    X, y = sample_data
-    output_path = tmp_path / "loo_results.json"
-    
-    results = train_models_loo(X, y, output_path=str(output_path))
-    
-    # Check all models trained
-    assert 'RandomForest' in results
-    assert 'ElasticNet' in results
-    assert 'GradientBoosting' in results
-    
-    # Check metrics present
-    for model_name in ['RandomForest', 'ElasticNet', 'GradientBoosting']:
-        assert 'mean_r2' in results[model_name]
-        assert 'std_r2' in results[model_name]
-        assert results[model_name]['mean_r2'] is not None
-    
-    # Check output file created
-    assert output_path.exists()
-
-def test_train_models_loo_empty_data():
-    """Test that empty data raises error."""
-    X = pd.DataFrame()
-    y = pd.Series()
-    
-    with pytest.raises(ModelTrainingError):
-        train_models_loo(X, y)
-
-def test_train_models_5fold(sample_large_data, tmp_path):
-    """Test 5-fold training returns valid results."""
-    X, y = sample_large_data
-    output_path = tmp_path / "5fold_results.json"
-    
-    results = train_models_5fold(X, y, output_path=str(output_path))
-    
-    # Check all models trained
-    assert 'RandomForest' in results
-    assert 'ElasticNet' in results
-    assert 'GradientBoosting' in results
-    
-    # Check metrics present
-    for model_name in ['RandomForest', 'ElasticNet', 'GradientBoosting']:
-        assert 'mean_r2' in results[model_name]
-        assert 'std_r2' in results[model_name]
-        assert results[model_name]['mean_r2'] is not None
-    
-    # Check output file created
-    assert output_path.exists()
-
-def test_train_models_5fold_cv_count(sample_large_data, tmp_path):
-    """Test that 5-fold produces correct number of scores."""
-    X, y = sample_large_data
-    output_path = tmp_path / "5fold_test.json"
-    
-    results = train_models_5fold(X, y, n_splits=5, output_path=str(output_path))
-    
-    # Each model should have 5 R2 scores
-    for model_name in ['RandomForest', 'ElasticNet', 'GradientBoosting']:
-        assert len(results[model_name]['r2_scores']) == 5
-
-def test_load_pca_features_missing_file(tmp_path):
-    """Test loading non-existent file raises error."""
-    non_existent = tmp_path / "missing.csv"
-    
-    with pytest.raises(FileNotFoundError):
-        load_pca_features(str(non_existent))
+    df = pd.read_csv(output_path)
+    assert df.shape[1] == 5
+    assert all(col.startswith('PC') for col in df.columns)

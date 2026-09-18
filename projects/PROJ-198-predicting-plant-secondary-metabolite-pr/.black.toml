@@ -1,2 +1,20 @@
-# Black configuration is in pyproject.toml [tool.black]
-# This file is a placeholder to indicate configuration exists.
+# T036: Black configuration file
+# This file configures the black code formatter for the project
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
