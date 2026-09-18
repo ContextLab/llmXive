@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reconstruction Result Schema"
+description: "Defines the output of a single reconstruction run."
+type: "object"
+properties:
+  scene_id:
+    type: "string"
+    description: "Reference to the input configuration."
+  mesh_path:
+    type: "string"
+    description: "Path to the generated .obj or .ply file."
+  mesh_valid:
+    type: "boolean"
+    description: "Boolean flag indicating if the mesh is manifold and non-empty."
+  metrics:
+    type: "object"
+    properties:
+      chamfer_distance:
+        type: "number"
+        description: "Chamfer Distance in meters."
+      psnr:
+        type: "number"
+        description: "PSNR in dB."
+      inference_latency:
+        type: "number"
+        description: "Inference latency in seconds."
+      peak_memory_mb:
+        type: "integer"
+        description: "Peak memory usage in MB."
+    required:
+      - chamfer_distance
+      - psnr
+      - inference_latency
+      - peak_memory_mb
+  convergence_status:
+    type: "string"
+    enum:
+      - converged
+      - max_iter_reached
+      - failed
+    description: "Status of the ray-surface intersection layer."
+  iterations:
+    type: "integer"
+    description: "Number of iterations performed."
+  error_log:
+    type: "string"
+    description: "Optional error message for non-convergence."
+required:
+  - scene_id
+  - mesh_path
+  - mesh_valid
+  - metrics
+  - convergence_status
+  - iterations

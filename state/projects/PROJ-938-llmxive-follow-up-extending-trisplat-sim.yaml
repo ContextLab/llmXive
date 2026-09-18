@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T09:57:20.282722Z'
-current_stage: flesh_out_complete
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-938-llmxive-follow-up-extending-trisplat-sim
-last_run_id: 8e7113b9-d648-44bc-b610-3b16e19973b3
+last_run_id: da3032f9-924d-460b-af1a-479934ffd545
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim
 title: 'llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene
   Reconstruction"'
-updated_at: '2026-08-07T04:17:55.965333Z'
+updated_at: '2026-09-18T22:35:03.336075Z'

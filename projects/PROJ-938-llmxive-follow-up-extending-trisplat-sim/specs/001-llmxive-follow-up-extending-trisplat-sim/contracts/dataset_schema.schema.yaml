@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Scene Configuration Schema"
+description: "Defines the input parameters for a single reconstruction run."
+type: "object"
+properties:
+  scene_id:
+    type: "string"
+    description: "Unique identifier for the scene (e.g., re10k_val_scene_001)."
+  view_count:
+    type: "integer"
+    enum:
+      - 2
+      - 3
+      - 4
+      - 5
+    description: "Number of input views."
+  baseline_distance:
+    type: "number"
+    description: "Approximate camera baseline distance in meters."
+  input_paths:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of file paths to source images."
+  target_path:
+    type: "string"
+    description: "File path to the target novel view image."
+  gt_depth_path:
+    type: "string"
+    description: "File path to the ground-truth depth map."
+  resolution:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+    description: "Target resolution tuple (width, height). Expected: [320, 240]."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+required:
+  - scene_id
+  - view_count
+  - input_paths
+  - target_path
+  - gt_depth_path
+  - resolution
+  - seed

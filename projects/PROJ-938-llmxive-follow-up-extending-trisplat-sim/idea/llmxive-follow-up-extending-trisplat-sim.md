@@ -9,7 +9,7 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How does replacing the learned, heavy normal-refinement head in TriSplat with a lightweight, differentiable geometric consistency module affect the trade-off between inference latency on CPU-only edge devices and the geometric fidelity of the resulting simulation-ready meshes?
+What are the fundamental geometric properties of 3D scenes that allow high-fidelity mesh recovery from sparse views using only explicit consistency constraints, and at what sparsity threshold do learned priors become strictly necessary to resolve occlusion ambiguities?
 
 ## Motivation
 
@@ -17,20 +17,22 @@ Current feed-forward 3D reconstruction methods like TriSplat achieve high fideli
 
 ## Related work
 
-- [TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction](https://arxiv.org/abs/2605.26115) — Establishes the baseline feed-forward architecture that produces simulation-ready triangle meshes directly from sparse images, highlighting the current reliance on heavy refinement heads.
-- [Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey (2025)](https://arxiv.org/abs/2507.14501) — Contextualizes the shift from Gaussian-based to explicit mesh-based feed-forward methods and notes the emerging need for efficiency in edge deployment scenarios.
-- [XYZCylinder: Towards Compatible Feed-Forward 3D Gaussian Splatting for Driving Scenes via Unified Cylinder Lifting Method (2025)](https://arxiv.org/abs/2510.07856) — Demonstrates alternative geometric lifting strategies in feed-forward paradigms, offering precedent for simplifying implicit representations to improve compatibility with specific hardware constraints.
-- [Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective (2026)](https://arxiv.org/abs/2604.14025) — Discusses the fundamental trade-offs in reconstructing 3D representations from 2D inputs, emphasizing the balance between geometric accuracy and computational feasibility.
+- [TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction](https://arxiv.org/abs/2605.26115) — Establishes the baseline feed-forward architecture that produces simulation-ready triangle meshes directly from sparse images, highlighting the current reliance on heavy refinement heads for geometric accuracy.
+- [Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey](https://arxiv.org/abs/2507.14501) — Contextualizes the shift from Gaussian-based to explicit mesh-based feed-forward methods and notes the emerging need for efficiency in edge deployment scenarios.
+- [XYZCylinder: Towards Compatible Feed-Forward 3D Gaussian Splatting for Driving Scenes via Unified Cylinder Lifting Method](https://arxiv.org/abs/2510.07856) — Demonstrates alternative geometric lifting strategies in feed-forward paradigms, offering precedent for simplifying implicit representations to improve compatibility with specific hardware constraints.
+- [Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective](https://arxiv.org/abs/2604.14025) — Discusses the fundamental trade-offs in reconstructing 3D representations from 2D inputs, emphasizing the balance between geometric accuracy and computational feasibility.
+- [Puzzles: Unbounded Video-Depth Augmentation for Scalable End-to-End 3D Reconstruction](https://arxiv.org/abs/2506.23863) — Provides a modern example of direct pointmap regression from image pairs without relying on known scene geometry, offering a methodological contrast to learned refinement approaches.
 
 ## Expected results
 
-We expect the modified architecture to achieve a 10-15x reduction in inference latency on CPU hardware compared to the GPU baseline while maintaining over 90% of the original mesh fidelity (measured by Chamfer Distance). The results will either confirm that explicit geometric constraints are sufficient for edge deployment or reveal that learned refinement is strictly necessary for high-quality mesh generation in sparse-view settings.
+We expect to identify a specific "sparsity threshold" (e.g., number of views or baseline distance) where explicit geometric constraints alone fail to resolve occlusions, necessitating learned priors. The results will define the boundary of geometry-only reconstruction, confirming that while explicit constraints suffice for convex or low-occlusion scenes, complex topologies require data-driven completion.
 
 ## Methodology sketch
 
 - Download and preprocess the RealEstate10K validation set, downscaling images to 320x240 resolution to simulate edge-device input constraints.
 - Implement a lightweight, differentiable ray-surface intersection layer that computes surface normals directly from local triangle connectivity and depth gradients, removing the learned refinement CNN.
 - Freeze the TriSplat backbone and train only the new geometric consistency module using a curriculum that gradually increases the weight of the ray-casting constraint.
+- Systematically vary the number of input views (e.g., 2, 3, 4, 5) and baseline distances to simulate increasing sparsity and occlusion.
 - Evaluate inference latency on a standard 2-core CPU environment (simulating GitHub Actions free-tier runners) to measure the reduction in compute time.
 - Compute Chamfer Distance against ground-truth meshes to quantify geometric fidelity and Peak Signal-to-Noise Ratio (PSNR) on novel views to assess rendering quality.
 - Perform statistical significance testing (paired t-test) on latency and fidelity metrics across 50 random test scenes to confirm the trade-off improvement.
@@ -45,40 +47,21 @@ We expect the modified architecture to achieve a 10-15x reduction in inference l
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-07T04:17:38Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-18T22:10:04Z
+**Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction" computer science
-**Verified citation count**: 4
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction" computer science | 0 |
-| 1 | feed-forward 3D scene reconstruction | 3 |
-| 2 | real-time 3D scene synthesis from images | 0 |
-| 3 | simulation-ready neural radiance fields | 0 |
-| 4 | 3D Gaussian splatting for simulation | 0 |
-| 5 | single-shot 3D reconstruction deep learning | 0 |
-| 6 | end-to-end 3D scene generation | 0 |
-| 7 | differentiable rendering for robotics simulation | 0 |
-| 8 | rapid 3D asset creation from monocular views | 0 |
-| 9 | feed-forward neural rendering pipelines | 0 |
-| 10 | 3D scene understanding for digital twins | 0 |
-| 11 | efficient 3D geometry prediction networks | 0 |
-| 12 | instant 3D reconstruction without optimization | 0 |
-| 13 | generative 3D models for virtual environments | 0 |
-| 14 | feed-forward volumetric reconstruction | 0 |
-| 15 | neural implicit surface reconstruction speed | 0 |
-| 16 | 3D scene representation for physics engines | 0 |
-| 17 | image-to-3D feed-forward networks | 0 |
-| 18 | scalable 3D scene generation for training | 0 |
-| 19 | direct 3D coordinate regression from images | 0 |
-| 20 | fast 3D reconstruction for autonomous systems | 0 |
+| 0 (initial) | llmXive follow-up: extending "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction" computer science | 5 |
 
 ### Verified citations
 
 1. **Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey** (2025). Jiahui Zhang, Yuelei Li, Anpei Chen, Muyu Xu, Kunhao Liu, et al.. arXiv. [2507.14501](https://arxiv.org/abs/2507.14501). PDF-sampled: No.
 2. **XYZCylinder: Towards Compatible Feed-Forward 3D Gaussian Splatting for Driving Scenes via Unified Cylinder Lifting Method** (2025). Haochen Yu, Qiankun Liu, Hongyuan Liu, Jianfei Jiang, Juntao Lyu, et al.. arXiv. [2510.07856](https://arxiv.org/abs/2510.07856). PDF-sampled: No.
 3. **TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction** (2026). Weijie Wang, Zimu Li, Jinchuan Shi, Zeyu Zhang, Botao Ye, et al.. arXiv. [2605.26115](https://arxiv.org/abs/2605.26115). PDF-sampled: No.
-4. **Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective** (2026). Weijie Wang, Qihang Cao, Sensen Gao, Donny Y. Chen, Haofei Xu, et al.. arXiv. [2604.14025](https://arxiv.org/abs/2604.14025). PDF-sampled: Yes.
+4. **Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective** (2026). Weijie Wang, Qihang Cao, Sensen Gao, Donny Y. Chen, Haofei Xu, et al.. arXiv. [2604.14025](https://arxiv.org/abs/2604.14025). PDF-sampled: No.
+5. **Puzzles: Unbounded Video-Depth Augmentation for Scalable End-to-End 3D Reconstruction** (2025). Jiahao Ma, Lei Wang, Miaomiao liu, David Ahmedt-Aristizabal, Chuong Nguyen. arXiv. [2506.23863](https://arxiv.org/abs/2506.23863). PDF-sampled: No.

@@ -1,0 +1,13 @@
+status: none
+intent: RealEstate10K dataset download containing images and camera poses python package
+  dataset
+required_fields:
+- scene_id
+- image_id
+- image_path
+- camera_intrinsics
+- camera_extrinsics
+- depth_map_path
+cache_key: 82241b0d20b1ca76b8d2cb2cc892ad144f87d604f04649d88df5c208f9ee66d9
+searched_at: '2026-09-18T22:21:36.000366+00:00'
+retry_count: 1

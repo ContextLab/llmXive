@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.23863",
+  "judged_at": "2026-09-18T22:09:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"trisplat: simulation-ready feed-forward 3d scene reconstruction\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core domain (3D scene reconstruction) and mechanism (improving feed-forward reconstruction performance via data augmentation/synthesis) as the user's question, satisfying criteria (a) and (b) by providing relevant prior work on enhancing 3D reconstruction pipelines that the user's proposed \"llmXive follow-up\" would need to contextualize.",
+  "relevant": true
+}
