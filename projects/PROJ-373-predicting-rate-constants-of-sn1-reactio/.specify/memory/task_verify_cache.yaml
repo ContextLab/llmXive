@@ -32,14 +32,6 @@ T023:
     \ showing the required columns or top\u201110 configurations was provided. The\
     \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
     \ the specified fields is missing."
-T028:
-  c: false
-  h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f
-  r: "The repository lacks the required input file `data/processed/cleaned_sn1.csv`,\
-    \ so the script cannot compute VIFs, and no `artifacts/collinearity_report.json`\
-    \ is present. Additionally, the provided `collinearity.py` is truncated and does\
-    \ not show the full VIF calculation and JSON generation logic. The task\u2019\
-    s essential artifacts are missing."
 T029:
   c: false
   h: db07041fc8b6400b4d072b90dc66e44c7fa3208f64be6e103b3406e26621303f
@@ -47,3 +39,21 @@ T029:
     \ the provided `interpret.py` does not contain the perturbation\u2011study implementation\
     \ (no SHAP\u2011based atom removal, inference, R\xB2 computation, or CSV output).\
     \ Consequently the expected `artifacts/perturbation_results.csv` is also absent."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/final_report.md` file or its contents were provided; thus the required
+    comprehensive report aggregating the listed metrics and containing the mandated
+    sections (`# Final Report`, `## Executive Summary`, `## Methodology`, `## Results`,
+    `## Limitations`, `## Conclusion`) is absent. The implementer must supply the
+    final markdown report with the specified structure and aggregated data.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no `artifacts/feasibility_test_log.json` file, nor any logs,\
+    \ runtime records, or evidence that the end\u2011to\u2011end pipeline was re\u2011\
+    run with the required dynamic budgeting, timeout enforcement, and comparison to\
+    \ T033. Without this artifact (or any output showing a successful run or logged\
+    \ timeout), the task is not satisfied. The next implementer must execute the full\
+    \ pipeline as specified and produce the `artifacts/feasibility_test_log.json`\
+    \ containing the run status, runtime, and verification results."

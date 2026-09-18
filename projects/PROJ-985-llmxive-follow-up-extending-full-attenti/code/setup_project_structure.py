@@ -1,73 +1,81 @@
-"""
-Script to initialize the llmXive project directory structure.
-Creates all required directories for the research pipeline.
-"""
 import os
 import sys
 
-REQUIRED_DIRS = [
-    "code",
-    "tests",
-    "data",
-    "code/lib",
-    "code/data",
-    "code/models",
-    "code/evaluation",
-    "data/results",
-    "data/logs",
-    "data/intermediate",
-]
-
 def create_directories():
-    """Create all required directories if they do not exist."""
-    root = os.getcwd()
+    """Create the required project directory structure."""
+    base_dir = os.getcwd()
+    
+    # Define all required directories relative to the project root
+    required_dirs = [
+        "code",
+        "tests",
+        "data",
+        os.path.join("code", "lib"),
+        os.path.join("code", "data"),
+        os.path.join("code", "models"),
+        os.path.join("code", "evaluation"),
+        os.path.join("data", "results"),
+        os.path.join("data", "logs"),
+        os.path.join("data", "intermediate"),
+    ]
+    
     created = []
-    skipped = []
-
-    for dir_path in REQUIRED_DIRS:
-        full_path = os.path.join(root, dir_path)
+    for dir_path in required_dirs:
+        full_path = os.path.join(base_dir, dir_path)
         if not os.path.exists(full_path):
-            os.makedirs(full_path, exist_ok=True)
+            os.makedirs(full_path)
             created.append(dir_path)
-            print(f"Created: {dir_path}")
+            print(f"Created directory: {dir_path}")
         else:
-            skipped.append(dir_path)
-            # print(f"Exists: {dir_path}")
-
-    if created:
-        print(f"\nSuccessfully created {len(created)} directories.")
-    if skipped:
-        print(f"Skipped {len(skipped)} existing directories.")
-
-    return len(created) + len(skipped) == len(REQUIRED_DIRS)
+            print(f"Directory already exists: {dir_path}")
+    
+    return created
 
 def verify_structure():
-    """Verify all required directories exist."""
-    root = os.getcwd()
+    """Verify that all required directories exist."""
+    base_dir = os.getcwd()
+    
+    required_dirs = [
+        "code",
+        "tests",
+        "data",
+        os.path.join("code", "lib"),
+        os.path.join("code", "data"),
+        os.path.join("code", "models"),
+        os.path.join("code", "evaluation"),
+        os.path.join("data", "results"),
+        os.path.join("data", "logs"),
+        os.path.join("data", "intermediate"),
+    ]
+    
     missing = []
-    for dir_path in REQUIRED_DIRS:
-        full_path = os.path.join(root, dir_path)
+    for dir_path in required_dirs:
+        full_path = os.path.join(base_dir, dir_path)
         if not os.path.isdir(full_path):
             missing.append(dir_path)
-
+    
     if missing:
-        print(f"Verification FAILED. Missing directories: {missing}")
+        print(f"ERROR: Missing directories: {missing}")
         return False
-    else:
-        print("Verification PASSED. All required directories exist.")
-        return True
+    
+    print("All required directories verified.")
+    return True
 
 def main():
-    """Main entry point."""
-    print("Initializing llmXive project structure...")
-    if not create_directories():
-        sys.exit(1)
+    """Main entry point for project structure setup."""
+    print("Setting up project structure for llmXive...")
+    created = create_directories()
+    if created:
+        print(f"Created {len(created)} new directories.")
+    else:
+        print("No new directories created (all exist).")
     
-    print("\nVerifying structure...")
-    if not verify_structure():
+    success = verify_structure()
+    if success:
+        print("Project structure setup completed successfully.")
+    else:
+        print("Project structure setup failed.")
         sys.exit(1)
-    
-    print("\nProject structure initialization complete.")
 
 if __name__ == "__main__":
     main()

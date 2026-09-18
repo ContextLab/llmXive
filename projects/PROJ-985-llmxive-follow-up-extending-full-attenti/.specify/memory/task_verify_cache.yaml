@@ -1,28 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system snapshots were provided, so we cannot confirm\
-    \ that the required ten directories (`code/`, `tests/`, `data/`, `code/lib/`,\
-    \ `code/data/`, `code/models/`, `code/evaluation/`, `data/results/`, `data/logs/`,\
-    \ `data/intermediate/`) actually exist and are non\u2011empty. The implementer\
-    \ must supply concrete evidence (e.g., a tree view, manifest file, or screenshots)\
-    \ showing these exact directories in the project."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `black.toml`, or
-    a `pre-commit` hook) or any other evidence of ruff/black being set up are present.
-    The required artifacts that demonstrate linting and formatting tools are configured
-    are missing.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g., `pytest.ini` or `pyproject.toml` with pytest\
-    \ settings) or empty test suite directory (`tests/` with placeholder test files)\
-    \ is present in the provided evidence. The claim that the task \u201CInitialize\
-    \ pytest configuration and create empty test suite structure\u201D is therefore\
-    \ not substantiated. The missing artifacts must be added for the task to be considered\
-    \ complete."
 T005:
   c: false
   h: eb31f55d424e086c017fbfd497b82178a0e6b6d1902bbd85ca4d19e09376b399
@@ -31,25 +6,29 @@ T005:
     \ test asserting peak memory <\u202F7\u202FGB is absent, and the expected log\
     \ file `data/logs/memory_profile.csv` does not exist. Consequently the task\u2019\
     s full requirements are not satisfied."
-T012:
-  c: false
-  h: 31303b5838a2a73e32985a2cd9739936f507c7a7cc5733a77ed8de0250296963
-  r: The provided `extract_ground_truth.py` does not contain code that generates and
-    writes attention maps to `data/intermediate/attention_maps.h5`, and it lacks the
-    required verification that all model parameters have `requires_grad=False` (or
-    a `torch.no_grad()` context around inference). Moreover, the expected H5 file
-    is absent from the repository. The task therefore remains unfinished.
-T016:
-  c: false
-  h: 4dac3fa00c17712f49d1dd0ec7accbd6d01ecbae4252db60486f70cbba206f73
-  r: "The provided `extract_ground_truth.py` does not show any logic that detects\
-    \ documents with zero RTPurbo tokens, flags them, excludes them from `merged_dataset.csv`,\
-    \ or writes entries to `data/logs/anomalies.csv`. Moreover, the required `data/logs/anomalies.csv`\
-    \ file is absent. The task\u2019s core requirements are therefore unmet."
 T019b:
   c: false
-  h: dcf87961c4d4f7141a22a5a53d7102d2723362ef80ba1d75033cd81a37e1ec43
-  r: "The repository contains `code/models/evaluate_static.py`, but the required output\
-    \ file `data/intermediate/static_eval_scores.json` is absent, indicating the evaluation\
-    \ script has not been executed (or does not produce the expected JSON). Without\
-    \ this file the task\u2019s deliverable is incomplete."
+  h: a7da70b873782887103d9edf2e5095b2bfcd20583d4d92f2d03c018a4aa682c1
+  r: The `evaluate_static.py` script exists but the required output file `data/intermediate/static_eval_scores.json`
+    is missing, indicating the evaluation results were not generated or saved. The
+    implementation must produce this JSON file with precision/recall (and related
+    metrics) for the static models.
+T026a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output files were presented that implement a runner executing
+    multiple random seeds for the learned sparse (RTPurbo) baseline, nor any results
+    saved under `data/intermediate/baseline_seeds/`. The required artifact is missing.
+T027:
+  c: false
+  h: 9f5b9a875444326b0b0ff46587832b05e812cf2ea095d95fb4f5f54ee7349301
+  r: "The `run_baselines.py` file is incomplete (truncated code, missing imports,\
+    \ no logic to aggregate results or write `static_metrics.json`), and the required\
+    \ output file `data/results/static_metrics.json` does not exist. The task\u2019\
+    s required runner and metric output are therefore not provided."
+T031:
+  c: false
+  h: 8e72f488473004404d66741d7b95b1701e63e9da582b7534e349bb92d4ef8f2a
+  r: The required output file `data/results/metrics.csv` is missing, so the performance
+    drop was neither calculated nor logged as specified. Without this artifact the
+    falsifiability check is not satisfied.

@@ -38,11 +38,13 @@ def fetch_dataset_info(dataset_id: str) -> dict:
     """
     Fetch dataset info from HuggingFace without downloading full data.
     Uses streaming mode to inspect features efficiently.
+    Ensures reproducibility by using revision='main'.
     """
     try:
         from datasets import load_dataset
         # Load in streaming mode to get info without downloading full data
-        ds = load_dataset(dataset_id, split="train", streaming=True)
+        # Explicitly use revision='main' for reproducibility as per spec
+        ds = load_dataset(dataset_id, split="train", streaming=True, revision='main')
         
         # Try to get features directly first
         if hasattr(ds, 'features') and ds.features:
@@ -112,6 +114,7 @@ def main():
     if not all_valid:
         error_msg = "Schema validation failed. Missing required columns or datasets unavailable."
         logger.error(error_msg)
+        # Raise fatal ValueError to halt the entire pipeline as per spec
         raise ValueError(error_msg)
 
     logger.info("All datasets passed schema validation.")

@@ -9,3 +9,15 @@
   verification_status: mismatch
   verified_against_url: https://docs.github.com/en/actions/concepts/runners/github-hosted-runners#supported-runners-and-hardware-resources
   verified_at: '2026-08-07T13:47:18.249057Z'
+- artifact_hash: 51834b515461b07b63f50571a082a464c52e0c965e9508c731ea2fc81b06e4d3
+  artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - kpu/kenlm: KenLM: Faster and Smaller Language Model Queries\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/kpu/kenlm.git
+  verification_status: pending
+  verified_against_url: https://github.com/kpu/kenlm
+  verified_at: '2026-09-18T09:31:17.054009Z'

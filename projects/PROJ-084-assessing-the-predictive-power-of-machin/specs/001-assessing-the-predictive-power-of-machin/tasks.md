@@ -66,10 +66,10 @@
 type: object
 properties:
  smiles: { type: string, minLength: 1 }
- yield: { type: number, minimum: 0.0, maximum: full theoretical capacity }
+ yield: { type: number, minimum: 0.0, maximum: 100.0 }
  reaction_class: { type: string, minLength: 1 }
- fingerprint_ecfp: { type: array, items: { type: integer }, minItems:, maxItems: 2048 }
- fingerprint_maccs: { type: array, items: { type: integer }, minItems:, maxItems: 167 }
+ fingerprint_ecfp: { type: array, items: { type: integer }, minItems: 2048, maxItems: 2048 }
+ fingerprint_maccs: { type: array, items: { type: integer }, minItems: 167, maxItems: 167 }
 required: [smiles, yield, reaction_class, fingerprint_ecfp, fingerprint_maccs]
 ```
 **Prerequisite: None**
@@ -81,19 +81,19 @@ properties:
  model_type: { type: string }
  hyperparameters: { type: object }
  metrics:
- type: object
- properties:
- R2: { type: number }
- RMSE: { type: number }
- MAE: { type: number }
- required: [R2, RMSE, MAE]
+   type: object
+   properties:
+     R2: { type: number }
+     RMSE: { type: number }
+     MAE: { type: number }
+   required: [R2, RMSE, MAE]
  split_ratios: { type: object }
 required: [model_type, hyperparameters, metrics, split_ratios]
 ```
 **Prerequisite: None**
 - [ ] T008b [P] Implement `code/utils/validators.py` to load and enforce `output.schema.yaml` using `pydantic`. **Validation**: Load schema, validate a sample output object, and raise error on mismatch. **Prerequisite: T008a**
 - [X] T009 Create `data/raw/.gitkeep` and `data/processed/.gitkeep` directories to ensure directory structure exists
-- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset. **Primary Source**: HuggingFace ID `farside/uspto-yields`. **Fallback**: If HF fetch fails, download from ` (verified USPTO yield mirror). **Action**: Fetch data to `data/raw/uspto_raw.parquet`. **Traceability**: Log the source used (HF vs Figshare) and SHA256 checksum to `data/results/download_checksum.txt`. **Failure**: If both sources fail, write `data/results/download_checksum.txt` with content "FAILED: No verified source available" and raise `FileNotFoundError` with a clear message. **Prerequisite: T002** (FR-001, Constitution I).
+- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset. **Primary Source**: HuggingFace ID `farside/uspto-yields`. **Fallback**: If HF fetch fails, download from `https://figshare.com/ndownloader/files/34747543` (verified USPTO yield mirror). **Action**: Fetch data to `data/raw/uspto_raw.parquet`. **Traceability**: Log the source used (HF vs Figshare) and SHA256 checksum to `data/results/download_checksum.txt`. **Failure**: If both sources fail, write `data/results/download_checksum.txt` with content "FAILED: No verified source available" and raise `FileNotFoundError` with a clear message. **Prerequisite: T002** (FR-001, Constitution I).
 - [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load `data/raw/uspto_raw.parquet`. **Step 1**: Verify SHA256 checksum matches `data/results/download_checksum.txt`. If file contains "FAILED", raise `FileNotFoundError` with message "Download failed, no data available". **Step 2**: Use `rdkit.Chem.MolStandardize.Cleaner().clean()` to remove salts and `rdkit.Chem.rdmolops.RemoveHs()` to standardize. Output sanitized SMILES. (FR-002). **Prerequisite: T019**. **Note**: If download fails or checksum mismatch, raise error (no synthetic fallback).
 - [ ] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values). **Action**: Read `config.py` parameter `YIELD_RANGE_STRATEGY` (options: 'midpoint', 'exclude'). If 'midpoint', parse "50-60%" as 55.0. If 'exclude', drop rows with range formats. **Action**: Log the strategy used and exclusion counts to `data/results/data_quality_report.json`. **Action**: Document the rationale for the chosen strategy in the report. (Edge Cases). **Prerequisite: T014**
 - [ ] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents. **Action**: Log the actual bit lengths generated (ECFP=2048, MACCS=167) to `data/results/fingerprint_dimensions.log` and include in the data quality report. **Action**: Implement **chunked/streamed processing** to generate fingerprints in batches to prevent OOM. (FR-003, SC-005). **Prerequisite: T015**

@@ -38,7 +38,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until T005 and T006 are complete. T007/T008 are optional for debugging but recommended and do NOT block T011/T012 execution.
 
-- [ ] T005 Implement memory-efficient data loader in `code/lib/data_loader.py` that streams RULER dataset chunks, enforces GB RAM limit, and includes a **unit test asserting peak memory usage < 7GB on a synthetic Moderate-sized stream**; log memory profile to `data/logs/memory_profile.csv`
+- [X] T005 Implement memory-efficient data loader in `code/lib/data_loader.py` that streams RULER dataset chunks, enforces GB RAM limit, and includes a **unit test asserting peak memory usage < 7GB on a synthetic Moderate-sized stream**; log memory profile to `data/logs/memory_profile.csv`
 - [X] T006 Create base data entities (`TokenUnit`, `AttentionMap`, `StaticHeuristic`) in `code/lib/entities.py`
 - [X] T007 [P] [Optional] Implement attention map visualization and debugging utilities in `code/lib/attention_utils.py`
 - [X] T008 [P] [Optional] Setup logging infrastructure to track pipeline stages and memory usage in `code/lib/logging_config.py`
@@ -86,7 +86,7 @@
 
 - [X] T019 [US2] Implement CPU-based classifier training (Decision Tree/Logistic Regression) with **independent random seeds** in `code/models/train_static.py` (FR-004). **Input**: `data/intermediate/merged_dataset.csv` (output of T014). **Output**: trained models saved to `data/intermediate/models/seeds/`.
 - [ ] T019b [US2] Implement evaluation of the trained static models on the test set to generate **performance scores** (precision/recall) in `code/models/evaluate_static.py` (FR-004). **Output**: `data/intermediate/static_eval_scores.json`.
-- [ ] T019c [US2] Implement aggregation logic to compute **mean and variance** of the static evaluation scores and save to `data/results/static_aggregated.json`. **Schema**: `{mean_metric, std_metric, n_seeds, seed_values: []}` (FR-004).
+- [X] T019c [US2] Implement aggregation logic to compute **mean and variance** of the static evaluation scores and save to `data/results/static_aggregated.json`. **Schema**: `{mean_metric, std_metric, n_seeds, seed_values: []}` (FR-004).
 - [X] T020 [US2] Implement rule derivation logic to extract hard thresholds from model importance in `code/models/derive_rules.py` (FR-004)
 - [X] T021 [US2] Implement static heuristic application script to reconstruct RTPurbo tokens using only rules in `code/models/apply_heuristic.py` (FR-004)
 - [X] T022 [US2] Add metrics calculation (Precision/Recall) for static predictor against ground truth in `code/lib/metrics.py` (FR-004)
@@ -106,15 +106,15 @@
 **⚠️ CRITICAL ORDERING**: T023 and T024 MUST be written and verified to fail before any implementation tasks (T025-T032) begin. These are NOT parallel tasks; they are sequential prerequisites to ensure the contract is defined before implementation.
 
 - [X] T023 [US3] Contract test for statistical analysis output format in `tests/contract/test_stats_output.py`
-- [ ] T024 [US3] Integration test for full baseline comparison in `tests/integration/test_baselines.py`
+- [X] T024 [US3] Integration test for full baseline comparison in `tests/integration/test_baselines.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement full attention baseline runner in `code/evaluation/run_baselines.py` (FR-005)
+- [X] T025 [US3] Implement full attention baseline runner in `code/evaluation/run_baselines.py` (FR-005) <!-- FAILED: unspecified -->
 - [ ] T026a [US3] Implement learned sparse (RTPurbo) baseline runner to **execute multiple independent random seeds** and save individual results to `data/intermediate/baseline_seeds/` (FR-008/FR-006)
 - [ ] T026b [US3] Implement aggregation logic to compute **mean and variance** of the seed results from T026a and save to `data/results/baseline_aggregated.json`. **Schema**: `{mean_metric, std_metric, n_seeds, seed_values: []}` (FR-008).
 - [ ] T027 [US3] Implement static heuristic sparsification runner in `code/evaluation/run_baselines.py` (FR-005). **Input**: Rules from T020. **Output**: Perplexity and Exact Match metrics to `data/results/static_metrics.json`.
-- [ ] T029 [US3] Implement paired t-test/Wilcoxon test for statistical significance in `code/evaluation/stats_analysis.py` (FR-006). **Input**: Aggregated baselines (T026b) and Static aggregated results (T019c). **Requirement**: Must perform a **paired t-test on document-level performance differences** between Static (mean of multiple seeds) and Learned Sparse (mean of 5 seeds).
+- [X] T029 [US3] Implement paired t-test/Wilcoxon test for statistical significance in `code/evaluation/stats_analysis.py` (FR-006). **Input**: Aggregated baselines (T026b) and Static aggregated results (T019c). **Requirement**: Must perform a **paired t-test on document-level performance differences** between Static (mean of multiple seeds) and Learned Sparse (mean of 5 seeds).
 - [ ] T030 [US3] Generate final evaluation report at `data/results/final_report.md` containing: Perplexity, Exact Match, P-values, and Statistical Significance (SC-002, SC-004). **Required Sections**: Executive Summary, Methodology, Results Table, Statistical Significance.
 - [ ] T031 [US3] Implement Falsifiability Check: Calculate the performance drop (Static vs Learned) and compare against the **<1% threshold** defined in Constitution Principle VI. Log the boolean result and the exact drop percentage to `data/results/metrics.csv`.
 - [ ] T032 [US3] Implement pipeline timing instrumentation to log start/end timestamps to `data/results/timing_report.json`.
@@ -128,7 +128,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates in `quickstart.md` and `research.md`
+- [~] T033 [P] Documentation updates in `quickstart.md` and `research.md`
 - [ ] T034 Code cleanup and refactoring of data loading logic
 - [ ] T035 Performance optimization for streaming pipeline
 - [ ] T036 [P] Additional unit tests for edge cases in `tests/unit/`
