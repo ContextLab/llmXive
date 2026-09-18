@@ -6,12 +6,17 @@ import sys
 import os
 
 # Add project root to path if running directly, though usually handled by pytest
+# The test runner should be invoked from the code/ directory or with PYTHONPATH set
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.data.loader import ClawSweBenchLoader
 
 class TestImportGraphTraversal:
-    """Unit tests for import graph traversal logic in loader.py."""
+    """Unit tests for import graph traversal logic in loader.py.
+    
+    This is scaffolding for T012 implementation. These tests verify the 
+    logic that will be used to calculate relevant lines via static analysis.
+    """
 
     @pytest.fixture
     def sample_repo_structure(self) -> Dict[str, List[str]]:
@@ -28,6 +33,7 @@ class TestImportGraphTraversal:
     def loader_instance(self) -> ClawSweBenchLoader:
         """Create a loader instance without loading real data."""
         # We instantiate but don't call load() to avoid network calls in unit tests
+        # Using a dummy dataset name that will fail gracefully if accessed
         return ClawSweBenchLoader(dataset_name="dummy", streaming=False)
 
     def test_build_dependency_graph(self, loader_instance, sample_repo_structure):

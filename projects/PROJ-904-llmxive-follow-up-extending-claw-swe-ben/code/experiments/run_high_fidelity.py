@@ -1,237 +1,302 @@
-"""
-Run High-Fidelity Context Strategies with 1B Model.
-
-Executes the 1B model against all three high-fidelity strategies (TF-IDF,
-Diff-Aware, Semantic Summarization) on the filtered dataset.
-"""
-
 import os
 import sys
 import json
 import logging
 import time
+import random
+import argparse
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from dataclasses import asdict
+from typing import List, Dict, Any, Callable, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from config import set_global_seeds, get_env_var, get_model_path, get_data_dir, get_output_dir, StrategyType
-from data.loader import ClawSweBenchLoader
+# Import from sibling modules based on API surface
+from config import set_global_seeds, get_data_dir, get_output_dir, StrategyType
+from data.loader import ClawSweBenchLoader, filter_dataset, write_parquet_and_checksum, record_derivation
+from models.runner import ModelRunner, GenerationConfig
 from data.context_processors import (
-    process_context,
     retrieve_tfidf_snippets,
     retrieve_diff_aware_snippets,
     retrieve_semantic_summaries,
+    process_context,
+    ContextSnippet,
     ProcessedContext
 )
-from models.runner import ModelRunner, GenerationConfig
-from experiments.batch_executor import BatchExecutor, ExecutionStatus, BatchExecutionResult
-from analysis.failure_classifier import classify_failure, FailureCategory
+from experiments.batch_executor import BatchExecutor, TimeoutGuard
+from utils.logger import setup_logger, log_error, safe_execute, ModelExecutionError
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# --- Configuration Constants ---
+# Defined to ensure reproducibility and adherence to Constitution Principle I
+DEFAULT_SEED = 42
+DEFAULT_MAX_INSTANCES = 50  # Sufficient for initial statistical power validation
+DEFAULT_TIMEOUT_SECONDS = 600  # 10 minutes per instance
+DEFAULT_OUTPUT_FILE = "data/intermediate/hf_run_1b.jsonl"
 
-# Constants
-INSTANCE_TIMEOUT_SECONDS = 3600  # 60 minutes per instance
-STRATEGIES = [
-    StrategyType.TF_IDF,
-    StrategyType.DIFF_AWARE,
-    StrategyType.SEMANTIC_SUMMARIZATION
-]
+# Strategy mapping for high-fidelity experiments
+STRATEGY_MAP = {
+    "baseline": None,  # No processing, raw context
+    "tfidf": retrieve_tfidf_snippets,
+    "diff_aware": retrieve_diff_aware_snippets,
+    "summarization": retrieve_semantic_summaries
+}
 
-def load_filtered_instances() -> List[Dict[str, Any]]:
+def get_strategy_function(strategy_name: str) -> Optional[Callable]:
     """
-    Load the filtered dataset from the versioned parquet file.
-    Falls back to streaming the dataset and filtering if the file doesn't exist.
-    """
-    data_dir = get_data_dir()
-    filtered_path = Path(data_dir) / "filtered_swe_bench_v1.parquet"
-
-    if filtered_path.exists():
-        logger.info(f"Loading filtered dataset from {filtered_path}")
-        try:
-            import pandas as pd
-            df = pd.read_parquet(filtered_path)
-            instances = df.to_dict('records')
-            logger.info(f"Loaded {len(instances)} instances from parquet.")
-            return instances
-        except Exception as e:
-            logger.error(f"Failed to load parquet file: {e}. Falling back to streaming filter.")
+    Retrieve the context processing function for a given strategy name.
     
-    # Fallback: Stream and filter (This should ideally not happen if T012b completed successfully)
-    logger.warning("Parquet file missing. Streaming and filtering on the fly (slower).")
-    loader = ClawSweBenchLoader()
-    instances = []
-    # Assuming the loader has a method to filter >500 lines or we do it here
-    # For safety, we fetch a small batch to demonstrate the logic if parquet is missing
-    # In a real run, T012b must have created this file.
-    for item in loader.stream_dataset():
-        if item.get('lines_of_code', 0) > 500:
-            instances.append(item)
-            if len(instances) >= 10: # Limit for safety if parquet is missing
-                break
-    return instances
-
-def run_strategy(
-    instance: Dict[str, Any],
-    strategy: StrategyType,
-    model_runner: ModelRunner,
-    timeout: int
-) -> Optional[Dict[str, Any]]:
+    Args:
+        strategy_name: Name of the strategy (baseline, tfidf, diff_aware, summarization)
+        
+    Returns:
+        Callable function for context processing or None for baseline
+        
+    Raises:
+        ValueError: If strategy name is unknown
     """
-    Execute a single instance with a specific strategy.
-    Returns the result dictionary or None if failed.
+    if strategy_name not in STRATEGY_MAP:
+        raise ValueError(f"Unknown strategy: {strategy_name}. Valid options: {list(STRATEGY_MAP.keys())}")
+    return STRATEGY_MAP[strategy_name]
+
+def load_filtered_instances(input_path: str) -> List[Dict[str, Any]]:
+    """
+    Load filtered instances from the parquet file produced by T012.
+    
+    Args:
+        input_path: Path to the filtered parquet file
+        
+    Returns:
+        List of task instance dictionaries
+    """
+    try:
+        import pandas as pd
+        df = pd.read_parquet(input_path)
+        # Convert to list of dicts for processing
+        instances = df.to_dict('records')
+        logging.info(f"Loaded {len(instances)} filtered instances from {input_path}")
+        return instances
+    except Exception as e:
+        log_error(f"Failed to load filtered instances from {input_path}: {e}")
+        raise
+
+def process_instance(
+    instance: Dict[str, Any],
+    strategy_func: Optional[Callable],
+    model_runner: ModelRunner,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
+) -> Dict[str, Any]:
+    """
+    Process a single task instance with the specified context strategy and model.
+    
+    Args:
+        instance: The task instance dictionary
+        strategy_func: Context processing function (None for baseline)
+        model_runner: The ModelRunner instance
+        timeout_seconds: Execution timeout per instance
+        
+    Returns:
+        Dictionary containing execution result
     """
     start_time = time.time()
-    instance_id = instance.get('instance_id', 'unknown')
+    instance_id = instance.get("instance_id", "unknown")
     
     try:
-        # 1. Process Context
-        context_config = {
-            "strategy": strategy.value,
-            "max_tokens": 4096, # Example limit
-            "model_size": "1b"
-        }
-        
-        processed: ProcessedContext = process_context(instance, context_config)
-        
-        if not processed.snippets:
-            logger.warning(f"No snippets retrieved for {instance_id} with {strategy.value}. Skipping.")
-            return None
-
-        context_text = "\n\n".join([s.content for s in processed.snippets])
-        prompt = f"""
-        Context:
-        {context_text}
-
-        Issue:
-        {instance.get('problem_statement', '')}
-
-        Please provide a patch to fix the issue.
-        """
-
-        # 2. Run Model
-        generation_config = GenerationConfig(
-            max_new_tokens=512,
-            temperature=0.7,
-            do_sample=True
-        )
-        
-        logger.info(f"Running {strategy.value} on {instance_id}")
-        response = model_runner.generate(prompt, generation_config)
-        
-        # 3. Record Result
-        elapsed = time.time() - start_time
-        result = {
-            "instance_id": instance_id,
-            "strategy": strategy.value,
-            "model_size": "1b",
-            "status": "success",
-            "prediction": response,
-            "context_length": len(processed.snippets),
-            "elapsed_seconds": elapsed,
-            "timestamp": time.time()
-        }
-        
-        # 4. Classify Failure (if applicable - simplistic check for now)
-        # In a real scenario, we would run the sandbox and check the log
-        if "error" in response.lower() or "failed" in response.lower():
-            result["failure_category"] = classify_failure(response, "sandbox_log_mock")
-        else:
-            result["failure_category"] = FailureCategory.SUCCESS.value
+        # Apply context strategy if not baseline
+        if strategy_func:
+            # Extract necessary fields for context processing
+            # Assuming instance contains 'files' (list of dicts with path, content) and 'issue'
+            files = instance.get("files", [])
+            issue = instance.get("issue", "")
             
-        return result
+            if not files:
+                logging.warning(f"Instance {instance_id} has no files, skipping context processing")
+                processed_context = []
+            else:
+                # Process context using the strategy
+                processed_context = process_context(
+                    files=files,
+                    issue=issue,
+                    strategy_func=strategy_func
+                )
+        else:
+            # Baseline: use raw context (all files)
+            processed_context = instance.get("files", [])
 
-    except TimeoutError:
-        logger.error(f"Timeout for {instance_id} with {strategy.value}")
+        # Prepare prompt (simplified logic for demonstration)
+        # In a real scenario, this would involve prompt engineering
+        prompt = f"Issue: {instance.get('issue', '')}\n\nContext:\n"
+        for snippet in processed_context:
+            if isinstance(snippet, dict):
+                prompt += f"File: {snippet.get('path', 'unknown')}\n{snippet.get('content', '')}\n---\n"
+            else:
+                prompt += f"{snippet}\n---\n"
+        
+        prompt += "\nPlease provide a solution patch."
+
+        # Execute model generation with timeout guard
+        @TimeoutGuard(seconds=timeout_seconds)
+        def run_generation():
+            return model_runner.generate(prompt)
+
+        generation = run_generation()
+        
+        end_time = time.time()
+        duration = end_time - start_time
+
         return {
             "instance_id": instance_id,
-            "strategy": strategy.value,
-            "model_size": "1b",
+            "strategy": "baseline" if strategy_func is None else strategy_func.__name__,
+            "model": model_runner.model_name,
+            "status": "success",
+            "generation": generation,
+            "duration_seconds": duration,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+    except TimeoutError as e:
+        log_error(f"Timeout for instance {instance_id}: {e}")
+        return {
+            "instance_id": instance_id,
+            "strategy": "baseline" if strategy_func is None else strategy_func.__name__,
+            "model": model_runner.model_name,
             "status": "timeout",
-            "elapsed_seconds": time.time() - start_time
+            "error": str(e),
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
         }
     except Exception as e:
-        logger.error(f"Error processing {instance_id} with {strategy.value}: {e}", exc_info=True)
+        log_error(f"Error processing instance {instance_id}: {e}")
         return {
             "instance_id": instance_id,
-            "strategy": strategy.value,
-            "model_size": "1b",
+            "strategy": "baseline" if strategy_func is None else strategy_func.__name__,
+            "model": model_runner.model_name,
             "status": "error",
-            "error_message": str(e)
+            "error": str(e),
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
         }
 
-def main():
-    """Main entry point for the high-fidelity experiment."""
-    logger.info("Starting High-Fidelity Experiment (1B Model)")
+def run_strategy(
+    instances: List[Dict[str, Any]],
+    strategy_name: str,
+    model_runner: ModelRunner,
+    output_path: str,
+    max_instances: int = DEFAULT_MAX_INSTANCES
+) -> None:
+    """
+    Execute the high-fidelity strategy on a batch of instances.
     
-    # 1. Setup
-    set_global_seeds(42)
-    data_dir = get_data_dir()
-    output_dir = get_output_dir()
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    output_path = Path(output_dir) / "intermediate" / "hf_run_1b.jsonl"
-    Path(output_dir / "intermediate").mkdir(parents=True, exist_ok=True)
-    
-    # 2. Load Data
-    instances = load_filtered_instances()
-    if not instances:
-        logger.error("No instances loaded. Exiting.")
-        return
-    
-    logger.info(f"Loaded {len(instances)} instances to process.")
-    
-    # 3. Initialize Model
-    # T026 ensures this model path is valid for 1B
-    model_path = get_model_path("1b") 
-    logger.info(f"Initializing ModelRunner with {model_path}")
-    
-    try:
-        model_runner = ModelRunner(model_path=model_path)
-    except Exception as e:
-        logger.error(f"Failed to initialize model: {e}")
-        return
-
-    # 4. Initialize Batch Executor
-    executor = BatchExecutor(
-        max_workers=4, # Parallel batching
-        timeout_per_task=INSTANCE_TIMEOUT_SECONDS
-    )
+    Args:
+        instances: List of task instances
+        strategy_name: Name of the strategy to apply
+        model_runner: The ModelRunner instance
+        output_path: Path to write JSONL results
+        max_instances: Maximum number of instances to process
+    """
+    strategy_func = get_strategy_function(strategy_name)
+    logging.info(f"Starting strategy '{strategy_name}' with model '{model_runner.model_name}'")
     
     results = []
+    batch_executor = BatchExecutor(max_workers=4) # Parallelize if needed, though model might be single-threaded
+
+    # Limit instances for the run
+    instances_to_process = instances[:max_instances]
+    logging.info(f"Processing {len(instances_to_process)} instances for strategy {strategy_name}")
+
+    for i, instance in enumerate(instances_to_process):
+        logging.info(f"Processing instance {i+1}/{len(instances_to_process)}: {instance.get('instance_id')}")
+        result = process_instance(instance, strategy_func, model_runner)
+        results.append(result)
+        
+        # Optional: Save incrementally to avoid data loss on crash
+        if (i + 1) % 10 == 0:
+            with open(output_path, 'a', encoding='utf-8') as f:
+                for res in results:
+                    f.write(json.dumps(res) + '\n')
+            results = [] # Clear batch
+
+    # Write remaining results
+    if results:
+        with open(output_path, 'a', encoding='utf-8') as f:
+            for res in results:
+                f.write(json.dumps(res) + '\n')
     
-    # 5. Execute
-    # We iterate through strategies and instances. 
-    # For true parallelism, we could queue all (instance, strategy) pairs.
-    total_jobs = len(instances) * len(STRATEGIES)
-    logger.info(f"Total jobs to execute: {total_jobs}")
+    logging.info(f"Strategy '{strategy_name}' complete. Results written to {output_path}")
+
+def main():
+    """
+    Main entry point for the high-fidelity experiment runner.
+    Orchestrates loading data, initializing the model, and running strategies.
+    """
+    parser = argparse.ArgumentParser(description="Run high-fidelity context strategies")
+    parser.add_argument("--model", type=str, default="1b", help="Model size (1b or 7b)")
+    parser.add_argument("--strategies", type=str, default="baseline,tfidf,diff_aware,summarization",
+                        help="Comma-separated list of strategies to run")
+    parser.add_argument("--input", type=str, default=None, help="Path to filtered parquet file")
+    parser.add_argument("--output", type=str, default=DEFAULT_OUTPUT_FILE, help="Output JSONL path")
+    parser.add_argument("--max-instances", type=int, default=DEFAULT_MAX_INSTANCES, help="Max instances to process")
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed")
     
-    job_count = 0
-    for strategy in STRATEGIES:
-        logger.info(f"Starting strategy: {strategy.value}")
-        for instance in instances:
-            job_count += 1
-            logger.info(f"Processing [{job_count}/{total_jobs}] {instance['instance_id']} - {strategy.value}")
-            
-            # Run synchronously with timeout handling via the batch executor logic
-            # (In a real async implementation, we would submit futures here)
-            result = run_strategy(instance, strategy, model_runner, INSTANCE_TIMEOUT_SECONDS)
-            if result:
-                results.append(result)
-                
-                # Write incrementally to avoid memory issues
-                with open(output_path, 'a') as f:
-                    f.write(json.dumps(result) + '\n')
-                    
-    logger.info(f"Experiment complete. Results written to {output_path}")
+    args = parser.parse_args()
+
+    # Setup logging
+    log_dir = Path(get_output_dir()) / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    logger = setup_logger("run_high_fidelity", log_dir / "run_high_fidelity.log")
+
+    # Set seeds
+    set_global_seeds(args.seed)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+
+    logging.info("Starting High-Fidelity Experiment Runner")
+    logging.info(f"Configuration: Model={args.model}, Strategies={args.strategies}, MaxInstances={args.max_instances}")
+
+    # 1. Load Data
+    # Default input path if not specified, derived from T012 output
+    input_path = args.input or str(Path(get_data_dir()) / "filtered_swe_bench.parquet")
+    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Filtered dataset not found at {input_path}. Run T012 first.")
+    
+    instances = load_filtered_instances(input_path)
+    
+    # 2. Initialize Model Runner
+    model_path = get_model_path(args.model)
+    logging.info(f"Initializing ModelRunner for {args.model} at {model_path}")
+    
+    # Configure generation parameters
+    gen_config = GenerationConfig(
+        max_new_tokens=512,
+        temperature=0.0, # Deterministic for benchmarking
+        top_p=1.0,
+        do_sample=False
+    )
+    
+    runner = ModelRunner(
+        model_name=args.model,
+        model_path=model_path,
+        config=gen_config
+    )
+    
+    # 3. Run Strategies
+    strategies = [s.strip() for s in args.strategies.split(",")]
+    output_dir = Path(get_output_dir())
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    for strategy in strategies:
+        # Construct output path per strategy
+        strategy_output = output_dir / f"hf_run_{args.model}_{strategy}.jsonl"
+        
+        try:
+            run_strategy(
+                instances=instances,
+                strategy_name=strategy,
+                model_runner=runner,
+                output_path=str(strategy_output),
+                max_instances=args.max_instances
+            )
+        except Exception as e:
+            log_error(f"Failed to run strategy {strategy}: {e}")
+            raise
+
+    logging.info("All high-fidelity experiments completed successfully.")
 
 if __name__ == "__main__":
     main()

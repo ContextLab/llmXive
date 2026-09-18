@@ -1,3 +1,2 @@
-"""
-Unit tests.
-"""
+# Unit tests module initialization
+pass

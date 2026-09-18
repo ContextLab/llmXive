@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a rigorous experimental benchmark to quantify the trade-off between context compression fidelity and model scaling (1B vs. 7B parameters) on CPU-only hardware. The system ingests the Claw-SWE-Bench dataset, filters for high-complexity instances (>500 lines of relevant history via import graph traversal), and executes a matrix of experiments: multiple model sizes × 4 context strategies (Naive Baseline, TF-IDF/BM25, Diff-Aware Sliding, Rule-Based Semantic Summarization). Results are analyzed via a Generalized Linear Mixed Model (GLMM) or Firth's GLM to test for interaction effects on pass rates, determining if context optimization can substitute for parameter scaling.
+This feature implements a rigorous experimental benchmark to quantify the trade-off between context compression fidelity and model scaling (1B vs. 7B parameters) on CPU-only hardware. The system ingests the Claw-SWE-Bench dataset, filters for high-complexity instances (>500 lines of relevant history via import graph traversal), and executes a matrix of experiments: multiple model sizes × context strategies (Naive Baseline, TF-IDF/BM25, Diff-Aware Sliding, Rule-Based Semantic Summarization). Results are analyzed via a Generalized Linear Mixed Model (GLMM) or Firth's GLM to test for interaction effects on pass rates, determining if context optimization can substitute for parameter scaling.
 
 ## Technical Context
 
@@ -15,9 +15,9 @@ This feature implements a rigorous experimental benchmark to quantify the trade-
 **Testing**: `pytest` (unit tests for compression modules), integration tests for end-to-end execution with timeout guards.  
 **Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, 7GB RAM).  
 **Project Type**: Computational Research Benchmark / CLI Tool.  
-**Performance Goals**: ≤60 min runtime per instance; total wall-clock ≤72h for 400 instances via parallel batching; memory ≤7GB via aggressive quantization (Q4_K_M for all models).  
+**Performance Goals**: ≤60 min runtime per instance; total wall-clock ≤72h for instances via parallel batching; memory ≤7GB via aggressive quantization (Q4_K_M for all models).  
 **Constraints**: No local GPU; strict RAM budget; no external API calls for context retrieval (must be CPU-native); deterministic failure mode classification based on sandbox execution logs.  
-**Scale/Scope**: ~400 filtered task instances from SWE-bench; 4 context strategies; 2 model sizes.
+**Scale/Scope**: A filtered subset of task instances from SWE-bench; context strategies; model sizes.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

@@ -1,3 +1,2 @@
-"""
-Integration tests.
-"""
+# Integration tests module initialization
+pass

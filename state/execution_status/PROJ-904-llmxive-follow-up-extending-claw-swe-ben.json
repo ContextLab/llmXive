@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-904-llmxive-follow-up-extending-claw-swe-ben",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/data/loader.py --filter-min-lines 500 --output data/filtered_swe_bench.parquet (rc=1); python code/experiments/run_baseline.py --model 1b --strategy baseline --max-instances a sufficient number of instances to ensure statistical power (rc=1); python code/experiments/run_high_fidelity.py --models b,7b --strategies baseline,tfidf,diff_aware,summarization --output data/results.csv (rc=1); 1 declared deliverable(s) absent: data/results.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data/loader.py --filter-min-lines 500 --output data/filtered_swe_bench.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py\", line 16, in <module>\n    from config import get_data_dir, get_output_dir, set_global_seeds\nImportError: cannot import name 'get_data_dir' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config/__init__.py)",
+    "python code/experiments/run_baseline.py --model 1b --strategy baseline --max-instances a sufficient number of instances to ensure statistical power -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/run_baseline.py\", line 22, in <module>\n    from config import set_global_seeds, get_data_dir, get_output_dir, get_log_level\nImportError: cannot import name 'set_global_seeds' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code",
+    "python code/experiments/run_high_fidelity.py --models b,7b --strategies baseline,tfidf,diff_aware,summarization --output data/results.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/run_high_fidelity.py\", line 21, in <module>\n    from config import set_global_seeds, get_env_var, get_model_path, get_data_dir, get_output_dir, StrategyType\nImportError: cannot import name 'set_global_seeds' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-904-llmxive-follow-up-exte",
+    "python code/analysis/glm_analyzer.py --input data/results.csv --output data/glm_results.json -> rc=1\n    2026-09-18 11:22:47,306 - __main__ - INFO - Starting GLM analysis on data/results.csv\n2026-09-18 11:22:47,306 - __main__ - ERROR - GLM analysis failed: Results file not found: data/results.csv"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-18T11:22:51Z"
+}
