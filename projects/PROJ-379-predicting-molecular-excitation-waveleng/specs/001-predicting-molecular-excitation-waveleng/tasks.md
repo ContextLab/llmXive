@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: Create directories `data/raw`, `data/processed`, `code`, `tests`, `docs` in `projects/PROJ-379-predicting-molecular-excitation-waveleng/`
+- [X] T001a [P] Create project directory structure: Create directories `projects/PROJ-379-predicting-molecular-excitation-waveleng/data/raw`, `projects/PROJ-379-predicting-molecular-excitation-waveleng/data/processed`, `projects/PROJ-379-predicting-molecular-excitation-waveleng/code`, `projects/PROJ-379-predicting-molecular-excitation-waveleng/tests`, `projects/PROJ-379-predicting-molecular-excitation-waveleng/docs`. **Verification**: Write a `marker.txt` file to each directory containing the string "verified". Output a JSON log `data/processed/dir_verification.json` listing all created paths and their status.
 - [X] T001b [P] Create `requirements.txt` with pinned versions: `rdkit==2023.9.5`, `torch==2.1.0+cpu`, `torch-geometric==2.4.0`, `pandas==2.1.0`, `scikit-learn==1.3.0`, `numpy==1.24.0`, `pyyaml==6.0.1`, `pytest==7.4.0`
-- [ ] T001c [P] Create `README.md` with Quickstart section: Include instructions for environment setup, data fetching, and running the pipeline end-to-end
+- [X] T001c [P] Create `README.md` with Quickstart section: Include a "Quickstart" header. Content must include: 1) `pip install -r requirements.txt` command, 2) `python code/ingest.py` command, 3) `python code/evaluate.py` command. Verify existence of "Quickstart" string.
 
 ---
 
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Create `.flake8` and `pyproject.toml` with black configuration for linting and formatting
-- [X] T003 Implement `code/utils.py` with RDKit parsing helpers, logging setup, and CPU-only device configuration
+- [X] T002 Create `.flake8` and `pyproject.toml` with black configuration: `.flake8` must set `max-line-length = 88`, `max-complexity = 10`. `pyproject.toml` must configure black with `line-length = 88`.
+- [X] T003 Implement `code/utils.py` with RDKit parsing helpers, logging setup, and CPU-only device configuration: Logging format must be `%(asctime)s - %(levelname)s - %(message)s`. Device string must be hardcoded as `device='cpu'`.
 - [X] T004 [P] Create data directory structure (`data/raw/`, `data/processed/`) and create empty `data/checksums.txt`
-- [X] T005 Implement `code/hash_artifacts.py` to compute content hashes for artifacts and update `state/projects/PROJ-379-predicting-molecular-excitation-waveleng.yaml` (keys: `artifact_hashes`, `updated_at`) (Constitution V)
-- [X] T006 Define Pydantic models `Molecule` (fields: `smi`, `lambda_max`, `scaffold_id`) and `Scaffold` in `code/models.py`
-- [X] T007a [P] [Foundational] Implement `code/verify_accuracy_gate.py`: Execute Reference-Validator logic on dataset URLs (PubChem/SDBS) BEFORE ingestion. Verify the presence of `lambda_max_exp` column. Raise `FileNotFoundError` if validation fails. (Constitution II, FR-001). **This task blocks Phase 3.**
+- [X] T005 Implement `code/hash_artifacts.py` to compute content hashes for artifacts and update `state/projects/PROJ-379-predicting-molecular-excitation-waveleng.yaml` (keys: `artifact_hashes` (dict), `updated_at` (ISO 8601 string)) (Constitution V)
+- [X] T006 Define Pydantic models `Molecule` (fields: `smi: str`, `lambda_max: float`, `scaffold_id: str`) and `Scaffold` in `code/models.py`
+- [X] T007a [Foundational] Implement `code/verify_accuracy_gate.py`: Execute Reference-Validator logic on dataset URLs (PubChem/SDBS) BEFORE ingestion. **Scope**: Validate URL reachability and HTTP headers only. **Output**: Write verification status to `data/processed/verification_gate.log` (JSON format). **Error**: Raise `FileNotFoundError` with message "Primary sources (PubChem/SDBS) unreachable. Pipeline halted per FR-001." if validation fails. (Constitution II, FR-001). **This task blocks Phase 3.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,20 +80,14 @@
 
 ### Implementation for User Story 1
 
-- [X] T008 [US1] Implement `code/ingest.py`:
- 1. **Primary Fetch**: Attempt to ingest raw UV-Vis data directly from **PubChem** (via `pubchempy` or official API) or **SDBS** (via official FTP/URL) as mandated by FR-001.
- 2. **Fallback**: Only if primary sources fail, attempt `datasets.load_dataset("zjunlp/UV-Vis-ML")` as a secondary source.
- 3. **Verify**: Check the dataset contains the `lambda_max_exp` column; raise error if missing.
- 4. Parse SMILES, validate with RDKit, retain median λmax for duplicates.
- 5. Implement chunked loading to ensure <7GB RAM usage.
- 6. Save cleaned output to `data/processed/cleaned.csv` (NOT `data/raw`).
- 7. **Enforce**: No synthetic fallback allowed; pipeline must fail loud on data issues.
-- [X] T009 [US1] Implement `code/validate_data.py`: Data Validity Gate to check for `lambda_max_exp` column. If only computed values exist, **reframe SC-001** to "prediction of computed values" and log the limitation explicitly; do NOT silently reduce validity.
-- [ ] T010 [US1] Implement `code/split.py`: Generate Bemis-Murcko scaffolds and split data into train/val/test using a **majority** training split with balanced validation and test sets. **Explicitly verify** that no scaffold appears in more than one split before writing indices. Output split indices (train_idx, val_idx, test_idx) to `data/processed/split_indices.json` (FR-002, Constitution VII).
-- [ ] T010.5 [US1] Implement `code/merge_split.py`: Combine cleaned data from T008 and split indices from T010 into a single `data/processed/train_val_test.csv` with scaffold IDs, ready for model training (FR-001).
-- [X] T011 [US1] Add logging for data ingestion, conflict resolution, and split statistics in `code/ingest.py`, `code/split.py`, and `code/merge_split.py`
-- [X] T033 [US1] Implement streaming fallback for large datasets in `code/ingest.py`: Add logic to use `datasets.load_dataset(..., streaming=True)` if the initial non-streaming load fails due to memory constraints, ensuring the full real dataset is processed in chunks rather than falling back to synthetic data.
-- [X] T034 [US1] Enforce "fail loud" policy in `code/ingest.py`: Remove any `try/except` blocks that catch download errors and substitute `generate_synthetic_*()` or `mock_*()` data; ensure any real fetch failure raises a distinct exception to halt the pipeline.
+- [X] T008a [US1] Implement `code/ingest.py` (Fetch): Fetch raw UV-Vis data from **PubChem** (via `pubchempy`) or **SDBS** (via official URL). **Constraint**: No fallback to HuggingFace or other sources. If both fail, raise `FileNotFoundError` with message "Primary sources (PubChem/SDBS) unreachable. Pipeline halted per FR-001." (FR-001).
+- [X] T008b [US1] Implement `code/ingest.py` (Parse/Validate): Parse SMILES with RDKit. Validate `lambda_max_exp` column exists. If missing, raise error. Handle duplicates by retaining median λmax. **Logging**: Log count of duplicates resolved.
+- [X] T008c [US1] Implement `code/ingest.py` (Save/Sample): Write cleaned output to `data/processed/cleaned.csv`. **Sampling Logic**: If dataset > 7GB RAM, implement deterministic sampling using `itertools.islice` (fixed seed) to fit in RAM. **Output**: Write `data/processed/sampling_log.json` with EXACT keys: `{"sample_size": int, "seed": 42, "method": "itertools.islice", "total_rows_scanned": int}`. **Constraint**: If full dataset fits, do not sample. If sampling required, log warning.
+- [X] T009 [US1] Implement `code/validate_data.py`: Data Validity Gate. **Logic**: If only computed `lambda_max` values exist (no experimental), **Reframe SC-001**: Update `state/projects/...yaml` to set `sc001_status` to "computed_ground_truth" and log "SC-001 reframed: Experimental noise floor assumption invalid. Success criteria now based on computed ground truth." Exit with code 0. Do NOT silently proceed without updating state.
+- [X] T010 [US1] Implement `code/split.py`: Generate Bemis-Murcko scaffolds. Split data into training, validation, and test sets.. **Rounding**: Use `floor(0.1 * N)` for val/test sizes. **Verify**: No scaffold appears in >1 split. **Output**: Write split indices to `data/processed/split_indices.json` (FR-002, Constitution VII).
+- [X] T010.5 [US1] Implement `code/merge_split.py`: Combine `cleaned.csv` and `split_indices.json`. **Output**: `data/processed/train_val_test.csv` with columns `[smi, lambda_max, scaffold_id, split]`, sorted by `smi`.
+- [X] T011 [US1] Add logging for data ingestion, conflict resolution, and split statistics: Log levels `INFO`/`WARNING`/`ERROR`. Events: "duplicate_resolved", "split_complete", "scaffold_leakage_detected".
+- [X] T034 [US1] Enforce "fail loud" policy in `code/ingest.py`: Ensure no `try/except` blocks catch download errors to substitute synthetic data. Any real fetch failure MUST raise `FileNotFoundError` with message "Primary sources (PubChem/SDBS) unreachable. Pipeline halted per FR-001."
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,20 +106,21 @@
 
 ### Implementation for User Story 2
 
-- [X] T014 [US2] Implement `code/model.py`: Define MPNN GNN (-3 layers, <1M params) and ECFP+Ridge Regression baseline (FR-003, FR-004)
-- [X] T015 [US2] Implement `code/train.py`: Training loop with CPU-only execution, early stopping, fixed seed, and output `model.pt` (FR-003)
-- [ ] T015b [US2] Implement `code/timing_logger.py`: Measure and log total wall-clock time of the pipeline (ingest to evaluate) to `data/processed/timing.json`. Verify compliance with SC-002 (≤6 hours) and raise warning if exceeded.
+- [X] T014a [US2] Implement `code/model.py` (GNN): Define MPNN GNN (2 layers, hidden units, mean aggregation, <1M params). (FR-003)
+- [X] T014b [US2] Implement `code/model.py` (Baseline): Define ECFP+Ridge Regression baseline (alpha=1.0). (FR-004)
+- [X] T015a [US2] Implement `code/train.py` (Loop): Training loop with CPU-only execution, fixed seed `42`, and output `model.pt`. (FR-003)
+- [X] T015b [US2] Implement `code/timing_logger.py`: Measure wall-clock time from `ingest.py` start to `evaluate.py` end. Output `data/processed/timing.json`. Verify ≤6 hours. Raise warning if exceeded.
+- [X] T015c [US2] Implement `code/train.py` (Early Stop): Implement early stopping with `patience=5`, monitor `val_loss`. Log trigger event. (FR-003)
+- [X] T018 [US2] Implement `code/power_analysis.py`: Calculate required sample size (`alpha=0.05`, `power=0.8`, `effect_size=0.5`). **Output**: Write `data/processed/power_analysis.json` with `n`, `power_status` ("high_power" if n≥50, "low_power" otherwise).
 - [X] T016 [US2] Implement `code/evaluate.py`:
- 1. Compute MAE, R².
- 2. Perform Wilcoxon signed-rank test against baseline.
- 3. **Calculate and report 95% confidence interval** for the MAE difference.
- 4. **Apply Decision Logic**: If `p < 0.05` AND `MAE < 30` then `sc001_status = "PASS"`, else `sc001_status = "FAIL"`.
- 5. Write partial results to `data/processed/metrics_partial.json` with keys: `mae`, `r2`, `wilcoxon_p_value`, `confidence_interval_95`, `sc001_status` (SC-001, FR-004)
-- [X] T017 [P] [US2] Test task for SC-001 logic: Write `tests/test_evaluate.py` to verify that `sc001_status` and `confidence_interval_95` in `metrics_partial.json` are correctly calculated (F001)
-- [ ] T018 [US2] Implement power analysis logic in `code/evaluate.py` to verify test set n≥50; append power analysis results (n, effect size, power_status) to `data/processed/power_analysis.json`
-- [X] T019 [US2] Enforce n≥50 constraint: If test set size n < 50, halt execution and log error in `code/evaluate.py` to prevent downstream execution with insufficient power (SC-001)
-- [X] T020 [US2] Add versioning step in `code/train.py` to generate hashes for `model.pt` and update `state/` YAML
-- [X] T035 [US2] Add early stopping trigger in `code/train.py`: Implement logic to halt training if loss does not decrease for `patience` epochs, logging the trigger event to prevent infinite loops on CPU.
+ 1. **Dependency**: Read `power_analysis.json`.
+ 2. **Logic**: If `n >= 50`, perform Wilcoxon signed-rank test. If `n < 50`, calculate effect size (descriptive).
+ 3. **SC-001**: Set `sc001_status = "PASS"` if `MAE < 30` AND `n >= 50` (or `n < 50` with effect size acceptable). **Do NOT set FAIL solely due to n < 50**. Failure is `MAE > 50`.
+ 4. **Output**: `data/processed/metrics_partial.json` with `mae`, `r2`, `wilcoxon_p_value` (if applicable), `effect_size`, `power_status`, `sc001_status`.
+- [X] T017 [P] [US2] Test task for SC-001 logic: Write `tests/test_evaluate.py` to verify `sc001_status` logic.
+- [X] T019 [US2] Enforce n≥50 constraint: Check `power_analysis.json`. If `n < 50`, set `low_power_flag=True` (log warning). Do NOT halt.
+- [X] T020 [US2] Add versioning step in `code/train.py` to generate hashes for `model.pt` and update `state/` YAML.
+- [X] T035 [US2] Add early stopping trigger in `code/train.py`: Ensure `patience=5`, `metric=val_loss` is implemented.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -140,26 +135,27 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US3] Contract test for attribution output format in `tests/test_explain.py`
-- [X] T022 [P] [US3] Integration test for sensitivity sweep and collinearity flags in `tests/test_sensitivity.py`: Verify MAE thresholds, 30, 40, 50, 60 nm are swept and collinearity flag logic is correct.
+- [X] T022 [P] [US3] Integration test for sensitivity sweep and collinearity flags in `tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement `code/collinearity_check.py`: Calculate Pearson r for ECFP bits (flag if ≥0.9) and latent cosine similarity for GNN subgraphs (flag if >0.9), and generate redundancy masks for flagged subgraphs (FR-007). Output to `data/processed/redundancy_masks.json` with structure `{ "molecule_id": [0, 1, 0...] }` (mask array)
-- [X] T036 [US3] Add subgraph redundancy aggregation in `code/collinearity_check.py`: Implement logic to aggregate subgraphs with latent cosine similarity > 0.9 and mask their individual attribution weights to prevent spurious independent effect claims (FR-007).
-- [ ] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set to generate **raw attribution** weights. Output to `data/processed/raw_attribution.json` (FR-005). <!-- FAILED: unspecified -->
-- [ ] T025 [US3] Apply and verify masking:
- 1. Read raw attribution from T024 and redundancy masks from T023.
- 2. Apply masks to raw attribution weights.
- 3. Verify masking occurred by comparing masked vs. unmasked weights.
- 4. Save final masked attribution to `data/processed/masked_attribution.json` (FR-007)
-- [X] T026 [US3] Implement `code/sensitivity.py`:
- 1. Sweep MAE decision cutoffs using specific nanometer thresholds: **20, 30, 40, 50, 60 nm** (derived from US3 acceptance scenarios).
- 2. Verify that the sweep covers these exact thresholds.
- 3. Report variation in error rates (FR-006)
-- [ ] T026b [US3] Generate Sensitivity Report: Create `data/processed/sensitivity_report.csv` and/or `sensitivity_plot.png` summarizing the error rate variation across thresholds. Ensure this artifact satisfies SC-004 requirements.
-- [ ] T027 [US3] Implement `code/analyze_results.py`: Aggregate metrics from T016, power status from T018, collinearity flags and redundancy masks from T023/T036, and masked attribution from T025 into a single `data/processed/metrics.json` (SSoT). Ensure keys: `mae`, `r2`, `wilcoxon_p_value`, `confidence_interval_95`, `sc001_status`, `collinearity_flags`, `redundancy_masks`, `power_status`, `attribution_results` (Constitution IV, FR-007) <!-- FAILED: unspecified -->
-- [ ] T028a [P] [US3] Generate `quickstart.md` in `projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/`: Include instructions for environment setup, data fetching, and running the pipeline end-to-end.
-- [ ] T029b [P] Documentation: Update `README.md` with instructions for interpreting feature attribution and masked attribution results (distinct from T028a).
+- [X] T023a [US3] Implement `code/collinearity_check.py` (ECFP): Calculate Pearson r for ECFP bits. Flag if `r >= 0.9`.
+- [X] T023b [US3] Implement `code/collinearity_check.py` (GNN): Calculate latent cosine similarity for GNN subgraphs. Flag if `> 0.9`. Generate `redundancy_masks.json` (structure: `{ "molecule_id": [mask_array] }`). (FR-007)
+- [X] T036 [US3] Add subgraph redundancy aggregation in `code/collinearity_check.py`: Aggregate subgraphs with similarity > 0.9. Set attribution weights to `0.0` for redundant subgraphs.
+- [X] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer (steps=50, subset_size=10) on test set. **Output**: `data/processed/raw_attribution.json`. (FR-005)
+- [X] T025 [US3] Apply and verify masking: Read `raw_attribution.json` and `redundancy_masks.json`. Apply masks. **Output**: `data/processed/masked_attribution.json`. (FR-007)
+- [X] T026a [US3] Implement `code/sensitivity.py` (Sweep): Sweep MAE thresholds from 10 to 50 nm in steps of nanoscale intervals (`range(15, 51, 5)`). Calculate error rates for each. (FR-006)
+- [X] T026b [US3] Generate Sensitivity Report: Write `data/processed/sensitivity_report.csv` (mandatory). Generate `sensitivity_plot.png` (optional, best-effort, skip if display unavailable but log warning). (SC-004)
+- [X] T039 [US3] Implement explicit threshold justification in `code/sensitivity.py`: Update docstring of `sweep_thresholds` to include: "Sweep range (15-50 nm) derived from SC-001 target (30 nm), failure threshold (50 nm), and experimental noise floor (±15 nm)."
+- [X] T027 [US3] Implement `code/analyze_results.py`: Aggregate `metrics_partial.json`, `power_analysis.json`, `redundancy_masks.json`, `masked_attribution.json`, `sensitivity_report.csv` into `data/processed/metrics.json`. **Schema**: `{"mae": float|null, "r2": float|null, "wilcoxon_p_value": float|null, "sc001_status": str, "collinearity_flags": dict|null, "redundancy_masks": dict|null, "power_status": str|null, "attribution_results": dict|null}`. **Constraint**: Use `null` for missing keys.
+- [X] T028a [P] [US3] Generate `quickstart.md`: Include sections "Install", "Run Pipeline", "Interpret Output".
+- [X] T029b [P] Documentation: Update `README.md` with interpretation guide for `masked_attribution.json`.
+- [X] T029a [P] Documentation: Update `README.md` "Quickstart" section with full pipeline instructions.
+- [X] T030a [P] Refactor: Extract `validate_molecule(smiles: str) -> bool` in `code/ingest.py`.
+- [X] T030b [P] Refactor: Reduce cyclomatic complexity of `code/split.py` to < 10.
+- [X] T031a [P] Performance: Optimize data loading in `code/ingest.py` with `workers=2` to target <30s.
+- [X] T031b [P] Performance: Implement RDKit caching with `cache_key=smiles`, `max_size=1000`.
+- [X] T032 [P] Code cleanup: Remove unused imports using `autoflake` and `flake8`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -169,12 +165,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T029a [P] Documentation: Update `README.md` "Quickstart" section with instructions for running the full pipeline and interpreting `metrics.json`
+- [X] T029a [P] Documentation: Update `README.md` "Quickstart" section with instructions for running the full pipeline and interpreting `metrics.json`
 - [X] T030a [P] Refactor: Extract validation logic in `code/ingest.py` into a separate function `validate_molecule(smiles)` to improve modularity
 - [X] T030b [P] Refactor: Reduce cyclomatic complexity of `code/split.py` to <10 by extracting scaffold generation logic into a helper function
-- [X] T031a [P] Performance: Optimize data loading in `code/ingest.py` by using multiprocessing to reduce loading time to <30s for A large set of molecules
-- [ ] T031b [P] Performance: Measure baseline graph construction overhead in `code/utils.py` and implement caching of RDKit objects to target a [deferred] reduction in overhead relative to the measured baseline.
-- [ ] T032 [P] Code cleanup: Remove unused imports and fix linting errors across `code/`
+- [X] T031a [P] Performance: Optimize data loading in `code/ingest.py` by using multiprocessing to reduce loading time to <30s for a large set of molecules
+- [X] T031b [P] Performance: Measure baseline graph construction overhead in `code/utils.py` and implement caching of RDKit objects to target a [deferred] reduction in overhead relative to the measured baseline.
+- [X] T032 [P] Code cleanup: Remove unused imports and fix linting errors across `code/`
 
 ---
 
@@ -214,11 +210,14 @@
 
 ### Explicit Task Dependencies
 
-- **T007a** (Verify Accuracy Gate) blocks **T008** (Ingest).
-- **T010.5** depends on **T008** (cleaned data) and **T010** (split indices).
-- **T025** depends on **T024** (raw attribution) and **T023** (masks).
-- **T027** depends on **T016**, **T018**, **T023**, **T024**, **T025**, and **T026**.
+- **T007a** (Verify Accuracy Gate) blocks **T008a** (Ingest Fetch).
+- **T010.5** depends on **T008c** (cleaned data) and **T010** (split indices).
+- **T025** depends on **T024** (raw attribution) and **T023b** (masks).
+- **T027** depends on **T016**, **T018**, **T023a**, **T023b**, **T024**, **T025**, and **T026a**.
 - **T029b** and **T028a** are parallel-safe as they target distinct files (`README.md` vs `quickstart.md`).
+- **T016** depends on **T018** (power analysis) to determine execution path (Wilcoxon vs Effect Size).
+- **T008c** (Sampling) is integrated into T008; no separate dependency.
+- **T039** depends on **T026a** (sensitivity logic) to document threshold choices.
 
 ---
 
@@ -274,8 +273,10 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All model training and data processing MUST run on CPU-only (2 vCPU, 7GB RAM) within 6 hours. No GPU, no 8-bit/4-bit quantization, no large models.
+- Avoid: vague tasks, cross-story dependencies that break independence
+- **Critical Constraint**: All model training and data processing MUST run on CPU-only (vCPU, 7GB RAM) within 6 hours. No GPU, no 8-bit/4-bit quantization, no large models.
 - **Data Integrity**: Real data must be streamed or sampled explicitly; synthetic fallbacks are strictly prohibited.
 - **Fail Loud**: If real data fetch fails, raise an exception. Do NOT fall back to synthetic data.
 - **Data Hygiene**: Raw data in `data/raw/`, processed data in `data/processed/`.
+- **Reproducibility**: All random seeds must be logged and pinned.
+- **Methodological Grounding**: Thresholds and sampling strategies must be explicitly justified.

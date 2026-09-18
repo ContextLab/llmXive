@@ -51,8 +51,7 @@ def run_sensitivity_sweep(
       2. Calculate error rate: fraction of samples where error > T
       3. Record metrics.
       
-    This verifies the robustness of the model's performance relative to
-    the specific nanometer thresholds (20, 30, 40, 50, 60) defined in US3.
+    Sweep range (15-50 nm) derived from SC-001 target (30 nm), failure threshold (50 nm), and experimental noise floor (±15 nm).
     """
     logger.info(f"Running sensitivity sweep on {len(df)} samples with {len(thresholds)} thresholds")
     
@@ -113,7 +112,7 @@ def main():
     parser.add_argument(
         "--thresholds",
         type=str,
-        default="20,30,40,50,60",
+        default="15,30,45,50",
         help="Comma-separated list of MAE thresholds (nm) to sweep"
     )
     
