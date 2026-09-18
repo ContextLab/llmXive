@@ -22,7 +22,7 @@ This feature implements an observational study to determine if LLM-generated cod
 **Project Type**: Research Data Pipeline / Statistical Analysis.  
 **Performance Goals**: Complete data acquisition and analysis within 6 hours on a 2-core/7GB RAM runner.  
 **Constraints**: Strict adherence to GitHub API rate limits (batching, exponential backoff); memory usage < 7GB; no PII in artifacts.  
-**Scale/Scope**: Up to 200 PRs total across 3 repositories; manual audit of ~10 PRs (or [deferred] if N_LLM < 10).
+**Scale/Scope**: Up to 200 PRs total across 3 repositories; manual audit of a sample of PRs (or [deferred] if N_LLM < 10).
 
 ## Constitution Check
 
@@ -114,7 +114,7 @@ projects/PROJ-320-evaluating-the-impact-of-code-generation/
 |-----------|------------|-------------------------------------|
 | Secondary Statistical Detector (FR-007) | Required to avoid tautological classification (FR-002) and validate against the "Assumption about classification fidelity". | Relying solely on commit messages is insufficient due to potential false positives/negatives and the need for robust validation per Constitution Principle VII. |
 | Manual Audit Loop (Principle VII) | Required to measure labeling error rate (<5%) before reporting results. | Automated-only validation cannot satisfy the "Verified Accuracy" requirement for a study relying on heuristic classification. |
-| Batch Processing with Backoff (Principle VI) | Required to stay within GitHub API limits and 7GB RAM constraint. | Fetching all 200 PRs in one call risks rate-limiting (403) and memory spikes; streaming/batching is the only compliant approach. |
+| Batch Processing with Backoff (Principle VI) | Required to stay within GitHub API limits and 7GB RAM constraint. | Fetching all PRs in one call risks rate-limiting (403) and memory spikes; streaming/batching is the only compliant approach. |
 | **Mann-Whitney U as Primary Test** | Required due to expected small sample size (N<30) and non-normal distribution of review metrics. | T-tests (FR-004) are demoted to sensitivity analysis only; using them as primary would violate statistical rigor given the power constraints. |
 | **Temporal Covariates** | Required to control for confounding factors (maintainer availability) in resolution time. | Ignoring time-of-day/day-of-week would conflate code quality with external scheduling factors. |
 | **Sensitivity Analysis Script** | Required by FR-008 to re-define the cohort using only secondary detector results. | Skipping this would leave a critical robustness check unimplemented. |

@@ -1,3 +1,21 @@
-# This file is intentionally empty as configuration is now in pyproject.toml.
-# It exists to allow `black --config .black.toml` to pass if a legacy config is expected.
-# The active configuration is in pyproject.toml under [tool.black].
+# Black configuration for llm-code-review-impact
+# Line length and target version defined in pyproject.toml
+# This file exists for IDE compatibility
+
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

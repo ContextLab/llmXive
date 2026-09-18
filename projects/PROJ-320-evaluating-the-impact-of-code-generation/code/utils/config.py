@@ -1,35 +1,48 @@
 """
-code/utils/config.py
-
-Configuration definitions including repo lists and thresholds.
+Configuration management for the research pipeline.
 """
 import os
 from typing import List, Dict, Any
 
-# Prioritized repositories for data acquisition
-REPO_LIST: List[str] = [
-    "psf/requests",
-    "microsoft/vscode",
-    "numpy/numpy"
+# Default repository list for data acquisition
+DEFAULT_REPOS = [
+    'psf/requests',
+    'microsoft/vscode',
+    'numpy/numpy'
 ]
 
-# Thresholds and limits
-MAX_PRS_PER_REPO: int = 200
-MIN_LLM_COUNT_THRESHOLD: int = 10
-CONFIDENCE_THRESHOLD: float = 0.6
-ERROR_RATE_LIMIT: float = 0.05
-
-# API settings
-API_TIMEOUT: int = 30
-MAX_RETRIES: int = 5
+# Thresholds and settings
+CONFIG = {
+    'github_api': {
+        'max_retries': 5,
+        'backoff_factor': 2.0,
+        'rate_limit_threshold': 10,
+    },
+    'classification': {
+        'confidence_threshold': 0.6,
+        'min_llm_count_per_repo': 10,
+    },
+    'audit': {
+        'min_threshold': 30,
+        'proportion': 0.10,
+        'error_rate_threshold': 0.05,
+    },
+    'complexity': {
+        'memory_limit_gb': 6,
+    }
+}
 
 def get_config_summary() -> Dict[str, Any]:
     """
-    Returns a summary of the current configuration.
+    Return a summary of the current configuration.
+    
+    Returns:
+        Dictionary containing key configuration values
     """
     return {
-        "repos": REPO_LIST,
-        "max_prs_per_repo": MAX_PRS_PER_REPO,
-        "confidence_threshold": CONFIDENCE_THRESHOLD,
-        "error_rate_limit": ERROR_RATE_LIMIT
+        'repos': DEFAULT_REPOS,
+        'github_api': CONFIG['github_api'],
+        'classification': CONFIG['classification'],
+        'audit': CONFIG['audit'],
+        'complexity': CONFIG['complexity']
     }

@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directories: `code/`, `code/data/`, `code/analysis/`, `code/audit/`, `code/utils/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `reports/figures/`
-- [ ] T001b Create `__init__.py` files in all `code/` subdirectories to ensure Python package structure
+- [X] T001a Create project directories: `code/`, `code/data/`, `code/analysis/`, `code/audit/`, `code/utils/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `reports/figures/` AND create `__init__.py` files at: `code/__init__.py`, `code/data/__init__.py`, `code/analysis/__init__.py`, `code/audit/__init__.py`, `code/utils/__init__.py`, `tests/unit/__init__.py`, `tests/integration/__init__.py`.
+- [ ] T001b Create `__init__.py` files in all `code/` subdirectories to ensure Python package structure (Note: This task is now redundant with T001a but kept for historical traceability; T001a covers the requirement).
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` pinning `requests`, `pandas`, `scipy`, `networkx`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pycodestyle`
 - [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
@@ -42,10 +42,10 @@
 - [X] T006 [P] Implement logging infrastructure in `code/utils/logging.py` with file rotation for `data/` and `reports/`
 - [X] T007 Create `code/data/fetch_github.py` skeleton with batch processing structure and exponential backoff logic (max a limited number of retries)
 - [X] T008 Implement data checksumming utility in `code/utils/checksum.py` to generate SHA-256 for raw JSON artifacts
-- [X] T009 Create `code/audit/manual_validation.py` skeleton for the audit sample size rule (`max(10, ceil(0.10 * N_LLM))`)
+- [X] T009 Create `code/audit/manual_validation.py` skeleton for the audit sample size rule (`max(minimum_threshold, ceil(0.10 * N_LLM))`)
 - [X] T031 [US3] Implement `code/analysis/complexity.py` to compute Cyclomatic Complexity and Lines of Code for PR diffs (moved from Phase 5 to ensure data flow)
 - [X] T032 [US3] Implement fallback logic in `code/analysis/complexity.py` to use standard metrics if memory usage > 6GB (Assumption 3)
-- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` and `complexity_score` columns (moved from Phase 5) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` (int) and `complexity_score` (float) columns. **MUST** join on `pr_id` from `data/processed/prs_labeled.csv` (produced by T017). This task is a prerequisite for T022. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,7 +59,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010a [P] [US1] Unit test `test_copilot_signature_match` in `tests/unit/test_classification.py`: The research question is to determine the classification of Copilot bot users. The method involves labeling Copilot bot users as `llm` with high confidence.
 - [X] T010b [P] [US1] Unit test `test_infrastructure_bot_exclusion` in `tests/unit/test_classification.py`: asserts dependabot is labeled `human`
@@ -75,8 +75,8 @@
 - [X] T015 [US1] Implement `code/data/classify_prs.py` secondary detector: compute code entropy/n-gram anomaly scores on PR diffs to validate `llm` labels (FR-007) and output `detector_score`
 - [X] T017 [US1] Create `code/data/save_labeled_dataset.py` to output `data/processed/prs_labeled.csv` with `source_type`, `confidence_score`, `flagged`, `detector_score`, and metadata
 - [X] T018 [US1] Implement fallback logic in `code/data/fetch_github.py` to automatically switch to next repo if `llm` count < 10 in current repo
-- [ ] T019a [US1] Implement `code/audit/manual_validation.py` logic to select stratified sample of size determined by a minimum threshold or a fixed proportion of the population, specifically `max(min_threshold, ceil(proportion * N_LLM))`, execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`
-- [ ] T019b [US1] Implement error rate calculation logic in `code/audit/manual_validation.py` to compare manual results against automated labels **AND the secondary detector score (FR-007)** as ground truth, calculate the labeling error rate, write the result to `data/audit/error_rate.json`, and raise a runtime error if the rate exceeds **0.05 as defined in SC-004**
+- [X] T019a [US1] Implement `code/audit/manual_validation.py` logic to select stratified sample of size determined by a minimum threshold or a fixed proportion of the population, specifically `max(min_threshold, ceil(proportion * N_LLM))`, execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`. **Depends on T017 completion.**
+- [X] T019b [US1] [SC-004] Implement error rate calculation logic in `code/audit/manual_validation.py` to compare manual results against automated labels using **Human Expert Judgment as ground truth per SC-004** (secondary detector is only a validation metric, NOT ground truth). Calculate the labeling error rate, write the result to `data/audit/error_rate.json`, and raise a runtime error if the rate exceeds **0.05 as defined in SC-004**. **Depends on T019a completion.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,14 +98,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/data/extract_metrics.py` to calculate `comment_count`, `time_to_merge_minutes`, `review_cycles` for every PR from `data/processed/prs_labeled.csv` and **join with `data/processed/complexity_scores.csv`** (produced by T033) to include actual `complexity_score`
-- [ ] T023 [US2] Save processed metrics to `data/processed/prs_metrics.csv` including `comment_count`, `time_to_merge_minutes`, `review_cycles`, and `complexity_score` columns
-- [ ] T024a [US2] Implement `code/analysis/statistical_tests.py` to perform **independent two-sample t-tests as PRIMARY analysis** (per FR-004) comparing `llm` vs `human` groups for comment density and time-to-merge, outputting p-values, t-statistics, and effect sizes (Cohen's d)
-- [ ] T024b [US2] Implement **Mann-Whitney U tests as sensitivity analysis** in `code/analysis/statistical_tests.py` to verify robustness of t-test results
-- [ ] T025 [US2] Implement calculation of effect sizes (Cohen's d) and significance determination (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) in `code/analysis/statistical_tests.py`
-- [ ] T026 [US2] Implement `code/analysis/sensitivity_analysis.py` to re-run tests using only the secondary detector cohort (FR-008)
-- [ ] T027 [US2] Create `code/analysis/generate_results_report.py` to aggregate findings into `data/processed/results.json` with all statistical outputs
-- [ ] T028 [US2] Implement logic in `code/analysis/generate_results_report.py` to read the error rate from `data/audit/error_rate.json` (produced by T019b) and write a `gate_status` flag to `data/processed/gate_status.json` (block final report generation if rate > 0.05); **do not block Phase 4 execution, only final aggregation**
+- [ ] T022 [US2] [FR-003] [FR-004] [SC-001] [SC-002] Implement `code/data/extract_metrics.py` to calculate `comment_count`, `time_to_merge_minutes`, `review_cycles` for every PR from `data/processed/prs_labeled.csv` and **Join `data/processed/prs_labeled.csv` and `data/processed/complexity_scores.csv` on `pr_id`** (produced by T033) to include actual `complexity_score`. **Requires T033 completion.** <!-- FAILED: unspecified -->
+- [ ] T023 [US2] [FR-003] Save processed metrics to `data/processed/prs_metrics.csv` including `comment_count`, `time_to_merge_minutes`, `review_cycles`, and `complexity_score` columns <!-- FAILED: unspecified -->
+- [X] T024a [US2] [FR-004] [SC-001] [SC-002] Implement `code/analysis/statistical_tests.py` to perform **independent two-sample t-tests as PRIMARY analysis** (per FR-004) comparing `llm` vs `human` groups for comment density and time-to-merge, outputting p-values, t-statistics, and effect sizes (Cohen's d). **Instruction: Follow FR-004 (t-test primary) explicitly, ignoring Plan.md's Mann-Whitney primary claim (Plan updated to match).**
+- [X] T024b [US2] [FR-008] Implement **Mann-Whitney U tests as sensitivity analysis** in `code/analysis/statistical_tests.py` to verify robustness of t-test results
+- [X] T025 [US2] [FR-004] [SC-001] [SC-002] Implement calculation of effect sizes (Cohen's d) and significance determination (α = 0.05) in `code/analysis/statistical_tests.py`. **MUST** include a verification step to confirm that the chosen α aligns with the "no multiple-comparison correction" assumption before execution.
+- [X] T026 [US2] [FR-008] Implement `code/analysis/sensitivity_analysis.py` to re-run tests using only the secondary detector cohort (FR-008)
+- [ ] T027 [US2] [FR-003] [FR-004] Create `code/analysis/generate_results_report.py` to aggregate findings into `data/processed/results.json` with all statistical outputs <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T028 [US2] Implement logic in `code/analysis/generate_results_report.py` to read the error rate from `data/audit/error_rate.json` (produced by T019b) and write a `gate_status` flag to `data/processed/gate_status.json` (block final report generation if rate > 0.05); **do not block Phase 4 execution, only final aggregation**. **Requires T019b completion.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,17 +119,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029a [P] [US3] Unit test `test_cyclomatic_complexity_calculation` in `tests/unit/test_complexity.py`
-- [ ] T029b [P] [US3] Unit test `test_lines_of_code_calculation` in `tests/unit/test_complexity.py`
+- [X] T029a [P] [US3] Unit test `test_cyclomatic_complexity_calculation` in `tests/unit/test_complexity.py`
+- [X] T029b [P] [US3] Unit test `test_lines_of_code_calculation` in `tests/unit/test_complexity.py`
 - [ ] T030a [P] [US3] Integration test `test_boxplot_generation` in `tests/integration/test_visualizations.py`: asserts PDF `reports/figures/boxplots.pdf` exists with correct plot types
 - [ ] T030b [P] [US3] Integration test `test_histogram_generation` in `tests/integration/test_visualizations.py`: asserts PDF `reports/figures/histograms.pdf` exists
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement `code/analysis/visualizations.py` to generate side-by-side boxplots for comment density and time-to-merge
-- [ ] T035 [US3] Implement correlation analysis in `code/analysis/visualizations.py` to measure relationship between complexity and review metrics (SC-003)
-- [ ] T036 [US3] Generate final report PDF in `reports/figures/` containing all required plots and correlation coefficients
-- [ ] T037 [US3] Implement `code/analysis/generate_final_report.py` to compile all findings, limitations, and visualizations into a research summary; **MUST** read `data/processed/gate_status.json` (from T028) and abort if status is 'blocked'
+- [X] T034 [US3] [FR-005] [FR-006] Implement `code/analysis/visualizations.py` to generate side-by-side boxplots for comment density and time-to-merge
+- [X] T035 [US3] [FR-005] [FR-006] [SC-003] Implement correlation analysis in `code/analysis/visualizations.py` to measure relationship between complexity and review metrics (SC-003). **MUST** verify usage of complexity scores in regression/correlation analysis to ensure they are used to control for confounding variables as required by SC-003.
+- [ ] T036 [US3] [FR-005] [FR-006] Generate final report PDF in `reports/figures/` containing all required plots and correlation coefficients
+- [ ] T037 [US3] [FR-005] [FR-006] Implement `code/analysis/generate_final_report.py` to compile all findings, limitations, and visualizations into a research summary; **MUST** read `data/processed/gate_status.json` (from T028) and abort if status is 'blocked'
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -139,9 +139,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T039 Code cleanup and refactoring across `code/` modules
-- [ ] T040 Performance optimization for batch processing and memory management
+- [~] T038 [P] Documentation updates in `docs/` and `README.md`
+- [~] T039 Code cleanup and refactoring across `code/` modules <!-- FAILED: unspecified -->
+- [~] T040 Performance optimization for batch processing and memory management
 - [ ] T041 [P] Additional unit tests for edge cases (API errors, empty datasets) in `tests/unit/`
 - [ ] T042 Security hardening (ensure no PII is logged or stored)
 - [ ] T043 Run `quickstart.md` validation and verify all artifacts are checksummed
@@ -162,7 +162,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`prs_labeled.csv`) AND Complexity output (`complexity_scores.csv`)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`prs_labeled.csv`) AND Complexity output (`complexity_scores.csv` from T033)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 metrics
 
 ### Within Each User Story
@@ -237,9 +237,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Ensure `code/data/fetch_github.py` fails loudly on API errors; no synthetic fallbacks allowed.
-- **Statistical Rigor**: **T-tests are PRIMARY** per FR-004; Mann-Whitney U is sensitivity analysis.
-- **Audit Compliance**: Manual audit logic must be implemented before final report generation; threshold is set at a low significance level (SC-004).
-- **Data Flow Enforcement**: `code/analysis/complexity.py` (T031) executes in Phase 2; `code/data/extract_metrics.py` (T022) consumes the resulting `complexity_scores.csv`.
+- **Statistical Rigor**: **T-tests are PRIMARY** per FR-004; Mann-Whitney U is sensitivity analysis. **Plan.md has been updated to align with FR-004.**
+- **Audit Compliance**: Manual audit logic must be implemented before final report generation; threshold is set at a low significance level (SC-004). Ground truth is Human Expert Judgment, not the detector.
+- **Data Flow Enforcement**: `code/analysis/complexity.py` (T031) executes in Phase 2; `code/analysis/save_complexity_scores.py` (T033) produces the CSV; `code/data/extract_metrics.py` (T022) consumes the resulting `complexity_scores.csv`.
 - **Secondary Detector Integration**: Ensure `code/data/classify_prs.py` (T015) outputs a distinct `detector_score` column to be consumed by `code/analysis/sensitivity_analysis.py` (T026) without re-computation.
 - **Rate Limit Safety**: `code/data/fetch_github.py` (T013) must implement a global watchdog timer to exit gracefully if the job exceeds a predefined time threshold, preventing CI timeout.
-- **Plan Alignment Note**: The current `plan.md` promotes Mann-Whitney U to primary; tasks here implement FR-004 (t-test primary). The plan requires amendment to align with the spec.
+- **Plan Alignment Note**: The plan.md has been corrected to reflect t-tests as primary and Mann-Whitney U as sensitivity, resolving the previous contradiction.

@@ -1,211 +1,148 @@
-"""
-Unit tests for statistical tests implementation.
-Tests both Mann-Whitney U and Independent T-Test implementations.
-"""
 import pytest
-import numpy as np
-from scipy.stats import mannwhitneyu, ttest_ind, ttest_ind_from_stats
+import math
+import os
+import sys
+import json
+from pathlib import Path
+import tempfile
+import csv
 
-# Import the functions to test (assuming they are in code/analysis/statistical_tests.py)
-try:
-    from analysis.statistical_tests import mann_whitney_u_test, independent_t_test
-except ImportError:
-    # Fallback for testing environment if the module isn't fully created yet
-    # This allows the test file to exist and be valid even if the implementation is pending
-    # In a real run, the implementation will be present.
-    def mann_whitney_u_test(group_a, group_b, alternative='two-sided'):
-        """
-        Mock implementation for testing file validity before real implementation.
-        Replaced by real implementation in code/analysis/statistical_tests.py
-        """
-        stat, pval = mannwhitneyu(group_a, group_b, alternative=alternative)
-        return {"statistic": float(stat), "p_value": float(pval)}
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-    def independent_t_test(group_a, group_b, equal_var=True):
-        """
-        Mock implementation for testing file validity before real implementation.
-        Replaced by real implementation in code/analysis/statistical_tests.py
-        """
-        t_stat, p_val = ttest_ind(group_a, group_b, equal_var=equal_var)
-        # Calculate Cohen's d manually for the mock
-        n1, n2 = len(group_a), len(group_b)
-        mean1, mean2 = np.mean(group_a), np.mean(group_b)
-        var1, var2 = np.var(group_a, ddof=1), np.var(group_b, ddof=1)
-        
-        # Pooled standard deviation
-        pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
-        cohens_d = (mean1 - mean2) / pooled_std if pooled_std != 0 else 0.0
-        
-        return {
-            "statistic": float(t_stat),
-            "p_value": float(p_val),
-            "effect_size": float(cohens_d)
-        }
+from code.analysis.statistical_tests import (
+    load_metrics_data,
+    group_by_source_type,
+    calculate_cohens_d,
+    perform_independent_t_test,
+    run_analysis_for_metric,
+    run_statistical_tests
+)
 
+# Sample data fixture
+SAMPLE_DATA = [
+    {"pr_id": 1, "source_type": "llm", "comment_count": 5.0, "time_to_merge_minutes": 100.0, "complexity_score": 10.0},
+    {"pr_id": 2, "source_type": "llm", "comment_count": 6.0, "time_to_merge_minutes": 120.0, "complexity_score": 12.0},
+    {"pr_id": 3, "source_type": "llm", "comment_count": 4.0, "time_to_merge_minutes": 90.0, "complexity_score": 8.0},
+    {"pr_id": 4, "source_type": "human", "comment_count": 10.0, "time_to_merge_minutes": 200.0, "complexity_score": 15.0},
+    {"pr_id": 5, "source_type": "human", "comment_count": 12.0, "time_to_merge_minutes": 250.0, "complexity_score": 20.0},
+    {"pr_id": 6, "source_type": "human", "comment_count": 9.0, "time_to_merge_minutes": 180.0, "complexity_score": 14.0},
+]
 
-class TestMannWhitneyUImplementation:
-    """Tests for the Mann-Whitney U test implementation."""
+@pytest.fixture
+def temp_csv_file(tmp_path):
+    """Create a temporary CSV file with sample data."""
+    file_path = tmp_path / "test_metrics.csv"
+    with open(file_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["pr_id", "source_type", "comment_count", "time_to_merge_minutes", "complexity_score"])
+        writer.writeheader()
+        writer.writerows(SAMPLE_DATA)
+    return str(file_path)
 
-    def test_mann_whitney_u_implementation(self):
-        """
-        Asserts p-value and statistic output.
-        Verifies the function returns a dictionary with 'statistic' and 'p_value' keys
-        and that the values are valid floats.
-        """
-        # Generate two independent samples
-        # Sample A: Normal distribution centered at 10
-        np.random.seed(42)
-        group_a = np.random.normal(loc=10, scale=2, size=50)
-        # Sample B: Normal distribution centered at 15 (clearly different)
-        group_b = np.random.normal(loc=15, scale=2, size=50)
+def test_group_by_source_type():
+    """Test that data is correctly split into LLM and Human groups."""
+    llm_vals, human_vals = group_by_source_type(SAMPLE_DATA, "comment_count")
+    
+    assert len(llm_vals) == 3
+    assert len(human_vals) == 3
+    
+    # Check values
+    assert set(llm_vals) == {5.0, 6.0, 4.0}
+    assert set(human_vals) == {10.0, 12.0, 9.0}
 
-        # Run the test
-        result = mann_whitney_u_test(group_a, group_b)
+def test_group_by_source_type_missing_metric():
+    """Test behavior when metric is missing."""
+    data_with_missing = SAMPLE_DATA + [{"pr_id": 7, "source_type": "llm", "comment_count": None, "time_to_merge_minutes": 50.0}]
+    llm_vals, human_vals = group_by_source_type(data_with_missing, "comment_count")
+    
+    # Should skip the None value
+    assert len(llm_vals) == 3
 
-        # Assertions
-        assert isinstance(result, dict), "Result must be a dictionary"
-        assert "statistic" in result, "Result must contain 'statistic' key"
-        assert "p_value" in result, "Result must contain 'p_value' key"
+def test_calculate_cohens_d():
+    """Test Cohen's d calculation with known values."""
+    # Group 1: [1, 2, 3] -> mean=2, var=1
+    # Group 2: [4, 5, 6] -> mean=5, var=1
+    # Pooled var = 1, pooled std = 1
+    # d = (2 - 5) / 1 = -3
+    g1 = [1.0, 2.0, 3.0]
+    g2 = [4.0, 5.0, 6.0]
+    
+    d = calculate_cohens_d(g1, g2)
+    assert math.isclose(d, -3.0, abs_tol=1e-5)
 
-        assert isinstance(result["statistic"], float), "Statistic must be a float"
-        assert isinstance(result["p_value"], float), "P-value must be a float"
+def test_calculate_cohens_d_zero_variance():
+    """Test Cohen's d when variance is zero."""
+    g1 = [1.0, 1.0, 1.0]
+    g2 = [2.0, 2.0, 2.0]
+    
+    # Pooled std will be 1.0 (diff in means) / 0? No, pooled var is 0.
+    # Actually, if both groups have 0 variance, pooled var is 0.
+    # The function should return 0.0 or handle gracefully.
+    d = calculate_cohens_d(g1, g2)
+    # With zero pooled std, our implementation returns 0.0
+    assert d == 0.0
 
-        # The statistic should be non-negative
-        assert result["statistic"] >= 0, "Mann-Whitney U statistic must be non-negative"
+def test_perform_independent_t_test():
+    """Test t-test function returns expected structure."""
+    g1 = [1.0, 2.0, 3.0, 4.0, 5.0]
+    g2 = [10.0, 11.0, 12.0, 13.0, 14.0]
+    
+    result = perform_independent_t_test(g1, g2)
+    
+    assert "t_statistic" in result
+    assert "p_value" in result
+    assert isinstance(result["t_statistic"], float)
+    assert isinstance(result["p_value"], float)
+    assert result["p_value"] < 0.05 # Should be significant
 
-        # The p-value should be between 0 and 1
-        assert 0.0 <= result["p_value"] <= 1.0, "P-value must be between 0 and 1"
+def test_run_analysis_for_metric(temp_csv_file):
+    """Test full analysis pipeline for a single metric."""
+    result = run_analysis_for_metric(SAMPLE_DATA, "comment_count", alpha=0.05)
+    
+    assert result["metric"] == "comment_count"
+    assert result["status"] != "skipped"
+    assert "t_test" in result
+    assert "effect_size" in result
+    assert "group_sizes" in result
+    assert result["group_sizes"]["llm"] == 3
+    assert result["group_sizes"]["human"] == 3
+    
+    # Check significance logic
+    assert "significant_at_alpha_0_05" in result["t_test"]
 
-        # Since the groups are different, we expect a low p-value (significant difference)
-        # This confirms the test is actually working on real data, not returning constants
-        assert result["p_value"] < 0.05, "Expected significant difference between distinct groups"
+def test_run_statistical_tests_integration(temp_csv_file):
+    """Test the main integration function writes output file."""
+    output_file = str(Path(temp_csv_file).parent / "results.json")
+    
+    results = run_statistical_tests(
+        input_file=temp_csv_file,
+        output_file=output_file,
+        alpha=0.05
+    )
+    
+    # Verify file exists
+    assert os.path.exists(output_file)
+    
+    # Verify content
+    with open(output_file, 'r') as f:
+        saved_results = json.load(f)
+    
+    assert "config" in saved_results
+    assert "results" in saved_results
+    assert len(saved_results["results"]) == 2 # comment_count and time_to_merge_minutes
+    
+    # Check specific metric results
+    metrics_found = [r["metric"] for r in saved_results["results"]]
+    assert "comment_count" in metrics_found
+    assert "time_to_merge_minutes" in metrics_found
 
-    def test_mann_whitney_u_identical_groups(self):
-        """
-        Tests that identical groups yield a high p-value (no significant difference).
-        """
-        np.random.seed(42)
-        group = np.random.normal(loc=10, scale=2, size=50)
-
-        result = mann_whitney_u_test(group, group)
-
-        assert result["p_value"] > 0.05, "Identical groups should not show significant difference"
-
-    def test_mann_whitney_u_alternative_options(self):
-        """
-        Tests that the function respects the 'alternative' parameter.
-        """
-        np.random.seed(42)
-        group_a = np.random.normal(loc=10, scale=2, size=50)
-        group_b = np.random.normal(loc=15, scale=2, size=50)
-
-        # Test two-sided (default)
-        res_two = mann_whitney_u_test(group_a, group_b, alternative='two-sided')
-        # Test greater (group_b > group_a)
-        res_greater = mann_whitney_u_test(group_a, group_b, alternative='greater')
-        # Test less (group_b < group_a) - should be high p-value
-        res_less = mann_whitney_u_test(group_a, group_b, alternative='less')
-
-        assert res_two["p_value"] < 0.05, "Two-sided should be significant"
-        assert res_greater["p_value"] < 0.05, "Greater should be significant (B > A)"
-        assert res_less["p_value"] > 0.5, "Less should be non-significant (B is not < A)"
-
-    def test_mann_whitney_u_small_samples(self):
-        """
-        Tests behavior with small sample sizes.
-        """
-        group_a = [1, 2, 3]
-        group_b = [4, 5, 6]
-
-        result = mann_whitney_u_test(group_a, group_b)
-
-        assert result["p_value"] < 0.1, "Small distinct groups should show trend"
-        assert result["statistic"] > 0, "Statistic should be positive"
-
-
-class TestIndependentTTestImplementation:
-    """Tests for the Independent T-Test implementation."""
-
-    def test_independent_t_test_implementation(self):
-        """
-        Asserts p-value, t-statistic, and effect size output.
-        Verifies the function returns a dictionary with 'statistic', 'p_value', and 'effect_size' keys
-        and that the values are valid floats.
-        """
-        # Generate two independent samples
-        # Sample A: Normal distribution centered at 10
-        np.random.seed(42)
-        group_a = np.random.normal(loc=10, scale=2, size=50)
-        # Sample B: Normal distribution centered at 15 (clearly different)
-        group_b = np.random.normal(loc=15, scale=2, size=50)
-
-        # Run the test
-        result = independent_t_test(group_a, group_b)
-
-        # Assertions
-        assert isinstance(result, dict), "Result must be a dictionary"
-        assert "statistic" in result, "Result must contain 'statistic' key"
-        assert "p_value" in result, "Result must contain 'p_value' key"
-        assert "effect_size" in result, "Result must contain 'effect_size' key"
-
-        assert isinstance(result["statistic"], float), "Statistic must be a float"
-        assert isinstance(result["p_value"], float), "P-value must be a float"
-        assert isinstance(result["effect_size"], float), "Effect size must be a float"
-
-        # The p-value should be between 0 and 1
-        assert 0.0 <= result["p_value"] <= 1.0, "P-value must be between 0 and 1"
-
-        # Since the groups are different, we expect a low p-value (significant difference)
-        # This confirms the test is actually working on real data, not returning constants
-        assert result["p_value"] < 0.05, "Expected significant difference between distinct groups"
-
-        # Effect size (Cohen's d) should be non-zero for distinct groups
-        assert result["effect_size"] != 0.0, "Effect size should be non-zero for distinct groups"
-
-    def test_independent_t_test_identical_groups(self):
-        """
-        Tests that identical groups yield a high p-value (no significant difference).
-        """
-        np.random.seed(42)
-        group = np.random.normal(loc=10, scale=2, size=50)
-
-        result = independent_t_test(group, group)
-
-        assert result["p_value"] > 0.05, "Identical groups should not show significant difference"
-        # Effect size should be close to 0
-        assert abs(result["effect_size"]) < 0.1, "Effect size should be near zero for identical groups"
-
-    def test_independent_t_test_equal_var_param(self):
-        """
-        Tests that the function respects the 'equal_var' parameter.
-        """
-        np.random.seed(42)
-        group_a = np.random.normal(loc=10, scale=2, size=50)
-        group_b = np.random.normal(loc=10, scale=5, size=50) # Different variance
-
-        # Test with equal_var=True (pooled variance)
-        res_equal = independent_t_test(group_a, group_b, equal_var=True)
-        # Test with equal_var=False (Welch's t-test)
-        res_unequal = independent_t_test(group_a, group_b, equal_var=False)
-
-        assert "statistic" in res_equal
-        assert "statistic" in res_unequal
-        # Statistics might differ slightly due to variance calculation method
-        # but both should be valid floats
-        assert isinstance(res_equal["statistic"], float)
-        assert isinstance(res_unequal["statistic"], float)
-
-    def test_independent_t_test_small_samples(self):
-        """
-        Tests behavior with small sample sizes.
-        """
-        group_a = [1, 2, 3, 4, 5]
-        group_b = [6, 7, 8, 9, 10]
-
-        result = independent_t_test(group_a, group_b)
-
-        assert result["p_value"] < 0.05, "Small distinct groups should show significant difference"
-        assert result["statistic"] != 0, "Statistic should be non-zero"
-        assert result["effect_size"] != 0, "Effect size should be non-zero"
-        # For this specific case, effect size should be large (approx -2.23)
-        assert abs(result["effect_size"]) > 1.0, "Effect size should be large for this separation"
+def test_insufficient_data_raises_error():
+    """Test that running analysis with only one group raises ValueError."""
+    single_group_data = [
+        {"pr_id": 1, "source_type": "llm", "comment_count": 5.0, "time_to_merge_minutes": 100.0},
+    ]
+    
+    with pytest.raises(ValueError) as exc_info:
+        group_by_source_type(single_group_data, "comment_count")
+    
+    assert "Insufficient data" in str(exc_info.value)

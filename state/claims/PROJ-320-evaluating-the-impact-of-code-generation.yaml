@@ -604,3 +604,222 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T15:25:52Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: flag ambiguous cases if confidence score is less than 0.6
+  claim_id: c_52ad71bd
+  context: 'T014 [US1] Implement `code/data/classify_prs.py` primary logic: label
+    `llm` or `human` based on commit message/bot signatures; **MUST** populate `confidence_score`
+    (float) for **every** PR (normalized scale); flag ambiguous cases (confidence
+    < 0.6) by adding a ''flagged'' boolean column'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_ambiguous_cases_if_confidence_score_is_less_than_0.6
+  kind: magnitude
+  raw_text: flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean
+    column
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:32:14Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: message with no signature yields confidence less than 0.6
+  claim_id: c_c70f4b92
+  context: 'T010c [P] [US1] Unit test `test_ambiguous_message_confidence` in `tests/unit/test_classification.py`:
+    asserts message with no signature yields confidence < 0.6'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Message_with_no_signature_yields_confidence_less_than_0.6
+  kind: magnitude
+  raw_text: assert message with no signature yields confidence < 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:32:59Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: code entropy calculation returns float greater than 0 for random code
+  claim_id: c_97d59316
+  context: 'T011a [P] [US1] Unit test `test_entropy_calculation` in `tests/unit/test_detection.py`:
+    asserts code entropy calculation returns float > 0 for random code'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Code_entropy_calculation_returns_float_greater_than_0_for_ra
+  kind: magnitude
+  raw_text: asserts code entropy calculation returns float > 0 for random code
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:33:29Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: use standard metrics if memory usage exceeds 6GB
+  claim_id: c_2813b242
+  context: T032 [US3] Implement fallback logic in `code/analysis/complexity.py` to
+    use standard metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_standard_metrics_if_memory_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: Implement fallback logic in `code/analysis/complexity.py` to use standard
+    metrics if memory usage > 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:09Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: fetch up to 200 PRs from prioritized list
+  claim_id: c_112c5382
+  context: T013 [US1] Implement `code/data/fetch_github.py` to fetch up to 200 PRs
+    from prioritized list, handling pagination, API backoff, and saving raw JSON payloads
+    to `data/raw/` with SHA-256 checksums (Constitution Principle III)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data/fetch_github.py` to fetch up to 200 PRs from prioritized
+    list
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:09Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: block final report generation if error rate exceeds 0.05
+  claim_id: c_851b06d0
+  context: T028 [US2] Implement logic in `code/analysis/generate_results_report.py`
+    to read the error rate from `data/audit/error_rate.json` (produced by T019b) and
+    write a `gate_status` flag to `data/processed/gate_status.json` (block final report
+    generation if rate > 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: block final report generation if rate > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:10Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: raise runtime error if error rate exceeds 0.05
+  claim_id: c_fdfa1856
+  context: T019b [US1] [SC-004] Implement error rate calculation logic in `code/audit/manual_validation.py`
+    to compare manual results against automated labels using **Human Expert Judgment
+    as ground truth per SC-004** (secondary detector is only a validation metric,
+    NOT ground truth). Calculate the labeling error rate, write the result to `data/audit/error_rate.json`,
+    and raise a runtime error if the rate exceeds **0.05 as defined in SC-004**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: raise a runtime error if the rate exceeds 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:31Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: audit sample size is max of minimum threshold and 10 percent of N LLM
+  claim_id: c_7a71d1c9
+  context: T009 Create `code/audit/manual_validation.py` skeleton for the audit sample
+    size rule (`max(minimum_threshold, ceil(0.10 * N_LLM))`)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: audit sample size rule (`max(minimum_threshold, ceil(0.10 * N_LLM))`)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:53Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: select stratified sample using max of minimum threshold and proportion
+    times N LLM
+  claim_id: c_a736442f
+  context: T019a [US1] Implement `code/audit/manual_validation.py` logic to select
+    stratified sample of size determined by a minimum threshold or a fixed proportion
+    of the population, specifically `max(min_threshold, ceil(proportion * N_LLM))`,
+    execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_stratified_sample_using_max_of_minimum_threshold_and
+  kind: entity_fact
+  raw_text: select stratified sample of size determined by a minimum threshold or
+    a fixed proportion of the population, specifically `max(min_threshold, ceil(proportion
+    * N_LLM))`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:35:23Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/docs/DEPLOYMENT.md
+  attempts: 1
+  canonical: Minimum 8GB RAM required for full dataset processing
+  claim_id: c_57380dce
+  context: Prerequisites section listing system requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_8GB_RAM_required_for_full_dataset_processing
+  kind: entity_fact
+  raw_text: Minimum 8GB RAM for full dataset processing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:48:06Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/docs/DEPLOYMENT.md
+  attempts: 1
+  canonical: Approximately 20GB disk space required for raw and processed data
+  claim_id: c_f0807c39
+  context: Prerequisites section listing system requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Approximately_20GB_disk_space_required_for_raw_and_processed
+  kind: entity_fact
+  raw_text: Approximately 20GB disk space for raw and processed data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:48:55Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/docs/DEPLOYMENT.md
+  attempts: 1
+  canonical: GitHub authenticated API requests limit is 5000 per hour
+  claim_id: c_ef96ab0b
+  context: Troubleshooting section regarding GitHub API Rate Limiting solutions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'authenticated requests: 5000/hour'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:49:19Z'
