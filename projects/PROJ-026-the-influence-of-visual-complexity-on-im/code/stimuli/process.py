@@ -5,158 +5,196 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 import numpy as np
 
-from .validate import validate_batch, get_invalid_images
-from .metrics import calculate_edge_density, calculate_entropy, calculate_fractal_dim
-from ..config import get_project_root, get_data_path
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
+from stimuli.metrics import process_image_vectorized
+from stimuli.validate import validate_batch, get_valid_images, get_invalid_images
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def categorize_complexity(df: pd.DataFrame, metric_col: str = 'edge_density') -> pd.DataFrame:
+
+def process_stimuli_batch(
+    stimuli_dir: Optional[Path] = None,
+    output_path: Optional[Path] = None
+) -> pd.DataFrame:
     """
-    Categorize images into Low/High complexity based on the median of a given metric.
-    
-    Logic:
-    - Calculate median of the specified metric column.
-    - Map scores <= median to 'Low' and > median to 'High'.
-    
+    Process all images in the stimuli directory and compute complexity metrics.
+
     Args:
-        df: DataFrame containing complexity metrics.
-        metric_col: Column name to use for categorization.
-        
+        stimuli_dir: Path to stimuli directory
+        output_path: Path to save raw CSV (optional)
+
     Returns:
-        DataFrame with 'complexity_category' column added.
-    """
-    if metric_col not in df.columns:
-        raise ValueError(f"Metric column '{metric_col}' not found in DataFrame.")
-    
-    # Filter out skipped/invalid rows for median calculation if necessary, 
-    # though typically we categorize valid rows.
-    valid_df = df[df['status'] == 'valid']
-    
-    if valid_df.empty:
-        logger.warning("No valid images to categorize.")
-        df['complexity_category'] = 'Unknown'
-        return df
-
-    median_score = valid_df[metric_col].median()
-    
-    def assign_category(score):
-        if pd.isna(score):
-            return 'Unknown'
-        return 'Low' if score <= median_score else 'High'
-
-    df['complexity_category'] = df[metric_col].apply(assign_category)
-    
-    # Log the threshold for reproducibility
-    log_path = get_project_root() / 'logs' / 'categorization_threshold.log'
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, 'w') as f:
-        f.write(f"Threshold Metric: {metric_col}\n")
-        f.write(f"Median Threshold: {median_score}\n")
-        f.write(f"Category Logic: <= {median_score} -> Low, > {median_score} -> High\n")
-        
-    logger.info(f"Categorization complete. Median threshold for {metric_col}: {median_score}")
-    return df
-
-def process_stimuli_batch(stimuli_dir: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Iterate over images in stimuli_dir, compute metrics, and return a DataFrame.
-    
-    Action:
-    - Validates images using T016 logic (validate_batch).
-    - Computes metrics (edge_density, entropy, fractal_dim) for valid images.
-    - Marks invalid images as 'skipped'.
-    - Returns a DataFrame with columns: filename, edge_density, entropy, fractal_dim, status.
-    
-    Args:
-        stimuli_dir: Path to directory containing stimulus images. Defaults to data/raw/stimuli.
-        
-    Returns:
-        DataFrame with computed metrics and status.
+        DataFrame with complexity metrics
     """
     if stimuli_dir is None:
-        stimuli_dir = get_data_path() / 'raw' / 'stimuli'
-        
+        root = get_project_root()
+        stimuli_dir = root / "data" / "raw" / "stimuli"
+
     if not stimuli_dir.exists():
         raise FileNotFoundError(f"Stimuli directory not found: {stimuli_dir}")
-        
-    logger.info(f"Processing stimuli batch from: {stimuli_dir}")
-    
-    # 1. Validate images (T016)
+
+    logger.info(f"Processing stimuli from {stimuli_dir}")
+
+    # Validate images first
     valid_images, invalid_images = validate_batch(stimuli_dir)
-    invalid_filenames = {img.name for img in invalid_images}
-    
+
+    logger.info(f"Found {len(valid_images)} valid images, {len(invalid_images)} invalid")
+
     results = []
-    
-    # 2. Process valid images
+
+    # Process valid images
     for img_path in valid_images:
-        filename = img_path.name
         try:
-            edge_density = calculate_edge_density(img_path)
-            entropy_val = calculate_entropy(img_path)
-            fractal_dim = calculate_fractal_dim(img_path)
-            
+            filename = img_path.name
+            edge_density, entropy_val, fractal_dim = process_image_vectorized(str(img_path))
+
+            # Extract metadata from filename (simplified)
+            # Expected format: participantID_sessionID_imageName.ext
+            parts = filename.split('_')
+            participant_id = parts[0] if len(parts) > 0 else 'unknown'
+            session_id = parts[1] if len(parts) > 1 else 'unknown'
+
             results.append({
                 'filename': filename,
                 'edge_density': edge_density,
                 'entropy': entropy_val,
                 'fractal_dim': fractal_dim,
-                'status': 'valid'
+                'status': 'valid',
+                'session_id': session_id,
+                'participant_id': participant_id
             })
+
         except Exception as e:
-            # If processing fails for a "valid" file, mark as skipped
-            logger.error(f"Failed to process {filename}: {e}")
+            logger.error(f"Error processing {img_path}: {e}")
             results.append({
-                'filename': filename,
+                'filename': img_path.name,
                 'edge_density': np.nan,
                 'entropy': np.nan,
                 'fractal_dim': np.nan,
-                'status': 'skipped'
+                'status': 'error',
+                'session_id': 'unknown',
+                'participant_id': 'unknown'
             })
-    
-    # 3. Add skipped images explicitly
-    for invalid_path in invalid_images:
+
+    # Add skipped invalid images
+    for img_path in invalid_images:
+        parts = img_path.name.split('_')
+        participant_id = parts[0] if len(parts) > 0 else 'unknown'
+        session_id = parts[1] if len(parts) > 1 else 'unknown'
+
         results.append({
-            'filename': invalid_path.name,
+            'filename': img_path.name,
             'edge_density': np.nan,
             'entropy': np.nan,
             'fractal_dim': np.nan,
-            'status': 'skipped'
+            'status': 'skipped',
+            'session_id': session_id,
+            'participant_id': participant_id
         })
-        
+
     df = pd.DataFrame(results)
-    
-    # Ensure columns are in the required order
-    required_cols = ['filename', 'edge_density', 'entropy', 'fractal_dim', 'status']
-    # Reorder if necessary, though append order should match
-    if list(df.columns) != required_cols:
-        df = df[required_cols]
-        
+
+    if output_path is not None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved raw complexity scores to {output_path}")
+
     return df
 
-def main():
+
+def categorize_complexity(
+    df: pd.DataFrame,
+    metric: str = 'edge_density'
+) -> Tuple[pd.DataFrame, Dict[str, float]]:
     """
-    Main entry point for batch processing.
-    - Iterates data/raw/stimuli/
-    - Computes metrics
-    - Outputs data/processed/complexity_scores_raw.csv
+    Categorize images into Low, Medium, High complexity based on tertiles.
+
+    Args:
+        df: DataFrame with complexity metrics
+        metric: Metric to use for categorization
+
+    Returns:
+        Tuple of (categorized DataFrame, thresholds dict)
     """
-    setup_logger = logging.getLogger(__name__)
-    setup_logger.info("Starting batch processing of stimuli.")
-    
-    # Load and process
-    df = process_stimuli_batch()
-    
-    # Output path
-    output_dir = get_data_path() / 'processed'
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / 'complexity_scores_raw.csv'
-    
-    # Save
-    df.to_csv(output_path, index=False)
-    setup_logger.info(f"Saved raw complexity scores to {output_path}")
-    setup_logger.info(f"Total images processed: {len(df)}")
-    setup_logger.info(f"Valid: {len(df[df['status'] == 'valid'])}, Skipped: {len(df[df['status'] == 'skipped'])}")
+    # Filter valid images for categorization
+    valid_df = df[df['status'] == 'valid'].copy()
+
+    if valid_df.empty:
+        raise ValueError("No valid images for categorization.")
+
+    # Calculate tertiles
+    try:
+        valid_df['complexity_category'] = pd.qcut(
+            valid_df[metric],
+            q=3,
+            labels=['Low', 'Medium', 'High'],
+            duplicates='drop'
+        )
+    except ValueError as e:
+        logger.warning(f"qcut failed: {e}. Using equal-width bins instead.")
+        # Fallback to equal-width bins
+        valid_df['complexity_category'] = pd.cut(
+            valid_df[metric],
+            bins=3,
+            labels=['Low', 'Medium', 'High']
+        )
+
+    # Extract thresholds
+    thresholds = {}
+    if 'complexity_category' in valid_df.columns:
+        # Get bin edges
+        bins = pd.cut(valid_df[metric], bins=3, retbins=True)[1]
+        thresholds = {
+            'low_threshold': float(bins[0]),
+            'medium_threshold': float(bins[1]),
+            'high_threshold': float(bins[2])
+        }
+
+    # Merge categories back to original DataFrame
+    df = df.merge(
+        valid_df[['filename', 'complexity_category']],
+        on='filename',
+        how='left'
+    )
+
+    return df, thresholds
+
+
+def main() -> None:
+    """Main entry point for stimulus processing."""
+    root = get_project_root()
+
+    stimuli_dir = root / "data" / "raw" / "stimuli"
+    raw_output = root / "data" / "processed" / "complexity_scores_raw.csv"
+    final_output = root / "data" / "processed" / "complexity_scores.csv"
+    log_path = root / "logs" / "categorization_threshold.log"
+
+    # Ensure directories
+    raw_output.parent.mkdir(parents=True, exist_ok=True)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Process batch
+    df_raw = process_stimuli_batch(stimuli_dir, raw_output)
+
+    # Categorize
+    df_final, thresholds = categorize_complexity(df_raw)
+
+    # Add final columns
+    df_final['status'] = df_final['status'].fillna('skipped')
+
+    # Save final CSV
+    df_final.to_csv(final_output, index=False)
+    logger.info(f"Saved final complexity scores to {final_output}")
+
+    # Log thresholds
+    with open(log_path, 'w') as f:
+        f.write(f"Categorization thresholds (based on {thresholds.get('low_threshold', 'N/A')}):\n")
+        for key, val in thresholds.items():
+            f.write(f"{key}: {val:.4f}\n")
+
+    logger.info(f"Logged thresholds to {log_path}")
+
 
 if __name__ == "__main__":
     main()

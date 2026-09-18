@@ -1,81 +1,56 @@
-"""
-Script to create the project directory structure as defined in the implementation plan.
-"""
 import os
 import logging
 from pathlib import Path
 from config import get_project_root
 
-# Configure logging for setup operations
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-
-def setup_directories() -> None:
+def setup_directories():
     """
-    Creates the required directory tree for the project.
-    
-    Creates:
-    - code/{data,stimuli,analysis,viz,tests}
-    - data/{raw/stimuli,raw/responses,processed,results}
-    - docs
+    Create the project directory structure as defined in the implementation plan.
+    Ensures all required folders for code, data, and documentation exist.
     """
-    project_root = get_project_root()
-    logger.info(f"Project root detected at: {project_root}")
+    root = get_project_root()
     
-    # Define directory structure relative to project root
-    # Note: 'tests' is created under project root as per standard convention,
-    # though task description mentions 'code/tests'. We will create both to be safe
-    # or follow the specific instruction: "code/{data,stimuli,analysis,viz,tests}"
-    
-    # Based on task T001 description:
-    # mkdir -p code/{data,stimuli,analysis,viz,tests} 
-    # data/{raw/stimuli,raw/responses,processed,results} docs
-    
-    dirs_to_create = [
-        # Code sub-packages
+    # Define directory paths relative to root
+    dirs = [
+        # Code structure
         "code/data",
         "code/stimuli",
         "code/analysis",
         "code/viz",
-        "code/tests", # Explicitly requested in T001 description
+        "code/tests",
         
-        # Data sub-structures
+        # Data structure
         "data/raw/stimuli",
         "data/raw/responses",
         "data/processed",
         "data/results",
         
         # Documentation
-        "docs"
+        "docs",
     ]
     
     created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = Path(project_root) / dir_path
-        try:
+    for dir_path in dirs:
+        full_path = root / dir_path
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {full_path}")
             created_count += 1
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            raise
+        else:
+            logger.debug(f"Directory already exists: {full_path}")
     
-    logger.info(f"Successfully created {created_count} directories.")
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
+    return True
 
-
-def main() -> None:
-    """Entry point for directory setup."""
-    try:
-        setup_directories()
-        logger.info("Project structure initialization complete.")
-    except Exception as e:
-        logger.error(f"Project structure initialization failed: {e}")
-        raise
-
+def main():
+    """Entry point for directory setup script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    setup_directories()
 
 if __name__ == "__main__":
     main()

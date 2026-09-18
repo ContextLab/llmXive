@@ -2,66 +2,50 @@ import os
 from pathlib import Path
 from typing import Final
 
-# Constants
+# Project constants
+PROJECT_NAME: Final[str] = "PROJ-026-the-influence-of-visual-complexity-on-im"
 SEED: Final[int] = 42
-DATA_ROOT: Final[str] = "data"
-CODE_ROOT: Final[str] = "code"
-RESULTS_ROOT: Final[str] = "data/results"
+
+# Root directories
+_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+
+CODE_ROOT: Final[Path] = _PROJECT_ROOT / "code"
+DATA_ROOT: Final[Path] = _PROJECT_ROOT / "data"
+RESULTS_ROOT: Final[Path] = _PROJECT_ROOT / "data" / "results"
+DOCS_ROOT: Final[Path] = _PROJECT_ROOT / "docs"
 
 
 def get_project_root() -> Path:
-    """
-    Return the project root directory.
-    
-    Assumes the script is run from the project root or that the code
-    directory is inside the project root.
-    """
-    # Try to find the project root by looking for a known file or directory
-    # Common markers: 'requirements.txt', 'pyproject.toml', 'README.md'
-    current_path = Path(__file__).resolve()
-    
-    # Check if we are in code/ directory
-    if current_path.name == "config.py" and current_path.parent.name == "code":
-        return current_path.parent.parent
-    
-    # Fallback: traverse up until we find a marker
-    for parent in current_path.parents:
-        if (parent / "requirements.txt").exists() or \
-           (parent / "pyproject.toml").exists() or \
-           (parent / "README.md").exists():
-            return parent
-    
-    # If no marker found, assume current working directory
-    return Path.cwd()
+    """Get the project root directory."""
+    return _PROJECT_ROOT
 
 
-def ensure_directories(dir_paths: list) -> None:
-    """
-    Ensure that the given directories exist.
-    
-    Args:
-        dir_paths: List of directory paths (relative or absolute) to create.
-    """
-    project_root = get_project_root()
-    
-    for dir_path in dir_paths:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
+def ensure_directories() -> None:
+    """Ensure all required directories exist."""
+    dirs = [
+        CODE_ROOT / "data",
+        CODE_ROOT / "stimuli",
+        CODE_ROOT / "analysis",
+        CODE_ROOT / "viz",
+        CODE_ROOT / "tests",
+        DATA_ROOT / "raw" / "stimuli",
+        DATA_ROOT / "raw" / "responses",
+        DATA_ROOT / "processed",
+        DATA_ROOT / "results",
+        DOCS_ROOT,
+        CODE_ROOT / "logs"
+    ]
+
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 
-def get_data_path(sub_path: str = "") -> Path:
-    """
-    Get the full path to a data file or directory.
-    
-    Args:
-        sub_path: Optional sub-path relative to the data root.
-    
-    Returns:
-        The full Path object.
-    """
-    project_root = get_project_root()
-    data_root = project_root / DATA_ROOT
-    
-    if sub_path:
-        return data_root / sub_path
-    return data_root
+def get_data_path(subpath: str) -> Path:
+    """Get a path relative to the data root."""
+    return DATA_ROOT / subpath
+
+
+if __name__ == "__main__":
+    print(f"Project root: {get_project_root()}")
+    ensure_directories()
+    print("Directories ensured.")

@@ -5,129 +5,128 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Optional
 import logging
-import numpy as np
-from ..config import get_project_root, SEED
-from ..utils.logging import get_logger
+
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def load_response_logs(data_dir: str) -> pd.DataFrame:
-    """
-    Load raw response logs from a directory.
-    
-    Args:
-        data_dir: Path to the directory containing response logs
-        
-    Returns:
-        DataFrame with response data
-        
-    Raises:
-        RuntimeError: If data is synthetic in production mode
-        FileNotFoundError: If no data files are found
-    """
-    root = Path(data_dir)
-    if not root.exists():
-        raise FileNotFoundError(f"Data directory not found: {root}")
-    
-    # Look for CSV files
-    csv_files = list(root.glob('*.csv'))
-    
-    if not csv_files:
-        raise FileNotFoundError(f"No CSV files found in {root}")
-    
-    # Load and concatenate all CSV files
-    dfs = []
-    for csv_file in csv_files:
-        try:
-            df = pd.read_csv(csv_file)
-            dfs.append(df)
-            logger.info(f"Loaded {len(df)} rows from {csv_file.name}")
-        except Exception as e:
-            logger.error(f"Failed to load {csv_file.name}: {e}")
-            continue
-    
-    if not dfs:
-        raise ValueError("No valid data files could be loaded")
-    
-    combined_df = pd.concat(dfs, ignore_index=True)
-    logger.info(f"Total rows loaded: {len(combined_df)}")
-    
-    # Validate expected columns
-    required_cols = {'participant_id', 'session_id', 'reaction_time', 'is_correct'}
-    if not required_cols.issubset(combined_df.columns):
-        missing = required_cols - set(combined_df.columns)
-        raise ValueError(f"Missing required columns: {missing}")
-    
-    return combined_df
 
-def generate_synthetic_response_logs(n_participants: int = 100, n_trials: int = 40, seed: int = SEED) -> pd.DataFrame:
+def load_response_logs(
+    logs_path: Optional[Path] = None,
+    null_effect: bool = False
+) -> pd.DataFrame:
     """
-    Generate synthetic response logs for CI/testing.
-    
+    Load raw response logs from CSV.
+
     Args:
-        n_participants: Number of participants
-        n_trials: Number of trials per participant
-        seed: Random seed
-        
+        logs_path: Path to response logs CSV
+        null_effect: If True, generate synthetic data for CI testing
+
     Returns:
-        DataFrame with synthetic response data
+        DataFrame with response logs
+
+    Raises:
+        RuntimeError: If real data is missing and null_effect is False
     """
-    np.random.seed(seed)
-    
-    participant_ids = [f"P{i:03d}" for i in range(n_participants)]
-    sessions = ['session_1', 'session_2']
-    
-    data = []
-    for pid in participant_ids:
-        for session in sessions:
-            for trial in range(n_trials):
-                # Generate synthetic reaction times (normal distribution)
-                rt = np.random.normal(600, 150)
-                rt = np.clip(rt, 200, 2000)  # Clamp to realistic range
-                
-                # Generate correctness (80% accuracy)
-                is_correct = np.random.random() < 0.8
-                
-                data.append({
-                    'participant_id': pid,
-                    'session_id': session,
-                    'trial_id': trial,
-                    'reaction_time': rt,
-                    'is_correct': is_correct,
-                    'timestamp': pd.Timestamp.now()
-                })
-    
-    df = pd.DataFrame(data)
-    logger.info(f"Generated {len(df)} synthetic response records")
+    if logs_path is None:
+        root = get_project_root()
+        logs_path = root / "data" / "raw" / "responses" / "response_logs.csv"
+
+    if null_effect:
+        logger.info("Generating synthetic response logs for CI testing (null-effect mode)")
+        return generate_synthetic_response_logs()
+
+    if not logs_path.exists():
+        error_msg = f"Real response logs not found: {logs_path}. " \
+                    "Set --null-effect flag for CI testing or provide real data."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+    logger.info(f"Loading response logs from {logs_path}")
+    df = pd.read_csv(logs_path)
+
+    # Validate required columns
+    required_cols = ['participant_id', 'session_id', 'reaction_time', 'is_correct', 'timestamp']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
     return df
 
-def main():
+
+def generate_synthetic_response_logs(
+    n_participants: int = 50,
+    n_trials_per_session: int = 40
+) -> pd.DataFrame:
+    """
+    Generate synthetic response logs for CI testing.
+    """
+    import numpy as np
+
+    np.random.seed(42)
+
+    records = []
+
+    for i in range(n_participants):
+        pid = f"participant_{i:03d}"
+
+        # Generate two sessions: Low and High complexity
+        for session_idx, condition in enumerate(['Low', 'High']):
+            session_id = f"session_{session_idx}_{condition}"
+
+            for trial in range(n_trials_per_session):
+                # Simulate reaction times (normal distribution)
+                rt = np.random.normal(600, 100)
+                rt = np.clip(rt, 300, 10000)
+
+                # Simulate correctness (90% accuracy)
+                is_correct = np.random.random() > 0.1
+
+                records.append({
+                    'participant_id': pid,
+                    'session_id': session_id,
+                    'reaction_time': rt,
+                    'is_correct': is_correct,
+                    'is_error': not is_correct,
+                    'timestamp': f"2024-01-01T12:{trial:02d}:00"
+                })
+
+    df = pd.DataFrame(records)
+    logger.info(f"Generated {len(df)} synthetic trials for {n_participants} participants")
+
+    return df
+
+
+def main() -> None:
     """Main entry point for data loading."""
-    parser = argparse.ArgumentParser(description='Load response logs')
-    parser.add_argument('--null-effect', action='store_true', 
-                      help='Generate synthetic data for CI/testing')
-    parser.add_argument('--data-dir', type=str, default=None,
-                      help='Path to data directory')
-    
+    parser = argparse.ArgumentParser(description="Load response logs")
+    parser.add_argument(
+        '--null-effect',
+        action='store_true',
+        help='Generate synthetic data for CI testing'
+    )
+    parser.add_argument(
+        '--input-path',
+        type=str,
+        default=None,
+        help='Path to input CSV file'
+    )
+
     args = parser.parse_args()
-    root = get_project_root()
-    
-    if args.null_effect:
-        logger.info("Generating synthetic data in null-effect mode")
-        df = generate_synthetic_response_logs()
-        output_path = root / "data" / "raw" / "responses" / "synthetic_responses.csv"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved synthetic data to {output_path}")
-    else:
-        data_dir = args.data_dir or str(root / "data" / "raw" / "responses")
-        if not Path(data_dir).exists() or not list(Path(data_dir).glob('*.csv')):
-            raise RuntimeError(
-                "Production mode active but no real data found. "
-                "Please provide real response logs or use --null-effect for CI."
-            )
-        df = load_response_logs(data_dir)
-        logger.info(f"Loaded real data from {data_dir}")
+
+    input_path = Path(args.input_path) if args.input_path else None
+
+    try:
+        df = load_response_logs(input_path, null_effect=args.null_effect)
+        logger.info(f"Loaded {len(df)} records")
+        print(df.head())
+
+    except RuntimeError as e:
+        logger.error(f"Data loading failed: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

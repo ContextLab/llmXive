@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or listing of the required folders (`code/data`, `code/stimuli`,
+    `code/analysis`, `code/viz`, `code/tests`, `data/raw/stimuli`, `data/raw/responses`,
+    `data/processed`, `data/results`, `docs`) was presented, so we cannot confirm
+    that the specified project structure exists. The implementer must provide concrete
+    evidence (e.g., `tree` output or screenshots) showing the exact folder hierarchy.
 T017a:
   c: false
   h: 7e1e183df78d29b2ab608c080446e2e530fd077c49a572bceb12c3443fcc153f
@@ -35,15 +43,6 @@ T034:
   r: "No artifact containing the calculated permutation Cohen\u2019s\u202Fd, permutation\
     \ p\u2011value, or the required note that partial\u202F\u03B7\xB2 is not applicable\
     \ was provided; thus the task\u2019s deliverable is missing."
-T034a:
-  c: false
-  h: f5594c9a9d6829ab3ce474fea6cd66e99e44b0a912b87154ffca353b4373f615
-  r: "The provided `permutation.py` contains a permutation test and a partially shown\
-    \ effect\u2011size function, but it never performs a post\u2011hoc power calculation\
-    \ nor writes a JSON file to `data/results/power_analysis.json`. Moreover, the\
-    \ required output file `data/results/power_analysis.json` is missing entirely.\
-    \ The task\u2019s specifications (using Cohen\u2019s d\u202F=\u202F0.5, \u03B1\
-    \u202F=\u202F0.05, sample size N, and `TTestIndPower`) are not satisfied."
 T034b:
   c: false
   h: 8c6f7c939b905fc8cabe68e706872e8847ec406449da88a64b41a1cfb1fbcc74
@@ -66,11 +65,3 @@ T039:
   r: No README or usage example files were provided in a `docs/` directory, nor any
     excerpt of updated documentation was shown. The claim only repeats the feature
     specification without delivering the required documentation artifacts.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifacts were provided to verify that debug prints were removed or\
-    \ that type hints were added throughout the project. Without the cleaned source\
-    \ files or a diff showing the refactoring, we cannot confirm the task was actually\
-    \ completed. The implementer must supply the updated codebase (or a clear listing\
-    \ of changes) demonstrating the required cleanup and type\u2011hint additions."

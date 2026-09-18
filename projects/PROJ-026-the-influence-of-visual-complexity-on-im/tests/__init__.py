@@ -1,3 +1,1 @@
-"""
-Root test package.
-"""
+# Test package initialization
