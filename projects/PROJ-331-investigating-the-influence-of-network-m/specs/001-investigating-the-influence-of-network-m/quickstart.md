@@ -1,76 +1,69 @@
 # Quickstart: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
 ## Prerequisites
-*   Python 3.11+
-*   `pip` or `conda`
-*   Access to HCP data (or a verified public subset/mirror).
-*   ~14GB disk space (for processing, raw data is deleted).
+
+-   Python 3.11+
+-   HCP Access Credentials (if using full HCP dataset) or a public dataset subset.
+-   7 GB RAM, 14 GB Disk.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone Repository**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-331-investigating-the-influence-of-network-m
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create Virtual Environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install dependencies**:
+3.  **Install Dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
 
 ## Configuration
 
-Edit `code/config.py` to set:
-*   `SUBJECT_IDS`: List of 50 HCP subject IDs (e.g., `['100106', '100208', ...]`).
-*   `DATA_DIR`: Path to `data/` (default: `data/`).
-*   `HCP_ACCESS_METHOD`: `aws` (default) or `openneuro` (fallback).
-*   `SEED`: Random seed (default: 42).
+1.  **Set Environment Variables**:
+    ```bash
+    export HCP_ACCESS_KEY="your_key_here"  # If required
+    export PYTHONHASHSEED=42
+    ```
+
+2.  **Verify Data Paths**:
+    Ensure `config.py` points to the correct `data/raw/` and `data/processed/` directories.
 
 ## Running the Pipeline
 
-Execute the full pipeline:
-
-```bash
-python code/pipeline.py
-```
-
-This script will:
-1.  Download and process each subject sequentially (download -> process -> delete raw).
-2.  Compute motif profiles and functional metrics.
-3.  Run statistical analysis (correlations, Bonferroni, permutation).
-4.  Generate `results.pdf` and `data/processed/subject_metrics.csv`.
-
-## Verifying Results
-
-1.  **Check Output Files**:
-    *   `results/results.pdf`: The final report.
-    *   `data/processed/subject_metrics.csv`: Aggregated data.
-    *   `data/logs/pipeline.log`: Execution log.
-    *   `results.json`: Contains the calculated success rate (SC-001).
-
-2.  **Validate Schemas**:
+1.  **Execute Main Script**:
     ```bash
-    pytest tests/contract/
+    python code/main.py
     ```
+    This will:
+    -   Download data (if not present).
+    -   Preprocess connectomes.
+    -   Compute motif z-scores.
+    -   Run statistical analysis (multivariate regression, VIF check).
+    -   Generate `results/results.pdf`.
 
-3.  **Reproducibility Check**:
-    Run the pipeline again on a fresh environment. The output files should have identical checksums (if the same data is used).
+2.  **Check Logs**:
+    Review `data/logs/pipeline.log` for warnings (e.g., skipped subjects).
+
+3.  **View Results**:
+    Open `results/results.pdf` to see scatter plots, correlations, and power analysis.
+
+## Testing
+
+Run unit and integration tests:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-*   **Disk Space Error**: Ensure raw data is being deleted after processing. Check `pipeline.log` for "Deleting raw data" messages.
-*   **HCP Access Error**: If credentials are missing, the pipeline will skip the subject and log a warning. Ensure `HCP_ACCESS_METHOD` is correctly set.
-*   **Motif Counting Timeout**: If a subject takes >300s, the pipeline will abort and log a warning. This is unlikely for 3-node motifs on 100 nodes.
-
-## Expected Output
-
-*   **PDF Report**: Contains scatter plots, correlation coefficients, and p-values for each motif. **Includes** the mandatory disclaimer: "These findings are associational only and do not imply causation."
-*   **CSV**: `subject_metrics.csv` with one row per subject.
-*   **JSON**: `motif_profiles.json`, `global_efficiency.json`, `permutation_results.json`, `power_analysis.json`.
+-   **Missing Data**: If a subject is skipped, check `pipeline.log` for "Missing diffusion data" warnings.
+-   **Timeout**: If motif enumeration exceeds 300s, reduce the number of subjects or check CPU load.
+-   **Import Error**: Ensure `venv` is activated and `requirements.txt` is up to date.

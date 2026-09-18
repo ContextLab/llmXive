@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the correlation_results.json file containing statistical outputs."
+type: object
+properties:
+  analysis_params:
+    type: object
+    description: "Parameters used for the analysis."
+    properties:
+      seed:
+        type: integer
+        const: 42
+      bonferroni_alpha:
+        type: number
+        description: "Bonferroni-adjusted alpha level."
+      permutation_count:
+        type: integer
+        const: 1000
+      power_target:
+        type: number
+        description: "Target statistical power."
+        const: 0.80
+      vif_threshold:
+        type: number
+        description: "VIF threshold for switching to Ridge Regression."
+        const: 5
+    required:
+      - seed
+      - bonferroni_alpha
+      - permutation_count
+      - power_target
+      - vif_threshold
+  results:
+    type: array
+    description: "List of correlation results per motif and metric."
+    items:
+      type: object
+      properties:
+        motif_id:
+          type: string
+          description: "Identifier for the motif type."
+        metric:
+          type: string
+          enum: ["strength", "global_efficiency"]
+          description: "Functional metric analyzed."
+        partial_correlation:
+          type: number
+          description: "Partial correlation coefficient (r) or regression coefficient."
+        p_value_raw:
+          type: number
+          description: "Unadjusted p-value."
+        p_value_bonferroni:
+          type: number
+          description: "Bonferroni-corrected p-value."
+        significant:
+          type: boolean
+          description: "True if p_value_bonferroni < 0.05."
+        empirical_p_value:
+          type: number
+          description: "Empirical p-value from permutation test (if significant)."
+        n_subjects:
+          type: integer
+          description: "Number of subjects used in this test."
+        method_used:
+          type: string
+          enum: ["multivariate_regression", "ridge_regression"]
+          description: "Method used based on VIF check."
+      required:
+        - motif_id
+        - metric
+        - partial_correlation
+        - p_value_raw
+        - p_value_bonferroni
+        - significant
+        - n_subjects
+        - method_used
+      additionalProperties: false
+  power_analysis:
+    type: object
+    description: "Power analysis results."
+    properties:
+      n:
+        type: integer
+      alpha_adjusted:
+        type: number
+      power:
+        type: number
+      min_detectable_r:
+        type: number
+        description: "Minimum detectable Pearson r."
+    required:
+      - n
+      - alpha_adjusted
+      - power
+      - min_detectable_r
+required:
+  - analysis_params
+  - results
+  - power_analysis
+additionalProperties: false

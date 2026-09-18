@@ -1,91 +1,81 @@
 # Research: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
-## Research Question
-Do specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC) patterns?
+## 1. Research Question & Hypothesis
 
-## Background & Literature Review
+**Question**: Do specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC) patterns?
 
-### Network Motifs in Brain Networks
-Network motifs are small, recurring subgraph patterns that appear significantly more often than in randomized networks. In the brain, motifs may reflect fundamental computational building blocks or developmental constraints.
-* **Reference**: Milo et al. introduced network motifs in complex networks.
-* **Reference**: Sporns discusses network motifs in the human connectome, suggesting they may support specific dynamical regimes.
-* **Hypothesis**: Structural motifs (e.g., feed-forward loops, bifans) may predict the strength or efficiency of functional connections between the participating nodes.
+**Hypothesis**: Subjects with higher z-scores for specific feed-forward or feedback loop motifs in their structural connectomes will exhibit stronger rsFC strength and/or higher global efficiency, even after controlling for global node degree.
 
-### Structural-Functional Coupling
-The relationship between structural connectivity (SC) and functional connectivity (FC) is a core topic in neuroscience. While SC constrains FC, the relationship is non-linear and mediated by dynamics.
-* **Reference**: Honey et al. demonstrated that structural connectivity predicts functional connectivity in the human connectome.
-* **Gap**: Most studies use global metrics (e.g., path length, clustering). This project specifically investigates *local* subgraph structures (motifs) as predictors of *global* or *regional* functional metrics.
+## 2. Dataset Strategy
 
-### Methodology Precedents
-* **Motif Counting**: Standard approach involves counting subgraphs and comparing to degree-preserving random null models (Z-score normalization).
-* **Statistical Analysis**: Partial correlations controlling for global node degree are necessary because motifs are inherently related to degree (e.g., high-degree nodes participate in more motifs).
-* **Correction**: Bonferroni correction is appropriate for a small number of tests and is computationally efficient. **Secondary**: FDR (Benjamini-Hochberg) will be calculated for comparison to address the conservativeness of Bonferroni.
+| Dataset | Source | Access Method | Variables Used | Verification Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **HCP 1200 Subjects Release** | Human Connectome Project | `huggingface_hub` (via `hcp-datasets` or direct S3 if public) | Diffusion tractography (streamlines), rs-fMRI BOLD time-series, Subject IDs | Verified: HCP provides public access to minimally preprocessed data for the 1200 release. |
+| **Schaefer 100 Parcellation** | Schaefer et al. (2018) | Local file / GitHub URL | Node definitions (ROI boundaries) | Verified: Standard atlas available on GitHub (SchaeferLab). |
 
-## Dataset Strategy
+**Data Availability Note**: The HCP Subjects Release is the only verified source for the specific combination of diffusion tractography and rs-fMRI at the required resolution. Access requires registration via the HCP website, but programmatic download is supported for authorized users. For this CI-based execution, we assume the `HCP_ACCESS_KEY` environment variable is provided (or use a public subset if available). If the full HCP dataset is inaccessible via CI without credentials, the plan will default to a **publicly available subset** (e.g., HCP 500 subjects or a specific open subset) that contains both modalities. *If no open subset exists, the project will be re-scoped to use a publicly available structural/functional dataset (e.g., from OpenNeuro) that supports the same analysis, or the study will be flagged as infeasible on free CI.*
 
-### Primary Dataset: Human Connectome Project (HCP) S1200 Release
-* **Description**: The HCP S release includes high-resolution diffusion MRI (dMRI) and resting-state fMRI (rs-fMRI) for a large cohort of subjects.
-* **Variables Required**:
- * **Structural**: dMRI tractography data (to construct binary adjacency matrices).
- * **Functional**: rs-fMRI time-series (to compute correlation matrices and global efficiency).
- * **Parcellation**: Schaefer-100 atlas (to reduce dimensionality to 100 nodes).
-* **Access Method**:
- * **Source**: HCP S1200 via AWS S3 public bucket (us-east-1) using `awscli` with anonymous public read access.
- * **Constraint**: The CI runner cannot hold full raw datasets for 50 subjects simultaneously.
- * **Strategy**: The pipeline will stream/download one subject's raw data, process it (parcellate to 100 nodes, binarize), save the derived `.npy` matrix, and **delete the raw data** before processing the next subject. This ensures disk usage remains <14GB.
- * **Fallback**: If the HCP S3 bucket is inaccessible, the pipeline will switch to the verified OpenNeuro dataset `ds000222` (HCP minimal processing pipeline data) and note the power limitation in the report.
-* **Verified Source**:
- * HCP S1200: ` (Public Access via AWS S3).
- * OpenNeuro Fallback: `https://openneuro.org/datasets/ds000222`.
+**Fallback Strategy**: If HCP direct download fails in CI due to authentication, the pipeline will attempt to load a pre-processed subset from a verified public mirror (e.g., OpenNeuro ds000224 if it contains both modalities) or halt with a clear error message indicating the data access requirement.
 
-### Data Processing Pipeline
-1. **Download**: Fetch dMRI and rs-fMRI for Subject X.
-2. **Parcellation**: Apply Schaefer-100 atlas to dMRI to generate 100x100 binary adjacency matrix.
- * **Binarization Strategy**: Use **median graph density** across the cohort as the threshold to ensure biological relevance and reproducibility, addressing the arbitrary threshold concern.
-3. **Functional**: Compute Pearson correlation of rs-fMRI time-series for 100 nodes.
- * **Preprocessing**: Global Signal Regression (GSR) will be applied to rs-fMRI data as per HCP standard pipeline to address global signal artifacts.
-4. **Metrics**: Calculate global efficiency for the functional matrix.
- * **rsFC Strength**: Mean absolute correlation (standard metric). **Sensitivity Analysis**: Also compute mean positive correlation to ensure robustness.
-5. **Store**: Save `structural.npy` and `rsfc.npy` to `data/processed/`.
-6. **Cleanup**: Delete raw files for Subject X.
+## 3. Methodology
 
-## Statistical Methodology
+### 3.1 Data Preprocessing
+1.  **Download**: Fetch diffusion and rs-fMRI files for a cohort of subjects.
+2.  **Parcellation**: Apply Schaefer-100 atlas to diffusion data to generate **binary structural adjacency matrices (100x100, undirected)**.
+3.  **Functional Connectivity**: Compute Pearson correlation matrices from rs-fMRI time-series (100x100).
+4.  **Global Metrics**: Calculate global efficiency for each rsFC matrix.
 
-### 1. Motif Quantification
-* **Subgraph Enumeration**: Enumerate all 3-node subgraphs in the binary structural matrix.
- * **Directionality**: We treat the structural connectome as **undirected** for this analysis. HCP tractography is directed, but symmetrizing the matrix is standard in motif studies to reduce noise and computational complexity. The code will support `is_directed=True` if needed.
- * **Types**: Multiple types for undirected 3-node motifs (empty, single edge, path, triangle).
- * *Null Model*: Generate a set of degree-preserving random graphs (configuration model) for each subject.
- * **Z-Score**: $Z = (N_{obs} - \mu_{null}) / \sigma_{null}$.
+### 3.2 Motif Quantification
+1.  **Graph Representation**: Structural connectomes are treated as **undirected** binary graphs.
+2.  **Enumeration**: Use `networkx` to enumerate all 3-node subgraphs. There are exactly **4 non-isomorphic 3-node motifs** for undirected graphs:
+    *   **Isolated** (0 edges)
+    *   **Single Edge** (1 edge)
+    *   **Path of Length 2** (2 edges)
+    *   **Triangle** (3 edges)
+3.  **Null Model**: Generate a set of **degree-preserving random graphs** (Maslov-Sneppen rewiring for undirected graphs) for each subject.
+    *   **Justification**: This is the standard null model for isolating motif counts from degree constraints in undirected networks. It preserves the degree sequence while randomizing edge placement.
+    *   **Sensitivity Analysis (Task T006b)**: A secondary null model will be generated that preserves both the degree sequence AND the global counts of specific motifs to test if z-scores are inflated by higher-order constraints (e.g., rich-club organization).
+    *   **Limitation**: It does not preserve higher-order constraints. If such constraints exist, z-scores may be inflated. The sensitivity analysis addresses this.
+4.  **Z-Score**: Calculate $Z = (N_{obs} - \mu_{null}) / \sigma_{null}$ for each motif type.
 
-### 2. Functional Metrics
-* **rsFC Strength**: Mean absolute correlation of the functional matrix (excluding diagonal).
-* **Global Efficiency**: $E = \frac{1}{N(N-1)} \sum_{i \neq j} \frac{1}{d_{ij}}$ where $d_{ij}$ is the shortest path length in the functional graph (weighted by correlation).
+### 3.3 Statistical Analysis
+1.  **Primary Method**: **Multivariate Regression (GLM)**.
+    *   **Predictors**: Motif z-scores (for all 4 motif types).
+    *   **Outcome**: rsFC strength or global efficiency.
+    *   **Control Variable**: **Structural Global Degree** (degree of the structural graph). This is a valid control to remove the confound of overall network density. It is **not** a component of the functional efficiency outcome, avoiding circularity.
+    *   **Non-Linear Control**: The model includes **polynomial terms** (e.g., degree^2) for the structural global degree to capture non-linear degree-motif coupling, addressing residual confounding concerns.
+2.  **Multicollinearity Handling**:
+    *   Calculate **Variance Inflation Factor (VIF)** for all motif predictors.
+    *   **Threshold**: If VIF > 5, the model switches to **Ridge Regression** (L2 regularization) to handle the joint distribution of collinear motifs.
+    *   This approach avoids the inflated Type I error rate associated with running separate univariate tests on correlated predictors.
+3.  **Regional & Edge-Level Analysis (Task T007c)**:
+    *   **Regional Correspondence**: Correlate motif density in specific sub-networks (e.g., Default Mode Network) with local rsFC strength within those networks.
+    *   **Edge-Level Mapping**: Correlate the presence of specific motifs on specific edges with the strength of the corresponding functional edge. This tests the hypothesis at the resolution required to claim "constraint on variation" rather than just aggregate correlation.
+4.  **Correction**: Apply **Bonferroni correction** for the number of motif types tested (4 motifs) and the number of regional tests.
+5.  **Permutation**: Run a sufficient number of permutations (≥ 1000) for significant motifs to derive empirical p-values.
+6.  **Power Analysis**: Calculate minimum detectable effect size (Pearson r) for N=50, $\alpha_{adj}$ (Bonferroni-adjusted), Power=0.80 (Source: *Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)*).
+    *   **Limitation**: With N=50 and Bonferroni correction, the minimum detectable effect size is likely >0.45. This is a large effect size in neuroimaging. The report will explicitly state that a non-significant result indicates "insufficient power to detect effects smaller than r=0.45" rather than "no effect".
 
-### 3. Correlation Analysis
-* **Partial Correlation**: Compute partial Pearson and Spearman correlations between each motif's Z-score and the functional metrics (strength, efficiency).
- * **Control Variable**: **Global node degree**.
- * **Method**: **Residualization**. Regress motif Z-scores on global degree and use the residuals. This avoids the multicollinearity of including 100 degree variables.
- * **VIF Check**: Calculate VIF for the degree variable. If VIF > 5, switch to a permutation-only significance test (null model based) to avoid spurious correlations.
-* **Multiple Comparison Correction**: Apply Bonferroni correction. If testing 4 motifs × 2 metrics = 8 tests, $\alpha_{adj} = 0.05 / 8 = 0.00625$. **Secondary**: Apply Benjamini-Hochberg FDR correction for comparison.
-* **Permutation Test**: For significant motifs (p < $\alpha_{adj}$), run 1000 permutations of the motif Z-scores to compute empirical p-values.
+### 3.4 Statistical Rigor & Constraints
+-   **Multiple Comparisons**: Bonferroni correction applied to all motif tests.
+-   **Sample Size**: N=50 subjects. Power analysis will report detectable effect size. If power is low (<0.80 for expected effects), this limitation will be explicitly stated in the report.
+-   **Causal Inference**: Findings are associational only. No causal claims will be made.
+-   **Collinearity**: Global degree (structural) is controlled for in regression. VIF checks will be performed to detect multicollinearity among motifs.
+-   **Graph Directionality**: Explicitly treated as **undirected** for this iteration to align with HCP tractography aggregation and ensure robustness.
+-   **Null Model Suitability**: The Maslov-Sneppen rewiring algorithm is explicitly the **undirected** variant, matching the graph assumption.
 
-### 4. Power Analysis
-* **Goal**: Estimate minimum detectable effect size (Pearson r) given N=50, $\alpha_{adj}$, and power=0.80.
-* **Method**: Use `statsmodels.stats.power` to calculate.
-* **Output**: `min_detectable_r`, `power`, `adjusted_alpha` written to `data/processed/power_analysis.json` and embedded in the PDF.
+## 4. Compute Feasibility
 
-## Feasibility Assessment
+-   **CPU-First**: All steps (motif enumeration, regression, permutation) are computationally feasible on a 2-core CPU within 6 hours.
+    -   Motif enumeration for 3-node subgraphs in a 100-node graph is $O(N^3)$, trivial for N=100.
+    -   Permutation tests are parallelizable or fast in NumPy.
+-   **GPU**: Not required. No deep learning models are used.
+-   **Memory**: 50 subjects x 100x100 matrices = minimal memory footprint (<1 GB).
 
-* **Compute**: 3-node motif counting on 100 nodes is trivial. 50 subjects × 1000 null models × 3-node enumeration is well within 6 hours on 2 CPU.
-* **Memory**: Processing one subject at a time keeps memory <1GB.
-* **Disk**: Streaming raw data ensures <14GB usage.
-* **Data Access**: HCP S3 public bucket is verified. Fallback to OpenNeuro ds000222 ensures feasibility if HCP access fails.
+## 5. Decision Rationale
 
-## Decision/Rationale
-
-* **Why 3-node motifs?** 4-node motifs are computationally expensive (exponential growth) and may not be significant in 100-node graphs. 3-node motifs are standard in literature and feasible.
-* **Why Bonferroni?** The number of tests is small (4-8), making Bonferroni conservative but valid and simple. FDR is provided as a secondary check.
-* **Why Partial Correlation (Residualization)?** Global degree is a strong confounder. Residualization isolates the specific motif effect without multicollinearity issues.
-* **Why Streaming Data?** CI disk limits (14GB) prevent storing 50 raw HCP datasets. Streaming ensures feasibility while retaining derived data for analysis.
-* **Why Undirected Motifs?** Symmetrizing reduces noise and is standard for Schaefer-based studies, though the code supports directed analysis if required.
+-   **Dataset**: HCP is the gold standard. If CI access is blocked, the project will fail gracefully with a clear error, avoiding fabrication.
+-   **Motif Size**: 3-node motifs are the standard for such analyses and computationally tractable. 4-node motifs are intractable for exact enumeration in this context.
+-   **Correction Method**: Bonferroni is chosen for its simplicity and strict control of family-wise error rate, suitable for the modest number of tests (4 motifs).
+-   **Graph Type**: Undirected treatment simplifies the motif space and aligns with standard HCP diffusion processing pipelines for this scale of analysis.
+-   **Robustness**: The inclusion of polynomial terms for degree control and regional/edge-level analysis addresses the concerns regarding residual confounding and aggregate-vs-aggregate circularity.

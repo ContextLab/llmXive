@@ -21,7 +21,7 @@ properties:
     description: "Reason for skip or error, null if complete."
   seed:
     type: "integer"
-    description: "Random seed used for reproducibility (fixed at 42)."
+    description: "Random seed used for reproducibility (fixed to ensure consistent initialization)."
     const: 42
   file_paths:
     type: "object"

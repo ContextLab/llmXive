@@ -19,7 +19,7 @@ properties:
         description: "Number of null model iterations"
       method:
         type: "string"
-        description: "Method used (e.g., 'degree_preserving')"
+        description: "Method used (e.g., 'degree_preserving_undirected')"
 required:
   - subject_id
   - motif_z_scores

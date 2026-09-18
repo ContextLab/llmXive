@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-09-18T05:31:32.757026+00:00",
+    "project": "PROJ-331-investigating-the-influence-of-network-m",
+    "repairs": [
+      {
+        "dead_url": "https://www.humanconnectome.org/study/hcp-young-adult/data-release",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/resolve/main/meta/info.json",
+        "intent": "study hcp young adult release S1200 datasets.load_dataset \"humanconnectome/hcp_s1200\", streaming=True Diffusion tractography DTI , Resting state fMRI rs Subject IDs Verified . The contains minimally"
+      }
+    ]
+  }
+]

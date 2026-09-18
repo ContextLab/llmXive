@@ -14,7 +14,7 @@ properties:
     description: "Type of correlation computed."
   r_value:
     type: "number"
-    description: "Partial correlation coefficient."
+    description: "Partial correlation coefficient or regression coefficient."
   p_value_raw:
     type: "number"
     minimum: 0
@@ -39,7 +39,7 @@ properties:
     description: "Number of permutations performed."
   control_variable:
     type: "string"
-    const: "global_degree"
+    const: "structural_global_degree"
     description: "Variable controlled for in partial correlation."
   vif:
     type: "number"
@@ -47,7 +47,8 @@ properties:
   method_used:
     type: "string"
     enum:
-      - "partial_correlation"
+      - "multivariate_regression"
+      - "ridge_regression"
       - "permutation_only"
     description: "Method used based on VIF check."
 required:

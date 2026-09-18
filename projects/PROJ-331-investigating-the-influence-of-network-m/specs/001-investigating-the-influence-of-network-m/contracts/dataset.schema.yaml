@@ -1,40 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema"
-description: "Schema for raw and derived dataset artifacts"
-type: "object"
+title: "Dataset Manifest Schema"
+description: "Schema for the manifest.json file tracking processed subjects and data integrity."
+type: object
 properties:
-  subject_id:
-    type: "string"
-    description: "HCP subject ID (e.g., '100106')"
-  structural_connectome:
-    type: "object"
-    properties:
-      shape:
-        type: "array"
-        items:
-          type: "integer"
-        description: "Shape of the adjacency matrix (e.g., [100, 100])"
-      dtype:
-        type: "string"
-        description: "Data type (e.g., 'uint8' for binary)"
-      source_file:
-        type: "string"
-        description: "Path to the raw source file"
-      checksum:
-        type: "string"
-        description: "SHA256 checksum of the source file"
-  rsfc_connectome:
-    type: "object"
-    properties:
-      shape:
-        type: "array"
-        items:
-          type: "integer"
-      dtype:
-        type: "string"
-        description: "Data type (e.g., 'float32')"
+  cohort_target:
+    type: integer
+    description: "Target number of subjects (e.g., a sufficient cohort size to ensure statistical power)."
+    const: 50
+  cohort_actual:
+    type: integer
+    description: "Actual number of subjects successfully processed."
+    minimum: 0
+  cohort_skipped:
+    type: integer
+    description: "Number of subjects skipped due to missing data."
+    minimum: 0
+  subjects:
+    type: array
+    description: "List of subject processing records."
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+          description: "HCP Subject ID."
+        status:
+          type: string
+          enum: ["processed", "skipped", "error"]
+          description: "Processing status."
+        structural_path:
+          type: ["string", "null"]
+          description: "Relative path to structural.npy if processed."
+        rsfc_path:
+          type: ["string", "null"]
+          description: "Relative path to rsfc.npy if processed."
+        error_message:
+          type: ["string", "null"]
+          description: "Error message if status is error."
+      required:
+        - subject_id
+        - status
+      additionalProperties: false
+  checksums:
+    type: object
+    description: "Checksums for raw data files (key: filename, value: sha256)."
+    additionalProperties:
+      type: string
 required:
-  - subject_id
-  - structural_connectome
-  - rsfc_connectome
+  - cohort_target
+  - cohort_actual
+  - cohort_skipped
+  - subjects
+  - checksums
 additionalProperties: false
