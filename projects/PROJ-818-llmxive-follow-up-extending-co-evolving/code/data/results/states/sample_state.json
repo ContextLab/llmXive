@@ -1,0 +1,35 @@
+{
+  "initial_state": {
+    "rule_sets": [
+      {
+        "rule_ids": ["implication_elimination", "conjunction_intro", "hypothetical_syllogism"],
+        "domain": "logic",
+        "accuracy": 1.0
+      },
+      {
+        "rule_ids": ["avoid_red", "diagonal_paths", "shortest_path"],
+        "domain": "grid",
+        "accuracy": 1.0
+      }
+    ]
+  },
+  "final_state": {
+    "rule_sets": [
+      {
+        "rule_ids": ["implication_elimination", "conjunction_intro"],
+        "domain": "logic",
+        "accuracy": 0.8
+      },
+      {
+        "rule_ids": ["avoid_red", "shortest_path"],
+        "domain": "grid",
+        "accuracy": 0.7
+      }
+    ]
+  },
+  "metadata": {
+    "agent_id": "sample_001",
+    "condition": "mixed",
+    "training_generations": 100
+  }
+}

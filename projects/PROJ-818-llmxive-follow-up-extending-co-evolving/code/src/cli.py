@@ -1,14 +1,3 @@
-"""
-CLI entry point for the Co-Evolving Policy Distillation pipeline.
-
-This module establishes the command structure for the automated science pipeline.
-It provides the main entry point and argument parsing for various pipeline stages:
-- Data generation and validation
-- Agent training (Sequential, Mixed, Co-evolving)
-- Batch execution and statistical analysis
-- Report generation
-"""
-
 import argparse
 import json
 import sys
@@ -16,537 +5,226 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-# Import configuration utilities
-from src.utils.config import load_config, get_default_config, save_config
-from src.utils.checksums import load_checksums, verify_file_integrity
-
-# Import analysis modules
-from src.analysis.validate_dataset import main as validate_main
-from src.analysis.data_aggregator import main as aggregate_main
-from src.analysis.forgetting_metrics import main as metrics_main
-from src.analysis.statistical_tests import main as stats_main
-from src.analysis.report_generator import main as report_main
-
-# Import generator modules
-from src.generators.logic_generator import main as logic_main
-from src.generators.grid_generator import main as grid_main
-from src.generators.test_generator import main as test_main
-from src.generators.data_writer import main as writer_main
-
-# Import agent modules (for training)
+# Import agents
 from src.agents.sequential_agent import SequentialAgent
 from src.agents.mixed_agent import MixedAgent
 from src.agents.coevolving_agent import CoevolvingAgent
-
-# Import parity checker
-from src.utils.parity_checker import ParityChecker, verify_run_parity
-
-# Import performance optimizer
-from src.utils.performance_optimizer import optimize_data_generation, ensure_ci_completeness
+from src.utils.config import load_config, Config
+from src.utils.parity_checker import ParityChecker, ParityError, EvaluationStats
+from src.generators.data_writer import write_dataset, register_checksum
+from src.utils.checksums import update_checksum_for_file
+from src.analysis.validate_dataset import validate_dataset, load_generated_data
+from src.generators.test_generator import TestInstanceGenerator
 
 def create_parser() -> argparse.ArgumentParser:
-    """Create and configure the argument parser for the CLI."""
-    parser = argparse.ArgumentParser(
-        prog="llmxive-pipeline",
-        description="Co-Evolving Policy Distillation Research Pipeline",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Generate and validate training data
-  python -m src.cli generate --config config/default.json
-  
-  # Run validation gate
-  python -m src.cli validate --data-dir data/generated
-  
-  # Train agents (single run)
-  python -m src.cli train --condition coevolving --seed 42
-  
-  # Run batch experiments
-  python -m src.cli batch --runs 30 --conditions sequential mixed coevolving
-  
-  # Analyze results
-  python -m src.cli analyze --results-dir data/results
-  
-  # Generate final report
-  python -m src.cli report --results-dir data/results
-        """
-    )
-
-    # Top-level subcommands
+    parser = argparse.ArgumentParser(description="llmXive Co-Evolving Policy Distillation CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Generate subcommand
-    gen_parser = subparsers.add_parser(
-        "generate",
-        help="Generate synthetic training and test data"
-    )
-    gen_parser.add_argument(
-        "--config", "-c",
-        type=str,
-        default="config/default.json",
-        help="Path to configuration file"
-    )
-    gen_parser.add_argument(
-        "--output-dir", "-o",
-        type=str,
-        default="data/generated",
-        help="Output directory for generated data"
-    )
-    gen_parser.add_argument(
-        "--logic-count", "-l",
-        type=int,
-        default=100,
-        help="Number of logic proofs to generate"
-    )
-    gen_parser.add_argument(
-        "--grid-count", "-g",
-        type=int,
-        default=100,
-        help="Number of grid worlds to generate"
-    )
-    gen_parser.add_argument(
-        "--test-count", "-t",
-        type=int,
-        default=20,
-        help="Number of held-out test instances to generate"
-    )
+    # Train command
+    train_parser = subparsers.add_parser("train", help="Run training loop")
+    train_parser.add_argument("--condition", type=str, choices=["sequential", "mixed", "coevolving"], required=True,
+                              help="Training condition to execute")
+    train_parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
+    train_parser.add_argument("--output-dir", type=str, default="data/results", help="Output directory for results")
+    train_parser.add_argument("--seed", type=int, default=42, help="Random seed")
 
-    # Validate subcommand
-    val_parser = subparsers.add_parser(
-        "validate",
-        help="Validate generated datasets"
-    )
-    val_parser.add_argument(
-        "--data-dir", "-d",
-        type=str,
-        required=True,
-        help="Directory containing generated data to validate"
-    )
-    val_parser.add_argument(
-        "--config", "-c",
-        type=str,
-        default="config/default.json",
-        help="Path to configuration file"
-    )
-
-    # Train subcommand
-    train_parser = subparsers.add_parser(
-        "train",
-        help="Train agents under specific conditions"
-    )
-    train_parser.add_argument(
-        "--condition", "-m",
-        type=str,
-        required=True,
-        choices=["sequential", "mixed", "coevolving"],
-        help="Training condition/strategy"
-    )
-    train_parser.add_argument(
-        "--config", "-c",
-        type=str,
-        default="config/default.json",
-        help="Path to configuration file"
-    )
-    train_parser.add_argument(
-        "--seed", "-s",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
-    train_parser.add_argument(
-        "--output-dir", "-o",
-        type=str,
-        default="data/results",
-        help="Output directory for training results"
-    )
-    train_parser.add_argument(
-        "--data-dir", "-d",
-        type=str,
-        default="data/generated",
-        help="Directory containing training data"
-    )
-
-    # Batch subcommand
-    batch_parser = subparsers.add_parser(
-        "batch",
-        help="Run multiple training experiments in batch"
-    )
-    batch_parser.add_argument(
-        "--runs", "-n",
-        type=int,
-        default=30,
-        help="Number of independent runs per condition"
-    )
-    config_parser.add_argument(
-        "--conditions",
-        type=str,
-        nargs="+",
-        choices=["sequential", "mixed", "coevolving"],
-        default=["sequential", "mixed", "coevolving"],
-        help="Conditions to run"
-    )
-    batch_parser.add_argument(
-        "--config", "-c",
-        type=str,
-        default="config/default.json",
-        help="Path to configuration file"
-    )
-    batch_parser.add_argument(
-        "--output-dir", "-o",
-        type=str,
-        default="data/results",
-        help="Output directory for batch results"
-    )
-    batch_parser.add_argument(
-        "--parallel", "-p",
-        type=int,
-        default=1,
-        help="Number of parallel processes (default: 1)"
-    )
-
-    # Analyze subcommand
-    analyze_parser = subparsers.add_parser(
-        "analyze",
-        help="Analyze batch results and compute metrics"
-    )
-    analyze_parser.add_argument(
-        "--results-dir", "-r",
-        type=str,
-        required=True,
-        help="Directory containing batch results"
-    )
-    analyze_parser.add_argument(
-        "--output-dir", "-o",
-        type=str,
-        default="data/results",
-        help="Output directory for analysis results"
-    )
-    analyze_parser.add_argument(
-        "--compute-retention",
-        action="store_true",
-        help="Compute retention metrics"
-    )
-
-    # Report subcommand
-    report_parser = subparsers.add_parser(
-        "report",
-        help="Generate final analysis report"
-    )
-    report_parser.add_argument(
-        "--results-dir", "-r",
-        type=str,
-        required=True,
-        help="Directory containing analysis results"
-    )
-    report_parser.add_argument(
-        "--output-file", "-o",
-        type=str,
-        default="data/results/forgetting_analysis.json",
-        help="Output file for the final report"
-    )
-
-    # Config subcommand
-    config_cmd_parser = subparsers.add_parser(
-        "config",
-        help="Manage pipeline configuration"
-    )
-    config_cmd_parser.add_argument(
-        "--action", "-a",
-        type=str,
-        required=True,
-        choices=["show", "save", "load"],
-        help="Configuration action"
-    )
-    config_cmd_parser.add_argument(
-        "--config-file", "-f",
-        type=str,
-        default="config/default.json",
-        help="Path to configuration file"
-    )
-
-    # Checksum subcommand
-    checksum_parser = subparsers.add_parser(
-        "checksum",
-        help="Manage and verify data checksums"
-    )
-    checksum_parser.add_argument(
-        "--action", "-a",
-        type=str,
-        required=True,
-        choices=["compute", "verify", "list"],
-        help="Checksum action"
-    )
-    checksum_parser.add_argument(
-        "--data-dir", "-d",
-        type=str,
-        default="data/generated",
-        help="Directory containing data files"
-    )
-    checksum_parser.add_argument(
-        "--checksum-file", "-c",
-        type=str,
-        default="data/checksums.json",
-        help="Path to checksums file"
-    )
-
-    # Parity check subcommand
-    parity_parser = subparsers.add_parser(
-        "parity",
-        help="Verify parity of rule evaluations across conditions"
-    )
-    parity_parser.add_argument(
-        "--results-dir", "-r",
-        type=str,
-        required=True,
-        help="Directory containing results from multiple conditions"
-    )
-    parity_parser.add_argument(
-        "--conditions",
-        type=str,
-        nargs="+",
-        required=True,
-        help="Conditions to compare for parity"
-    )
+    # Validate command
+    validate_parser = subparsers.add_parser("validate", help="Validate generated dataset")
+    validate_parser.add_argument("--data-dir", type=str, default="data", help="Directory containing generated data")
 
     return parser
 
-def load_training_data(data_dir: str, config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Load training data from the specified directory.
-    
-    Args:
-        data_dir: Path to directory containing generated data
-        config: Configuration dictionary
-    
-    Returns:
-        Dictionary containing loaded training data
-    """
+def load_training_data(data_dir: str) -> Dict[str, Any]:
+    """Load generated training data from disk."""
     data_path = Path(data_dir)
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_path}")
+    proofs_path = data_path / "generated_proofs.json"
+    grids_path = data_path / "generated_grids.json"
+
+    if not proofs_path.exists() or not grids_path.exists():
+        raise FileNotFoundError(f"Training data not found in {data_dir}")
+
+    with open(proofs_path, 'r') as f:
+        proofs = json.load(f)
+    with open(grids_path, 'r') as f:
+        grids = json.load(f)
+
+    return {"proofs": proofs, "grids": grids}
+
+def run_sequential_training(config: Config, data: Dict[str, Any], output_dir: str, seed: int) -> Dict[str, Any]:
+    """Execute sequential training loop with parity enforcement."""
+    agent = SequentialAgent(config, seed=seed)
+    parity_checker = ParityChecker(budget=config.rule_evaluation_budget)
     
-    # Load logic proofs
-    logic_file = data_path / "logic_proofs.json"
-    if logic_file.exists():
-        with open(logic_file, 'r') as f:
-            logic_data = json.load(f)
-    else:
-        logic_data = []
-    
-    # Load grid worlds
-    grid_file = data_path / "grid_worlds.json"
-    if grid_file.exists():
-        with open(grid_file, 'r') as f:
-            grid_data = json.load(f)
-    else:
-        grid_data = []
-    
+    results = []
+    total_evals = 0
+
+    # Process proofs
+    for instance in data["proofs"]:
+        # Check parity before evaluation
+        if not parity_checker.can_evaluate(1):
+            raise ParityError(f"Budget exceeded at proof evaluation. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+        
+        result = agent.train_on_instance(instance, domain="logic")
+        parity_checker.record_evaluation(1)
+        total_evals += 1
+        results.append(result)
+
+    # Process grids
+    for instance in data["grids"]:
+        if not parity_checker.can_evaluate(1):
+            raise ParityError(f"Budget exceeded at grid evaluation. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+        
+        result = agent.train_on_instance(instance, domain="grid")
+        parity_checker.record_evaluation(1)
+        total_evals += 1
+        results.append(result)
+
     return {
-        "logic_proofs": logic_data,
-        "grid_worlds": grid_data,
-        "config": config
+        "condition": "sequential",
+        "total_evaluations": total_evals,
+        "final_state": agent.get_state(),
+        "results": results
     }
 
-def run_sequential_training(data: Dict[str, Any], config: Dict[str, Any], output_dir: str) -> Dict[str, Any]:
-    """
-    Run sequential training condition.
+def run_mixed_training(config: Config, data: Dict[str, Any], output_dir: str, seed: int) -> Dict[str, Any]:
+    """Execute mixed training loop with parity enforcement."""
+    agent = MixedAgent(config, seed=seed)
+    parity_checker = ParityChecker(budget=config.rule_evaluation_budget)
     
-    Args:
-        data: Training data dictionary
-        config: Configuration dictionary
-        output_dir: Output directory for results
+    results = []
+    total_evals = 0
+    all_instances = data["proofs"] + data["grids"]
     
-    Returns:
-        Training results dictionary
-    """
-    agent = SequentialAgent(config)
-    results = agent.train(data)
+    # Shuffle instances for mixed training
+    import random
+    random.seed(seed)
+    random.shuffle(all_instances)
+
+    for instance in all_instances:
+        if not parity_checker.can_evaluate(1):
+            raise ParityError(f"Budget exceeded at mixed evaluation. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+        
+        domain = "logic" if "axioms" in instance else "grid"
+        result = agent.train_on_instance(instance, domain=domain)
+        parity_checker.record_evaluation(1)
+        total_evals += 1
+        results.append(result)
+
+    return {
+        "condition": "mixed",
+        "total_evaluations": total_evals,
+        "final_state": agent.get_state(),
+        "results": results
+    }
+
+def run_coevolving_training(config: Config, data: Dict[str, Any], output_dir: str, seed: int) -> Dict[str, Any]:
+    """Execute co-evolving training loop with parity enforcement."""
+    agent = CoevolvingAgent(config, seed=seed)
+    parity_checker = ParityChecker(budget=config.rule_evaluation_budget)
     
-    # Save results
+    results = []
+    total_evals = 0
+    
+    # Split data for sub-populations
+    half = len(data["proofs"]) // 2
+    pop1_proof_data = data["proofs"][:half]
+    pop2_proof_data = data["proofs"][half:]
+    grid_data = data["grids"]
+
+    # Training loop
+    for generation in range(config.generations):
+        # Process population 1
+        for instance in pop1_proof_data:
+            if not parity_checker.can_evaluate(1):
+                raise ParityError(f"Budget exceeded at coevolving pop1 eval. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+            
+            result = agent.train_on_instance(instance, domain="logic", population=0)
+            parity_checker.record_evaluation(1)
+            total_evals += 1
+            results.append(result)
+
+        # Process population 2
+        for instance in pop2_proof_data:
+            if not parity_checker.can_evaluate(1):
+                raise ParityError(f"Budget exceeded at coevolving pop2 eval. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+            
+            result = agent.train_on_instance(instance, domain="logic", population=1)
+            parity_checker.record_evaluation(1)
+            total_evals += 1
+            results.append(result)
+
+        # Process grids for both populations
+        for instance in grid_data:
+            if not parity_checker.can_evaluate(1):
+                raise ParityError(f"Budget exceeded at coevolving grid eval. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+            
+            result = agent.train_on_instance(instance, domain="grid", population=0)
+            parity_checker.record_evaluation(1)
+            total_evals += 1
+            results.append(result)
+
+            if not parity_checker.can_evaluate(1):
+                raise ParityError(f"Budget exceeded at coevolving grid eval 2. Current: {parity_checker.current_count}, Budget: {config.rule_evaluation_budget}")
+            
+            result = agent.train_on_instance(instance, domain="grid", population=1)
+            parity_checker.record_evaluation(1)
+            total_evals += 1
+            results.append(result)
+
+        # Bidirectional exchange at every generation
+        agent.exchange_rule_sets()
+
+    return {
+        "condition": "coevolving",
+        "total_evaluations": total_evals,
+        "final_state": agent.get_state(),
+        "results": results
+    }
+
+def execute_training_loop(condition: str, config_path: str, output_dir: str, seed: int) -> None:
+    """Main training orchestration with parity enforcement."""
+    config = load_config(config_path)
+    data = load_training_data("data")
+    
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    result_file = output_path / "sequential_results.json"
-    
-    with open(result_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    return results
 
-def run_mixed_training(data: Dict[str, Any], config: Dict[str, Any], output_dir: str) -> Dict[str, Any]:
-    """
-    Run mixed-task training condition.
-    
-    Args:
-        data: Training data dictionary
-        config: Configuration dictionary
-        output_dir: Output directory for results
-    
-    Returns:
-        Training results dictionary
-    """
-    agent = MixedAgent(config)
-    results = agent.train(data)
-    
-    # Save results
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    result_file = output_path / "mixed_results.json"
-    
-    with open(result_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    return results
-
-def run_coevolving_training(data: Dict[str, Any], config: Dict[str, Any], output_dir: str) -> Dict[str, Any]:
-    """
-    Run co-evolving training condition.
-    
-    Args:
-        data: Training data dictionary
-        config: Configuration dictionary
-        output_dir: Output directory for results
-    
-    Returns:
-        Training results dictionary
-    """
-    agent = CoevolvingAgent(config)
-    results = agent.train(data)
-    
-    # Save results
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    result_file = output_path / "coevolving_results.json"
-    
-    with open(result_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    return results
-
-def execute_training_loop(
-    condition: str,
-    data: Dict[str, Any],
-    config: Dict[str, Any],
-    output_dir: str
-) -> Dict[str, Any]:
-    """
-    Execute training loop for a specific condition.
-    
-    Args:
-        condition: Training condition name
-        data: Training data dictionary
-        config: Configuration dictionary
-        output_dir: Output directory for results
-    
-    Returns:
-        Training results dictionary
-    """
     if condition == "sequential":
-        return run_sequential_training(data, config, output_dir)
+        result = run_sequential_training(config, data, output_dir, seed)
     elif condition == "mixed":
-        return run_mixed_training(data, config, output_dir)
+        result = run_mixed_training(config, data, output_dir, seed)
     elif condition == "coevolving":
-        return run_coevolving_training(data, config, output_dir)
+        result = run_coevolving_training(config, data, output_dir, seed)
     else:
-        raise ValueError(f"Unknown training condition: {condition}")
+        raise ValueError(f"Unknown condition: {condition}")
+
+    # Write results
+    result_file = output_path / f"{condition}_result.json"
+    with open(result_file, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    # Update checksum
+    update_checksum_for_file(str(result_file))
+    
+    print(f"Training completed. Results written to {result_file}")
+    print(f"Total rule evaluations: {result['total_evaluations']}")
 
 def main():
-    """Main entry point for the CLI."""
     parser = create_parser()
     args = parser.parse_args()
 
-    if args.command is None:
-        parser.print_help()
-        sys.exit(1)
-
-    # Handle subcommands
-    if args.command == "generate":
-        # Placeholder for generation logic
-        print(f"Generating data: {args.logic_count} logic proofs, {args.grid_count} grids")
-        print(f"Output directory: {args.output_dir}")
-        sys.exit(0)
-
-    elif args.command == "validate":
-        # Delegate to validation module
-        sys.argv = ["validate", "--data-dir", args.data_dir]
-        if hasattr(args, 'config'):
-            sys.argv.extend(["--config", args.config])
-        validate_main()
-
-    elif args.command == "train":
-        # Load configuration
-        config = load_config(args.config)
-        config["seed"] = args.seed
-        
-        # Load data
-        data = load_training_data(args.data_dir, config)
-        
-        # Execute training
-        results = execute_training_loop(
-            args.condition,
-            data,
-            config,
-            args.output_dir
+    if args.command == "train":
+        execute_training_loop(
+            condition=args.condition,
+            config_path=args.config,
+            output_dir=args.output_dir,
+            seed=args.seed
         )
-        
-        print(f"Training completed for condition: {args.condition}")
-        print(f"Results saved to: {args.output_dir}")
-
-    elif args.command == "batch":
-        print(f"Batch execution: {args.runs} runs for conditions: {args.conditions}")
-        print(f"Output directory: {args.output_dir}")
-        print(f"Parallel processes: {args.parallel}")
-        # Placeholder for batch execution logic
-        sys.exit(0)
-
-    elif args.command == "analyze":
-        # Delegate to aggregation/analysis modules
-        sys.argv = ["analyze", "--results-dir", args.results_dir]
-        if hasattr(args, 'output_dir'):
-            sys.argv.extend(["--output-dir", args.output_dir])
-        if args.compute_retention:
-            sys.argv.append("--compute-retention")
-        aggregate_main()
-
-    elif args.command == "report":
-        # Delegate to report generation
-        sys.argv = ["report", "--results-dir", args.results_dir]
-        if hasattr(args, 'output_file'):
-            sys.argv.extend(["--output-file", args.output_file])
-        report_main()
-
-    elif args.command == "config":
-        if args.action == "show":
-            config = get_default_config()
-            print(json.dumps(config, indent=2))
-        elif args.action == "save":
-            config = get_default_config()
-            save_config(config, args.config_file)
-            print(f"Configuration saved to: {args.config_file}")
-        elif args.action == "load":
-            config = load_config(args.config_file)
-            print(f"Configuration loaded from: {args.config_file}")
-            print(json.dumps(config, indent=2))
-
-    elif args.command == "checksum":
-        if args.action == "compute":
-            print(f"Computing checksums for: {args.data_dir}")
-            # Placeholder for checksum computation
-        elif args.action == "verify":
-            print(f"Verifying checksums from: {args.checksum_file}")
-            # Placeholder for verification
-        elif args.action == "list":
-            print(f"Listing checksums from: {args.checksum_file}")
-            # Placeholder for listing
-
-    elif args.command == "parity":
-        print(f"Checking parity for conditions: {args.conditions}")
-        print(f"Results directory: {args.results_dir}")
-        # Placeholder for parity checking
-        sys.exit(0)
-
+    elif args.command == "validate":
+        success = validate_dataset(args.data_dir)
+        sys.exit(0 if success else 1)
     else:
         parser.print_help()
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,278 +1,215 @@
-"""
-Grid-world navigation generator for the Co-Evolving Policy Distillation project.
-
-Generates solvable grid-world navigation tasks with non-overlapping rule sets
-using NetworkX for graph representation and pathfinding.
-"""
-
 import random
 import json
 import os
+import logging
 from typing import List, Dict, Any, Tuple, Optional, Set
 from pathlib import Path
 import networkx as nx
 
+logger = logging.getLogger(__name__)
 
 class GridGenerationError(Exception):
     """Exception raised for grid generation failures."""
     pass
 
-
 class GridWorldGenerator:
     """
     Generates solvable grid-world navigation tasks with distinct rule sets.
-
-    Rules include:
-    - Avoid red cells
-    - Diagonal movement allowed/disallowed
-    - Specific obstacles
+    Uses NetworkX to ensure connectivity and solvability.
     """
 
-    def __init__(self, config: Dict[str, Any]):
-        """
-        Initialize the generator with configuration.
-
-        Args:
-            config: Dictionary containing generation parameters:
-                    - grid_size: Tuple (rows, cols)
-                    - num_obstacles: Number of obstacles to place
-                    - rules: List of rule identifiers
-                    - seed: Random seed for reproducibility
-                    - max_retries: Maximum retry attempts for valid generation
-        """
-        self.grid_size = config.get("grid_size", (10, 10))
-        self.num_obstacles = config.get("num_obstacles", 5)
-        self.rules = config.get("rules", ["avoid_red", "no_diagonal"])
-        self.seed = config.get("seed", 42)
-        self.max_retries = config.get("max_retries", 100)
-        
-        random.seed(self.seed)
-
-    def _create_grid_graph(self) -> nx.Graph:
-        """
-        Create a grid graph with the specified dimensions.
-
-        Returns:
-            A NetworkX graph representing the grid.
-        """
-        rows, cols = self.grid_size
-        G = nx.Graph()
-
-        # Add nodes
-        for r in range(rows):
-            for c in range(cols):
-                G.add_node((r, c))
-
-        # Add edges (up, down, left, right)
-        for r in range(rows):
-            for c in range(cols):
-                if r + 1 < rows:
-                    G.add_edge((r, c), (r + 1, c))
-                if c + 1 < cols:
-                    G.add_edge((r, c), (r, c + 1))
-
-        return G
-
-    def _add_obstacles(self, G: nx.Graph, start: Tuple[int, int], end: Tuple[int, int]) -> Set[Tuple[int, int]]:
-        """
-        Add obstacles to the grid while ensuring solvability.
-
-        Args:
-            G: The grid graph.
-            start: Starting position.
-            end: Ending position.
-
-        Returns:
-            Set of obstacle coordinates.
-        """
-        rows, cols = self.grid_size
-        obstacles = set()
-        attempts = 0
-        max_attempts = self.num_obstacles * 10
-
-        while len(obstacles) < self.num_obstacles and attempts < max_attempts:
-            r = random.randint(0, rows - 1)
-            c = random.randint(0, cols - 1)
-            pos = (r, c)
-
-            # Don't place obstacles on start or end
-            if pos == start or pos == end:
-                attempts += 1
-                continue
-
-            # Temporarily remove node and check connectivity
-            G_copy = G.copy()
-            G_copy.remove_node(pos)
-            
-            if nx.has_path(G_copy, start, end):
-                obstacles.add(pos)
-            attempts += 1
-
-        return obstacles
-
-    def _add_red_cells(self, G: nx.Graph, obstacles: Set[Tuple[int, int]]) -> Set[Tuple[int, int]]:
-        """
-        Add red cells (penalty cells) to the grid.
-
-        Args:
-            G: The grid graph.
-            obstacles: Set of obstacle coordinates.
-
-        Returns:
-            Set of red cell coordinates.
-        """
-        rows, cols = self.grid_size
-        red_cells = set()
-        num_red = max(3, self.num_obstacles // 2)
-
-        available = [(r, c) for r in range(rows) for c in range(cols) 
-                    if (r, c) not in obstacles]
-        
-        # Don't place red cells on start or end
-        if available:
-            red_cells = set(random.sample(available, min(num_red, len(available))))
-
-        return red_cells
-
-    def _generate_grid_instance(self, rule_set_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Generate a single grid instance with the specified rules.
-
-        Args:
-            rule_set_id: Identifier for the rule set.
-
-        Returns:
-            Dictionary containing grid instance data, or None if generation fails.
-        """
-        rows, cols = self.grid_size
-        
-        # Create base grid
-        G = self._create_grid_graph()
-        
-        # Select start and end positions
-        start = (random.randint(0, rows // 2 - 1), random.randint(0, cols // 2 - 1))
-        end = (random.randint(rows // 2, rows - 1), random.randint(cols // 2, cols - 1))
-        
-        # Add obstacles ensuring solvability
-        obstacles = self._add_obstacles(G, start, end)
-        
-        # Add red cells
-        red_cells = self._add_red_cells(G, obstacles)
-        
-        # Calculate shortest path
-        try:
-            shortest_path = nx.shortest_path(G, start, end)
-            path_length = len(shortest_path) - 1
-        except nx.NetworkXNoPath:
-            return None  # Retry needed
-
-        # Build instance data
-        instance = {
-            "rule_set_id": rule_set_id,
-            "grid_size": self.grid_size,
-            "start": list(start),
-            "end": list(end),
-            "obstacles": [list(obs) for obs in obstacles],
-            "red_cells": [list(rc) for rc in red_cells],
-            "rules": self.rules.copy(),
-            "shortest_path": [list(p) for p in shortest_path],
-            "path_length": path_length,
-            "solvability_verified": True
+    def __init__(self, seed: Optional[int] = None):
+        self.rng = random.Random(seed)
+        self.rule_sets = {
+            "avoid_red": {"type": "avoid_red", "description": "Avoid red cells"},
+            "diagonal_paths": {"type": "diagonal_paths", "description": "Allow diagonal movement"},
+            "no_backtrack": {"type": "no_backtrack", "description": "Cannot return to previous cell"},
+            "checkpoint_mandatory": {"type": "checkpoint_mandatory", "description": "Must visit checkpoint"}
         }
 
-        return instance
-
-    def generate(self, num_instances: int = 10) -> List[Dict[str, Any]]:
+    def _generate_grid_graph(self, width: int, height: int, rule_type: str) -> Tuple[nx.Graph, Dict[str, Any]]:
         """
-        Generate multiple grid instances with the specified rules.
+        Generates a grid graph based on the rule type.
+        Returns the graph and metadata.
+        """
+        G = nx.Graph()
+        
+        # Create grid nodes
+        for r in range(height):
+            for c in range(width):
+                G.add_node((r, c))
+        
+        # Add edges based on rules
+        if rule_type == "avoid_red":
+            # Standard grid, but mark some cells as red (obstacles)
+            # We'll mark them as node attributes, edges remain valid but traversal logic handles it
+            for r in range(height):
+                for c in range(width):
+                    # 20% chance of red cell
+                    if self.rng.random() < 0.2:
+                        G.nodes[(r, c)]["color"] = "red"
+                    else:
+                        G.nodes[(r, c)]["color"] = "green"
+            
+            # Remove edges connected to red cells for the "avoid" logic to be structural
+            # Actually, for the generator, we keep the graph connected but mark obstacles.
+            # The solver (agent) must avoid them. To ensure solvability, we ensure a path exists
+            # that avoids red cells.
+            # Strategy: Generate full grid, then remove red nodes and check connectivity.
+            pass
+        
+        elif rule_type == "diagonal_paths":
+            # Allow 8-connectivity
+            for r in range(height):
+                for c in range(width):
+                    for dr in [-1, 0, 1]:
+                        for dc in [-1, 0, 1]:
+                            if dr == 0 and dc == 0:
+                                continue
+                            nr, nc = r + dr, c + dc
+                            if 0 <= nr < height and 0 <= nc < width:
+                                G.add_edge((r, c), (nr, nc))
+        elif rule_type == "no_backtrack":
+            # Standard 4-connectivity, backtracking is a constraint on the path, not the graph
+            for r in range(height):
+                for c in range(width):
+                    for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < height and 0 <= nc < width:
+                            G.add_edge((r, c), (nr, nc))
+        elif rule_type == "checkpoint_mandatory":
+            # Standard 4-connectivity
+            for r in range(height):
+                for c in range(width):
+                    for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < height and 0 <= nc < width:
+                            G.add_edge((r, c), (nr, nc))
+            # Mark a random checkpoint
+            checkpoint = self.rng.choice(list(G.nodes))
+            G.nodes[checkpoint]["is_checkpoint"] = True
+        
+        return G
 
-        Args:
-            num_instances: Number of instances to generate.
+    def _ensure_solvable(self, G: nx.Graph, rule_type: str, start: Tuple[int, int], end: Tuple[int, int]) -> bool:
+        """
+        Checks if a path exists from start to end given the rules.
+        For 'avoid_red', we must ensure a path exists that doesn't touch red nodes.
+        """
+        if rule_type == "avoid_red":
+            # Create a subgraph without red nodes
+            H = G.copy()
+            red_nodes = [n for n, d in H.nodes(data=True) if d.get("color") == "red"]
+            H.remove_nodes_from(red_nodes)
+            try:
+                nx.shortest_path(H, start, end)
+                return True
+            except nx.NetworkXNoPath:
+                return False
+        else:
+            try:
+                nx.shortest_path(G, start, end)
+                return True
+            except nx.NetworkXNoPath:
+                return False
 
-        Returns:
-            List of generated grid instances.
+    def generate_instance(self, width: int, height: int, rule_set_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Generates a single grid instance with bounded retry logic.
+        Returns None if generation fails after max attempts.
+        """
+        max_attempts = 3
+        rule_type = self.rule_sets[rule_set_id]["type"]
+        
+        for attempt in range(1, max_attempts + 1):
+            try:
+                # Generate graph
+                G = self._generate_grid_graph(width, height, rule_type)
+                
+                # Pick start and end
+                nodes = list(G.nodes())
+                start = self.rng.choice(nodes)
+                end = self.rng.choice([n for n in nodes if n != start])
+                
+                # Ensure solvability
+                if not self._ensure_solvable(G, rule_type, start, end):
+                    if attempt == max_attempts:
+                        logger.warning(f"Retry limit reached for instance with rule {rule_set_id} (Attempt {attempt})")
+                        return None
+                    continue
+                
+                # Build instance data
+                grid_data = {
+                    "width": width,
+                    "height": height,
+                    "start": list(start),
+                    "end": list(end),
+                    "rule_set_id": rule_set_id,
+                    "nodes": {},
+                    "edges": []
+                }
+                
+                for node, data in G.nodes(data=True):
+                    grid_data["nodes"][f"{node[0]},{node[1]}"] = data
+                
+                for u, v in G.edges():
+                    grid_data["edges"].append([list(u), list(v)])
+                
+                return {
+                    "id": f"grid_{self.rng.randint(10000, 99999)}",
+                    "domain": "grid_world",
+                    "rule_set_id": rule_set_id,
+                    "instance_data": grid_data
+                }
+                
+            except Exception as e:
+                if attempt == max_attempts:
+                    logger.error(f"Failed to generate grid after {max_attempts} attempts: {e}")
+                    return None
+                continue
 
-        Raises:
-            GridGenerationError: If unable to generate valid instances after retries.
+        return None
+
+    def generate_dataset(self, count: int, width: int, height: int, rule_set_ids: List[str]) -> List[Dict[str, Any]]:
+        """
+        Generates a dataset of grid instances.
         """
         instances = []
-        rule_set_id = f"grid_{self.seed}_{len(instances)}"
-
-        for i in range(num_instances):
-            success = False
-            retry_count = 0
-            instance = None
-
-            while not success and retry_count < self.max_retries:
-                instance = self._generate_grid_instance(rule_set_id)
-                if instance and instance["solvability_verified"]:
-                    success = True
-                else:
-                    retry_count += 1
-
-            if not success:
-                raise GridGenerationError(
-                    f"Failed to generate valid grid instance after {self.max_retries} retries"
-                )
-
-            instances.append(instance)
-
+        for _ in range(count):
+            rule_id = self.rng.choice(rule_set_ids)
+            instance = self.generate_instance(width, height, rule_id)
+            if instance:
+                instances.append(instance)
         return instances
 
-
 def main():
-    """Main entry point for grid generation script."""
-    import sys
+    """Main entry point for the grid generator."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate grid-world navigation tasks")
+    parser.add_argument("--count", type=int, default=10, help="Number of instances to generate")
+    parser.add_argument("--width", type=int, default=5, help="Grid width")
+    parser.add_argument("--height", type=int, default=5, help="Grid height")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/generated_grids.json", help="Output file path")
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
     
-    # Default configuration
-    config = {
-        "grid_size": (10, 10),
-        "num_obstacles": 5,
-        "rules": ["avoid_red", "no_diagonal"],
-        "seed": 42,
-        "max_retries": 100,
-        "num_instances": 20,
-        "output_path": "data/grid_worlds.json"
-    }
+    generator = GridWorldGenerator(seed=args.seed)
+    instances = generator.generate_dataset(
+        count=args.count,
+        width=args.width,
+        height=args.height,
+        rule_set_ids=["avoid_red", "diagonal_paths", "no_backtrack", "checkpoint_mandatory"]
+    )
 
-    # Load config from file if provided
-    if len(sys.argv) > 1:
-        config_path = sys.argv[1]
-        if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
-                loaded_config = json.load(f)
-                config.update(loaded_config)
-
-    # Create generator
-    generator = GridWorldGenerator(config)
-
-    # Generate instances
-    try:
-        instances = generator.generate(config["num_instances"])
-        
-        # Write output
-        output_path = Path(config["output_path"])
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w') as f:
-            json.dump({
-                "metadata": {
-                    "generator": "GridWorldGenerator",
-                    "config": config,
-                    "num_instances": len(instances)
-                },
-                "instances": instances
-            }, f, indent=2)
-        
-        print(f"Generated {len(instances)} grid instances to {output_path}")
-        
-    except GridGenerationError as e:
-        print(f"Grid generation failed: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
-
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, "w") as f:
+        json.dump(instances, f, indent=2)
+    
+    logger.info(f"Generated {len(instances)} grid instances to {output_path}")
 
 if __name__ == "__main__":
     main()

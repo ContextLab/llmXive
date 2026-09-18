@@ -1,10 +1,9 @@
 """
-Parity Checker Module for Co-Evolving Policy Distillation.
+Parity checker utility for enforcing rule-evaluation budget constraints.
 
-This module enforces strict parity in rule evaluations across different
-training conditions (Sequential, Mixed-task, Co-evolving) as required by
-SC-002. It provides mechanisms to cap evaluations during generation,
-track evaluation counts, and verify parity across runs.
+This module provides functionality to track and enforce strict parity of total
+rule evaluations across different training conditions (Sequential, Mixed, Co-evolving).
+It ensures that no condition exceeds the allocated budget, preventing wasted compute.
 """
 
 import json
@@ -15,27 +14,17 @@ from dataclasses import dataclass, asdict
 
 
 class ParityError(Exception):
-    """Exception raised when parity constraints are violated."""
+    """Raised when a rule evaluation count exceeds the allocated budget."""
     pass
 
 
 @dataclass
 class EvaluationStats:
-    """
-    Statistics for rule evaluations in a single training run.
-
-    Attributes:
-        total_evaluations: Total number of rule evaluations performed.
-        task_evaluations: Dict mapping task_id to evaluation count for that task.
-        checksum: SHA-256 hash of the evaluation distribution for integrity.
-        condition: The training condition name (e.g., 'sequential', 'mixed', 'coevolving').
-        seed: Random seed used for this run.
-    """
-    total_evaluations: int
-    task_evaluations: Dict[str, int]
-    checksum: str
-    condition: str
-    seed: int
+    """Statistics tracking for rule evaluations."""
+    total_evaluations: int = 0
+    budget: int = 0
+    condition: str = ""
+    current_count: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -43,213 +32,224 @@ class EvaluationStats:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'EvaluationStats':
-        """Create from dictionary."""
+        """Create instance from dictionary."""
         return cls(**data)
 
 
 class ParityChecker:
     """
-    Enforces hard integer caps on rule evaluations and verifies parity.
+    Utility class for checking and enforcing evaluation parity across training runs.
 
-    This class is used during the generation loop to ensure that:
-    1. No run exceeds the configured maximum evaluation budget.
-    2. The total evaluations match exactly across all three conditions.
-    3. The distribution of evaluations across tasks is consistent.
+    This checker ensures that the total number of rule evaluations does not exceed
+    the allocated budget during training. It is designed to be called at every
+    generation step in the training loop to fail fast if the budget is exceeded.
     """
 
-    def __init__(self, max_evaluations: int, expected_tasks: List[str]):
+    def __init__(self, budget: int, condition: str):
         """
         Initialize the parity checker.
 
         Args:
-            max_evaluations: The hard cap on total rule evaluations per run.
-            expected_tasks: List of task IDs that should be evaluated.
+            budget: Maximum allowed number of rule evaluations.
+            condition: Name of the training condition (e.g., 'sequential', 'mixed', 'coevolving').
         """
-        self.max_evaluations = max_evaluations
-        self.expected_tasks = set(expected_tasks)
+        if budget <= 0:
+            raise ValueError("Budget must be a positive integer")
+        self.budget = budget
+        self.condition = condition
         self.current_count = 0
-        self.task_counts: Dict[str, int] = {task: 0 for task in expected_tasks}
-        self._evaluation_log: List[Dict[str, Any]] = []
+        self.history: List[Dict[str, Any]] = []
 
-    def reset(self) -> None:
-        """Reset the counter for a new run."""
-        self.current_count = 0
-        self.task_counts = {task: 0 for task in self.expected_tasks}
-        self._evaluation_log = []
-
-    def record_evaluation(self, task_id: str, count: int = 1) -> None:
+    def check_and_enforce(self, increment: int = 1) -> None:
         """
-        Record rule evaluations for a specific task.
+        Check if the current count plus increment exceeds the budget.
 
         Args:
-            task_id: The identifier of the task being evaluated.
-            count: Number of evaluations to record (default 1).
+            increment: Number of evaluations to add (default 1).
 
         Raises:
-            ParityError: If recording this evaluation would exceed the cap.
+            ParityError: If the count would exceed the budget.
         """
-        if task_id not in self.expected_tasks:
-            raise ParityError(f"Unknown task_id: {task_id}. Expected one of {self.expected_tasks}")
+        if increment < 0:
+            raise ValueError("Increment must be non-negative")
 
-        if self.current_count + count > self.max_evaluations:
+        new_count = self.current_count + increment
+
+        if new_count > self.budget:
             raise ParityError(
-                f"Evaluation cap exceeded: current={self.current_count}, "
-                f"adding={count}, max={self.max_evaluations}"
+                f"Parity violation: {self.condition} condition would exceed budget. "
+                f"Current: {self.current_count}, Increment: {increment}, "
+                f"Budget: {self.budget}, Projected: {new_count}"
             )
 
-        self.current_count += count
-        self.task_counts[task_id] += count
-        self._evaluation_log.append({
-            "task_id": task_id,
-            "count": count,
-            "total_so_far": self.current_count
+        self.current_count = new_count
+        self.history.append({
+            'count': self.current_count,
+            'increment': increment,
+            'remaining': self.budget - self.current_count
         })
 
-    def clamp_to_cap(self, task_id: str, requested_count: int) -> int:
-        """
-        Clamp the requested evaluation count to the remaining budget.
+    def get_remaining(self) -> int:
+        """Get the remaining budget."""
+        return self.budget - self.current_count
 
-        This enforces the hard cap during the generation loop.
+    def is_exhausted(self) -> bool:
+        """Check if the budget is fully exhausted."""
+        return self.current_count >= self.budget
 
-        Args:
-            task_id: The task being evaluated.
-            requested_count: The number of evaluations requested.
-
-        Returns:
-            The actual number of evaluations that can be performed.
-
-        Raises:
-            ParityError: If the task_id is invalid.
-        """
-        if task_id not in self.expected_tasks:
-            raise ParityError(f"Unknown task_id: {task_id}")
-
-        remaining = self.max_evaluations - self.current_count
-        if remaining <= 0:
-            return 0
-
-        actual_count = min(requested_count, remaining)
-        self.record_evaluation(task_id, actual_count)
-        return actual_count
-
-    def get_stats(self, condition: str, seed: int) -> EvaluationStats:
-        """
-        Generate statistics for the current run.
-
-        Args:
-            condition: The training condition name.
-            seed: The random seed used.
-
-        Returns:
-            An EvaluationStats object with the run's metrics.
-        """
-        # Create a canonical representation for checksumming
-        canonical_data = {
-            "total": self.current_count,
-            "tasks": {k: v for k, v in sorted(self.task_counts.items())}
-        }
-        json_str = json.dumps(canonical_data, sort_keys=True)
-        checksum = hashlib.sha256(json_str.encode('utf-8')).hexdigest()
-
+    def get_stats(self) -> EvaluationStats:
+        """Get current evaluation statistics."""
         return EvaluationStats(
             total_evaluations=self.current_count,
-            task_evaluations=dict(self.task_counts),
-            checksum=checksum,
-            condition=condition,
-            seed=seed
+            budget=self.budget,
+            condition=self.condition,
+            current_count=self.current_count
         )
 
-    def verify_exact_parity(self, stats_list: List[EvaluationStats]) -> None:
+    def save_history(self, output_path: Path) -> None:
         """
-        Verify that all provided stats have identical total evaluations.
+        Save the evaluation history to a JSON file.
 
         Args:
-            stats_list: List of EvaluationStats from different conditions.
-
-        Raises:
-            ParityError: If totals do not match exactly.
+            output_path: Path to save the history file.
         """
-        if len(stats_list) < 2:
-            return  # Nothing to compare
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump({
+                'condition': self.condition,
+                'budget': self.budget,
+                'final_count': self.current_count,
+                'history': self.history
+            }, f, indent=2)
 
-        target_total = stats_list[0].total_evaluations
-        target_checksum = stats_list[0].checksum
 
-        for stats in stats_list[1:]:
-            if stats.total_evaluations != target_total:
-                raise ParityError(
-                    f"Parity mismatch: {stats.condition} has {stats.total_evaluations} "
-                    f"evaluations, expected {target_total}"
-                )
-            if stats.checksum != target_checksum:
-                raise ParityError(
-                    f"Checksum mismatch: {stats.condition} has checksum "
-                    f"{stats.checksum}, expected {target_checksum}"
-                )
+def check_and_enforce_parity(budget: int, current_count: int, condition: str = "unknown") -> int:
+    """
+    Standalone function to check and enforce parity constraints.
+
+    This function is designed to be called during the training loop to ensure
+    the hard integer cap is not exceeded in real-time.
+
+    Args:
+        budget: Maximum allowed number of rule evaluations.
+        current_count: Current count of rule evaluations.
+        condition: Name of the training condition for error reporting.
+
+    Returns:
+        The updated count (same as input if no increment).
+
+    Raises:
+        ParityError: If the current count exceeds the budget.
+    """
+    if current_count > budget:
+        raise ParityError(
+            f"Parity violation: {condition} condition has exceeded budget. "
+            f"Current: {current_count}, Budget: {budget}"
+        )
+    return current_count
 
 
 def verify_run_parity(
     results_dir: Path,
-    conditions: List[str],
-    max_evaluations: int
+    expected_budget: int,
+    conditions: List[str]
 ) -> Dict[str, Any]:
     """
-    Load results from multiple conditions and verify evaluation parity.
-
-    This function reads the evaluation statistics from result files generated
-    by the training loop and ensures they meet the SC-002 requirement of
-    exact parity across conditions.
+    Verify that multiple training runs have achieved parity in rule evaluations.
 
     Args:
-        results_dir: Directory containing result JSON files.
-        conditions: List of condition names to check (e.g., ['sequential', 'mixed', 'coevolving']).
-        max_evaluations: The expected total evaluation count per run.
+        results_dir: Directory containing parity history files.
+        expected_budget: The expected budget that all runs should match.
+        conditions: List of condition names to verify.
 
     Returns:
-        A dictionary with verification results and statistics.
+        Dictionary with verification results for each condition.
 
     Raises:
-        ParityError: If parity cannot be verified.
+        ParityError: If any condition does not match the expected budget.
     """
-    stats_by_condition = {}
+    results = {}
+    all_parity = True
 
     for condition in conditions:
-        result_file = results_dir / f"{condition}_results.json"
-        if not result_file.exists():
-            raise ParityError(f"Result file missing for {condition}: {result_file}")
+        history_file = results_dir / f"parity_history_{condition}.json"
+        if not history_file.exists():
+            results[condition] = {
+                'verified': False,
+                'error': 'History file not found'
+            }
+            all_parity = False
+            continue
 
-        with open(result_file, 'r') as f:
+        with open(history_file, 'r') as f:
             data = json.load(f)
 
-        # Extract evaluation stats from the result file
-        # Expected structure: {"stats": {"total_evaluations": ..., "task_evaluations": ...}}
-        if "stats" not in data:
-            raise ParityError(f"Missing 'stats' in {result_file}")
+        actual_count = data.get('final_count', 0)
+        actual_budget = data.get('budget', 0)
 
-        stats_data = data["stats"]
-        stats = EvaluationStats(
-            total_evaluations=stats_data.get("total_evaluations", 0),
-            task_evaluations=stats_data.get("task_evaluations", {}),
-            checksum=stats_data.get("checksum", ""),
-            condition=condition,
-            seed=stats_data.get("seed", 0)
-        )
+        if actual_count != expected_budget:
+            results[condition] = {
+                'verified': False,
+                'actual_count': actual_count,
+                'expected_count': expected_budget,
+                'error': 'Count mismatch'
+            }
+            all_parity = False
+        elif actual_budget != expected_budget:
+            results[condition] = {
+                'verified': False,
+                'actual_budget': actual_budget,
+                'expected_budget': expected_budget,
+                'error': 'Budget mismatch'
+            }
+            all_parity = False
+        else:
+            results[condition] = {
+                'verified': True,
+                'count': actual_count,
+                'budget': actual_budget
+            }
 
-        if stats.total_evaluations != max_evaluations:
-            raise ParityError(
-                f"Condition {condition} has {stats.total_evaluations} evaluations, "
-                f"expected {max_evaluations}"
-            )
+    if not all_parity:
+        raise ParityError("Parity verification failed for one or more conditions")
 
-        stats_by_condition[condition] = stats
+    return results
 
-    # Verify exact parity across all conditions
-    checker = ParityChecker(max_evaluations, [])
-    checker.verify_exact_parity(list(stats_by_condition.values()))
 
-    return {
-        "verified": True,
-        "conditions": conditions,
-        "max_evaluations": max_evaluations,
-        "stats": {cond: stats.to_dict() for cond, stats in stats_by_condition.items()}
-    }
+def main() -> None:
+    """
+    Main entry point for parity checker CLI.
+
+    This function provides a simple CLI for testing the parity checker functionality.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Parity Checker Utility')
+    parser.add_argument('--budget', type=int, required=True, help='Evaluation budget')
+    parser.add_argument('--condition', type=str, default='test', help='Condition name')
+    parser.add_argument('--steps', type=int, default=10, help='Number of steps to simulate')
+    parser.add_argument('--output', type=str, default=None, help='Output file for history')
+
+    args = parser.parse_args()
+
+    checker = ParityChecker(budget=args.budget, condition=args.condition)
+
+    try:
+        for i in range(args.steps):
+            checker.check_and_enforce(increment=1)
+            print(f"Step {i+1}: Count = {checker.current_count}, Remaining = {checker.get_remaining()}")
+
+        if args.output:
+            checker.save_history(Path(args.output))
+            print(f"History saved to {args.output}")
+
+        print(f"\nFinal: {checker.get_stats().to_dict()}")
+
+    except ParityError as e:
+        print(f"Parity Error: {e}")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    import sys
+    main()

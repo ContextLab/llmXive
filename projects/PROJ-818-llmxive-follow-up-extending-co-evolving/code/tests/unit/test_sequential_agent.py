@@ -1,5 +1,8 @@
 """
-Unit tests for the SequentialAgent implementation.
+Unit tests for SequentialAgent.
+
+These tests verify the sequential training behavior, domain switching,
+and rule set evaluation logic.
 """
 import pytest
 import sys
@@ -7,7 +10,8 @@ import os
 from typing import List, Dict, Any
 from pathlib import Path
 from src.agents.sequential_agent import SequentialAgent
-from src.utils.config import get_default_config
+from src.utils.config import Config
+
 
 class TestSequentialAgent:
     """Test suite for SequentialAgent."""
@@ -15,160 +19,212 @@ class TestSequentialAgent:
     @pytest.fixture
     def config(self):
         """Create a default configuration for testing."""
-        return get_default_config()
+        return Config({
+            'seed': 42,
+            'generation_count': 5,
+            'domain_order': ['logic', 'grid'],
+            'max_domain_iterations': 1
+        })
 
     @pytest.fixture
     def agent(self, config):
-        """Create a SequentialAgent instance for testing."""
-        return SequentialAgent(config, seed=42)
-
-    @pytest.fixture
-    def sample_logic_data(self):
-        """Generate sample logic proof data."""
-        return [
-            {
-                "type": "logic",
-                "premises": ["P0 IMPLIES P1", "P0"],
-                "conclusion": "P1",
-                "id": f"logic_{i}"
-            }
-            for i in range(10)
-        ]
-
-    @pytest.fixture
-    def sample_grid_data(self):
-        """Generate sample grid world data."""
-        return [
-            {
-                "type": "grid",
-                "size": 5,
-                "start": (0, 0),
-                "goal": (4, 4),
-                "obstacles": [(1, 1), (2, 2)],
-                "id": f"grid_{i}"
-            }
-            for i in range(10)
-        ]
+        """Create a SequentialAgent instance."""
+        return SequentialAgent(config)
 
     def test_initialization(self, agent):
-        """Test that the agent initializes correctly."""
+        """Test that SequentialAgent initializes correctly."""
         assert agent.current_domain_index == 0
-        assert agent.domains == ['logic', 'grid']
-        assert all(v == 0 for v in agent.domain_progress.values())
-        assert all(v == 0 for v in agent.evaluation_counts.values())
+        assert agent.get_current_domain() == 'logic'
+        assert len(agent.domain_instances) == 0
+        assert agent.domain_iteration_counts == {'logic': 0, 'grid': 0}
 
-    def test_train_step_logic(self, agent, sample_logic_data):
-        """Test training step on logic domain."""
-        batch = sample_logic_data[:5]
-        result = agent.train_step(batch, 'logic')
+    def test_load_domain_instances(self, agent):
+        """Test loading instances for a domain."""
+        logic_instances = [
+            {'id': 'logic_1', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}},
+            {'id': 'logic_2', 'domain': 'logic', 'instance_data': {'axioms': ['C'], 'target': 'D'}}
+        ]
         
+        agent.load_domain_instances('logic', logic_instances)
+        
+        assert 'logic' in agent.domain_instances
+        assert len(agent.domain_instances['logic']) == 2
+        assert agent.domain_instances['logic'][0]['id'] == 'logic_1'
+
+    def test_domain_advancement(self, agent):
+        """Test advancing to the next domain."""
+        assert agent.get_current_domain() == 'logic'
+        
+        agent.advance_domain()
+        assert agent.get_current_domain() == 'grid'
+        
+        agent.advance_domain()
+        assert agent.get_current_domain() is None
+        assert agent.is_training_complete() is True
+
+    def test_is_training_complete(self, agent):
+        """Test training completion detection."""
+        assert agent.is_training_complete() is False
+        
+        agent.advance_domain()
+        agent.advance_domain()
+        assert agent.is_training_complete() is True
+
+    def test_evaluate_logic_rule_set(self, agent):
+        """Test evaluation of logic rule sets."""
+        rule_set = {
+            'id': 'test_rule_set',
+            'rules': ['A', 'B']
+        }
+        instance = {
+            'domain': 'logic',
+            'instance_data': {
+                'axioms': ['A', 'B'],
+                'target': 'C'
+            }
+        }
+        
+        is_valid, confidence = agent._evaluate_logic_rule_set(rule_set, instance['instance_data'])
+        
+        # Should have high confidence due to rule coverage
+        assert confidence > 0.5
+        assert is_valid is True
+
+    def test_evaluate_grid_rule_set(self, agent):
+        """Test evaluation of grid rule sets."""
+        rule_set = {
+            'id': 'test_rule_set',
+            'rules': ['avoid_obstacles']
+        }
+        instance = {
+            'domain': 'grid',
+            'instance_data': {
+                'grid': {
+                    'rows': 5,
+                    'cols': 5,
+                    'start': (0, 0),
+                    'goal': (4, 4),
+                    'obstacles': []
+                }
+            }
+        }
+        
+        is_valid, confidence = agent._evaluate_grid_rule_set(rule_set, instance['instance_data'])
+        
+        # Should be valid with a clear path
+        assert is_valid is True
+        assert confidence > 0.0
+
+    def test_train_on_instance_logic(self, agent):
+        """Test training on a logic instance."""
+        agent.load_domain_instances('logic', [
+            {'id': 'logic_1', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}}
+        ])
+        
+        instance = {'id': 'logic_1', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}}
+        result = agent.train_on_instance(instance)
+        
+        # Should successfully train
+        assert result is True
+        assert agent.evaluation_count > 0
+
+    def test_train_on_instance_wrong_domain(self, agent):
+        """Test that training skips instances from non-current domains."""
+        agent.load_domain_instances('grid', [
+            {'id': 'grid_1', 'domain': 'grid', 'instance_data': {'grid': {}}}
+        ])
+        
+        instance = {'id': 'grid_1', 'domain': 'grid', 'instance_data': {'grid': {}}}
+        result = agent.train_on_instance(instance)
+        
+        # Should skip because current domain is 'logic'
+        assert result is False
+
+    def test_run_training_epoch(self, agent, config):
+        """Test running a training epoch."""
+        # Load instances for current domain
+        agent.load_domain_instances('logic', [
+            {'id': f'logic_{i}', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}}
+            for i in range(5)
+        ])
+        
+        all_instances = agent.domain_instances['logic']
+        result = agent.run_training_epoch(all_instances)
+        
+        assert result['success'] is True
         assert result['domain'] == 'logic'
-        assert result['batch_size'] == 5
+        assert result['instances_processed'] == 5
         assert 'accuracy' in result
-        assert result['total_evaluations'] == 5
+        assert 'average_confidence' in result
 
-    def test_train_step_grid(self, agent, sample_grid_data):
-        """Test training step on grid domain."""
-        batch = sample_grid_data[:5]
-        result = agent.train_step(batch, 'grid')
+    def test_state_serialization(self, agent):
+        """Test saving and restoring agent state."""
+        # Train a bit to change state
+        agent.load_domain_instances('logic', [
+            {'id': 'logic_1', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}}
+        ])
+        agent.train_on_instance({'id': 'logic_1', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}})
         
-        assert result['domain'] == 'grid'
-        assert result['batch_size'] == 5
-        assert 'accuracy' in result
-        assert result['total_evaluations'] == 5
-
-    def test_train_on_domain(self, agent, sample_logic_data):
-        """Test training exclusively on one domain."""
-        result = agent.train_on_domain('logic', sample_logic_data, steps_per_epoch=3)
-        
-        assert result['domain'] == 'logic'
-        assert result['epochs_completed'] == 3
-        assert 'avg_accuracy' in result
-        assert result['total_samples_processed'] > 0
-
-    def test_train_full_sequence(self, agent, sample_logic_data, sample_grid_data):
-        """Test the full sequential training protocol."""
-        result = agent.train_full_sequence(
-            logic_data=sample_logic_data,
-            grid_data=sample_grid_data,
-            steps_per_domain=2
-        )
-        
-        assert 'training_order' in result
-        assert result['training_order'] == ['logic', 'grid']
-        assert 'logic' in result['domain_results']
-        assert 'grid' in result['domain_results']
-        assert 'final_state' in result
-        
-        # Verify evaluation counts are tracked
-        total_evals = result['final_state']['total_evaluations']
-        assert total_evals > 0
-
-    def test_invalid_domain(self, agent, sample_logic_data):
-        """Test that training on invalid domain raises error."""
-        with pytest.raises(ValueError):
-            agent.train_on_domain('invalid_domain', sample_logic_data)
-
-    def test_empty_batch(self, agent):
-        """Test handling of empty batch."""
-        result = agent.train_step([], 'logic')
-        assert result['status'] == 'skipped'
-        assert result['reason'] == 'empty_batch'
-
-    def test_no_data(self, agent):
-        """Test training with no data."""
-        result = agent.train_on_domain('logic', [], steps_per_epoch=5)
-        assert result['status'] == 'skipped'
-        assert result['reason'] == 'no_data'
-
-    def test_get_state(self, agent):
-        """Test state retrieval."""
         state = agent.get_state()
         
-        assert 'rule_set' in state
-        assert 'evaluation_counts' in state
-        assert 'domain_progress' in state
-        assert 'history_length' in state
+        # Create new agent and restore state
+        new_agent = SequentialAgent(agent.config)
+        new_agent.set_state(state)
+        
+        assert new_agent.generation_count == agent.generation_count
+        assert new_agent.evaluation_count == agent.evaluation_count
+        assert new_agent.current_domain_index == agent.current_domain_index
 
-    def test_set_state(self, agent):
-        """Test state restoration."""
-        initial_state = agent.get_state()
+    def test_multiple_domain_training(self, agent):
+        """Test training across multiple domains."""
+        agent.load_domain_instances('logic', [
+            {'id': 'logic_1', 'domain': 'logic', 'instance_data': {'axioms': ['A'], 'target': 'B'}}
+        ])
+        agent.load_domain_instances('grid', [
+            {'id': 'grid_1', 'domain': 'grid', 'instance_data': {'grid': {'rows': 3, 'cols': 3, 'start': (0, 0), 'goal': (2, 2), 'obstacles': []}}}
+        ])
         
-        # Modify state
-        initial_state['rule_set'] = ['test_rule']
-        initial_state['evaluation_counts'] = {'logic': 10, 'grid': 5}
+        all_instances = []
+        for domain, instances in agent.domain_instances.items():
+            all_instances.extend(instances)
         
-        agent.set_state(initial_state)
+        # Run epoch for logic domain
+        result1 = agent.run_training_epoch(all_instances)
+        assert result1['domain'] == 'logic'
         
-        restored_state = agent.get_state()
-        assert restored_state['rule_set'] == ['test_rule']
-        assert restored_state['evaluation_counts']['logic'] == 10
+        # Advance domain
+        agent.advance_domain()
+        
+        # Run epoch for grid domain
+        result2 = agent.run_training_epoch(all_instances)
+        assert result2['domain'] == 'grid'
 
-    def test_average_accuracy(self, agent, sample_logic_data, sample_grid_data):
-        """Test average accuracy calculation."""
-        # Initially should be 0
-        assert agent.get_average_accuracy() == 0.0
+    def test_empty_domain_training(self, agent):
+        """Test training with no instances for current domain."""
+        # Don't load any instances
+        result = agent.run_training_epoch([])
         
-        # Train and check
-        agent.train_on_domain('logic', sample_logic_data, steps_per_epoch=1)
-        avg_acc = agent.get_average_accuracy()
-        assert isinstance(avg_acc, float)
-        assert 0.0 <= avg_acc <= 1.0
+        assert result['success'] is True
+        assert result['message'] == 'No instances for current domain'
+        assert result['domain'] == 'logic'
 
-    def test_save_results(self, agent, tmp_path, sample_logic_data, sample_grid_data):
-        """Test saving results to file."""
-        agent.train_full_sequence(sample_logic_data, sample_grid_data, steps_per_domain=1)
+    def test_rule_set_refinement(self, agent):
+        """Test that rule sets are refined after successful training."""
+        rule_set = {
+            'id': 'test',
+            'rules': ['initial_rule']
+        }
+        agent.current_rule_sets = [rule_set]
         
-        output_path = tmp_path / "test_results.json"
-        agent.save_results(str(output_path))
+        instance = {
+            'domain': 'logic',
+            'instance_data': {
+                'axioms': ['new_axiom'],
+                'target': 'result'
+            }
+        }
         
-        assert output_path.exists()
+        agent._refine_rule_set(rule_set, instance)
         
-        # Verify file is valid JSON
-        import json
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        
-        assert 'agent_type' in data
-        assert data['agent_type'] == 'SequentialAgent'
-        assert 'final_state' in data
+        # Rule set should be updated with new patterns
+        assert 'new_axiom' in rule_set['rules'] or len(rule_set['rules']) > 1

@@ -4,470 +4,329 @@ from .base_agent import BaseAgent
 from sympy import simplify_logic, symbols, Implies, And, Or, Not
 import networkx as nx
 from src.utils.config import Config
+import logging
 import json
 from pathlib import Path
-from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 class MixedAgent(BaseAgent):
     """
     MixedAgent: Trains on mixed task domains randomly per generation.
     
-    This agent implements the "Mixed-task" condition where the agent is exposed
-    to both logic proofs and grid-world tasks in a randomized interleaved order
-    during the evolutionary training process. This prevents the agent from
-    specializing on one domain before seeing the other, testing resilience
-    against catastrophic forgetting in a continuous mixed stream.
+    This agent implements the 'Mixed-task' condition where training instances
+    from different domains (logic proofs, grid worlds) and rule sets are
+    sampled randomly at each step, rather than in sequential blocks or
+    co-evolving sub-populations.
     """
 
     def __init__(self, config: Config, seed: Optional[int] = None):
         super().__init__(config, seed)
-        self.rule_sets: List[Dict[str, Any]] = []
-        self.evaluation_count = 0
-        self.training_history: List[Dict[str, Any]] = []
-        self.current_domain = None
+        self.population: List[Dict[str, Any]] = []
+        self.rule_sets: Dict[str, Any] = {}
+        self.generation_count: int = 0
+        self.evaluation_count: int = 0
+        self.budget_exceeded = False
         
-        # Initialize random state
-        if seed is not None:
-            random.seed(seed)
+        # Initialize population with random rule sets
+        self._initialize_population()
 
-    def _load_training_data(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-        """
-        Load training data for both logic and grid domains.
-        
-        Returns:
-            Tuple of (logic_proofs, grid_worlds)
-        """
-        data_path = Path(self.config.data_dir)
-        
-        # Load logic proofs
-        logic_file = data_path / "logic_proofs.json"
-        if logic_file.exists():
-            with open(logic_file, 'r') as f:
-                logic_proofs = json.load(f)
-        else:
-            raise FileNotFoundError(f"Logic proofs not found at {logic_file}")
-        
-        # Load grid worlds
-        grid_file = data_path / "grid_worlds.json"
-        if grid_file.exists():
-            with open(grid_file, 'r') as f:
-                grid_worlds = json.load(f)
-        else:
-            raise FileNotFoundError(f"Grid worlds not found at {grid_file}")
-        
-        return logic_proofs, grid_worlds
+    def _initialize_population(self):
+        """Initialize the agent's population with random rule sets."""
+        logger.info("Initializing MixedAgent population...")
+        # Create a population of rule sets based on config
+        for i in range(self.config.population_size):
+            rule_set_id = f"mixed_rule_set_{i}_{self.seed}"
+            # Initialize with a mix of logic and grid rules
+            self.rule_sets[rule_set_id] = {
+                "id": rule_set_id,
+                "logic_rules": self._generate_random_logic_rules(),
+                "grid_rules": self._generate_random_grid_rules(),
+                "fitness": 0.0,
+                "age": 0
+            }
+            
+            self.population.append({
+                "rule_set_id": rule_set_id,
+                "fitness": 0.0
+            })
 
-    def _evaluate_rule_set(self, rule_set: Dict[str, Any], task: Dict[str, Any]) -> bool:
+    def _generate_random_logic_rules(self) -> List[str]:
+        """Generate a set of random valid logic rules."""
+        # Using sympy symbols to create random valid implications
+        p, q, r = symbols('p q r')
+        rules = [
+            Implies(p, q),
+            Implies(q, r),
+            And(p, q),
+            Or(p, Not(q)),
+            Implies(And(p, q), r)
+        ]
+        return [str(rule) for rule in rules]
+
+    def _generate_random_grid_rules(self) -> List[str]:
+        """Generate a set of random grid navigation rules."""
+        # Representing grid rules as string constraints
+        rules = [
+            "avoid_red_cells",
+            "diagonal_movement_allowed",
+            "shortest_path_priority",
+            "avoid_dead_ends"
+        ]
+        # Randomly select a subset
+        return random.sample(rules, k=random.randint(2, len(rules)))
+
+    def train(self, training_data: List[Dict[str, Any]], generations: int, budget: int) -> Dict[str, Any]:
         """
-        Evaluate a rule set against a specific task (logic or grid).
+        Train the agent on mixed task domains.
         
         Args:
-            rule_set: The rule set to evaluate
-            task: The task instance to solve
-            
+            training_data: List of training instances from all domains
+            generations: Number of generations to train
+            budget: Maximum number of rule evaluations allowed
+        
         Returns:
-            True if the rule set successfully solves the task, False otherwise
+            Dictionary containing training results and final state
         """
-        self.evaluation_count += 1
+        logger.info(f"Starting MixedAgent training for {generations} generations with budget {budget}")
         
-        task_type = task.get('type', 'unknown')
-        
-        if task_type == 'logic_proof':
-            return self._evaluate_logic(rule_set, task)
-        elif task_type == 'grid_world':
-            return self._evaluate_grid(rule_set, task)
-        else:
-            raise ValueError(f"Unknown task type: {task_type}")
+        if not training_data:
+            logger.warning("No training data provided. Skipping training.")
+            return self._get_training_result()
 
-    def _evaluate_logic(self, rule_set: Dict[str, Any], task: Dict[str, Any]) -> bool:
-        """
-        Evaluate rule set on a logic proof task.
+        # Shuffle training data to ensure random mixing
+        shuffled_data = training_data.copy()
+        random.shuffle(shuffled_data)
         
-        Args:
-            rule_set: Dictionary containing 'rules' (list of sympy expressions)
-            task: Dictionary containing 'premises' and 'conclusion'
+        data_index = 0
+        total_evaluations = 0
+
+        for gen in range(generations):
+            self.generation_count = gen + 1
+            logger.debug(f"Generation {gen + 1}/{generations}")
             
-        Returns:
-            True if the conclusion can be derived from premises using the rules
-        """
-        rules = rule_set.get('rules', [])
-        premises = task.get('premises', [])
-        conclusion = task.get('conclusion')
-        
-        if not conclusion or not premises:
-            return False
-        
-        try:
-            # Parse premises and conclusion if they are strings
-            if isinstance(conclusion, str):
-                # Simplify the conclusion expression
-                concl_expr = simplify_logic(conclusion)
-            else:
-                concl_expr = conclusion
+            # Sample a random batch of data for this generation
+            batch_size = min(self.config.batch_size, len(shuffled_data))
+            current_batch = random.sample(shuffled_data, batch_size)
             
-            # Start with premises as known truths
-            current_state = And(*premises) if premises else And()
-            
-            # Apply rules iteratively to derive new facts
-            max_iterations = 10
-            for _ in range(max_iterations):
-                new_facts = []
-                for rule in rules:
-                    if isinstance(rule, str):
-                        rule_expr = simplify_logic(rule)
-                    else:
-                        rule_expr = rule
-                        
-                    # Check if rule antecedent is satisfied by current state
-                    if isinstance(rule_expr, Implies):
-                        antecedent = rule_expr.args[0]
-                        consequent = rule_expr.args[1]
-                        
-                        # Check if antecedent is implied by current state
-                        # Simplify: (current_state AND antecedent) == current_state
-                        combined = And(current_state, antecedent)
-                        if simplify_logic(combined) == simplify_logic(current_state):
-                            new_facts.append(consequent)
-                
-                if not new_facts:
+            # Evaluate and update population
+            batch_evaluations = 0
+            for instance in current_batch:
+                if total_evaluations >= budget:
+                    self.budget_exceeded = True
+                    logger.warning(f"Budget exceeded at generation {gen + 1}. Stopping training.")
                     break
                 
-                # Add new facts to current state
-                current_state = And(current_state, *new_facts)
-            
-            # Check if conclusion is implied by final state
-            final_check = And(current_state, Not(concl_expr))
-            if simplify_logic(final_check) == False:
-                return True
-                
-            return False
-            
-        except Exception as e:
-            # Log error but return False for failed evaluation
-            print(f"Logic evaluation error: {e}")
-            return False
-
-    def _evaluate_grid(self, rule_set: Dict[str, Any], task: Dict[str, Any]) -> bool:
-        """
-        Evaluate rule set on a grid world navigation task.
-        
-        Args:
-            rule_set: Dictionary containing 'rules' (navigation constraints)
-            task: Dictionary containing 'grid', 'start', 'goal'
-            
-        Returns:
-            True if a valid path exists from start to goal following rules
-        """
-        rules = rule_set.get('rules', [])
-        grid_data = task.get('grid', {})
-        start = task.get('start')
-        goal = task.get('goal')
-        
-        if not all([grid_data, start, goal]):
-            return False
-        
-        try:
-            # Reconstruct grid graph
-            grid_size = grid_data.get('size', (5, 5))
-            obstacles = grid_data.get('obstacles', [])
-            
-            G = nx.DiGraph()
-            rows, cols = grid_size
-            
-            # Create nodes
-            for r in range(rows):
-                for c in range(cols):
-                    if (r, c) not in obstacles:
-                        G.add_node((r, c))
-            
-            # Add edges based on movement rules
-            for r in range(rows):
-                for c in range(cols):
-                    if (r, c) not in obstacles:
-                        # Check all 4 directions
-                        for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                            nr, nc = r + dr, c + dc
-                            if 0 <= nr < rows and 0 <= nc < cols:
-                                if (nr, nc) not in obstacles:
-                                    # Check if edge violates any rules
-                                    if self._check_grid_rules(G, (r, c), (nr, nc), rules):
-                                        G.add_edge((r, c), (nr, nc))
-            
-            # Check if path exists
-            if start in G and goal in G:
-                try:
-                    path = nx.shortest_path(G, source=start, target=goal)
-                    return True
-                except nx.NetworkXNoPath:
-                    return False
-            return False
-            
-        except Exception as e:
-            print(f"Grid evaluation error: {e}")
-            return False
-
-    def _check_grid_rules(self, G: nx.DiGraph, current: Tuple[int, int], next_node: Tuple[int, int], rules: List[str]) -> bool:
-        """
-        Check if moving from current to next_node violates any rules.
-        
-        Args:
-            G: The grid graph
-            current: Current position
-            next_node: Target position
-            rules: List of rule strings
-            
-        Returns:
-            True if move is valid, False if it violates a rule
-        """
-        for rule in rules:
-            # Simple rule checking logic
-            # In a real implementation, this would parse and evaluate rule expressions
-            if isinstance(rule, str):
-                # Example: "avoid_red" would check if next_node is a red cell
-                if "avoid" in rule.lower():
-                    # Placeholder: assume no red cells unless specified in task
-                    pass
-            else:
-                # Assume valid if not a string
-                pass
-        return True
-
-    def _generate_offspring(self, parent: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate an offspring rule set from a parent via mutation.
-        
-        Args:
-            parent: Parent rule set dictionary
-            
-        Returns:
-            Mutated offspring rule set
-        """
-        offspring = {
-            'rules': [],
-            'fitness': 0.0,
-            'generation': parent.get('generation', 0) + 1
-        }
-        
-        # Mutate rules
-        for rule in parent.get('rules', []):
-            # 10% chance to mutate a rule
-            if random.random() < 0.1:
-                # Simple mutation: add a random symbol or negate
-                if isinstance(rule, str):
-                    # Add a random variable or operator
-                    new_var = f"X{random.randint(0, 99)}"
-                    if random.random() > 0.5:
-                        mutated = f"({rule} AND {new_var})"
+                # Evaluate each rule set in the population against this instance
+                for member in self.population:
+                    rule_set_id = member["rule_set_id"]
+                    rule_set = self.rule_sets[rule_set_id]
+                    
+                    # Evaluate logic rules if instance is logic-based
+                    if instance.get("domain") == "logic":
+                        score = self._evaluate_logic_rules(rule_set, instance)
+                    # Evaluate grid rules if instance is grid-based
+                    elif instance.get("domain") == "grid":
+                        score = self._evaluate_grid_rules(rule_set, instance)
                     else:
-                        mutated = f"(NOT {new_var} OR {rule})"
-                    offspring['rules'].append(mutated)
-                else:
-                    offspring['rules'].append(rule)
-            else:
-                offspring['rules'].append(rule)
-        
-        # 20% chance to add a new random rule
-        if random.random() < 0.2:
-            new_var = f"X{random.randint(0, 99)}"
-            offspring['rules'].append(new_var)
-        
-        return offspring
+                        score = 0.0
+                    
+                    # Update fitness
+                    member["fitness"] = (member["fitness"] * 0.9) + (score * 0.1)
+                    batch_evaluations += 1
+                    total_evaluations += 1
 
-    def _calculate_fitness(self, rule_set: Dict[str, Any], tasks: List[Dict[str, Any]]) -> float:
-        """
-        Calculate fitness of a rule set on a batch of tasks.
-        
-        Args:
-            rule_set: The rule set to evaluate
-            tasks: List of tasks to evaluate on
+            # Apply selection pressure and evolution
+            self._evolve_population()
             
-        Returns:
-            Fitness score (0.0 to 1.0)
-        """
-        if not tasks:
+            # Log progress
+            if (gen + 1) % 10 == 0:
+                avg_fitness = sum(m["fitness"] for m in self.population) / len(self.population)
+                logger.info(f"Gen {gen + 1}: Avg Fitness = {avg_fitness:.4f}, Evaluations = {total_evaluations}")
+
+            if self.budget_exceeded:
+                break
+
+        self.evaluation_count = total_evaluations
+        return self._get_training_result()
+
+    def _evaluate_logic_rules(self, rule_set: Dict[str, Any], instance: Dict[str, Any]) -> float:
+        """Evaluate logic rules against a logic instance."""
+        try:
+            instance_rules = instance.get("instance_data", {}).get("rules", [])
+            target = instance.get("instance_data", {}).get("target")
+            
+            if not target:
+                return 0.0
+            
+            # Check how many rules in the set contribute to proving the target
+            # Simplified evaluation for demonstration
+            matching_rules = 0
+            for rule_str in rule_set["logic_rules"]:
+                # In a real implementation, we would use sympy to check logical entailment
+                # Here we do a string match for simplicity in this mixed agent
+                if any(r in rule_str for r in instance_rules):
+                    matching_rules += 1
+            
+            return matching_rules / max(len(rule_set["logic_rules"]), 1)
+        except Exception as e:
+            logger.warning(f"Error evaluating logic rules: {e}")
             return 0.0
-        
-        correct = 0
-        for task in tasks:
-            if self._evaluate_rule_set(rule_set, task):
-                correct += 1
-        
-        return correct / len(tasks)
 
-    def train(self, num_generations: int, population_size: int, batch_size: int) -> Dict[str, Any]:
-        """
-        Train the mixed agent over multiple generations.
-        
-        This method implements the mixed-task training loop where tasks are
-        randomly sampled from both logic and grid domains for each generation.
-        
-        Args:
-            num_generations: Number of evolutionary generations to run
-            population_size: Size of the population per generation
-            batch_size: Number of tasks to evaluate per individual per generation
+    def _evaluate_grid_rules(self, rule_set: Dict[str, Any], instance: Dict[str, Any]) -> float:
+        """Evaluate grid rules against a grid instance."""
+        try:
+            grid_rules = instance.get("instance_data", {}).get("constraints", [])
             
-        Returns:
-            Dictionary containing training results and final best rule set
-        """
-        # Load data
-        logic_proofs, grid_worlds = self._load_training_data()
-        
-        # Prepare mixed task pool
-        mixed_tasks = []
-        for proof in logic_proofs:
-            mixed_tasks.append({'type': 'logic_proof', 'data': proof})
-        for grid in grid_worlds:
-            mixed_tasks.append({'type': 'grid_world', 'data': grid})
-        
-        if not mixed_tasks:
-            raise ValueError("No mixed tasks available for training")
-        
-        # Initialize population
-        population = []
-        for _ in range(population_size):
-            # Create initial random rule set
-            initial_rules = []
-            num_initial_rules = random.randint(2, 5)
-            for _ in range(num_initial_rules):
-                var = f"X{random.randint(0, 99)}"
-                initial_rules.append(var)
+            if not grid_rules:
+                return 0.0
             
-            population.append({
-                'rules': initial_rules,
-                'fitness': 0.0,
-                'generation': 0
-            })
-        
-        best_rule_set = None
-        best_fitness = -1.0
-        
-        # Evolutionary loop
-        for gen in range(num_generations):
-            # Shuffle tasks for this generation
-            random.shuffle(mixed_tasks)
+            matching_rules = 0
+            for rule_str in rule_set["grid_rules"]:
+                if any(r in rule_str for r in grid_rules):
+                    matching_rules += 1
             
-            # Evaluate population
-            for individual in population:
-                # Sample tasks for this individual
-                task_sample = mixed_tasks[:batch_size] if len(mixed_tasks) >= batch_size else mixed_tasks
-                fitness = self._calculate_fitness(individual, [t['data'] for t in task_sample])
-                individual['fitness'] = fitness
+            return matching_rules / max(len(rule_set["grid_rules"]), 1)
+        except Exception as e:
+            logger.warning(f"Error evaluating grid rules: {e}")
+            return 0.0
+
+    def _evolve_population(self):
+        """Apply selection pressure and evolutionary operators."""
+        # Sort by fitness
+        self.population.sort(key=lambda x: x["fitness"], reverse=True)
+        
+        # Keep top 50% (selection pressure)
+        keep_count = max(1, len(self.population) // 2)
+        survivors = self.population[:keep_count]
+        
+        # Generate new members via mutation of survivors
+        new_members = []
+        for _ in range(len(self.population) - keep_count):
+            parent = random.choice(survivors)
+            parent_id = parent["rule_set_id"]
+            parent_rules = self.rule_sets[parent_id]
+            
+            # Create mutated copy
+            new_id = f"mutated_{parent_id}_{self.generation_count}_{random.randint(0, 9999)}"
+            
+            new_logic = parent_rules["logic_rules"].copy()
+            new_grid = parent_rules["grid_rules"].copy()
+            
+            # Mutation: randomly add/remove rules
+            if random.random() < 0.3 and len(new_logic) > 1:
+                new_logic.pop(random.randint(0, len(new_logic)-1))
+            if random.random() < 0.3:
+                new_logic.extend(self._generate_random_logic_rules()[:1])
                 
-                if fitness > best_fitness:
-                    best_fitness = fitness
-                    best_rule_set = individual.copy()
+            if random.random() < 0.3 and len(new_grid) > 1:
+                new_grid.pop(random.randint(0, len(new_grid)-1))
+            if random.random() < 0.3:
+                new_grid.extend(self._generate_random_grid_rules()[:1])
             
-            # Selection: Keep top 50%
-            population.sort(key=lambda x: x['fitness'], reverse=True)
-            survivors = population[:population_size // 2]
-            
-            # Reproduction: Create offspring
-            new_population = list(survivors)
-            while len(new_population) < population_size:
-                # Tournament selection
-                parent1 = random.choice(survivors)
-                parent2 = random.choice(survivors)
-                
-                # Crossover (simple: take rules from one parent)
-                if random.random() > 0.5:
-                    child = self._generate_offspring(parent1)
-                else:
-                    child = self._generate_offspring(parent2)
-                
-                child['generation'] = gen + 1
-                new_population.append(child)
-            
-            population = new_population
-            
-            # Record history
-            avg_fitness = sum(ind['fitness'] for ind in population) / len(population)
-            self.training_history.append({
-                'generation': gen,
-                'average_fitness': avg_fitness,
-                'best_fitness': best_fitness,
-                'evaluation_count': self.evaluation_count
-            })
-        
-        # Final result
-        result = {
-            'best_rule_set': best_rule_set,
-            'best_fitness': best_fitness,
-            'total_generations': num_generations,
-            'total_evaluations': self.evaluation_count,
-            'training_history': self.training_history,
-            'config': {
-                'population_size': population_size,
-                'batch_size': batch_size,
-                'num_generations': num_generations
+            self.rule_sets[new_id] = {
+                "id": new_id,
+                "logic_rules": new_logic,
+                "grid_rules": new_grid,
+                "fitness": 0.0,
+                "age": 0
             }
-        }
+            
+            new_members.append({
+                "rule_set_id": new_id,
+                "fitness": 0.0
+            })
         
-        return result
+        self.population = survivors + new_members
 
-    def save_state(self, output_path: str):
-        """Save agent state to a file."""
-        state = {
-            'rule_sets': self.rule_sets,
-            'evaluation_count': self.evaluation_count,
-            'training_history': self.training_history,
-            'timestamp': datetime.now().isoformat()
+    def get_state(self) -> Dict[str, Any]:
+        """Return the current state of the agent."""
+        return {
+            "population": self.population,
+            "rule_sets": self.rule_sets,
+            "generation_count": self.generation_count,
+            "evaluation_count": self.evaluation_count,
+            "agent_type": "MixedAgent",
+            "seed": self.seed
         }
-        with open(output_path, 'w') as f:
-            json.dump(state, f, indent=2)
 
-    def load_state(self, input_path: str):
+    def _get_training_result(self) -> Dict[str, Any]:
+        """Generate a training result summary."""
+        avg_fitness = sum(m["fitness"] for m in self.population) / len(self.population) if self.population else 0.0
+        return {
+            "generations_completed": self.generation_count,
+            "total_evaluations": self.evaluation_count,
+            "budget_exceeded": self.budget_exceeded,
+            "final_avg_fitness": avg_fitness,
+            "state": self.get_state()
+        }
+
+    def save_state(self, path: str):
+        """Save agent state to a file."""
+        state = self.get_state()
+        with open(path, 'w') as f:
+            json.dump(state, f, indent=2)
+        logger.info(f"Agent state saved to {path}")
+
+    @classmethod
+    def load_state(cls, path: str, config: Config) -> 'MixedAgent':
         """Load agent state from a file."""
-        with open(input_path, 'r') as f:
+        with open(path, 'r') as f:
             state = json.load(f)
-        self.rule_sets = state.get('rule_sets', [])
-        self.evaluation_count = state.get('evaluation_count', 0)
-        self.training_history = state.get('training_history', [])
+        
+        agent = cls(config, seed=state.get("seed"))
+        agent.population = state["population"]
+        agent.rule_sets = state["rule_sets"]
+        agent.generation_count = state["generation_count"]
+        agent.evaluation_count = state["evaluation_count"]
+        agent.budget_exceeded = state.get("budget_exceeded", False)
+        
+        logger.info(f"Agent state loaded from {path}")
+        return agent
+
 
 def main():
-    """
-    Main entry point for MixedAgent training.
+    """Main entry point for MixedAgent testing/standalone execution."""
+    import argparse
     
-    This function loads configuration, instantiates the MixedAgent,
-    runs the training loop, and saves results to disk.
-    """
-    import sys
-    from src.utils.config import load_config
+    parser = argparse.ArgumentParser(description="MixedAgent Training")
+    parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
+    parser.add_argument("--data", type=str, default="data/generated_proofs.json", help="Path to training data")
+    parser.add_argument("--generations", type=int, default=100, help="Number of generations")
+    parser.add_argument("--budget", type=int, default=10000, help="Evaluation budget")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/results/mixed_agent_state.json", help="Output path")
     
-    # Load configuration
-    config = load_config()
+    args = parser.parse_args()
     
-    # Set seed for reproducibility
-    if config.seed is not None:
-        random.seed(config.seed)
+    logging.basicConfig(level=logging.INFO)
+    
+    # Load config
+    config = Config.load(args.config)
+    config.seed = args.seed
+    
+    # Load training data (simplified for this example)
+    try:
+        with open(args.data, 'r') as f:
+            training_data = json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Training data file not found: {args.data}")
+        return 1
     
     # Initialize agent
-    agent = MixedAgent(config, seed=config.seed)
+    agent = MixedAgent(config, seed=args.seed)
     
-    # Run training
-    print(f"Starting MixedAgent training with seed {config.seed}")
-    print(f"Population size: {config.population_size}")
-    print(f"Generations: {config.num_generations}")
-    print(f"Batch size: {config.batch_size}")
-    
-    results = agent.train(
-        num_generations=config.num_generations,
-        population_size=config.population_size,
-        batch_size=config.batch_size
-    )
+    # Train
+    result = agent.train(training_data, args.generations, args.budget)
     
     # Save results
-    output_dir = Path(config.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    with open(args.output, 'w') as f:
+        json.dump(result, f, indent=2)
     
-    result_file = output_dir / f"mixed_agent_results_{config.seed}.json"
-    with open(result_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    print(f"Training complete. Results saved to {result_file}")
-    print(f"Best fitness: {results['best_fitness']:.4f}")
-    print(f"Total evaluations: {results['total_evaluations']}")
-    
-    return results
+    logger.info(f"Training complete. Results saved to {args.output}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

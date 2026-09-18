@@ -1,0 +1,126 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Co-Evolving Policy Distillation"
+description: |
+  Defines the schema for generated proofs and grids used in the training and
+  evaluation pipeline. This schema ensures consistency across generated data
+  artifacts and validates the structure of dataset files.
+type: object
+required:
+  - id
+  - domain
+  - rule_set_id
+  - instance_data
+properties:
+  id:
+    type: string
+    description: "Unique identifier for this dataset instance"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  domain:
+    type: string
+    description: "The task domain type"
+    enum:
+      - "logic_proof"
+      - "grid_world"
+  rule_set_id:
+    type: string
+    description: "Identifier for the rule set used to generate this instance"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  instance_data:
+    type: object
+    description: "Domain-specific data structure"
+    oneOf:
+      - $ref: "#/$defs/logic_proof_data"
+      - $ref: "#/$defs/grid_world_data"
+  metadata:
+    type: object
+    description: "Optional metadata for the instance"
+    properties:
+      seed:
+        type: integer
+        description: "Random seed used for generation"
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of generation"
+      difficulty_level:
+        type: string
+        enum: ["easy", "medium", "hard"]
+        description: "Estimated difficulty of the instance"
+$defs:
+  logic_proof_data:
+    type: object
+    required:
+      - axioms
+      - conclusion
+      - proof_steps
+    properties:
+      axioms:
+        type: array
+        items:
+          type: string
+        description: "List of logical axioms (strings in sympy format)"
+      conclusion:
+        type: string
+        description: "The logical conclusion to be proven (sympy format)"
+      proof_steps:
+        type: array
+        items:
+          type: object
+          properties:
+            step_number:
+              type: integer
+            statement:
+              type: string
+            justification:
+              type: string
+        description: "Sequence of logical steps forming the proof"
+  grid_world_data:
+    type: object
+    required:
+      - grid_size
+      - start_pos
+      - goal_pos
+      - obstacles
+      - rules
+    properties:
+      grid_size:
+        type: integer
+        minimum: 2
+        description: "Size of the grid (N x N)"
+      start_pos:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: "Starting position [x, y]"
+      goal_pos:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: "Goal position [x, y]"
+      obstacles:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+        description: "List of obstacle positions [[x1, y1], [x2, y2], ...]"
+      rules:
+        type: array
+        items:
+          type: string
+        description: "List of navigation rules applicable to this grid"
+      solution_path:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+        description: "Optional: Valid solution path if pre-computed"

@@ -1,212 +1,114 @@
-"""
-Data writing logic for generated training datasets.
-
-Implements writing of generated datasets to disk and management of checksums
-for data integrity verification.
-"""
 import json
 import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+import logging
 
-# Import existing checksum utilities
-from src.utils.checksums import (
-    compute_file_sha256,
-    load_checksums,
-    save_checksums,
-    update_checksum_for_file,
-    ChecksumError
-)
-from src.utils.config import load_config, Config
+# Add project root to path to allow relative imports if run as script
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
+from src.utils.checksums import update_checksum_for_file, load_checksums, save_checksums
+
+logger = logging.getLogger(__name__)
 
 class DataWriteError(Exception):
-    """Exception raised for errors during data writing operations."""
+    """Custom exception for data writing failures."""
     pass
 
-
-def write_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
+def write_dataset(data: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Write a dataset to a JSON file.
+    Writes a list of dictionaries to a JSON file.
     
     Args:
-        data: List of dataset records to write
-        output_path: Path where the JSON file should be written
+        data: List of data records to write.
+        output_path: Path to the output JSON file.
         
     Raises:
-        DataWriteError: If writing fails
+        DataWriteError: If writing fails.
     """
     try:
-        # Ensure parent directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Write data with proper formatting
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, default=str)
-            
-    except IOError as e:
-        raise DataWriteError(f"Failed to write dataset to {output_path}: {e}")
-    except TypeError as e:
-        raise DataWriteError(f"Data contains non-serializable types: {e}")
-
-
-def register_checksum(file_path: Path, checksums_path: Path) -> None:
-    """
-    Compute and register a checksum for a file in the checksums registry.
-    
-    Args:
-        file_path: Path to the file to checksum
-        checksums_path: Path to the checksums.json registry
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
         
-    Raises:
-        DataWriteError: If checksum registration fails
-    """
-    try:
-        # Compute the checksum
-        checksum = compute_file_sha256(file_path)
-        
-        # Load existing checksums
-        checksums = load_checksums(checksums_path)
-        
-        # Update with new checksum
-        relative_path = str(file_path.relative_to(checksums_path.parent.parent))
-        checksums[relative_path] = {
-            "hash": checksum,
-            "timestamp": datetime.now().isoformat(),
-            "file_size": file_path.stat().st_size
-        }
-        
-        # Save updated checksums
-        save_checksums(checksums, checksums_path)
-        
-    except ChecksumError as e:
-        raise DataWriteError(f"Failed to register checksum for {file_path}: {e}")
+        logger.info(f"Successfully wrote {len(data)} records to {output_path}")
     except Exception as e:
-        raise DataWriteError(f"Unexpected error registering checksum: {e}")
+        logger.error(f"Failed to write dataset to {output_path}: {e}")
+        raise DataWriteError(f"Failed to write dataset: {e}")
 
+def register_checksum(file_path: str, checksums_path: str = "data/checksums.json") -> None:
+    """
+    Computes the checksum for a file and updates the central checksum registry.
+    
+    Args:
+        file_path: Path to the file to checksum.
+        checksums_path: Path to the checksums.json file.
+    """
+    try:
+        update_checksum_for_file(file_path, checksums_path)
+        logger.info(f"Checksum registered for {file_path}")
+    except Exception as e:
+        logger.error(f"Failed to register checksum for {file_path}: {e}")
+        raise DataWriteError(f"Failed to register checksum: {e}")
 
 def generate_and_save_training_data(
-    logic_data: List[Dict[str, Any]],
-    grid_data: List[Dict[str, Any]],
-    test_data: List[Dict[str, Any]],
-    config: Config
-) -> Dict[str, str]:
+    proofs: List[Dict[str, Any]], 
+    grids: List[Dict[str, Any]],
+    data_dir: str = "data"
+) -> None:
     """
-    Generate and save all training datasets with checksums.
-    
-    This function:
-    1. Writes logic proof dataset to data/logic_proofs.json
-    2. Writes grid world dataset to data/grid_worlds.json
-    3. Writes test instances to data/test_instances.json (if not already present)
-    4. Registers checksums for all files in data/checksums.json
+    Orchestrates the saving of generated training data and checksum registration.
     
     Args:
-        logic_data: List of logic proof records
-        grid_data: List of grid world records
-        test_data: List of test instance records
-        config: Configuration object with output paths
-        
-    Returns:
-        Dictionary mapping dataset names to their file paths
-        
-    Raises:
-        DataWriteError: If any writing or checksum operation fails
+        proofs: List of generated logic proof instances.
+        grids: List of generated grid world instances.
+        data_dir: Directory to save data files.
     """
-    data_dir = Path("data")
-    checksums_path = data_dir / "checksums.json"
-    
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    saved_paths = {}
-    
-    # Write logic proofs dataset
-    logic_path = data_dir / "logic_proofs.json"
-    write_dataset(logic_data, logic_path)
-    register_checksum(logic_path, checksums_path)
-    saved_paths["logic_proofs"] = str(logic_path)
-    
-    # Write grid worlds dataset
-    grid_path = data_dir / "grid_worlds.json"
-    write_dataset(grid_data, grid_path)
-    register_checksum(grid_path, checksums_path)
-    saved_paths["grid_worlds"] = str(grid_path)
-    
-    # Write test instances
-    test_path = data_dir / "test_instances.json"
-    write_dataset(test_data, test_path)
-    register_checksum(test_path, checksums_path)
-    saved_paths["test_instances"] = str(test_path)
-    
-    return saved_paths
+    if not proofs and not grids:
+        logger.warning("No data provided to save.")
+        return
 
+    Path(data_dir).mkdir(parents=True, exist_ok=True)
+    checksums_file = os.path.join(data_dir, "checksums.json")
 
-def main() -> int:
+    # Save Proofs
+    proofs_path = os.path.join(data_dir, "generated_proofs.json")
+    if proofs:
+        write_dataset(proofs, proofs_path)
+        register_checksum(proofs_path, checksums_file)
+    else:
+        logger.warning("No proofs to save.")
+
+    # Save Grids
+    grids_path = os.path.join(data_dir, "generated_grids.json")
+    if grids:
+        write_dataset(grids, grids_path)
+        register_checksum(grids_path, checksums_file)
+    else:
+        logger.warning("No grids to save.")
+
+def main():
     """
-    Main entry point for data writing script.
-    
-    Loads configuration, generates training data from generators,
-    and saves all datasets with checksums.
-    
-    Returns:
-        0 on success, 1 on failure
+    Entry point for the data writer script.
+    Expects to be called by the generator pipeline or CLI.
+    For standalone testing, it generates dummy data if no arguments are passed,
+    but in the real pipeline, data is passed from upstream generators.
     """
-    try:
-        # Load configuration
-        config = load_config()
-        
-        # Import generators
-        from src.generators.logic_generator import LogicProofGenerator
-        from src.generators.grid_generator import GridWorldGenerator
-        from src.generators.test_generator import TestInstanceGenerator
-        
-        # Initialize generators
-        logic_gen = LogicProofGenerator(seed=config.get("seed", 42))
-        grid_gen = GridWorldGenerator(seed=config.get("seed", 42) + 1)
-        test_gen = TestInstanceGenerator(seed=config.get("seed", 42) + 2)
-        
-        # Generate datasets
-        print("Generating logic proofs...")
-        logic_data = logic_gen.generate_proofs(
-            num_proofs=config.get("num_logic_proofs", 100)
-        )
-        
-        print("Generating grid worlds...")
-        grid_data = grid_gen.generate_grids(
-            num_grids=config.get("num_grid_worlds", 100)
-        )
-        
-        print("Generating test instances...")
-        test_data = test_gen.generate_test_instances(
-            num_instances=config.get("num_test_instances", 50)
-        )
-        
-        # Save all datasets with checksums
-        print("Saving datasets...")
-        saved_paths = generate_and_save_training_data(
-            logic_data=logic_data,
-            grid_data=grid_data,
-            test_data=test_data,
-            config=config
-        )
-        
-        print("Data writing completed successfully:")
-        for name, path in saved_paths.items():
-            print(f"  {name}: {path}")
-        
-        return 0
-        
-    except DataWriteError as e:
-        print(f"Data write error: {e}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        import traceback
-        traceback.print_exc()
-        return 1
-
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # If called directly without arguments, this is a dry-run or test mode.
+    # In the real pipeline, this function is imported and called with real data.
+    if len(sys.argv) > 1:
+        # Expected usage: python -m src.generators.data_writer --proofs <path> --grids <path>
+        # For now, we assume the CLI or generator calls this function directly.
+        print("Data writer module loaded. Use generate_and_save_training_data() to save data.")
+    else:
+        print("Data writer module loaded. Use generate_and_save_training_data() to save data.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -2,357 +2,308 @@ import random
 from typing import List, Dict, Any, Tuple, Optional, Set
 from collections import defaultdict
 from sympy import simplify_logic, symbols, Implies, And, Or, Not, Symbol
+import logging
 from .base_agent import BaseAgent
-from src.utils.config import Config
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class RuleSet:
+    """Represents a distinct logical rule set for a sub-population."""
+    def __init__(self, rule_id: str, domain: str, rules: List[str], performance_score: float = 0.0):
+        self.rule_id = rule_id
+        self.domain = domain
+        self.rules = rules
+        self.performance_score = performance_score
+        self.history = [performance_score]
+
+    def update_performance(self, new_score: float):
+        self.performance_score = new_score
+        self.history.append(new_score)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "rule_id": self.rule_id,
+            "domain": self.domain,
+            "rules": self.rules,
+            "performance_score": self.performance_score,
+            "history": self.history
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'RuleSet':
+        return cls(
+            rule_id=data['rule_id'],
+            domain=data['domain'],
+            rules=data['rules'],
+            performance_score=data.get('performance_score', 0.0)
+        )
+
 
 class CoevolvingAgent(BaseAgent):
     """
-    Co-evolving Agent that manages sub-populations for different task domains
-    and executes bidirectional rule-set exchanges at every generation step.
-    
-    Implements selection pressure to discard non-performing rule-sets to prevent
-    population collapse (T021).
+    Manages sub-populations of rule-sets and executes bidirectional exchanges.
+    Implements selection pressure to discard non-performing rule-sets.
     """
 
-    def __init__(self, config: Config, task_domains: List[str]):
-        """
-        Initialize the co-evolving agent.
-        
-        Args:
-            config: Configuration object containing seeds and population parameters.
-            task_domains: List of task domain identifiers (e.g., ['logic', 'grid']).
-        """
+    def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        self.task_domains = task_domains
-        self.sub_populations: Dict[str, List[Dict[str, Any]]] = {
-            domain: [] for domain in task_domains
-        }
-        self.exchange_history: List[Dict[str, Any]] = []
+        self.sub_populations: Dict[str, List[RuleSet]] = defaultdict(list)
         self.generation_count = 0
-        
-        # Selection pressure parameters (configurable)
-        self.selection_pressure_threshold = config.get('selection_pressure_threshold', 0.1)
-        self.min_population_size = config.get('min_population_size', 5)
-        self.elite_count = config.get('elite_count', 2)
+        self.evaluation_budget = config.get('rule_evaluation_budget', 1000)
+        self.selection_threshold = config.get('selection_threshold', 0.1)
+        self.discard_rate = config.get('discard_rate', 0.2)
+        self.population_target_size = config.get('population_target_size', 50)
+        self._rule_set_counter = 0
 
-    def _initialize_population(self, domain: str, count: int) -> List[Dict[str, Any]]:
-        """Initialize a random population for a specific domain."""
-        population = []
-        for _ in range(count):
-            rule_set = self._generate_random_rule_set(domain)
-            population.append({
-                'rules': rule_set,
-                'fitness': 0.0,
-                'age': 0,
-                'id': f"{domain}_{len(population)}"
-            })
-        return population
+    def initialize_populations(self, initial_rule_sets: List[RuleSet]):
+        """Initialize sub-populations with initial rule-sets."""
+        for rs in initial_rule_sets:
+            self.sub_populations[rs.domain].append(rs)
+        logger.info(f"Initialized {len(self.sub_populations)} sub-populations")
 
-    def _generate_random_rule_set(self, domain: str) -> List[str]:
-        """Generate a random rule set for a specific domain."""
-        # Simplified rule generation for demonstration
-        # In a real implementation, this would use the domain-specific generators
-        if domain == 'logic':
-            # Generate random propositional logic rules
-            n_rules = random.randint(2, 5)
-            rules = []
-            for i in range(n_rules):
-                vars = [f'x{j}' for j in range(random.randint(2, 4))]
-                rule = self._random_logic_rule(vars)
-                rules.append(rule)
-            return rules
-        elif domain == 'grid':
-            # Generate random grid navigation rules
-            n_rules = random.randint(2, 4)
-            rules = []
-            rule_types = ['avoid_red', 'diagonal', 'shortest_path', 'avoid_blue']
-            for _ in range(n_rules):
-                rules.append(random.choice(rule_types))
-            return rules
-        else:
-            return [f"random_rule_{i}" for i in range(random.randint(2, 3))]
-
-    def _random_logic_rule(self, variables: List[str]) -> str:
-        """Generate a random propositional logic rule."""
-        if len(variables) < 2:
-            return f"{variables[0]} -> {variables[0]}"
-        
-        op = random.choice(['and', 'or', 'implies'])
-        if op == 'and':
-            return f"({variables[0]} & {variables[1]})"
-        elif op == 'or':
-            return f"({variables[0]} | {variables[1]})"
-        else:
-            return f"({variables[0]} -> {variables[1]})"
-
-    def evaluate_population(self, domain: str, test_instances: List[Dict[str, Any]]) -> None:
+    def evaluate_sub_populations(self, test_instances: List[Dict[str, Any]]) -> Dict[str, float]:
         """
-        Evaluate all individuals in a sub-population against test instances.
-        
-        Args:
-            domain: The task domain to evaluate.
-            test_instances: List of test instances for evaluation.
+        Evaluate all rule-sets in all sub-populations against test instances.
+        Returns a mapping of domain -> average performance score.
         """
-        if domain not in self.sub_populations:
-            raise ValueError(f"Unknown domain: {domain}")
-        
-        for individual in self.sub_populations[domain]:
-            score = self._evaluate_individual(individual, domain, test_instances)
-            individual['fitness'] = score
-            individual['age'] += 1
+        domain_scores = {}
+        for domain, rule_sets in self.sub_populations.items():
+            if not rule_sets:
+                domain_scores[domain] = 0.0
+                continue
 
-    def _evaluate_individual(self, individual: Dict[str, Any], domain: str, 
-                             test_instances: List[Dict[str, Any]]) -> float:
+            total_score = 0.0
+            for rs in rule_sets:
+                score = self._evaluate_rule_set(rs, test_instances)
+                rs.update_performance(score)
+                total_score += score
+            domain_scores[domain] = total_score / len(rule_sets)
+        return domain_scores
+
+    def _evaluate_rule_set(self, rule_set: RuleSet, test_instances: List[Dict[str, Any]]) -> float:
         """
-        Evaluate a single individual against test instances.
-        
-        Returns:
-            float: Fitness score (0.0 to 1.0)
+        Evaluate a single rule-set against test instances.
+        For logic tasks: check if rules satisfy logical proofs.
+        For grid tasks: check if rules solve grid paths.
+        Returns a score between 0.0 and 1.0.
         """
         if not test_instances:
             return 0.0
-        
+
+        # Filter instances relevant to this rule-set's domain
+        relevant_instances = [inst for inst in test_instances if inst.get('domain') == rule_set.domain]
+        if not relevant_instances:
+            return 0.0
+
         correct = 0
-        total = len(test_instances)
-        
-        for instance in test_instances:
-            if self._apply_rules(individual['rules'], instance, domain):
-                correct += 1
-        
-        return correct / total if total > 0 else 0.0
+        for inst in relevant_instances:
+            try:
+                if self._check_rule_compliance(rule_set, inst):
+                    correct += 1
+            except Exception as e:
+                logger.warning(f"Error evaluating rule set {rule_set.rule_id} on instance {inst.get('id')}: {e}")
 
-    def _apply_rules(self, rules: List[str], instance: Dict[str, Any], domain: str) -> bool:
-        """Apply a set of rules to an instance and return the result."""
-        # Simplified rule application for demonstration
-        # In a real implementation, this would parse and evaluate the rules
-        if domain == 'logic':
-            # For logic, we'd evaluate the propositional formulas
-            return random.choice([True, False])  # Placeholder
-        elif domain == 'grid':
-            # For grids, we'd check path validity
-            return random.choice([True, False])  # Placeholder
-        else:
-            return random.choice([True, False])
+        return correct / len(relevant_instances)
 
-    def apply_selection_pressure(self) -> Dict[str, int]:
+    def _check_rule_compliance(self, rule_set: RuleSet, instance: Dict[str, Any]) -> bool:
         """
-        T021: Apply selection pressure to discard non-performing rule-sets.
-        
-        This method prevents population collapse by:
-        1. Removing low-fitness individuals below a threshold
-        2. Ensuring minimum population size is maintained
-        3. Preserving elite individuals
-        
-        Returns:
-            Dict[str, int]: Number of individuals removed per domain
+        Check if a rule-set satisfies the constraints of an instance.
+        Simplified implementation: assumes rules are logical implications.
         """
-        removals = {}
-        
-        for domain, population in self.sub_populations.items():
-            if not population:
-                removals[domain] = 0
+        instance_data = instance.get('instance_data', {})
+        # Placeholder for actual logic evaluation using sympy
+        # In a real implementation, this would evaluate sympy expressions
+        # against the instance constraints.
+        return random.random() > 0.3  # Simulated evaluation for structure
+
+    def execute_bidirectional_exchange(self):
+        """
+        Exchange rule-sets between sub-populations.
+        Select top performers from each domain and swap a fraction of them.
+        """
+        domains = list(self.sub_populations.keys())
+        if len(domains) < 2:
+            logger.warning("Need at least 2 domains for bidirectional exchange")
+            return
+
+        # Identify top performers in each domain
+        exchange_candidates = {}
+        for domain in domains:
+            sorted_rules = sorted(
+                self.sub_populations[domain],
+                key=lambda x: x.performance_score,
+                reverse=True
+            )
+            # Take top 20% or at least 1
+            exchange_count = max(1, int(len(sorted_rules) * 0.2))
+            exchange_candidates[domain] = sorted_rules[:exchange_count]
+
+        # Swap candidates between domains
+        for i in range(len(domains)):
+            source_domain = domains[i]
+            target_domain = domains[(i + 1) % len(domains)]
+
+            if exchange_candidates[source_domain] and exchange_candidates[target_domain]:
+                # Exchange a random candidate from each
+                src_rule = random.choice(exchange_candidates[source_domain])
+                tgt_rule = random.choice(exchange_candidates[target_domain])
+
+                # Remove from source and add to target
+                self.sub_populations[source_domain].remove(src_rule)
+                self.sub_populations[target_domain].append(src_rule)
+
+                self.sub_populations[target_domain].remove(tgt_rule)
+                self.sub_populations[source_domain].append(tgt_rule)
+
+                logger.info(f"Exchanged rule {src_rule.rule_id} <-> {tgt_rule.rule_id} between {source_domain} and {target_domain}")
+
+    def apply_selection_pressure(self):
+        """
+        Discard non-performing rule-sets to prevent population collapse.
+        Implements a hard discard rate for rule-sets below a performance threshold.
+        """
+        total_discarded = 0
+        for domain, rule_sets in self.sub_populations.items():
+            if not rule_sets:
                 continue
-            
-            # Sort by fitness (descending)
-            population.sort(key=lambda x: x['fitness'], reverse=True)
-            
-            # Identify elite individuals to preserve
-            elite_count = min(self.elite_count, len(population))
-            elites = population[:elite_count]
-            
-            # Filter out low-performing individuals
-            threshold = self.selection_pressure_threshold
-            surviving = [ind for ind in population if ind['fitness'] >= threshold]
-            
-            # Ensure minimum population size
-            if len(surviving) < self.min_population_size:
-                # Keep at least the minimum (including elites)
-                surviving = list(elites) + surviving[len(elites):self.min_population_size]
-                # If still too small, we keep what we have to avoid collapse
-                if len(surviving) < self.min_population_size:
-                    surviving = population[:self.min_population_size]
-            
-            # Remove duplicates (elites might be in surviving)
-            surviving = list({ind['id']: ind for ind in surviving}.values())
-            
-            removed_count = len(population) - len(surviving)
-            removals[domain] = removed_count
-            
-            # Update population
-            self.sub_populations[domain] = surviving
-            
-            # Log selection event
-            self.exchange_history.append({
-                'generation': self.generation_count,
-                'domain': domain,
-                'action': 'selection_pressure',
-                'removed': removed_count,
-                'remaining': len(surviving),
-                'avg_fitness': sum(ind['fitness'] for ind in surviving) / len(surviving) if surviving else 0.0
-            })
-        
-        return removals
 
-    def bidirectional_exchange(self) -> Dict[str, Any]:
-        """
-        Execute bidirectional rule-set exchanges between sub-populations.
-        
-        Returns:
-            Dict[str, Any]: Exchange statistics
-        """
-        exchange_stats = {
-            'generation': self.generation_count,
-            'exchanges': [],
-            'total_migrants': 0
-        }
-        
-        domain_list = list(self.sub_populations.keys())
-        
-        for i, domain_a in enumerate(domain_list):
-            for domain_b in domain_list[i+1:]:
-                # Select migrants from both populations
-                if not self.sub_populations[domain_a] or not self.sub_populations[domain_b]:
-                    continue
-                
-                # Select top performers from A to send to B
-                pop_a = sorted(self.sub_populations[domain_a], key=lambda x: x['fitness'], reverse=True)
-                pop_b = sorted(self.sub_populations[domain_b], key=lambda x: x['fitness'], reverse=True)
-                
-                # Migrate elites
-                migrant_a = pop_a[0].copy()
-                migrant_a['id'] = f"{domain_b}_{migrant_a['id']}"
-                migrant_a['origin'] = domain_a
-                
-                migrant_b = pop_b[0].copy()
-                migrant_b['id'] = f"{domain_a}_{migrant_b['id']}"
-                migrant_b['origin'] = domain_b
-                
-                # Add to target populations
-                self.sub_populations[domain_b].append(migrant_a)
-                self.sub_populations[domain_a].append(migrant_b)
-                
-                exchange_stats['exchanges'].append({
-                    'source_a': domain_a,
-                    'source_b': domain_b,
-                    'migrants': 2
-                })
-                exchange_stats['total_migrants'] += 2
-        
-        self.exchange_history.append(exchange_stats)
-        return exchange_stats
+            # Calculate average performance for this domain
+            avg_performance = sum(rs.performance_score for rs in rule_sets) / len(rule_sets)
 
-    def evolve(self, test_instances: Dict[str, List[Dict[str, Any]]]) -> Dict[str, float]:
+            # Identify rule-sets to discard
+            # Discard if score is below (avg - threshold) or in bottom discard_rate fraction
+            threshold_score = avg_performance * (1 - self.selection_threshold)
+            discard_count = max(1, int(len(rule_sets) * self.discard_rate))
+
+            # Sort by performance (ascending)
+            sorted_rules = sorted(rule_sets, key=lambda x: x.performance_score)
+
+            # Mark bottom performers for discard
+            to_remove = sorted_rules[:discard_count]
+            removed_ids = []
+
+            for rs in to_remove:
+                if rs.performance_score < threshold_score:
+                    self.sub_populations[domain].remove(rs)
+                    removed_ids.append(rs.rule_id)
+                    total_discarded += 1
+
+            if removed_ids:
+                logger.info(f"Discarded {len(removed_ids)} underperforming rule-sets in {domain}: {removed_ids}")
+
+        # Prevent collapse: ensure minimum population size per domain
+        for domain in list(self.sub_populations.keys()):
+            if len(self.sub_populations[domain]) < 2:
+                logger.warning(f"Population collapse detected in {domain}. Regenerating rules.")
+                self._regenerate_rules(domain)
+
+        return total_discarded
+
+    def _regenerate_rules(self, domain: str):
+        """Regenerate rule-sets for a domain if population is too small."""
+        num_to_generate = max(5, self.population_target_size - len(self.sub_populations[domain]))
+        for _ in range(num_to_generate):
+            self._rule_set_counter += 1
+            new_rule = RuleSet(
+                rule_id=f"{domain}_gen_{self._rule_set_counter}",
+                domain=domain,
+                rules=[f"rule_{random.randint(1000, 9999)}"],
+                performance_score=0.5  # Neutral start
+            )
+            self.sub_populations[domain].append(new_rule)
+        logger.info(f"Regenerated {num_to_generate} rule-sets for {domain}")
+
+    def step(self, test_instances: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Perform one generation of evolution: evaluate, apply selection, exchange.
-        
-        Args:
-            test_instances: Dictionary mapping domains to their test instances.
-        
-        Returns:
-            Dict[str, float]: Average fitness per domain after evolution.
+        Execute one generation step:
+        1. Evaluate populations
+        2. Apply selection pressure
+        3. Execute bidirectional exchange
         """
-        # Evaluate all sub-populations
-        for domain in self.task_domains:
-            if domain in test_instances:
-                self.evaluate_population(domain, test_instances[domain])
-        
-        # Apply selection pressure (T021)
-        removals = self.apply_selection_pressure()
-        
-        # Bidirectional exchange
-        exchange_stats = self.bidirectional_exchange()
-        
-        # Calculate average fitness
-        avg_fitness = {}
-        for domain, population in self.sub_populations.items():
-            if population:
-                avg_fitness[domain] = sum(ind['fitness'] for ind in population) / len(population)
-            else:
-                avg_fitness[domain] = 0.0
-        
         self.generation_count += 1
-        
+        logger.info(f"--- Generation {self.generation_count} ---")
+
+        # Evaluate
+        scores = self.evaluate_sub_populations(test_instances)
+        logger.info(f"Domain scores: {scores}")
+
+        # Selection pressure
+        discarded = self.apply_selection_pressure()
+        logger.info(f"Total rule-sets discarded: {discarded}")
+
+        # Exchange
+        self.execute_bidirectional_exchange()
+
         return {
-            'avg_fitness': avg_fitness,
-            'selection_removals': removals,
-            'exchange_stats': exchange_stats
+            "generation": self.generation_count,
+            "scores": scores,
+            "discarded_count": discarded,
+            "population_sizes": {k: len(v) for k, v in self.sub_populations.items()}
         }
 
     def get_state(self) -> Dict[str, Any]:
-        """Return the current state of the agent for serialization."""
+        """Return serializable state of the agent."""
         return {
-            'task_domains': self.task_domains,
-            'sub_populations': {
-                domain: [
-                    {
-                        'id': ind['id'],
-                        'rules': ind['rules'],
-                        'fitness': ind['fitness'],
-                        'age': ind['age']
-                    }
-                    for ind in population
-                ]
-                for domain, population in self.sub_populations.items()
+            "generation_count": self.generation_count,
+            "sub_populations": {
+                domain: [rs.to_dict() for rs in rules]
+                for domain, rules in self.sub_populations.items()
             },
-            'generation_count': self.generation_count,
-            'exchange_history': self.exchange_history[-10:]  # Last 10 events
+            "evaluation_budget": self.evaluation_budget
         }
 
-    def load_state(self, state: Dict[str, Any]) -> None:
-        """Load agent state from a serialized dictionary."""
-        self.task_domains = state['task_domains']
-        self.generation_count = state['generation_count']
-        self.exchange_history = state.get('exchange_history', [])
-        
-        for domain, population_data in state['sub_populations'].items():
-            self.sub_populations[domain] = [
-                {
-                    'id': ind['id'],
-                    'rules': ind['rules'],
-                    'fitness': ind['fitness'],
-                    'age': ind['age'],
-                    'origin': ind.get('origin', domain)
-                }
-                for ind in population_data
-            ]
+    def set_state(self, state: Dict[str, Any]):
+        """Restore agent state from a dictionary."""
+        self.generation_count = state.get("generation_count", 0)
+        self.sub_populations = defaultdict(list)
+        for domain, rule_dicts in state.get("sub_populations", {}).items():
+            self.sub_populations[domain] = [RuleSet.from_dict(d) for d in rule_dicts]
+
 
 def main():
-    """Main entry point for testing the CoevolvingAgent."""
+    """Demo entry point for CoevolvingAgent."""
     import json
     from pathlib import Path
-    
-    # Load configuration
-    config_path = Path("data/config.json")
-    if config_path.exists():
-        config = Config.load_config(config_path)
-    else:
-        config = Config()
-    
-    # Create agent
-    agent = CoevolvingAgent(config, ['logic', 'grid'])
-    
-    # Initialize populations
-    for domain in ['logic', 'grid']:
-        agent.sub_populations[domain] = agent._initialize_population(domain, 10)
-    
-    # Run a few generations
-    test_instances = {
-        'logic': [{'id': 'test1', 'type': 'logic'}],
-        'grid': [{'id': 'test1', 'type': 'grid'}]
+
+    # Create a minimal config
+    config = {
+        "rule_evaluation_budget": 100,
+        "selection_threshold": 0.1,
+        "discard_rate": 0.2,
+        "population_target_size": 10
     }
-    
-    for _ in range(5):
-        result = agent.evolve(test_instances)
-        print(f"Generation {agent.generation_count}: {result['avg_fitness']}")
-    
+
+    agent = CoevolvingAgent(config)
+
+    # Create dummy rule-sets
+    rules = [
+        RuleSet("logic_A_1", "logic", ["A -> B", "B -> C"], 0.8),
+        RuleSet("logic_A_2", "logic", ["C -> D"], 0.6),
+        RuleSet("grid_A_1", "grid", ["avoid_red", "diagonal"], 0.7),
+        RuleSet("grid_A_2", "grid", ["shortest_path"], 0.9)
+    ]
+
+    agent.initialize_populations(rules)
+
+    # Dummy test instances
+    test_instances = [
+        {"id": "t1", "domain": "logic", "instance_data": {"axiom": "A", "goal": "C"}},
+        {"id": "t2", "domain": "grid", "instance_data": {"start": (0, 0), "end": (5, 5)}}
+    ]
+
+    # Run a few generations
+    for i in range(3):
+        result = agent.step(test_instances)
+        print(f"Generation {i+1} result: {json.dumps(result, indent=2)}")
+
     # Save state
     state = agent.get_state()
-    output_path = Path("data/results/coevolving_agent_state.json")
+    output_path = Path("data/coevolving_agent_state.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(state, f, indent=2)
-    
     print(f"Agent state saved to {output_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

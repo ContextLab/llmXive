@@ -17,7 +17,7 @@ This feature implements a comparative study of three training strategies (Sequen
 **Project Type**: Research CLI / Simulation Engine.  
 **Performance Goals**: Complete 30+ runs per condition (total ~90+ runs) within 6 hours; memory footprint < 4GB.  
 **Constraints**: No GPU usage; strict integer parity for rule evaluations; deterministic seeding.  
-**Scale/Scope**: Synthetic dataset generation (~ tasks per domain); 3 experimental conditions; statistical analysis of forgetting metrics.
+**Scale/Scope**: Synthetic dataset generation (~ tasks per domain); experimental conditions; statistical analysis of forgetting metrics.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
