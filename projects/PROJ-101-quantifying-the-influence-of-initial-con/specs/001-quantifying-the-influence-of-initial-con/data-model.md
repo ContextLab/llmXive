@@ -1,58 +1,76 @@
 # Data Model: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-## Entities
+## Overview
 
-### Trajectory
-A time-ordered sequence of state vectors representing the system's evolution in phase space.
-- **Attributes**:
-  - `id`: Unique identifier (UUID).
-  - `system_params`: Dictionary of $N$, $\sigma$, $\rho$, $\beta$, coupling strength.
-  - `noise_level`: $\sigma_{noise}$ (float).
-  - `seed`: Random seed (int).
-  - `data`: Array of shape $(T_{total}, 3N)$ containing state vectors.
-  - `is_physical`: Boolean (True if trajectory remains bounded within simulation time).
-  - `escape_time`: Float (Time step at which trajectory exits basin, or `null` if bounded).
-  - `shadowing_valid`: Boolean (Diagnostic only; True if shadowing check passes, recorded but not used for filtering).
+This document defines the data structures, file formats, and schemas used in the project. All data is stored in `data/` with checksums recorded in `state/`.
 
-### FTLE Estimate
-A calculated scalar value representing the average exponential rate of divergence over a specific finite time window.
-- **Attributes**:
-  - `trajectory_id`: Reference to parent trajectory.
-  - `window_size`: $T$ (int).
-  - `start_time`: Start index of window.
-  - `max_exponent`: $\lambda_{max}$ (float).
-  - `full_spectrum`: List of $3N$ exponents (list[float]).
-  - `deviation`: $\Delta \lambda = \lambda_{max} - \lambda_{asymptotic}$ (float).
-  - `noise_level`: $\sigma_{noise}$ (float).
-  - `escape_time`: Float (Inherited from parent trajectory).
+## Directory Structure
 
-### Regression Result
-Output of the deviation analysis.
-- **Attributes**:
-  - `selected_model`: String (e.g., "power_law", "logarithmic").
-  - `noise_level`: $\sigma_{noise}$ (if grouped) or `null` (global).
-  - `mean_deviation`: Mean $\Delta \lambda$ across trials.
-  - `std_deviation`: Standard error of mean.
-  - `regression_coefficients`: Dictionary of model parameters.
-  - `p_value`: p-value for the bias term (coefficient of $\sigma_{noise}$).
-  - `effect_size`: Cohen's d or similar.
+```text
+data/
+├── raw/
+│   ├── trajectories_N{N}_sigma{sigma}_trial{t}.npz
+│   └── ... (generated synthetic data)
+├── processed/
+│   ├── ftle_results.json           # Aggregated FTLE estimates
+│   ├── baseline_{N}.json           # Asymptotic baseline for dimension N
+│   ├── regression_stats.json       # Regression coefficients and p-values
+│   └── plots/                      # Generated figures
+└── artifacts/
+    └── manifest.yaml               # Checksums and metadata
+```
+
+## Entity Definitions
+
+### 1. Trajectory (Raw)
+- **Source**: `code/simulation/generator.py`
+- **Format**: NumPy `.npz` (compressed)
+- **Contents**:
+  - `time`: 1D array of time points.
+  - `state`: 2D array $(T, 3N)$ of system states.
+  - `noise`: 2D array $(T, 3N)$ of injected noise (for verification).
+  - `params`: Dict with `N`, `sigma`, `seed`, `rho`, `beta`, `sigma_l`.
+
+### 2. FTLE Result (Processed)
+- **Source**: `code/analysis/ftle.py`
+- **Format**: JSON
+- **Schema**: See `contracts/ftle_result.schema.yaml`
+- **Key Fields**:
+  - `window_size`: Explicitly recorded sliding window size $T$.
+  - `status`: "valid", "unphysical", or "non-chaotic".
+
+### 3. Baseline (Processed)
+- **Source**: `code/analysis/baseline.py`
+- **Format**: JSON
+- **Contents**:
+  - `N`: System dimension.
+  - `lambda_max`: Maximum Lyapunov exponent (asymptotic).
+  - `convergence_error`: % error at $T=5000$.
+  - `status`: "valid" or "invalid".
+  - `algorithm`: "Rosenstein" (as per Constitution).
+
+### 4. Regression Stats (Processed)
+- **Source**: `code/analysis/regression.py`
+- **Format**: JSON
+- **Contents**:
+  - `model_type`: e.g., "power_law".
+  - `coefficients`: Dict of fitted parameters.
+  - `r_squared`: $R^2$ value.
+  - `p_values`: Dict of p-values for coefficients.
+  - `scaling_exponent`: Exponent relating dimension to bias (if applicable).
+  - `effect_size`: Cohen's d for the bias term.
   - `trial_count`: Number of trials used.
 
 ## Data Flow
 
-1. **Generation**: `code/simulation/lorenz.py` → `data/raw/trajectories_*.npz`.
-2. **Baseline Validation**: `code/analysis/ftle.py` (clean, T=50,000) → `data/processed/baseline.json`.
-3. **FTLE Calculation**: `code/analysis/ftle.py` (noisy) → `data/processed/ftle_results.json`.
-4. **Regression**: `code/analysis/regression.py` (Model selection + t-test) → `data/processed/regression_results.json`.
-5. **Visualization**: `code/analysis/regression.py` → `data/processed/plots/`.
+1.  **Generation**: `generator.py` reads `config.py` -> writes `data/raw/*.npz`.
+2.  **Validation**: `baseline.py` reads `data/raw` (clean) -> writes `data/processed/baseline_{N}.json` (using Rosenstein).
+3.  **Computation**: `ftle.py` reads `data/raw` -> writes `data/processed/ftle_results.json` (includes `window_size` metadata).
+4.  **Analysis**: `regression.py` reads `ftle_results.json` + `baseline` -> writes `data/processed/regression_stats.json`.
+5.  **Visualization**: `code/analysis/plotting.py` reads `regression_stats.json` -> writes `data/processed/plots/*.png`.
 
-## Storage Format
+## Integrity & Hygiene
 
-- **Raw Data**: `numpy` `.npz` (compressed) for trajectories.
-- **Processed Data**: `JSON` for structured results (FTLE, regression).
-- **Visualizations**: `PNG` (vector-embedded) for plots.
-
-## Checksums
-
-- All files in `data/raw/` and `data/processed/` are checksummed (SHA-256) and recorded in `state/manifest.yaml`.
-- No file in `data/` is modified in place. Derivations produce new files.
+- **Checksums**: Every file in `data/` is checksummed (SHA-256) upon creation.
+- **Immutability**: Raw data files are never modified. Derived files are written with new timestamps.
+- **Versioning**: `state/manifest.yaml` tracks the git commit hash and file hashes for every artifact.

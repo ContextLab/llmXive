@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: FTLE Result Schema
+description: Schema for a single FTLE calculation result entry.
+type: object
+required:
+  - trial_id
+  - system_dimension
+  - noise_level
+  - window_size
+  - lambda_max
+  - status
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial (e.g., N3_sigma0.01_t001)"
+  system_dimension:
+    type: integer
+    description: "Number of coupled Lorenz oscillators (N)"
+  noise_level:
+    type: number
+    description: "Standard deviation of injected Gaussian noise (sigma)"
+  window_size:
+    type: integer
+    description: "Time window T used for FTLE calculation"
+  lambda_max:
+    type: number
+    description: "Calculated maximum Lyapunov exponent for this trial"
+  deviation:
+    type: ["number", "null"]
+    description: "Difference between lambda_max and the asymptotic baseline. Null if status is 'unphysical' or 'non-chaotic'."
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "unphysical"
+      - "non-chaotic"
+    description: "Status of the trajectory (unphysical if it leaves attractor)"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of calculation"
+additionalProperties: false

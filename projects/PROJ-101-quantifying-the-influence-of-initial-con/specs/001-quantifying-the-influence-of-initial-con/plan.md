@@ -1,39 +1,39 @@
 # Implementation Plan: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-07-16 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
+**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-08-05 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
 **Input**: Feature specification from `/specs/001-quantify-initial-conditions/spec.md`
 
 ## Summary
 
-This project quantifies the deviation of Finite-Time Lyapunov Exponents (FTLE) from asymptotic baselines in high-dimensional coupled Lorenz systems under varying levels of observational noise. The technical approach involves: (1) generating synthetic trajectories using `scipy.integrate.solve_ivp` (DOP853) with additive Gaussian noise; (2) computing FTLE spectra via a sliding-window algorithm with rigorous boundedness and escape-time checks (replacing deterministic shadowing for stochastic regimes); (3) establishing a numerically computed asymptotic baseline for the specific coupled configuration via ultra-long integration ($T=50,000$) and Richardson extrapolation; and (4) performing regression analysis on the deviation $\Delta \lambda$ against noise amplitude $\sigma_{noise}$ and window size $T$ using a model selection step for non-linear scaling laws. The implementation adheres to a CPU-first strategy, leveraging deterministic chaos properties to ensure reproducibility on GitHub Actions free-tier runners.
+This project implements a computational physics study to quantify how observational noise biases Finite-Time Lyapunov Exponents (FTLE) in high-dimensional chaotic systems (coupled Lorenz oscillators). The approach involves: (1) generating synthetic time-series data with controlled Gaussian noise using `scipy.integrate.solve_ivp` (DOP853); (2) computing FTLE spectra via QR-decomposition based tangent linear propagation; (3) establishing a numerically converged asymptotic baseline for the clean system using **Rosenstein's algorithm** for validation; and (4) performing regression analysis to model the deviation $\Delta \lambda$ as a function of noise amplitude ($\sigma$) and system dimension ($N$). The implementation targets GitHub Actions free-tier constraints (limited CPU, ~7GB RAM) by streaming data and using vectorized NumPy operations. CPU-first strategy is confirmed feasible; no GPU fallback is planned to ensure strict CI reproducibility.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `matplotlib`, `pandas`, `pytest`, `pyyaml`, `ruff`, `black`  
-**Storage**: Local file system (`data/raw/`, `data/processed/`) for trajectory and result artifacts  
-**Testing**: `pytest` with `conftest.py` fixtures for seeds and temp directories  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7 GB RAM)  
-**Project Type**: Scientific computation / CLI  
-**Performance Goals**: Full pipeline (generation + analysis) < 6 hours; individual trajectory generation < 30s  
-**Constraints**: No GPU required (CPU-tractable ODE integration); memory footprint < 7 GB; strict reproducibility via pinned seeds  
-**Scale/Scope**: $N \in \{3, 5\}$ oscillators; $\sigma_{noise} \in \{10^{-4}, 10^{-3}, 10^{-2}, 0.05, 0.1, 0.2, 0.5, 0.8, 1.0, 1.5, 2.0\}$ (explicitly covering the (0.1, 1.0] and >1.0 regimes); $k(\sigma)$ trials per noise level (variable, $k \ge 30$, $k=50$ for $\sigma < 0.01$).
+**Primary Dependencies**: `numpy`, `scipy`, `matplotlib`, `pandas`, `pytest`, `pyyaml`  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`), no external DB  
+**Testing**: `pytest` with `conftest.py` fixtures for random seeds and temp directories  
+**Target Platform**: Linux (GitHub Actions runner, CPU-first)  
+**Project Type**: scientific-computation  
+**Performance Goals**: Full pipeline (N=3,5; broad noise range; k≥30 trials/level) completes < 4 hours on CPU; memory < 4GB.  
+**Constraints**: No external data downloads (synthetic generation only); strict reproducibility via pinned seeds; numerical stability checks before analysis.  
+**Scale/Scope**: System dimensions $N \in \{ \text{small integers} \}$; Noise levels: broad range from negligible ($\sim 10^{-4}$) to significant ($\sim 2.0$); Minimum $k=30$ trials per level (exact counts deferred to implementation).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Detail |
-|-----------|--------|---------------------|
-| I. Reproducibility | **PASS** | Random seeds pinned in `code/config.py`; `code/` runs end-to-end; no external data fetch required (synthetic). |
-| II. Verified Accuracy | **PASS** | Citations to Lorenz (1963), Rosenstein et al. (1993) will be validated against primary sources in `research.md`. |
-| III. Data Hygiene | **PASS** | All `data/` artifacts checksummed; raw generation logs preserved; no in-place modification. |
-| IV. Single Source of Truth | **PASS** | All figures/statistics trace to `data/processed/` JSON/CSV; no hand-typed numbers in paper. |
-| V. Versioning Discipline | **Design Complete** | Mechanism designed; `state/manifest.yaml` artifact pending T001a completion. |
-| VI. Numerical Stability | **PASS** | Plan explicitly includes `validate_baseline()` task (T024) using ultra-long integration ($T=50,000$) and Richardson extrapolation to confirm asymptotic limit for the *specific coupled configuration* before noisy analysis. |
-| VII. Explicit Noise Scaling | **PASS** | Pipeline enforces regression model $\Delta \lambda(T, \sigma_{noise})$ as a hard gate; single averages are forbidden. |
+| Principle | Status | Evidence/Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates `random.seed` pinning in `code/`; synthetic data generation is deterministic given inputs. |
+| **II. Verified Accuracy** | **PASS** | Verified against Spec 'Assumptions': No external citations required for core algorithm; baseline validation is self-contained. The absence of external citations was explicitly verified against the Spec's 'Assumptions' section. |
+| **III. Data Hygiene** | **PASS** | Plan mandates checksums for `data/processed/` artifacts; raw generated data is immutable. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` JSON/CSV; no hand-typed values in `paper/`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; state file updated on change. |
+| **VI. Numerical Stability** | **PASS** | **Critical**: Plan includes a mandatory validation phase (US-2) where clean-system FTLE must converge to the *numerically computed baseline for the specific coupled configuration* (N=3,5) using **Rosenstein's algorithm** before any noisy analysis proceeds. |
+| **VII. Explicit Noise Scaling** | **PASS** | Plan mandates recording $\sigma_{noise}$ and $T$ for every trial; regression modeling $\Delta \lambda(T, \sigma)$ and the **scaling exponent** relating system dimension to bias magnitude is the primary output. **Every trial record includes the specific window size T used for that calculation as a metadata field.** The scaling exponent is stored as a primary artifact. |
 
 ## Project Structure
 
@@ -46,7 +46,7 @@ specs/001-quantify-initial-conditions/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
@@ -55,72 +55,69 @@ specs/001-quantify-initial-conditions/
 projects/PROJ-101-quantifying-the-influence-of-initial-con/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py              # Global constants, seeds, paths
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── numerical_stability.py  # T007: Convergence, boundedness checks
-│   │   └── io_utils.py            # T017: Load/Save utilities
+│   ├── main.py              # Entry point for pipeline execution
+│   ├── config.py            # Constants: N values, noise ranges, integration params
 │   ├── simulation/
 │   │   ├── __init__.py
-│   │   ├── lorenz.py              # T046: Coupled Lorenz generator
-│   │   └── noise.py               # T046: Noise injection logic
+│   │   ├── lorenz.py        # Coupled Lorenz ODE definition
+│   │   └── generator.py     # Trajectory generation with noise injection
 │   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── ftle.py                # T022/T023: FTLE algorithm + sliding window
-│   │   ├── boundedness.py         # T043: Boundedness/Escape time checks (replaces Shadowing)
-│   │   └── regression.py          # T033: Deviation modeling + t-test on bias term
-│   └── main.py                    # T028: Gating & orchestration
-├── data/
-│   ├── raw/                       # Generated trajectories (checksummed)
-│   └── processed/                 # FTLE results, regression outputs
+│   │   ├── ftle.py          # QR-based FTLE calculation
+│   │   ├── baseline.py      # Asymptotic convergence validation (Rosenstein)
+│   │   └── regression.py    # Deviation modeling, t-tests, effect sizes, scaling exponent
+│   └── utils/
+│       ├── __init__.py
+│       └── stability.py     # Attractor bounding checks, non-chaotic detection
 ├── tests/
 │   ├── __init__.py
-│   ├── conftest.py                # T008: Pytest fixtures (seeds, tmp)
-│   ├── unit/                      # T001c: Unit tests (stability, noise)
-│   └── integration/               # T001c: End-to-end pipeline tests
-├── docs/                          # Quickstart, data-model
-├── state/                         # Project state manifest (T001a)
-├── pyproject.toml                 # T003: Dependencies + Black/Ruff config
-└── requirements.txt               # T003: Pinned dependencies
+│   ├── conftest.py          # Pytest fixtures (seed, temp dir)
+│   ├── unit/
+│   │   ├── test_lorenz.py
+│   │   ├── test_ftle.py
+│   │   └── test_edge_cases.py
+│   └── integration/
+│       └── test_pipeline.py
+├── data/
+│   ├── raw/                 # Generated trajectory shards (immutable)
+│   └── processed/           # FTLE results, regression stats, plots
+├── state/
+│   └── projects/
+│       └── PROJ-101-quantifying-the-influence-of-initial-con.yaml
+└── docs/
+    ├── quickstart.md
+    └── README.md
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead for a computational study. The `code/` directory is split into `simulation`, `analysis`, and `utils` to enforce separation of concerns (data generation vs. metric calculation vs. utility logic). This satisfies the dependency chain: Generation (T046) -> Baseline Validation (T024) -> Gating (T028) -> FTLE Calculation (T022/23) -> Regression (T033).
+**Structure Decision**: Single project structure with modular `code/` subpackages. This minimizes overhead for a scientific script while maintaining separation of concerns (simulation vs. analysis).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Boundedness/Escape Time Check (T043) | Required to distinguish true chaos from numerical artifacts in high-noise regimes (Edge Case 1) and to measure "escape time" rather than a binary "unphysical" flag. Shadowing Lemma is invalid for stochastic trajectories. | A simple boundedness check (FR-007) is insufficient; we need to quantify the *time* until escape for stochastic trajectories. Shadowing Lemma is rejected as scientifically invalid for SDEs. |
-| Separate Baseline Validation (T024) | Constitution VI requires verifying the *numerically computed* baseline for the *specific coupled configuration* using an ultra-long integration ($T=50,000$). | Relying on theoretical values (0.905) is invalid for *coupled* systems; the baseline must be derived from the specific configuration's integration. |
-| Variable Trial Count (k) | SC-003 requires t-test with sufficient power for effect size, which varies with noise level. | Fixed $k=30$ is underpowered for low-noise regimes; variable $k$ ensures power across the entire range. |
-| Non-linear Model Selection | The physics of FTLE bias is non-linear (power-law/logarithmic). | Simple linear regression is a misspecification; model selection (AIC/BIC) is required. |
+| :--- | :--- | :--- |
+| **None** | The project is strictly bounded by CPU constraints and synthetic data. | No unnecessary complexity introduced. |
 
-## Task Dependency Chain (Corrected)
+## Methodological Rigor & Statistical Plan
 
-The following dependency chain ensures no race conditions and correct data flow:
+- **Statistical Test**: **One-sample t-test** comparing the distribution of noisy FTLE estimates against the fixed, deterministic asymptotic baseline. Two-sample tests are avoided as the baseline has no sampling variance.
+- **Regression Inference**: Primary hypothesis testing relies on the p-value and confidence interval of the regression slope (bias term) in $\Delta \lambda \sim f(\sigma, N)$. **Bonferroni/FDR corrections are explicitly NOT applied.** The plan commits to **only** regression coefficient inference and one-sample t-tests against the baseline; no pairwise comparisons across noise levels will be conducted, thus rendering Bonferroni/FDR irrelevant.
+- **Survivorship Bias**: Unphysical trajectories (leaving attractor) are excluded from $\Delta \lambda$ regression but included in a separate analysis of escape probability $P(\text{escape} | \sigma)$. The bias analysis is explicitly conditional on "bounded trajectories only". For unphysical trajectories, the deviation metric is set to null.
+- **Variance Estimation**: Variance is calculated across independent trials ($k$), **not** across sliding windows of the same trial, to avoid autocorrelation inflation.
+- **Baseline Validation**: The asymptotic baseline is computed numerically for the *specific coupled configuration* (N=3,5) using **Rosenstein's algorithm**, not a generic single-oscillator value.
+- **Measure Shift**: The analysis distinguishes between small-noise bias (observational) and large-noise regime shifts (dynamical measure change) if $\sigma$ is high enough to alter the attractor. A threshold $\sigma_c$ will be determined empirically to separate these regimes.
+- **Algorithm Clarification**: **QR-decomposition** is used for the general FTLE calculation over sliding windows (requiring tangent space re-orthonormalization), while **Rosenstein's algorithm** is used *specifically* for the baseline validation step to satisfy Constitution Principle VI and ensure convergence of the clean system.
+- **Metadata Recording**: The sliding window size $T$ is explicitly recorded as a metadata field for every trial in the output artifacts.
 
-1.  **T024 (Baseline Validation)**: Computes $\lambda_{asymptotic}$ via ultra-long integration ($T=50,000$) + Richardson extrapolation.
-2.  **T028 (Gating)**: Validates T024 output. **DEPENDS ON T024**. Only if T024 passes, proceed.
-3.  **T046 (Data Generation)**: Generates trajectories for all $\sigma_{noise}$ levels (including $>1.0$).
-4.  **T019 (Generate Trial Sweep)**: Loops $k(\sigma)$ times per noise level. **DEPENDS ON T046**.
-5.  **T022/T023 (FTLE Calculation)**: Computes FTLE for each trial. **DEPENDS ON T028** (via T024) and T019.
-6.  **T033 (Analyze Bias)**: Performs regression and t-test on bias term. **DEPENDS ON T022/T023**.
-7.  **T036 (Visualization)**: Generates plots. **DEPENDS ON T033**.
+## FR/SC Mapping
 
-**Critical Correction**: T028 (Gating) is now explicitly listed as a prerequisite for T022/T023. T043 (Boundedness) is a diagnostic check run *during* T022/T023, not a blocking dependency for the algorithm itself.
-
-## FR/SC Coverage Matrix
-
-| ID | Requirement | Plan Element | Status |
-|----|-------------|--------------|--------|
-| FR-001 | Generate noisy data (broad range) | T046, T019 (includes $\sigma \in \{0.2, \dots, 2.0\}$) | Covered |
-| FR-002 | Compute FTLE (sliding window) | T022, T023 | Covered |
-| FR-003 | Calculate asymptotic baseline (numerical) | T024 (Ultra-long + Richardson) | Covered |
-| FR-004 | Regression analysis | T033 (Model selection + regression) | Covered |
-| FR-005 | Convergence plot | T036 | Covered |
-| FR-006 | Validate numerical stability | T024 (Gated by T028) | Covered |
-| FR-007 | Flag high-noise ($\sigma > 0.1$) | T022/T023 (Boundedness/Escape time check) | Covered |
-| SC-001 | Convergence validation | T024 (Error < 5% via Richardson) | Covered |
-| SC-002 | Bias scaling | T033 (Regression coefficients) | Covered |
-| SC-003 | t-test on bias term | T033 (Explicit t-test on $\beta$) | Covered |
-| SC-004 | Runtime | CPU-first strategy, < 6h | Covered |
+- **FR-001 / US-1**: `code/simulation/generator.py` handles trajectory generation with noise.
+- **FR-002 / US-2**: `code/analysis/ftle.py` computes FTLE with sliding windows.
+- **FR-003 / US-2**: `code/analysis/baseline.py` computes asymptotic baseline using Rosenstein's algorithm for the *specific coupled configuration*.
+- **FR-004 / US-3**: `code/analysis/regression.py` performs regression modeling, **one-sample t-tests**, and calculates **effect sizes** (Cohen's d) and the **scaling exponent**.
+- **FR-005 / US-3**: `code/analysis/plotting.py` generates convergence and bias scaling plots.
+- **FR-006 / US-2**: `code/utils/stability.py` validates numerical stability and non-chaotic detection.
+- **FR-007 / Edge Cases**: `code/simulation/generator.py` flags unphysical trajectories ($\sigma > 0.1$) and checks attractor bounds.
+- **SC-001**: Validated via baseline convergence check in `code/analysis/baseline.py`.
+- **SC-002**: Measured via regression slope and scaling exponent in `code/analysis/regression.py`.
+- **SC-003**: Measured via t-test p-values and effect sizes in `code/analysis/regression.py`.
+- **SC-004**: Measured via runtime logging in `code/main.py`.
