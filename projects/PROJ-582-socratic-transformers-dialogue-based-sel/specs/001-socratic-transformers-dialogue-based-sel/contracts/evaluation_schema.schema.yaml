@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Result Schema"
+description: "Schema for evaluation metrics on held-out datasets."
+type: object
+properties:
+  condition:
+    type: string
+    enum:
+      - "selection"
+      - "ablation"
+      - "static"
+    description: "The experimental condition."
+  dataset:
+    type: string
+    enum:
+      - "gsm8k"
+      - "math"
+    description: "The test dataset used."
+  accuracy:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of correct answers."
+  n_samples:
+    type: integer
+    minimum: 1
+    description: "Number of samples evaluated."
+  std_err:
+    type: number
+    minimum: 0.0
+    description: "Standard error of the mean accuracy."
+required:
+  - condition
+  - dataset
+  - accuracy
+  - n_samples
+  - std_err
+additionalProperties: false

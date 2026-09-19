@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dialogue Tuple Schema"
+description: "Schema for generated dialogue tuples (selection and ablation conditions)."
+type: object
+properties:
+  question:
+    type: string
+    description: "The original problem statement from the source dataset."
+  initial_answer:
+    type: string
+    description: "The model's first attempt at the answer."
+  critique:
+    type: string
+    description: "Adversarial critique identifying logical errors (or neutral placeholder for ablation)."
+  revised_answer:
+    type: string
+    description: "The model's revised answer after processing the critique."
+  condition:
+    type: string
+    enum:
+      - "selection"
+      - "ablation"
+    description: "The experimental condition the tuple belongs to."
+  quality_passed:
+    type: boolean
+    description: "True if the dialogue passed the quality gate (regeneration loop)."
+  retry_count:
+    type: integer
+    minimum: 0
+    description: "Number of regeneration attempts made before passing the gate."
+required:
+  - question
+  - initial_answer
+  - critique
+  - revised_answer
+  - condition
+  - quality_passed
+  - retry_count
+additionalProperties: false

@@ -1,111 +1,68 @@
-# Data Model: Socratic Transformers (PROJ-582)
+# Data Model: Socratic Transformers
 
-## 1. Overview
+## Overview
 
-This document defines the data structures, schemas, and flow for the Socratic Transformers project. All data artifacts are stored in `data/` and versioned via checksums.
+This document defines the data schemas for the Socratic Transformers project. All data artifacts must conform to these schemas to ensure reproducibility and contract validation.
 
-## 2. Directory Structure
+## Artifact Flow
 
-```text
-data/
-├── raw/
-│   ├── gsm8k_train.parquet      # Downloaded GSM8K train
-│   ├── gsm8k_test.parquet       # Downloaded GSM8K test
-│   ├── math_train.parquet       # Downloaded MATH train
-│   └── checksums.json           # SHA256 hashes for all raw files
-├── processed/
-│   ├── static/
-│   │   ├── gsm8k_static.jsonl   # Static QA tuples
-│   │   └── math_static.jsonl
-│   ├── dialogue/
-│   │   ├── gsm8k_dialogue.jsonl # (Q, A_init, Critique, A_rev)
-│   │   └── math_dialogue.jsonl
-│   ├── ablation/
-│   │   ├── gsm8k_ablation.jsonl # (Q, A_init, Distractor, A_rev)
-│   │   └── math_ablation.jsonl
-│   └── train_splits/
-│       ├── selection_train.jsonl
-│       ├── ablation_train.jsonl
-│       └── static_train.jsonl
-└── results/
-    ├── metrics.json             # Accuracy, p-values, effect sizes
-    ├── training_logs/           # Loss curves, logs
-    └── evaluation_plots/        # Generated figures
-```
+1. **Raw Data**: Downloaded from HuggingFace (GSM8K, MATH).
+2. **Generated Dialogue**: Produced by the Critic and Generator models.
+3. **Training Data**: Aggregated datasets for the three conditions.
+4. **Evaluation Results**: Accuracy metrics and statistical test outputs.
 
-## 3. Data Schemas
+## Schemas
 
-### 3.1 Raw Dataset Schema (Inherited)
-- **GSM8K**: `question` (str), `answer` (str)
-- **MATH**: `problem` (str), `solution` (str)
+### 1. Raw Dataset Schema (GSM8K/MATH)
 
-### 3.2 Static Tuple Schema
-```json
-{
-  "id": "string",
-  "source": "gsm8k" | "math",
-  "question": "string",
-  "answer": "string",
-  "split": "train" | "test"
-}
-```
+**Source**: `data/raw/gsm8k.parquet`, `data/raw/math.parquet`
 
-### 3.3 Dialogue Tuple Schema (Selection Condition)
-```json
-{
-  "id": "string",
-  "source": "gsm8k" | "math",
-  "question": "string",
-  "initial_answer": "string",
-  "critique": "string",
-  "revised_answer": "string",
-  "critique_type": "logical_contradiction" | "unsupported_assumption" | "calculation_error",
-  "quality_score": "float (0.0-1.0)"
-}
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `question` | string | The original problem statement. |
+| `answer` | string | The ground truth solution (or `solution` for MATH). |
+| `id` | string | Unique identifier for the sample. |
 
-### 3.4 Ablation Tuple Schema
-```json
-{
-  "id": "string",
-  "source": "gsm8k" | "math",
-  "question": "string",
-  "initial_answer": "string",
-  "critique": "string",  // Syntactic Distractor (equivalent length/complexity)
-  "revised_answer": "string",
-  "token_count": "int",
-  "complexity_score": "float" // Estimated syntactic complexity (e.g., parse tree depth)
-}
-```
+### 2. Dialogue Tuple Schema (Generated)
 
-### 3.5 Evaluation Metrics Schema
-```json
-{
-  "experiment_id": "string",
-  "condition": "selection" | "ablation" | "static",
-  "dataset": "gsm8k_test" | "mmlu_stem",
-  "accuracy": "float",
-  "samples": "int",
-  "timestamp": "ISO8601"
-}
-```
+**Source**: `data/derived/dialogues.parquet`
 
-## 4. Data Flow
+| Field | Type | Description |
+|-------|------|-------------|
+| `question` | string | Original question. |
+| `initial_answer` | string | Model's first attempt (potentially erroneous). |
+| `critique` | string | Adversarial critique identifying errors. |
+| `revised_answer` | string | Model's revised answer after critique. |
+| `condition` | string | "selection" (adversarial) or "ablation" (neutral placeholder). |
+| `quality_passed` | boolean | True if passed the regeneration loop quality gate. |
+| `retry_count` | integer | Number of regeneration attempts (0 if passed first try). |
 
-1. **Download**: `src/data/download.py` fetches raw data from verified URLs and computes checksums.
-2. **Static Extraction**: `src/data/static_extractor.py` converts raw data to `static/*.jsonl`.
-3. **Dialogue Generation**:
-   - `src/data/generate_dialogue.py` generates `(Q, A_init, Critique, A_rev)` tuples using a **frozen Critic Model**.
-   - **Quality Gate**: Tuples with `quality_score < 0.7` are discarded.
-4. **Ablation Generation**: `src/data/ablation.py` replaces critiques with **Syntactic Distractors** of matching token length and complexity.
-5. **Splitting**: Data is split into `train` and `test` sets (strict separation).
-6. **Training**: `src/train/train_loop.py` consumes `train_splits/*.jsonl`.
-7. **Evaluation**: `src/utils/metrics.py` computes accuracy on `test` sets.
-8. **Aggregation**: Results written to `results/metrics.json`.
+### 3. Evaluation Result Schema
 
-## 5. Data Integrity & Hygiene
+**Source**: `data/results/metrics.csv`
 
-- **Checksums**: All raw files are checksummed. Any change invalidates downstream artifacts.
-- **Immutability**: `data/raw/` files are never modified. Derivations are written to new files in `data/processed/`.
-- **PII**: No PII expected in GSM8K/MATH. Automated scan performed on `data/processed/` before commit.
-- **Versioning**: Each generated file includes a `generated_at` timestamp and `source_hash` (hash of input data).
+| Field | Type | Description |
+|-------|------|-------------|
+| `condition` | string | "selection", "ablation", or "static". |
+| `dataset` | string | "gsm8k" or "math". |
+| `accuracy` | float | Proportion of correct answers. |
+| `n_samples` | integer | Number of samples evaluated. |
+| `std_err` | float | Standard error of the mean. |
+
+### 4. Statistical Test Output Schema
+
+**Source**: `data/results/stats.json`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `comparison` | string | e.g., "selection_vs_ablation". |
+| `t_statistic` | float | T-statistic value. |
+| `p_value` | float | Raw p-value. |
+| `p_value_corrected` | float | Bonferroni-corrected p-value. |
+| `significant` | boolean | True if `p_value_corrected` < 0.05. |
+
+## Data Hygiene Rules
+
+- **Checksums**: All files in `data/raw/` and `data/derived/` must be checksummed (SHA-256) and recorded in `state/artifact_hashes.yaml`.
+- **Immutability**: Raw data is never modified. Derived data is written to new files with versioned names.
+- **PII**: No Personally Identifiable Information is allowed. Datasets are public and anonymized by nature.
