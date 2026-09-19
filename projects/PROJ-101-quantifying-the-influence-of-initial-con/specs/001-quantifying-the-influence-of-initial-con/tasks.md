@@ -1,8 +1,3 @@
----
-
-description: "Task list template for feature implementation"
----
-
 # Tasks: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
 **Input**: Design documents from `/specs/001-quantify-initial-conditions/`
@@ -172,6 +167,17 @@ description: "Task list template for feature implementation"
 
 ---
 
+## Phase N+1: Final Validation & Reporting
+
+**Purpose**: Ensure all success criteria are met and document the final state of the research.
+
+- [ ] T048 [P] [US3] Generate final summary report in `data/processed/final_report.md` containing: (1) Convergence validation status (SC-001), (2) Bias scaling relationship with regression coefficients (SC-002), (3) Statistical significance results (p-value, effect size) from T032b (SC-003), and (4) Dimension scaling exponent (US-3 Scenario 3).
+- [ ] T049 [P] [US3] Verify all artifacts in `data/processed/` are checksummed and match the manifest in `state/manifest.yaml`.
+- [ ] T050 [P] [US1/US2/US3] Run full end-to-end benchmark on a fresh environment to confirm reproducibility and runtime compliance (SC-004).
+- [ ] T051 [P] [US3] Archive final dataset and results to `data/final_release/` with a `README` describing the exact noise levels, N values, and trial counts used.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -208,6 +214,10 @@ description: "Task list template for feature implementation"
 - **T036, T037b (Visualizations)**: DEPEND ON **T032b** and **T045**.
 - **T042 (Full Pipeline Benchmark)**: DEPEND ON **T018, T045, T037a** (all phases).
 - **T043 (Boundedness Check)**: DEPEND ON **T018** (Generation).
+- **T048 (Final Report)**: DEPEND ON **T032b, T034, T045** (all analysis results).
+- **T049 (Artifact Verification)**: DEPEND ON **T048**.
+- **T050 (Final Benchmark)**: DEPEND ON **T049**.
+- **T051 (Final Archive)**: DEPEND ON **T050**.
 
 ### Parallel Opportunities
 
