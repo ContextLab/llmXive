@@ -18,12 +18,12 @@
         "page": 66
       }
     ],
-    "audited_at": "2026-09-19T12:53:57.330193+00:00"
+    "audited_at": "2026-09-19T13:19:23.950253+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-  "updated_at": "2026-09-19T12:53:57.330205+00:00"
+  "updated_at": "2026-09-19T13:19:23.950269+00:00"
 }
