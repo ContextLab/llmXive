@@ -1,227 +1,245 @@
 """
-Resource monitoring utilities for llmXive project.
-Provides RAM, CPU, and time tracking with enforcement of project limits.
+Resource monitoring utilities for llmXive.
+
+Provides functions to track RAM usage, CPU utilization, and elapsed time.
+Includes a context manager for automatic monitoring and validation against
+resource limits.
 """
 import os
 import time
 import threading
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from dataclasses import dataclass, field
 import psutil
 
+# Process object for the current process
+_PROCESS = psutil.Process(os.getpid())
+
+
 @dataclass
 class ResourceSnapshot:
-    """Snapshot of resource usage at a specific point in time."""
+    """A snapshot of resource usage at a specific point in time."""
     timestamp: float
     ram_mb: float
     cpu_percent: float
     elapsed_time: float
 
+@dataclass
 class ResourceMonitor:
     """
-    Monitor resource usage and enforce limits.
-    
-    Features:
-    - Background thread for continuous RAM/CPU sampling
-    - Peak RAM tracking
-    - Elapsed time tracking
-    - Configurable limits for RAM (GB) and time (hours)
-    - Automatic limit checking with exception raising
+    Monitors resource usage (RAM, CPU) over time.
+
+    Attributes:
+        start_time: Time when monitoring started (seconds since epoch).
+        peak_memory_mb: Highest recorded RAM usage in MB.
+        samples: List of ResourceSnapshot objects collected during monitoring.
+        _thread: Background thread for sampling.
+        _stop_event: Event to signal the background thread to stop.
     """
-    
-    def __init__(self, max_ram_gb: float = 7.0, max_time_hours: float = 6.0):
-        """
-        Initialize the resource monitor.
-        
-        Args:
-            max_ram_gb: Maximum allowed RAM usage in GB (default 7.0 per project spec)
-            max_time_hours: Maximum allowed execution time in hours (default 6.0)
-        """
-        self.max_ram_gb = max_ram_gb
-        self.max_time_hours = max_time_hours
+    start_time: float = field(default_factory=time.time)
+    peak_memory_mb: float = 0.0
+    samples: List[ResourceSnapshot] = field(default_factory=list)
+    _thread: Optional[threading.Thread] = field(default=None, repr=False)
+    _stop_event: threading.Event = field(default_factory=threading.Event, repr=False)
+    _interval: float = 1.0  # Sampling interval in seconds
+
+    def start(self) -> None:
+        """Start the background monitoring thread."""
+        if self._thread is not None and self._thread.is_alive():
+            return  # Already running
+
         self.start_time = time.time()
-        self.peak_ram_mb = 0.0
-        self._monitor_thread = None
-        self._stop_monitoring = threading.Event()
-        self._snapshots: list[ResourceSnapshot] = []
-        
-        # Start monitoring thread
-        self._monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
-        self._monitor_thread.start()
-    
-    def _monitor_loop(self):
-        """Background loop to monitor resources."""
-        process = psutil.Process(os.getpid())
-        while not self._stop_monitoring.is_set():
+        self.peak_memory_mb = 0.0
+        self.samples = []
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._sample_loop, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        """Stop the background monitoring thread and return the final snapshot."""
+        self._stop_event.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2.0)
+            self._thread = None
+
+    def _sample_loop(self) -> None:
+        """Background loop to collect resource samples."""
+        while not self._stop_event.is_set():
             try:
-                # Get current memory usage
-                mem_mb = process.memory_info().rss / (1024 * 1024)
-                
-                # Update peak RAM if current exceeds it
-                if mem_mb > self.peak_ram_mb:
-                    self.peak_ram_mb = mem_mb
-                
-                # Record snapshot
-                elapsed = time.time() - self.start_time
-                snapshot = ResourceSnapshot(
-                    timestamp=time.time(),
-                    ram_mb=mem_mb,
-                    cpu_percent=psutil.cpu_percent(interval=0.1),
-                    elapsed_time=elapsed
-                )
-                self._snapshots.append(snapshot)
-                
-                time.sleep(1)  # Sample every second
+                snapshot = self._take_snapshot()
+                self.samples.append(snapshot)
+                if snapshot.ram_mb > self.peak_memory_mb:
+                    self.peak_memory_mb = snapshot.ram_mb
             except Exception:
-                break
-    
-    def check_limits(self) -> None:
-        """
-        Check if resource limits are exceeded.
-        
-        Raises:
-            ResourceLimitExceeded: If RAM or time limits are breached
-        """
-        current_ram_mb = self.peak_ram_mb
-        current_time_hours = (time.time() - self.start_time) / 3600
-        
-        if current_ram_mb > self.max_ram_gb * 1024:
-            from utils.logging import ResourceLimitExceeded
-            raise ResourceLimitExceeded(
-                f"RAM limit exceeded: {current_ram_mb:.2f} MB > {self.max_ram_gb * 1024:.2f} MB"
-            )
-        
-        if current_time_hours > self.max_time_hours:
-            from utils.logging import ResourceLimitExceeded
-            raise ResourceLimitExceeded(
-                f"Time limit exceeded: {current_time_hours:.2f} hours > {self.max_time_hours} hours"
-            )
-    
-    def get_current_snapshot(self) -> ResourceSnapshot:
-        """Get the most recent resource snapshot."""
-        process = psutil.Process(os.getpid())
-        elapsed = time.time() - self.start_time
+                # Silently ignore sampling errors to avoid crashing the main thread
+                pass
+            time.sleep(self._interval)
+
+    def _take_snapshot(self) -> ResourceSnapshot:
+        """Take a single resource snapshot."""
+        now = time.time()
+        ram_mb = get_ram_usage()
+        cpu_pct = get_cpu_utilization()
+        elapsed = now - self.start_time
         return ResourceSnapshot(
-            timestamp=time.time(),
-            ram_mb=process.memory_info().rss / (1024 * 1024),
-            cpu_percent=psutil.cpu_percent(interval=0.1),
+            timestamp=now,
+            ram_mb=ram_mb,
+            cpu_percent=cpu_pct,
             elapsed_time=elapsed
         )
-    
-    def get_stats(self) -> Dict[str, Any]:
+
+    def get_summary(self) -> Dict[str, Any]:
         """
-        Get aggregated resource statistics.
-        
+        Return a summary of the monitoring session.
+
         Returns:
-            Dictionary with peak RAM, average CPU, total snapshots, etc.
+            Dictionary with start_time, end_time, duration_s,
+            peak_memory_mb, avg_cpu_percent, sample_count.
         """
-        if not self._snapshots:
+        if not self.samples:
             return {
-                "peak_ram_mb": self.peak_ram_mb,
+                "start_time": self.start_time,
+                "end_time": time.time(),
+                "duration_s": time.time() - self.start_time,
+                "peak_memory_mb": self.peak_memory_mb,
                 "avg_cpu_percent": 0.0,
-                "total_snapshots": 0,
-                "elapsed_time": time.time() - self.start_time
+                "sample_count": 0
             }
-        
-        cpu_values = [s.cpu_percent for s in self._snapshots]
+
+        end_time = self.samples[-1].timestamp
+        durations = [s.elapsed_time for s in self.samples]
+        cpus = [s.cpu_percent for s in self.samples]
+
         return {
-            "peak_ram_mb": self.peak_ram_mb,
-            "avg_cpu_percent": sum(cpu_values) / len(cpu_values),
-            "min_cpu_percent": min(cpu_values),
-            "max_cpu_percent": max(cpu_values),
-            "total_snapshots": len(self._snapshots),
-            "elapsed_time": time.time() - self.start_time
+            "start_time": self.samples[0].timestamp,
+            "end_time": end_time,
+            "duration_s": end_time - self.samples[0].timestamp,
+            "peak_memory_mb": self.peak_memory_mb,
+            "avg_cpu_percent": sum(cpus) / len(cpus),
+            "sample_count": len(self.samples)
         }
-    
-    def stop(self):
-        """Stop the monitoring thread."""
-        self._stop_monitoring.set()
-        if self._monitor_thread:
-            self._monitor_thread.join(timeout=1)
+
+
+def get_ram_usage() -> float:
+    """
+    Get the current RAM usage of the process in Megabytes.
+
+    Returns:
+        Float representing RAM usage in MB.
+    """
+    mem_info = _PROCESS.memory_info()
+    return mem_info.rss / (1024 * 1024)
+
+
+def get_cpu_utilization() -> float:
+    """
+    Get the current CPU utilization of the process as a percentage.
+
+    Returns:
+        Float representing CPU percentage (0.0 to 100.0 * num_cpus).
+    """
+    # percent for the current process
+    return _PROCESS.cpu_percent(interval=None)
+
 
 def get_peak_memory_mb() -> float:
     """
-    Get current peak memory usage in MB for the current process.
-    
-    Note: This is a snapshot of current RSS, not historical peak.
-    For historical peak tracking, use ResourceMonitor.
-    
-    Returns:
-        Current memory usage in MB
-    """
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
+    Get the peak RSS memory usage of the process since the start of the program.
 
-def get_cpu_percent() -> float:
-    """
-    Get current CPU usage percentage.
-    
     Returns:
-        Current CPU usage as a percentage
+        Float representing peak RAM usage in MB.
     """
-    return psutil.cpu_percent(interval=0.1)
+    return _PROCESS.memory_info().peak_rss / (1024 * 1024) if hasattr(_PROCESS.memory_info(), 'peak_rss') else get_ram_usage()
 
-def get_elapsed_time() -> float:
-    """
-    Get elapsed time since the start of the current monitoring session.
-    If no monitor is active, returns time since module import.
-    
-    Returns:
-        Elapsed time in seconds
-    """
-    # Fallback if no monitor is active
-    return time.time() % 1e9  # Placeholder - actual usage should be via ResourceMonitor
 
-def format_bytes(size_bytes: float) -> str:
+def get_elapsed_time(start_time: Optional[float] = None) -> float:
     """
-    Format bytes to human-readable string.
-    
+    Get the elapsed time since a given start time.
+
     Args:
-        size_bytes: Size in bytes
-        
+        start_time: Start time in seconds since epoch. Defaults to time.time().
+
     Returns:
-        Formatted string (e.g., "1.5 GB")
+        Float representing elapsed seconds.
+    """
+    if start_time is None:
+        start_time = time.time()
+    return time.time() - start_time
+
+
+def format_bytes(num_bytes: float) -> str:
+    """
+    Format a byte value into a human-readable string.
+
+    Args:
+        num_bytes: Value in bytes.
+
+    Returns:
+        String like "1.5 GB".
     """
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if abs(size_bytes) < 1024.0:
-            return f"{size_bytes:.2f} {unit}"
-        size_bytes /= 1024.0
-    return f"{size_bytes:.2f} PB"
+        if abs(num_bytes) < 1024.0:
+            return f"{num_bytes:.2f} {unit}"
+        num_bytes /= 1024.0
+    return f"{num_bytes:.2f} PB"
+
 
 def format_duration(seconds: float) -> str:
     """
-    Format seconds to human-readable duration.
-    
-    Args:
-        seconds: Duration in seconds
-        
-    Returns:
-        Formatted string (e.g., "1h 30m 45s")
-    """
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    if hours > 0:
-        return f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
-    elif minutes > 0:
-        return f"{int(minutes)}m {int(seconds)}s"
-    else:
-        return f"{int(seconds)}s"
+    Format a duration in seconds into a human-readable string.
 
-def validate_resource_limits(max_ram_gb: float = 7.0, max_time_hours: float = 6.0) -> bool:
-    """
-    Validate that current resource usage is within limits.
-    
     Args:
-        max_ram_gb: Maximum allowed RAM in GB
-        max_time_hours: Maximum allowed time in hours
-        
+        seconds: Duration in seconds.
+
     Returns:
-        True if within limits, False otherwise
+        String like "1h 23m 45s".
     """
-    current_ram = get_peak_memory_mb()
-    if current_ram > max_ram_gb * 1024:
-        return False
-    
-    # Time validation requires a monitor instance
-    # This function is a quick check for RAM only
-    return True
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    parts = []
+    if hours > 0:
+        parts.append(f"{hours}h")
+    if minutes > 0 or hours > 0:
+        parts.append(f"{minutes}m")
+    parts.append(f"{secs}s")
+    return " ".join(parts)
+
+
+def validate_resource_limits(peak_ram_gb: float, max_ram_gb: float = 7.0,
+                             max_time_h: float = 6.0,
+                             current_time_h: Optional[float] = None) -> Dict[str, Any]:
+    """
+    Validate resource usage against defined limits.
+
+    Args:
+        peak_ram_gb: Peak RAM usage in GB.
+        max_ram_gb: Maximum allowed RAM in GB (default 7.0).
+        max_time_h: Maximum allowed time in hours (default 6.0).
+        current_time_h: Current elapsed time in hours. If None, calculated from start.
+
+    Returns:
+        Dictionary with 'status' ('pass' or 'fail'), 'reasons' (list of strings),
+        and 'details' (dict with values).
+    """
+    reasons = []
+    status = "pass"
+
+    if peak_ram_gb > max_ram_gb:
+        status = "fail"
+        reasons.append(f"Peak RAM ({peak_ram_gb:.2f} GB) exceeds limit ({max_ram_gb} GB)")
+
+    if current_time_h is not None and current_time_h > max_time_h:
+        status = "fail"
+        reasons.append(f"Elapsed time ({current_time_h:.2f} h) exceeds limit ({max_time_h} h)")
+
+    return {
+        "status": status,
+        "reasons": reasons,
+        "details": {
+            "peak_ram_gb": peak_ram_gb,
+            "max_ram_gb": max_ram_gb,
+            "elapsed_time_h": current_time_h,
+            "max_time_h": max_time_h
+        }
+    }

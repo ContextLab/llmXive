@@ -1,1 +1,24 @@
-[]
+- artifact_hash: 200ac2ea69c661dc6c8205b7d2cc60b218417a4cc6efa450c7df5ef9f0a1bd6d
+  artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2108.02191] Random Offset Block Embedding Array (ROBE) for CriteoTB
+    Benchmark MLPerf DLRM Model : 1000$\times$ Compression and 3.1$\times$ Faster
+    Inference'
+  kind: url
+  value: https://arxiv.org/abs/2108.02191
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2108.02191
+  verified_at: '2026-09-19T05:02:36.589397Z'
+- artifact_hash: 200ac2ea69c661dc6c8205b7d2cc60b218417a4cc6efa450c7df5ef9f0a1bd6d
+  artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: linear mixed-effects model - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q120282163
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q120282163
+  verified_at: '2026-09-19T05:02:36.589397Z'

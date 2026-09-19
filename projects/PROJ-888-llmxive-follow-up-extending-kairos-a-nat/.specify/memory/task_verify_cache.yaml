@@ -1,3 +1,9 @@
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no `README.md` file nor the required `logs/readme_validation.log`;
+    consequently the header cannot be verified and the validation command has not
+    been executed. The necessary artifacts are missing.
 T004:
   c: false
   h: 6501af0b0c49f9831c2315914dcc9a1737bc5c94438da91a374b958d57e3951d

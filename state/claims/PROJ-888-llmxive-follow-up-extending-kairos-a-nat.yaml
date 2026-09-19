@@ -1370,3 +1370,307 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-10T15:40:16Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: simr version 1.0.6
+  claim_id: c_2005ab6d
+  context: 'Initialize requirements.txt with pinned versions: ... simr==1.0.6 (use
+    == for exact pinning).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: simr version 1.0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:43:21Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Target Cohen's d of 0.5 and Power of 0.8
+  claim_id: c_1070e394
+  context: 'Implement code/analysis/power_analysis.py to perform LMM-based power simulation
+    (using simr logic) for Target: Cohen''s d=0.5, Power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: Cohen''s d=0.5, Power=0.8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:45:33Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Target Cohen's d of 0.5
+  claim_id: c_e5252232
+  context: 'Constraint: MUST explicitly target d=0.5 per Spec FR-009.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: Cohen''s d=0.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:47:25Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Input subset size of 50 episodes
+  claim_id: c_6fd9c153
+  context: 'Integration test for full download-quantize-noise pipeline in tests/integration/test_data_pipeline.py:
+    Specify input subset size (N=50 episodes)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=50 episodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:48:46Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Output file size less than 100 MB
+  claim_id: c_72dcc9ec
+  context: Integration test for full download-quantize-noise pipeline... assert output_file_size
+    < 100MB and no NaN values.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: model using ROBE Array of size 100MB on a single GPU to achieve AUC of
+        0.8025 or higher as
+      source_id: '2108.02191'
+      url: https://arxiv.org/abs/2108.02191
+      value: 100MB
+    filled: true
+  kind: magnitude
+  raw_text: output_file_size < 100MB
+  resolved_value: 100MB
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T04:55:38Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Gaussian noise standard deviation is 0.1 times the quantization step
+  claim_id: c_9736ba77
+  context: Implement code/data/noise.py to inject Gaussian noise (std dev = 0.1 *
+    quantization_step) into continuous states...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: noise std dev = 0.1 * quantization_step
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:56:19Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Velocity field derivation tolerance less than 1e-4
+  claim_id: c_784876cd
+  context: Assert output velocity fields match continuous ground truth derivation...
+    within tolerance < 1e-4.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Velocity_field_derivation_tolerance_less_than_1e-4
+  kind: magnitude
+  raw_text: tolerance < 1e-4
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:57:12Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Noise standard deviation calculation tolerance of 1e-6
+  claim_id: c_71a4a57e
+  context: Assert noise is added to continuous data... and the calculated std dev
+    matches 0.1 * quantization_step within a tolerance of 1e-6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: tolerance of 1e-6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:57:52Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Total training time target less than or equal to 4 hours
+  claim_id: c_7be356b3
+  context: "The model can be tested by... confirming that the total training time\
+    \ is a target \u2264 4 hours (graceful exit if > 6h)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_training_time_target_less_than_or_equal_to_4_hours
+  kind: magnitude
+  raw_text: "total training time is a target \u2264 4 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:58:31Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Graceful exit if training time exceeds 6 hours
+  claim_id: c_ab50a932
+  context: "...confirming that the total training time is a target \u2264 4 hours\
+    \ (graceful exit if > 6h)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: graceful exit if > 6h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:58:31Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: RAM constraint less than 7 GB
+  claim_id: c_169fd542
+  context: 'Download, verify checksum, and cache pre-trained Kairos weights... Constraint:
+    MUST validate file size before download to ensure < 7GB RAM constraint.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_constraint_less_than_7_GB
+  kind: magnitude
+  raw_text: < 7GB RAM constraint
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T04:59:20Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: RAM peak in GB
+  claim_id: c_f6416be6
+  context: 'Output: results/baseline_metrics.json with schema: loss_final, epochs_completed,
+    ram_peak_gb, convergence_status.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2602.03731'
+        url: https://arxiv.org/abs/2602.03731
+        value: '15.1'
+      quote: proaches are used for solving this problem [16]. In this
+      source_id: '2107.09801'
+      url: https://arxiv.org/abs/2107.09801
+      value: '16'
+    filled: true
+  kind: entity_fact
+  raw_text: RAM peak_gb
+  resolved_value: '16'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T04:59:57Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Training convergence defined as epoch loss change less than 5%
+  claim_id: c_8e128747
+  context: Add logging for training convergence (epoch loss change < 5%) and inference
+    latency
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_convergence_defined_as_epoch_loss_change_less_than
+  kind: magnitude
+  raw_text: epoch loss change < 5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T05:00:26Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep across bit-widths 6, 8, and 16
+  claim_id: c_bc2554d3
+  context: Implement sensitivity analysis sweep across bit-widths {6, 8, 16} and lower
+    precision configurations (per FR-006)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bit-widths {6, 8, 16} and lower precision configurations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T05:00:55Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Error metrics calculated over 100, 500, and 1000 steps
+  claim_id: c_92747774
+  context: 'Horizons: T021 and T027 MUST use horizons 100, 500, and 1000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100, 500, and 1000 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T05:01:51Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Quantization levels must be 4-bit, 6-bit, 8-bit, and 16-bit
+  claim_id: c_d19b3026
+  context: 'FR-001 Supremacy: Quantization levels MUST be 4-bit, 6-bit, 8-bit, and
+    16-bit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4-bit, 6-bit, 8-bit, and 16-bit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T05:02:21Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Statistical validation using Linear Mixed-Effects Model
+  claim_id: c_64af7e6a
+  context: 'FR-005: Statistical validation MUST use Linear Mixed-Effects Model (LMM)
+    or block-bootstrap.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: entity_fact
+  raw_text: Linear Mixed-Effects Model (LMM)
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T05:02:36Z'
