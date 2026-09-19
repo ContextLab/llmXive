@@ -117,7 +117,7 @@ projects/PROJ-386-predicting-the-impact-of-processing-temp/
 ## Success Criteria Alignment
 
 - **SC-001**: Success is defined as R² improvement > 0.05 **OR** relative improvement > 10% over baseline, AND statistical significance (p < 0.05) of interaction terms in the linear model.
-- **SC-002**: Sensitivity analysis results are measured against the stability of the top-5 significant interaction terms across the threshold sweep {, low, medium}.
+- **SC-002**: Sensitivity analysis results are measured against the stability of the top-ranked significant interaction terms. across the threshold sweep {, low, medium}.
 - **SC-003**: Dataset variable completeness is measured against the requirement for temperature, composition, and grain size fields.
 - **SC-004**: Computational feasibility is measured against the standard GitHub Actions free-tier time limit and GB RAM constraint.
 - **SC-005**: Collinearity diagnostic output is measured against the correlation matrix to verify that no two predictors have a correlation coefficient > 0.8 without appropriate descriptive framing.

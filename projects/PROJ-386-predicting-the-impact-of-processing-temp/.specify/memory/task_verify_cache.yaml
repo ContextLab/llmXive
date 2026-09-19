@@ -30,9 +30,9 @@ T047:
     for the task to be considered complete.
 T049:
   c: false
-  h: f5b5a807f27fecfd4690eaa2f29d7625a8a0706b922b8665e0fb1633b323088f
-  r: "The provided `ingestion.py` does not contain a complete implementation of `accumulate_streaming_stats`\
-    \ (the file is truncated and the `RunningStats.update` method is a placeholder\
-    \ with a `pass`). Moreover, the required output file `data/artifacts/streaming_stats.json`\
-    \ is missing. Consequently, the task\u2019s functional and output requirements\
-    \ are not satisfied."
+  h: e16dc56590354be593ea55e2d87131afb73c07c761aaebeae54a277564c1f5ac
+  r: The `code/data/ingestion.py` file is truncated and does not contain the required
+    `accumulate_streaming_stats` function (or any logic updating means/null counts).
+    The generated `streaming_stats.json` shows all zeros and a row count of 0, indicating
+    no real aggregation was performed. Additionally, the verification dataset `data/raw/test_sample.csv`
+    is missing, so the tolerance check cannot be run.

@@ -1,20 +1,17 @@
 {
   "project_id": "PROJ-386-predicting-the-impact-of-processing-temp",
   "ok": false,
-  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=1); python code/main.py (rc=1); 1 declared deliverable(s) absent: data/artifacts/final_report.json",
+  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=1); python code/main.py (rc=1); 3 declared deliverable(s) absent: data/artifacts/final_report.json; data/artifacts/permutation_test_results.json; data/artifacts/sensitivity_report.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --sample-size 100 --timeout 3600 -> rc=1\n    2026-09-19 15:19:54,416 - INFO - Verifying runner environment...\n2026-09-19 15:19:54,416 - INFO - No GPU detected. Running on CPU.\n2026-09-19 15:19:54,416 - INFO - Detected CPU count: 4\n2026-09-19 15:19:54,416 - INFO - Total RAM: 15.61 GB\n2026-09-19 15:19:54,416 - INFO - Runner environment verified.\n2026-09-19 15:19:54,416 - INFO - Starting pipeline execution...\n2026-09-19 15:19:54,417 - ERROR - No dataset URLs found in configuration. Cannot proceed with ingestion.\n2026-09-19 15:19:54,417 - WARNING - Skipping Data Ingestion due t",
-    "python code/main.py -> rc=1\n    2026-09-19 15:20:00,669 - INFO - Verifying runner environment...\n2026-09-19 15:20:00,669 - INFO - No GPU detected. Running on CPU.\n2026-09-19 15:20:00,670 - INFO - Detected CPU count: 4\n2026-09-19 15:20:00,670 - INFO - Total RAM: 15.61 GB\n2026-09-19 15:20:00,670 - INFO - Runner environment verified.\n2026-09-19 15:20:00,670 - INFO - Starting pipeline execution...\n2026-09-19 15:20:00,670 - ERROR - No dataset URLs found in configuration. Cannot proceed with ingestion.\n2026-09-19 15:20:00,670 - WARNING - Skipping Data Ingestion due to missing URLs.\n2026-09-19 15:20:"
+    "python code/main.py --sample-size 100 --timeout 3600 -> rc=1\n    --urls', 'https://example.com/dataset.csv', '--output', 'data/raw/ingested_data.csv']' returned non-zero exit status 1.\n\n2026-09-19 15:34:48,857 - __main__ - INFO - Starting Ingestion Pipeline\n2026-09-19 15:34:48,897 - __main__ - WARNING - URL returned status 404: https://example.com/dataset.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/data/ingestion.py\", line 445, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/pr",
+    "python code/main.py -> rc=1\n    --urls', 'https://example.com/dataset.csv', '--output', 'data/raw/ingested_data.csv']' returned non-zero exit status 1.\n\n2026-09-19 15:34:51,394 - __main__ - INFO - Starting Ingestion Pipeline\n2026-09-19 15:34:51,428 - __main__ - WARNING - URL returned status 404: https://example.com/dataset.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/data/ingestion.py\", line 445, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-im"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "compute_env",
-  "evidence": [
-    "python code/main.py --sample-size 100 --timeout 3600",
-    "python code/main.py"
-  ],
-  "updated_at": "2026-09-19T15:20:08Z"
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-19T15:34:54Z"
 }
