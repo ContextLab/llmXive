@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-19T22:18:49.712824+00:00'
+issue_number: 1401
+project_id: PROJ-743-ambient-temperature-influence-on-moral-d
