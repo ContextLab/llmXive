@@ -1,0 +1,46 @@
+T012:
+  c: false
+  h: 42434ab9cab53f850a8f02edd516822d0f13b755dd5ed86c5565cbc61dbb58d5
+  r: The `code/utils/constants.py` file contains no definitions for semantic state
+    proxies nor any logic to read `contracts/coverage.schema.yaml`. Additionally,
+    the required `contracts/coverage.schema.yaml` (or `schema.yaml`) file is missing
+    entirely, so the list of proxies cannot be sourced. Both the constant definitions
+    and the source schema are absent.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any artifact (e.g., a dataset file, script output,\
+    \ or documentation) showing a held\u2011out test set that excludes state variables\
+    \ present in the training\u2011time State Coverage Vector. No evidence of generation,\
+    \ contents, or verification of such a set is present, so the task requirement\
+    \ is unmet."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No plot files or any other artifacts were provided in `data/processed/` (or\
+    \ elsewhere) showing a \u201CSuccess Rate vs. Steps\u201D visualization. The required\
+    \ output\u2014a saved plot image or data file\u2014simply does not exist, so the\
+    \ task is not satisfied."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains no code, configuration, tests, or documentation that\
+    \ implements the required logic to flag \u201CInvalid Proxy\u201D when\u202Fr\u202F\
+    <\u202F0.3 nor any recommendation to expand the variable set. No artifact matching\
+    \ the task\u2019s specification is present. The implementer must provide the actual\
+    \ implementation (e.g., function/module) and evidence (e.g., unit test, usage\
+    \ example) that the flagging behavior works as described."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, tests, or documentation implementing \u201CProxy Validated\u201D\
+    \ logging for the condition\u202Fr\u202F\u2265\u202F0.5 is present; the only provided\
+    \ material concerns an unrelated curriculum scheduler feature, so the required\
+    \ artifact is missing."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files were provided in the `docs/` directory, nor any text\
+    \ explaining the scheduler trace as required by task T044. The implementer\u2019\
+    s claim lacks the actual updated documentation artifact, so the requirement is\
+    \ not satisfied."

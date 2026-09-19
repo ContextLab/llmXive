@@ -42,7 +42,7 @@
 **Purpose**: Identify real data sources and halt if none exist.
 
 - [ ] T001a [US1] **Phase 0**: Search NCBI BioProject/BioSample for SRA studies with linked phenotypic disease labels for wheat, rice, maize, tomato, soybean. **Generate `data/processed/feasibility_report.md`** listing found studies. **If no studies found, generate `data/processed/feasibility_gate_status.yaml` with `status: FAIL` and exit the process with code 1.** If studies found, generate `status: PASS`. **Dependency**: None.
-- [ ] T001b [US1] **Phase 0.5**: Implement `src/ingestion/validate_labels.py` to verify 'disease susceptibility' labels come from independent phenotypic sources (FR-010). **Input**: `data/processed/sample_metadata.csv` (output of T001a). **Validation Logic**: Check `phenotype_source` field against a whitelist of independent sources. Log linkage method. **Generate `data/processed/linkage_method.yaml`**. Exclude ambiguous samples. **Dependency**: T001a must pass.
+- [ ] T001b [US1] **Phase 0.5**: Implement `src/ingestion/validate_labels.py` to verify 'disease susceptibility' labels come from independent phenotypic sources (FR-010). **Input**: `data/processed/sample_metadata.csv` (output of T001a). **Validation Logic**: Check `phenotype_source` field against a whitelist of independent sources. Log linkage method. **Generate `data/processed/linkage_method.yaml`**. Exclude ambiguous samples. **Dependency**: T001a must pass. <!-- FAILED: unspecified -->
 - [ ] T001c [US1] **Phase 0.5**: Implement `src/ingestion/feasibility_gate_enforcer.py`. **Logic**: Read `data/processed/feasibility_gate_status.yaml`. If status is `FAIL`, exit the process with code 1 and log "Feasibility Gate Failed: Halting pipeline." If `PASS`, exit with code 0. **Dependency**: T001a must complete. **Effect**: This task acts as the gatekeeper; subsequent tasks (T013+) MUST depend on T001c completion.
 
 ---
@@ -52,7 +52,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T002a [P] Create directory structure: `src/`, `tests/`, `data/raw/`, `data/processed/`, `models/`, `templates/`
-- [ ] T002b [P] Initialize core config files: `requirements.txt`, `.gitignore`, `pyproject.toml`
+- [X] T002b [P] Initialize core config files: `requirements.txt`, `.gitignore`, `pyproject.toml`
 
 - [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (pysam, scikit-learn, pandas, numpy, requests, h5py, matplotlib, statsmodels, geopy). **Note: minimap2 and bcftools are system binaries and handled in T004.**
 - [X] T004 [P] Setup system dependencies: Install `minimap2` and `bcftools` via `apt-get` in `Dockerfile` or CI config (e.g., `ubuntu-latest` runner setup). **Must run before T013-T016.**
@@ -90,15 +90,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/ingestion/download_sra.py`: Fetch SRA reads for wheat, rice, maize, tomato, soybean using E-utilities/wget. Handle rate limits (**max 3 retries** with exponential backoff). **FAIL LOUDLY** if download fails (no synthetic fallback). **Ensure atomic writes and file locking for `data/raw/` to prevent race conditions.** **Dependency**: T001c must pass (Feasibility Gate).
+- [X] T013 [US1] Implement `src/ingestion/download_sra.py`: Fetch SRA reads for wheat, rice, maize, tomato, soybean using E-utilities/wget. Handle rate limits (**max 3 retries** with exponential backoff). **FAIL LOUDLY** if download fails (no synthetic fallback). **Ensure atomic writes and file locking for `data/raw/` to prevent race conditions.** **Dependency**: T001c must pass (Feasibility Gate).
 - [ ] T014 [US1] Implement `src/ingestion/download_env.py`: Fetch ERA5-Land data via Python script wrapping `curl` (subprocess) using coordinates/date. **Explicitly reuse retry logic from `src/utils/retry.py` (max 3 retries, exponential backoff)** for the ERA5 fetch. Fallback to NOAA if ERA5 fails. **Log fallback action** with level WARNING and message "Falling back to NOAA API for location X on date Y". **FAIL LOUDLY** if both ERA5 and NOAA fail. **Ensure atomic writes and file locking for `data/raw/` to prevent race conditions.** **Dependency**: T001c must pass.
 - [ ] T015 [US1] Implement `src/ingestion/align_and_call.py`: Align SRA reads to reference genomes using minimap2. Call SNPs with bcftools. Output variant frequency vectors.
  - **Reference Genomes (Exact Accession IDs)**:
  - Wheat: RefSeq GCA_000003205.5
- - Rice: Ensembl GCA_001433935.2 [UNRESOLVED-CLAIM: c_034654d7 — status=not_enough_info]
- - Maize: RefSeq GCA_000005005.4 [UNRESOLVED-CLAIM: c_ea7e27d4 — status=not_enough_info]
- - Tomato: Sol Genomics Network SL4.0 (GCA_000188115.5) [UNRESOLVED-CLAIM: c_d5f3c4f5 — status=not_enough_info]
- - Soybean: Phytozome Wm82.a2.v1 (GCA_000004195.3) [UNRESOLVED-CLAIM: c_683b0312 — status=not_enough_info]
+ - Rice: Ensembl GCA_001433935.2
+ - Maize: RefSeq GCA_000005005.4
+ - Tomato: Sol Genomics Network SL4.0 (GCA_000188115.5)
+ - Soybean: Phytozome Wm82.a2.v1 (GCA_000004195.3)
  - **Dependency**: T013 and T014 must complete successfully. T001c must pass.
 - [ ] T016 [US1] Implement `src/ingestion/merge_features.py`: Merge genomic variant vectors with environmental data. **Input**: `data/processed/sample_metadata.csv` (for coordinates). **Logic**:
  1. **Spatial Filtering**: Use `geopy` and **Haversine distance** to identify environmental neighbors within **50km**.

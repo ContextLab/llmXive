@@ -1,3 +1,38 @@
+T012a:
+  c: false
+  h: 90bc9a412af694f6108080e7e7c4306746eb64994cff82de70bcfec9ff6274fa
+  r: "The provided `code/download_data.py` points to a GitHub mirror instead of the\
+    \ canonical CDC FluView URL, lacks the required error handling (raising `E-NO-DATA`\
+    \ on 404/500), does not verify the file extension or tabular content, and the\
+    \ function `fetch_ili_data` is truncated and never creates `data/raw/fluview_ili.csv`\
+    \ (the file is missing). These omissions mean the task\u2019s specifications are\
+    \ not met."
+T012b:
+  c: false
+  h: 27b9cc240b996e0d8bb8b013e3d8089bd51ac7ae976a8e907c40b5deae144cc1
+  r: "The repository lacks `data/raw/ground_truth_events.csv`, and `code/download_data.py`\
+    \ does not implement the required CDC ground\u2011truth fetch (no CDC URL constant,\
+    \ no HTTP\u2011200 check, no `E\u2011NO\u2011DATA` exception, and it writes an\
+    \ ILI CSV instead of the required `ground_truth_events.csv`). The task\u2019s\
+    \ specifications are therefore not satisfied."
+T013:
+  c: false
+  h: 89880dece5f35d2548146e8057d5592e71ddf8ad4a24c44e33d9375e88aec864
+  r: "The repository contains a `code/preprocess.py` file, but it is truncated, contains\
+    \ a syntax error (`raise ValueErro`), and shows no logic that counts removed missing\
+    \ weeks or writes that count to `data/processed/preprocessing_log.json`. Moreover,\
+    \ the required `data/processed/preprocessing_log.json` file is absent. The task\u2019\
+    s core requirement\u2014logging the number of missing weeks removed to that JSON\
+    \ file\u2014is therefore not satisfied."
+T013a:
+  c: false
+  h: 3872aca7d3cc665574cf87205238c2458a792d5d06f36c725f57b11a219f1c54
+  r: "The repository contains a `code/preprocess.py` file, but the shown portion ends\
+    \ before any logic that computes the total number of consecutive window pairs\
+    \ (`N`) or writes it to `data/processed/mmd_config.json`. Moreover, the required\
+    \ `data/processed/mmd_config.json` file is absent. Consequently, the task\u2019\
+    s core requirement\u2014calculating\u202FN and persisting it under the key `total_window_pairs`\u2014\
+    has not been fulfilled."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

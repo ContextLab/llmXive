@@ -1,118 +1,96 @@
 # Research: Predicting the Impact of Laser Surface Texturing on Wear Resistance
 
-## Overview
+## 1. Problem Statement & Hypothesis
 
-This research phase defines the data strategy, model selection rationale, and computational feasibility for predicting wear resistance based on LST parameters. The study focuses on aggregating sparse observational data to derive a functional relationship between process parameters (pulse duration, power, scanning speed, pattern geometry) and wear rate.
+**Problem**: Laser Surface Texturing (LST) parameters (pulse duration, power, scanning speed, pattern geometry) significantly influence wear resistance, but the functional relationship is often non-linear and material-specific. Current studies are fragmented across materials, hindering "virtual prototyping."
 
-**Critical Constraint**: No synthetic data generation is permitted. If the aggregated dataset size is < 300, the project proceeds with a 'Power Limitation' flag and reduced statistical confidence. If critical LST variables are missing from verified sources, the pipeline halts with `data_insufficiency_error` and reports `validation_target_unavailable` (SC-002).
+**Hypothesis**: A non-linear regression model (e.g., Gradient Boosting) trained on aggregated open data can predict wear rate with higher accuracy (R²) than linear baselines, and feature importance analysis (SHAP) will reveal that `scanning_speed` and `pattern_geometry` dominate wear resistance, interacting non-linearly with material hardness.
 
-## Dataset Strategy
+**Scope**: The study is strictly **associational**. Causal claims are prohibited (FR-007) as the data is aggregated from observational studies without random assignment.
 
-### Verified Datasets
+**Data Sufficiency & Scope Degradation**:
+- **Full Study**: Requires N >= 300 and >= 3 material classes.
+- **Pilot Study**: If 100 <= N < 300, the study proceeds with a "pilot" scope, explicitly stating that cross-material generalizability is untestable.
+- **Halt**: If N < 100 or schema mismatch, the pipeline halts with `data_insufficiency_error`.
+- **Single Source Limitation**: If only one source is found, the "virtual prototyping" claim is explicitly flagged as untestable, and the research question is reframed to "Single-Source Exploratory Analysis."
 
-The project relies **exclusively** on the following verified dataset sources. These sources have been explicitly confirmed to contain LST-specific variables (pulse_duration, power, scanning_speed, pattern_geometry, hardness, elastic_modulus, wear_rate) or a subset that can be logically mapped.
+## 2. Dataset Strategy
 
-| Dataset Name | Source Type | URL / ID | Relevance to Study |
-|--------------|-------------|----------|--------------------|
-| OpenML: Wear of Materials | OpenML | `https://www.openml.org/api/v1/json/data/4594` | **Primary Source**: Contains tabular data with features relevant to wear resistance and material properties. Verified to contain `hardness`, `elastic_modulus`, and `wear_rate`. |
-| Zenodo: LST Parameters | Zenodo | `https://doi.org/10.5281/zenodo.1006980` | **Secondary Source**: Contains LST process parameters (`pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`). Verified to contain required columns. |
+### 2.1 Data Sources (Verified)
 
-> **Critical Note on Data Availability**: The plan includes a **Data Verification Step** in `01_ingest.py`. If the verified sources do not contain the required columns, the pipeline will halt with a `data_insufficiency_error` and log the missing columns. If the total record count is < 300, the system will proceed with a **Power Limitation Warning** and reduced statistical confidence, rather than generating synthetic data.
+The plan utilizes the following verified, directly-downloadable datasets. No access-gated data is used.
 
-### Data Ingestion & Standardization
+| Dataset Name | Verified URL | Content Fit |
+|:--- |:--- |:--- |
+| **LST Wear Data** | ` | Primary source for LST parameters (`pulse_duration`, `power`, `scanning_speed`) and wear outcomes. **Note**: Schema validation is strict. If this dataset lacks LST columns, the pipeline halts. |
+| **Auxiliary Sources** | *None* | The provided verified list contains only one candidate. The plan does NOT fabricate additional sources. |
 
-1.  **Source Aggregation**: The `01_ingest.py` script will download data from OpenML (ID 4594) and Zenodo (ID 1006980). The system will attempt to merge these into a single dataframe.
-2.  **Schema Mapping**: A `schema_map.json` will map source columns to the canonical schema: `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`, `wear_rate`.
-3.  **Normalization (Archard's Law - Corrected)**:
-    *   Target: Convert raw `wear_rate` to specific wear coefficient $K$ using the standard Archard's law form: $K = \frac{V \cdot H}{F \cdot L}$, where $V$ is wear volume, $H$ is material `hardness`, $F$ is `contact_load`, and $L$ is sliding distance.
-    *   **Unit Conversion Logic**:
-        *   If `wear_rate` is linear (mm/s) or mass-based (mg/s), the system MUST use the provided `contact_area` or `density` to convert to Volume (mm³).
-        *   If `contact_area` or `density` is missing, the record is flagged as `unit_conversion_unavailable` and excluded from the normalized set (but retained in the 'raw' set if other conditions are met).
-        *   Units are explicitly converted to standard SI or mm³/N·m before calculation.
-    *   Handling Missing Data: If `contact_load` or `sliding_speed` are missing, the record is retained with `wear_rate` as-is and `normalization_method='raw'` (FR-002, FR-009).
-4.  **Missing Value Handling**:
-    *   **Predictors**: Any record with missing `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, or `elastic_modulus` is **dropped** (FR-002).
-    *   **Targets**: Records missing `wear_rate` are dropped.
-    *   **Flags**: Records missing `contact_load`/`sliding_speed` are flagged but retained.
+**Data Availability Assessment**:
+- **Primary Source**: The HuggingFace dataset `hieuhocnlp/lstm-deep-usc-test` is the only verified candidate.
+- **Risk**: The dataset name suggests a time-series/NLP context, not tribological wear data.
+- **Mitigation**: The ingestion pipeline (`code/ingest.py`) MUST validate the schema. If the dataset lacks `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`, or `wear_rate`, the system MUST halt with `data_schema_mismatch` (FR-001).
+- **Source Count**: The spec requires ≥3 distinct sources. The current verified list contains only **one** candidate dataset.
+ - **Action**: The pipeline will proceed with the single verified source but will trigger `data_source_limitation` warning (FR-012). If the single source yields < 300 records, the study is explicitly framed as "pilot" or "exploratory," and the "virtual prototyping" claim is marked as untestable.
 
-### Data Insufficiency Handling (No Synthetic Data)
+### 2.2 Data Ingestion & Preprocessing
 
-If the aggregated dataset size is < 300 records after preprocessing:
-1.  The system will **NOT** generate synthetic data.
-2.  The system will set `power_limitation_warning: true` in the output schema.
-3.  The analysis will proceed with the available data, but the final report will explicitly state the reduced statistical power and wider confidence intervals.
-4.  If `normalized_count` < 100, the system will trigger a `data_insufficiency_error` and halt the primary regression analysis, proceeding only to the sensitivity analysis (FR-011).
+1. **Loading**: Use `pandas.read_parquet` for the HuggingFace source.
+2. **Schema Mapping**: Map source columns to canonical schema:
+ - `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry` (LST params)
+ - `hardness`, `elastic_modulus` (Material props)
+ - `wear_rate` (Target)
+ - `contact_load`, `sliding_speed`, `density` (Optional for Archard)
+3. **Missing Value Handling (FR-002)**:
+ - **Predictors**: Drop records where `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, or `elastic_modulus` are missing.
+ - **Archard Inputs**: If `contact_load` or `sliding_speed` are missing, **retain** the record, set `normalization_method='raw'`, and use raw `wear_rate`.
+ - **Target**: Drop records where `wear_rate` is missing.
+4. **Archard Normalization (FR-009, FR-018)**:
+ - **Unit Conversion**: Detect units of `wear_rate` (mm, mg, mm³). Convert to Volume (V) using density and geometry (e.g., `V = mass / density` or `V = area * depth`).
+ - **Calculation**: Calculate Wear Coefficient $K = \frac{V \cdot H}{L \cdot S}$ (where $H$=Hardness, $L$=Load, $S$=Sliding Distance).
+ - **Fallback**: If $L$ or $S$ missing, flag as `raw`.
+ - **Missing Contact Area**: If `contact_area` is missing, derive from `Load / Hardness` (plastic assumption) or flag as 'estimated'.
+ - **Missing Sliding Distance**: If `sliding_distance` is missing, derive from `sliding_speed * time` (if time available) or flag as 'raw'.
+5. **Target Definition & Tautology Prevention**:
+ - To avoid circular validation (predicting K using H), the primary target is defined as **Raw Wear Rate** (or Volume Loss) where possible.
+ - If K is used as the target, **Hardness** is excluded from the predictor set to prevent the model from simply learning $K \propto 1/H$.
+6. **Encoding**: One-hot encode `pattern_geometry`.
 
-## Model Strategy
+### 2.3 Statistical Rigor & Methodology
 
-### Algorithm Selection
+- **Multiple Comparisons**: When running permutation tests (2000 permutations) for feature significance (FR-008), apply Benjamini-Hochberg correction to control False Discovery Rate (FDR).
+- **Power Analysis (FR-014)**: Perform a priori power analysis (using `statsmodels.stats.power`) **before** model training on the **normalized subset**. If power < 0.8 for expected effect size, switch to Linear Regression or flag `power_insufficiency`.
+- **Causal Framing (FR-007)**: All results framed as "associational." A post-processing **Causal Language Filter** scans the generated report to replace causal terms with "associates with" or "predicts."
+- **Collinearity (FR-010, FR-015)**:
+ - **Deterministic Resolution Strategy**: Iteratively remove the feature with the highest VIF > 5. If ties, remove the feature with the lowest mean absolute SHAP value (least important). Repeat until all VIFs <= 5.
+ - **Hypothesis Preservation**: If a hypothesis-critical feature (e.g., `scanning_speed`) is removed due to collinearity, the report explicitly states: "Feature X dropped due to collinearity with Y; hypothesis regarding X untestable in isolation."
+- **Model Selection**:
+ - Models: Linear Regression, Random Forest, Gradient Boosting (FR-003).
+ - Hyperparameter Tuning: GridSearchCV with ≥10 combinations (FR-004).
+ - Validation: 5-Fold CV for tuning; Leave-One-Material-Class-Out (LOMO) for final generalizability (FR-006).
+ - **Fallback**: If < 3 material classes, switch to 5-Fold CV and flag `fallback_active`. The research question shifts to "within-material prediction."
+- **Sensitivity Analysis (FR-011)**:
+ - Train model on 'normalized-only' subset.
+ - Train model on 'full' (normalized + raw) subset.
+ - **Statistical Validity Check (FR-017)**: Run Shapiro-Wilk (normality) and Levene's (homogeneity) on the 'raw' subset. If p < 0.05, exclude 'raw' from sensitivity analysis and report `raw_subset_invalid`.
+ - Report the difference in R² and MAE between the two models.
 
-The project will train three distinct regression models (FR-003):
-1.  **Linear Regression**: Baseline for linear relationships.
-2.  **Random Forest Regressor**: Captures non-linear interactions and robustness to outliers.
-3.  **Gradient Boosting Regressor**: High-performance for tabular data, capable of modeling complex interactions.
+### 2.4 Compute Feasibility
 
-**Rationale**: These models are CPU-tractable, available in `scikit-learn`, and cover the spectrum from linear to highly non-linear, satisfying the requirement to identify the "functional relationship" (US-2).
+- **CPU-First**: All models (Linear, RF, GB) are CPU-tractable on standard computing resources.
 
-### Hyperparameter Optimization
+The research question is: [Research Question Placeholder]. The method is: [Method Placeholder]. References: [Citation Placeholder]. No GPU required (FR-003).
+- **Memory**: Streaming data loading and batch processing of SHAP values ensure memory usage stays < 7GB.
+- **Runtime**: Grid search limited to 10 combinations; SHAP computed on a sample (if N > 1000) to stay within 6h limit.
 
-*   **Method**: GridSearchCV with 5-fold cross-validation.
-*   **Grid Size**: Minimum 10 combinations of `n_estimators`, `max_depth`, `learning_rate` (FR-004).
-*   **Metrics**: Primary metric = $R^2$ (coefficient of determination). Secondary = MAE, RMSE.
-*   **Constraint**: All CV splits must be performed **within** the training fold to prevent data leakage (Constitution Principle VI).
+### 2.5 Pipeline Architecture for Leakage Prevention
 
-### Validation Strategy
+- **Scikit-Learn Pipelines**: All preprocessing (scaling, VIF reduction, encoding) is encapsulated in a `Pipeline` object.
+- **Fitting**: The pipeline is fitted **only** on the training fold during cross-validation.
+- **Transformation**: The same pipeline is applied to the test fold, ensuring no data leakage.
 
-1.  **Standard Hold-Out**: 80/20 split (stratified by material class if possible).
-2.  **Leave-One-Material-Class-Out (LOO-CV)**:
-    *   Train on $N-1$ material classes, test on the remaining class.
-    *   **Minimum Sample Size Check**: If any material class has < 15 samples, the LOO-CV for that class is skipped, and a warning is logged. If < 3 classes exist or all classes have < 15 samples, the system falls back to K-Fold (K=5) with a warning (FR-006).
-    *   **Statistical Power Warning**: Given the target N~300, the plan explicitly acknowledges that LOO-CV results will have high variance. A `statistical_power_warning` flag will be set if the per-class sample size is < 50.
-    *   Metric: Ratio of $R^2_{LOO} / R^2_{standard}$.
-    *   Threshold: If ratio < 0.8, log `transferability_failure: true` (US-2).
-3.  **Sensitivity Analysis**: Compare performance on 'normalized-only' vs 'full' (normalized + raw) subsets (FR-011).
+## 3. Decision Rationale
 
-## Interpretability & Significance
-
-### Feature Importance (SHAP)
-
-*   **Method**: Compute SHAP values for the best-performing model (FR-005).
-*   **Output**: Summary plot (ranked by mean absolute SHAP value) and dependency plots for `power` vs `scanning_speed`.
-*   **Interaction Detection**: Identify interactions if SHAP interaction value magnitude > 0.1 or polynomial fit $R^2 > 0.5$ (US-3).
-
-### Permutation Testing
-
-*   **Method**: Permute feature columns 500 times (FR-008) to generate null distributions for feature importance.
-*   **P-Value Reliability Threshold**: If the confidence interval width for the permutation p-values exceeds a predetermined threshold, the system will downgrade the claim from 'significant' to 'associational' and log a `high_variance_warning`.
-*   **Significance**: Calculate p-values based on the null distribution.
-*   **Collinearity Check**: Perform VIF diagnostics (FR-010). If VIF > 5, exclude one feature from the pair before permutation testing to mitigate collinearity.
-
-### Physical Validation Check (SC-002)
-
-*   **Logic**: The system will check for the existence of a `microstructural_features` column or external validation data.
-*   **Literature Consensus Check**: If `microstructural_features` is missing, the system will compare the top 3 SHAP-ranked features against known tribological mechanisms (e.g., 'scanning_speed' should be a top predictor).
-*   **Reporting**:
-    *   If `microstructural_features` is present and matches: `validation_status: 'validated'`.
-    *   If `microstructural_features` is missing but literature consensus matches: `validation_status: 'associational_only'`.
-    *   If `microstructural_features` is missing and literature consensus fails: `validation_status: 'physically_inconsistent'`.
-    *   If no validation target exists and no consensus can be checked: `validation_status: 'validation_target_unavailable'`.
-    *   This satisfies SC-002's requirement to report the unavailability or inconsistency rather than just failing.
-
-## Computational Feasibility
-
-*   **CPU-First**: All models (Linear, RF, GB) are native to `scikit-learn` and run efficiently on CPU. No GPU is required (FR-003).
-*   **Memory**: With a target dataset size of ~300 records, memory usage will be negligible (<1GB RAM).
-*   **Runtime**: Grid search over 10 points with 5-fold CV on 300 records will complete in <30 minutes, well within the 6-hour limit (SC-005).
-*   **GPU Escape Hatch**: Not required. If the dataset size were to grow significantly (e.g., >100k rows) or if deep learning were mandated, the plan would shift to a scaled-down GPU run on Kaggle. However, for this specific scope, CPU is the correct choice.
-
-## Risk Mitigation
-
-*   **Data Insufficiency**: If `normalized_count` < 100 (SC-006), the primary regression analysis is halted, and only sensitivity analysis (FR-011) is performed.
-*   **Missing Variables**: If the verified dataset lacks critical LST variables, the plan explicitly reports `validation_target_unavailable` (SC-002) and reframes the analysis to available features.
-*   **Collinearity**: VIF diagnostics (FR-010) ensure that independent effects are not claimed for definitionally related features (e.g., Power and Scanning Speed deriving Line Energy).
-*   **Versioning**: All data and model artifacts are checksummed and recorded in a project-specific state file to maintain a single source of truth for hashes.
-*   **Unit Conversion**: Explicit unit conversion logic ensures that the Archard normalization is physically meaningful, avoiding dimensional inconsistencies.
-
-## Conclusion
-
-The research strategy is feasible on the target compute platform, adheres strictly to the verified data sources, and implements a rigorous validation framework (LOO-CV with fallback, Permutation, VIF, Literature Consensus Check) to ensure the scientific validity of the findings. The corrected Archard normalization and physical validation check ensure dimensional consistency and compliance with SC-002.
+- **Why CPU?** The spec explicitly forbids GPU (FR-003). Standard regression models (RF, GB) are efficient on CPU for N < 1000.
+- **Why Single Source?** Only one verified URL exists in the provided block. The plan strictly adheres to verified sources and handles the "single source" constraint by triggering warnings and scope degradation rather than fabricating data.
+- **Why Dual-Track?** Required by FR-002/FR-009 to preserve data with missing load/speed without violating physics.
+- **Why Pipeline?** Required by Constitution Principle VI to prevent data leakage in scaling and interaction terms.

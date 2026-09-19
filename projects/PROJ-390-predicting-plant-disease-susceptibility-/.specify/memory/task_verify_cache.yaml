@@ -1,3 +1,10 @@
+T001a:
+  c: false
+  h: dc3769a8a84345737791d8b4a3ee6822da67db3f74ff093a7c959b114376a699
+  r: 'The `data/processed/feasibility_report.md` exists and correctly reports zero
+    studies, but the required `data/processed/feasibility_gate_status.yaml` file (which
+    must contain `status: FAIL` when no studies are found) is missing. The task is
+    therefore not fully satisfied.'
 T001c:
   c: false
   h: b04d46f8a6cae6cc9bcb0fdb33d25f92e85b8b120fe266d732b03e6fff86ea2b
@@ -22,6 +29,13 @@ T003:
     \ provided, nor any evidence that ruff/flake8 and Black have been installed or\
     \ integrated into the project. The required artifacts are missing, so the task\
     \ is not satisfied."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or related setup scripts) are present, nor
+    any evidence that ruff/flake8 and Black have been integrated into the project.
+    The required artifacts to demonstrate the configuration of these tools are missing.
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,3 +49,15 @@ T007:
   r: "All four required schema files exist in `data/contracts/`, are non\u2011empty,\
     \ and contain plausible JSON\u2011Schema definitions for feature matrix, model\
     \ output, linkage method, and variance decomposition as the task requested."
+T014:
+  c: false
+  h: 89d6be7586371edc0ff9a34174b88ea68bb9bd2d5c077754025e55ee34f9e606
+  r: The required file `src/ingestion/download_env.py` is missing entirely, so none
+    of the specified functionality (ERA5 fetch with retry, NOAA fallback, logging,
+    atomic writes, file locking) is present. Consequently the task is not satisfied.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file or diff is provided; without the actual document we\
+    \ cannot confirm that FR\u2011004 and US1 Scenario\u202F2 have been changed to\
+    \ require k\u2011NN imputation. The required artifact is missing."

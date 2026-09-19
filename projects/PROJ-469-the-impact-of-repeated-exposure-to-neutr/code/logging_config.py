@@ -1,11 +1,3 @@
-"""
-Logging infrastructure configuration for the llmXive research pipeline.
-
-Provides centralized logging setup with:
-- Console output with colored levels
-- File output with rotation (logs/project.log)
-- Structured error handling utilities
-"""
 import logging
 import os
 import sys
@@ -13,115 +5,137 @@ from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from config import ensure_dirs
 
-# Constants for log configuration
-LOG_DIR = "logs"
-LOG_FILE = "project.log"
-MAX_LOG_SIZE = 10 * 1024 * 1024  # 10 MB
-BACKUP_COUNT = 5
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Color codes for console output
-COLORS = {
-    "DEBUG": "\033[36m",      # Cyan
-    "INFO": "\033[32m",       # Green
-    "WARNING": "\033[33m",    # Yellow
-    "ERROR": "\033[31m",      # Red
-    "CRITICAL": "\033[35m",   # Magenta
-    "RESET": "\033[0m",       # Reset
-}
+# Global logger instance to be used across the project
+_logger_instance = None
 
 class ColorFormatter(logging.Formatter):
-    """Custom formatter that adds colors to log levels in console output."""
+    """Custom formatter that adds colors to log levels for console output."""
+    
+    # ANSI color codes
+    COLORS = {
+        'DEBUG': '\033[36m',      # Cyan
+        'INFO': '\033[32m',       # Green
+        'WARNING': '\033[33m',    # Yellow
+        'ERROR': '\033[31m',      # Red
+        'CRITICAL': '\033[35m',   # Magenta
+        'RESET': '\033[0m'        # Reset
+    }
 
     def format(self, record):
-        log_color = COLORS.get(record.levelname, COLORS["RESET"])
-        record.levelname = f"{log_color}{record.levelname}{COLORS['RESET']}"
-        return super().format(record)
+        # Apply color to the level name
+        levelname = record.levelname
+        color = self.COLORS.get(levelname, self.COLORS['RESET'])
+        record.levelname = f"{color}{levelname}{self.COLORS['RESET']}"
+        
+        # Format the message
+        formatted_message = super().format(record)
+        return formatted_message
 
-def setup_logging(log_level: str = "INFO", console: bool = True, file: bool = True) -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_file: str = "pipeline.log") -> logging.Logger:
     """
-    Configure the root logger with console and file handlers.
+    Configure the root logger with both console and file handlers.
     
     Args:
-        log_level: Minimum log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        console: Whether to log to console
-        file: Whether to log to file
-        
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        log_file: Name of the log file (stored in logs/)
+    
     Returns:
-        The configured root logger
+        Configured logger instance
     """
-    # Ensure log directory exists
-    ensure_dirs([LOG_DIR])
+    global _logger_instance
     
-    log_path = Path(LOG_DIR) / LOG_FILE
+    if _logger_instance is not None:
+        return _logger_instance
+
+    # Ensure logs directory exists
+    ensure_dirs()
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
     
+    log_path = logs_dir / log_file
+
     # Get root logger
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, log_level.upper()))
     
-    # Remove existing handlers to avoid duplicates
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
+    # Clear existing handlers to avoid duplicates in interactive environments
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # Create formatter for file (no colors)
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Create rotating file handler (max 10MB, 5 backup files)
+    file_handler = RotatingFileHandler(
+        log_path,
+        maxBytes=10 * 1024 * 1024,  # 10 MB
+        backupCount=5,
+        encoding='utf-8'
+    )
+    file_handler.setLevel(logging.DEBUG)  # Log everything to file
+    file_handler.setFormatter(file_formatter)
+
+    # Create formatter for console (with colors)
+    console_formatter = ColorFormatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%H:%M:%S'
+    )
+
+    # Create console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(getattr(logging, log_level.upper()))
+    console_handler.setFormatter(console_formatter)
+
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    # Store instance
+    _logger_instance = logger
     
-    # Console handler
-    if console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(getattr(logging, log_level.upper()))
-        console_formatter = ColorFormatter(LOG_FORMAT, DATE_FORMAT)
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
-    
-    # File handler with rotation
-    if file:
-        file_handler = RotatingFileHandler(
-            log_path,
-            maxBytes=MAX_LOG_SIZE,
-            backupCount=BACKUP_COUNT,
-            encoding="utf-8"
-        )
-        file_handler.setLevel(getattr(logging, log_level.upper()))
-        file_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
-    
+    logger.info(f"Logging initialized. File: {log_path}")
     return logger
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Get a named logger that inherits from the root logger.
+    Get a named logger instance.
     
     Args:
-        name: Logger name (typically __name__)
-        
+        name: Logger name (usually __name__ of the module)
+    
     Returns:
-        Configured logger instance
+        Logger instance
     """
+    # Ensure root logger is set up
+    if _logger_instance is None:
+        setup_logging()
+    
     return logging.getLogger(name)
 
-def log_exception(logger: logging.Logger, message: str = "An unhandled exception occurred") -> None:
+def log_exception(exc: Exception, context: str = "") -> None:
     """
-    Log the current exception with full traceback.
+    Log an exception with full traceback.
     
     Args:
-        logger: Logger instance to use
-        message: Custom message to log with the exception
+        exc: The exception instance
+        context: Optional context string describing where the error occurred
     """
-    import traceback
-    exc_type, exc_value, exc_tb = sys.exc_info()
-    if exc_type is not None:
-        logger.error(f"{message}: {exc_value}", exc_info=True)
-    else:
-        logger.error(message)
+    logger = get_logger()
+    error_msg = f"{context}: {str(exc)}" if context else str(exc)
+    logger.exception(error_msg)
 
-def handle_critical_error(logger: logging.Logger, message: str = "Critical error encountered") -> None:
+def handle_critical_error(exc: Exception, exit_code: int = 1) -> None:
     """
     Log a critical error and exit the program.
     
     Args:
-        logger: Logger instance to use
-        message: Error message to log
+        exc: The exception instance
+        exit_code: Exit code for the process
     """
-    logger.critical(message)
-    log_exception(logger)
-    sys.exit(1)
+    logger = get_logger()
+    logger.critical(f"FATAL ERROR: {str(exc)}")
+    log_exception(exc, "Critical failure")
+    sys.exit(exit_code)

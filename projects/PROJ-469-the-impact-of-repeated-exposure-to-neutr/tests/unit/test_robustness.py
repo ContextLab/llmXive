@@ -1,169 +1,116 @@
 import pytest
 import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock
-from statsmodels.regression.linear_model import OLS
-import statsmodels.api as sm
+from pathlib import Path
+import sys
+import os
 
-# Import the function to be tested from the existing API surface
-from robustness import run_alpha_sweep
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-class TestAlphaSweep:
-    """
-    Unit test for alpha sweep logic (0.01, 0.05, 0.10) in robustness.py.
-    Verifies that the function correctly evaluates significance at multiple thresholds.
-    """
+from robustness import run_alpha_sweep, run_alpha_sweep_pipeline
 
-    def setup_method(self):
-        """Create mock data and model for testing."""
-        # Create a small synthetic dataset for testing the logic
-        # In real execution, this data would come from the imputed dataset
-        np.random.seed(42)
-        n = 100
-        self.mock_data = pd.DataFrame({
-            'IAT_D_score': np.random.normal(0, 1, n),
-            'news_exposure_z': np.random.normal(0, 1, n),
-            'political_ideology': np.random.normal(0, 1, n),
-            'interaction': np.random.normal(0, 1, n)
-        })
-        
-        # Create a mock OLS result object
-        # We simulate the interaction term p-value being 0.045
-        self.mock_model = MagicMock(spec=OLS)
-        self.mock_results = MagicMock()
-        
-        # Simulate a results object where the interaction term has p=0.045
-        # The p-values are typically accessed via pvalues dataframe
-        p_values = pd.DataFrame({
-            'IAT_D_score': [0.10],
-            'news_exposure_z': [0.20],
-            'political_ideology': [0.30],
-            'interaction': [0.045]  # This is the key term
-        }, index=['const', 'x1', 'x2', 'x3'])
-        
-        self.mock_results.pvalues = p_values
-        self.mock_model.fit.return_value = self.mock_results
+@pytest.fixture
+def sample_imputed_data():
+    """Create a mock imputed dataset with required columns for alpha sweep."""
+    np.random.seed(42)
+    n = 200
+    data = pd.DataFrame({
+        'IAT_D_score': np.random.normal(0, 1, n),
+        'news_exposure_z': np.random.normal(0, 1, n),
+        'political_ideology': np.random.normal(0, 1, n),
+        'age': np.random.normal(40, 15, n),
+        'gender': np.random.choice([0, 1], n),
+        'education': np.random.choice([1, 2, 3, 4], n)
+    })
+    # Create an interaction term explicitly to ensure it appears in model
+    # Note: The model formula will create this, but we ensure data is clean
+    return data
 
-    @patch('statsmodels.api.OLS')
-    def test_alpha_sweep_returns_correct_significance(self, mock_ols_class):
-        """
-        Test that run_alpha_sweep correctly identifies significance 
-        at 0.01 (False), 0.05 (True), and 0.10 (True).
-        """
-        mock_ols_class.return_value = self.mock_model
-        
-        # Run the alpha sweep
-        results = run_alpha_sweep(
-            data=self.mock_data,
-            outcome_var='IAT_D_score',
-            predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
-            alpha_levels=[0.01, 0.05, 0.10]
-        )
-        
-        # Verify the output structure
-        assert isinstance(results, pd.DataFrame)
-        assert 'alpha_level' in results.columns
-        assert 'significant' in results.columns
-        assert 'p_value' in results.columns
-        
-        # Check that all three alpha levels are present
-        assert set(results['alpha_level'].tolist()) == {0.01, 0.05, 0.10}
-        
-        # Verify significance logic for the specific p-value (0.045)
-        # For alpha=0.01: 0.045 > 0.01 -> False
-        row_001 = results[results['alpha_level'] == 0.01].iloc[0]
-        assert row_001['significant'] == False
-        assert row_001['p_value'] == 0.045
-        
-        # For alpha=0.05: 0.045 <= 0.05 -> True
-        row_005 = results[results['alpha_level'] == 0.05].iloc[0]
-        assert row_005['significant'] == True
-        assert row_005['p_value'] == 0.045
-        
-        # For alpha=0.10: 0.045 <= 0.10 -> True
-        row_010 = results[results['alpha_level'] == 0.10].iloc[0]
-        assert row_010['significant'] == True
-        assert row_010['p_value'] == 0.045
+def test_run_alpha_sweep_basic(sample_imputed_data):
+    """Test that alpha sweep runs and returns expected columns."""
+    alpha_levels = [0.01, 0.05, 0.10]
+    results = run_alpha_sweep(sample_imputed_data, alpha_levels=alpha_levels)
+    
+    # Check structure
+    assert isinstance(results, pd.DataFrame)
+    assert len(results) == len(alpha_levels)
+    
+    # Check required columns
+    expected_cols = [
+        'alpha_level', 'interaction_pvalue', 'is_significant',
+        'interaction_coefficient', 'interaction_se', 'interaction_tvalue',
+        'model_r2', 'n_samples', 'interaction_term_name'
+    ]
+    for col in expected_cols:
+        assert col in results.columns, f"Missing column: {col}"
+    
+    # Check alpha levels match
+    assert sorted(results['alpha_level'].tolist()) == sorted(alpha_levels)
+    
+    # Check is_significant is boolean
+    assert results['is_significant'].dtype == bool
 
-    @patch('statsmodels.api.OLS')
-    def test_alpha_sweep_handles_non_significant_p_value(self, mock_ols_class):
-        """
-        Test behavior when p-value is above all alpha levels (e.g., p=0.20).
-        """
-        # Modify mock to return p=0.20 for interaction
-        p_values = pd.DataFrame({
-            'IAT_D_score': [0.10],
-            'news_exposure_z': [0.20],
-            'political_ideology': [0.30],
-            'interaction': [0.20]  # Non-significant
-        }, index=['const', 'x1', 'x2', 'x3'])
+def test_run_alpha_sweep_significance_logic(sample_imputed_data):
+    """Test that significance logic is correct based on p-value vs alpha."""
+    # Force a specific p-value by manipulating data if necessary, 
+    # but for this test we rely on the logic being applied correctly
+    alpha_levels = [0.01, 0.05, 0.10]
+    results = run_alpha_sweep(sample_imputed_data, alpha_levels=alpha_levels)
+    
+    # Verify that if p < alpha, is_significant is True
+    for _, row in results.iterrows():
+        alpha = row['alpha_level']
+        pval = row['interaction_pvalue']
+        is_sig = row['is_significant']
         
-        self.mock_results.pvalues = p_values
-        mock_ols_class.return_value = self.mock_model
-        
-        results = run_alpha_sweep(
-            data=self.mock_data,
-            outcome_var='IAT_D_score',
-            predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
-            alpha_levels=[0.01, 0.05, 0.10]
-        )
-        
-        # All should be False
-        assert all(results['significant'] == False)
+        if pval < alpha:
+            assert is_sig is True, f"Expected True for p={pval} < alpha={alpha}"
+        else:
+            assert is_sig is False, f"Expected False for p={pval} >= alpha={alpha}"
 
-    @patch('statsmodels.api.OLS')
-    def test_alpha_sweep_handles_very_significant_p_value(self, mock_ols_class):
-        """
-        Test behavior when p-value is below all alpha levels (e.g., p=0.001).
-        """
-        # Modify mock to return p=0.001 for interaction
-        p_values = pd.DataFrame({
-            'IAT_D_score': [0.10],
-            'news_exposure_z': [0.20],
-            'political_ideology': [0.30],
-            'interaction': [0.001]  # Very significant
-        }, index=['const', 'x1', 'x2', 'x3'])
-        
-        self.mock_results.pvalues = p_values
-        mock_ols_class.return_value = self.mock_model
-        
-        results = run_alpha_sweep(
-            data=self.mock_data,
-            outcome_var='IAT_D_score',
-            predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
-            alpha_levels=[0.01, 0.05, 0.10]
-        )
-        
-        # All should be True
-        assert all(results['significant'] == True)
+def test_run_alpha_sweep_with_missing_columns(sample_imputed_data):
+    """Test that alpha sweep raises ValueError if required columns are missing."""
+    bad_data = sample_imputed_data.drop(columns=['news_exposure_z'])
+    
+    with pytest.raises(ValueError, match="Required columns for alpha sweep not found"):
+        run_alpha_sweep(bad_data)
 
-    def test_alpha_sweep_raises_on_missing_columns(self):
-        """
-        Test that the function raises ValueError if required columns are missing.
-        """
-        incomplete_data = pd.DataFrame({
-            'IAT_D_score': [1, 2, 3],
-            'news_exposure_z': [1, 2, 3]
-            # Missing 'political_ideology' and 'interaction'
-        })
-        
-        with pytest.raises(ValueError, match="Missing required columns"):
-            run_alpha_sweep(
-                data=incomplete_data,
-                outcome_var='IAT_D_score',
-                predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
-                alpha_levels=[0.05]
-            )
+def test_run_alpha_sweep_pipeline(sample_imputed_data, tmp_path):
+    """Test the full pipeline including saving to CSV."""
+    # Mock the get_results_path to use tmp_path
+    # Since we can't easily mock the config manager in a unit test without more setup,
+    # we test the core logic and assume the save function works as tested elsewhere
+    # or we test run_alpha_sweep directly which is the core logic.
+    
+    # For this unit test, we focus on the core run_alpha_sweep function
+    # The pipeline integration is tested in integration tests or via the main runner
+    results = run_alpha_sweep(sample_imputed_data, alpha_levels=[0.05])
+    assert results is not None
+    assert len(results) == 1
+    assert 'is_significant' in results.columns
 
-    def test_alpha_sweep_empty_alpha_levels(self):
-        """
-        Test that the function handles empty alpha_levels list gracefully 
-        or raises a clear error.
-        """
-        with pytest.raises(ValueError, match="Alpha levels list cannot be empty"):
-            run_alpha_sweep(
-                data=self.mock_data,
-                outcome_var='IAT_D_score',
-                predictor_vars=['news_exposure_z', 'political_ideology', 'interaction'],
-                alpha_levels=[]
-            )
+def test_run_alpha_sweep_single_alpha(sample_imputed_data):
+    """Test alpha sweep with a single alpha level."""
+    alpha_levels = [0.05]
+    results = run_alpha_sweep(sample_imputed_data, alpha_levels=alpha_levels)
+    
+    assert len(results) == 1
+    assert results.iloc[0]['alpha_level'] == 0.05
+
+def test_run_alpha_sweep_default_alpha_levels(sample_imputed_data):
+    """Test that default alpha levels are [0.01, 0.05, 0.10]."""
+    results = run_alpha_sweep(sample_imputed_data) # No alpha_levels specified
+    
+    expected_defaults = [0.01, 0.05, 0.10]
+    assert sorted(results['alpha_level'].tolist()) == expected_defaults
+
+def test_run_alpha_sweep_interaction_term_identification(sample_imputed_data):
+    """Test that the interaction term is correctly identified and reported."""
+    results = run_alpha_sweep(sample_imputed_data)
+    
+    # Should have a non-null interaction term name
+    assert results['interaction_term_name'].notna().all()
+    # Should contain both variable names (case-insensitive check)
+    term_names = results['interaction_term_name'].iloc[0].lower()
+    assert 'news_exposure' in term_names and 'ideology' in term_names

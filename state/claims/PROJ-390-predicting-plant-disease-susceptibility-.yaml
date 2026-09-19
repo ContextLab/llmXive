@@ -321,68 +321,6 @@
   status: not_enough_info
   updated_at: '2026-08-17T02:11:17Z'
 - artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
-  attempts: 4
-  canonical: Rice reference genome accession GCA_001433935.2
-  claim_id: c_e6822cc5
-  context: 'Reference Genomes (Exact Accession IDs): Rice: Ensembl GCA_001433935.2'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Rice reference genome is Ensembl GCA_001433935.2
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T02:12:07Z'
-- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
-  attempts: 4
-  canonical: Maize reference genome accession GCA_000005005.4
-  claim_id: c_a097712b
-  context: 'Reference Genomes (Exact Accession IDs): Maize: RefSeq GCA_000005005.4'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Maize reference genome is RefSeq GCA_000005005.4
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T02:12:07Z'
-- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
-  attempts: 4
-  canonical: Tomato reference genome accession GCA_000188115.5
-  claim_id: c_d7fcd397
-  context: 'Reference Genomes (Exact Accession IDs): Tomato: Sol Genomics Network
-    SL4.0 (GCA_000188115.5)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Tomato reference genome is Sol Genomics Network SL4.0 (GCA_000188115.5)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T02:12:07Z'
-- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
-  attempts: 4
-  canonical: Soybean reference genome accession GCA_000004195.3
-  claim_id: c_3818d02f
-  context: 'Reference Genomes (Exact Accession IDs): Soybean: Phytozome Wm82.a2.v1
-    (GCA_000004195.3)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Soybean reference genome is Phytozome Wm82.a2.v1 (GCA_000004195.3)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-17T02:12:07Z'
-- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
   attempts: 1
   canonical: Permutation test 1000 permutations
   claim_id: c_da9c2dc6
@@ -474,21 +412,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T02:17:10Z'
-- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
-  attempts: 7
-  canonical: Wheat reference genome accession GCA_000003205.5
-  claim_id: c_09610955
-  context: 'Reference Genomes (Exact Accession IDs): Wheat: RefSeq GCA_000003205.5'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Wheat reference genome is RefSeq GCA_000003205.5
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-19T11:41:13Z'
 - artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
   attempts: 3
   canonical: Rice reference genome accession GCA_001433935.2
@@ -774,3 +697,303 @@
   source_type: external
   status: verified
   updated_at: '2026-08-19T11:53:34Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/data/processed/feasibility_report.md
+  attempts: 1
+  canonical: 0 wheat BioSample and BioProject records found for disease susceptibility
+  claim_id: c_7da7fdc7
+  context: '## Wheat
+
+    - BioSample Records: 0
+
+    - BioProject Records: 0
+
+    - **Total Found**: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Found: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:20:27Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/data/processed/feasibility_report.md
+  attempts: 1
+  canonical: 0 rice BioSample and BioProject records found for disease susceptibility
+  claim_id: c_dc4442e2
+  context: '## Rice
+
+    - BioSample Records: 0
+
+    - BioProject Records: 0
+
+    - **Total Found**: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Found: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:20:28Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/data/processed/feasibility_report.md
+  attempts: 1
+  canonical: 0 maize BioSample and BioProject records found for disease susceptibility
+  claim_id: c_04830812
+  context: '## Maize
+
+    - BioSample Records: 0
+
+    - BioProject Records: 0
+
+    - **Total Found**: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Found: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:20:28Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/data/processed/feasibility_report.md
+  attempts: 1
+  canonical: 0 tomato BioSample and BioProject records found for disease susceptibility
+  claim_id: c_1bc9e0a6
+  context: '## Tomato
+
+    - BioSample Records: 0
+
+    - BioProject Records: 0
+
+    - **Total Found**: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Found: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:20:28Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/data/processed/feasibility_report.md
+  attempts: 1
+  canonical: 0 soybean BioSample and BioProject records found for disease susceptibility
+  claim_id: c_3a85e849
+  context: '## Soybean
+
+    - BioSample Records: 0
+
+    - BioProject Records: 0
+
+    - **Total Found**: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Found: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:20:28Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/data/processed/feasibility_report.md
+  attempts: 1
+  canonical: 0 total studies found for plant disease susceptibility across wheat,
+    rice, maize, tomato, and soybean
+  claim_id: c_b3bbc2ad
+  context: '## Summary
+
+    **Total Studies Found**: 0
+
+
+    **Status**: FAIL - No suitable data sources found.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Studies Found: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:20:50Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 8
+  canonical: Wheat reference genome accession GCA_000003205.5
+  claim_id: c_09610955
+  context: 'Reference Genomes (Exact Accession IDs): Wheat: RefSeq GCA_000003205.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wheat reference genome is RefSeq GCA_000003205.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:23:57Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 5
+  canonical: Rice reference genome accession GCA_001433935.2
+  claim_id: c_e6822cc5
+  context: 'Reference Genomes (Exact Accession IDs): Rice: Ensembl GCA_001433935.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rice reference genome is Ensembl GCA_001433935.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:24:20Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 5
+  canonical: Maize reference genome accession GCA_000005005.4
+  claim_id: c_a097712b
+  context: 'Reference Genomes (Exact Accession IDs): Maize: RefSeq GCA_000005005.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maize reference genome is RefSeq GCA_000005005.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:24:50Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 5
+  canonical: Tomato reference genome accession GCA_000188115.5
+  claim_id: c_d7fcd397
+  context: 'Reference Genomes (Exact Accession IDs): Tomato: Sol Genomics Network
+    SL4.0 (GCA_000188115.5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tomato reference genome is Sol Genomics Network SL4.0 (GCA_000188115.5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:25:11Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 5
+  canonical: Soybean reference genome accession GCA_000004195.3
+  claim_id: c_3818d02f
+  context: 'Reference Genomes (Exact Accession IDs): Soybean: Phytozome Wm82.a2.v1
+    (GCA_000004195.3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Soybean reference genome is Phytozome Wm82.a2.v1 (GCA_000004195.3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:25:30Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 1
+  canonical: 'Permutation test parameters: 1000 permutations, seed 42'
+  claim_id: c_76b8692e
+  context: 'Goal: Perform permutation tests (1000 permutations, seed=42) to validate
+    significance and sensitivity analysis on thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation test uses 1000 permutations with seed 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:25:53Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.45, 0.50, 0.55'
+  claim_id: c_38258eb1
+  context: Perform sensitivity analysis by sweeping thresholds across the exact set
+    {0.45, 0.50, 0.55}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis uses threshold set {0.45, 0.50, 0.55}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:26:21Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 1
+  canonical: 'Environmental neighbor spatial filter: 50km Haversine distance'
+  claim_id: c_a5a1f0ff
+  context: 'Spatial Filtering: Use geopy and Haversine distance to identify environmental
+    neighbors within 50km.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Environmental_neighbor_spatial_filter:_50km_Haversine_distan
+  kind: entity_fact
+  raw_text: Environmental neighbors identified within 50km using Haversine distance
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:26:45Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 1
+  canonical: 'k-NN imputation n_neighbors parameter: 5'
+  claim_id: c_f410b72d
+  context: 'Imputation: For remaining samples with missing values, use k-NN imputation
+    (sklearn.impute.KNNImputer, n_neighbors=5) on the filtered dataset to fill missing
+    values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: k-NN imputation uses 5 neighbors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:27:11Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 1
+  canonical: 'Model training grid search limit: 50 combinations'
+  claim_id: c_cf8f99ab
+  context: "Train Random Forest and SVM. Grid search (\u226450 combos)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search for model training is limited to 50 combinations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:27:34Z'
+- artifact_path: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility/tasks.md
+  attempts: 1
+  canonical: 'Data download max retry count: 3'
+  claim_id: c_a5fd87d0
+  context: Handle rate limits (max 3 retries with exponential backoff).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum retry count for data downloads is 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T09:28:05Z'

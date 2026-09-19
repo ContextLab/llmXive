@@ -1,115 +1,89 @@
-version: "1.0.0"
-description: >
-  Schema for the Project Implicit Political IAT dataset.
-  Defines required columns, data types, validation rules, and
-  constraints for the core analysis variables.
-source:
-  name: "Project Implicit Political IAT"
-  description: "Data from the Project Implicit website regarding political ideology and implicit bias."
-  fetch_task: "T038"
+# Dataset Schema for Political IAT Analysis
+# Defines the required columns, types, and validation logic for the Project Implicit dataset.
+# This schema is used by code/data_loader.py to validate raw data before processing.
+
+version: "1.0"
+description: "Schema for the Political News Exposure and Implicit Bias dataset"
+source: "Project Implicit (Political IAT)"
+
 columns:
   - name: IAT_D_score
     type: float
-    description: >
-      The D-score metric for the political IAT.
-      Represents the strength of the implicit association.
-      Negative values indicate a preference for one group,
-      positive for the other, magnitude indicates strength.
+    description: "The D-score metric for the Political IAT, representing implicit bias strength."
     constraints:
-      min: -2.0
-      max: 2.0
-      allow_nan: true
-      nan_policy: "impute"
-    validation:
-      - "is_finite_or_nan"
-  
+      min: -1.0
+      max: 1.0
+      nullable: true
+    validation_logic: "Value must be between -1.0 and 1.0. NaN allowed for missing data."
+
   - name: political_ideology
     type: float
-    description: >
-      Self-reported political ideology on a continuous scale.
-      Typically 1 (Very Liberal) to 7 (Very Conservative) or similar.
-      Higher values indicate more conservative ideology.
+    description: "Self-reported political ideology score (continuous scale, e.g., 1-7 or -3 to +3)."
     constraints:
-      min: 1.0
-      max: 7.0
-      allow_nan: true
-      nan_policy: "impute"
-    validation:
-      - "is_finite_or_nan"
-      - "in_range(1.0, 7.0)"
+      nullable: true
+    validation_logic: "Must be a numeric value. Specific range depends on the survey instrument used in the raw data."
 
   - name: news_exposure_freq
     type: float
-    description: >
-      Self-reported frequency of political news exposure.
-      Scale typically 1 (Never) to 7 (Very Often).
-      Higher values indicate more frequent exposure.
+    description: "Frequency of political news exposure (continuous or ordinal scale)."
     constraints:
-      min: 1.0
-      max: 7.0
-      allow_nan: true
-      nan_policy: "impute"
-    validation:
-      - "is_finite_or_nan"
-      - "in_range(1.0, 7.0)"
+      nullable: true
+    validation_logic: "Must be a numeric value representing frequency."
 
   - name: age
-    type: float
+    type: integer
     description: "Participant age in years."
     constraints:
-      min: 18.0
-      max: 120.0
-      allow_nan: true
-      nan_policy: "impute"
-    validation:
-      - "is_finite_or_nan"
+      min: 18
+      max: 120
+      nullable: true
+    validation_logic: "Age must be a positive integer within reasonable bounds."
 
   - name: gender
     type: string
     description: "Self-reported gender."
     constraints:
-      allowed_values: ["Male", "Female", "Non-binary", "Other", "Prefer not to answer"]
-      allow_nan: true
-      nan_policy: "drop"
-    validation:
-      - "is_valid_categorical"
+      nullable: true
+    allowed_values: ["Male", "Female", "Non-binary", "Other", "Prefer not to say"]
+    validation_logic: "Must match one of the allowed categorical values or be null."
 
   - name: education
     type: string
-    description: "Self-reported education level."
+    description: "Highest level of education attained."
     constraints:
-      allowed_values: ["Less than high school", "High school graduate", "Some college", "Bachelor's degree", "Graduate degree"]
-      allow_nan: true
-      nan_policy: "drop"
-    validation:
-      - "is_valid_categorical"
+      nullable: true
+    allowed_values: ["High School", "Some College", "Bachelor's", "Master's", "Doctorate", "Other"]
+    validation_logic: "Must match one of the allowed categorical values or be null."
 
-global_validations:
-  - name: "check_sample_size"
-    description: "Ensure the dataset has enough rows for analysis."
-    condition: "len(df) >= 30"
-    error_message: "Dataset has fewer than 30 rows. Power is insufficient for reliable analysis."
-    severity: "error"
+required_columns:
+  - IAT_D_score
+  - political_ideology
+  - news_exposure_freq
 
-  - name: "check_missingness_rate"
-    description: "Check if missingness in key variables exceeds 50%."
-    columns: ["IAT_D_score", "political_ideology", "news_exposure_freq"]
-    threshold: 0.50
-    error_message: "Missingness rate for key variables exceeds 50%. Imputation may not be reliable."
-    severity: "error"
+validation_rules:
+  - rule: "check_required_columns"
+    description: "Ensure all columns in 'required_columns' exist in the dataset."
+    action: "raise ValueError"
+    message: "Missing required columns: {missing_columns}"
 
-derived_columns:
-  - name: news_exposure_z
-    source: news_exposure_freq
-    transformation: "z_score"
-    description: "Z-scored news exposure frequency."
-  
-  - name: ideology_binary
-    source: political_ideology
-    transformation: "median_split"
-    description: "Binary ideology (0: Liberal, 1: Conservative) based on median split."
+  - rule: "check_data_types"
+    description: "Verify that numeric columns contain numeric data."
+    action: "warn_and_convert"
+    message: "Non-numeric values found in {column}. Attempting conversion or marking as NaN."
 
-metadata:
-  created_by: "T007"
-  created_date: "2023-10-27"
-  last_modified: "2023-10-27"
+  - rule: "check_value_ranges"
+    description: "Verify that numeric columns fall within defined min/max constraints."
+    action: "raise ValueError"
+    message: "Invalid values found in {column}: values outside range [{min}, {max}]."
+
+  - rule: "check_categorical_values"
+    description: "Verify that categorical columns contain only allowed values."
+    action: "warn"
+    message: "Unexpected values found in {column}: {unexpected_values}. Marking as NaN."
+
+notes: |
+  This schema is used by `code/data_loader.py` to validate the raw CSV file.
+  If validation fails, the loader raises a ValueError with specific details about the failure.
+  The schema does not enforce the data to be non-null; missing values are handled during the MICE imputation step (T014).
+  The `political_ideology` and `news_exposure_freq` ranges are not strictly defined here as they depend on the specific survey version,
+  but they must be numeric. The `IAT_D_score` is strictly bounded by the D-score methodology.

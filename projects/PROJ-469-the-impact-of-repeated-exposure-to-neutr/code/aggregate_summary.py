@@ -1,11 +1,14 @@
 """
-Aggregate Summary Generation (T029)
+Aggregation module for generating CSV summary tables.
 
-Generates CSV summary tables aggregating coefficients, p-values, and imputation stats.
-Outputs:
-  - results/model_summary.csv
-  - results/diagnostics.csv
+This module aggregates model coefficients, p-values, and imputation statistics
+from various analysis outputs into consolidated CSV files:
+- model_summary.csv: Primary model, binary model, and covariate-adjusted model results
+- diagnostics.csv: Imputation statistics and data quality metrics
+
+Used by User Story 3 (Reporting & Artifact Generation).
 """
+
 import os
 import pandas as pd
 import logging
@@ -14,168 +17,218 @@ from typing import Dict, Any, Optional, List
 
 from config_manager import get_results_path, get_config
 from logging_config import get_logger
-from models import save_model_results
-from preprocessing import run_preprocessing_pipeline
-from robustness import run_all_robustness_checks, save_robustness_results
-from binary_model import save_binary_model_results
-from aggregate_robustness import run_aggregation_pipeline
-from power import run_retrospective_power_analysis
 
+# Initialize logger
 logger = get_logger(__name__)
 
-def load_csv_safely(file_path: Path) -> Optional[pd.DataFrame]:
-    """Safely load a CSV file, returning None if it doesn't exist."""
-    if not file_path.exists():
-        logger.warning(f"File not found: {file_path}")
+
+def load_csv_safely(filepath: Path, required_columns: Optional[List[str]] = None) -> Optional[pd.DataFrame]:
+    """
+    Safely load a CSV file, returning None if the file doesn't exist or is empty.
+    
+    Args:
+        filepath: Path to the CSV file
+        required_columns: Optional list of columns that must exist
+        
+    Returns:
+        DataFrame if successful, None otherwise
+    """
+    if not filepath.exists():
+        logger.warning(f"File not found: {filepath}")
         return None
+    
     try:
-        return pd.read_csv(file_path)
+        df = pd.read_csv(filepath)
+        if df.empty:
+            logger.warning(f"File is empty: {filepath}")
+            return None
+        
+        if required_columns:
+            missing = set(required_columns) - set(df.columns)
+            if missing:
+                logger.warning(f"Missing required columns in {filepath}: {missing}")
+                return None
+        
+        return df
     except Exception as e:
-        logger.error(f"Error loading {file_path}: {e}")
+        logger.error(f"Error loading {filepath}: {e}")
         return None
 
-def extract_model_summary(primary_results_path: Path, binary_results_path: Path) -> pd.DataFrame:
+
+def extract_model_summary(model_results_path: Path) -> Optional[pd.DataFrame]:
     """
-    Aggregate model results from primary and binary models into a summary table.
-    Expected input files:
-      - results/primary_model_results.csv
-      - results/binary_model_results.csv
-    """
-    rows = []
+    Extract model summary statistics from model result files.
     
-    # Load Primary Model
-    df_primary = load_csv_safely(primary_results_path)
-    if df_primary is not None and not df_primary.empty:
-        # Assuming standard statsmodels output columns or custom save format
-        # We normalize to a standard schema for the summary
-        for idx, row in df_primary.iterrows():
-            rows.append({
-                "model_type": "primary",
-                "term": row.get('term', row.get('variable', 'intercept')),
-                "coefficient": row.get('coef', row.get('coefficient', 0.0)),
-                "std_error": row.get('std_err', row.get('std_error', 0.0)),
-                "p_value": row.get('p-value', row.get('p_value', 1.0)),
-                "conf_int_low": row.get('conf_int_low', row.get('lower', 0.0)),
-                "conf_int_high": row.get('conf_int_high', row.get('upper', 0.0)),
-                "significant": row.get('significant', row.get('sig', False))
-            })
-
-    # Load Binary Model
-    df_binary = load_csv_safely(binary_results_path)
-    if df_binary is not None and not df_binary.empty:
-        for idx, row in df_binary.iterrows():
-            rows.append({
-                "model_type": "binary",
-                "term": row.get('term', row.get('variable', 'intercept')),
-                "coefficient": row.get('coef', row.get('coefficient', 0.0)),
-                "std_error": row.get('std_err', row.get('std_error', 0.0)),
-                "p_value": row.get('p-value', row.get('p_value', 1.0)),
-                "conf_int_low": row.get('conf_int_low', row.get('lower', 0.0)),
-                "conf_int_high": row.get('conf_int_high', row.get('upper', 0.0)),
-                "significant": row.get('significant', row.get('sig', False))
-            })
-
-    if not rows:
-        logger.warning("No model results found to aggregate.")
-        return pd.DataFrame()
-
-    return pd.DataFrame(rows)
-
-def extract_diagnostics(imputed_data_path: Path, missingness_log_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Aggregate diagnostics from preprocessing (imputation stats).
-    """
-    stats = []
+    Aggregates results from:
+    - Primary model (results/primary_model.csv)
+    - Binary model (results/binary_model.csv)
+    - Covariate-adjusted model (results/covariate_model.csv)
     
-    # Load Imputed Data to calculate basic stats if available
-    df_imp = load_csv_safely(imputed_data_path)
-    if df_imp is not None:
-        # Calculate missingness per column from original (if we had it) or just report shape
-        # Since we only have imputed data here, we report the shape and basic stats
-        stats.append({
-            "metric": "total_rows",
-            "value": len(df_imp),
-            "details": "Total observations after imputation"
-        })
-        stats.append({
-            "metric": "total_columns",
-            "value": len(df_imp.columns),
-            "details": "Total variables"
-        })
+    Args:
+        model_results_path: Path to the results directory
         
-        # Check for any remaining NaNs (should be 0 if MICE worked correctly)
-        na_counts = df_imp.isna().sum()
-        if na_counts.sum() > 0:
-            for col, count in na_counts[na_counts > 0].items():
-                stats.append({
-                    "metric": "remaining_na",
-                    "value": count,
-                    "details": f"Missing values in {col}"
-                })
-        else:
-            stats.append({
-                "metric": "remaining_na",
-                "value": 0,
-                "details": "No missing values remaining"
-            })
-
-    # Try to load a specific diagnostics file if it exists (e.g., from T014)
-    # If T014 produced 'diagnostics.csv' directly, we might just return that.
-    # But here we are aggregating into a summary.
-    # Let's assume we generate a summary row based on the imputation process.
-    
-    return pd.DataFrame(stats)
-
-def run_summary_aggregation_pipeline() -> None:
+    Returns:
+        DataFrame with aggregated model summaries
     """
-    Main pipeline to generate model_summary.csv and diagnostics.csv.
-    """
-    results_path = get_results_path()
-    ensure_dirs(results_path)
+    summary_records = []
     
-    logger.info("Starting summary aggregation pipeline...")
+    # Define model files and their types
+    model_files = {
+        'primary_model.csv': 'primary',
+        'binary_model.csv': 'binary',
+        'covariate_model.csv': 'covariate_adjusted'
+    }
     
-    # Define paths
-    primary_results_path = results_path / "primary_model_results.csv"
-    binary_results_path = results_path / "binary_model_results.csv"
-    imputed_data_path = get_results_path().parent / "processed" / "imputed_data.csv" # Adjust path based on T014 output
-    
-    # 1. Generate Model Summary
-    logger.info("Aggregating model results...")
-    model_summary_df = extract_model_summary(primary_results_path, binary_results_path)
-    
-    if not model_summary_df.empty:
-        output_summary_path = results_path / "model_summary.csv"
-        model_summary_df.to_csv(output_summary_path, index=False)
-        logger.info(f"Saved model summary to {output_summary_path}")
-    else:
-        logger.warning("Model summary is empty. Check if primary/binary model results exist.")
-    
-    # 2. Generate Diagnostics
-    logger.info("Aggregating diagnostics...")
-    # Note: If T014 produced a specific diagnostics file, we should load that.
-    # Assuming T014 output is in data/processed/imputed_data.csv or similar.
-    # We try to find the imputed data.
-    processed_path = get_results_path().parent / "processed"
-    imputed_file = processed_path / "imputed_data.csv"
-    
-    if not imputed_file.exists():
-        # Fallback if path is different
-        imputed_file = get_results_path().parent / "imputed_data.csv"
+    for filename, model_type in model_files.items():
+        filepath = model_results_path / filename
+        df = load_csv_safely(filepath)
         
-    diagnostics_df = extract_diagnostics(imputed_file)
+        if df is not None and not df.empty:
+            # Extract key statistics for each model
+            for idx, row in df.iterrows():
+                record = {
+                    'model_type': model_type,
+                    'source_file': filename,
+                    'row_index': idx
+                }
+                
+                # Extract common statistics if they exist
+                for col in ['coef', 'P>|t|', 'std err', 't', 'P>|z|']:
+                    if col in df.columns:
+                        record[col] = row[col]
+                
+                # Extract model-specific statistics
+                if 'r_squared' in df.columns:
+                    record['r_squared'] = row['r_squared']
+                if 'adj_r_squared' in df.columns:
+                    record['adj_r_squared'] = row['adj_r_squared']
+                if 'aic' in df.columns:
+                    record['aic'] = row['aic']
+                if 'bic' in df.columns:
+                    record['bic'] = row['bic']
+                
+                # Add interaction term specific info if available
+                if 'term' in df.columns:
+                    record['term'] = row['term']
+                if 'variable' in df.columns:
+                    record['variable'] = row['variable']
+                
+                summary_records.append(record)
     
-    if not diagnostics_df.empty:
-        output_diag_path = results_path / "diagnostics.csv"
-        diagnostics_df.to_csv(output_diag_path, index=False)
-        logger.info(f"Saved diagnostics to {output_diag_path}")
+    if not summary_records:
+        logger.warning("No model results found to summarize")
+        return None
+    
+    return pd.DataFrame(summary_records)
+
+
+def extract_diagnostics(diagnostics_path: Path) -> Optional[pd.DataFrame]:
+    """
+    Extract diagnostics from imputation and data quality files.
+    
+    Aggregates statistics from:
+    - results/diagnostics.csv (imputation diagnostics)
+    - results/power_design.csv (a priori power analysis)
+    - results/power_analysis.csv (retrospective power analysis)
+    
+    Args:
+        diagnostics_path: Path to the results directory
+        
+    Returns:
+        DataFrame with aggregated diagnostics
+    """
+    diag_records = []
+    
+    # Define diagnostic files
+    diag_files = [
+        'diagnostics.csv',
+        'power_design.csv',
+        'power_analysis.csv'
+    ]
+    
+    for filename in diag_files:
+        filepath = diagnostics_path / filename
+        df = load_csv_safely(filepath)
+        
+        if df is not None and not df.empty:
+            # Add source file info
+            df = df.copy()
+            df['source_file'] = filename
+            diag_records.append(df)
+    
+    if not diag_records:
+        logger.warning("No diagnostic files found")
+        return None
+    
+    # Concatenate all diagnostic dataframes
+    return pd.concat(diag_records, ignore_index=True)
+
+
+def run_summary_aggregation_pipeline(results_path: Optional[Path] = None) -> Dict[str, Path]:
+    """
+    Run the full summary aggregation pipeline.
+    
+    Generates:
+    - model_summary.csv: Aggregated model statistics
+    - diagnostics.csv: Aggregated diagnostic statistics
+    
+    Args:
+        results_path: Optional custom results path (uses config if not provided)
+        
+    Returns:
+        Dictionary mapping output filenames to their paths
+    """
+    if results_path is None:
+        results_path = get_results_path()
+    
+    logger.info(f"Starting summary aggregation pipeline for results at: {results_path}")
+    
+    # Ensure results directory exists
+    os.makedirs(results_path, exist_ok=True)
+    
+    output_files = {}
+    
+    # Extract and save model summary
+    model_summary_df = extract_model_summary(results_path)
+    if model_summary_df is not None:
+        model_summary_path = results_path / 'model_summary.csv'
+        model_summary_df.to_csv(model_summary_path, index=False)
+        output_files['model_summary.csv'] = model_summary_path
+        logger.info(f"Saved model summary to: {model_summary_path}")
     else:
-        logger.warning("Diagnostics summary is empty.")
+        logger.warning("Model summary could not be generated")
+    
+    # Extract and save diagnostics
+    diagnostics_df = extract_diagnostics(results_path)
+    if diagnostics_df is not None:
+        diagnostics_path = results_path / 'diagnostics.csv'
+        diagnostics_df.to_csv(diagnostics_path, index=False)
+        output_files['diagnostics.csv'] = diagnostics_path
+        logger.info(f"Saved diagnostics to: {diagnostics_path}")
+    else:
+        logger.warning("Diagnostics could not be generated")
+    
+    return output_files
+
 
 def main():
-    """Entry point for the summary aggregation task."""
-    setup_logging()
-    run_summary_aggregation_pipeline()
+    """Main entry point for summary aggregation."""
+    logger.info("Running summary aggregation pipeline...")
+    
+    try:
+        output_files = run_summary_aggregation_pipeline()
+        
+        if output_files:
+            logger.info(f"Summary aggregation complete. Generated {len(output_files)} files:")
+            for name, path in output_files.items():
+                logger.info(f"  - {name}: {path}")
+        else:
+            logger.warning("No output files were generated")
+            
+    except Exception as e:
+        logger.error(f"Error in summary aggregation pipeline: {e}", exc_info=True)
+        raise
+
 
 if __name__ == "__main__":
     main()

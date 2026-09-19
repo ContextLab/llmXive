@@ -53,3 +53,14 @@
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/lst-research/supplements/main/2023-geometry-data.csv
   verified_at: '2026-09-08T01:55:42.456695Z'
+- artifact_hash: 0961571831b6acf2a3422f967b069a73cbcac9c3a54bc6171c8ef7a4cc31301c
+  artifact_path: projects/PROJ-293-predicting-the-impact-of-laser-surface-t/specs/001-predicting-the-impact-of-laser-surface-t/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-909d4fe9ab683ccf.parquet
+  kind: url
+  value: https://huggingface.co/datasets/hieuhocnlp/lstm-deep-usc-test/resolve/main/data/train-00000-of-00001-909d4fe9ab683ccf.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/641cd40651f02a72169180c4/fd7ec7373622520ac09b6ca4601e7dc148d88061ee0ba77bac2c86f210205a0e?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-909d4fe9ab683ccf.parquet%3B+filename%3D%22train-00000-of-00001-909d4fe9ab683ccf.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1789814987&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxY2Q0MDY1MWYwMmE3MjE2OTE4MGM0L2ZkN2VjNzM3MzYyMjUyMGFjMDliNmNhNDYwMWU3ZGMxNDhkODgwNjFlZTBiYTc3YmFjMmM4NmYyMTAyMDVhMGVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtOTA5ZDRmZTlhYjY4M2NjZi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtOTA5ZDRmZTlhYjY4M2NjZi5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODk4MTQ5ODd9fX1dfQ__&Signature=MEQCIGJzVUrcudAaun%7EOlbXVJ5Q1HfTflKg0UEJwOXZIWMhDAiBLwowwPqy2gLXtBwQjzYYy8Y8biAjCCypwm4PsnAj0ug__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-19T09:49:47.691020Z'

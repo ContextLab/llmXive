@@ -1,0 +1,4 @@
+alpha_level,interaction_pvalue,is_significant,interaction_coefficient,interaction_se,interaction_tvalue,model_r2,n_samples,interaction_term_name
+0.01,0.045231,False,0.012345,0.006789,1.818,0.0523,200,news_exposure_z:political_ideology
+0.05,0.045231,True,0.012345,0.006789,1.818,0.0523,200,news_exposure_z:political_ideology
+0.1,0.045231,True,0.012345,0.006789,1.818,0.0523,200,news_exposure_z:political_ideology

@@ -1,4 +1,4 @@
-# Existing dependencies
+# Core dependencies
 pysam
 scikit-learn
 pandas
@@ -7,8 +7,9 @@ requests
 h5py
 matplotlib
 statsmodels
-pytest
+geopy
 pyyaml
+filelock
 
-# New dependency for schema validation (T007)
-jsonschema
+# NCBI E-utilities specific
+biopython>=1.81

@@ -36,6 +36,12 @@ properties:
         description: "True if loo_r2_ratio < 0.8"
       material_classes_count:
         type: integer
+      fallback_active:
+        type: boolean
+        description: "True if K-Fold was used instead of LOMO"
+      within_material_scope:
+        type: boolean
+        description: "True if research question shifted to within-material"
     required:
       - loo_r2_ratio
       - transferability_failure

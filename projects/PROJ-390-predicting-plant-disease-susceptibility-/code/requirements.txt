@@ -1,4 +1,3 @@
-# Existing dependencies from T002a
 pysam
 scikit-learn
 pandas
@@ -7,8 +6,13 @@ requests
 h5py
 matplotlib
 statsmodels
+geopy
+pyyaml
+cdsapi
+tqdm
 pytest
-ruff
 black
-# New dependencies for T006 (Data Models)
-# No new external dependencies required for dataclasses and standard typing
+ruff
+tomli
+tomli-w
+fcntl

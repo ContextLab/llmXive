@@ -1,30 +1,47 @@
-"""
-Unit tests for the logging configuration infrastructure.
-"""
-import logging
 import os
+import sys
+import logging
 import tempfile
+import shutil
 from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
 
-# Import the module under test
+# Mock the config module to avoid dependency issues in unit tests
+class MockConfig:
+    @staticmethod
+    def ensure_dirs():
+        pass
+
+# Inject mock before importing logging_config
+sys.modules['config'] = MockConfig
+
 from logging_config import (
     ColorFormatter,
     setup_logging,
     get_logger,
     log_exception,
-    handle_critical_error,
-    LOG_DIR,
-    LOG_FILE,
+    handle_critical_error
 )
 
-class TestColorFormatter:
-    """Tests for the ColorFormatter class."""
+@pytest.fixture
+def temp_log_dir():
+    """Create a temporary directory for log files."""
+    temp_dir = tempfile.mkdtemp()
+    original_cwd = os.getcwd()
+    os.chdir(temp_dir)
+    
+    # Create necessary subdirectories
+    Path("logs").mkdir()
+    
+    yield temp_dir
+    
+    # Cleanup
+    os.chdir(original_cwd)
+    shutil.rmtree(temp_dir)
 
-    def test_format_adds_color(self):
-        """Test that format adds color codes to log level."""
-        formatter = ColorFormatter("%(levelname)s - %(message)s")
+class TestColorFormatter:
+    def test_format_adds_colors(self):
+        formatter = ColorFormatter('%(levelname)s - %(message)s')
         record = logging.LogRecord(
             name="test",
             level=logging.INFO,
@@ -34,147 +51,97 @@ class TestColorFormatter:
             args=(),
             exc_info=None
         )
+        
         formatted = formatter.format(record)
-        # Should contain ANSI color code for INFO (green)
-        assert "\033[32m" in formatted
-        assert "INFO" in formatted
-        assert "Test message" in formatted
+        
+        # Check that ANSI codes are present
+        assert '\033[32m' in formatted  # Green for INFO
+        assert '\033[0m' in formatted   # Reset code
 
-    def test_format_resets_color(self):
-        """Test that format resets color at the end."""
-        formatter = ColorFormatter("%(levelname)s - %(message)s")
+    def test_format_handles_unknown_level(self):
+        formatter = ColorFormatter('%(levelname)s - %(message)s')
         record = logging.LogRecord(
             name="test",
-            level=logging.WARNING,
+            level=999,  # Unknown level
             pathname="test.py",
             lineno=1,
             msg="Test message",
             args=(),
             exc_info=None
         )
+        
         formatted = formatter.format(record)
-        # Should contain reset code
-        assert "\033[0m" in formatted
+        # Should still format without crashing
+        assert "Test message" in formatted
 
 class TestSetupLogging:
-    """Tests for the setup_logging function."""
+    def test_setup_creates_handlers(self, temp_log_dir):
+        logger = setup_logging(log_level="DEBUG", log_file="test.log")
+        
+        assert len(logger.handlers) == 2  # File and Console
+        assert any(isinstance(h, logging.StreamHandler) for h in logger.handlers)
+        
+        # Check file handler exists
+        file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
+        assert len(file_handlers) == 1
+        assert "test.log" in file_handlers[0].baseFilename
 
-    @patch("logging_config.ensure_dirs")
-    @patch("logging_config.RotatingFileHandler")
-    def test_setup_creates_log_directory(self, mock_handler, mock_ensure_dirs):
-        """Test that setup_logging creates the log directory."""
-        with patch("logging.getLogger") as mock_get_logger:
-            mock_logger = MagicMock()
-            mock_get_logger.return_value = mock_logger
-            
-            setup_logging(console=False, file=False)
-            
-            mock_ensure_dirs.assert_called_once_with([LOG_DIR])
+    def test_setup_sets_levels(self, temp_log_dir):
+        logger = setup_logging(log_level="WARNING", log_file="test.log")
+        
+        console_handler = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)][0]
+        assert console_handler.level == logging.WARNING
 
-    @patch("logging_config.ensure_dirs")
-    def test_setup_creates_console_handler(self, mock_ensure_dirs):
-        """Test that setup_logging creates a console handler when requested."""
-        with patch("logging.getLogger") as mock_get_logger:
-            mock_logger = MagicMock()
-            mock_get_logger.return_value = mock_logger
-            
-            setup_logging(console=True, file=False)
-            
-            mock_logger.addHandler.assert_called()
-            # Check that at least one handler was added
-            assert mock_logger.addHandler.call_count >= 1
-
-    @patch("logging_config.ensure_dirs")
-    @patch("logging_config.RotatingFileHandler")
-    def test_setup_creates_file_handler(self, mock_handler, mock_ensure_dirs):
-        """Test that setup_logging creates a file handler when requested."""
-        with patch("logging.getLogger") as mock_get_logger:
-            mock_logger = MagicMock()
-            mock_get_logger.return_value = mock_logger
-            
-            setup_logging(console=False, file=True)
-            
-            # RotatingFileHandler should be instantiated
-            mock_handler.assert_called()
-
-    @patch("logging_config.ensure_dirs")
-    def test_setup_sets_log_level(self, mock_ensure_dirs):
-        """Test that setup_logging sets the correct log level."""
-        with patch("logging.getLogger") as mock_get_logger:
-            mock_logger = MagicMock()
-            mock_get_logger.return_value = mock_logger
-            
-            setup_logging(log_level="DEBUG", console=False, file=False)
-            
-            mock_logger.setLevel.assert_called_once_with(logging.DEBUG)
+    def test_setup_creates_log_file(self, temp_log_dir):
+        logger = setup_logging(log_file="test.log")
+        logger.info("Test message")
+        
+        log_path = Path("logs") / "test.log"
+        assert log_path.exists()
 
 class TestGetLogger:
-    """Tests for the get_logger function."""
-
-    def test_get_logger_returns_named_logger(self):
-        """Test that get_logger returns a logger with the correct name."""
-        logger = get_logger("test_module")
-        assert logger.name == "test_module"
+    def test_get_logger_returns_named_logger(self, temp_log_dir):
+        setup_logging()
+        logger = get_logger("my_module")
+        
+        assert logger.name == "my_module"
         assert isinstance(logger, logging.Logger)
 
-    def test_get_logger_inherits_config(self):
-        """Test that named logger inherits from root logger."""
-        # Setup root logger first
-        with patch("logging_config.ensure_dirs"):
-            setup_logging(console=False, file=False)
+    def test_get_logger_reuses_root(self, temp_log_dir):
+        setup_logging()
+        logger1 = get_logger("module1")
+        logger2 = get_logger("module2")
         
-        logger = get_logger("test_module")
-        assert logger.level == logging.INFO  # Default level from setup
+        # Both should share the same handlers from root
+        assert len(logger1.root.handlers) == len(logger2.root.handlers)
 
 class TestLogException:
-    """Tests for the log_exception function."""
-
-    def test_log_exception_logs_traceback(self):
-        """Test that log_exception logs the full traceback."""
-        logger = MagicMock()
+    def test_log_exception_logs_traceback(self, temp_log_dir):
+        setup_logging(log_file="test.log")
         
         try:
             raise ValueError("Test error")
-        except:
-            log_exception(logger, "Custom message")
+        except Exception as e:
+            log_exception(e, "Test context")
         
-        logger.error.assert_called()
-        call_args = logger.error.call_args
-        assert "Custom message" in call_args[0][0]
-        # exc_info should be True to include traceback
-        assert call_args[1].get("exc_info") is True
-
-    def test_log_exception_handles_no_exception(self):
-        """Test that log_exception handles case when no exception is active."""
-        logger = MagicMock()
+        log_path = Path("logs") / "test.log"
+        content = log_path.read_text()
         
-        # Not in an except block
-        log_exception(logger, "No exception message")
-        
-        logger.error.assert_called()
+        assert "Test context" in content
+        assert "ValueError" in content
+        assert "Traceback" in content
 
 class TestHandleCriticalError:
-    """Tests for the handle_critical_error function."""
-
-    @patch("logging_config.log_exception")
-    @patch("logging_config.sys.exit")
-    def test_handle_critical_error_exits(self, mock_exit, mock_log_exc):
-        """Test that handle_critical_error exits the program."""
-        logger = MagicMock()
+    def test_handle_critical_error_exits(self, temp_log_dir, caplog):
+        setup_logging(log_file="test.log")
         
-        with pytest.raises(SystemExit):
-            handle_critical_error(logger, "Critical error")
+        with pytest.raises(SystemExit) as exc_info:
+            handle_critical_error(ValueError("Fatal error"), exit_code=42)
         
-        mock_exit.assert_called_once_with(1)
-
-    @patch("logging_config.log_exception")
-    @patch("logging_config.sys.exit")
-    def test_handle_critical_error_logs(self, mock_exit, mock_log_exc):
-        """Test that handle_critical_error logs the error."""
-        logger = MagicMock()
+        assert exc_info.value.code == 42
         
-        with pytest.raises(SystemExit):
-            handle_critical_error(logger, "Critical error")
+        log_path = Path("logs") / "test.log"
+        content = log_path.read_text()
         
-        logger.critical.assert_called_once_with("Critical error")
-        mock_log_exc.assert_called_once_with(logger)
+        assert "FATAL ERROR" in content
+        assert "Fatal error" in content

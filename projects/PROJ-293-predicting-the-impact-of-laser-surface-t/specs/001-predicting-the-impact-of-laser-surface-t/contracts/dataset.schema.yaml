@@ -1,60 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: LSTRecordSchema
-description: "Schema for the canonical LST wear resistance dataset"
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LST Wear Dataset Schema"
+type: "object"
 properties:
   pulse_duration:
-    type: number
-    description: "Laser pulse duration in nanoseconds or microseconds"
+    type: "number"
+    description: "Laser pulse duration in microseconds"
   power:
-    type: number
+    type: "number"
     description: "Laser power in Watts"
   scanning_speed:
-    type: number
+    type: "number"
     description: "Scanning speed in mm/s"
   pattern_geometry:
-    type: string
-    description: "Textured pattern type (e.g., grid, dot, line)"
+    type: "string"
+    description: "Texturing pattern type (e.g., 'grid', 'dot')"
   hardness:
-    type: number
-    description: "Material hardness in HV or GPa"
+    type: "number"
+    description: "Material hardness (HV)"
   elastic_modulus:
-    type: number
-    description: "Elastic modulus in GPa"
-  contact_load:
-    type:
-      - "number"
-      - "null"
-    description: "Contact load in Newtons (optional)"
-  sliding_speed:
-    type:
-      - "number"
-      - "null"
-    description: "Sliding speed in m/s (optional)"
+    type: "number"
+    description: "Elastic modulus (GPa)"
   wear_rate:
-    type: number
+    type: "number"
     description: "Raw wear rate"
+  contact_load:
+    type: ["number", "null"]
+    description: "Contact load (N) - Optional"
+  sliding_speed:
+    type: ["number", "null"]
+    description: "Sliding speed (m/s) - Optional"
+  density:
+    type: ["number", "null"]
+    description: "Material density - Optional"
+  contact_area:
+    type: ["number", "null"]
+    description: "Contact area (mm²) - Optional"
+  sliding_distance:
+    type: ["number", "null"]
+    description: "Sliding distance (m) - Optional"
   material_class:
-    type: string
-    description: "Base material category"
+    type: "string"
+    description: "Broad material category"
   normalization_method:
-    type: string
+    type: "string"
     enum:
-      - "archard"
+      - "normalized"
       - "raw"
-    description: "Method used for wear rate normalization"
-  wear_coefficient:
-    type:
-      - "number"
-      - "null"
-    description: "Calculated specific wear coefficient (K)"
-  unit_conversion_status:
-    type: string
-    enum:
-      - "valid"
-      - "unavailable"
-      - "failed"
-    description: "Status of unit conversion for wear rate"
+    description: "Flag indicating if Archard normalization was applied"
+  source_id:
+    type: "string"
+    description: "Unique identifier of the source dataset"
 required:
   - pulse_duration
   - power
@@ -63,6 +58,5 @@ required:
   - hardness
   - elastic_modulus
   - wear_rate
-  - material_class
   - normalization_method
-additionalProperties: false
+  - source_id

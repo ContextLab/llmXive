@@ -22,6 +22,9 @@ properties:
   vif_score:
     type: ["number", "null"]
     description: "Variance Inflation Factor."
+  dropped_reason:
+    type: ["string", "null"]
+    description: "Reason for feature removal if dropped due to VIF."
   validation_status:
     type: "string"
     description: "Status of physical validation."

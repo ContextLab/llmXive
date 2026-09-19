@@ -63,7 +63,7 @@
 - [ ] T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console)
 - [X] T009 Setup environment configuration management (`.env` or `config.yaml` for data paths)
 - [X] T017a [P] **A Priori Power Analysis**: Create `code/power.py` to calculate the minimum sample size required to detect the interaction effect with power ≥ 0.80 at α = 0.05 using literature-based effect sizes. Output `results/power_design.csv` with `required_n` and `met_target` status. This task MUST complete before US1.
-- [ ] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T038 [P] **Data Acquisition**: Implement `code/data_fetcher.py` to fetch the "Political IAT" dataset from the Project Implicit canonical source. **If the specific dataset URL is unknown or unavailable, the script MUST halt with a clear `ValueError` stating "Real data source not found." DO NOT use fallback datasets (e.g., NAB) or generate synthetic data.** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,10 +86,10 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement `code/data_loader.py` to map raw columns to `IAT_D_score`, `political_ideology`, `news_exposure_freq` using codebook; raise `ValueError` on failure
-- [ ] T014 [US1] Implement `code/preprocessing.py` MICE imputation (5 imputations) with missingness rate check (>50% halts); implement logging of warning message if missingness > 50%; output imputed data to `data/processed/imputed_data.csv`
+- [ ] T014 [US1] Implement `code/preprocessing.py` MICE imputation (5 imputations) with missingness rate check (>50% halts); implement logging of warning message if missingness > 50%; output imputed data to `data/processed/imputed_data.csv` <!-- FAILED: unspecified -->
 - [X] T015 [US1] Implement `code/models.py` to fit primary linear regression: `IAT_D ~ news_exposure_z * political_ideology` (continuous)
 - [X] T016 [US1] Implement derived variable creation in `code/preprocessing.py`: `news_exposure_z` (z-scored) and `ideology_binary` (median split for later use)
-- [ ] T017b [US1] **Retrospective Power Analysis**: Calculate `observed_power` using fitted model effect size; output to `results/power_analysis.csv` with columns: `observed_power`, `required_n`, `effect_size`, `met_target`. (Distinct from T017a).
+- [X] T017b [US1] **Retrospective Power Analysis**: Calculate `observed_power` using fitted model effect size; output to `results/power_analysis.csv` with columns: `observed_power`, `required_n`, `effect_size`, `met_target`. (Distinct from T017a).
 - [X] T018 [US1] Integrate pipeline in `code/main.py` (Load -> Impute -> Model) and save initial results <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 9, column 1:
  Additionally, the supporting fil...
@@ -118,7 +118,7 @@ could not find expected ':'
 
 - [ ] T024b [US2] **Binary Model Fit**: Re-fit linear regression using `ideology_binary` (from T016) instead of continuous ideology; report results (coefficient/significance) and save to `results/binary_model.csv`. **Must complete before T021-T023.**
 - [X] T021 [US2] Implement `code/robustness.py` bootstrap procedure (1000 resamples); calculate Monte Carlo SE and confidence interval for interaction term; ensure resamples complete without partial state logic
-- [ ] T022 [US2] Implement alpha sweep in `code/robustness.py` to re-evaluate significance at thresholds **{0.01, 0.05, 0.10}**; report variation in significance status; save results to `results/alpha_sweep.csv`
+- [X] T022 [US2] Implement alpha sweep in `code/robustness.py` to re-evaluate significance at thresholds **{0.01, 0.05, 0.10}**; report variation in significance status; save results to `results/alpha_sweep.csv`
 - [X] T023 [US2] Implement covariate adjustment model in `code/models.py`: Re-fit model from scratch using imputed data and added covariates (`age`, `gender`, `education`); compare interaction coefficient magnitude/significance to primary model
 - [X] T025 [US2] Integrate robustness checks into `code/main.py` pipeline after primary model
 - [ ] T026 [US2] Save robustness metrics (bootstrap CI, alpha sweep results, covariate comparison, binary model results) to `results/robustness_metrics.csv`
@@ -142,7 +142,7 @@ could not find expected ':'
 - [X] T028 [US3] Create `code/reporting.py`: Create `templates/report.j2` with sections: Methods, Primary Model, Robustness, Power Analysis, Plots; generate PDF report using `jinja2`
 - [ ] T029 [US3] Generate CSV summary tables (`model_summary.csv`, `diagnostics.csv`) aggregating coefficients, p-values, and imputation stats
 - [ ] T030 [US3] Implement plotting functions (interaction plot, bootstrap distribution) using `seaborn`/`matplotlib` and embed in report
-- [ ] T031 [US3] Integrate reporting step into `code/main.py` as the final pipeline stage
+- [X] T031 [US3] Integrate reporting step into `code/main.py` as the final pipeline stage
 - [ ] T032 [US3] Ensure all artifacts are written to `results/` directory with correct filenames and constraints (PDF ≤ 5 MB)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -155,8 +155,8 @@ could not find expected ':'
 
 - [ ] T033 [P] Add unit tests for edge cases (missing columns, >50% missingness, bootstrap timeout) in `tests/unit/`
 - [ ] T034 Code cleanup and refactoring to ensure CPU-only compliance (no GPU imports, memory-efficient loops)
-- [ ] T035 Refactor `code/robustness.py` to use multiprocessing or chunking to ensure runtime < 6h on 2-core CPU; verify by local benchmark
-- [ ] T036 [P] Update `docs/README.md` with execution instructions and data requirements
+- [X] T035 Refactor `code/robustness.py` to use multiprocessing or chunking to ensure runtime < 6h on 2-core CPU; verify by local benchmark
+- [X] T036 [P] Update `docs/README.md` with execution instructions and data requirements
 - [ ] T037 Run `quickstart.md` validation and final end-to-end test on sample data
 
 ---

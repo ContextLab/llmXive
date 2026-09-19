@@ -5,6 +5,9 @@ stride: 1
 alpha: 0.01
 min_permutations: 100
 time_budget_minutes: 30
-run_length_prior: "geometric"
-geometric_lambda: 0.1
-bocpd_uniform_max: 100
+
+sensitivity:
+  timeout_minutes: 5
+
+run_length_prior:
+  geometric_lambda: 0.1

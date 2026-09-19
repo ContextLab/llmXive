@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impact of Self-Reported Political News Exposure on Implicit Political Bias</title>
+    <title>Research Report: Political News Exposure & Implicit Bias</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 20px; }
-        h1, h2, h3 { color: #2c3e50; }
-        h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .section { margin-bottom: 40px; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .plot-container { text-align: center; margin: 30px 0; }
-        .plot-container img { max-width: 100%; height: auto; border: 1px solid #ddd; }
-        .section { margin-bottom: 40px; }
-        .note { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 10px; margin: 10px 0; }
+        .plot { max-width: 100%; height: auto; margin: 20px 0; }
+        .alert { padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; margin: 10px 0; }
+        .success { background-color: #d4edda; color: #155724; }
+        footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
     </style>
 </head>
 <body>
     <h1>Impact of Self-Reported Political News Exposure on Implicit Political Bias</h1>
-    
+    <p><strong>Generated:</strong> {{ timestamp }}</p>
+
     <div class="section">
         <h2>1. Methods</h2>
-        <p>This analysis examines the relationship between self-reported political news exposure and implicit political bias (measured by IAT D-scores), moderated by political ideology.</p>
-        <p><strong>Primary Model:</strong> Linear regression with interaction term: <code>IAT_D ~ news_exposure_z * political_ideology</code></p>
-        <p><strong>Sample Size:</strong> {{ model_summary.shape[0] if not model_summary.empty else 'N/A' }} observations</p>
-        <p><strong>Alpha Level:</strong> {{ project_config.get('alpha_level', 0.05) if project_config else '0.05' }}</p>
+        <p>This analysis examines the relationship between self-reported political news exposure frequency and implicit political bias (measured by the IAT D-score), testing for an interaction with political ideology.</p>
+        <p><strong>Data Source:</strong> Project Implicit Political IAT Dataset</p>
+        <p><strong>Primary Model:</strong> Linear Regression with interaction term: IAT_D ~ news_exposure_z * political_ideology</p>
+        <p><strong>Robustness Checks:</strong> Bootstrap resampling (n=1000), Alpha sensitivity analysis, Covariate adjustment (age, gender, education), Binary ideology model.</p>
     </div>
 
     <div class="section">
         <h2>2. Primary Model Results</h2>
-        {% if not model_summary.empty %}
+        {% if primary_model %}
         <table>
             <thead>
                 <tr>
@@ -40,96 +41,106 @@
                     <th>Std Error</th>
                     <th>t-value</th>
                     <th>P-value</th>
-                    <th>95% CI Lower</th>
-                    <th>95% CI Upper</th>
+                    <th>Significant?</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in model_summary.iterrows() %}
+                {% for row in primary_model.to_dict('records') %}
                 <tr>
-                    <td>{{ row[1]['term'] }}</td>
-                    <td>{{ "%.4f"|format(row[1]['coef']) }}</td>
-                    <td>{{ "%.4f"|format(row[1]['std_err']) }}</td>
-                    <td>{{ "%.4f"|format(row[1]['t']) }}</td>
-                    <td>{{ "%.4f"|format(row[1]['pval']) }}</td>
-                    <td>{{ "%.4f"|format(row[1]['ci_lower']) }}</td>
-                    <td>{{ "%.4f"|format(row[1]['ci_upper']) }}</td>
+                    <td>{{ row.get('term', 'N/A') }}</td>
+                    <td>{{ "%.4f"|format(row.get('coef', 0)) }}</td>
+                    <td>{{ "%.4f"|format(row.get('std_err', 0)) }}</td>
+                    <td>{{ "%.4f"|format(row.get('tvalue', 0)) }}</td>
+                    <td>{{ "%.4f"|format(row.get('pvalue', 0)) }}</td>
+                    <td>{% if row.get('pvalue', 1) < 0.05 %}Yes{% else %}No{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p class="note">No model results available.</p>
+        <div class="alert">No primary model results found.</div>
         {% endif %}
     </div>
 
     <div class="section">
         <h2>3. Interaction Plot</h2>
-        <div class="plot-container">
-            {% if interaction_plot %}
-            <img src="{{ interaction_plot }}" alt="Interaction Plot">
-            <p><em>Figure 1: Predicted IAT D-scores across levels of news exposure and political ideology.</em></p>
-            {% else %}
-            <p class="note">Interaction plot could not be generated.</p>
-            {% endif %}
-        </div>
+        {% if plots.interaction %}
+        <img src="{{ plots.interaction }}" alt="Interaction Plot" class="plot">
+        <p><em>Figure 1: Interaction between news exposure and political ideology on implicit bias.</em></p>
+        {% else %}
+        <div class="alert">Interaction plot not generated.</div>
+        {% endif %}
     </div>
 
     <div class="section">
         <h2>4. Robustness Checks</h2>
-        {% if not robustness.empty %}
-        <h3>Bootstrap Analysis (n=1000)</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in robustness.iterrows() %}
-                <tr>
-                    <td>{{ row[1].get('metric', 'N/A') }}</td>
-                    <td>{{ "%.4f"|format(row[1].get('value', 0)) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
         
-        <h3>Bootstrap Distribution</h3>
-        <div class="plot-container">
-            {% if bootstrap_plot %}
-            <img src="{{ bootstrap_plot }}" alt="Bootstrap Distribution">
-            <p><em>Figure 2: Distribution of bootstrap interaction coefficients.</em></p>
-            {% else %}
-            <p class="note">Bootstrap plot could not be generated.</p>
-            {% endif %}
-        </div>
+        <h3>4.1 Bootstrap Distribution (n=1000)</h3>
+        {% if plots.bootstrap %}
+        <img src="{{ plots.bootstrap }}" alt="Bootstrap Distribution" class="plot">
+        <p><em>Figure 2: Bootstrap distribution of the interaction coefficient.</em></p>
+        {% else %}
+        <div class="alert">Bootstrap plot not generated.</div>
+        {% endif %}
 
-        <h3>Alpha Sensitivity</h3>
-        <p>Significance status across different alpha levels (0.01, 0.05, 0.10).</p>
+        {% if bootstrap %}
+        <p><strong>Bootstrap Summary:</strong></p>
+        <ul>
+            <li>Mean Coefficient: {{ "%.4f"|format(bootstrap['interaction_coef'].mean()) }}</li>
+            <li>95% CI: [{{ "%.4f"|format(bootstrap['interaction_coef'].quantile(0.025)) }}, {{ "%.4f"|format(bootstrap['interaction_coef'].quantile(0.975)) }}]</li>
+        </ul>
+        {% endif %}
+
+        <h3>4.2 Alpha Sensitivity</h3>
+        {% if alpha_sweep %}
         <table>
             <thead>
                 <tr>
                     <th>Alpha Level</th>
                     <th>Significant?</th>
+                    <th>Coefficient</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Assuming alpha sweep data is in robustness or separate, simplified here -->
-                <tr><td>0.01</td><td>Check robustness_metrics.csv</td></tr>
-                <tr><td>0.05</td><td>Check robustness_metrics.csv</td></tr>
-                <tr><td>0.10</td><td>Check robustness_metrics.csv</td></tr>
+                {% for row in alpha_sweep.to_dict('records') %}
+                <tr>
+                    <td>{{ row.get('alpha_level', 'N/A') }}</td>
+                    <td>{% if row.get('significant', False) %}Yes{% else %}No{% endif %}</td>
+                    <td>{{ "%.4f"|format(row.get('coef', 0)) }}</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p class="note">No robustness check results available.</p>
+        <div class="alert">Alpha sweep results not found.</div>
+        {% endif %}
+
+        <h3>4.3 Covariate Adjustment</h3>
+        {% if covariate %}
+        <p><strong>Covariate Model (adjusted for age, gender, education):</strong></p>
+        <ul>
+            <li>Interaction Coefficient: {{ "%.4f"|format(covariate.iloc[0]['coef']) if not covariate.empty else 'N/A' }}</li>
+            <li>P-value: {{ "%.4f"|format(covariate.iloc[0]['pvalue']) if not covariate.empty else 'N/A' }}</li>
+        </ul>
+        {% else %}
+        <div class="alert">Covariate model results not found.</div>
+        {% endif %}
+
+        <h3>4.4 Binary Ideology Model</h3>
+        {% if binary %}
+        <p><strong>Binary Ideology Model (Left vs Right):</strong></p>
+        <ul>
+            <li>Interaction Coefficient: {{ "%.4f"|format(binary.iloc[0]['coef']) if not binary.empty else 'N/A' }}</li>
+            <li>P-value: {{ "%.4f"|format(binary.iloc[0]['pvalue']) if not binary.empty else 'N/A' }}</li>
+        </ul>
+        {% else %}
+        <div class="alert">Binary model results not found.</div>
         {% endif %}
     </div>
 
     <div class="section">
         <h2>5. Power Analysis</h2>
-        {% if not power_analysis.empty %}
+        {% if power %}
         <table>
             <thead>
                 <tr>
@@ -138,68 +149,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in power_analysis.iterrows() %}
+                {% for row in power.to_dict('records') %}
                 <tr>
-                    <td>{{ row[1].get('metric', 'N/A') }}</td>
-                    <td>{{ row[1].get('value', 'N/A') }}</td>
+                    <td>{{ row.get('metric', 'N/A') }}</td>
+                    <td>{{ row.get('value', 'N/A') }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p class="note">No power analysis results available.</p>
+        <div class="alert">Power analysis results not found.</div>
         {% endif %}
     </div>
 
-    <div class="section">
-        <h2>6. Binary Model Results</h2>
-        <p>Model using median-split ideology (binary) for comparison.</p>
-        {% if not binary_model.empty %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Term</th>
-                    <th>Coefficient</th>
-                    <th>P-value</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in binary_model.iterrows() %}
-                <tr>
-                    <td>{{ row[1]['term'] }}</td>
-                    <td>{{ "%.4f"|format(row[1]['coef']) }}</td>
-                    <td>{{ "%.4f"|format(row[1]['pval']) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="note">No binary model results available.</p>
-        {% endif %}
-    </div>
-
-    <div class="section">
-        <h2>7. Diagnostics</h2>
-        {% if not diagnostics.empty %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in diagnostics.iterrows() %}
-                <tr>
-                    <td>{{ row[1].get('metric', 'N/A') }}</td>
-                    <td>{{ row[1].get('value', 'N/A') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="note">No diagnostic results available.</p>
-        {% endif %}
-    </div>
+    <footer>
+        <p>Report generated by the llmXive Automated Science Pipeline.</p>
+    </footer>
 </body>
 </html>

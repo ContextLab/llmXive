@@ -1,157 +1,116 @@
+"""
+Scheduler Trace Schema Definition and Validation.
+
+This module defines the JSON Schema for the scheduler trace file
+and provides utilities to validate trace entries against it.
+"""
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-# Schema definition for scheduler trace entries
-# Extends existing schema to support metrics_triggered events with state transitions
+# The canonical JSON Schema for the scheduler trace
+# This defines the structure of the file `data/processed/scheduler_trace.json`
 SCHEMA_DEFINITION = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Scheduler Trace Schema",
+    "description": "Schema for logging curriculum scheduler decisions and state transitions.",
     "type": "object",
-    "required": ["timestamp", "event", "data"],
+    "required": ["schema_version", "created_at", "entries"],
     "properties": {
-        "timestamp": {
+        "schema_version": {
+            "type": "string",
+            "const": "1.0.0",
+            "description": "Version of the trace schema."
+        },
+        "created_at": {
             "type": "string",
             "format": "date-time",
-            "description": "ISO 8601 timestamp with timezone"
+            "description": "ISO 8601 timestamp of trace creation."
         },
-        "event": {
-            "type": "string",
-            "enum": [
-                "phase1_selection",
-                "phase2_selection",
-                "fallback_entropy",
-                "fallback_random",
-                "metrics_triggered",
-                "deadlock_prevention"
-            ],
-            "description": "Type of scheduler event"
-        },
-        "data": {
-            "type": "object",
-            "description": "Event-specific data payload"
+        "entries": {
+            "type": "array",
+            "description": "List of scheduler decision events.",
+            "items": {
+                "type": "object",
+                "required": [
+                    "timestamp",
+                    "phase",
+                    "selected_tasks",
+                    "metrics_triggered"
+                ],
+                "properties": {
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp of the event."
+                    },
+                    "phase": {
+                        "type": "string",
+                        "enum": ["low_coverage", "moderate_success", "entropy_fallback", "deadlock_prevention"],
+                        "description": "The curriculum phase that triggered this selection."
+                    },
+                    "target_success_rate": {
+                        "type": ["number", "null"],
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "Target success rate range or null if not applicable."
+                    },
+                    "current_coverage_ratio": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "Current state coverage ratio."
+                    },
+                    "selected_tasks": {
+                        "type": "array",
+                        "description": "List of tasks selected in this batch.",
+                        "items": {
+                            "type": "object",
+                            "required": ["task_id", "difficulty", "reason"],
+                            "properties": {
+                                "task_id": {"type": "string"},
+                                "difficulty": {"type": "number"},
+                                "reason": {"type": "string"}
+                            }
+                        }
+                    },
+                    "metrics_triggered": {
+                        "type": "array",
+                        "description": "Specific state variables that triggered the selection logic.",
+                        "items": {
+                            "type": "object",
+                            "required": ["variable_name", "transition_value"],
+                            "properties": {
+                                "variable_name": {"type": "string"},
+                                "transition_value": {"type": ["string", "number", "boolean"]}
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-# Specific schema for metrics_triggered event
-METRICS_TRIGGERED_SCHEMA = {
-    "type": "object",
-    "required": ["triggered_metrics", "state_transitions"],
-    "properties": {
-        "triggered_metrics": {
-            "type": "array",
-            "items": {"type": "string"},
-            "description": "List of metric names that triggered the selection"
-        },
-        "state_transitions": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "required": ["state_variable", "old_value", "new_value"],
-                "properties": {
-                    "state_variable": {"type": "string"},
-                    "old_value": {"type": ["boolean", "integer", "string", "number"]},
-                    "new_value": {"type": ["boolean", "integer", "string", "number"]}
-                }
-            },
-            "description": "Specific state variable transitions that were detected"
-        },
-        "target_success_rate": {
-            "type": "number",
-            "description": "Target success rate for the selected tasks"
-        },
-        "selected_task_count": {
-            "type": "integer",
-            "description": "Number of tasks selected based on this trigger"
-        }
-    }
-}
+def get_schema_description() -> str:
+    """Return a human-readable description of the schema."""
+    return "Schema for recording curriculum scheduler decisions, including phase, selected tasks, and triggering metrics."
 
 def validate_trace_entry(entry: Dict[str, Any]) -> bool:
     """
-    Validate a trace entry against the schema.
+    Validate a single trace entry against the schema requirements.
     
     Args:
-        entry: Dictionary containing the trace entry
+        entry: The dictionary representing a single trace event.
         
     Returns:
-        True if valid, False otherwise
+        True if valid, False otherwise.
     """
-    try:
-        if not isinstance(entry, dict):
-            return False
-        
-        required_fields = ["timestamp", "event", "data"]
-        for field in required_fields:
-            if field not in entry:
-                return False
-        
-        # Validate timestamp format
-        try:
-            datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
-        except (ValueError, AttributeError):
-            return False
-        
-        # Validate event type
-        if entry["event"] not in SCHEMA_DEFINITION["properties"]["event"]["enum"]:
-            return False
-        
-        # Special validation for metrics_triggered
-        if entry["event"] == "metrics_triggered":
-            data = entry["data"]
-            if not isinstance(data, dict):
-                return False
-            
-            if "triggered_metrics" not in data or "state_transitions" not in data:
-                return False
-            
-            if not isinstance(data["triggered_metrics"], list):
-                return False
-            
-            if not isinstance(data["state_transitions"], list):
-                return False
-            
-            for transition in data["state_transitions"]:
-                if not isinstance(transition, dict):
-                    return False
-                if "state_variable" not in transition or "old_value" not in transition or "new_value" not in transition:
-                    return False
-        
-        return True
-    except Exception:
+    required_fields = ["timestamp", "phase", "selected_tasks", "metrics_triggered"]
+    if not all(field in entry for field in required_fields):
         return False
-
-def get_schema_description(event_type: Optional[str] = None) -> str:
-    """
-    Get a human-readable description of the schema.
     
-    Args:
-        event_type: Optional specific event type to describe
+    if entry["phase"] not in SCHEMA_DEFINITION["properties"]["entries"]["items"]["properties"]["phase"]["enum"]:
+        return False
         
-    Returns:
-        String description of the schema
-    """
-    desc = "Scheduler Trace Schema\n"
-    desc += "=" * 50 + "\n\n"
-    
-    if event_type:
-        if event_type == "metrics_triggered":
-            desc += "Event: metrics_triggered\n"
-            desc += "Purpose: Log when specific state metrics trigger task selection\n"
-            desc += "Required fields in data:\n"
-            desc += "  - triggered_metrics: List of metric names\n"
-            desc += "  - state_transitions: List of {state_variable, old_value, new_value}\n"
-            desc += "  - target_success_rate: (optional) Target success rate\n"
-            desc += "  - selected_task_count: (optional) Number of tasks selected\n"
-        else:
-            desc += f"Event: {event_type}\n"
-            desc += "See SCHEMA_DEFINITION for details\n"
-    else:
-        desc += "Base Schema:\n"
-        desc += "  - timestamp: ISO 8601 datetime\n"
-        desc += "  - event: One of the defined event types\n"
-        desc += "  - data: Event-specific payload\n\n"
-        desc += "Event Types:\n"
-        for event in SCHEMA_DEFINITION["properties"]["event"]["enum"]:
-            desc += f"  - {event}\n"
-    
-    return desc
+    return True

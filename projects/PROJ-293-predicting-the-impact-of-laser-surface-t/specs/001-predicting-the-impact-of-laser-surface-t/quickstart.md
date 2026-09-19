@@ -2,77 +2,89 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to the verified dataset URLs (no credentials required).
+- Python 3.11+
+- Git
+- Access to a GitHub Actions runner (or local environment with sufficient RAM)
 
-## Setup Instructions
+## Installation
 
-### 1. Clone and Install Dependencies
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-293-predicting-the-impact-of-laser-surface-t
+    ```
 
-```bash
-git clone <repo-url>
-cd <repo-dir>/projects/PROJ-293-predicting-the-impact-of-laser-surface-t
-pip install -r code/requirements.txt
-```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-### 2. Prepare Data Directory Structure
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins `scikit-learn`, `pandas`, `shap`, `numpy`, and `statsmodels`.*
 
-Ensure the following directories exist:
-```bash
-mkdir -p data/raw data/processed models reports state
-```
+4.  **Verify Directory Structure**:
+    Ensure the following directories exist. If not, create them:
+    ```bash
+    mkdir -p code data/raw data/processed data/intermediate models reports tests state
+    ```
 
-### 3. Download Data
+## Running the Pipeline
 
-The ingestion script will automatically download the verified datasets. To run manually:
-```bash
-# The script code/01_ingest.py handles this, but you can verify the sources:
-# OpenML: Wear of Materials
-curl -o data/raw/openml_wear.json "https://www.openml.org/api/v1/json/data/4594"
-# Zenodo: LST Parameters (ID 1006980)
-curl -o data/raw/zenodo_lst.csv "https://doi.org/10.5281/zenodo.1006980"
-```
-
-### 4. Run the Pipeline
-
-Execute the full pipeline sequentially:
+Execute the full pipeline end-to-end:
 
 ```bash
-# Step 1: Ingest and Standardize (includes data verification, unit conversion, and Archard normalization)
-python code/01_ingest.py
-
-# Step 2: Preprocess (Missing values, VIF, Scaling)
-python code/02_preprocess.py
-
-# Step 3: Train Models (GridSearch, LOO-CV with fallback)
-python code/03_train.py
-
-# Step 4: Interpret (SHAP, Permutation, Literature Consensus Check)
-python code/04_interpret.py
-
-# Step 5: Generate Reports (includes validation_status)
-python code/05_report.py
+python code/validate.py && \
+python code/ingest.py && \
+python code/preprocess.py && \
+python code/train.py && \
+python code/interpret.py
 ```
 
-### 5. Verify Outputs
+### Step-by-Step Breakdown
 
-Check the `reports/` directory for:
-*   `model_report.json`: Contains R², MAE, RMSE, transferability flags, and validation status.
-*   `shap_summary.png`: Feature importance visualization.
-*   `validation_log.txt`: LOO-CV results and warnings.
-*   `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`: Hash registry for data and model artifacts.
+1.  **Validation (`validate.py`)**:
+    - Checks for the existence of required directories (`data/raw`, `data/processed`).
+    - Verifies dataset record count (SC-004). Halts if < 100 records.
+    - Runs Power Analysis on the normalized subset.
 
-### 6. Run Tests
+2.  **Ingestion (`ingest.py`)**:
+    - Downloads data from the verified HuggingFace URL.
+    - Maps columns to the canonical schema.
+    - Calculates SHA-256 checksums and updates `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`.
+    - Outputs `data/intermediate/merged.csv`.
 
-```bash
-pytest tests/
-```
+3.  **Preprocessing (`preprocess.py`)**:
+    - Drops records with missing predictors.
+    - Applies Archard's law normalization (or flags as 'raw').
+    - Runs Shapiro-Wilk/Levene's tests on the raw subset.
+    - Performs VIF reduction (deterministic strategy).
+    - Outputs `data/processed/cleaned.csv`.
+
+4.  **Training (`train.py`)**:
+    - Runs GridSearchCV (10+ combinations) using `Pipeline` to prevent leakage.
+    - Performs Leave-One-Material-Class-Out CV (or K-Fold fallback).
+    - Saves best model to `models/best_model.pkl`.
+
+5.  **Interpretation (`interpret.py`)**:
+    - Computes SHAP values.
+    - Runs permutation significance testing.
+    - Applies Causal Language Filter to the report.
+    - Generates plots in `reports/`.
+
+## Expected Outputs
+
+- `data/processed/cleaned.csv`: Final analysis-ready dataset.
+- `models/best_model.pkl`: Serialized best-performing model.
+- `reports/model_report.json`: Metrics (R², MAE, VIF, power analysis results).
+- `reports/shap_summary.png`: Feature importance visualization.
 
 ## Troubleshooting
 
-*   **Data Insufficiency Error**: If the script halts with `data_insufficiency_error`, check `reports/validation_log.txt` for the record count. The dataset may not meet the N=300 target. The system will proceed with a power limitation warning.
-*   **Missing Columns**: If the ingestion fails, verify that the source CSVs contain the required columns defined in `contracts/dataset.schema.yaml`.
-*   **Unit Conversion Error**: If `unit_conversion_status` is 'unavailable', check the source data for `contact_area` or `density`. Records with 'unavailable' status are excluded from the normalized set.
-*   **Memory Error**: Unlikely given the dataset size, but if it occurs, reduce the `n_estimators` grid size in `03_train.py`.
-*   **Versioning**: Ensure `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml` is updated with checksums after each run.
+- **`data_schema_mismatch`**: The source dataset lacks required LST columns. Check the `research.md` for verified source content.
+- **`data_insufficiency_error`**: Fewer than 100 records found. The study scope is reduced to "pilot" or halted.
+- **`runtime_timeout`**: Pipeline exceeded the planned duration. Reduce grid search size or sample size in `train.py`.
+- **`raw_subset_invalid`**: The raw subset failed Shapiro-Wilk or Levene's tests. Sensitivity analysis skipped.

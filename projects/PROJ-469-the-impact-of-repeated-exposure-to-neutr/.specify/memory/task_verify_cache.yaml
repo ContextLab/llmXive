@@ -1,18 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a logging configuration or error\u2011handling code was provided\
-    \ in the `code/` directory, nor is there a `logs/` folder or any script that sets\
-    \ up console logging. The required artifact (logging infrastructure) is missing,\
-    \ so the task is not satisfied."
-T014:
-  c: false
-  h: 7d8a23bdfdd44c8a39492b5ab0d2cb4df1e86ce304a029bab922be9d24b6798e
-  r: "The repository contains `code/preprocessing.py`, but the file is truncated and\
-    \ does not show any code that writes the imputed DataFrame to `data/processed/imputed_data.csv`.\
-    \ Moreover, the missingness\u2011>50% case logs an error and raises a `ValueError`\
-    \ rather than logging a warning as required. The expected output CSV is absent,\
-    \ so the task is not fully satisfied."
 T017a:
   c: false
   h: a4021f1409c53fb227ba8784727c956ed3ccdb2afb6d04b48d109db58416c6cd
@@ -40,3 +25,24 @@ T030:
   r: No code, figures, or report files implementing the interaction plot or bootstrap
     distribution using seaborn/matplotlib were presented. Consequently, the required
     plotting functions and their embedding in the report are missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No PDF report or CSV summary files are provided in the `results/` directory,\
+    \ and there is no evidence of filenames or file\u2011size checks (\u2264\u202F\
+    5\u202FMB). The required artifacts are missing, so the task is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `tests/unit/` directory or test files covering the specified edge cases (missing\
+    \ columns, >50\u202F% missingness, bootstrap timeout) were provided. Without actual\
+    \ unit test code, the requirement to add those tests is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, diff, or test artifacts were provided to demonstrate that GPU imports\
+    \ were removed or that loops were refactored for memory efficiency. Consequently,\
+    \ there is no evidence that the repository now complies with the CPU\u2011only\
+    \ requirement. The implementer must supply the updated source files (or a patch)\
+    \ and a verification script showing the absence of GPU\u2011related imports and\
+    \ improved memory usage."

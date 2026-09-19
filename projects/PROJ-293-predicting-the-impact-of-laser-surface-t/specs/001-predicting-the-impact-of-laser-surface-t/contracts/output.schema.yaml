@@ -20,7 +20,7 @@ properties:
         description: "Mean Absolute Error."
       rmse:
         type: "number"
-        description: "Root Mean Square Error."
+        description: "Root Mean Squared Error."
     required:
       - r2
       - mae

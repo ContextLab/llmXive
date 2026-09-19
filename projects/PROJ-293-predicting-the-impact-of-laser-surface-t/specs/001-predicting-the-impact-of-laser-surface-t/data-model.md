@@ -1,81 +1,75 @@
 # Data Model: Predicting the Impact of Laser Surface Texturing on Wear Resistance
 
-## Overview
+## 1. Canonical Schema
 
-This document defines the data structures, schemas, and transformation rules for the LST wear resistance project. It ensures that data flows consistently from ingestion through modeling to reporting.
+The system operates on a canonical schema derived from the spec's `LSTRecord` entity. All source data is mapped to this schema during ingestion.
 
-## Canonical Schema
+| Field Name | Type | Description | Source Mapping Logic |
+| :--- | :--- | :--- | :--- |
+| `pulse_duration` | float | Laser pulse duration (µs) | Map `pulse_duration`, `pulse_width`, `duration` |
+| `power` | float | Laser power (W) | Map `power`, `laser_power`, `avg_power` |
+| `scanning_speed` | float | Scanning speed (mm/s) | Map `scanning_speed`, `scan_speed`, `velocity` |
+| `pattern_geometry` | string | Texturing pattern (e.g., "grid", "dot") | Map `pattern`, `geometry`, `shape` |
+| `hardness` | float | Material hardness (HV) | Map `hardness`, `hv`, `material_hardness` |
+| `elastic_modulus` | float | Elastic modulus (GPa) | Map `elastic_modulus`, `youngs_modulus`, `E` |
+| `wear_rate` | float | Raw wear rate (mm³/Nm or mg) | Map `wear_rate`, `wear`, `volume_loss` |
+| `contact_load` | float | Contact load (N) | Map `load`, `force`, `normal_load` (Optional) |
+| `sliding_speed` | float | Sliding speed (m/s) | Map `sliding_speed`, `velocity`, `speed` (Optional) |
+| `density` | float | Material density (g/cm³) | Map `density`, `rho` (Optional) |
+| `material_class` | string | Broad material category (e.g., "Steel", "Al") | Derived from `material_name` or metadata |
+| `normalization_method` | string | "normalized" or "raw" | Set by Archard logic |
+| `source_id` | string | Unique source identifier | Derived from filename/URL |
+| `contact_area` | float | Contact area (mm²) | Derived or mapped (Optional) |
+| `sliding_distance` | float | Sliding distance (m) | Derived or mapped (Optional) |
 
-The core entity is the `LSTRecord`. All intermediate and final datasets will conform to this schema.
+## 2. Derived Entities
 
-| Column Name | Type | Description | Constraints |
-|-------------|------|-------------|-------------|
-| `pulse_duration` | float | Laser pulse duration (ns or µs) | Required predictor; no missing values allowed. |
-| `power` | float | Laser power (W) | Required predictor; no missing values allowed. |
-| `scanning_speed` | float | Scanning speed (mm/s) | Required predictor; no missing values allowed. |
-| `pattern_geometry` | string | Textured pattern type (e.g., "grid", "dot", "line") | Required predictor; categorical. |
-| `hardness` | float | Material hardness (HV or GPa) | Required predictor; no missing values allowed. |
-| `elastic_modulus` | float | Elastic modulus (GPa) | Required predictor; no missing values allowed. |
-| `contact_load` | float | Contact load (N) | Optional; missing values trigger `normalization_method='raw'`. |
-| `sliding_speed` | float | Sliding speed (m/s) | Optional; missing values trigger `normalization_method='raw'`. |
-| `wear_rate` | float | Raw wear rate (mm³/N·m or similar) | Required target. |
-| `material_class` | string | Base material category (e.g., "Steel", "Aluminum") | Derived from `hardness`/`elastic_modulus` or source metadata. |
-| `normalization_method` | string | "archard" or "raw" | Derived: "raw" if `contact_load` or `sliding_speed` missing. |
-| `wear_coefficient` | float | Calculated specific wear coefficient (K) | Derived: $K = \frac{V \cdot H}{F \cdot L}$ (Corrected Archard). |
-| `unit_conversion_status` | string | "valid", "unavailable", "failed" | Derived: "unavailable" if area/density missing for unit conversion. |
-| `data_source` | string | "openml", "zenodo", "literature", "synthetic" | Derived: indicates origin of record. |
+### 2.1 `ModelPerformance`
+Record of model evaluation metrics.
+- `model_type`: string (e.g., "RandomForest")
+- `r2_train`: float
+- `r2_test`: float
+- `mae_test`: float
+- `rmse_test`: float
+- `loo_r2`: float (if LOMO applied)
+- `loo_ratio`: float (test_r2_loo / test_r2_standard)
+- `fallback_active`: boolean (True if K-Fold used instead of LOMO)
+- `within_material_scope`: boolean (True if research question shifted to within-material)
 
-## Data Flow
+### 2.2 `FeatureImportance`
+Mapping of feature to importance.
+- `feature_name`: string
+- `mean_abs_shap`: float
+- `shap_p_value`: float (from permutation test)
+- `is_significant`: boolean (p < 0.05)
+- `vif_score`: float
+- `dropped_reason`: string (if dropped due to VIF)
 
-### 1. Raw Data (data/raw)
-*   **Source**: Verified CSVs from OpenML, Zenodo.
-*   **State**: Immutable. Downloaded once, checksummed.
-*   **Schema**: Source-specific (mapped via `schema_map.json`).
+### 2.3 `DataSufficiency`
+Record of data validation results.
+- `total_records`: int
+- `normalized_count`: int
+- `raw_count`: int
+- `missing_record_count`: int
+- `source_count`: int
+- `material_class_count`: int
+- `study_scope`: string ("full_study", "pilot_study", "halt")
+- `power_insufficiency_warning`: boolean
+- `data_source_limitation_warning`: boolean
 
-### 2. Preprocessed Data (data/processed)
-*   **State**: Derived. Contains cleaned, standardized records.
-*   **Transformations**:
-    *   Column renaming to Canonical Schema.
-    *   Dropping records with missing required predictors.
-    *   Calculating `wear_coefficient` using the corrected Archard formula ($K = \frac{V \cdot H}{F \cdot L}$) with explicit unit conversion.
-    *   One-hot encoding for `pattern_geometry` (handled in `FeatureMatrix`).
+## 3. Data Flow
 
-### 3. Feature Matrix (In Memory / Temporary)
-*   **State**: Transient, used for model training.
-*   **Structure**:
-    *   `X`: Numerical features (scaled) + One-hot encoded categorical features.
-    *   `y`: `wear_rate` or `wear_coefficient` (depending on analysis subset).
-    *   `groups`: `material_class` for LOO-CV.
+1.  **Raw Ingestion**: `data/raw/*.parquet` → `ingest.py` → `data/intermediate/merged.csv`
+2.  **Validation**: `validate.py` checks column presence and record count (SC-004).
+3.  **Preprocessing**: `preprocess.py` handles missing values, Archard normalization, VIF reduction → `data/processed/cleaned.csv`
+4.  **Modeling**: `train.py` splits data, trains models, runs CV → `models/best_model.pkl`
+5.  **Interpretation**: `interpret.py` computes SHAP → `reports/shap_summary.png`, `reports/feature_importance.json`
 
-### 4. Model Artifacts (models/)
-*   **State**: Serialized models (`.pkl`).
-*   **Content**: Best model object, scaler parameters, feature names.
+## 4. Constraints & Rules
 
-### 5. Reports (reports/)
-*   **State**: JSON/CSV/Plots.
-*   **Content**: Metrics, SHAP values, validation logs.
-
-## Transformation Logic
-
-### Missing Value Handling
-*   **Predictors**: If `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, or `elastic_modulus` is null/NaN -> **DROP RECORD**.
-*   **Load/Speed**: If `contact_load` or `sliding_speed` is null -> **RETAIN RECORD**, set `normalization_method='raw'`, keep `wear_rate` as target.
-
-### Archard Normalization (Corrected)
-*   **Formula**: $K = \frac{wear\_rate \cdot hardness}{contact\_load \cdot sliding\_speed}$ (assuming wear_rate is volume-based; adjust if rate is length-based).
-    *   **Unit Conversion**: Explicitly convert `wear_rate` to volume (if needed), `hardness` to Pa, `contact_load` to N, and `sliding_speed` to m/s to ensure dimensional consistency.
-    *   **Condition**: Only applied if `contact_load` and `sliding_speed` are present and > 0, AND `contact_area` or `density` is available for unit conversion if needed.
-    *   **Fallback**: If either `contact_load` or `sliding_speed` is missing, `wear_coefficient` = `wear_rate`, `normalization_method` = 'raw'. If unit conversion data is missing, `unit_conversion_status` = 'unavailable' and the record is excluded from the normalized set.
-
-### Feature Engineering
-*   **Interaction Terms**: If `power` and `scanning_speed` are present, `line_energy` = `power` / `scanning_speed` (optional, subject to VIF check).
-*   **Categorical Encoding**: `pattern_geometry` -> One-Hot Encoding (binary columns).
-
-## Data Quality Checks
-
-1.  **Completeness**: Verify `normalized_count` and `raw_count` meet thresholds (SC-004).
-2.  **Variance**: Check for zero-variance features (drop if found).
-3.  **Collinearity**: Calculate VIF. If VIF > 5 for any pair, flag for exclusion (FR-010).
-4.  **Material Classes**: Count unique `material_class` values. If < 3, trigger LOO-CV fallback warning.
-5.  **Physical Validation**: Check for `microstructural_features` column. If missing, set `validation_status: 'validation_target_unavailable'` (SC-002).
-6.  **Unit Conversion**: Verify `unit_conversion_status` is 'valid' for normalized records. If 'unavailable', exclude from normalized set.
+- **No Imputation**: Missing predictors (except optional load/speed) result in row deletion.
+- **Archard Fallback**: If `contact_load` or `sliding_speed` missing, `normalization_method` = "raw".
+- **VIF Threshold**: Max VIF = 5. Iterative removal required.
+- **Material Classes**: Minimum 3 for LOMO. If < 3, fallback to K-Fold.
+- **Pipeline Enforcement**: All preprocessing steps must be inside a `Pipeline` to prevent leakage.
+- **State Update**: Checksums must be recorded in `state/` after ingestion.
