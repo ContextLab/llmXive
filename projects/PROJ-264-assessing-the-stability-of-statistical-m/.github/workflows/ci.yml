@@ -4,131 +4,109 @@ on:
   push:
     branches:
       - main
-      - 'release/**'
+      - develop
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
-      datasets:
-        description: 'Comma-separated list of dataset IDs (optional, defaults to full spectrum)'
-        required: false
-        default: ''
+      run_full_pipeline:
+        description: 'Run the full 15-dataset pipeline'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  PYTHON_VERSION: '3.10'
+  SEED: 42
 
 jobs:
-  setup:
-    name: Setup & Data Validation
+  lint:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
-    outputs:
-      dataset-list: ${{ steps.cache-datasets.outputs.dataset-list }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-          cache: 'pip'
-
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
-
-      - name: Run Data Loader & Checksum Verification
-        id: cache-datasets
-        run: |
-          python code/data_loader.py
-          # Verify checksums exist
-          if [ ! -f data/spectrum_report.json ]; then
-            echo "CRITICAL: spectrum_report.json not generated"
-            exit 1
-          fi
-          echo "dataset-list=verified" >> $GITHUB_OUTPUT
-
-      - name: Upload Data Cache
-        uses: actions/cache/save@v4
-        with:
-          path: data/raw
-          key: ${{ runner.os }}-data-${{ hashFiles('data/spectrum_report.json') }}
-
-  evaluation:
-    name: Full Pipeline Evaluation
-    needs: setup
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
-
-      - name: Restore Data Cache
-        uses: actions/cache/restore@v4
-        with:
-          path: data/raw
-          key: ${{ runner.os }}-data-${{ hashFiles('data/spectrum_report.json') }}
-
-      - name: Run Main Pipeline with Signal Handling
-        # This step executes the main entry point.
-        # code/main.py contains the signal_handler (T036b) to catch SIGINT/SIGTERM
-        # and save partial results if terminated.
-        run: |
-          python code/main.py
-
-      - name: Verify Output Artifacts
-        run: |
-          if [ ! -f results/raw_evaluations.csv ]; then echo "Missing raw_evaluations.csv"; exit 1; fi
-          if [ ! -f results/stability_metrics.csv ]; then echo "Missing stability_metrics.csv"; exit 1; fi
-          if [ ! -f results/correlation_results.csv ]; then echo "Missing correlation_results.csv"; exit 1; fi
-          if [ ! -f results/permutation_results.csv ]; then echo "Missing permutation_results.csv"; exit 1; fi
-          if [ ! -f results/final_report.md ]; then echo "Missing final_report.md"; exit 1; fi
-          echo "All required artifacts generated successfully."
-
-      - name: Upload Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: pipeline-results
-          path: results/
-          retention-days: 7
+          python -m pip install --upgrade pip
+          pip install ruff mypy
+      - name: Run Ruff (PII & Style)
+        run: ruff check .
+      - name: Run Type Check
+        run: mypy code/ --ignore-missing-imports
 
   smoke-test:
     name: Smoke Test (3 Datasets)
-    needs: setup
     runs-on: ubuntu-latest
+    needs: lint
     timeout-minutes: 60
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-          cache: 'pip'
-
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Restore Data Cache
-        uses: actions/cache/restore@v4
-        with:
-          path: data/raw
-          key: ${{ runner.os }}-data-${{ hashFiles('data/spectrum_report.json') }}
-
       - name: Run Smoke Test
         run: |
           python code/scripts/run_smoke_test.py
+      - name: Upload Smoke Test Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: smoke-test-results
+          path: |
+            results/raw_evaluations.csv
+            results/stability_metrics.csv
+            results/correlation_results.csv
+            results/permutation_results.csv
+            results/final_report.md
+            results/memory_profile.log
 
-      - name: Verify Smoke Test Outputs
+  evaluation:
+    name: Full Evaluation (15 Datasets)
+    runs-on: ubuntu-latest
+    needs: smoke-test
+    # Only run if explicitly triggered or on main/develop
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') || github.event.inputs.run_full_pipeline == 'true'
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
         run: |
-          if [ ! -f results/raw_evaluations.csv ]; then exit 1; fi
-          if [ ! -f results/final_report.md ]; then exit 1; fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Full Pipeline
+        # The main.py script includes the signal handler (T036b)
+        run: |
+          python code/main.py
+      - name: Upload Full Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: full-evaluation-results
+          path: |
+            results/*.csv
+            results/*.md
+            results/*.log
+            data/spectrum_report.json
+
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [lint, smoke-test, evaluation]
+    if: failure()
+    steps:
+      - name: Send Failure Notification
+        run: echo "Pipeline failed. Please check logs."

@@ -1,0 +1,24 @@
+# Standalone ruff configuration file (fallback if pyproject.toml not detected by some runners)
+# This file mirrors the settings in pyproject.toml for compatibility
+
+line-length = 88
+target-version = "py39"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[isort]
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true
+combine-as-imports = true

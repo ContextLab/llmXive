@@ -6,341 +6,339 @@ import argparse
 import signal
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, Any, List, Tuple, Optional
 
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
-from xgboost import XGBRegressor
-from sklearn.model_selection import cross_val_score, StratifiedKFold, GridSearchCV
-from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.model_selection import cross_val_score, GridSearchCV, StratifiedKFold
+from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
 from code.src.utils.logging import get_modeling_logger
+from code.src.utils.constants import get_atomic_weight
 
-# Logger instance
-logger = get_modeling_logger("train")
+logger = get_modeling_logger()
 
-# Global flag for timeout
-timeout_reached = False
+# --- Timeout Handling for Constitution Principle VII ---
+
+class TimeoutError(Exception):
+    """Custom exception raised when the runtime watchdog is triggered."""
+    pass
 
 def timeout_handler(signum, frame):
-    """Signal handler for timeout."""
-    global timeout_reached
-    timeout_reached = True
-    logger.error("Runtime watchdog triggered: Maximum allowed time exceeded. Aborting.")
-    raise TimeoutError("Constitution Principle VII: Maximum allowed time exceeded.")
+    """Signal handler to raise TimeoutError when the watchdog fires."""
+    raise TimeoutError("Runtime limit exceeded. Aborting hyperparameter search.")
 
 class TimeoutGuard:
-    """Context manager to enforce a runtime limit using signal module."""
+    """
+    Context manager to enforce a maximum runtime for a block of code.
+    Uses the 'signal' module (Unix only) to enforce a hard timeout.
+    """
     def __init__(self, seconds: int):
         self.seconds = seconds
         self.old_handler = None
 
     def __enter__(self):
-        if os.name == 'nt':
-            # Windows doesn't support signal.SIGALRM in the same way
-            # Use a threading timer fallback or just warn if strict enforcement is needed
-            # For this implementation, we assume Unix-like environment for strict enforcement
-            # or rely on the fact that GridSearchCV might not support signal interruption directly
-            # but we can wrap the call.
-            logger.warning("Running on Windows. Signal-based timeout may not work as expected.")
-            self.old_handler = None
-            return
-        
+        # Only works on Unix systems where signal.SIGALRM is available
+        if not hasattr(signal, 'SIGALRM'):
+            logger.warning("Signal-based timeout not supported on this OS (likely Windows). Skipping timeout enforcement.")
+            return self
+
         self.old_handler = signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(self.seconds)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if os.name != 'nt':
+        if self.old_handler is not None:
             signal.alarm(0)  # Cancel the alarm
-            if self.old_handler:
-                signal.signal(signal.SIGALRM, self.old_handler)
-        if exc_type is TimeoutError:
-            return True  # Suppress the exception if we want to handle it gracefully, 
-                         # but here we want it to propagate or be caught by main
+            signal.signal(signal.SIGALRM, self.old_handler)
         return False
 
-def load_clean_data(csv_path: str) -> pd.DataFrame:
-    """Load the clean dataset from CSV."""
-    path = Path(csv_path)
+# --- Data Loading and Preparation ---
+
+def load_clean_data(data_path: str) -> pd.DataFrame:
+    """
+    Loads the cleaned dataset produced by T014.
+    """
+    path = Path(data_path)
     if not path.exists():
-        raise FileNotFoundError(f"Clean data file not found: {csv_path}")
+        logger.error(f"Clean data file not found: {data_path}")
+        sys.exit(1)
     
-    logger.info(f"Loading clean data from {csv_path}")
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} rows from {data_path}")
     
-    # Validate required columns
+    # Basic validation
     required_cols = ['Tc', 'impurities_atomic_pct', 'temp_K', 'pressure_GPa']
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns in clean data: {missing}")
-    
-    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+        logger.error(f"Missing required columns: {missing}")
+        sys.exit(1)
+        
     return df
 
-def prepare_features_targets(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
-    """Prepare features (X) and targets (y) for modeling."""
-    # Features: impurity columns (excluding Tc, temp_K, pressure_GPa if they are targets/controls)
-    # Assuming impurity columns are those with 'impurity' in name or specific columns
-    # For this implementation, we assume all numeric columns except Tc and controls are features
-    # or specifically defined impurity columns.
+def prepare_features_targets(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Prepares features (X) and target (y) for modeling.
+    Handles the impurity columns dynamically.
+    Returns: X, y, impurity_stratifier (for stratified split)
+    """
+    # Target
+    y = df['Tc'].values
     
-    # Let's assume the impurity columns are named like 'impurity_X_atomic_pct' or similar
-    # We need to identify them dynamically or by convention.
-    # Based on T014, we have 'impurities_atomic_pct'. Let's assume this is a string or we need to parse it.
-    # However, for modeling, we likely have one-hot encoded or separate columns for each impurity.
-    # Let's assume the dataframe has columns like 'Al_atomic_pct', 'Si_atomic_pct', etc.
-    # Or if 'impurities_atomic_pct' is a string, we need to parse it.
-    # Given the context of T014 merging, it's likely we have specific impurity columns.
-    # Let's assume we select all numeric columns that are not Tc, temp_K, pressure_GPa.
-    
-    exclude_cols = ['Tc', 'temp_K', 'pressure_GPa', 'impurities_atomic_pct'] # 'impurities_atomic_pct' might be a summary string
-    feature_cols = [col for col in df.columns if col not in exclude_cols and df[col].dtype in ['int64', 'float64']]
+    # Features: All numeric columns except known non-features
+    exclude_cols = {'Tc', 'impurities_atomic_pct', 'temp_K', 'pressure_GPa', 'material_id', 'formula'}
+    feature_cols = [c for c in df.columns if c not in exclude_cols and df[c].dtype in ['float64', 'int64', 'float32', 'int32']]
     
     if not feature_cols:
-        # Fallback: try to find columns with 'impurity'
-        feature_cols = [col for col in df.columns if 'impurity' in col.lower() and col not in exclude_cols]
+        logger.error("No feature columns found in dataset.")
+        sys.exit(1)
+        
+    X = df[feature_cols].values
     
-    if not feature_cols:
-        raise ValueError("No feature columns found for modeling.")
+    # Stratifier: Create bins based on the primary impurity type or a dominant impurity
+    # Since impurities_atomic_pct might be a string or complex object, we assume it's aggregated or we use a proxy.
+    # For this implementation, we assume the dataset has a 'dominant_impurity' or similar, 
+    # or we bin the 'impurities_atomic_pct' if it's numeric. 
+    # If 'impurities_atomic_pct' is a string representation of a dict, we need to extract.
+    # Given the spec, let's assume we have a 'dominant_impurity' column or we create one.
+    # If not present, we create a stratifier based on the count of impurities.
     
-    logger.info(f"Using {len(feature_cols)} feature columns: {feature_cols[:5]}...")
-    
-    X = df[feature_cols].fillna(0) # Handle missing values if any
-    y = df['Tc']
-    
-    # Stratification target: impurity type (if available) or binned Tc
-    # T016 mentions stratified split by impurity type. Let's assume a column 'impurity_type' exists
-    # or we derive it from the most significant impurity column.
-    if 'impurity_type' in df.columns:
-        stratify = df['impurity_type']
+    if 'dominant_impurity' in df.columns:
+        stratifier = df['dominant_impurity'].values
+    elif 'impurity_count' in df.columns:
+        # Bin counts into 3-5 groups for stratification
+        bins = np.histogram_bin_edges(df['impurity_count'], bins=5)
+        stratifier = np.digitize(df['impurity_count'].values, bins)
     else:
-        # Fallback: bin Tc for stratification if no explicit type
-        logger.warning("No 'impurity_type' column found. Using binned Tc for stratification.")
-        stratify = pd.qcut(y, q=5, labels=False, duplicates='drop')
-    
-    return X, y, stratify
+        # Fallback: use Tc bins for stratification if impurity info is missing
+        logger.warning("No explicit impurity stratifier found. Using Tc bins.")
+        stratifier = pd.qcut(y, q=5, labels=False, duplicates='drop')
+        
+    return X, y, stratifier
 
-def train_model(X: pd.DataFrame, y: pd.Series, stratify: pd.Series, timeout_seconds: int = 1800) -> Dict[str, Any]:
+# --- Model Training Logic ---
+
+def train_model(X: np.ndarray, y: np.ndarray, stratifier: np.ndarray, 
+                timeout_seconds: int = 120, max_grid_combinations: int = 50) -> Dict[str, Any]:
     """
-    Train multiple models with hyperparameter tuning under a time limit.
+    Trains multiple models with hyperparameter tuning, enforcing:
+    1. Hard cap on grid combinations.
+    2. Runtime watchdog (Constitution Principle VII).
     
-    Models: Linear Regression, Ridge Regression, Random Forest, XGBoost.
-    Returns a dictionary containing the best model, metrics, and all results.
+    Returns a dictionary containing the best model, metrics, and training history.
     """
-    results = {
-        'models': {},
-        'best_model': None,
-        'best_score': -np.inf,
-        'best_params': None,
-        'best_model_name': None
-    }
+    logger.info("Starting model training with timeout and grid constraints.")
     
-    # Define models and their parameter grids
-    # Hard cap on grid combinations as per task requirement
-    max_combinations = 50
-    
-    models_config = {
-        'LinearRegression': {
-            'model': LinearRegression(),
-            'params': {} # No hyperparameters to tune
+    # Define models and their grids
+    models_config = [
+        {
+            "name": "LinearRegression",
+            "estimator": LinearRegression(),
+            "param_grid": {}, # No tuning needed for baseline
+            "tune": False
         },
-        'Ridge': {
-            'model': Ridge(),
-            'params': {
-                'alpha': [0.1, 1.0, 10.0]
-            }
+        {
+            "name": "Ridge",
+            "estimator": Ridge(),
+            "param_grid": {"alpha": [0.1, 1.0, 10.0]},
+            "tune": True
         },
-        'RandomForest': {
-            'model': RandomForestRegressor(random_state=42),
-            'params': {
-                'n_estimators': [50, 100],
-                'max_depth': [None, 5, 10],
-                'min_samples_split': [2, 5]
-            }
+        {
+            "name": "RandomForest",
+            "estimator": RandomForestRegressor(random_state=42),
+            "param_grid": {
+                "n_estimators": [50, 100],
+                "max_depth": [None, 5, 10]
+            },
+            "tune": True
         },
-        'XGBoost': {
-            'model': XGBRegressor(random_state=42, verbosity=0),
-            'params': {
-                'n_estimators': [50, 100],
-                'max_depth': [3, 5],
-                'learning_rate': [0.1, 0.01]
-            }
+        {
+            "name": "XGBoost",
+            # Note: XGBoost might need to be installed. If not, we fallback or skip.
+            "estimator": None, 
+            "param_grid": {
+                "n_estimators": [50, 100],
+                "max_depth": [3, 5]
+            },
+            "tune": True,
+            "import_name": "xgboost"
         }
-    }
-    
-    # Validate total combinations
-    total_combos = 1 # Linear
-    for name, config in models_config.items():
-        if name == 'LinearRegression':
-            continue
-        combos = 1
-        for v in config['params'].values():
-            combos *= len(v)
-        total_combos += combos
-    
-    if total_combos > max_combinations:
-        logger.warning(f"Total grid combinations ({total_combos}) exceed hard cap ({max_combinations}). Truncating grids.")
-        # Simple truncation strategy: reduce the largest grid
-        for name, config in models_config.items():
-            if name == 'LinearRegression':
-                continue
-            for param in config['params']:
-                if len(config['params'][param]) > 3:
-                    config['params'][param] = config['params'][param][:3]
-        
-        # Recalculate
-        total_combos = 1
-        for name, config in models_config.items():
-            if name == 'LinearRegression':
-                continue
-            combos = 1
-            for v in config['params'].values():
-                combos *= len(v)
-            total_combos += combos
-        
-        logger.info(f"Adjusted total grid combinations: {total_combos}")
+    ]
 
-    # Cross-validation strategy
+    results = []
+    best_model = None
+    best_r2 = -np.inf
+    best_model_name = ""
+
+    # Split data once for final evaluation
+    # Using a simple hold-out or CV approach. Here we use CV for selection.
     cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
-    
-    logger.info(f"Starting model training with timeout of {timeout_seconds} seconds...")
-    
-    try:
-        with TimeoutGuard(timeout_seconds):
-            for name, config in models_config.items():
-                if timeout_reached:
-                    break
+
+    for config in models_config:
+        name = config["name"]
+        estimator = config["estimator"]
+        param_grid = config["param_grid"]
+        tune = config["tune"]
+        
+        # Handle XGBoost import dynamically
+        if config.get("import_name"):
+            try:
+                import xgboost
+                if name == "XGBoost":
+                    estimator = xgboost.XGBRegressor(random_state=42)
+            except ImportError:
+                logger.warning(f"{name} not installed. Skipping.")
+                continue
+
+        if estimator is None:
+            continue
+
+        logger.info(f"Training {name}...")
+        
+        model_pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('regressor', estimator)
+        ])
+
+        if tune and param_grid:
+            # Calculate number of combinations
+            n_combinations = 1
+            for k, v in param_grid.items():
+                n_combinations *= len(v)
+            
+            if n_combinations > max_grid_combinations:
+                logger.warning(f"{name} grid size ({n_combinations}) exceeds limit ({max_grid_combinations}). Truncating grid.")
+                # Truncate logic: keep first max_combinations by iterating
+                # Simple approach: reduce 'n_estimators' or 'max_depth' lists
+                keys = list(param_grid.keys())
+                # Heuristic: reduce the first dimension until under limit
+                while n_combinations > max_grid_combinations and len(keys) > 0:
+                    key = keys.pop(0)
+                    # Keep only the first half of values for this param
+                    mid = max(1, len(param_grid[key]) // 2)
+                    param_grid[key] = param_grid[key][:mid]
+                    n_combinations = 1
+                    for k, v in param_grid.items():
+                        n_combinations *= len(v)
                 
-                logger.info(f"Training {name}...")
-                
-                model = config['model']
-                params = config['params']
-                
-                # Wrap in pipeline for scaling if needed (especially for Ridge/Linear)
-                # For tree models, scaling is less critical but we can include it
-                pipeline = Pipeline([
-                    ('scaler', StandardScaler()),
-                    ('estimator', model)
-                ])
-                
-                # Adjust param names for pipeline
-                if params:
-                    tuned_params = {f'estimator__{k}': v for k, v in params.items()}
-                else:
-                    tuned_params = {}
-                
-                # GridSearchCV
-                # If no params, just fit once (no grid search needed)
-                if not tuned_params:
-                    # Just fit the model
-                    pipeline.fit(X, y)
-                    score = cross_val_score(pipeline, X, y, cv=cv, scoring='r2').mean()
-                    results['models'][name] = {
-                        'model': pipeline,
-                        'cv_r2': score,
-                        'params': {},
-                        'mae': 0.0 # Placeholder, calculate later
-                    }
-                else:
+                logger.info(f"Reduced {name} grid to {n_combinations} combinations.")
+
+            # Enforce timeout for GridSearch
+            try:
+                with TimeoutGuard(timeout_seconds):
                     grid_search = GridSearchCV(
-                        pipeline, 
-                        tuned_params, 
+                        model_pipeline, 
+                        param_grid, 
                         cv=cv, 
-                        scoring='r2',
+                        scoring='r2', 
                         n_jobs=-1,
                         refit=True
                     )
-                    grid_search.fit(X, y)
+                    grid_search.fit(X, y, regressor__sample_weight=None) # Sample weight not needed for now
                     
-                    best_estimator = grid_search.best_estimator_
                     best_params = grid_search.best_params_
-                    best_score = grid_search.best_score_
+                    best_cv_score = grid_search.best_score_
+                    best_estimator = grid_search.best_estimator_
                     
-                    # Calculate MAE on full data for reporting (or use cross_val_predict)
-                    # For simplicity, we use the cross_val_score mean for R2 and calculate MAE similarly
-                    # or just store the best score.
-                    # Let's compute MAE via cross_val_score as well
-                    mae_scores = cross_val_score(best_estimator, X, y, cv=cv, scoring='neg_mean_absolute_error')
-                    mean_mae = -mae_scores.mean()
-                    
-                    results['models'][name] = {
-                        'model': best_estimator,
-                        'cv_r2': best_score,
-                        'mae': mean_mae,
-                        'params': best_params
-                    }
-                
-                logger.info(f"{name} completed. Best R²: {results['models'][name]['cv_r2']:.4f}")
-                
-                # Update best model
-                if best_score > results['best_score']:
-                    results['best_score'] = best_score
-                    results['best_model'] = best_estimator
-                    results['best_model_name'] = name
-                    results['best_params'] = best_params
+                    logger.info(f"{name} Best Params: {best_params}, CV R²: {best_cv_score:.4f}")
+            except TimeoutError:
+                logger.error(f"{name} timed out during grid search. Aborting this model.")
+                continue
+        else:
+            # No tuning, just fit
+            try:
+                with TimeoutGuard(timeout_seconds):
+                    model_pipeline.fit(X, y)
+                    best_estimator = model_pipeline
+                    # Estimate score
+                    scores = cross_val_score(model_pipeline, X, y, cv=cv, scoring='r2')
+                    best_cv_score = np.mean(scores)
+                    best_params = {}
+            except TimeoutError:
+                logger.error(f"{name} timed out during fitting. Aborting.")
+                continue
 
-    except TimeoutError:
-        logger.error("Training aborted due to timeout.")
-        # Save partial results if any
-        if not results['best_model']:
-            raise RuntimeError("No models completed training before timeout.")
+        # Store result
+        results.append({
+            "model_name": name,
+            "best_params": best_params,
+            "cv_r2": float(best_cv_score),
+            "model": best_estimator
+        })
+
+        if best_cv_score > best_r2:
+            best_r2 = best_cv_score
+            best_model = best_estimator
+            best_model_name = name
+
+    if best_model is None:
+        logger.error("No models could be trained successfully.")
+        sys.exit(1)
+
+    logger.info(f"Best model selected: {best_model_name} with R² = {best_r2:.4f}")
     
-    return results
+    return {
+        "best_model": best_model,
+        "best_model_name": best_model_name,
+        "best_r2": best_r2,
+        "all_results": results
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="Train and select best model for MgB2 superconductivity prediction.")
+    parser = argparse.ArgumentParser(description="Train and select the best model for MgB2 Tc prediction.")
     parser.add_argument("--input", type=str, default="data/processed/mgb2_clean.csv", help="Path to clean data CSV")
     parser.add_argument("--output-model", type=str, default="data/processed/best_model.pkl", help="Path to save best model")
     parser.add_argument("--output-metrics", type=str, default="data/processed/model_metrics.json", help="Path to save metrics JSON")
-    parser.add_argument("--timeout", type=int, default=1800, help="Timeout in seconds (default: 1800)")
-    args = parser.parse_args()
+    parser.add_argument("--timeout", type=int, default=120, help="Timeout in seconds for grid search steps")
+    parser.add_argument("--max-combinations", type=int, default=50, help="Max grid search combinations per model")
     
-    try:
-        # Load data
-        df = load_clean_data(args.input)
-        
-        # Prepare features
-        X, y, stratify = prepare_features_targets(df)
-        
-        # Train models
-        results = train_model(X, y, stratify, timeout_seconds=args.timeout)
-        
-        # Save best model
-        output_model_path = Path(args.output_model)
-        output_model_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_model_path, 'wb') as f:
-            pickle.dump(results['best_model'], f)
-        logger.info(f"Best model ({results['best_model_name']}) saved to {output_model_path}")
-        
-        # Save metrics
-        # Format metrics for JSON
-        metrics_output = {
-            'best_model_name': results['best_model_name'],
-            'best_r2': results['best_score'],
-            'models': {}
-        }
-        
-        for name, data in results['models'].items():
-            metrics_output['models'][name] = {
-                'cv_r2': data['cv_r2'],
-                'mae': data.get('mae', 0.0),
-                'params': data['params']
+    args = parser.parse_args()
+
+    # Load Data
+    df = load_clean_data(args.input)
+    X, y, stratifier = prepare_features_targets(df)
+
+    # Train Models
+    training_result = train_model(
+        X, y, stratifier, 
+        timeout_seconds=args.timeout,
+        max_grid_combinations=args.max_combinations
+    )
+
+    # Save Best Model
+    output_model_path = Path(args.output_model)
+    output_model_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_model_path, 'wb') as f:
+        pickle.dump(training_result["best_model"], f)
+    logger.info(f"Saved best model to {output_model_path}")
+
+    # Save Metrics Report
+    metrics_report = {
+        "best_model_name": training_result["best_model_name"],
+        "best_cv_r2": training_result["best_r2"],
+        "models_trained": [
+            {
+                "name": r["model_name"],
+                "cv_r2": r["cv_r2"],
+                "best_params": r["best_params"]
             }
-        
-        output_metrics_path = Path(args.output_metrics)
-        with open(output_metrics_path, 'w') as f:
-            json.dump(metrics_output, f, indent=2)
-        logger.info(f"Metrics saved to {output_metrics_path}")
-        
-        print(f"Training complete. Best model: {results['best_model_name']} (R²: {results['best_score']:.4f})")
-        
-    except Exception as e:
-        logger.error(f"Training failed: {e}")
-        sys.exit(1)
+            for r in training_result["all_results"]
+        ]
+    }
+
+    output_metrics_path = Path(args.output_metrics)
+    output_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_metrics_path, 'w') as f:
+        json.dump(metrics_report, f, indent=2)
+    logger.info(f"Saved metrics report to {output_metrics_path}")
+
+    print(f"Training complete. Best model: {training_result['best_model_name']} (R²: {training_result['best_r2']:.4f})")
 
 if __name__ == "__main__":
     main()

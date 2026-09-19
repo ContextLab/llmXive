@@ -84,7 +84,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (verify columns: Tc, impurities_atomic_pct, temp_K, pressure_GPa)
-- [ ] T010 [P] [US1] Unit test for unit conversion logic in `tests/unit/test_preprocessing.py` (weight% to atomic% edge cases)
+- [X] T010 [P] [US1] Unit test for unit conversion logic in `tests/unit/test_preprocessing.py` (weight% to atomic% edge cases)
 - [X] T011 [P] [US1] Unit test for data filtering in `tests/unit/test_ingestion.py` (verify rows with missing Tc/impurities are dropped)
 
 ### Implementation for User Story 1
@@ -113,7 +113,7 @@
 
 - [ ] T018 [P] [US2] Implement `src/modeling/train.py` to load `mgb2_clean.csv`, perform stratified split (impurity type), and train **Linear Regression**, **Ridge Regression** (Plan-authorized for collinearity), Random Forest, and XGBoost.
 - [ ] T019 [US2] Implement hyperparameter tuning logic in `src/modeling/train.py` with a hard cap on the number of grid combinations. **Implementation**: Use `signal` module or `threading.Timer` to enforce a configurable runtime watchdog as per Constitution Principle VII. Abort with clear error if exceeded.
-- [ ] T020 [US2] Implement model selection logic in `src/modeling/train.py` to choose best model by cross-validated R² and save `best_model.pkl`
+- [ ] T020 [US2] Implement model selection logic in `src/modeling/train.py` to choose best model by cross-validated R² and save `best_model.pkl` <!-- FAILED: unspecified -->
 - [ ] T021 [US2] Generate `data/processed/model_metrics.json` containing R², MAE, and hyperparameters for all trained variants
 - [ ] T022 [US2] Implement `tests/integration/test_modeling.py` to verify `best_model.pkl` loads and predicts on held-out data
 
@@ -129,8 +129,8 @@
 
 ### Tests for User Story 3
 
-- [ ] T023 [P] [US3] Unit test for ANOVA calculation in `tests/unit/test_significance.py` (verify p-value output for linear model)
-- [ ] T024 [P] [US3] Unit test for Permutation Test in `tests/unit/test_significance.py` (verify null distribution generation for tree models)
+- [X] T023 [P] [US3] Unit test for ANOVA calculation in `tests/unit/test_significance.py` (verify p-value output for linear model)
+- [X] T024 [P] [US3] Unit test for Permutation Test in `tests/unit/test_significance.py` (verify null distribution generation for tree models)
 
 ### Implementation for User Story 3
 

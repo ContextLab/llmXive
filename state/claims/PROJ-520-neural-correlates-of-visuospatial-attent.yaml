@@ -1413,3 +1413,319 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T01:09:16Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if epoch count is less than 50 per condition
+  claim_id: c_dc564f81
+  context: 'Implement sample size validation: HALT immediately if <50 epochs/condition
+    (raise SampleSizeError); do NOT continue processing if threshold is not met'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_epoch_count_is_less_than_50_per_condition
+  kind: magnitude
+  raw_text: The pipeline must halt immediately if the epoch count is less than 50
+    per condition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:19:56Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses at least 1000 iterations
+  claim_id: c_7116fd66
+  context: "Implement permutation testing with \u22651000 (Wikipedia: Microarray analysis\
+    \ techniques, https://en.wikipedia.org/wiki/Microarray_analysis_techniques) iterations\
+    \ to establish statistical significance"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Blocks are batches of microarrays; for example for eight samples split
+        into two groups (control and affected) there are 4!=24 permutations for each
+        block and the total number of permutations is (24)(24)= 576. A minimum of
+        1000 permutations are recommended;
+      source_id: Microarray analysis techniques
+      url: https://en.wikipedia.org/wiki/Microarray_analysis_techniques
+      value: '1000'
+    filled: true
+  kind: magnitude
+  raw_text: Permutation testing must use at least 1000 iterations to establish statistical
+    significance.
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:20:08Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Statistical significance determined with alpha level of 0.05
+  claim_id: c_ace90084
+  context: "Report classifier p-value and null hypothesis rejection decision (\u03B1\
+    \ = 0.05) in projects/PROJ-520-neural-correlates-of-visuospatial-attent/results.json"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The 0.05 significance level is merely a convention. The 0.05 significance
+        level (alpha level) is often used as the boundary between a statistically
+        significant and a statistically non-significant p-value. However, this does
+        not imply that there is generally a scientific reason to consider results
+        on opposite sides of any threshold as qualitatively different.
+      source_id: Misuse of p-values
+      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Statistical significance is determined with an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:20:19Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Feature validation fails if less than 80% of epochs have non-NaN values
+  claim_id: c_01ba1938
+  context: "Implement feature validation: verify \u2265A majority of epochs have non-NaN\
+    \ values. for all target electrodes; Write validation report to projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_validation.json;\
+    \ Raise FeatureValidationFailed if <80%"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_validation_fails_if_less_than_80%25_of_epochs_have_non
+  kind: magnitude
+  raw_text: Feature validation fails if less than 80% of epochs have non-NaN values
+    for target electrodes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:21:07Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Landmark timestamps must be temporally distinct by more than 1.0s
+  claim_id: c_34a836a6
+  context: Verify the validity of landmark timestamps (ensure they are temporally
+    distinct > 1.0s apart and fall within [0, recording_duration])
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Landmark_timestamps_must_be_temporally_distinct_by_more_than
+  kind: magnitude
+  raw_text: Landmark timestamps used as fallback must be temporally distinct by more
+    than 1.0s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:21:29Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: CI runner time limit for full pipeline is 21600 seconds
+  claim_id: c_dd41c19c
+  context: 'Validate that the total execution time for the full pipeline (with streaming)
+    on a default CI runner (limited CPU and memory resources) remains within the acceptable
+    time limit: Run code/main.py with --timing and assert output < 21600s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner time limit for the full pipeline is 21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:22:11Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Dataset loader forbids synthetic data generation on download failure
+  claim_id: c_392602f2
+  context: Refactor dataset loader in projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py
+    to REMOVE any try/except blocks or fallback logic that generates synthetic/mock
+    data on download failure; implement a strict raise RuntimeError on fetch failure
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loader_forbids_synthetic_data_generation_on_download
+  kind: entity_fact
+  raw_text: The dataset loader must fail loudly and strictly forbid synthetic data
+    generation on download failure.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:22:28Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Pipeline processes first 200 epochs if streaming fails to fit in memory
+  claim_id: c_18d351ca
+  context: If streaming fails to fit in memory, process the first N subjects where
+    N is the maximum number that fits in available RAM, or the first 200 epochs from
+    the real dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If streaming fails to fit in memory, the pipeline processes the first
+    200 epochs from the real dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:22:54Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: CI configuration sets RAM limit of 7GB and CPU limit of 2
+  claim_id: c_b198370f
+  context: 'Setup environment configuration management for CI limits: Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/ci_config.py
+    with RAM_LIMIT=7GB, CPU_LIMIT=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI configuration sets a RAM limit of 7GB and a CPU limit of 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:23:27Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Configuration file sets random seed to 42
+  claim_id: c_f12fc7f4
+  context: 'Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py
+    with content: import os; CONFIG = {''SEED'': 42, ''DATA_PATH'': ''data/raw'',
+    ''OUTPUT_PATH'': ''data/processed'', ''BENCHMARK_ACCURACY'': ''target_threshold''}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration file sets the random seed to 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:23:52Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Requirements.txt pins mne to version 1.7.0
+  claim_id: c_b65bbfa7
+  context: 'Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt
+    with pinned dependencies: mne==1.7.0, numpy==1.26.0, scipy==1.12.0, scikit-learn==1.4.0,
+    pandas==2.2.0.'
+  evidence:
+    asserted: '1.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins mne to version 1.7.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:23:52Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Requirements.txt pins numpy to version 1.26.0
+  claim_id: c_aedb438d
+  context: 'Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt
+    with pinned dependencies: mne==1.7.0, numpy==1.26.0, scipy==1.12.0, scikit-learn==1.4.0,
+    pandas==2.2.0.'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins numpy to version 1.26.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:23:52Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Requirements.txt pins scipy to version 1.12.0
+  claim_id: c_f7f0ff48
+  context: 'Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt
+    with pinned dependencies: mne==1.7.0, numpy==1.26.0, scipy==1.12.0, scikit-learn==1.4.0,
+    pandas==2.2.0.'
+  evidence:
+    asserted: '1.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins scipy to version 1.12.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:23:52Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Requirements.txt pins scikit-learn to version 1.4.0
+  claim_id: c_ee582ddc
+  context: 'Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt
+    with pinned dependencies: mne==1.7.0, numpy==1.26.0, scipy==1.12.0, scikit-learn==1.4.0,
+    pandas==2.2.0.'
+  evidence:
+    asserted: '1.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins scikit-learn to version 1.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:23:53Z'
+- artifact_path: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/tasks.md
+  attempts: 1
+  canonical: Requirements.txt pins pandas to version 2.2.0
+  claim_id: c_c2985fc9
+  context: 'Create projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt
+    with pinned dependencies: mne==1.7.0, numpy==1.26.0, scipy==1.12.0, scikit-learn==1.4.0,
+    pandas==2.2.0.'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pandas to version 2.2.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:23:53Z'

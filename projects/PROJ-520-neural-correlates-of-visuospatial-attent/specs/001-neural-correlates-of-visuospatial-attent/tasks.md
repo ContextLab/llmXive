@@ -149,7 +149,7 @@ Method: Morlet wavelet time-frequency decomposition consuming `projects/PROJ-520
  *Note: Depends on T018.*
 - [X] T020 [US2] Extract mean alpha power for parietal electrodes from the normalized output of T019 in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py` (addresses FR-006)
  *Note: Depends on T019.*
-- [ ] T021 [US2] Extract mean beta power (typical beta range) for frontal electrodes from the normalized output of T019 in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py` (addresses FR-006)
+- [X] T021 [US2] Extract mean beta power (typical beta range) for frontal electrodes from the normalized output of T019 in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py` (addresses FR-006)
  *Note: Depends on T019.*
 - [X] T022 [US2] Implement feature validation: verify ≥A majority of epochs have non-NaN values. for all target electrodes; Write validation report to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_validation.json`; Raise `FeatureValidationFailed` if <80% (addresses FR-006)
  *Note: Depends on T020, T021.*
@@ -183,7 +183,7 @@ Method: Morlet wavelet time-frequency decomposition consuming `projects/PROJ-520
  *Note: Depends on T028a and T024a/T024b (for target file).*
 - [X] T030 [US3] Implement sensitivity analysis: sweep classification threshold and report FP/FN variation; Save sensitivity curve data to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/sensitivity_analysis.csv`; Verify file exists and contains columns `threshold`, `fp_rate`, `fn_rate` (addresses FR-010)
 - [X] T031 [US3] Generate comprehensive `projects/PROJ-520-neural-correlates-of-visuospatial-attent/results.json` containing `participant_count`, `epoch_count`, `classification_results`, `statistical_corrections`, and `sensitivity_analysis`; Verify `results.json` exists and contains all listed keys with non-null values (addresses SC-002, SC-006)
-- [ ] T032 [US3] Validate success criteria: **Logic: Compare accuracy against the benchmark defined in Constitution Principle VII (read from code/config.py constant BENCHMARK_ACCURACY); if >= 65% set status=pass, else status=fail; only set deferred if benchmark is explicitly undefined in config.** Compare metrics against SC-001 through SC-006 thresholds; Verify `results.json` contains `benchmark_status` key (addresses SC-002, SC-005)
+- [X] T032 [US3] Validate success criteria: **Logic: Compare accuracy against the benchmark defined in Constitution Principle VII (read from code/config.py constant BENCHMARK_ACCURACY); if >= 65% set status=pass, else status=fail; only set deferred if benchmark is explicitly undefined in config.** Compare metrics against SC-001 through SC-006 thresholds; Verify `results.json` contains `benchmark_status` key (addresses SC-002, SC-005)
  *Note: Implements the mandatory [deferred] pass/fail check.*
 
 **Checkpoint**: All user stories should now be independently functional

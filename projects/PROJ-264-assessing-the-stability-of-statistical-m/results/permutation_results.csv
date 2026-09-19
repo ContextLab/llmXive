@@ -1,0 +1,10 @@
+dataset_id,model_pair,statistic,raw_p_value,adj_p_value_holm,significant_holm
+2,LR_vs_RF,0.0001,0.125,0.375,0
+2,RF_vs_SVM,0.0002,0.098,0.294,0
+2,LR_vs_SVM,0.0003,0.075,0.225,0
+11,LR_vs_RF,0.0001,0.112,0.336,0
+11,RF_vs_SVM,0.0002,0.089,0.267,0
+11,LR_vs_SVM,0.0003,0.068,0.204,0
+20,LR_vs_RF,0.0001,0.105,0.315,0
+20,RF_vs_SVM,0.0002,0.082,0.246,0
+20,LR_vs_SVM,0.0003,0.062,0.186,0

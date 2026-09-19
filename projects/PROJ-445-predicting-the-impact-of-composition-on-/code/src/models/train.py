@@ -2,196 +2,320 @@ import os
 import sys
 import json
 import logging
+import pickle
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Union
 
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import cross_val_score, GridSearchCV, KFold
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import cross_val_score, KFold
 from sklearn.metrics import mean_squared_error, r2_score
-import joblib
+from scipy.stats import zscore
 
-# Add project root to path if running as script
-if __name__ == "__main__" and __package__ is None:
-    project_root = Path(__file__).resolve().parents[3]
-    sys.path.insert(0, str(project_root))
-
-from src.utils.manifest_manager import load_manifest, save_manifest, register_artifact, compute_file_hash
-from src.data.split import load_processed_data
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+# Project imports based on API surface
+from src.utils.logger import (
+    initialize_logging,
+    log_error_to_manifest,
+    log_variable_availability_success,
 )
-logger = logging.getLogger(__name__)
+from src.utils.manifest_manager import (
+    load_manifest,
+    save_manifest,
+    compute_file_hash,
+    register_artifact,
+)
+from src.utils.cpu_compliance import enforce_cpu_mode, validate_cpu_only_model
 
-def load_split_data(data_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Load train/test splits from processed data artifacts.
-    Returns: X_train, X_test, y_train, y_test
-    """
-    logger.info(f"Loading split data from {data_dir}")
-    
-    # Load processed data
-    train_df = pd.read_csv(data_dir / "train.csv")
-    test_df = pd.read_csv(data_dir / "test.csv")
-    
-    # Separate features and target
-    # Assuming 'Tg' is the target column
-    feature_cols = [col for col in train_df.columns if col != 'Tg']
-    
-    X_train = train_df[feature_cols]
-    y_train = train_df['Tg']
-    X_test = test_df[feature_cols]
-    y_test = test_df['Tg']
-    
-    logger.info(f"Loaded {len(X_train)} training samples, {len(X_test)} test samples")
-    logger.info(f"Features: {feature_cols}")
-    
-    return X_train, X_test, y_train, y_test
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DATA_DIR = PROJECT_ROOT / "data"
+STATE_DIR = PROJECT_ROOT / "state"
+ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+MODELS_DIR = DATA_DIR / "models"
+RESIDUALIZED_DIR = DATA_DIR / "residualized"
 
-def train_linear_baseline(X_train: pd.DataFrame, X_test: pd.DataFrame, 
-                          y_train: pd.Series, y_test: pd.Series) -> LinearRegression:
-    """
-    Train a Linear Regression baseline model.
-    """
-    logger.info("Training Linear Regression baseline...")
-    
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    
-    # Evaluate
-    y_pred_train = model.predict(X_train)
-    y_pred_test = model.predict(X_test)
-    
-    train_rmse = np.sqrt(mean_squared_error(y_train, y_pred_train))
-    test_rmse = np.sqrt(mean_squared_error(y_test, y_pred_test))
-    train_r2 = r2_score(y_train, y_pred_train)
-    test_r2 = r2_score(y_test, y_pred_test)
-    
-    logger.info(f"Linear Baseline - Train RMSE: {train_rmse:.2f}, Test RMSE: {test_rmse:.2f}")
-    logger.info(f"Linear Baseline - Train R²: {train_r2:.3f}, Test R²: {test_r2:.3f}")
-    
-    return model
+def ensure_directories():
+    """Ensure all required directories exist."""
+    dirs = [DATA_DIR, STATE_DIR, ARTIFACTS_DIR, MODELS_DIR, RESIDUALIZED_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return True
 
-def train_gradient_boosting(X_train: pd.DataFrame, X_test: pd.DataFrame,
-                            y_train: pd.Series, y_test: pd.Series,
-                            cv_folds: int = 5) -> GradientBoostingRegressor:
+def load_split_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Train a Gradient Boosting Regressor with hyperparameter tuning.
-    Search space is constrained to meet 6-hour CI limit.
+    Load the processed and split data.
+    Expects data to be in data/processed/train.csv and data/processed/test.csv
+    or data/split/train.csv and data/split/test.csv depending on T014 output.
+    Based on T013/T014 flow, processed data is in data/processed/ and split indices
+    are applied there, but often the split is saved as separate files in data/processed/
+    or a split subfolder. Let's assume standard T014 output: data/processed/train.csv, test.csv
     """
-    logger.info("Training Gradient Boosting Regressor with hyperparameter tuning...")
-    
-    # Constrained hyperparameter search space to ensure completion within 6 hours
-    # on free-tier CI (2 CPU, ~7GB RAM)
-    param_grid = {
-        'n_estimators': [50, 100],  # Limited to ensure speed
-        'max_depth': [3, 5],        # Shallow trees for speed
-        'learning_rate': [0.05, 0.1],
-        'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2],
-        'subsample': [0.8, 1.0]
-    }
-    
-    # Use KFold with fixed random state for reproducibility
-    cv = KFold(n_splits=cv_folds, shuffle=True, random_state=42)
-    
-    # Grid search with constrained resources
-    # Using n_jobs=1 to avoid memory issues on free-tier CI
-    grid_search = GridSearchCV(
-        estimator=GradientBoostingRegressor(random_state=42),
-        param_grid=param_grid,
-        cv=cv,
-        scoring='neg_root_mean_squared_error',
-        n_jobs=1,  # CPU-only, no parallelism to save memory
-        verbose=1,
-        refit=True
-    )
-    
-    logger.info("Starting GridSearchCV...")
-    grid_search.fit(X_train, y_train)
-    
-    logger.info(f"Best parameters: {grid_search.best_params_}")
-    logger.info(f"Best CV score: {-grid_search.best_score_:.2f}")
-    
-    best_model = grid_search.best_estimator_
-    
-    # Evaluate on test set
-    y_pred_test = best_model.predict(X_test)
-    test_rmse = np.sqrt(mean_squared_error(y_test, y_pred_test))
-    test_r2 = r2_score(y_test, y_pred_test)
-    
-    logger.info(f"Gradient Boosting - Test RMSE: {test_rmse:.2f}")
-    logger.info(f"Gradient Boosting - Test R²: {test_r2:.3f}")
-    
-    return best_model, grid_search.best_params_
+    train_path = DATA_DIR / "processed" / "train.csv"
+    test_path = DATA_DIR / "processed" / "test.csv"
 
-def save_models(models: Dict[str, any], output_dir: Path, manifest_path: Path) -> None:
-    """
-    Save trained models and update manifest with checksums.
-    """
-    logger.info(f"Saving models to {output_dir}")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    for name, model in models.items():
-        model_path = output_dir / f"{name}.joblib"
-        joblib.dump(model, model_path)
-        logger.info(f"Saved {name} to {model_path}")
-        
-        # Register in manifest
-        register_artifact(
-            manifest_path=manifest_path,
-            artifact_path=str(model_path),
-            artifact_type="model",
-            description=f"Trained {name} model"
+    # Fallback if split logic saved to a 'split' folder instead
+    if not train_path.exists():
+        train_path = DATA_DIR / "split" / "train.csv"
+        test_path = DATA_DIR / "split" / "test.csv"
+
+    if not train_path.exists():
+        raise FileNotFoundError(
+            f"Split data not found. Expected at {DATA_DIR / 'processed' / 'train.csv'} or {DATA_DIR / 'split' / 'train.csv'}. "
+            "Ensure T014 (split.py) has been executed successfully."
         )
 
-def main():
+    logging.info(f"Loading training data from {train_path}")
+    logging.info(f"Loading test data from {test_path}")
+
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
+
+    return train_df, test_df
+
+def load_collinearity_status() -> Dict:
     """
-    Main entry point for model training with hyperparameter tuning.
+    Load collinearity status from T022/T023 output.
+    Expects state/collinearity_status.json or state/performance_metrics.json
+    containing VIF results and mitigation strategy.
     """
-    # Paths
-    project_root = Path(__file__).resolve().parents[3]
-    data_dir = project_root / "data" / "processed"
-    model_dir = project_root / "data" / "models"
-    manifest_path = project_root / "state" / "manifest.json"
-    
-    # Ensure directories exist
-    model_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
-    X_train, X_test, y_train, y_test = load_split_data(data_dir)
-    
-    # Train models
-    linear_model = train_linear_baseline(X_train, X_test, y_train, y_test)
-    gb_model, best_params = train_gradient_boosting(X_train, X_test, y_train, y_test)
-    
-    # Save models
-    models = {
-        "linear_baseline": linear_model,
-        "gradient_boosting": gb_model
+    status_path = STATE_DIR / "collinearity_status.json"
+    metrics_path = STATE_DIR / "performance_metrics.json"
+
+    status = {"vif_detected": False, "residualized": False, "features": []}
+
+    if status_path.exists():
+        with open(status_path, "r") as f:
+            status = json.load(f)
+    elif metrics_path.exists():
+        with open(metrics_path, "r") as f:
+            metrics = json.load(f)
+            if "collinearity_mitigation" in metrics:
+                status["vif_detected"] = True
+                status["residualized"] = metrics.get("collinearity_mitigation") == "residualization"
+                status["features"] = metrics.get("residualized_features", [])
+
+    return status
+
+def generate_residualized_features(train_df: pd.DataFrame, test_df: pd.DataFrame, features: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Load residualized features generated by T023 if they exist.
+    If T023 created data/residualized/train_residualized.csv, use that.
+    Otherwise, if T023 only updated the manifest, we assume the main data files
+    were overwritten or we need to load from the residualized folder.
+    Based on T023 description: "save to data/residualized/".
+    """
+    res_train_path = RESIDUALIZED_DIR / "train_residualized.csv"
+    res_test_path = RESIDUALIZED_DIR / "test_residualized.csv"
+
+    if res_train_path.exists() and res_test_path.exists():
+        logging.info("Loading residualized features from data/residualized/")
+        train_res = pd.read_csv(res_train_path)
+        test_res = pd.read_csv(res_test_path)
+        return train_res, test_res
+    else:
+        logging.warning("Residualized files not found in data/residualized/. Falling back to original features.")
+        return train_df, test_df
+
+def train_linear_baseline(X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> Tuple[LinearRegression, Dict]:
+    """
+    Train Linear Regression baseline model.
+    Returns model and metrics (rmse, r2).
+    """
+    logging.info("Training Linear Regression baseline...")
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+
+    metrics = {
+        "model_type": "LinearRegression",
+        "rmse": float(rmse),
+        "r2": float(r2),
+        "coefficients": model.coef_.tolist(),
+        "intercept": float(model.intercept_)
     }
-    save_models(models, model_dir, manifest_path)
+
+    return model, metrics
+
+def train_gradient_boosting(X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> Tuple[GradientBoostingRegressor, Dict]:
+    """
+    Train Gradient Boosting Regressor with 5-fold CV for hyperparameter tuning (basic).
+    Uses default float64, no quantization.
+    """
+    logging.info("Training Gradient Boosting Regressor...")
     
-    # Save best parameters to artifact
-    params_path = model_dir / "best_params.json"
-    with open(params_path, 'w') as f:
-        json.dump(best_params, f, indent=2)
+    # Define a constrained search space to meet 6-hour CI limit
+    # We will perform a simple grid search or use defaults if time is critical.
+    # Given the constraint, we'll use a robust default configuration that is known to perform well
+    # and is CPU-friendly, rather than a full exhaustive grid search which might time out.
+    # T020 is for hyperparameter tuning, so T019 implements the core training with 5-fold CV validation logic.
     
-    register_artifact(
-        manifest_path=manifest_path,
-        artifact_path=str(params_path),
-        artifact_type="config",
-        description="Best hyperparameters from GridSearchCV"
+    # Basic Grid Search for T019 to satisfy "5-fold CV" requirement in description
+    # We'll try a small set of params to ensure it runs fast.
+    param_grid = {
+        'n_estimators': [50, 100],
+        'max_depth': [3, 4],
+        'learning_rate': [0.05, 0.1]
+    }
+    
+    best_score = -np.inf
+    best_params = None
+    
+    # Simple manual grid search with CV
+    # In a real scenario, use GridSearchCV, but manual loop gives more control over logging
+    for n_est in param_grid['n_estimators']:
+        for depth in param_grid['max_depth']:
+            for lr in param_grid['learning_rate']:
+                gbr = GradientBoostingRegressor(
+                    n_estimators=n_est,
+                    max_depth=depth,
+                    learning_rate=lr,
+                    random_state=42,
+                    n_jobs=1 # CPU compliance
+                )
+                kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+                scores = cross_val_score(gbr, X_train, y_train, cv=kfold, scoring='r2')
+                mean_score = scores.mean()
+                
+                if mean_score > best_score:
+                    best_score = mean_score
+                    best_params = {
+                        'n_estimators': n_est,
+                        'max_depth': depth,
+                        'learning_rate': lr
+                    }
+    
+    logging.info(f"Best CV params: {best_params} with CV R2: {best_score:.4f}")
+    
+    # Train final model with best params
+    final_model = GradientBoostingRegressor(
+        **best_params,
+        random_state=42,
+        n_jobs=1
     )
+    final_model.fit(X_train, y_train)
+
+    y_pred = final_model.predict(X_test)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+
+    metrics = {
+        "model_type": "GradientBoostingRegressor",
+        "rmse": float(rmse),
+        "r2": float(r2),
+        "cv_r2_mean": float(best_score),
+        "best_params": best_params
+    }
+
+    return final_model, metrics
+
+def save_models(linear_model: LinearRegression, gb_model: GradientBoostingRegressor, metrics: Dict):
+    """Save trained models and metrics to artifacts."""
+    model_save_path = ARTIFACTS_DIR / "trained_models.pkl"
+    metrics_save_path = ARTIFACTS_DIR / "model_performance.json"
+
+    with open(model_save_path, "wb") as f:
+        pickle.dump({"linear": linear_model, "gb": gb_model}, f)
     
-    logger.info("Training complete. Models saved.")
+    with open(metrics_save_path, "w") as f:
+        json.dump(metrics, f, indent=2)
     
-    return linear_model, gb_model, best_params
+    logging.info(f"Models saved to {model_save_path}")
+    logging.info(f"Metrics saved to {metrics_save_path}")
+
+    # Update manifest
+    manifest = load_manifest()
+    register_artifact(manifest, str(model_save_path.relative_to(PROJECT_ROOT)), compute_file_hash(model_save_path))
+    register_artifact(manifest, str(metrics_save_path.relative_to(PROJECT_ROOT)), compute_file_hash(metrics_save_path))
+    save_manifest(manifest)
+
+def main():
+    """Main execution entry point for T019."""
+    setup_cpu_environment = enforce_cpu_mode()
+    if not setup_cpu_environment:
+        logging.error("Failed to enforce CPU mode.")
+        sys.exit(1)
+
+    initialize_logging("train.log")
+    logging.info("Starting T019: Model Training (Linear & Gradient Boosting)")
+
+    try:
+        # 1. Ensure directories
+        ensure_directories()
+
+        # 2. Load data
+        train_df, test_df = load_split_data()
+
+        # 3. Check collinearity status (from T022/T023)
+        collinearity_status = load_collinearity_status()
+
+        # 4. Handle features
+        # Determine feature columns. Assuming 'Tg' is the target.
+        target_col = 'Tg'
+        if target_col not in train_df.columns:
+            # Try 'Tg_C' or similar if 'Tg' is missing, but strictly follow spec
+            raise ValueError(f"Target column '{target_col}' not found in data.")
+        
+        # Identify feature columns (all numeric except target and composition string)
+        feature_cols = [col for col in train_df.columns if col != target_col and train_df[col].dtype in ['float64', 'int64', 'float32', 'int32']]
+        
+        if not feature_cols:
+            raise ValueError("No feature columns found in dataset.")
+
+        logging.info(f"Using features: {feature_cols}")
+
+        X_train = train_df[feature_cols].values.astype(np.float64)
+        y_train = train_df[target_col].values.astype(np.float64)
+        X_test = test_df[feature_cols].values.astype(np.float64)
+        y_test = test_df[target_col].values.astype(np.float64)
+
+        # 5. Apply residualization if T022/T023 detected collinearity
+        if collinearity_status.get("vif_detected") and collinearity_status.get("residualized"):
+            logging.info("Collinearity detected. Loading residualized features.")
+            # T023 should have saved residualized data. 
+            # If the main train/test files were overwritten by T023, we use them.
+            # If T023 saved to a separate folder, we load from there.
+            # Based on T023 description: "save to data/residualized/"
+            # We check if we need to swap X_train/X_test with residualized versions.
+            # For simplicity in this task, we assume T023 updated the main data files OR we load specific residualized files.
+            # Let's try to load from residualized folder if it exists, else assume main files are residualized.
+            if (RESIDUALIZED_DIR / "train_residualized.csv").exists():
+                res_train_df, res_test_df = load_split_data() # This loads original, we need to load residualized
+                # Re-load specifically from residualized path
+                res_train_df = pd.read_csv(RESIDUALIZED_DIR / "train_residualized.csv")
+                res_test_df = pd.read_csv(RESIDUALIZED_DIR / "test_residualized.csv")
+                X_train = res_train_df[feature_cols].values.astype(np.float64)
+                X_test = res_test_df[feature_cols].values.astype(np.float64)
+                logging.info("Switched to residualized features.")
+            else:
+                logging.warning("Residualized files not found in data/residualized/. Proceeding with original features.")
+        else:
+            logging.info("No collinearity mitigation required or residualized files not found.")
+
+        # 6. Train Models
+        linear_model, linear_metrics = train_linear_baseline(X_train, y_train, X_test, y_test)
+        gb_model, gb_metrics = train_gradient_boosting(X_train, y_train, X_test, y_test)
+
+        # 7. Aggregate Metrics
+        final_metrics = {
+            "linear": linear_metrics,
+            "gradient_boosting": gb_metrics
+        }
+
+        # 8. Save Artifacts
+        save_models(linear_model, gb_model, final_metrics)
+
+        log_variable_availability_success("Model training completed successfully with real data.")
+        logging.info("T019 completed successfully.")
+
+    except Exception as e:
+        logging.error(f"Error during T019 execution: {str(e)}")
+        log_error_to_manifest("T019", str(e))
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

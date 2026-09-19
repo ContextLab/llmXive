@@ -10,9 +10,11 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T006** — declared artifact(s) missing/empty/invalid: src/utils/data_provenance.py, tests/unit/test_provenance.py
 - **T007** — declared artifact(s) missing/empty/invalid: tests/unit/test_constants.py, tests/unit/test_logging.py
 - **T008** — declared artifact(s) missing/empty/invalid: src/utils/config.py
-- **T010** — The required file `tests/unit/test_preprocessing.py` does not exist, so no unit test for the weight% to atomic% conversion edge cases is present. The task’s deliverable is missing entirely.
 - **T012** — declared artifact(s) missing/empty/invalid: src/ingestion/download_materials_project.py
 - **T013** — The required `src/ingestion/download_supercon.py` file does not exist, and the provided `tests/unit/test_ingestion.py` only contains data‑filtering tests unrelated to downloading the SuperCon dataset or checking for a failure when >50 % of entries lack impurity columns. No unit test verifies that the script exits with code 1 under the specified condition.
 - **T014** — declared artifact(s) missing/empty/invalid: src/ingestion/preprocess.py
 - **T018** — declared artifact(s) missing/empty/invalid: src/modeling/train.py
 - **T019** — declared artifact(s) missing/empty/invalid: src/modeling/train.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/modeling/train.py
+- **T021** — declared artifact(s) missing/empty/invalid: data/processed/model_metrics.json
+- **T022** — declared artifact(s) missing/empty/invalid: tests/integration/test_modeling.py

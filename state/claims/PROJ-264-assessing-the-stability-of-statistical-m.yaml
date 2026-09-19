@@ -1773,3 +1773,71 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T18:17:25Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/results/final_report.md
+  attempts: 1
+  canonical: Analysis conducted on 3 datasets with sample sizes <1k, 1k-10k, and >10k
+  claim_id: c_b82c4cc8
+  context: This report presents the results of a comprehensive analysis assessing
+    the stability of statistical model performance across different data subsets.
+    The analysis was conducted on 3 datasets representing a spectrum of sample sizes
+    (<1k, 1k-10k, >10k).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis was conducted on 3 datasets representing a spectrum of sample
+    sizes (<1k, 1k-10k, >10k).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:30:10Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/results/final_report.md
+  attempts: 1
+  canonical: Logistic Regression Mean CV Accuracy 0.009 and Mean CV F1 0.009
+  claim_id: c_4e9664cb
+  context: Random Forest demonstrates the lowest coefficient of variation, indicating
+    the most stable performance across the tested datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Logistic Regression had a Mean CV (Accuracy) of 0.009 and Mean CV (F1)
+    of 0.009.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:30:36Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/results/final_report.md
+  attempts: 1
+  canonical: Random Forest Mean CV Accuracy 0.008 and Mean CV F1 0.008
+  claim_id: c_35d1029c
+  context: Random Forest demonstrates the lowest coefficient of variation, indicating
+    the most stable performance across the tested datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest had a Mean CV (Accuracy) of 0.008 and Mean CV (F1) of 0.008.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:30:56Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/results/final_report.md
+  attempts: 1
+  canonical: SVC Mean CV Accuracy 0.010 and Mean CV F1 0.010
+  claim_id: c_a72e142d
+  context: Random Forest demonstrates the lowest coefficient of variation, indicating
+    the most stable performance across the tested datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SVC had a Mean CV (Accuracy) of 0.010 and Mean CV (F1) of 0.010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:31:15Z'

@@ -1,37 +1,57 @@
-# Spec Contradiction: FR-006 vs Constitution Principle VII
+# Contradiction Report: FR-006 vs Constitution Principle VII
 
-## Issue Summary
-A critical contradiction exists between the functional requirement **FR-006** and **Constitution Principle VII** regarding pipeline execution time limits.
+## Summary
+A critical contradiction exists between the Feature Requirement FR-006 and Constitution Principle VII regarding runtime execution limits.
 
 ## Conflicting Requirements
 
-### FR-006 (Functional Requirement)
-- **Description**: The pipeline must be capable of running a full end-to-end execution (ingestion, modeling, validation, visualization) within **6 hours**.
-- **Context**: This requirement was likely derived from standard CI/CD timeout thresholds for large-scale data processing tasks.
+### FR-006: Runtime Execution Requirement
+- **Specification**: The system must support long-running ingestion and modeling pipelines that may take up to **6 hours** to complete.
+- **Context**: Complex data ingestion from multiple sources (Materials Project API, SuperCon dataset) and extensive model training with hyperparameter tuning may require extended execution time.
 
-### Constitution Principle VII
-- **Description**: All automated scientific pipelines must complete within **30 minutes** to ensure rapid iteration and prevent resource hogging on shared infrastructure.
-- **Context**: This principle enforces strict efficiency and rapid feedback loops for the research team.
+### Constitution Principle VII: Execution Time Limit
+- **Specification**: All automated research pipeline tasks must complete within **30 minutes** to ensure rapid iteration and prevent resource exhaustion.
+- **Context**: This principle is designed to maintain CI/CD efficiency and prevent runaway processes in automated environments.
 
-## Conflict Analysis
-- **Discrepancy**: 6 hours (360 minutes) vs 30 minutes.
-- **Magnitude**: A 12x difference in allowed runtime.
-- **Impact**: Implementing FR-006 as written would violate Constitution Principle VII, causing the pipeline to fail compliance checks and potentially exhaust shared compute resources.
+## Impact Analysis
 
-## Resolution & Enforcement Strategy
-To resolve this contradiction, the following enforcement strategy is adopted for all subsequent tasks:
+1. **Immediate Conflict**: FR-006 explicitly requires 6-hour capability, while Principle VII enforces a 30-minute hard limit.
+2. **Execution Risk**: Tasks attempting to run for >30 minutes will be terminated by the Constitution enforcement mechanism.
+3. **Design Implication**: The pipeline architecture must be redesigned to operate within 30-minute windows, potentially through:
+ - Chunked processing with state persistence
+ - Asynchronous job queuing with external orchestration
+ - Simplified model configurations that meet the time budget
 
-1. **Hard Runtime Limit**: The **30-minute limit** (Constitution Principle VII) takes precedence. All scripts must be designed to complete within this window.
-2. **Watchdog Implementation**: All long-running processes (specifically model training in `src/modeling/train.py` and data ingestion in `src/ingestion/`) must implement a runtime watchdog.
- - If a process exceeds 25 minutes (leaving a 5-minute safety margin for I/O and reporting), it must abort gracefully with a clear error code.
-3. **Optimization Requirement**: Any task that cannot meet the 30-minute limit must be re-scoped, optimized, or split into smaller parallelizable sub-tasks.
-4. **Documentation**: All subsequent tasks must explicitly note the 30-minute constraint in their implementation notes.
+## Resolution Strategy
 
-## Action Items for Implementation
-- [x] Document this contradiction (This file).
-- [ ] Enforce 30-minute timeout in `src/modeling/train.py` (Task T019).
-- [ ] Enforce 30-minute timeout in `src/ingestion/download_materials_project.py` and `download_supercon.py`.
-- [ ] Update `quickstart.md` to reflect the 30-minute execution target.
+**Decision**: Constitution Principle VII takes precedence as a foundational constraint. FR-006 must be revised to align with the 30-minute limit.
 
-## Status
-**RESOLVED**: Constitution Principle VII is the governing constraint. FR-006 is effectively superseded by the stricter 30-minute limit.
+### Enforcement Mechanism
+All subsequent tasks MUST implement a configurable runtime watchdog:
+- Default limit: 30 minutes (1800 seconds)
+- Configurable via environment variable `PIPELINE_TIMEOUT_SECONDS`
+- Hard abort with clear error message if exceeded
+- Graceful checkpointing before timeout (if applicable)
+
+### Implementation Requirements
+1. Add timeout guards to all long-running scripts (ingestion, modeling, validation)
+2. Implement state persistence for resumable operations
+3. Document timeout behavior in all user-facing documentation
+4. Update FR-006 to reflect the 30-minute constraint
+
+## Action Items
+
+- [ ] Update FR-006 to specify 30-minute maximum runtime
+- [ ] Implement `TimeoutGuard` in all pipeline components
+- [ ] Add checkpointing mechanism for long-running tasks
+- [ ] Verify all existing scripts respect the timeout limit
+- [ ] Update `quickstart.md` with timeout expectations
+
+## Verification
+
+This contradiction is now documented. All future implementation tasks must:
+1. Respect the 30-minute execution limit
+2. Include explicit timeout handling
+3. Fail loudly if the limit is approached or exceeded
+
+**Status**: Documented | **Priority**: CRITICAL | **Next Action**: Implement timeout enforcement in all pipeline scripts

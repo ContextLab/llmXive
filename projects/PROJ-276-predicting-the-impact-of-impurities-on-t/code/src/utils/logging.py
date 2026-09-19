@@ -1,128 +1,116 @@
 """
-Standardized logging configuration for the MgB2 Impurity Impact pipeline.
+Standardized logging configuration for the MgB2 Impurity Impact project.
 
-Provides pre-configured loggers for ingestion, modeling, and visualization
-stages, ensuring consistent formatting, levels, and output destinations.
+Provides specialized loggers for ingestion, modeling, and visualization modules
+with consistent formatting and output handlers.
 """
-
 import logging
 import sys
 from pathlib import Path
 from typing import Optional
 
-# Base configuration to ensure consistent formatting across all loggers
-_BASE_FORMATTER = logging.Formatter(
-    fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
 
-# Cache for created loggers to prevent re-configuration
-_LOGGERS: dict[str, logging.Logger] = {}
+# Default log level
+DEFAULT_LEVEL = logging.INFO
 
+# Log format structure
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-def _get_console_handler() -> logging.StreamHandler:
-    """Create a console handler with standard formatting."""
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(_BASE_FORMATTER)
-    handler.setLevel(logging.INFO)
-    return handler
+# Cache for loggers to ensure single instance per name
+_logger_cache: dict = {}
 
 
-def _get_file_handler(log_file: Path) -> logging.FileHandler:
-    """Create a file handler for a specific log file."""
-    # Ensure the directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    handler = logging.FileHandler(log_file)
-    handler.setFormatter(_BASE_FORMATTER)
-    handler.setLevel(logging.DEBUG)
+def _get_formatter() -> logging.Formatter:
+    """Create and return the standard log formatter."""
+    return logging.Formatter(fmt=LOG_FORMAT, datefmt=DATE_FORMAT)
+
+
+def _create_handler(stream: sys.stdout = sys.stderr) -> logging.StreamHandler:
+    """Create a standard stream handler with the project formatter."""
+    handler = logging.StreamHandler(stream)
+    handler.setFormatter(_get_formatter())
     return handler
 
 
 def get_logger(
     name: str,
-    level: int = logging.INFO,
+    level: int = DEFAULT_LEVEL,
     log_file: Optional[Path] = None
 ) -> logging.Logger:
     """
-    Retrieve or create a named logger with standard configuration.
+    Get or create a logger with the specified name.
 
     Args:
-        name: The name of the logger (e.g., 'mgb2.ingestion').
-        level: The logging level (default: INFO).
-        log_file: Optional path to a log file. If provided, logs are also
-                  written to disk.
+        name: The name of the logger (usually __name__ or module path).
+        level: The logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Optional path to write logs to a file.
 
     Returns:
         A configured logging.Logger instance.
     """
-    if name in _LOGGERS:
-        return _LOGGERS[name]
+    if name in _logger_cache:
+        return _logger_cache[name]
 
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    logger.propagate = False  # Prevent duplicate logs from root handlers
 
-    # Add console handler
-    console_handler = _get_console_handler()
-    console_handler.setLevel(level)
-    logger.addHandler(console_handler)
+    # Avoid adding duplicate handlers if called multiple times
+    if not logger.handlers:
+        # Add console handler
+        console_handler = _create_handler()
+        logger.addHandler(console_handler)
 
-    # Add file handler if requested
-    if log_file:
-        file_handler = _get_file_handler(log_file)
-        file_handler.setLevel(logging.DEBUG)  # File gets all debug info
-        logger.addHandler(file_handler)
+        # Add file handler if specified
+        if log_file:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(_get_formatter())
+            logger.addHandler(file_handler)
 
-    _LOGGERS[name] = logger
+    # Prevent propagation to root logger to avoid duplicate console output
+    logger.propagate = False
+
+    _logger_cache[name] = logger
     return logger
 
 
-def get_ingestion_logger(log_file: Optional[Path] = None) -> logging.Logger:
+def get_ingestion_logger() -> logging.Logger:
     """
-    Get the standardized logger for the data ingestion stage.
-
-    Args:
-        log_file: Optional path to write ingestion logs.
+    Get the logger specifically for data ingestion tasks.
 
     Returns:
-        Configured logger for ingestion tasks.
+        A logger named 'ingestion' with INFO level.
     """
-    return get_logger(
-        name="mgb2.ingestion",
-        level=logging.INFO,
-        log_file=log_file
-    )
+    return get_logger("ingestion", level=DEFAULT_LEVEL)
 
 
-def get_modeling_logger(log_file: Optional[Path] = None) -> logging.Logger:
+def get_modeling_logger() -> logging.Logger:
     """
-    Get the standardized logger for the model training stage.
-
-    Args:
-        log_file: Optional path to write modeling logs.
+    Get the logger specifically for model training and evaluation tasks.
 
     Returns:
-        Configured logger for modeling tasks.
+        A logger named 'modeling' with INFO level.
     """
-    return get_logger(
-        name="mgb2.modeling",
-        level=logging.INFO,
-        log_file=log_file
-    )
+    return get_logger("modeling", level=DEFAULT_LEVEL)
 
 
-def get_visualization_logger(log_file: Optional[Path] = None) -> logging.Logger:
+def get_visualization_logger() -> logging.Logger:
     """
-    Get the standardized logger for the visualization stage.
-
-    Args:
-        log_file: Optional path to write visualization logs.
+    Get the logger specifically for visualization and plotting tasks.
 
     Returns:
-        Configured logger for visualization tasks.
+        A logger named 'visualization' with INFO level.
     """
-    return get_logger(
-        name="mgb2.visualization",
-        level=logging.INFO,
-        log_file=log_file
-    )
+    return get_logger("visualization", level=DEFAULT_LEVEL)
+
+
+# Convenience function for testing or quick access
+def get_project_logger() -> logging.Logger:
+    """
+    Get the main project logger.
+
+    Returns:
+        A logger named 'mgb2_project' with INFO level.
+    """
+    return get_logger("mgb2_project", level=DEFAULT_LEVEL)

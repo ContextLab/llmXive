@@ -1,31 +1,16 @@
-"""
-Data provenance utilities for tracking data lineage and metadata.
-"""
 from typing import Dict
-
 
 def generate_provenance_header(source: str, timestamp: str, version: str) -> Dict[str, str]:
     """
-    Generate a provenance header dictionary for data files.
-
-    This function creates a standardized metadata dictionary to track the origin,
-    generation time, and version of processed data files.
+    Generate a provenance header dictionary for dataset tracking.
 
     Args:
-        source: The name or identifier of the data source (e.g., 'Materials Project', 'SuperCon')
-        timestamp: ISO format timestamp of when the data was processed
-        version: Version string of the processing pipeline
+        source (str): The identifier of the data source (e.g., 'MaterialsProject', 'SuperCon').
+        timestamp (str): The ISO format timestamp of data generation or retrieval.
+        version (str): The version string of the dataset or processing pipeline.
 
     Returns:
-        A dictionary containing exactly three keys: 'source', 'timestamp', and 'version'
-
-    Example:
-        >>> header = generate_provenance_header("Materials Project", "2023-10-27T10:00:00", "1.0.0")
-        >>> assert header == {
-        ...     "source": "Materials Project",
-        ...     "timestamp": "2023-10-27T10:00:00",
-        ...     "version": "1.0.0"
-        ... }
+        Dict[str, str]: A dictionary containing exactly the keys: 'source', 'timestamp', 'version'.
     """
     return {
         "source": source,

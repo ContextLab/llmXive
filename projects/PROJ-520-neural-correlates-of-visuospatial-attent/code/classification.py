@@ -7,217 +7,201 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.inspection import permutation_importance
+from scipy import stats
 
-from config import load_config, get_paths
-from models import ClassifierResult, PermutationResult
-from logging_config import get_pipeline_logger, log_stage_start, log_stage_end
+from config import get_config, get_paths, set_random_seed
+from logger import get_logger
 
-logger = get_pipeline_logger(__name__)
+# Ensure logger is available
+logger = get_logger(__name__)
 
-def load_features(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_features(path: str) -> Tuple[np.ndarray, np.ndarray, pd.DataFrame]:
     """
-    Load features and labels from the CSV produced by T023.
-    Expects a CSV with a 'label' column and numeric feature columns.
+    Load the feature matrix and labels from the CSV file produced by feature extraction.
+    Returns:
+        X: Feature matrix (n_samples, n_features)
+        y: Labels (n_samples,)
+        df: The original dataframe for metadata access
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Feature matrix not found at {file_path}. "
-                                "Ensure T023 (feature extraction) has run successfully.")
-
     df = pd.read_csv(path)
-
-    if 'label' not in df.columns:
-        raise ValueError("Feature matrix must contain a 'label' column.")
-
-    X = df.drop(columns=['label']).values
-    y = df['label'].values
-
-    # Basic sanity check
-    if X.shape[0] != y.shape[0]:
-        raise ValueError("Number of samples in X and y do not match.")
-
-    logger.info(f"Loaded features: {X.shape[0]} epochs, {X.shape[1]} features.")
-    return X, y
-
-def train_and_validate(X: np.ndarray, y: np.ndarray, n_folds: int = 5, seed: int = 42) -> ClassifierResult:
-    """
-    Train an LDA classifier with 5-fold cross-validation.
-    Returns a ClassifierResult object with accuracy, precision, recall metrics.
-    """
-    log_stage_start(logger, "Training LDA classifier with 5-fold CV")
-
-    # Setup CV
-    cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-    # Pipeline: Scaler -> LDA
-    pipe = Pipeline([
-        ('scaler', StandardScaler()),
-        ('lda', LDA())
-    ])
-
-    # Compute metrics
-    scores_acc = cross_val_score(pipe, X, y, cv=cv, scoring='accuracy')
     
-    # For precision/recall, we need to predict on each fold to aggregate
-    # Using a loop to get per-fold predictions for robust metric calculation
-    precisions = []
-    recalls = []
+    # Identify feature columns (exclude 'epoch_id' and 'condition')
+    feature_cols = [c for c in df.columns if c not in ['epoch_id', 'condition']]
     
-    for train_idx, test_idx in cv.split(X, y):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        
-        pipe.fit(X_train, y_train)
-        y_pred = pipe.predict(X_test)
-        
-        precisions.append(precision_score(y_test, y_pred, zero_division=0))
-        recalls.append(recall_score(y_test, y_pred, zero_division=0))
-
-    # Calculate means and stds
-    acc_mean = float(np.mean(scores_acc))
-    acc_std = float(np.std(scores_acc))
-    prec_mean = float(np.mean(precisions))
-    prec_std = float(np.std(precisions))
-    rec_mean = float(np.mean(recalls))
-    rec_std = float(np.std(recalls))
-
-    result = ClassifierResult(
-        accuracy_mean=acc_mean,
-        accuracy_std=acc_std,
-        precision_mean=prec_mean,
-        precision_std=prec_std,
-        recall_mean=rec_mean,
-        recall_std=rec_std,
-        n_folds=n_folds,
-        model_type="LDA"
-    )
-
-    log_stage_end(logger, "LDA classification complete", {
-        "accuracy": f"{acc_mean:.4f} (+/- {acc_std:.4f})",
-        "precision": f"{prec_mean:.4f} (+/- {prec_std:.4f})",
-        "recall": f"{rec_mean:.4f} (+/- {rec_std:.4f})"
-    })
-
-    return result
-
-def permutation_test(X: np.ndarray, y: np.ndarray, n_permutations: int = 1000, 
-                     cv: int = 5, seed: int = 42) -> PermutationResult:
-    """
-    Perform permutation testing to establish statistical significance.
-    Returns a PermutationResult with p-value and null hypothesis decision.
-    """
-    log_stage_start(logger, f"Running permutation test ({n_permutations} iterations)")
-
-    pipe = Pipeline([
-        ('scaler', StandardScaler()),
-        ('lda', LDA())
-    ])
-
-    # Actual score
-    actual_scores = cross_val_score(pipe, X, y, cv=cv, scoring='accuracy')
-    actual_mean = np.mean(actual_scores)
-
-    # Permutation scores
-    perm_scores = np.zeros(n_permutations)
-    for i in range(n_permutations):
-        # Shuffle labels
-        y_perm = np.random.permutation(y)
-        scores = cross_val_score(pipe, X, y_perm, cv=cv, scoring='accuracy')
-        perm_scores[i] = np.mean(scores)
-        
-        if (i + 1) % 100 == 0:
-            logger.debug(f"Permutation {i+1}/{n_permutations} complete")
-
-    # Calculate p-value (one-sided: prob of perm_score >= actual_score)
-    # If actual is better than chance, we look at tail
-    p_value = (np.sum(perm_scores >= actual_mean) + 1) / (n_permutations + 1)
+    X = df[feature_cols].values
+    y = (df['condition'] == 'active').astype(int).values # 1 for active, 0 for passive
     
-    # Null hypothesis rejection
-    alpha = 0.05
-    reject_null = p_value < alpha
+    return X, y, df
 
-    result = PermutationResult(
-        actual_accuracy=actual_mean,
-        permuted_scores=perm_scores,
-        p_value=p_value,
-        alpha=alpha,
-        reject_null=reject_null,
-        n_permutations=n_permutations
-    )
-
-    log_stage_end(logger, "Permutation test complete", {
-        "p_value": p_value,
-        "reject_null": reject_null,
-        "actual_accuracy": actual_mean
-    })
-
-    return result
-
-def run_classification(config: Dict[str, Any]) -> Dict[str, Any]:
+def train_and_validate(X: np.ndarray, y: np.ndarray, n_splits: int = 5) -> Dict[str, Any]:
     """
-    Main orchestration function for the classification task.
-    Loads data, trains model, runs permutation test, and saves results.
+    Train LDA with k-fold cross-validation.
     """
-    paths = get_paths(config)
-    features_path = paths['processed_features']
-    output_results_path = paths['results_json']
-
-    if not Path(features_path).exists():
-        raise FileNotFoundError(f"Input features file missing: {features_path}. "
-                                "Run T023 (feature extraction) first.")
-
-    X, y = load_features(features_path)
+    set_random_seed()
+    cfg = get_config()
     
-    # Train and validate
-    cv_result = train_and_validate(X, y, n_folds=5, seed=config.get('seed', 42))
+    lda = LinearDiscriminantAnalysis()
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=cfg['SEED'])
     
-    # Permutation test
-    perm_result = permutation_test(X, y, n_permutations=1000, cv=5, seed=config.get('seed', 42))
-
-    # Compile results
-    results = {
-        "classification_results": {
-            "accuracy_mean": cv_result.accuracy_mean,
-            "accuracy_std": cv_result.accuracy_std,
-            "precision_mean": cv_result.precision_mean,
-            "precision_std": cv_result.precision_std,
-            "recall_mean": cv_result.recall_mean,
-            "recall_std": cv_result.recall_std,
-            "n_folds": cv_result.n_folds,
-            "model_type": cv_result.model_type
-        },
-        "statistical_significance": {
-            "permutation_p_value": perm_result.p_value,
-            "actual_accuracy": perm_result.actual_accuracy,
-            "n_permutations": perm_result.n_permutations,
-            "alpha": perm_result.alpha,
-            "reject_null_hypothesis": perm_result.reject_null
-        }
+    # Cross-validation scores
+    cv_scores = cross_val_score(lda, X, y, cv=cv, scoring='accuracy')
+    
+    # Train on full data to get predictions for precision/recall (approximate)
+    lda_full = LinearDiscriminantAnalysis()
+    lda_full.fit(X, y)
+    y_pred = lda_full.predict(X)
+    
+    return {
+        'accuracy_mean': float(np.mean(cv_scores)),
+        'accuracy_std': float(np.std(cv_scores)),
+        'precision': float(precision_score(y, y_pred)),
+        'recall': float(recall_score(y, y_pred)),
+        'cv_scores': cv_scores.tolist()
     }
 
-    # Ensure output directory exists
-    Path(output_results_path).parent.mkdir(parents=True, exist_ok=True)
+def permutation_test(X: np.ndarray, y: np.ndarray, n_permutations: int = 1000) -> float:
+    """
+    Perform permutation testing to establish statistical significance.
+    Returns the p-value.
+    """
+    set_random_seed()
+    lda = LinearDiscriminantAnalysis()
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    
+    # Actual score
+    actual_score = cross_val_score(lda, X, y, cv=cv, scoring='accuracy').mean()
+    
+    # Permutation scores
+    perm_scores = []
+    for _ in range(n_permutations):
+        y_perm = np.random.permutation(y)
+        perm_score = cross_val_score(lda, X, y_perm, cv=cv, scoring='accuracy').mean()
+        perm_scores.append(perm_score)
+    
+    perm_scores = np.array(perm_scores)
+    
+    # Calculate p-value (one-tailed: probability of getting >= actual score by chance)
+    p_value = float((np.sum(perm_scores >= actual_score) + 1) / (n_permutations + 1))
+    
+    return p_value
 
-    with open(output_results_path, 'w') as f:
+def run_sensitivity_analysis(X: np.ndarray, y: np.ndarray) -> List[Dict[str, float]]:
+    """
+    Sweep classification threshold and report FP/FN variation.
+    """
+    set_random_seed()
+    lda = LinearDiscriminantAnalysis()
+    lda.fit(X, y)
+    
+    # Get decision function scores (distance from hyperplane)
+    scores = lda.decision_function(X)
+    
+    thresholds = np.linspace(scores.min(), scores.max(), 20)
+    results = []
+    
+    for thresh in thresholds:
+        y_pred = (scores > thresh).astype(int)
+        
+        # True Positives, False Positives, etc.
+        tp = np.sum((y_pred == 1) & (y == 1))
+        fp = np.sum((y_pred == 1) & (y == 0))
+        tn = np.sum((y_pred == 0) & (y == 0))
+        fn = np.sum((y_pred == 0) & (y == 1))
+        
+        fp_rate = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        fn_rate = fn / (fn + tp) if (fn + tp) > 0 else 0.0
+        
+        results.append({
+            'threshold': float(thresh),
+            'fp_rate': float(fp_rate),
+            'fn_rate': float(fn_rate)
+        })
+    
+    return results
+
+def run_classification() -> Dict[str, Any]:
+    """
+    Main orchestration function for classification tasks.
+    """
+    paths = get_paths()
+    config = get_config()
+    
+    feature_path = paths['processed'] / 'features_matrix.csv'
+    output_path = paths['processed'] / 'results.json'
+    
+    if not feature_path.exists():
+        raise FileNotFoundError(f"Feature matrix not found at {feature_path}. Run feature extraction first.")
+    
+    logger.info(f"Loading features from {feature_path}")
+    X, y, df = load_features(str(feature_path))
+    
+    logger.info(f"Training and validating classifier...")
+    cv_results = train_and_validate(X, y)
+    
+    logger.info("Running permutation test...")
+    p_value = permutation_test(X, y)
+    
+    logger.info("Running sensitivity analysis...")
+    sensitivity_data = run_sensitivity_analysis(X, y)
+    
+    # Save sensitivity data
+    sens_path = paths['processed'] / 'sensitivity_analysis.csv'
+    pd.DataFrame(sensitivity_data).to_csv(sens_path, index=False)
+    
+    # Determine benchmark status (Task T032)
+    benchmark_acc = config.get('BENCHMARK_ACCURACY')
+    status = "deferred"
+    
+    if benchmark_acc is not None and benchmark_acc != 'targetThreshold':
+        try:
+            target = float(benchmark_acc)
+            if cv_results['accuracy_mean'] >= target:
+                status = "pass"
+            else:
+                status = "fail"
+        except (ValueError, TypeError):
+            status = "deferred"
+    elif benchmark_acc == 'targetThreshold':
+        # Explicitly check for the placeholder string defined in config.py
+        status = "deferred"
+    
+    results = {
+        'participant_count': len(df['epoch_id'].unique()) if 'epoch_id' in df.columns else len(df),
+        'epoch_count': len(df),
+        'classification_results': cv_results,
+        'statistical_corrections': {
+            'permutation_p_value': p_value,
+            'hypothesis_rejected': p_value < 0.05
+        },
+        'sensitivity_analysis': {
+            'points_count': len(sensitivity_data),
+            'file': 'sensitivity_analysis.csv'
+        },
+        'benchmark_status': status
+    }
+    
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-
-    logger.info(f"Classification results saved to {output_results_path}")
+    
+    logger.info(f"Results saved to {output_path}")
     return results
 
 def main():
-    """Entry point for script execution."""
-    config = load_config()
+    """CLI entry point."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Classification and Statistical Validation")
+    parser.add_argument('--input', type=str, default=None, help="Path to features CSV")
+    args = parser.parse_args()
+    
     try:
-        results = run_classification(config)
-        print(f"Classification Complete. P-value: {results['statistical_significance']['permutation_p_value']:.4f}")
+        run_classification()
+        print("Classification completed successfully.")
     except Exception as e:
-        logger.error(f"Classification failed: {e}")
+        logger.error(f"Classification failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
