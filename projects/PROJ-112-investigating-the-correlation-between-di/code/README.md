@@ -1,44 +1,35 @@
-# llmXive Project 112: Fiber-Gut Microbiome Correlation
+# llmXive Research Pipeline: Dietary Fiber and Gut Microbiome
 
-## Overview
-This project investigates the correlation between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and UK Biobank (UKBB).
+## Linting and Formatting
 
-## Project Structure
-- `src/`: Source code modules
- - `ingestion/`: Data loading and harmonization
- - `preprocessing/`: Data transformation and cleaning
- - `analysis/`: Statistical analysis and modeling
- - `utils/`: Utility functions and helpers
-- `tests/`: Test suites
- - `contract/`: Schema validation tests
- - `integration/`: End-to-end pipeline tests
- - `unit/`: Unit tests for individual functions
-- `data/`: Data storage
- - `raw/`: Raw downloaded data
- - `processed/`: Cleaned and transformed data
- - `processed/results/`: Analysis output files
-- `docs/`: Documentation
-- `state/`: Checksums and validation state files
+This project uses **ruff** for linting and **black** for code formatting.
 
-## Setup
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-3. Run the main pipeline:
- ```bash
- python -m src.main
- ```
+### Installation
 
-## Development
-- Linting: `ruff check.`
-- Formatting: `black.`
-- Testing: `pytest`
+Install dependencies including linting tools:
+```bash
+pip install -r requirements.txt
+```
 
-## License
-MIT
+### Configuration
+
+Configuration files are provided in the project root:
+- `.ruff.toml`: Ruff linting rules
+- `.black.toml`: Black formatting rules
+
+### Usage
+
+Run linting:
+```bash
+ruff check.
+```
+
+Format code:
+```bash
+black.
+```
+
+Run both checks before committing:
+```bash
+./scripts/config_linters.sh
+```

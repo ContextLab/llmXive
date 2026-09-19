@@ -1,65 +1,66 @@
-"""
-Script to initialize the project directory structure as per the implementation plan.
-Creates necessary folders for data, code, tests, and documentation.
-"""
 import os
 from pathlib import Path
 import sys
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-def get_project_root():
-    """Returns the root directory of the project."""
-    return project_root
-
-def setup_directories():
+def get_project_root() -> Path:
     """
-    Creates the required directory structure for the project.
+    Determines the project root directory.
+    Assumes the script is run from the repository root or 'code' directory.
+    """
+    current_path = Path(__file__).resolve()
+    # If running from code/src/setup_data_structure.py, go up 3 levels to repo root
+    # If running from code/setup_data_structure.py, go up 2 levels
+    # We check for a marker file or standard structure to be robust.
+    # Assuming standard layout: repo_root/code/src/... or repo_root/code/...
+    
+    # Strategy: Look for 'data' directory at current level or parent levels
+    # or check for 'requirements.txt' or 'README.md'
+    
+    # Try starting from script location
+    candidate = current_path.parent.parent # code/src -> code -> repo_root
+    
+    if (candidate / "requirements.txt").exists():
+        return candidate
+    
+    # Fallback: check parent
+    candidate = candidate.parent
+    if (candidate / "requirements.txt").exists():
+        return candidate
+        
+    # If we can't find it, assume current working directory is root
+    return Path.cwd()
+
+def setup_directories() -> None:
+    """
+    Creates the required data directory structure as per T008:
+    - data/raw/
+    - data/processed/
+    - data/processed/results/
+    
+    Also ensures 'state/' exists if not present (often needed for checksums).
     """
     root = get_project_root()
+    data_root = root / "data"
+    raw_dir = data_root / "raw"
+    processed_dir = data_root / "processed"
+    results_dir = processed_dir / "results"
+    state_dir = root / "state"
     
-    directories = [
-        "src",
-        "src/ingestion",
-        "src/preprocessing",
-        "src/analysis",
-        "src/utils",
-        "tests",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-        "data/raw",
-        "data/processed",
-        "data/processed/results",
-        "docs",
-        "state"
-    ]
-
-    created = []
-    for dir_name in directories:
-        dir_path = root / dir_name
+    dirs_to_create = [raw_dir, processed_dir, results_dir, state_dir]
+    
+    for dir_path in dirs_to_create:
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_name)
             print(f"Created directory: {dir_path}")
         else:
             print(f"Directory already exists: {dir_path}")
 
-    if not created:
-        print("No new directories created. Structure is already in place.")
-    else:
-        print(f"Successfully created {len(created)} directories.")
-    
-    return created
-
-def main():
-    """Entry point for the setup script."""
-    print(f"Project root: {get_project_root()}")
+def main() -> None:
+    """
+    Entry point for the data structure setup script.
+    """
     setup_directories()
-    return 0
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

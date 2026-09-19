@@ -32,7 +32,7 @@ No published work has specifically isolated the impact of *visual distractors* o
 Filling this gap is essential for determining if VLAs are merely "brittle" or if they fundamentally lose the ability to filter noise during the action generation phase. If VLAs are uniquely fragile to distractors, current deployment strategies in unstructured environments may be unsafe or ineffective, necessitating new robustness training objectives.
 
 ### How this project addresses the gap
-This project directly addresses the gap by implementing a "Distractor Variant" of the Act2Answer protocol, systematically adding irrelevant visual noise to test environments and measuring the specific performance delta (Knowledge Fragility Score) between VLAs and VLMs via actual model inference. This methodology isolates the effect of visual interference on the action-generation pathway, providing the first empirical evidence of whether upper-layer signal attenuation correlates with environmental fragility.
+This project directly addresses the gap by implementing a "Distractor Variant" of the Act2Answer protocol, systematically adding irrelevant visual noise to test environments and measuring the specific performance delta (Knowledge Fragility Score) between VLAs and VLMs via **actual model inference on real data**, rather than simulated metrics. This methodology isolates the effect of visual interference on the action-generation pathway, providing the first empirical evidence of whether upper-layer signal attenuation correlates with environmental fragility.
 
 ## Expected results
 
@@ -40,12 +40,12 @@ We expect to observe a statistically significant "Knowledge Fragility Score" for
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the Act2Answer dataset (1,720 episodes) and the associated VLM benchmark images from the source repository (linked in the original preprint) to a local working directory.
+- **Data Acquisition**: Download the Act2Answer dataset (1,720 episodes) and associated VLM benchmark images from the source repository (linked in the original preprint) to a local working directory.
 - **Distractor Generation**: Write a Python script using OpenCV to programmatically overlay 3–5 semantically irrelevant, high-contrast geometric shapes or textures onto the background of each image, ensuring the target objects and instruction text remain unoccluded.
-- **Model Loading**: Load pre-trained VLA and VLM models (e.g., LLaVA-1.5, OpenFlamingo) using HuggingFace `transformers` and `torch` with CPU-only execution flags (`device="cpu"`) and low-memory variants (4-bit quantization if necessary) to fit within 7GB RAM.
-- **Inference Execution**: Implement a batched inference loop that processes the "Clean" and "Distractor" image variants for each model, capturing the raw model output (e.g., predicted coordinate or object ID) for every sample.
-- **Metric Calculation**: Compute the actual accuracy for both "Clean" and "Distractor" conditions by comparing the model's raw output against the ground truth labels provided in the dataset metadata; do not use mock data.
-- **Fragility Score Computation**: Calculate the "Knowledge Fragility Score" (Clean Accuracy - Distractor Accuracy) for each model-category pair based on the real inference results.
+- **Model Loading**: Load pre-trained VLA and VLM models (e.g., LLaVA-1.5, OpenFlamingo) using HuggingFace `transformers` and `torch` with CPU-only execution flags (`device="cpu"`) and 4-bit quantization (via `bitsandbytes` or `llama.cpp` bindings) to fit within 7GB RAM.
+- **Real Inference Execution**: Implement a batched inference loop that processes the "Clean" and "Distractor" image variants for each model, capturing the **actual raw model output** (e.g., predicted coordinate or object ID) for every sample. **No mock data or static CSVs will be used.**
+- **Ground Truth Verification**: Compare the **real** model outputs against the ground truth labels provided in the dataset metadata to compute actual accuracy for both "Clean" and "Distractor" conditions.
+- **Fragility Score Computation**: Calculate the "Knowledge Fragility Score" (Clean Accuracy - Distractor Accuracy) for each model-category pair based on the **empirically derived** inference results.
 - **Statistical Analysis**: Perform a paired t-test (or Wilcoxon signed-rank test if non-normal) on the computed Fragility Scores to compare the mean performance drop of the VLA group versus the VLM group.
 - **Validation Independence**: Ensure the ground truth labels used for evaluation are independent of the distractor generation process (i.e., the distractors are added post-hoc to the images, and the ground truth is the original label, not derived from the noisy image).
 - **Resource Management**: Run inference in small batches on the GitHub Actions runner (2 CPU cores, 7GB RAM) with a strict 6-hour timeout, dynamically scaling down batch sizes if memory usage approaches 5GB.
@@ -60,22 +60,39 @@ We expect to observe a statistically significant "Knowledge Fragility Score" for
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-13T23:56:17Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-19T15:21:44Z
+**Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Does VLA Even Know the Basics? Measuring Commonsense and World Knowled" computer science
-**Verified citation count**: 6
+**Verified citation count**: 3
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Does VLA Even Know the Basics? Measuring Commonsense and World Knowled" computer science | 6 |
+| 0 (initial) | llmXive follow-up: extending "Does VLA Even Know the Basics? Measuring Commonsense and World Knowled" computer science | 0 |
+| 1 | VLA commonsense reasoning evaluation | 5 |
+| 2 | measuring world knowledge in vision-language-action models | 0 |
+| 3 | VLA basic physical understanding benchmarks | 0 |
+| 4 | multimodal foundation model common sense gaps | 0 |
+| 5 | evaluating embodied AI world models | 0 |
+| 6 | VLA knowledge acquisition limitations | 0 |
+| 7 | visual language action model reasoning tasks | 0 |
+| 8 | grounding world knowledge in robot learning | 0 |
+| 9 | VLA failure modes in basic scenarios | 0 |
+| 10 | assessing commonsense in embodied agents | 0 |
+| 11 | multimodal model knowledge completeness | 0 |
+| 12 | VLA pretraining knowledge vs fine-tuning | 0 |
+| 13 | basic physics understanding in vision-language models | 0 |
+| 14 | evaluating robot commonsense reasoning | 0 |
+| 15 | world model fidelity in VLA architectures | 0 |
+| 16 | multimodal hallucination in basic knowledge | 0 |
+| 17 | VLA zero-shot commonsense performance | 0 |
+| 18 | embodied AI knowledge representation | 0 |
+| 19 | measuring factual consistency in VLA | 0 |
+| 20 | visual language model knowledge boundaries | 0 |
 
 ### Verified citations
 
 1. **Cracking the Contextual Commonsense Code: Understanding Commonsense Reasoning Aptitude of Deep Contextual Representations** (2019). Jeff Da, Jungo Kasai. arXiv. [1910.01157](https://arxiv.org/abs/1910.01157). PDF-sampled: No.
 2. **Gemini in Reasoning: Unveiling Commonsense in Multimodal Large Language Models** (2023). Yuqing Wang, Yun Zhao. arXiv. [2312.17661](https://arxiv.org/abs/2312.17661). PDF-sampled: No.
-3. **Exploring and Analyzing Machine Commonsense Benchmarks** (2020). Henrique Santos, Minor Gordon, Zhicheng Liang, Gretchen Forbush, Deborah L. McGuinness. arXiv. [2012.11634](https://arxiv.org/abs/2012.11634). PDF-sampled: No.
-4. **VLP: A Survey on Vision-Language Pre-training** (2022). Feilong Chen, Duzhen Zhang, Minglun Han, Xiuyi Chen, Jing Shi, et al.. arXiv. [2202.09061](https://arxiv.org/abs/2202.09061). PDF-sampled: No.
-5. **SearchLVLMs: A Plug-and-Play Framework for Augmenting Large Vision-Language Models by Searching Up-to-Date Internet Knowledge** (2024). Chuanhao Li, Zhen Li, Chenchen Jing, Shuo Liu, Wenqi Shao, et al.. arXiv. [2405.14554](https://arxiv.org/abs/2405.14554). PDF-sampled: No.
-6. **Vision-Language Pre-training: Basics, Recent Advances, and Future Trends** (2022). Zhe Gan, Linjie Li, Chunyuan Li, Lijuan Wang, Zicheng Liu, et al.. arXiv. [2210.09263](https://arxiv.org/abs/2210.09263). PDF-sampled: No.
+3. **CS-NLP team at SemEval-2020 Task 4: Evaluation of State-of-the-art NLP Deep Learning Architectures on Commonsense Reasoning Task** (2020). Sirwe Saeedi, Aliakbar Panahi, Seyran Saeedi, Alvis C Fong. arXiv. [2006.01205](https://arxiv.org/abs/2006.01205). PDF-sampled: No.

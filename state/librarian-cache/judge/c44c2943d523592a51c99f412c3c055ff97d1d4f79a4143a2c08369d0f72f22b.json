@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.11326",
+  "judged_at": "2026-09-19T15:17:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social media algorithm transparency on user well-being psychology",
+  "rationale": "The paper focuses on measuring \"politicization\" via topic shifts in political contexts, which is a distinct construct from \"algorithm transparency\" and \"user well-being.\" It fails to address the user's independent variable (transparency), dependent variable (well-being), or the specific mechanism linking them, and does not fall under any of the inclusion criteria (a-f) as it studies a different social phenomenon entirely.",
+  "relevant": false
+}

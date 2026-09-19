@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.19024",
+  "judged_at": "2026-09-19T15:17:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social media algorithm transparency on user well-being psychology",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically measures the impact of a specific form of \"algorithm transparency\" (label detail regarding AI generation) on user perceptions and engagement, which are core components of user well-being and trust in the social media domain. Although it focuses on AI images rather than general algorithmic feeds, it provides direct evidence on the mechanism of how transparency interventions affect user psychology on social platforms.",
+  "relevant": true
+}

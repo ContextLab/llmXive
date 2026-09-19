@@ -3,9 +3,15 @@ import sys
 import pytest
 from pathlib import Path
 
-@pytest.fixture
+# Ensure the code directory is in the path for imports
+@pytest.fixture(autouse=True)
 def setup_path():
-    return Path(__file__).parent.parent
+    project_root = Path(__file__).parent.parent
+    code_dir = project_root / "code"
+    if str(code_dir) not in sys.path:
+        sys.path.insert(0, str(code_dir))
+    yield
+    # Cleanup if necessary (usually not needed for path)
 
 @pytest.fixture
 def project_root():
@@ -13,12 +19,16 @@ def project_root():
 
 @pytest.fixture
 def data_dir(project_root):
-    return project_root / "data"
+    return project_root / "data" / "raw"
 
 @pytest.fixture
-def processed_dir(data_dir):
-    return data_dir / "processed"
+def processed_dir(project_root):
+    return project_root / "data" / "processed"
 
 @pytest.fixture
-def results_dir(processed_dir):
-    return processed_dir / "results"
+def results_dir(project_root):
+    return project_root / "data" / "processed" / "results"
+
+@pytest.fixture
+def temp_dir(tmp_path):
+    return tmp_path

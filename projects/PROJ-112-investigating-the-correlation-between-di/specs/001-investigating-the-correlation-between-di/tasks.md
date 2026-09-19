@@ -61,12 +61,12 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T005 Implement `src/utils/logger.py` for standardized logging
+- [X] T005 Implement `src/utils/logger.py` for standardized logging
 - [ ] T006 Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable)
-- [ ] T006b Execute Power Analysis: Run `src/utils/power_analysis.py` on the harmonized dataset (once available) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014 (data availability). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T006b Execute Power Analysis: Run `src/utils/power_analysis.py` on the harmonized dataset (once available) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014 (data availability). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T007 Create `src/preprocessing/id_generator.py` to generate SHA256 sample IDs (cohort + original_id)
 - [ ] T008 Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/results/`)
-- [ ] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing); **Configure complete logging**: Setup `src/utils/logger.py` with handlers for all analysis steps, including specific formatters for MaAsLin2 execution status, convergence warnings, and R-package output capture.
+- [X] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing); **Configure complete logging**: Setup `src/utils/logger.py` with handlers for all analysis steps, including specific formatters for MaAsLin2 execution status, convergence warnings, and R-package output capture.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

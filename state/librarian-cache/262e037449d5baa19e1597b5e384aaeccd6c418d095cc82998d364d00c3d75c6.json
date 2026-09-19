@@ -1,0 +1,267 @@
+{
+  "fetched_at": "2026-09-19T15:17:40Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Social Media Algorithm Transparency on User Well-being",
+      "target_n": 5
+    },
+    "duration_seconds": 51.275,
+    "ended_at": "2026-09-19T15:17:40Z",
+    "expansion": null,
+    "extracted_queries": [
+      "algorithmic opacity social media user experience",
+      "Instagram TikTok Facebook well-being intervention",
+      "feed curation engagement metrics mental health",
+      "subjective well-being life satisfaction social media",
+      "algorithmic transparency trust autonomy psychological"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.19024"
+      ]
+    },
+    "per_query_hit_count": {
+      "Instagram TikTok Facebook well-being intervention": 3,
+      "The Impact of Social Media Algorithm Transparency on User Well-being psychology": 3,
+      "algorithmic opacity social media user experience": 1,
+      "algorithmic transparency trust autonomy psychological": 3,
+      "feed curation engagement metrics mental health": 3,
+      "subjective well-being life satisfaction social media": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2305.18907",
+          "rationale": "The paper focuses on using social media data to *detect* stress and depression via machine learning, which addresses the measurement of the dependent variable (well-being) but completely lacks any investigation into the independent variable (algorithm transparency) or the causal mechanism linking transparency to well-being. It falls under the \"off-domain entirely\" rejection rule regarding the specific research question because it studies a different research problem (automated mental health dete",
+          "title": "Multitask learning for recognizing stress and depression in social media"
+        },
+        {
+          "primary_pointer": "2312.11326",
+          "rationale": "The paper focuses on measuring \"politicization\" via topic shifts in political contexts, which is a distinct construct from \"algorithm transparency\" and \"user well-being.\" It fails to address the user's independent variable (transparency), dependent variable (well-being), or the specific mechanism linking them, and does not fall under any of the inclusion criteria (a-f) as it studies a different social phenomenon entirely.",
+          "title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media"
+        },
+        {
+          "primary_pointer": "2008.08370",
+          "rationale": "The paper focuses on detecting coordinated behavior and disinformation spread during an election, which is a distinct construct from \"algorithm transparency\" and \"user well-being.\" While both topics exist within the broader domain of social media, this work does not measure the mechanism of transparency, the psychological outcome of well-being, or the specific causal link between them, failing to meet any of the inclusion criteria (a-f).",
+          "title": "Coordinated Behavior on Social Media in 2019 UK General Election"
+        },
+        {
+          "primary_pointer": "2512.17646",
+          "rationale": "The paper focuses on the effectiveness of religious communication strategies (da'wah) and audience engagement metrics on specific platforms, which is a distinct construct from the user's question regarding the causal impact of *algorithm transparency* on *user well-being*. It fails to measure the independent variable (transparency) or the dependent variable (psychological well-being) and does not address the underlying mechanism of algorithmic opacity, thus falling under the \"Distinct construct\"",
+          "title": "A Comparative Analysis of Instagram and TikTok as Islamic da'wahh Media in the Digital Era"
+        },
+        {
+          "primary_pointer": "2207.03763",
+          "rationale": "The paper focuses on human-robot trust and cognitive load in disaster response scenarios, which is an off-domain application distinct from the user's question about social media algorithms and user well-being. While both involve \"transparency,\" the constructs (trust in autonomous robots vs. well-being from algorithmic transparency) and domains (emergency robotics vs. social media psychology) do not satisfy the criteria for same-mechanism evidence or shared empirical population.",
+          "title": "Enabling and Assessing Trust when Cooperating with Robots in Disaster Response (EASIER)"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-19T15:16:48Z",
+    "term_input": {
+      "normalized": "the impact of social media algorithm transparency on user well-being psychology",
+      "raw": "The Impact of Social Media Algorithm Transparency on User Well-being psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence (AI) is changing the world, but its impacts on the environment and human well-being remain uncertain. We conducted a systematic literature review of 1,291 studies selected from 6,655 records, identifying the main impacts of AI and how they are assessed. The evidence reveals an uneven landscape: 72% of environmental studies focus narrowly on energy use and CO2 emissions, while only 11% consider systemic effects. Well-being research is largely conceptual and overlooks subjective dimensions. Strikingly, 83% of environmental studies portray AI's impacts as positive, while well-being analyses show a near-even split overall (44% positive; 46% negative). However, this split masks differences across well-being dimensions. While the impacts of AI on income and health are expected to be positive, its impacts on inequality, social cohesion, and employment are expected to be negative. Based on our findings, we suggest several areas for future research. Environmental assessments should incorporate water, material, and biodiversity impacts, and apply a full life-cycle perspective, while well-being research should prioritise empirical analyses. Evaluating AI's overall impact requires accounting for computing-related, application-level, and systemic impacts, while integrating both environmental and social dimensions. Bridging these gaps is essential to understand the full scope of AI's impacts and to steer its development towards environmental sustainability and human flourishing.",
+          "claimed_authors": [
+            "Noemi Luna Carmeno",
+            "Tiago Domingos",
+            "Daniel W. O'Neill"
+          ],
+          "claimed_title": "The impacts of artificial intelligence on environmental sustainability and human well-being",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.24091"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='The impacts of artificial intelligence on environmental sustainability and human well-being')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has become clear that early career astrophysics researchers (doctoral researchers, post-docs, etc) have a very diverse appreciation of their career, with some declaring it the best job that you can have and others suffering from overwork, harrassment and stress from the precarity of their job, and associated difficulties. In order to establish how astrophysics researchers, primarily in France, experience their career, we sent out a survey to understand the impact that their job has on their well-being. 276 people responded to the survey. Whilst around half of the respondents expressed pleasure derived from their career, it is clear that many (early career) researchers are suffering due to overwork, with more than a quarter saying that they work in excess of 50 hours per week and 2\\% in excess of 90 h per week. Almost 30\\% professed to having suffered harrassment or discrimination in the course of their work. Further, whilst only 20\\% had suffered mental health issues before starting their career in astrophysics, $\\sim$45\\% said that they suffered with mental health problems since starting in astrophysics. Here we provide results from the survey as well as possible avenues to explore and a list of recommendations to improve (early) careers in astrophysics.",
+          "claimed_authors": [
+            "N. A. Webb",
+            "C. Bot",
+            "S. Charpinet",
+            "T. Contini",
+            "L. Jouve",
+            "F. Koliopanos",
+            "A. Lamberts",
+            "H. Meheut",
+            "S. Mei",
+            "I. Ristorcelli",
+            "G. Soucail"
+          ],
+          "claimed_title": "Well-being in French Astrophysics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.01768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='Well-being in French Astrophysics')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This research paper presents a meta-analysis of the multifaceted role of technology in mental health. The pervasive influence of technology on daily lives necessitates a deep understanding of its impact on mental health services. This study synthesizes literature covering Behavioral Intervention Technologies (BITs), digital mental health interventions during COVID-19, young men's attitudes toward mental health technologies, technology-based interventions for university students, and the applicability of mobile health technologies for individuals with serious mental illnesses. BITs are recognized for their potential to provide evidence-based interventions for mental health conditions, especially anxiety disorders. The COVID-19 pandemic acted as a catalyst for the adoption of digital mental health services, underscoring their crucial role in providing accessible and quality care; however, their efficacy needs to be reinforced by workforce training, high-quality evidence, and digital equity. A nuanced understanding of young men's attitudes toward mental health is imperative for devising effective online services. Technology-based interventions for university students are promising, although variable in effectiveness; their deployment must be evidence-based and tailored to individual needs. Mobile health technologies, particularly activity tracking, hold promise for individuals with serious mental illnesses. Collectively, technology has immense potential to revolutionize mental health care. However, the implementation must be evidence-based, ethical, and equitable, with continued research focusing on experiences across diverse populations, ensuring accessibility and efficacy for all.",
+          "claimed_authors": [
+            "Hamza Mohammed"
+          ],
+          "claimed_title": "Technology in Association With Mental Health: Meta-ethnography",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.10513"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='Technology in Association With Mental Health: Meta-ethnography')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While the applications and demands of Machine learning (ML) systems in mental health are growing, there is little discussion nor consensus regarding a uniquely challenging aspect: building security methods and requirements into these ML systems, and keep the ML system usable for end-users. This question of usable security is very important, because the lack of consideration in either security or usability would hinder large-scale user adoption and active usage of ML systems in mental health applications.\n  In this short paper, we introduce a framework of four pillars, and a set of desired properties which can be used to systematically guide and evaluate security-related designs, implementations, and deployments of ML systems for mental health. We aim to weave together threads from different domains, incorporate existing views, and propose new principles and requirements, in an effort to lay out a clear framework where criteria and expectations are established, and are used to make security mechanisms usable for end-users of those ML systems in mental health. Together with this framework, we present several concrete scenarios where different usable security cases and profiles in ML-systems in mental health applications are examined and evaluated.",
+          "claimed_authors": [
+            "Helen Jiang",
+            "Erwen Senge"
+          ],
+          "claimed_title": "Usable Security for ML Systems in Mental Health: A Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.07738"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='Usable Security for ML Systems in Mental Health: A Framework')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language model-powered chatbots have transformed how people seek information, especially in high-stakes contexts like mental health. Despite their support capabilities, safe detection and response to crises such as suicidal ideation and self-harm are still unclear, hindered by the lack of unified crisis taxonomies and clinical evaluation standards.\n  We address this by creating: (1) a taxonomy of six crisis categories; (2) a dataset of over 2,000 inputs from 12 mental health datasets, classified into these categories; and (3) a clinical response assessment protocol. We also use LLMs to identify crisis inputs and audit five models for response safety and appropriateness. First, we built a clinical-informed crisis taxonomy and evaluation protocol. Next, we curated 2,252 relevant examples from over 239,000 user inputs, then tested three LLMs for automatic classification.\n  In addition, we evaluated five models for the appropriateness of their responses to a user's crisis, graded on a 5-point Likert scale from harmful (1) to appropriate (5). While some models respond reliably to explicit crises, risks still exist. Many outputs, especially in self-harm and suicidal categories, are inappropriate or unsafe. Different models perform variably; some, like gpt-5-nano and deepseek-v3.2-exp, have low harm rates, but others, such as gpt-4o-mini and grok-4-fast, generate more unsafe responses. All models struggle with indirect signals, default replies, and context misalignment.\n  These results highlight the urgent need for better safeguards, crisis detection, and context-aware responses in LLMs. They also show that alignment and safety practices, beyond scale, are crucial for reliable crisis support. Our taxonomy, datasets, and evaluation methods support ongoing AI mental health research, aiming to reduce harm and protect vulnerable users.",
+          "claimed_authors": [
+            "Adrian Arnaiz-Rodriguez",
+            "Miguel Baidal",
+            "Erik Derner",
+            "Jenn Layton Annable",
+            "Mark Ball",
+            "Mark Ince",
+            "Elvira Perez Vallejos",
+            "Nuria Oliver"
+          ],
+          "claimed_title": "Between Help and Harm: An Evaluation of Mental Health Crisis Handling by LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.24857"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='Between Help and Harm: An Evaluation of Mental Health Crisis Handling by LLMs')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper examines how trust is formed, maintained, or diminished over time in the context of human-autonomy teaming with an optionally piloted aircraft. Whereas traditional factor-based trust models offer a static representation of human confidence in technology, here we discuss how variations in the underlying factors lead to variations in trust, trust thresholds, and human behaviours. Over 200 hours of flight test data collected over a multi-year test campaign from 2021 to 2023 were reviewed. The dispositional-situational-learned, process-performance-purpose, and IMPACTS homeostasis trust models are applied to illuminate trust trends during nominal autonomous flight operations. The results offer promising directions for future studies on trust dynamics and design-for-trust in human-autonomy teaming.",
+          "claimed_authors": [
+            "Jeremy C. -H. Wang",
+            "Ming Hou",
+            "David Dunwoody",
+            "Marko Ilievski",
+            "Justin Tomasi",
+            "Edward Chao",
+            "Carl Pigeon"
+          ],
+          "claimed_title": "Flight Testing an Optionally Piloted Aircraft: a Case Study on Trust Dynamics in Human-Autonomy Teaming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.16227"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='Flight Testing an Optionally Piloted Aircraft: a Case Study on Trust Dynamics in Human-Autonomy Teaming')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trust is often cited as an essential criterion for the effective use and real-world deployment of AI. Researchers argue that AI should be more transparent to increase trust, making transparency one of the main goals of XAI. Nevertheless, empirical research on this topic is inconclusive regarding the effect of transparency on trust. An explanation for this ambiguity could be that trust is operationalized differently within XAI. In this position paper, we advocate for a clear distinction between behavioral (objective) measures of reliance and attitudinal (subjective) measures of trust. However, researchers sometimes appear to use behavioral measures when intending to capture trust, although attitudinal measures would be more appropriate. Based on past research, we emphasize that there are sound theoretical reasons to keep trust and reliance separate. Properly distinguishing these two concepts provides a more comprehensive understanding of how transparency affects trust and reliance, benefiting future XAI research.",
+          "claimed_authors": [
+            "Nicolas Scharowski",
+            "Sebastian A. C. Perrig",
+            "Nick von Felten",
+            "Florian Brühlmann"
+          ],
+          "claimed_title": "Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.12318"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Social Media Algorithm Transparency on User Well-being psychology', candidate_title='Trust and Reliance in XAI -- Distinguishing Between Attitudinal and Behavioral Measures')",
+        "failed_at": "2026-09-19T15:17:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingruo Chen",
+            "TungYen Wang",
+            "Marie Williams",
+            "Natalia Jordan",
+            "Mingyi Shao",
+            "Linda Zhang",
+            "Susan R. Fussell"
+          ],
+          "title": "Examining the Impact of Label Detail and Content Stakes on User Perceptions of AI-Generated Images on Social Media",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.19024",
+        "summary": "AI-generated images are increasingly prevalent on social media, raising concerns about trust and authenticity. This study investigates how different levels of label detail (basic, moderate, maximum) and content stakes (high vs. low) influence user engagement with and perceptions of AI-generated images through a within-subjects experimental study with 105 participants. Our findings reveal that increasing label detail enhances user perceptions of label transparency but does not affect user engagement. However, content stakes significantly impact user engagement and perceptions, with users demonstrating higher engagement and trust in low-stakes images. These results suggest that social media platforms can adopt detailed labels to improve transparency without compromising user engagement, offering insights for effective labeling strategies for AI-generated content.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.19024",
+          "http_status": 200,
+          "pdf_sample_score": 0.1699,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-19T15:17:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of social media algorithm transparency on user well-being psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

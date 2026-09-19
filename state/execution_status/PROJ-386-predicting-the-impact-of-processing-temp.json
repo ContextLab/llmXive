@@ -1,20 +1,20 @@
 {
   "project_id": "PROJ-386-predicting-the-impact-of-processing-temp",
   "ok": false,
-  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=2); python code/main.py (rc=1)",
+  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=1); python code/main.py (rc=1); 1 declared deliverable(s) absent: data/artifacts/final_report.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --sample-size 100 --timeout 3600 -> rc=2\n    usage: main.py [-h] [--timeout TIMEOUT]\nmain.py: error: unrecognized arguments: --sample-size 100",
-    "python code/main.py -> rc=1\n    2026-09-19 13:33:43,433 - INFO - Hard timeout set to 18000 seconds (5:00:00).\n2026-09-19 13:33:43,433 - INFO - Verifying runner environment...\n2026-09-19 13:33:45,872 - INFO - No GPU detected. Running on CPU.\n2026-09-19 13:33:45,872 - INFO - Detected CPU count: 4\n2026-09-19 13:33:45,872 - INFO - Starting pipeline execution...\n2026-09-19 13:33:45,873 - INFO - Data ingestion module found. Executing...\nusage: ingestion.py [-h] --urls URLS [URLS ...] --output OUTPUT\n                    [--stats STATS]\ningestion.py: error: the following arguments are required: --urls"
+    "python code/main.py --sample-size 100 --timeout 3600 -> rc=1\n    2026-09-19 15:19:54,416 - INFO - Verifying runner environment...\n2026-09-19 15:19:54,416 - INFO - No GPU detected. Running on CPU.\n2026-09-19 15:19:54,416 - INFO - Detected CPU count: 4\n2026-09-19 15:19:54,416 - INFO - Total RAM: 15.61 GB\n2026-09-19 15:19:54,416 - INFO - Runner environment verified.\n2026-09-19 15:19:54,416 - INFO - Starting pipeline execution...\n2026-09-19 15:19:54,417 - ERROR - No dataset URLs found in configuration. Cannot proceed with ingestion.\n2026-09-19 15:19:54,417 - WARNING - Skipping Data Ingestion due t",
+    "python code/main.py -> rc=1\n    2026-09-19 15:20:00,669 - INFO - Verifying runner environment...\n2026-09-19 15:20:00,669 - INFO - No GPU detected. Running on CPU.\n2026-09-19 15:20:00,670 - INFO - Detected CPU count: 4\n2026-09-19 15:20:00,670 - INFO - Total RAM: 15.61 GB\n2026-09-19 15:20:00,670 - INFO - Runner environment verified.\n2026-09-19 15:20:00,670 - INFO - Starting pipeline execution...\n2026-09-19 15:20:00,670 - ERROR - No dataset URLs found in configuration. Cannot proceed with ingestion.\n2026-09-19 15:20:00,670 - WARNING - Skipping Data Ingestion due to missing URLs.\n2026-09-19 15:20:"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "offload": {
-    "status": "running",
-    "kernel_ref": "jeremy9/llmxive-proj-386-predicting-the-impact-of-processi",
-    "submitted_at": "2026-09-19T13:35:31Z",
-    "reason": "",
-    "evidence": []
-  },
-  "updated_at": "2026-09-19T13:35:35Z"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "python code/main.py --sample-size 100 --timeout 3600",
+    "python code/main.py"
+  ],
+  "updated_at": "2026-09-19T15:20:08Z"
 }

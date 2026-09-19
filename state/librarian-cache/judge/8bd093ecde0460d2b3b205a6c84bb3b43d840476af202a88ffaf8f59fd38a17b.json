@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2207.03763",
+  "judged_at": "2026-09-19T15:17:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social media algorithm transparency on user well-being psychology",
+  "rationale": "The paper focuses on human-robot trust and cognitive load in disaster response scenarios, which is an off-domain application distinct from the user's question about social media algorithms and user well-being. While both involve \"transparency,\" the constructs (trust in autonomous robots vs. well-being from algorithmic transparency) and domains (emergency robotics vs. social media psychology) do not satisfy the criteria for same-mechanism evidence or shared empirical population.",
+  "relevant": false
+}
