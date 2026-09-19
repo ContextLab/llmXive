@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+build/
+dist/
+install/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Virtual Environment
+venv/
+.venv/
+ENV/
+env/
+
+# Data and logs
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+logs/
+*.log
+
+# State files (optional, usually tracked but can be ignored if sensitive)
+state/
+!state/projects/.gitkeep
+
+# Linting/Formatting cache
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for validating model output artifacts (metrics_summary.json).
+type: object
+properties:
+  model_type:
+    type: string
+    description: Type of model (e.g., 'LinearRegression', 'RandomForest').
+  metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+        description: Root Mean Squared Error.
+      r_squared:
+        type: number
+        description: R-squared coefficient of determination.
+      pearson_r:
+        type: number
+        description: Pearson correlation coefficient.
+      baseline_rmse:
+        type: number
+        description: RMSE of the mean predictor baseline.
+    required:
+      - rmse
+      - r_squared
+      - pearson_r
+      - baseline_rmse
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature
+        - importance
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the evaluation was run.
+  config:
+    type: object
+    description: Configuration parameters used for training/evaluation.
+    additionalProperties: true
+required:
+  - model_type
+  - metrics
+  - timestamp
+additionalProperties: false

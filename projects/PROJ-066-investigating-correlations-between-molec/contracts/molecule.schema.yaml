@@ -1,0 +1,39 @@
+type: object
+required:
+  - SMILES
+  - experimental_value
+  - tpsa
+  - logp
+  - mw
+  - rotatable_bonds
+  - h_bond_donors
+  - h_bond_acceptors
+  - ring_count
+properties:
+  SMILES:
+    type: string
+    description: Canonical SMILES string
+  experimental_value:
+    type: number
+    description: Experimental drug-likeness or activity value
+  tpsa:
+    type: number
+    description: Topological Polar Surface Area
+  logp:
+    type: number
+    description: Octanol-water partition coefficient
+  mw:
+    type: number
+    description: Molecular Weight
+  rotatable_bonds:
+    type: number
+    description: Count of rotatable bonds
+  h_bond_donors:
+    type: number
+    description: Count of hydrogen bond donors
+  h_bond_acceptors:
+    type: number
+    description: Count of hydrogen bond acceptors
+  ring_count:
+    type: number
+    description: Number of rings

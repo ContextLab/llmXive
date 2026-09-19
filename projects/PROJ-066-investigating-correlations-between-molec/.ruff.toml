@@ -1,0 +1,24 @@
+# Ruff configuration for PROJ-066
+# This file is an alternative to [tool.ruff] in pyproject.toml
+# It is included to ensure explicit configuration visibility.
+
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]  # Allow asserts in tests

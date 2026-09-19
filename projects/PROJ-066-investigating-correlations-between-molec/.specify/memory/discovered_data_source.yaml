@@ -1,0 +1,19 @@
+status: none
+intent: download ChEMBL release 33 experimental bioavailability permeability clearance
+  python package dataset
+required_fields:
+- molecule_chembl_id
+- canonical_smiles
+- standard_inchi
+- standard_inchikey
+- bioavailability
+- apparent_permeability
+- clearance
+- assay_id
+- assay_type
+- descriptor_molecular_weight
+- descriptor_logP
+- descriptor_hbond_donors
+cache_key: ed069922fd374076bafe61803f53a9fffaab582b25119bb9bb331a43b3dc7f8b
+searched_at: '2026-09-19T09:20:20.860158+00:00'
+retry_count: 1

@@ -1,0 +1,2 @@
+# This file ensures the directory is tracked by git even if empty.
+# Directory structure is managed by code/setup_directories.py

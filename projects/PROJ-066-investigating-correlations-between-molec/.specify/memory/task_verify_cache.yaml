@@ -1,0 +1,47 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for the `projects/PROJ-066-investigating-correlations-between-molec/`
+    directory and any files inside it, but no such folder or its contents were provided.
+    Without the actual project structure present, the task requirement is not satisfied.
+    The implementer must add the requested directory with the appropriate subfolders
+    and starter files.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a feature specification for a molecular\u2011\
+    descriptor analysis pipeline and no artifacts related to configuring linting/formatting\
+    \ tools (e.g., no `pyproject.toml` with Black settings, no `.ruff.toml` or `ruff.toml`,\
+    \ nor any documentation or scripts invoking Black/Ruff). Consequently, the required\
+    \ linting configuration is missing."
+T007:
+  c: false
+  h: c14b763f180faa31ba22535002a796008e7c4b06c2d2a5178a02e5ae5504a976
+  r: "The `code/utils/update_state.py` file is truncated (ends abruptly with \u201C\
+    w\u201D) and does not contain the logic to write artifact hashes into the state\
+    \ file. Moreover, the required `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`\
+    \ file is missing entirely. Both the script and the target state file need to\
+    \ be completed for the task to be satisfied."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim only includes a feature specification and user stories; there is no\
+    \ evidence that the required directories (`data/raw/`, `data/processed/`, `code/data/`,\
+    \ `code/models/`, `code/utils/`, `tests/`) actually exist or contain any files.\
+    \ The task\u2019s core deliverable \u2013 the directory structure \u2013 is missing."
+T009:
+  c: false
+  h: e8802e679da63541eb9d0eb099f146b68fc315dd19523d8af9605979c63a1932
+  r: "The required raw SQLite file `data/raw/chembl_33.db` is absent, and the project\
+    \ state YAML does not contain the recorded checksum (its `artifacts` list is empty).\
+    \ Moreover, the provided `download.py` is truncated and lacks any execution logic\
+    \ that would download, decompress, verify, and update the state file. These missing\
+    \ artifacts and incomplete script mean the task\u2019s requirements are not satisfied."
+T015:
+  c: false
+  h: 785d61d290ddfe6a1187007a369dae3d6ad61d7083ca7563adf50e1a4223e102
+  r: The repository lacks the required output file `data/processed/molecules_processed.csv`
+    and the schema file `contracts/molecule.schema.yaml`. Moreover, the provided `preprocess.py`
+    is truncated, so we cannot verify that `write_processed_data()` actually writes
+    the CSV and calls `update_state.py` as required. These essential artifacts are
+    missing, so the task is not genuinely completed.
