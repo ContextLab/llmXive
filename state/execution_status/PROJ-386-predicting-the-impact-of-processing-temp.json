@@ -1,20 +1,20 @@
 {
   "project_id": "PROJ-386-predicting-the-impact-of-processing-temp",
   "ok": false,
-  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=1); python code/main.py (rc=1)",
+  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=2); python code/main.py (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/main.py --sample-size 100 --timeout 3600 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/main.py\", line 18, in <module>\n    from config import GITHUB_ACTIONS_TIMEOUT, DATA_RAW_PATH, DATA_PROCESSED_PATH, ARTIFACTS_PATH\nImportError: cannot import name 'DATA_RAW_PATH' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/config.py)",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/main.py\", line 18, in <module>\n    from config import GITHUB_ACTIONS_TIMEOUT, DATA_RAW_PATH, DATA_PROCESSED_PATH, ARTIFACTS_PATH\nImportError: cannot import name 'DATA_RAW_PATH' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/config.py)"
+    "python code/main.py --sample-size 100 --timeout 3600 -> rc=2\n    usage: main.py [-h] [--timeout TIMEOUT]\nmain.py: error: unrecognized arguments: --sample-size 100",
+    "python code/main.py -> rc=1\n    2026-09-19 13:33:43,433 - INFO - Hard timeout set to 18000 seconds (5:00:00).\n2026-09-19 13:33:43,433 - INFO - Verifying runner environment...\n2026-09-19 13:33:45,872 - INFO - No GPU detected. Running on CPU.\n2026-09-19 13:33:45,872 - INFO - Detected CPU count: 4\n2026-09-19 13:33:45,872 - INFO - Starting pipeline execution...\n2026-09-19 13:33:45,873 - INFO - Data ingestion module found. Executing...\nusage: ingestion.py [-h] --urls URLS [URLS ...] --output OUTPUT\n                    [--stats STATS]\ningestion.py: error: the following arguments are required: --urls"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
   "offload": {
     "status": "running",
     "kernel_ref": "jeremy9/llmxive-proj-386-predicting-the-impact-of-processi",
-    "submitted_at": "2026-09-19T12:42:36Z",
+    "submitted_at": "2026-09-19T13:35:31Z",
     "reason": "",
     "evidence": []
   },
-  "updated_at": "2026-09-19T12:42:38Z"
+  "updated_at": "2026-09-19T13:35:35Z"
 }
