@@ -42,3 +42,51 @@ T017:
     \ met. The implementer must supply the validation implementation (e.g., a function\
     \ or pipeline step) and evidence (e.g., logs, test results) that the final dataset\
     \ contains zero nulls."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The response contains only the task description and specification; no script,\
+    \ log file, or code implementing \u201Clog mismatch counts and proceed only if\
+    \ overlap\u202F\u2265\u202F500 samples; fail gracefully otherwise\u201D is provided.\
+    \ Consequently, there is no artifact to verify that the required behavior is implemented.\
+    \ The missing implementation (e.g., a Python/R script that computes the overlap,\
+    \ logs the mismatch count, and aborts when <\u202F500) must be added."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No result artifact (e.g., a CSV/TSV table or report) showing filtered associations\
+    \ with adjusted p\u202F<\u202F0.05 and an explicit \u201Cassociational\u201D label\
+    \ was provided. Without such a file we cannot confirm that the filtering, flagging,\
+    \ and labeling were actually performed. The implementer must supply the concrete\
+    \ output containing the significant associations and the required label."
+T031:
+  c: false
+  h: 5d8daf9be72def3f2108f294d46eae97b53bbbbc9b2784c115ee9e482af073be
+  r: "The required `data/processed/null_threshold.json` file does not exist, and the\
+    \ provided `code/04_predictive_modeling.py` is truncated (ends with an unfinished\
+    \ assignment) and contains no permutation\u2011test logic or code that computes\
+    \ and writes the 95th\u2011percentile R\xB2 threshold. Both the artifact and the\
+    \ implementation are missing."
+T032:
+  c: false
+  h: 2d4c7a30e3f6794c0e9fd707c2fdb6eafbedd06a8f90211cd4ffb024bfd46d52
+  r: "The required output file `data/processed/top_taxa.json` does not exist, and\
+    \ the provided `code/04_predictive_modeling.py` lacks any implementation for extracting\
+    \ Random Forest feature importances, selecting top taxa, or writing them to a\
+    \ JSON file (the script is truncated and ends before such logic). Consequently,\
+    \ the task\u2019s core requirement is unmet."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test scripts, logs, or resulting dataframe were provided; there is no evidence\
+    \ that contract tests for the merged dataframe schema were executed or that they\
+    \ passed the required checks (\u2265500 rows, non\u2011null microbial genera and\
+    \ cognitive scores, ID overlap, age filter, imputation). The implementer must\
+    \ supply the test code and its execution output demonstrating compliance."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test artifacts (e.g., test scripts, execution logs, or result reports) were\
+    \ provided to demonstrate that integration tests for the age\u202F\u2265\u202F\
+    60 filter and missing\u2011value imputation were actually run and passed. Without\
+    \ such evidence, the requirement cannot be verified as satisfied."

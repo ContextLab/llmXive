@@ -1,11 +1,12 @@
 status: none
-intent: pytorchvideo dataset loaders for UCF101 Kinetics DAVIS python package dataset
+intent: download shot boundary detection dataset UCF101 Kinetics TRECVID VSB100 MovieNet
+  python package dataset
 required_fields:
 - video_id
-- video_filepath
+- video_file_path
 - continuity_score
-- frame_count
-- fps
-cache_key: 013533bc0f3040a9297189dd2317fed0e531077fd43ca2c8e0a65877a518e22b
-searched_at: '2026-08-26T22:12:47.909382+00:00'
+- cut_label
+- annotator_id
+cache_key: 727c5952a9d14298803ff03f0fd894bedba5af49a4902b673503d19377cd44ea
+searched_at: '2026-09-19T12:41:29.291773+00:00'
 retry_count: 1

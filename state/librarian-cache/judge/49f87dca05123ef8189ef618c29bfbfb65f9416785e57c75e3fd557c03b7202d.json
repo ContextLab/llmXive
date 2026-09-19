@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.12384",
+  "judged_at": "2026-09-19T12:57:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"locateanything: fast and high-quality vision-language grounding with p\" computer science",
+  "rationale": "This paper satisfies criterion (b) by providing an empirical baseline and evaluation framework for \"visual grounding\" (a core component of the user's referenced \"LocateAnything\" work) within a specific domain (remote sensing), which is essential for a literature review on extending grounding capabilities. It also aligns with criterion (f) as a canonical dataset paper in the vision-language grounding cluster, offering the necessary data and metrics to benchmark the \"fast and high-quality\" perform",
+  "relevant": true
+}

@@ -1,0 +1,38 @@
+- **ContinuityScore**: A manual ground-truth label representing temporal stability. This score is derived solely from pixel-space visual inspection using a 5-point Likert scale rubric distinguishing motion continuity from scene cuts.
+- **DivergenceMetric**: A computed float value representing the sum of squared L2 distances (normalized by dimension D) between the model's predicted latent state and a High-Resolution Euler Baseline (high-resolution Euler rollout). This metric quantifies numerical integration error (model instability). The metric is labeled as "flow-map divergence (N=500)" or "flow-map divergence (N=<N_max>)" depending on the baseline steps used.
+- **SensitivityReport**: A structured output listing threshold values {, 0.05, 0.1} and baseline resolutions {500, 200, 100} (or restricted set) and their corresponding classification error rates.
+- **VarianceReport**: A distinct output artifact (variance_report.csv) containing the calculated variance of the ContinuityScore distribution.
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: The analysis script MUST output a Pearson $r$ value, a Spearman $\rho$ value, and a p-value; the result is recorded regardless of magnitude. (See US-3)
+- **SC-002**: The full pipeline (download, annotation, inference, analysis) MUST complete within 6 hours on a CPU-only runner (ubuntu-22.04, 2-core vCPU, 7GB RAM) with peak memory usage ≤ 7 GB. If N=200 is used, the report MUST state this. (See US-2)
+- **SC-003**: The sensitivity analysis MUST report distinct classification rates (false-positive rate and false-negative rate) for a range of threshold values {0.01, 0.05, 0.1} AND baseline resolutions, using manual scores > 0.5 as positive labels. (See US-3)
+- **SC-004**: The system MUST output a distinct artifact variance_report.csv containing the variance of the ContinuityScore distribution, and this artifact MUST be linked to the final report via `final_report_manifest.json`. (See US-1)
+- **SC-005**: The final report MUST explicitly state that the AnyFlow model was run in CPU-only mode without CUDA or quantization methods requiring GPU hardware. (See US-2)
+- **SC-006**: The system MUST output the divergence scores in CSV format and link this file to the final report. (See US-2)
+- **SC-007**: The system MUST output an `adjudication_log.csv` file containing the expert ID and resolution for each disagreement. (See US-1)
+- **SC-008**: The system MUST output a `control_analysis.csv` file containing the results of the control analysis. (See US-2)
+- **SC-009**: The system MUST output a `dip_test_results.csv` file containing the p-value from Hartigan's Dip Test and the bimodality decision. (See US-3)
+- **SC-010**: The system MUST output a `power_analysis_report.md` file containing the parameters (effect size r=0.12, power=80%, alpha=0.05) and results of the power analysis. (See US-1)
+- **SC-011**: The system MUST output a `synthetic_validation_report.md` file containing the results of the synthetic subset validation. (See US-3)
+- **SC-012**: The system MUST output a `runtime_pilot_report.md` file containing the 95% confidence interval for the runtime pilot, the estimated total runtime, the decision (N=500 vs N=200), and the pilot correlation verification result (r > 0.7). (See US-2)
+- **SC-018**: The system MUST output a `fisher_z_test_results.csv` file containing the p-value and the decision for the null hypothesis test. (See US-3)
+- **SC-019**: The system MUST output a `traceability_matrix.json` file that maps every figure/statistic to a data row and code block. (See US-1)
+
+## Assumptions
+
+- The public video repositories (UCF101, Kinetics, DAVIS) provide sufficient raw data to curate a representative set of distinct short clips containing both continuous motion and abrupt scene cuts, provided a stratified sampling strategy is used. The UCF101 source is the official Google Drive link or a verified HF dataset card with a stable commit hash. The DAVIS source is verified to contain annotated scene cuts or is replaced by a Kinetics-400 subset known to contain such cuts. The system MUST verify the presence of cut labels via a pre-flight scene-cut detection tool (e.g., PySceneDetect) before proceeding.
+- The frozen AnyFlow model weights are available in a format compatible with ONNX Runtime conversion for CPU inference without requiring retraining or fine-tuning. The source is the official model repository or a stable release tag containing the 'AnyFlow' weights.
+- Manual annotation of a representative set of clips by a human (or small team) is feasible within the project timeline, assuming approximately two minutes per clip.
+- The "flow-map divergence" metric defined as the sum of squared L2 distances (normalized by dimension D) between predicted and Euler-rolled states is computationally tractable on a limited number of CPU cores for 16-frame sequences with N=500 steps (or N=200 as a fallback).
+- The relationship between video content discontinuity and model trajectory stability may be linear or monotonic; therefore, both Pearson and Spearman correlations are used to capture potential non-linear patterns.
+- No GPU hardware is available or permitted for this analysis; all methods must strictly adhere to CPU-only execution constraints.
+- The "temporal continuity score" is a valid proxy for the ground truth of scene cuts and object appearances, assuming the annotator follows a consistent rubric and does not use model-derived features.
+- The hypothesis that "distilled models fail more on cuts than on smooth motion" is tested by comparing the *change* in numerical error (divergence) across conditions. "Fail" in this context refers to the numerical divergence exceeding a threshold relative to the baseline, not necessarily semantic degradation. The correlation analysis tests whether this numerical failure rate is higher for discontinuous scenes.
+- N=500 is selected as the baseline because it provides a discretization error < 1e-3 in pilot tests, and the sensitivity analysis will explicitly sweep N=500, N=200, and N=100 to verify robustness against the Euler solver's approximation error.
+- The null hypothesis that numerical error is uncorrelated with semantic discontinuity must be tested and rejected (or not) based on the correlation results.
+- The 50/50 stratified sampling is used to ensure statistical power, and inverse-probability weighting (IPW) is applied to correct for selection bias. The natural prevalence of cuts is estimated to be low.
+- The 'synthetic subset' for validation consists of physically modified real clips, not simulated data.

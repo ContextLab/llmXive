@@ -1,75 +1,86 @@
 # Quickstart: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
 ## Prerequisites
-- Python 3.11+
-- Git
-- Internet access (to download HF datasets)
-- 2 CPU cores, ≤ 7 GB RAM (GitHub Actions free tier)
+
+- **OS**: Linux (Ubuntu 22.04 recommended)
+- **Python**: 3.11+
+- **RAM**: 7GB+ (for streaming)
+- **Disk**: 14GB+ (for video cache)
+- **GPU**: None required (CPU-only)
 
 ## Installation
 
-```bash
-git clone <repo-url>
-cd projects/PROJ-812-llmxive-follow-up-extending-anyflow-any
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-pip install -r code/requirements.txt
-```
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-812-llmxive-follow-up-extending-anyflow-any
+    ```
 
-## Annotation Step (Human‑Generated Ground Truth)
+2.  **Create a virtual environment** and install dependencies:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins `onnxruntime`, `opencv-python`, `pyscenedetect`, `pandas`, `scikit-learn`, `scipy`, `datasets`.*
 
-1. **External Annotation**: Use a tool like Label Studio or Google Forms to collect scores from **two** independent annotators for the curated clips. Export the results as a CSV.
-2. **Ingest Annotations**: Run the ingestion script to load the external CSV:
+3.  **Verify Dataset Availability**:
+    - Check `research.md` for the list of verified video datasets.
+    - **CRITICAL**: If no verified URL is present for UCF101/Kinetics/DAVIS, the pipeline will fail. Ensure a verified source is added to the `research.md` block before proceeding.
 
-   ```bash
-   python code/annotation/collect_annotations.py --input-csv external_annotations.csv --clip-dir data/raw/video_clips/
-   ```
+## Execution Workflow
 
-3. **Validate & Adjudicate**: Validate inter‑annotator agreement and resolve disagreements:
+### Phase 1: Data Curation & Annotation
+1.  **Download & Stratify**:
+    ```bash
+    python code/download_curation.py --source <verified_dataset_id> --stratify --output data/raw/
+    ```
+    - Runs PySceneDetect, stratified sampling (balanced).
+    - Outputs `data/raw/clips.csv`.
 
-   ```bash
-   python code/annotation/validate_annotations.py data/raw/ground_truth.csv
-   python code/annotation/adjudicate.py data/raw/ground_truth.csv
-   ```
+2.  **Manual Annotation**:
+    - Open `code/annotation_tool.py` (GUI or CLI).
+    - Annotate clips using a Likert rubric.
+    - System checks Cohen's Kappa. If < 0.81, it halts.
+    - Output: `data/annotations/manual_continuity_scores.csv`.
 
-   - If Cohen’s κ < 0.81 the pipeline aborts.
-   - Disagreements are automatically forwarded to `annotation/adjudicate.py` for a third expert.
+### Phase 2: CPU Inference
+1.  **Run Pilot**:
+    ```bash
+    python code/inference_cpu.py --mode pilot --n_clips [selected_count]
+    ```
+    - Estimates runtime. If > 5.5h, reduces N to 200.
 
-   The resulting immutable CSV `data/raw/ground_truth.csv` is checksummed before any further processing.
+2.  **Full Inference**:
+    ```bash
+    python code/inference_cpu.py --mode full --n_clips <NUM_CLIPS>
+    ```
+    - Computes divergence scores.
+    - Output: `data/processed/divergence_scores.csv`.
 
-## Running the Full Pipeline
+### Phase 3: Analysis & Validation
+1.  **Statistical Analysis**:
+    ```bash
+    python code/analysis_stats.py
+    ```
+    - Performs correlation, regression, sensitivity analysis.
+    - Output: `artifacts/final_report_manifest.json`, `artifacts/power_analysis_report.md`.
 
-The orchestrator enforces strict phase ordering:
-
-```bash
-python code/main.py
-```
-
-This will:
-
-1. Verify all external URLs (`utils/reference_validator.py`).  
-2. Download & stratify a representative set of video clips (`download_and_stratify.py`).  
-3. Generate `data/checksums.json`.  
-4. Load the AnyFlow ONNX model (`load_onnx.py`).  
-5. Compute divergence metrics (`compute_divergence.py`).  
-6. Perform control analysis, Fisher r‑to‑z test, correlation/IPW, logistic regression, and sensitivity sweeps.  
-7. Run the synthetic‑subset validation (`synthetic_validation_subset.py`).  
-8. Produce `results/final_report.md` and all CSV/JSON artifacts.
-
-## Expected Outputs
-- `data/processed/divergence_scores.csv`  
-- `data/processed/sensitivity_report.csv`  
-- `data/processed/variance_report.csv`  
-- `data/processed/control_analysis.json`  
-- `results/final_report.md` (includes explicit associational framing)
-
-## Runtime & Resources
-- **Estimated wall‑time**: 4–5 h on the free‑tier runner (≤ 6 h budget).  
-- **Peak RAM**: < 7 GB (streaming).  
-- **GPU**: Not required; all code runs on CPU.  
+2.  **Synthetic Validation**:
+    ```bash
+    python code/validation.py --mode synthetic
+    ```
+    - Validates false-positive/negative rates.
+    - Output: `artifacts/synthetic_validation_report.md`.
 
 ## Verification
-```bash
-pytest tests/
-```
-All tests include contract validation (`test_contracts.py`) against the YAML schemas in `contracts/`.
+
+1.  **Check Artifacts**: Ensure all files listed in `final_report_manifest.json` exist and checksums match.
+2.  **Check Kappa**: Verify `adjudication_log.csv` shows Kappa ≥ 0.81.
+3.  **Check Runtime**: Ensure total runtime < 6 hours (recorded in `runtime_pilot_report.md`).
+
+## Troubleshooting
+
+- **Memory Error**: Ensure `streaming=True` is used in `datasets.load_dataset`. Reduce batch size.
+- **Runtime Error**: If N=500 is too slow, the pilot should have auto-reduced to N=200. Check `runtime_pilot_report.md`.
+- **No Data**: If the script fails to find a dataset, verify the `research.md` "Verified datasets" block contains a valid Hugging Face video dataset URL.

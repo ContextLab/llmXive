@@ -60,7 +60,7 @@
 - [X] T005 Implement deterministic data fetching utilities with checksum validation in `code/utils/data_fetchers.py`
 - [X] T006 Setup logging infrastructure and memory usage monitoring in `code/utils/logging.py`
 - [X] T007 Create base data models/entities (Sample, Taxon) in `code/utils/data_models.py`
-- [ ] T008 Implement CPU-only execution guard and resource limit checks (≤7GB RAM, ≤6h) in `code/utils/resource_guard.py`
+- [X] T008 Implement CPU-only execution guard and resource limit checks (≤7GB RAM, ≤6h) in `code/utils/resource_guard.py`
 - [ ] T009 Setup environment configuration management for dataset paths and random seeds <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
@@ -91,12 +91,12 @@
 - [X] T015 [US1] Implement age ≥ 60 filter and covariate (BMI, education) imputation logic in `code/02_preprocessing.py`
 - [X] T016 [US1] Implement Rarefaction to uniform depth (minimum read depth of retained samples) and collapse to genus-level relative abundances in `code/02_preprocessing.py` (Per Spec FR-002)
 - [ ] T017 [US1] Add validation to ensure no null values remain in the final analysis dataset
-- [~] T018 [US1] Log mismatch counts and proceed only if overlap ≥ 500 samples; fail gracefully otherwise
+- [ ] T018 [US1] Log mismatch counts and proceed only if overlap ≥ 500 samples; fail gracefully otherwise
 
 ### Phase 3b: Test Execution (Run after Implementation)
 
-- [~] T045 Execute contract tests for merged dataframe schema
-- [~] T046 Execute integration tests for age filtering and missing value imputation
+- [ ] T045 Execute contract tests for merged dataframe schema
+- [ ] T046 Execute integration tests for age filtering and missing value imputation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,14 +110,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 Write contract test code for correlation output schema (rho, p-value, adj-p-value) in `tests/contract/test_correlation.py`
+- [X] T019 Write contract test code for correlation output schema (rho, p-value, adj-p-value) in `tests/contract/test_correlation.py`
 - [ ] T020 Write integration test code for FDR correction logic in `tests/integration/test_correlation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 Implement Centered Log-Ratio (CLR) transformation for rarefied taxonomic data in `code/03_correlation_analysis.py`
-- [ ] T022 [US2] Implement Spearman rank correlation calculation between genus abundances and cognitive scores (PRIMARY METHOD per Spec FR-003) in `code/03_correlation_analysis.py`
-- [ ] T023 [US2] Implement Benjamini-Hochberg FDR correction (α = 0.05) on raw p-values in `code/03_correlation_analysis.py`
+- [X] T021 Implement Centered Log-Ratio (CLR) transformation for rarefied taxonomic data in `code/03_correlation_analysis.py`
+- [X] T022 [US2] Implement Spearman rank correlation calculation between genus abundances and cognitive scores (PRIMARY METHOD per Spec FR-003) in `code/03_correlation_analysis.py`
+- [X] T023 [US2] Implement Benjamini-Hochberg FDR correction (α = 0.05) on raw p-values in `code/03_correlation_analysis.py`
 - [ ] T024 [US2] Filter and flag significant associations (adj-p < 0.05) and explicitly label as "associational" in results output
 - [ ] T025 [US2] Generate summary report of significant genus-score pairs in `data/processed/correlation_results.csv`
 
@@ -133,12 +133,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 Write contract test code for model metrics schema (R², RMSE, VIF) in `tests/contract/test_model_metrics.py`
+- [X] T028 Write contract test code for model metrics schema (R², RMSE, VIF) in `tests/contract/test_model_metrics.py`
 - [ ] T029 Write integration test code for permutation null distribution generation in `tests/integration/test_permutation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement Random Forest regressor training with Nested Cross-Validation (inner loop: hyperparameter tuning; outer loop: evaluation) in `code/04_predictive_modeling.py` (FR-004, Plan Summary)
+- [X] T030 [US3] Implement Random Forest regressor training with Nested Cross-Validation (inner loop: hyperparameter tuning; outer loop: evaluation) in `code/04_predictive_modeling.py` (FR-004, Plan Summary)
 - [ ] T031 [US3] Implement permutation test (sufficient shuffles) to generate null distribution for R² scores AND explicitly calculate and save the 95th percentile threshold to `data/processed/null_threshold.json` in `code/04_predictive_modeling.py`
 - [ ] T032 [US3] Implement logic to identify and select 'top predictive taxa' based on Random Forest feature importance (mean decrease in impurity or permutation importance) and save list to `data/processed/top_taxa.json` in `code/04_predictive_modeling.py`
 - [ ] T033 [US3] Calculate Variance Inflation Factors (VIF) for the 'top predictive taxa' (from T032) after CLR transformation; flag pairs with VIF > 5 and generate `data/processed/collinearity_review_log.json` (FR-006) in `code/04_predictive_modeling.py`

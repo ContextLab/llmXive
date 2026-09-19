@@ -1,133 +1,142 @@
 # Implementation Plan: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
-**Branch**: `001-llmxive-follow-up-extending-anyflow-any` | **Date**: 2026-08-26 | **Spec**: `spec.md`
-**Input**: Feature specification for CPU‑tractable flow‑map divergence analysis.
+**Branch**: `001-llmxive-follow-up-extending-anyflow-any` | **Date**: 2026-08-22 | **Spec**: `specs/001-llmxive-follow-up-extending-anyflow-any/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-anyflow-any/spec.md`
 
 ## Summary
-This plan implements a rigorous, reproducible pipeline that (1) curates a balanced video dataset using verified sources (UCF101 for continuous motion, MovieNet for scene cuts), (2) collects independent human continuity scores via an external annotation workflow, (3) computes a CPU‑only "flow‑map divergence" metric using a frozen AnyFlow model in ONNX Runtime, (4) performs statistically sound correlation and classification analyses (including Fisher's r‑to‑z test and IPW weighting), (5) validates the analysis logic on a synthetic subset (FR-012), and (6) produces a final report. All steps respect the CI runtime and 7 GB RAM limits. The plan strictly separates the *pipeline integrity test* (using synthetic data) from the *scientific validation* (using human scores) to avoid circularity.
+
+This project extends the AnyFlow video diffusion model by introducing a "flow-map divergence" metric to quantify model instability under temporal discontinuities (scene cuts). The study curates a stratified dataset of video clips (balanced between continuous motion and scene cuts), manually annotates them for continuity, and computes CPU-tractable divergence scores using an ONNX-optimized AnyFlow model. The core hypothesis is that numerical integration error (divergence) correlates with semantic discontinuity. The plan strictly adheres to CPU-only execution on GitHub Actions (a limited core configuration, constrained RAM).
+
+The research question remains: [Insert Research Question]
+The method remains: [Insert Method]
+References: [Insert References], utilizing ONNX Runtime for inference and streaming/stratified sampling to manage data volume. Statistical analysis includes Spearman correlation (primary), Pearson (exploratory), logistic regression with Inverse-Probability Weighting (IPW), and sensitivity analysis on solver steps and classification thresholds.
+
+**Critical Feasibility Note**: The plan requires a verified video dataset URL and a verified model source. If no verified URL is found in the "Verified datasets" block, the pipeline HALTS immediately with a "Data Availability Failure". No fallback to "assumed" sources is permitted.
 
 ## Technical Context
 
-- **Language/Version**: Python 3.11  
-- **Core Libraries**: `torch` (CPU wheel), `onnxruntime`, `datasets` (streaming), `pandas`, `scikit‑learn`, `scipy`, `statsmodels`, `numpy`, `matplotlib`, `seaborn`, `hypothesis` (for synthetic generation)
-- **Storage**: `data/` (raw, processed, checksums), `results/` (final report)  
-- **Compute**: CPU‑first; only ONNX Runtime on CPU; no GPU required.  
-- **Testing**: `pytest` with contract validation (`tests/test_contracts.py`) against YAML schemas in `contracts/` and unit tests for each module.  
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `onnxruntime` (CPU), `opencv-python`, `pyscenedetect`, `pandas`, `scikit-learn`, `scipy`, `huggingface_hub`, `datasets`  
+**Storage**: Local filesystem (`data/` for raw/processed clips, `code/` for scripts)  
+**Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow)  
+**Target Platform**: Linux (GitHub Actions ubuntu-latest runner, CPU-only)  
+**Project Type**: Research/Data Pipeline  
+**Performance Goals**: Full pipeline (500 clips) ≤ 6 hours; Peak RAM ≤ 7 GB  
+**Constraints**: NO GPU; NO external API calls for data download; strict adherence to stratified sampling; manual annotation required for ground truth.  
+**Scale/Scope**: 500 video clips (16 frames each @ 30fps); 50 clips for control analysis; 50 clips for pilot.
 
-## Project Structure
-
-```text
-projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/
-├─ code/
-│  ├─ __init__.py
-│  ├─ requirements.txt
-│  ├─ data/
-│  │  ├─ download_and_stratify.py          # FR‑001
-│  │  ├─ annotation/
-│  │  │   ├─ collect_annotations.py        # FR‑002 (human ingestion)
-│  │  │   ├─ validate_annotations.py        # FR‑010 (Kappa, variance, bimodality)
-│  │  │   └─ adjudicate.py                  # FR‑002 (third‑expert resolution)
-│  │  ├─ model/
-│  │  │   ├─ load_onnx.py                  # FR‑003
-│  │  │   └─ compute_divergence.py          # FR‑004
-│  │  ├─ analysis/
-│  │  │   ├─ correlation.py                # FR‑005 (Pearson, Spearman, IPW)
-│  │  │   ├─ fisher_r_to_z.py              # FR‑004 null‑hypothesis test
-│  │  │   ├─ control_analysis.py           # FR‑004 control distribution
-│  │  │   ├─ sensitivity.py                # FR‑006
-│  │  │   ├─ power_analysis.py             # FR‑011
-│  │  │   └─ synthetic_validation_subset.py # FR‑012 (synthetic subset generation & verification)
-│  │  ├─ utils/
-│  │  │   ├─ checksums.py                  # Versioning Discipline (Principle V)
-│  │  │   ├─ logging.py
-│  │  │   └─ reference_validator.py        # Constitution II verification
-│  │  └─ main.py                            # Orchestrator (phase ordering)
-├─ data/
-│  ├─ raw/
-│  │   ├─ video_clips/                      # 16‑frame clips (streamed)
-│  │   └─ ground_truth.csv                  # immutable human annotations
-│  ├─ processed/
-│  │   ├─ divergence_scores.csv
-│  │   ├─ sensitivity_report.csv
-│  │   └─ variance_report.csv
-│  └─ checksums.json                        # SHA‑256 hashes for raw files
-├─ results/
-│   └─ final_report.md
-├─ tests/
-│   ├─ test_contracts.py
-│   └─ test_units.py
-└─ contracts/
-   ├─ analysis.schema.yaml
-   ├─ annotation.schema.yaml
-   ├─ clip.schema.yaml
-   ├─ clip_feature_schema.schema.yaml
-   ├─ clip_metadata.schema.yaml
-   ├─ continuity_scores.schema.yaml
-   ├─ correlation_results.schema.yaml
-   ├─ dataset.schema.yaml
-   ├─ divergence.schema.yaml
-   ├─ divergence_metric_schema.schema.yaml
-   ├─ divergence_metrics.schema.yaml
-   ├─ divergence_schema.schema.yaml
-   ├─ ground_truth_schema.schema.yaml
-   ├─ metric.schema.yaml
-   ├─ result.schema.yaml
-   ├─ results.schema.yaml
-   ├─ sensitivity.schema.yaml
-   ├─ sensitivity_report.schema.yaml
-   ├─ sensitivity_schema.schema.yaml
-   ├─ threshold_result_schema.schema.yaml
-   └─ variance_report.schema.yaml
-```
-
-### Phase Mapping (FR → Script)
-
-| Functional Requirement | Phase | Script(s) |
-|------------------------|-------|-----------|
-| **FR‑001**: Download & stratify clips (balanced continuous/cut) | Data Curation | `download_and_stratify.py` (uses `datasets.load_dataset(..., streaming=True)` on UCF101 and MovieNet) |
-| **FR‑002**: Human annotation (5‑point Likert, blinded) | Ground Truth | `annotation/collect_annotations.py` (ingests external CSV) → produces `ground_truth.csv` |
-| **FR‑002**: Third-expert adjudication | Validation | `annotation/adjudicate.py` |
-| **FR‑010**: Inter‑annotator agreement & variance check | Validation | `annotation/validate_annotations.py` (Cohen's κ, variance, Hartigan's Dip) |
-| **FR‑003**: Load frozen AnyFlow in ONNX (CPU) | Model Loading | `model/load_onnx.py` |
-| **FR‑004**: Compute flow‑map divergence, baseline Euler, control analysis, Fisher r‑to‑z | Metric Computation | `model/compute_divergence.py`, `analysis/control_analysis.py`, `analysis/fisher_r_to_z.py` |
-| **FR‑005**: Correlation, logistic regression, IPW | Statistical Analysis | `analysis/correlation.py` |
-| **FR‑006**: Sensitivity sweep (thresholds & N) | Sensitivity | `analysis/sensitivity.py` |
-| **FR‑009**: Pre‑flight runtime estimate, adapt N | Complexity | `analysis/power_analysis.py` (also used for FR‑011) |
-| **FR‑012**: Synthetic subset validation | Synthetic Validation | `analysis/synthetic_validation_subset.py` |
-| **Constitution II**: Verify URLs | Reference Validation | `utils/reference_validator.py` |
-| **Constitution V**: Checksums & versioning | Versioning | `utils/checksums.py` |
-| **Constitution VI**: Stability check after quantization | Fidelity | `analysis/fidelity_check.py` (re‑run correlation after adding 0.01 noise) |
-
-### Detailed Tasks (ordered)
-
-1. **Reference Validation** – `utils/reference_validator.py` runs before any download to ensure all URLs in `research.md` are reachable and match the verified list.
-2. **Dataset Download & Stratified Sampling** – `download_and_stratify.py` streams clips, extracts a representative subset of frames at 30 fps, and enforces a balanced cut-continuous split using verified labels from UCF101 (continuous) and MovieNet (cuts).
-3. **Checksum Generation** – `utils/checksums.py` creates `data/checksums.json` for every raw file (clips and `ground_truth.csv`). This satisfies Principle V.
-4. **Human Annotation Collection** – `annotation/collect_annotations.py` ingests a pre-collected CSV of human scores (generated via external tool like Label Studio) and stores them in `data/raw/ground_truth.csv`.
-5. **Inter‑Annotator Agreement & Adjudication** – `annotation/validate_annotations.py` computes Cohen's κ; if κ < 0.81, the pipeline aborts. Disagreements are resolved by `annotation/adjudicate.py` (third expert), producing a final immutable CSV.
-6. **Model Loading** – `model/load_onnx.py` converts the frozen AnyFlow checkpoint to ONNX (CPU) on‑the‑fly and caches the model hash.
-7. **Divergence Computation** – `model/compute_divergence.py` runs on each clip, computes the high‑resolution Euler baseline (default N=500), checks convergence, falls back to N=200 if FR‑009 demands, and records additional temporal features (kurtosis, clustering). Errors are logged and the clip is marked "skipped".
-8. **Control Distribution Analysis** – `analysis/control_analysis.py` compares divergence score distributions between the verified smooth (UCF101) and cut (MovieNet) groups (Kolmogorov‑Smirnov test) and outputs a small report.
-9. **Fisher r‑to‑z Null‑Hypothesis Test** – `analysis/fisher_r_to_z.py` performs Fisher's transformation on the Pearson r and reports the z‑score and p‑value for H₀: r = 0.
-10. **Correlation & IPW** – `analysis/correlation.py` calculates Pearson, Spearman, applies inverse‑probability weighting to correct the artificial 50/50 sampling, and fits a multivariate logistic regression (features: divergence, kurtosis, clustering). Outputs `analysis_results.json` validated against `contracts/analysis.schema.yaml`.
-11. **Sensitivity Sweep** – `analysis/sensitivity.py` iterates over thresholds spanning low to moderate significance levels and Euler steps {[deferred]} (or restricted set if N < 500) and writes `sensitivity_report.csv`.
-12. **Synthetic Validation Subset** – `analysis/synthetic_validation_subset.py` builds a synthetic dataset with known binary labels (using `hypothesis`), runs the full metric pipeline, and verifies false‑positive/negative rates against hand‑computed expectations (≤ 0.01 error). Results are stored in `synthetic_validation_report.json`.
-13. **Power Analysis** – `analysis/power_analysis.py` confirms that N=500 achieves 80 % power to detect r≈0.12 (α = 0.05). If the pre‑flight estimate exceeds a critical threshold, N is reduced to 200. and the pilot re‑run to ensure r > 0.7 before full execution (FR‑009).
-14. **Fidelity Check (Constitution VI)** – `analysis/fidelity_check.py` adds small Gaussian noise (σ=0.01) to latent vectors, recomputes Pearson r, and verifies that |Δr| ≤ 0.05.
-15. **Report Generation** – `results/final_report.md` aggregates all metrics, includes explicit associational framing, documents all steps, and links each figure/table to its source CSV (Principle IV).
+> **Dataset & Model Gap**: The spec references UCF101, Kinetics, and DAVIS. The verified dataset block indicates **NO verified source** for UCF101, DAVIS, or a direct CPU-optimized AnyFlow model.
+> - **Data**: The pipeline will attempt to load a verified video dataset via `datasets.load_dataset("kinetics-400")` (if available in the HF Hub with verified URL). **If no verified source is found, the pipeline HALTS with "Data Availability Failure"**. The 'verified_small_set' is ONLY for pipeline validation, not the main study.
+> - **Model**: The pipeline requires the frozen AnyFlow weights in ONNX format. **If no verified source for the weights or conversion artifact is found, the pipeline HALTS with "Model Unavailable Failure"**.
+> - **Action**: The implementation script `download_curation.py` and `inference_cpu.py` will check for these sources. If missing, they exit with code 1 and a clear error message. No synthetic data or assumed sources are used for the primary hypothesis test.
 
 ## Constitution Check
 
-| Principle | Status | Action/Note |
-|-----------|--------|-------------|
-| **I. Reproducibility** | PASS | Seeds pinned; all external data fetched via verified URLs; `main.py` enforces strict phase ordering. |
-| **II. Verified Accuracy** | PASS | `utils/reference_validator.py` runs before any download; citations limited to verified URLs listed in `research.md`. |
-| **III. Data Hygiene** | PASS | Checksums recorded; no in‑place mutation; raw files immutable. |
-| **IV. Single Source of Truth** | PASS | Every figure/table references a single row in a CSV; contracts enforce schema compliance. |
-| **V. Versioning Discipline** | PASS | `utils/checksums.py` generates `data/checksums.json`; artifact hashes tracked in `state/`. |
-| **VI. Latent Trajectory Fidelity** | PASS | Fidelity check (`analysis/fidelity_check.py`) ensures Pearson r stability within ±0.05 after quantization/noise. |
-| **VII. Temporal Continuity Ground Truth** | PASS | Human annotations collected **outside** CI (ingested as immutable CSV); adjudication ensures high agreement. |
+*Gates determined based on constitution file*
 
-### Two-Phase Validation Strategy
-- **Pipeline Integrity Test**: Uses a synthetic subset (FR-012) with known labels to verify code correctness and error rates. This does *not* validate the scientific hypothesis.
-- **Scientific Validation**: Uses independent human annotations (FR-002) to test the hypothesis. This is the only data used for the final correlation and regression results.
+- **Principle I (Reproducibility)**: Plan mandates pinned `requirements.txt` and fixed random seeds in `code/`. All data downloads use `datasets.load_dataset(..., trust_remote_code=True)` with explicit commit hashes where possible.
+- **Principle II (Verified Accuracy)**: Citations to AnyFlow and statistical methods will be validated against the primary sources. No unverified URLs for datasets or models will be used; if a source is missing from the verified block, the plan will halt or flag the gap.
+- **Principle III (Data Hygiene)**: All data files under `data/` will be checksummed. Raw data is immutable; derived artifacts (divergence scores, annotations) are new files.
+- **Principle IV (Single Source of Truth)**: `traceability_matrix.json` will map every statistic to a data row and code block.
+- **Principle V (Versioning)**: Artifacts will carry content hashes.
+- **Principle VI (Latent Trajectory Fidelity)**: The plan specifies using the *exact* frozen AnyFlow weights (via ONNX conversion) and documents any quantization changes. Correlation stability ($r > 0.7 \pm 0.05$) is a mandatory check. The plan includes a 'Stability Re-run Mechanism' to explicitly verify this.
+- **Principle VII (Temporal Continuity Ground Truth)**: The plan enforces a strict separation: manual annotations (pixel-space only) are recorded *before* any model inference. No circular logic allowed.
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-llmxive-follow-up-extending-anyflow-any/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── video_clip.schema.yaml
+│   ├── divergence_result.schema.yaml
+│   ├── analysis_report.schema.yaml
+│   ├── rubric_definition.md
+│   ├── ipw_log.json
+│   ├── dip_test_results.csv
+│   ├── fisher_z_test_results.csv
+│   ├── control_analysis.csv
+│   ├── runtime_pilot_report.md
+│   ├── power_analysis_report.md
+│   ├── synthetic_validation_report.md
+│   ├── variance_report.csv
+│   ├── manual_calculation_expected.json
+│   └── adjudication_log.csv
+└── tasks.md             # Phase 2 output
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/
+├── data/
+│   ├── raw/                 # Downloaded video clips (stratified)
+│   ├── annotations/         # manual_continuity_scores.csv, adjudication_log.csv, rubric_definition.md
+│   ├── processed/           # divergence_scores.csv, control_analysis.csv
+│   └── synthetic/           # synthetic_validation_subset/
+├── code/
+│   ├── __init__.py
+│   ├── download_curation.py # FR-001, FR-013, FR-025
+│   ├── annotation_tool.py   # FR-002, FR-010, FR-014
+│   ├── inference_cpu.py     # FR-003, FR-004, FR-009 (ONNX Runtime)
+│   ├── analysis_stats.py    # FR-005, FR-006, FR-010, FR-011, FR-012
+│   ├── validation.py        # FR-012, FR-028
+│   └── utils/
+│       ├── metrics.py       # Divergence calculation, IPW
+│       └── plots.py         # Sensitivity reports
+├── tests/
+│   ├── contract/            # Schema validation tests
+│   ├── unit/                # Metric calculation tests
+│   └── integration/         # End-to-end pipeline test
+├── artifacts/
+│   ├── final_report_manifest.json
+│   ├── traceability_matrix.json
+│   └── power_analysis_report.md
+└── requirements.txt
+```
+
+**Structure Decision**: Single project structure (Option 1) is selected. The research nature requires a linear pipeline (Download -> Annotate -> Inference -> Analysis) rather than a service architecture. All scripts are Python modules in `code/` for reproducibility.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Manual Annotation (Human-in-the-loop) | Ground truth for continuity cannot be algorithmically derived without circular logic (Principle VII). | Automated cut detection (PySceneDetect) only identifies cuts, not "continuity quality" or "stability" which requires semantic judgment. |
+| ONNX Runtime (CPU) | GPU is unavailable on CI; model must run on 2-core vCPU. | Native PyTorch GPU inference is impossible; CPU fallback is mandatory. |
+| Stratified Sampling + IPW | Dataset is artificially balanced for power, but natural prevalence is low. | Simple random sampling would yield too few cuts for statistical power; IPW corrects the bias. |
+| Sensitivity Sweep (N=500, 200, 100) | Must prove robustness of the metric to solver discretization. | Single-step inference cannot distinguish model instability from numerical error. |
+
+## Stability Re-run Mechanism (Principle VI)
+
+To satisfy Principle VI (Latent Trajectory Fidelity), the plan includes a specific re-run mechanism:
+1.  **Perturbation**: Apply Gaussian noise (sigma=0.01) to the latent vectors of the input clips.
+2.  **Re-inference**: Re-run the divergence calculation on the perturbed data.
+3.  **Re-correlation**: Recalculate the Pearson correlation between the perturbed divergence scores and the manual annotations.
+4.  **Delta Calculation**: Compute $\Delta r = |r_{original} - r_{perturbed}|$.
+5.  **Tolerance Check**: If $\Delta r > 0.05$, the system flags the result as "UNSTABLE" and logs the deviation in `stability_check.json`.
+6.  **Output**: The `stability_check.json` file will contain `noise_level`, `delta_r`, and `stability_met` (boolean).
+
+## Contract Mapping
+
+| Plan Step | Output Artifact | Contract Schema |
+|-----------|-----------------|-----------------|
+| Data Curation | `data/raw/clip_metadata.csv` | `contracts/clip_metadata.schema.yaml` |
+| Manual Annotation | `data/annotations/manual_continuity_scores.csv` | `contracts/continuity_scores.schema.yaml` |
+| Manual Annotation | `data/annotations/adjudication_log.csv` | `contracts/adjudication_log.schema.yaml` |
+| Rubric Definition | `data/annotations/rubric_definition.md` | `contracts/rubric_definition.md` (Text) |
+| Divergence Calculation | `data/processed/divergence_scores.csv` | `contracts/divergence_result.schema.yaml` |
+| IPW Weights | `data/processed/ipw_log.json` | `contracts/ipw_log.json` |
+| Bimodality Test | `data/processed/dip_test_results.csv` | `contracts/dip_test_results.schema.yaml` |
+| Fisher Z Test | `data/processed/fisher_z_test_results.csv` | `contracts/fisher_z_test_results.schema.yaml` |
+| Control Analysis | `data/processed/control_analysis.csv` | `contracts/control_analysis.schema.yaml` |
+| Pilot Report | `artifacts/runtime_pilot_report.md` | `contracts/runtime_pilot_report.schema.yaml` |
+| Power Report | `artifacts/power_analysis_report.md` | `contracts/power_analysis_report.schema.yaml` |
+| Synthetic Report | `artifacts/synthetic_validation_report.md` | `contracts/synthetic_validation_report.schema.yaml` |
+| Variance Report | `data/processed/variance_report.csv` | `contracts/variance_report.schema.yaml` |
+| Manual Calc Expected | `data/processed/manual_calculation_expected.json` | `contracts/manual_calculation_expected.schema.yaml` |
+| Stability Check | `artifacts/stability_check.json` | `contracts/stability_check.schema.yaml` |

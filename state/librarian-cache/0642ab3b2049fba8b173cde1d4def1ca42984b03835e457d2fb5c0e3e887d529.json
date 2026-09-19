@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-01T18:25:19Z",
+  "fetched_at": "2026-09-19T12:57:29Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\"",
       "target_n": 5
     },
-    "duration_seconds": 46.44,
-    "ended_at": "2026-09-01T18:25:19Z",
+    "duration_seconds": 39.547,
+    "ended_at": "2026-09-19T12:57:29Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "vision-language grounding with prompts"
+          "Fast vision-language grounding methods"
         ],
         [
           2,
-          "fast visual grounding models"
+          "High-quality vision-language localization"
         ],
         [
           3,
-          "high-quality image localization with language"
+          "Open-vocabulary object detection with vision-language models"
         ],
         [
           4,
-          "prompt-based visual grounding"
+          "Zero-shot visual grounding techniques"
         ],
         [
           5,
-          "zero-shot object localization vision-language"
+          "Multimodal grounding for arbitrary categories"
         ],
         [
           6,
-          "efficient vision-language alignment"
+          "Efficient vision-language pre-training for grounding"
         ],
         [
           7,
-          "open-vocabulary visual grounding"
+          "Prompt-based visual grounding approaches"
         ],
         [
           8,
-          "vision-language pretraining for grounding"
+          "Open-set visual localization using large language models"
         ],
         [
           9,
-          "text-to-region retrieval"
+          "Vision-language alignment for dense prediction"
         ],
         [
           10,
-          "multimodal grounding with large language models"
+          "Real-time vision-language understanding systems"
         ],
         [
           11,
-          "vision-language model localization"
+          "Grounding natural language queries in images"
         ],
         [
           12,
-          "rapid visual grounding techniques"
+          "Multimodal retrieval-augmented visual grounding"
         ],
         [
           13,
-          "prompt engineering for visual grounding"
+          "Open-world object detection via language supervision"
         ],
         [
           14,
-          "cross-modal image-text grounding"
+          "Fast inference architectures for vision-language tasks"
         ],
         [
           15,
-          "vision-language model fine-tuning for grounding"
+          "Semantic segmentation with natural language prompts"
         ],
         [
           16,
-          "scalable visual grounding architectures"
+          "Cross-modal attention mechanisms for visual grounding"
         ],
         [
           17,
-          "language-guided object detection"
+          "Generalized visual grounding in complex scenes"
         ],
         [
           18,
-          "grounding visual concepts with text prompts"
+          "Language-guided visual search and localization"
         ],
         [
           19,
-          "multimodal attention for visual grounding"
+          "Scalable vision-language models for image understanding"
         ],
         [
           20,
-          "vision-language grounding benchmarks and evaluation"
+          "Zero-shot transfer in vision-language grounding"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science": 0,
-        "vision-language grounding with prompts": 5
+        "Fast vision-language grounding methods": 4,
+        "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "open-vocabulary object detection referring expression comprehension",
-      "LocateAnything dataset VL grounding benchmark",
-      "zero-shot region proposal vision-language alignment",
-      "inference latency grounding accuracy trade-off",
-      "dense captioning visual prompt engineering retrieval"
+      "open-vocabulary object detection zero-shot grounding",
+      "LocateAnything dataset benchmark vision-language model",
+      "retrieval-augmented grounding dense captioning localization",
+      "VQA evaluation accuracy region proposal generation",
+      "cross-modal alignment attention mechanism grounding"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,31 +120,25 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2202.09061"
+        "2604.00086"
       ]
     },
     "per_query_hit_count": {
-      "LocateAnything dataset VL grounding benchmark": 3,
-      "dense captioning visual prompt engineering retrieval": 3,
-      "inference latency grounding accuracy trade-off": 3,
+      "LocateAnything dataset benchmark vision-language model": 3,
+      "VQA evaluation accuracy region proposal generation": 3,
+      "cross-modal alignment attention mechanism grounding": 3,
       "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science": 3,
-      "open-vocabulary object detection referring expression comprehension": 3,
-      "zero-shot region proposal vision-language alignment": 3
+      "open-vocabulary object detection zero-shot grounding": 3,
+      "retrieval-augmented grounding dense captioning localization": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
-      "rejections": [
-        {
-          "primary_pointer": "2503.07920",
-          "rationale": "The paper focuses on dataset creation and cultural representation for Southeast Asian languages, which is a distinct domain from the user's specific question about extending the \"LocateAnything\" algorithm for fast and high-quality vision-language grounding. While both involve vision-language models, the candidate paper does not measure the same mechanism (grounding speed/quality), address the same variables, or provide a foundational method for the specific \"LocateAnything\" follow-up task.",
-          "title": "Crowdsource, Crawl, or Generate? Creating SEA-VL, a Multicultural Vision-Language Dataset for Southeast Asia"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-09-01T18:24:33Z",
+    "started_at": "2026-09-19T12:56:49Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"locateanything: fast and high-quality vision-language grounding with p\" computer science",
       "raw": "llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Language Grounding with P\" computer science"
@@ -163,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-09-01T18:25:03Z",
+        "failed_at": "2026-09-19T12:57:16Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-09-01T18:25:03Z",
+        "failed_at": "2026-09-19T12:57:16Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,7 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-09-01T18:25:03Z",
+        "failed_at": "2026-09-19T12:57:16Z",
         "reason": "query_irrelevant"
       },
       {
@@ -223,51 +217,69 @@
           "primary_pointer": "2303.08131"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='A Simple Framework for Open-Vocabulary Segmentation and Detection')",
-        "failed_at": "2026-09-01T18:25:03Z",
+        "failed_at": "2026-09-19T12:57:16Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Referring Expression Comprehension and Segmentation are critical tasks for assessing the integration of language understanding and image comprehension, serving as benchmarks for Multimodal Large Language Models (MLLMs) capabilities. To address these challenges, we propose a new strategy, CoT Referring, which enhances model reasoning across modalities through a structured, chain-of-thought training data structure. Our approach systematically parses textual structures to a sequential referring step, where in each step it identifies relationships and ensures consistent reference alignment, thereby improving accuracy in complex query scenarios. We restructure the training data to enforce a new output form, providing new annotations for existing datasets and compiling an evaluation benchmark from existing resources. This benchmark is designed explicitly for complex referring cases. We also integrate detection and segmentation capabilities into a unified MLLM framework, training it with a novel adaptive weighted loss to optimize performance. Experimental results on our curated benchmark and RefCOCO/+/g demonstrate the effectiveness of our approach, with a notable increase of 2.5%+ over baseline models.",
+          "claimed_abstract": "3D visual grounding is crucial for robots, requiring integration of natural language and 3D scene understanding. Traditional methods depending on supervised learning with 3D point clouds are limited by scarce datasets. Recently zero-shot methods leveraging LLMs have been proposed to address the data issue. While effective, these methods only use object-centric information, limiting their ability to handle complex queries. In this work, we present VLM-Grounder, a novel framework using vision-language models (VLMs) for zero-shot 3D visual grounding based solely on 2D images. VLM-Grounder dynamically stitches image sequences, employs a grounding and feedback scheme to find the target object, and uses a multi-view ensemble projection to accurately estimate 3D bounding boxes. Experiments on ScanRefer and Nr3D datasets show VLM-Grounder outperforms previous zero-shot methods, achieving 51.6% Acc@0.25 on ScanRefer and 48.0% Acc on Nr3D, without relying on 3D geometry or object priors. Codes are available at https://github.com/OpenRobotLab/VLM-Grounder .",
           "claimed_authors": [
-            "Qihua Dong",
-            "Luis Figueroa",
-            "Handong Zhao",
-            "Kushal Kafle",
-            "Jason Kuen",
-            "Zhihong Ding",
-            "Scott Cohen",
-            "Yun Fu"
+            "Runsen Xu",
+            "Zhiwei Huang",
+            "Tai Wang",
+            "Yilun Chen",
+            "Jiangmiao Pang",
+            "Dahua Lin"
           ],
-          "claimed_title": "CoT Referring: Improving Referring Expression Tasks with Grounded Reasoning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.06243"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='CoT Referring: Improving Referring Expression Tasks with Grounded Reasoning')",
-        "failed_at": "2026-09-01T18:25:03Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The generalisation to unseen objects in the 6D pose estimation task is very challenging. While Vision-Language Models (VLMs) enable using natural language descriptions to support 6D pose estimation of unseen objects, these solutions underperform compared to model-based methods. In this work we present Horyon, an open-vocabulary VLM-based architecture that addresses relative pose estimation between two scenes of an unseen object, described by a textual prompt only. We use the textual prompt to identify the unseen object in the scenes and then obtain high-resolution multi-scale features. These features are used to extract cross-scene matches for registration. We evaluate our model on a benchmark with a large variety of unseen objects across four datasets, namely REAL275, Toyota-Light, Linemod, and YCB-Video. Our method achieves state-of-the-art performance on all datasets, outperforming by 12.6 in Average Recall the previous best-performing approach.",
-          "claimed_authors": [
-            "Jaime Corsetti",
-            "Davide Boscaini",
-            "Francesco Giuliari",
-            "Changjae Oh",
-            "Andrea Cavallaro",
-            "Fabio Poiesi"
-          ],
-          "claimed_title": "High-resolution open-vocabulary object 6D pose estimation",
+          "claimed_title": "VLM-Grounder: A VLM Agent for Zero-Shot 3D Visual Grounding",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2406.16384"
+          "primary_pointer": "2410.13860"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='High-resolution open-vocabulary object 6D pose estimation')",
-        "failed_at": "2026-09-01T18:25:03Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='VLM-Grounder: A VLM Agent for Zero-Shot 3D Visual Grounding')",
+        "failed_at": "2026-09-19T12:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Open-vocabulary 3D instance segmentation transcends traditional closed-vocabulary methods by enabling the identification of both previously seen and unseen objects in real-world scenarios. It leverages a dual-modality approach, utilizing both 3D point clouds and 2D multi-view images to generate class-agnostic object mask proposals. Previous efforts predominantly focused on enhancing 3D mask proposal models; consequently, the information that could come from 2D association to 3D was not fully exploited. This bias towards 3D data, while effective for familiar indoor objects, limits the system's adaptability to new and varied object types, where 2D models offer greater utility. Addressing this gap, we introduce Zero-Shot Dual-Path Integration Framework that equally values the contributions of both 3D and 2D modalities. Our framework comprises three components: 3D pathway, 2D pathway, and Dual-Path Integration. 3D pathway generates spatially accurate class-agnostic mask proposals of common indoor objects from 3D point cloud data using a pre-trained 3D model, while 2D pathway utilizes pre-trained open-vocabulary instance segmentation model to identify a diverse array of object proposals from multi-view RGB-D images. In Dual-Path Integration, our Conditional Integration process, which operates in two stages, filters and merges the proposals from both pathways adaptively. This process harmonizes output proposals to enhance segmentation capabilities. Our framework, utilizing pre-trained models in a zero-shot manner, is model-agnostic and demonstrates superior performance on both seen and unseen data, as evidenced by comprehensive evaluations on the ScanNet200 and qualitative results on ARKitScenes datasets.",
+          "claimed_authors": [
+            "Tri Ton",
+            "Ji Woo Hong",
+            "SooHwan Eom",
+            "Jun Yeop Shim",
+            "Junyeong Kim",
+            "Chang D. Yoo"
+          ],
+          "claimed_title": "Zero-Shot Dual-Path Integration Framework for Open-Vocabulary 3D Instance Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.08591"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Zero-Shot Dual-Path Integration Framework for Open-Vocabulary 3D Instance Segmentation')",
+        "failed_at": "2026-09-19T12:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pedestrian Attribute Recognition (PAR) is one of the indispensable tasks in human-centered research. However, existing datasets neglect different domains (e.g., environments, times, populations, and data sources), only conducting simple random splits, and the performance of these datasets has already approached saturation. In the past five years, no large-scale dataset has been opened to the public. To address this issue, this paper proposes a new large-scale, cross-domain pedestrian attribute recognition dataset to fill the data gap, termed MSP60K. It consists of 60,122 images and 57 attribute annotations across eight scenarios. Synthetic degradation is also conducted to further narrow the gap between the dataset and real-world challenging scenarios. To establish a more rigorous benchmark, we evaluate 17 representative PAR models under both random and cross-domain split protocols on our dataset. Additionally, we propose an innovative Large Language Model (LLM) augmented PAR framework, named LLM-PAR. This framework processes pedestrian images through a Vision Transformer (ViT) backbone to extract features and introduces a multi-embedding query Transformer to learn partial-aware features for attribute classification. Significantly, we enhance this framework with LLM for ensemble learning and visual feature augmentation. Comprehensive experiments across multiple PAR benchmark datasets have thoroughly validated the efficacy of our proposed framework. The dataset and source code accompanying this paper will be made publicly available at \\url{https://github.com/Event-AHU/OpenPAR}.",
+          "claimed_authors": [
+            "Jiandong Jin",
+            "Xiao Wang",
+            "Qian Zhu",
+            "Haiyang Wang",
+            "Chenglong Li"
+          ],
+          "claimed_title": "Pedestrian Attribute Recognition: A New Benchmark Dataset and A Large Language Model Augmented Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.09720"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Pedestrian Attribute Recognition: A New Benchmark Dataset and A Large Language Model Augmented Framework')",
+        "failed_at": "2026-09-19T12:57:17Z",
         "reason": "query_irrelevant"
       },
       {
@@ -322,141 +334,7 @@
           "primary_pointer": "2405.19595"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-09-01T18:25:03Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
-          "claimed_authors": [
-            "Zhen Ye",
-            "Zeqian Ju",
-            "Haohe Liu",
-            "Xu Tan",
-            "Jianyi Chen",
-            "Yiwen Lu",
-            "Peiwen Sun",
-            "Jiahao Pan",
-            "Weizhen Bian",
-            "Shulin He",
-            "Wei Xue",
-            "Qifeng Liu",
-            "Yike Guo"
-          ],
-          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2404.14700"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
-        "failed_at": "2026-09-01T18:25:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Depth completion, predicting dense depth maps from sparse depth measurements, is an ill-posed problem requiring prior knowledge. Recent methods adopt learning-based approaches to implicitly capture priors, but the priors primarily fit in-domain data and do not generalize well to out-of-domain scenarios. To address this, we propose a zero-shot depth completion method composed of an affine-invariant depth diffusion model and test-time alignment. We use pre-trained depth diffusion models as depth prior knowledge, which implicitly understand how to fill in depth for scenes. Our approach aligns the affine-invariant depth prior with metric-scale sparse measurements, enforcing them as hard constraints via an optimization loop at test-time. Our zero-shot depth completion method demonstrates generalization across various domain datasets, achieving up to a 21\\% average performance improvement over the previous state-of-the-art methods while enhancing spatial understanding by sharpening scene details. We demonstrate that aligning a monocular affine-invariant depth prior with sparse metric measurements is a proven strategy to achieve domain-generalizable depth completion without relying on extensive training data. Project page: https://hyoseok1223.github.io/zero-shot-depth-completion/.",
-          "claimed_authors": [
-            "Lee Hyoseok",
-            "Kyeong Seon Kim",
-            "Kwon Byung-Ki",
-            "Tae-Hyun Oh"
-          ],
-          "claimed_title": "Zero-shot Depth Completion via Test-time Alignment with Affine-invariant Depth Prior",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2502.06338"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Zero-shot Depth Completion via Test-time Alignment with Affine-invariant Depth Prior')",
-        "failed_at": "2026-09-01T18:25:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper proposes Comprehensive Pathology Language Image Pre-training (CPLIP), a new unsupervised technique designed to enhance the alignment of images and text in histopathology for tasks such as classification and segmentation. This methodology enriches vision-language models by leveraging extensive data without needing ground truth annotations. CPLIP involves constructing a pathology-specific dictionary, generating textual descriptions for images using language models, and retrieving relevant images for each text snippet via a pre-trained model. The model is then fine-tuned using a many-to-many contrastive learning method to align complex interrelated concepts across both modalities. Evaluated across multiple histopathology tasks, CPLIP shows notable improvements in zero-shot learning scenarios, outperforming existing methods in both interpretability and robustness and setting a higher benchmark for the application of vision-language models in the field. To encourage further research and replication, the code for CPLIP is available on GitHub at https://cplip.github.io/",
-          "claimed_authors": [
-            "Sajid Javed",
-            "Arif Mahmood",
-            "Iyyakutti Iyappan Ganapathi",
-            "Fayaz Ali Dharejo",
-            "Naoufel Werghi",
-            "Mohammed Bennamoun"
-          ],
-          "claimed_title": "CPLIP: Zero-Shot Learning for Histopathology with Comprehensive Vision-Language Alignment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2406.05205"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='CPLIP: Zero-Shot Learning for Histopathology with Comprehensive Vision-Language Alignment')",
-        "failed_at": "2026-09-01T18:25:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper proposes a neural architecture search (NAS) method for split computing. Split computing is an emerging machine-learning inference technique that addresses the privacy and latency challenges of deploying deep learning in IoT systems. In split computing, neural network models are separated and cooperatively processed using edge servers and IoT devices via networks. Thus, the architecture of the neural network model significantly impacts the communication payload size, model accuracy, and computational load. In this paper, we address the challenge of optimizing neural network architecture for split computing. To this end, we proposed NASC, which jointly explores optimal model architecture and a split point to achieve higher accuracy while meeting latency requirements (i.e., smaller total latency of computation and communication than a certain threshold). NASC employs a one-shot NAS that does not require repeating model training for a computationally efficient architecture search. Our performance evaluation using hardware (HW)-NAS-Bench of benchmark data demonstrates that the proposed NASC can improve the ``communication latency and model accuracy\" trade-off, i.e., reduce the latency by approximately 40-60% from the baseline, with slight accuracy degradation.",
-          "claimed_authors": [
-            "Shoma Shimizu",
-            "Takayuki Nishio",
-            "Shota Saito",
-            "Yoichi Hirose",
-            "Chen Yen-Hsiu",
-            "Shinichi Shirakawa"
-          ],
-          "claimed_title": "Neural Architecture Search for Improving Latency-Accuracy Trade-off in Split Computing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2208.13968"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Neural Architecture Search for Improving Latency-Accuracy Trade-off in Split Computing')",
-        "failed_at": "2026-09-01T18:25:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Deep ensemble learning has been shown to improve accuracy by training multiple neural networks and averaging their outputs. Ensemble learning has also been suggested to defend against membership inference attacks that undermine privacy. In this paper, we empirically demonstrate a trade-off between these two goals, namely accuracy and privacy (in terms of membership inference attacks), in deep ensembles. Using a wide range of datasets and model architectures, we show that the effectiveness of membership inference attacks increases when ensembling improves accuracy. We analyze the impact of various factors in deep ensembles and demonstrate the root cause of the trade-off. Then, we evaluate common defenses against membership inference attacks based on regularization and differential privacy. We show that while these defenses can mitigate the effectiveness of membership inference attacks, they simultaneously degrade ensemble accuracy. We illustrate similar trade-off in more advanced and state-of-the-art ensembling techniques, such as snapshot ensembles and diversified ensemble networks. Finally, we propose a simple yet effective defense for deep ensembles to break the trade-off and, consequently, improve the accuracy and privacy, simultaneously.",
-          "claimed_authors": [
-            "Shahbaz Rezaei",
-            "Zubair Shafiq",
-            "Xin Liu"
-          ],
-          "claimed_title": "Accuracy-Privacy Trade-off in Deep Ensemble: A Membership Inference Perspective",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2105.05381"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Accuracy-Privacy Trade-off in Deep Ensemble: A Membership Inference Perspective')",
-        "failed_at": "2026-09-01T18:25:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose a dynamic encoder transducer (DET) for on-device speech recognition. One DET model scales to multiple devices with different computation capacities without retraining or finetuning. To trading off accuracy and latency, DET assigns different encoders to decode different parts of an utterance. We apply and compare the layer dropout and the collaborative learning for DET training. The layer dropout method that randomly drops out encoder layers in the training phase, can do on-demand layer dropout in decoding. Collaborative learning jointly trains multiple encoders with different depths in one single model. Experiment results on Librispeech and in-house data show that DET provides a flexible accuracy and latency trade-off. Results on Librispeech show that the full-size encoder in DET relatively reduces the word error rate of the same size baseline by over 8%. The lightweight encoder in DET trained with collaborative learning reduces the model size by 25% but still gets similar WER as the full-size baseline. DET gets similar accuracy as a baseline model with better latency on a large in-house data set by assigning a lightweight encoder for the beginning part of one utterance and a full-size encoder for the rest.",
-          "claimed_authors": [
-            "Yangyang Shi",
-            "Varun Nagaraja",
-            "Chunyang Wu",
-            "Jay Mahadeokar",
-            "Duc Le",
-            "Rohit Prabhavalkar",
-            "Alex Xiao",
-            "Ching-Feng Yeh",
-            "Julian Chan",
-            "Christian Fuegen",
-            "Ozlem Kalinli",
-            "Michael L. Seltzer"
-          ],
-          "claimed_title": "Dynamic Encoder Transducer: A Flexible Solution For Trading Off Accuracy For Latency",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2104.02176"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Dynamic Encoder Transducer: A Flexible Solution For Trading Off Accuracy For Latency')",
-        "failed_at": "2026-09-01T18:25:04Z",
+        "failed_at": "2026-09-19T12:57:17Z",
         "reason": "query_irrelevant"
       },
       {
@@ -477,7 +355,7 @@
           "primary_pointer": "1806.08854"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='RUC+CMU: System Report for Dense Captioning Events in Videos')",
-        "failed_at": "2026-09-01T18:25:04Z",
+        "failed_at": "2026-09-19T12:57:17Z",
         "reason": "query_irrelevant"
       },
       {
@@ -498,7 +376,7 @@
           "primary_pointer": "2204.07449"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Semantic-Aware Pretraining for Dense Video Captioning')",
-        "failed_at": "2026-09-01T18:25:04Z",
+        "failed_at": "2026-09-19T12:57:17Z",
         "reason": "query_irrelevant"
       },
       {
@@ -521,7 +399,113 @@
           "primary_pointer": "1907.05092"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Activitynet 2019 Task 3: Exploring Contexts for Dense Captioning Events in Videos')",
-        "failed_at": "2026-09-01T18:25:04Z",
+        "failed_at": "2026-09-19T12:57:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While Visual Question Answering (VQA) models continue to push the state-of-the-art forward, they largely remain black-boxes - failing to provide insight into how or why an answer is generated. In this ongoing work, we propose addressing this shortcoming by learning to generate counterfactual images for a VQA model - i.e. given a question-image pair, we wish to generate a new image such that i) the VQA model outputs a different answer, ii) the new image is minimally different from the original, and iii) the new image is realistic. Our hope is that providing such counterfactual examples allows users to investigate and understand the VQA model's internal mechanisms.",
+          "claimed_authors": [
+            "Jingjing Pan",
+            "Yash Goyal",
+            "Stefan Lee"
+          ],
+          "claimed_title": "Question-Conditioned Counterfactual Image Generation for VQA",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.06352"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Question-Conditioned Counterfactual Image Generation for VQA')",
+        "failed_at": "2026-09-19T12:57:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent work shows that text-only reinforcement learning with verifiable rewards (RLVR) can match or outperform image-text RLVR on multimodal medical VQA benchmarks, suggesting current evaluation protocols may fail to measure causal visual dependence. We introduce a counterfactual evaluation framework using real, blank, and shuffled images across four medical VQA benchmarks: PathVQA, PMC-VQA, SLAKE, and VQA-RAD. Beyond accuracy, we measure Visual Reliance Score (VRS), Image Sensitivity (IS), and introduce Hallucinated Visual Reasoning Rate (HVRR) to detect cases where models generate visual claims despite producing image-invariant answers. Our findings reveal that RLVR improves accuracy while degrading visual grounding: text-only RLVR achieves negative VRS on PathVQA (-0.09), performing better with mismatched images, while image-text RLVR reduces image sensitivity to 39.8% overall despite improving accuracy. On VQA-RAD, both variants achieve 63% accuracy through different mechanisms: text-only RLVR retains 81% performance with blank images, while image-text RLVR shows only 29% image sensitivity. Models generate visual claims in 68-74% of responses, yet 38-43% are ungrounded (HVRR). These findings demonstrate that accuracy-only rewards enable shortcut exploitation, and progress requires grounding-aware evaluation protocols and training objectives that explicitly enforce visual dependence.",
+          "claimed_authors": [
+            "Anas Zafar",
+            "Leema Krishna Murali",
+            "Ashish Vashist"
+          ],
+          "claimed_title": "Beyond Accuracy: Evaluating Visual Grounding In Multimodal Medical Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03437"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Beyond Accuracy: Evaluating Visual Grounding In Multimodal Medical Reasoning')",
+        "failed_at": "2026-09-19T12:57:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the quality and relevance of textual outputs from Large Language Models (LLMs) remains challenging and resource-intensive. Existing automated metrics often fail to capture the complexity and variability inherent in LLM-generated outputs. Moreover, these metrics typically rely on explicit reference standards, limiting their use mostly to domains with objective benchmarks. This work introduces a novel evaluation framework designed to approximate expert-level assessments of LLM-generated content. The proposed method employs pairwise comparisons of outputs by multiple LLMs, reducing biases from individual models. An Elo rating system is used to generate stable and interpretable rankings. Adjustable agreement thresholds, from full unanimity to majority voting, allow flexible control over evaluation confidence and coverage. The method's effectiveness is demonstrated through evaluating competency profiles extracted from scientific abstracts. Preliminary results show that automatically derived rankings correlate well with expert judgments, significantly reducing the need for extensive human intervention. By offering a scalable, consistent, and domain-agnostic evaluation layer, the framework supports more efficient and reliable quality assessments of LLM outputs across diverse applications.",
+          "claimed_authors": [
+            "Bertil Braun",
+            "Martin Forell"
+          ],
+          "claimed_title": "(Towards) Scalable Reliable Automated Evaluation with Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.28282"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='(Towards) Scalable Reliable Automated Evaluation with Large Language Models')",
+        "failed_at": "2026-09-19T12:57:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent large vision-language models (LVLMs) have advanced capabilities in visual question answering (VQA). However, interpreting where LVLMs direct their visual attention remains a significant challenge, yet is essential for understanding model behavior. We introduce GLIMPSE (Gradient-Layer Importance Mapping for Prompted Visual Saliency Explanation), a lightweight, model-agnostic framework that jointly attributes LVLM outputs to the most relevant visual evidence and textual signals that support open-ended generation. GLIMPSE fuses gradient-weighted attention, adaptive layer propagation, and relevance-weighted token aggregation to produce holistic response-level heat maps for interpreting cross-modal reasoning, outperforming prior methods in faithfulness and pushing the state-of-the-art in human-attention alignment. We demonstrate an analytic approach to uncover fine-grained insights into LVLM cross-modal attribution, trace reasoning dynamics, analyze systematic misalignment, diagnose hallucination and bias, and ensure transparency.",
+          "claimed_authors": [
+            "Guanxi Shen"
+          ],
+          "claimed_title": "GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.18985"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models')",
+        "failed_at": "2026-09-19T12:57:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modal retrieval aims to enable flexible retrieval experience by combining multimedia data such as image, video, text, and audio. One core of unsupervised approaches is to dig the correlations among different object representations to complete satisfied retrieval performance without requiring expensive labels. In this paper, we propose a Graph Pattern Loss based Diversified Attention Network(GPLDAN) for unsupervised cross-modal retrieval to deeply analyze correlations among representations. First, we propose a diversified attention feature projector by considering the interaction between different representations to generate multiple representations of an instance. Then, we design a novel graph pattern loss to explore the correlations among different representations, in this graph all possible distances between different representations are considered. In addition, a modality classifier is added to explicitly declare the corresponding modalities of features before fusion and guide the network to enhance discrimination ability. We test GPLDAN on four public datasets. Compared with the state-of-the-art cross-modal retrieval methods, the experimental results demonstrate the performance and competitiveness of GPLDAN.",
+          "claimed_authors": [
+            "Xueying Chen",
+            "Rong Zhang",
+            "Yibing Zhan"
+          ],
+          "claimed_title": "Graph Pattern Loss based Diversified Attention Network for Cross-Modal Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.13552"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='Graph Pattern Loss based Diversified Attention Network for Cross-Modal Retrieval')",
+        "failed_at": "2026-09-19T12:57:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"LocateAnything: Fast and High-Quality Vision-Langu', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-09-19T12:57:17Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -529,38 +513,28 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Shihao Wang",
-            "Shilong Liu",
-            "Yuanguo Kuang",
-            "Xinyu Wei",
-            "Yangzhou Liu",
-            "Zhiqi Li",
-            "Yunze Man",
-            "Guo Chen",
-            "Andrew Tao",
-            "Guilin Liu",
-            "Jan Kautz",
-            "Lei Zhang",
-            "Zhiding Yu"
+            "Xiang Li",
+            "Jian Ding",
+            "Mohamed Elhoseiny"
           ],
-          "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding",
+          "title": "VRSBench: A Versatile Vision-Language Benchmark Dataset for Remote Sensing Image Understanding",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2605.27365",
-        "summary": "Vision-language models (VLMs) commonly formulate visual grounding and detection as a coordinate-token generation problem, serializing each 2D box into multiple 1D tokens that are learned and decoded largely independently. This token-by-token decoding mismatches the coupled structure of box geometry and creates a practical inference bottleneck due to strictly sequential generation. We introduce LocateAnything, a unified generative grounding and detection framework based on Parallel Box Decoding (PBD). By decoding geometric elements such as bounding boxes and points as atomic units in a single step, LocateAnything preserves intra-box geometric coherence and unlocks substantial parallelism. We show that PBD improves both decoding throughput and localization accuracy. We further develop a scalable data engine and curate LocateAnything-Data, a large-scale dataset with more than 138 million training samples, substantially increasing data diversity for high-precision localization. Extensive evaluations show that LocateAnything advances the speed-accuracy frontier, achieving significantly higher decoding throughput while improving high-IoU localization quality across diverse benchmarks. The results highlight the complementary benefits of Parallel Box Decoding and large-scale training data in enabling efficient and precise unified visual grounding and detection.",
+        "primary_pointer": "2406.12384",
+        "summary": "We introduce a new benchmark designed to advance the development of general-purpose, large-scale vision-language models for remote sensing images. Although several vision-language datasets in remote sensing have been proposed to pursue this goal, existing datasets are typically tailored to single tasks, lack detailed object information, or suffer from inadequate quality control. Exploring these improvement opportunities, we present a Versatile vision-language Benchmark for Remote Sensing image understanding, termed VRSBench. This benchmark comprises 29,614 images, with 29,614 human-verified detailed captions, 52,472 object references, and 123,221 question-answer pairs. It facilitates the training and evaluation of vision-language models across a broad spectrum of remote sensing image understanding tasks. We further evaluated state-of-the-art models on this benchmark for three vision-language tasks: image captioning, visual grounding, and visual question answering. Our work aims to significantly contribute to the development of advanced vision-language models in the field of remote sensing. The data and code can be accessed at https://github.com/lx709/VRSBench.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.27365",
+          "final_url": "https://arxiv.org/abs/2406.12384",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.5833,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T18:25:04Z"
+          "verified_at": "2026-09-19T12:57:16Z"
         }
       },
       {
@@ -585,13 +559,42 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2202.09061",
           "http_status": 200,
-          "pdf_sample_score": 0.2362,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T18:25:08Z"
+          "verified_at": "2026-09-19T12:57:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Eugene Lee",
+            "Ting-Yu Chang",
+            "Jui-Huang Tsai",
+            "Jiajie Diao",
+            "Chen-Yi Lee"
+          ],
+          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.00086",
+        "summary": "The field of computer vision has experienced significant advancements through scalable vision encoders and multimodal pre-training frameworks. However, existing approaches often treat vision encoders and large language models (LLMs) as independent modules, limiting the integration of hierarchical visual features. In this work, we propose HIVE (Hierarchical Pre-Training of Vision Encoders), a novel framework that enhances vision-language alignment by introducing hierarchical cross-attention between the vision encoder and LLM. Unlike conventional methods that flatten image embeddings, HIVE enables structured feature fusion across multiple layers, improving gradient flow and representation learning. To optimize this interaction, we introduce a three-stage training strategy that progressively aligns the vision encoder with the LLM, ensuring stable optimization and effective multimodal fusion. Empirical evaluations demonstrate that HIVE achieves superior performance not only in image classification but also on various vision-language tasks, outperforming self-attention-based methods in benchmarks such as MME, GQA, OK-VQA, and ScienceQA. Our results highlight the benefits of hierarchical feature integration, paving the way for more efficient and expressive vision-language models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.00086",
+          "http_status": 200,
+          "pdf_sample_score": 0.2427,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-19T12:57:22Z"
         }
       },
       {
@@ -623,36 +626,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T18:25:08Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Eugene Lee",
-            "Ting-Yu Chang",
-            "Jui-Huang Tsai",
-            "Jiajie Diao",
-            "Chen-Yi Lee"
-          ],
-          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2604.00086",
-        "summary": "The field of computer vision has experienced significant advancements through scalable vision encoders and multimodal pre-training frameworks. However, existing approaches often treat vision encoders and large language models (LLMs) as independent modules, limiting the integration of hierarchical visual features. In this work, we propose HIVE (Hierarchical Pre-Training of Vision Encoders), a novel framework that enhances vision-language alignment by introducing hierarchical cross-attention between the vision encoder and LLM. Unlike conventional methods that flatten image embeddings, HIVE enables structured feature fusion across multiple layers, improving gradient flow and representation learning. To optimize this interaction, we introduce a three-stage training strategy that progressively aligns the vision encoder with the LLM, ensuring stable optimization and effective multimodal fusion. Empirical evaluations demonstrate that HIVE achieves superior performance not only in image classification but also on various vision-language tasks, outperforming self-attention-based methods in benchmarks such as MME, GQA, OK-VQA, and ScienceQA. Our results highlight the benefits of hierarchical feature integration, paving the way for more efficient and expressive vision-language models.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2604.00086",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-09-01T18:25:09Z"
+          "verified_at": "2026-09-19T12:57:22Z"
         }
       },
       {
@@ -682,35 +656,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-01T18:25:09Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Kaiyang Zhou",
-            "Jingkang Yang",
-            "Chen Change Loy",
-            "Ziwei Liu"
-          ],
-          "title": "Learning to Prompt for Vision-Language Models",
-          "venue": "arXiv",
-          "year": 2021
-        },
-        "primary_pointer": "2109.01134",
-        "summary": "Large pre-trained vision-language models like CLIP have shown great potential in learning representations that are transferable across a wide range of downstream tasks. Different from the traditional representation learning that is based mostly on discretized labels, vision-language pre-training aligns images and texts in a common feature space, which allows zero-shot transfer to a downstream task via prompting, i.e., classification weights are synthesized from natural language describing classes of interest. In this work, we show that a major challenge for deploying such models in practice is prompt engineering, which requires domain expertise and is extremely time-consuming -- one needs to spend a significant amount of time on words tuning since a slight change in wording could have a huge impact on performance. Inspired by recent advances in prompt learning research in natural language processing (NLP), we propose Context Optimization (CoOp), a simple approach specifically for adapting CLIP-like vision-language models for downstream image recognition. Concretely, CoOp models a prompt's context words with learnable vectors while the entire pre-trained parameters are kept fixed. To handle different image recognition tasks, we provide two implementations of CoOp: unified context and class-specific context. Through extensive experiments on 11 datasets, we demonstrate that CoOp requires as few as one or two shots to beat hand-crafted prompts with a decent margin and is able to gain significant improvements over prompt engineering with more shots, e.g., with 16 shots the average gain is around 15% (with the highest reaching over 45%). Despite being a learning-based approach, CoOp achieves superb domain generalization performance compared with the zero-shot model using hand-crafted prompts.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2109.01134",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-09-01T18:25:10Z"
+          "verified_at": "2026-09-19T12:57:22Z"
         }
       }
     ]
