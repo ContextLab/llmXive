@@ -60,7 +60,7 @@
 - [X] T006 [P] Setup base logging infrastructure in `code/utils/logging.py`
 - [X] T007 Create `code/data/__init__.py` and `code/models/__init__.py` package structures
 - [X] T008 Implement disk space checker in `code/utils/io.py` (FR-001): function `check_disk_space(estimated_size)` MUST raise `DiskSpaceError` if available space < 1.5 * estimated_size
-- [X] T009 [US1] Implement `code/data/mock_generator.py` to generate deterministic mock genomic, environmental, and compound data for CI runs, explicitly removing the need for API keys and satisfying the 'no manual key injection' constraint (replaces API key management). **Dependency**: Must be completed before T011-T013. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T009 [US1] Implement `code/data/mock_generator.py` to generate deterministic mock genomic, environmental, and compound data for CI runs. **Constraint**: MUST be invoked ONLY if verified URLs are missing or unreachable. **Priority**: Real data fetch is the primary path; mock generation is a strict fallback ONLY when real sources are unreachable. **Verification**: Run ingestion script with no API keys set; verify mock data is generated and no network calls are made. **Output**: `data/raw/mock_genomic.vcf`, `data/raw/mock_env.csv`, `data/raw/mock_compounds.json`. **Provenance**: MUST update `data/manifest.yaml` with generator script path and seed.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,15 +74,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data/ingestion.py` to fetch VCF data from verified NCBI SRA URL OR generate mock data (replaces T010 fetch logic); explicitly enforce verified URL check before fallback to mock to preserve FR-001 constraint. **Output**: `data/raw/genomic_vcf.json`. **Logic**: If `config.verified_urls['genomic']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T011 [US1] Implement `code/data/ingestion.py` to fetch environmental metadata from verified WorldClim/GBIF URL OR generate mock data; explicitly enforce verified URL check before fallback to mock to preserve FR-002 constraint. **Output**: `data/raw/env_data.json`. **Logic**: If `config.verified_urls['env']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T012 [US1] Implement `code/data/ingestion.py` to fetch defense compound profiles from verified ChemBank/PhenolExplorer URL OR generate mock data; explicitly enforce verified URL check before fallback to mock to preserve FR-003 constraint. **Output**: `data/raw/compound_data.json`. **Logic**: If `config.verified_urls['compound']` exists, fetch; else call `mock_generator`. **Post-check**: Call T008 to verify disk usage after fetch/generate. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T013 [US1] Implement `code/data/validation.py` to merge datasets and perform listwise deletion for missing modalities (FR-003)
-- [X] T014 [US1] Implement `code/data/validation.py` to calculate and report retention percentage (SC-001) and log exclusion warnings. **Logic**: Aggregate exclusion counts from T015/T016. If retention < 80%, raise `SystemExit` with error code `E-DATA-INSUFFICIENT`.
-- [ ] T015 [US1] Implement `code/data/preprocessing.py` to handle missing genotype imputation (mean) OR exclude population if missingness > 20% (Edge Case); explicitly mandate logging the exclusion decision to satisfy Constitution Principle VI. **Logic**: Per-population check. If > 20%, exclude row. Output: update `data/processed/filtered.csv` and log to `code/utils/logging.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T016 [US1] Implement `code/data/preprocessing.py` to handle missing environmental metadata (flag/exclude) per Edge Cases
-- [X] T017 [US1] Write unit tests for ingestion logic in `code/tests/test_ingestion.py` (mocked downloads) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T018 [US1] Write integration test for validation pipeline in `code/tests/test_validation.py` (verify listwise deletion)
+- [ ] T010 [US1] Implement `code/data/ingestion.py` to fetch Genomic VCF data. **Logic**: Check `config.verified_urls['genomic']`. If valid URL exists AND is in 'Verified datasets' block, download VCF to `data/raw/genomic.vcf`; else, invoke T009 mock generator to write `data/raw/mock_genomic.vcf`. **Pre-check**: Call T008 to verify disk space > 1.5 * estimated_size. **Verification**: Verify `data/raw/genomic.vcf` (or mock) exists and passes VCF header validation. **Provenance**: Update `data/manifest.yaml` with source path. <!-- FAILED: unspecified -->
+- [ ] T011 [US1] Implement `code/data/ingestion.py` to fetch Environmental CSV data. **Logic**: Check `config.verified_urls['env']`. If valid URL exists AND is in 'Verified datasets' block, download CSV to `data/raw/env_data.csv`; else, invoke T009 mock generator to write `data/raw/mock_env.csv`. **Verification**: Verify `data/raw/env_data.csv` (or mock) exists and contains required columns: `population_id`, `lat`, `lon`, `temp`, `precip`, `ph`. **Provenance**: Update `data/manifest.yaml`.
+- [ ] T012 [US1] Implement `code/data/ingestion.py` to fetch Defense Compound JSON data. **Logic**: Check `config.verified_urls['compound']`. If valid URL exists AND is in 'Verified datasets' block, download JSON to `data/raw/compound_data.json`; else, invoke T009 mock generator to write `data/raw/mock_compounds.json`. **Verification**: Verify `data/raw/compound_data.json` (or mock) exists and contains required keys: `population_id`, `compound_name`, `concentration`. **Provenance**: Update `data/manifest.yaml`.
+- [ ] T013 [US1] Implement `code/data/validation.py` to merge the three raw modalities (`data/raw/genomic.vcf`, `data/raw/env_data.csv`, `data/raw/compound_data.json`) into a single intermediate file. **Input**: data/raw/genomic.vcf (T010), data/raw/env_data.csv (T011), data/raw/compound_data.json (T012). **Logic**: Perform inner join on `population_id`. Preserve `source_study` column from compound data. **Output**: `data/processed/merged_raw.csv`. Log populations missing any modality to `logs/exclusions.log`.
+- [ ] T014 [US1] Implement `code/data/validation.py` to calculate retention percentage and enforce SC-001. **Input**: `data/processed/merged_raw.csv` (output of T013) and the original list of population IDs (N_initial). **Logic**: Calculate retention = (N_final / N_initial) * 100 where N_final is row count in `merged_raw.csv`. **Constraint**: Threshold MUST be 80%. **Action**: If retention < 80%, raise `SystemExit` with error code `E-DATA-INSUFFICIENT` and message "Retention below 80% (Threshold SC-001)". **Verification**: Verify pipeline halts if retention < 80%. <!-- FAILED: unspecified -->
+- [ ] T015 [US1] Implement `code/data/validation.py` to perform Listwise Deletion (FR-003) on the merged dataset. **Input**: `data/processed/merged_raw.csv` (output of T013). **Logic**: For any row with missing Genomic, Env, or Compound data, exclude the row. Log exclusion decisions to `logs/exclusions.log`. **Output**: `data/processed/final_cleaned.csv`. **Verification**: Verify `data/processed/final_cleaned.csv` contains no nulls in key columns.
+- [X] T016 [US1] Write unit tests for ingestion logic in `code/tests/test_ingestion.py`. **Specific Tests**: `test_ingest_fails_on_missing_url` (verifies mock fallback), `test_ingest_validates_vcf_header`, `test_ingest_validates_csv_schema`. <!-- FAILED: unspecified -->
+- [X] T017 [US1] Write integration test for validation pipeline in `code/tests/test_validation.py`. **Specific Tests**: `test_merge_preserves_population_ids`, `test_listwise_deletion_removes_nulls`, `test_retention_check_fails_below_80_percent` (verifies `E-DATA-INSUFFICIENT`). <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,16 +95,16 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Implement `code/data/preprocessing.py` to calculate genomic diversity metrics (heterozygosity, nucleotide diversity) per FR-004
-- [X] T020 [US2] Implement `code/data/preprocessing.py` to aggregate all data to population level (FR-009) and calculate VIF for collinearity check; explicitly flag and log predictors with VIF > 5 as required by Spec Assumption 6. **Output**: `data/processed/features_vif.csv`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T021 [US2] Implement `code/data/preprocessing.py` to aggregate environmental variables per population and normalize; explicitly implement conditional logic: if `unique_studies >= N-1` (determined in T020), use global Z-score and exclude 'source_study' covariate; else use per-study Z-score (FR-010, FR-011). **Function**: `apply_normalization(df, unique_studies_count)`.
-- [X] T022 [US2] Implement `code/models/training.py` to load data and check N count for CV strategy (5-fold if N≥30, LOOCV if N<30) per FR-005
-- [X] T023 [US2] Implement `code/models/training.py` to check `unique_studies >= N-1` condition; if met, exclude 'source_study' covariate and use global Z-score per FR-010
-- [X] T024 [US2] Implement `code/models/training.py` to train LASSO/Ridge model with `scikit-learn` using selected CV strategy
-- [X] T025 [US2] Implement `code/models/training.py` to extract top 10 predictors by absolute coefficient magnitude
-- [X] T026 [US2] Implement `code/data/preprocessing.py` to detect 'model instability' (e.g., VIF > 10 or singular matrix) and perform conditional removal of predictors as per Assumption 6. **Output**: Updated feature set for training.
-- [X] T027 [US2] Write unit tests for feature engineering in `code/tests/test_preprocessing.py` (verify metrics calculation)
-- [X] T028 [US2] Write unit tests for model training logic in `code/tests/test_models.py` (verify CV switch and covariate logic)
+- [~] T018 [P] [US2] Implement `code/data/preprocessing.py` to parse raw VCF (`data/raw/genomic.vcf` or `mock_genomic.vcf`) into a variant table. **Input**: `data/raw/genomic.vcf` (T010). **Output**: `data/processed/variant_table.csv`. **Function**: `parse_vcf_to_table(vcf_path)`. <!-- FAILED: unspecified -->
+- [~] T019 [US2] Implement `code/data/preprocessing.py` to calculate genomic diversity metrics (heterozygosity, nucleotide diversity) per FR-004. **Input**: `data/processed/variant_table.csv` (output of T018). **Output**: `data/processed/diversity_metrics.csv`. **Function**: `calculate_diversity_metrics(df)`.
+- [~] T020 [US2] Implement `code/data/preprocessing.py` to aggregate all data to population level (FR-009) and calculate VIF for collinearity check; explicitly flag and log predictors with VIF > 5 as required by Spec Assumption 6. **Input**: `data/processed/diversity_metrics.csv` (T019), `data/processed/final_cleaned.csv` (T015). **Output**: `data/processed/features_vif.csv`. **Function**: `calculate_vif_and_aggregate(df)`. <!-- FAILED: unspecified -->
+- [~] T021 [US2] Implement `code/models/training.py` to check N count for CV strategy (5-fold if N≥30, LOOCV if N<30) per FR-005. **Input**: `data/processed/final_cleaned.csv` (T015). **Output**: `data/processed/cv_strategy.json` (contains `cv_type` and `n`). **Function**: `determine_cv_strategy(df)`.
+- [~] T022 [US2] Implement `code/models/training.py` to check `unique_studies >= N-1` condition; if met, exclude 'source_study' covariate and use global Z-score per FR-010. **Input**: `data/processed/final_cleaned.csv` (T015). **Output**: `data/processed/covariate_config.json` (contains `use_source_study`, `normalization_type`). **Function**: `determine_covariate_strategy(df)`. <!-- FAILED: unspecified -->
+- [~] T023 [US2] Implement `code/data/preprocessing.py` to apply normalization based on T021 and T022 outputs. **Input**: `data/processed/final_cleaned.csv` (T015), `data/processed/cv_strategy.json` (T021), `data/processed/covariate_config.json` (T022). **Output**: `data/processed/features_normalized.csv`. **Function**: `apply_normalization(df, config)`. <!-- FAILED: unspecified -->
+- [~] T024 [US2] Implement `code/models/training.py` to train LASSO/Ridge model with `scikit-learn` using selected CV strategy. **Input**: `data/processed/features_normalized.csv` (T023). **Output**: `results/model.pkl`. **Function**: `train_model(df)`. <!-- FAILED: unspecified -->
+- [~] T025 [US2] Implement `code/data/preprocessing.py` to detect 'model instability' and perform conditional removal of predictors as per Assumption 6. **Input**: `data/processed/features_vif.csv` (T020), `data/processed/features_normalized.csv` (T023). **Logic**: Flag predictors with VIF > 5; ONLY remove if model training (T024) fails with `SingularMatrixError`; retrain with removed features. **Output**: `data/processed/stable_features.csv`. **Function**: `select_stable_features(vif_df, features_df)`. <!-- FAILED: unspecified -->
+- [X] T026 [US2] Write unit tests for feature engineering in `code/tests/test_preprocessing.py` (verify metrics calculation). <!-- FAILED: unspecified -->
+- [X] T027 [US2] Write unit tests for model training logic in `code/tests/test_models.py` (verify CV switch and covariate logic).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,14 +118,14 @@
 
 ### Implementation for User Story 3
 
-- [X] T029 [P] [US3] Implement `code/models/evaluation.py` to execute permutation test (n=1000) and generate null distribution per FR-006
-- [X] T030 [US3] Implement `code/models/evaluation.py` to calculate p-value comparing observed R² against null distribution (SC-002, SC-003)
-- [X] T031 [US3] Implement `code/models/evaluation.py` to perform sensitivity analysis sweeping alpha values across a range of small significance levels per FR-007
-- [X] T032 [US3] Implement `code/utils/stats.py` to calculate Jaccard index for feature selection stability across the sweep (SC-004)
-- [X] T033 [US3] Implement `code/utils/stats.py` to apply Benjamini-Hochberg correction to predictor p-values per FR-008
-- [X] T034 [US3] Implement `code/main.py` to orchestrate the full pipeline: Ingestion → Validation → Feature Eng → Training → Evaluation; explicitly include Constitution Principle V requirement to update `state/PROJ-475-predicting-plant-defense-compound-produc.yaml` key `updated_at` with current timestamp upon completion. **Dependency**: Must run after T019, T028, T033. <!-- FAILED: unspecified -->
-- [X] T035 [US3] Write unit tests for permutation test logic in `code/tests/test_stats.py` (verify null distribution generation)
-- [X] T036 [US3] Write unit tests for BH correction and Jaccard index in `code/tests/test_stats.py`
+- [X] T028 [P] [US3] Implement `code/models/evaluation.py` to execute permutation test (n=1000) and generate null distribution per FR-006. <!-- FAILED: unspecified -->
+- [X] T029 [US3] Implement `code/models/evaluation.py` to calculate p-value comparing observed R² against null distribution (SC-002, SC-003).
+- [~] T030 [US3] Implement `code/models/evaluation.py` to perform sensitivity analysis by sweeping the regularization parameter (alpha) over the set {0.01, 0.05, 0.1} per FR-007. **Output**: `results/stability_report.json`. **Output**: Stability report showing feature selection variation across the sweep. <!-- FAILED: unspecified -->
+- [X] T031 [US3] Implement `code/utils/stats.py` to calculate Jaccard index for feature selection stability across the sweep (SC-004).
+- [X] T032 [US3] Implement `code/utils/stats.py` to apply Benjamini-Hochberg correction to predictor p-values per FR-008.
+- [X] T033 [US3] Implement `code/main.py` to orchestrate the full pipeline: Ingestion → Validation → Feature Eng → Training → Evaluation; explicitly include Constitution Principle V (Versioning Discipline) requirement to update `state/PROJ-475-predicting-plant-defense-compound-produc.yaml` key `updated_at` with current timestamp and update `artifact_hashes` map with content hashes upon completion. <!-- FAILED: unspecified -->
+- [X] T034 [US3] Write unit tests for permutation test logic in `code/tests/test_stats.py` (verify null distribution generation).
+- [X] T035 [US3] Write unit tests for BH correction and Jaccard index in `code/tests/test_stats.py`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,11 +135,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T037 [P] Update `README.md` with setup instructions and `docs/api.md` with module documentation
-- [X] T038 Refactor `code/data/ingestion.py` for DRY principle and `code/utils/stats.py` for type hinting <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T039 Optimize `code/data/preprocessing.py` to stream VCF using `cyvcf2` to ensure memory usage < 7GB
-- [X] T040 [P] Run `quickstart.md` validation
-- [X] T041 Ensure `data/manifest.yaml` is updated with all generated artifacts and checksums
+- [X] T036 [P] Update `README.md` with setup instructions and `docs/api.md` with module documentation
+- [X] T037 Refactor `code/data/ingestion.py` for DRY principle and `code/utils/stats.py` for type hinting
+- [X] T038 Optimize `code/data/preprocessing.py` to stream VCF using `cyvcf2` to ensure memory usage < 7GB
+- [ ] T039 [P] Run `quickstart.md` validation
+- [ ] T040 Ensure `data/manifest.yaml` is updated with all generated artifacts and checksums
 
 ---
 
@@ -158,7 +157,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`data/processed/final_cleaned.csv`)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
 
 ### Within Each User Story

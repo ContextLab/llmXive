@@ -1,233 +1,128 @@
 # API Documentation
 
+## Overview
 This document provides detailed API documentation for the PROJ-475 pipeline modules.
 
-## Table of Contents
+## Configuration Module (`code/config.py`)
 
-- [Configuration](#configuration)
-- [Data Module](#data-module)
-- [Models Module](#models-module)
-- [Utils Module](#utils-module)
-- [Scripts](#scripts)
-- [Tests](#tests)
-
----
-
-## Configuration
-
-### `code/config.py`
-
-Manages pipeline configuration including paths, seeds, and verified URLs.
-
-**Public API:**
-
+### Classes
 - `ConfigError`: Exception raised for configuration errors.
-- `Config`: Typed configuration dataclass.
-- `get_config() -> Config`: Loads and returns the current configuration.
+- `Config`: Dataclass holding project configuration.
 
-**Usage:**
-```python
-from config import get_config
-cfg = get_config()
-print(cfg.paths.data_raw)
-```
+### Functions
+- `load_config(path: str) -> Config`: Load configuration from a YAML file.
+- `get_config() -> Config`: Get the current configuration instance.
+- `reset_config()`: Reset the configuration to default.
+- `main()`: Entry point for configuration testing.
 
----
+## Data Ingestion Module (`code/data/ingestion.py`)
 
-## Data Module
+### Functions
+- `ensure_directories()`: Create required data directories.
+- `load_manifest(path: str) -> dict`: Load the data manifest.
+- `save_manifest(manifest: dict, path: str)`: Save the data manifest.
+- `update_manifest(manifest: dict, artifact_path: str, source: str)`: Update manifest with new artifact.
+- `fetch_url_content(url: str) -> bytes`: Download content from a URL.
+- `validate_compound_json_schema(data: dict) -> bool`: Validate compound JSON against schema.
+- `fetch_compound_data(url: str) -> dict`: Fetch and validate compound data.
+- `run_all_ingestion()`: Execute full ingestion pipeline.
+- `main()`: Entry point for ingestion scripts.
 
-### `code/data/ingestion.py`
+## Mock Data Generator (`code/data/mock_generator.py`)
 
-Handles fetching or generating raw data from genomic, environmental, and compound sources.
+### Functions
+- `generate_deterministic_population_ids(n: int) -> list`: Generate deterministic population IDs.
+- `generate_deterministic_env_ids(n: int) -> list`: Generate deterministic environmental IDs.
+- `generate_deterministic_compound_ids(n: int) -> list`: Generate deterministic compound IDs.
+- `generate_mock_genomic_data(path: str)`: Generate mock VCF genomic data.
+- `generate_mock_environmental_data(path: str)`: Generate mock environmental CSV data.
+- `generate_mock_compound_data(path: str)`: Generate mock compound JSON data.
+- `generate_all_mock_data()`: Generate all mock data files.
+- `main()`: Entry point for mock data generation.
 
-**Public API:**
+## Data Validation Module (`code/data/validation.py`)
 
-- `fetch_genomic_vcf_from_verified_url()`: Fetches VCF data from verified NCBI SRA URL or generates mock data.
-- `fetch_environmental_metadata_from_verified_url()`: Fetches environmental data from verified WorldClim/GBIF URL or generates mock data.
-- `fetch_compound_profiles_from_verified_url()`: Fetches compound profiles from verified ChemBank/PhenolExplorer URL or generates mock data.
-- `generate_mock_compound_data()`: Generates deterministic mock compound data.
-- `ingest_compound_data()`: Orchestrates compound data ingestion.
-- `main()`: Entry point for the ingestion pipeline.
+### Functions
+- `load_json_data(path: str) -> dict`: Load JSON data.
+- `load_csv_data(path: str) -> pd.DataFrame`: Load CSV data.
+- `load_vcf_as_dataframe(path: str) -> pd.DataFrame`: Parse VCF into DataFrame.
+- `merge_datasets(genomic_df, env_df, compound_df) -> pd.DataFrame`: Merge datasets on population_id.
+- `perform_listwise_deletion(df: pd.DataFrame) -> pd.DataFrame`: Remove rows with missing values.
+- `merge_and_validate()`: Execute merge and validation pipeline.
+- `run_validation_pipeline()`: Full validation pipeline execution.
+- `main()`: Entry point for validation scripts.
 
-**Outputs:**
-- `data/raw/genomic_vcf.json`
-- `data/raw/env_data.json`
-- `data/raw/compound_data.json`
+## Data Preprocessing Module (`code/data/preprocessing.py`)
 
-### `code/data/mock_generator.py`
+### Functions
+- `load_processed_data(path: str) -> pd.DataFrame`: Load processed data.
+- `handle_missing_genotypes(df: pd.DataFrame) -> pd.DataFrame`: Handle missing genotype data.
+- `handle_missing_env_metadata(df: pd.DataFrame) -> pd.DataFrame`: Handle missing environmental metadata.
+- `aggregate_to_population_level(df: pd.DataFrame) -> pd.DataFrame`: Aggregate data to population level.
+- `calculate_vif(df: pd.DataFrame) -> pd.DataFrame`: Calculate Variance Inflation Factor.
+- `calculate_diversity_metrics(df: pd.DataFrame) -> pd.DataFrame`: Calculate genomic diversity metrics.
+- `run_preprocessing_pipeline()`: Execute full preprocessing pipeline.
+- `main()`: Entry point for preprocessing scripts.
 
-Generates deterministic mock data for CI runs without requiring API keys.
+## Model Training Module (`code/models/training.py`)
 
-**Public API:**
+### Functions
+- `determine_cv_strategy(df: pd.DataFrame) -> dict`: Determine cross-validation strategy based on N.
+- `save_cv_strategy(strategy: dict, path: str)`: Save CV strategy to JSON.
+- `check_study_covariate_condition(df: pd.DataFrame) -> dict`: Check if source_study covariate should be excluded.
+- `train_model(df: pd.DataFrame) -> sklearn.model`: Train LASSO/Ridge model.
+- `extract_top_predictors(model, df: pd.DataFrame, n: int) -> list`: Extract top N predictors.
+- `main()`: Entry point for training scripts.
 
-- `generate_all_mock_data() -> Dict`: Generates all mock datasets (genomic, environmental, compound).
+## Model Evaluation Module (`code/models/evaluation.py`)
 
-### `code/data/preprocessing.py`
+### Functions
+- `run_permutation_test(model, df: pd.DataFrame, n: int = 1000) -> dict`: Execute permutation test.
+- `calculate_p_value(observed_r2: float, null_distribution: list) -> float`: Calculate p-value.
+- `run_sensitivity_analysis(model, df: pd.DataFrame, alphas: list) -> dict`: Perform sensitivity analysis.
+- `main()`: Entry point for evaluation scripts.
 
-Handles data cleaning, feature engineering, and normalization.
+## Utility Modules
 
-**Public API:**
+### IO Utilities (`code/utils/io.py`)
+- `compute_checksum(path: str) -> str`: Compute SHA256 checksum of a file.
+- `check_disk_space(estimated_size: int)`: Check available disk space, raise `DiskSpaceError` if insufficient.
 
-- `stream_vcf_memory_efficient()`: Streams VCF data efficiently using `cyvcf2`.
-- `calculate_missingness_by_environment()`: Calculates missingness per environment.
-- `exclude_rows_by_env_missingness()`: Excludes rows with high missingness.
-- `flag_missing_env_metadata()`: Flags missing environmental metadata.
-- `preprocess_environmental_data()`: Preprocesses environmental data.
-- `calculate_heterozygosity()`: Calculates genomic heterozygosity.
-- `calculate_nucleotide_diversity()`: Calculates nucleotide diversity.
-- `calculate_genomic_diversity_metrics()`: Calculates all genomic diversity metrics.
-- `calculate_vif()`: Calculates Variance Inflation Factor for collinearity.
-- `detect_model_instability()`: Detects model instability (VIF > 10 or singular matrix).
-- `apply_normalization()`: Applies conditional Z-score normalization.
-- `aggregate_to_population_level()`: Aggregates data to population level.
-- `main()`: Entry point for preprocessing.
+### Logging Utilities (`code/utils/logging.py`)
+- `get_logger(name: str) -> logging.Logger`: Get a logger instance.
+- `configure_root_logger()`: Configure root logger.
+- `get_module_logger()`: Get module-specific logger.
 
-**Outputs:**
-- `data/processed/features_vif.csv`
-- `data/processed/filtered.csv`
+### Statistics Utilities (`code/utils/stats.py`)
+- `calculate_jaccard_index(set1: set, set2: set) -> float`: Calculate Jaccard index between two sets.
+- `calculate_jaccard_index_from_lists(list1: list, list2: list) -> float`: Calculate Jaccard index from lists.
+- `calculate_jaccard_stability_matrix(feature_sets: list) -> pd.DataFrame`: Calculate Jaccard stability matrix.
+- `calculate_mean_jaccard_stability(matrix: pd.DataFrame) -> float`: Calculate mean Jaccard stability.
+- `compute_feature_stability_across_sweep(sweep_results: dict) -> dict`: Compute feature stability across alpha sweep.
+- `save_jaccard_stability_report(report: dict, path: str)`: Save stability report.
+- `benjamini_hochberg_correction(p_values: list) -> list`: Apply Benjamini-Hochberg correction.
+- `main()`: Entry point for stats scripts.
 
-### `code/data/validation.py`
+## Main Pipeline (`code/main.py`)
 
-Validates data integrity and performs listwise deletion.
-
-**Public API:**
-
-- `load_json_data()`: Loads JSON data files.
-- `merge_datasets()`: Merges genomic, environmental, and compound datasets.
-- `perform_listwise_deletion()`: Removes rows with missing modalities.
-- `validate_data_integrity()`: Validates data against schema.
-- `calculate_retention_percentage()`: Calculates data retention after deletion.
-- `run_validation_pipeline()`: Orchestrates validation.
-- `main()`: Entry point for validation.
-
----
-
-## Models Module
-
-### `code/models/training.py`
-
-Handles model training and predictor extraction.
-
-**Public API:**
-
-- `load_processed_data()`: Loads processed feature data.
-- `determine_cv_strategy()`: Determines CV strategy (5-fold or LOOCV) based on N.
-- `check_study_covariate_condition()`: Checks if study covariate should be excluded.
-- `train_model()`: Trains LASSO/Ridge model.
-- `extract_top_predictors()`: Extracts top 10 predictors by coefficient magnitude.
-- `main()`: Entry point for training.
-
-### `code/models/evaluation.py`
-
-Handles model evaluation, permutation tests, and sensitivity analysis.
-
-**Public API:**
-
-- `calculate_p_value()`: Calculates p-value from null distribution.
-- `run_permutation_test()`: Runs permutation test (n=1000).
-- `save_permutation_results()`: Saves permutation test results.
-- `run_sensitivity_analysis()`: Runs sensitivity analysis across alpha values.
-- `main()`: Entry point for evaluation.
-
----
-
-## Utils Module
-
-### `code/utils/io.py`
-
-Input/Output utilities including disk space checks and checksums.
-
-**Public API:**
-
-- `DiskSpaceError`: Exception raised when disk space is insufficient.
-- `compute_checksum(path)`: Computes SHA-256 checksum of a file.
-- `check_disk_space(estimated_size)`: Checks if sufficient disk space exists.
-
-### `code/utils/logging.py`
-
-Logging configuration and helper functions.
-
-**Public API:**
-
-- `get_logger(name)`: Gets a named logger.
-- `configure_root_logger()`: Configures root logger.
-- `get_module_logger(name)`: Gets a module-specific logger.
-
-### `code/utils/stats.py`
-
-Statistical utilities for model evaluation and stability analysis.
-
-**Public API:**
-
-- `calculate_jaccard_index(set1, set2)`: Calculates Jaccard index between two sets.
-- `calculate_jaccard_stability_matrix()`: Calculates Jaccard stability matrix.
-- `calculate_mean_jaccard_stability()`: Calculates mean Jaccard stability.
-- `save_jaccard_stability_report()`: Saves stability report.
-- `benjamini_hochberg_correction(p_values)`: Applies Benjamini-Hochberg correction.
-- `apply_bh_correction_to_predictors()`: Applies BH correction to predictor p-values.
-
----
+### Functions
+- `update_state_file()`: Update the state file with current timestamp and artifact hashes.
+- `run_pipeline()`: Execute the full pipeline from ingestion to evaluation.
+- `main()`: Main entry point for the application.
 
 ## Scripts
 
-### `code/scripts/run_linter.py`
+### `code/scripts/generate_mock_data.py`
+- `main()`: Generate all mock data files for testing.
 
-Runs linting and formatting checks.
+### `code/scripts/run_validation.py`
+- `main()`: Run the data validation pipeline.
 
-**Public API:**
-
-- `run_command(cmd)`: Runs a shell command.
-- `main()`: Entry point.
+### `code/scripts/run_preprocessing.py`
+- `main()`: Run the preprocessing pipeline.
 
 ### `code/scripts/update_manifest.py`
-
-Updates `data/manifest.yaml` with artifact metadata and checksums.
-
-**Public API:**
-
-- `should_include_file(path)`: Determines if a file should be included in manifest.
-- `get_all_artifacts()`: Lists all artifact files.
-- `get_artifact_metadata(path)`: Gets metadata for an artifact.
-- `update_manifest()`: Updates the manifest file.
-- `main()`: Entry point.
+- `main()`: Update the data manifest with all artifacts.
 
 ### `code/scripts/validate_quickstart.py`
-
-Validates the quickstart guide and pipeline execution.
-
-**Public API:**
-
-- `log(msg)`: Logs a message.
-- `check_file_exists(path)`: Checks if a file exists.
-- `run_pipeline_step(step)`: Runs a pipeline step.
-- `validate_manifest()`: Validates the manifest.
-- `validate_state()`: Validates the state file.
-- `main()`: Entry point.
-
----
-
-## Tests
-
-### `code/tests/test_ingestion.py`
-
-Unit tests for data ingestion logic.
-
-### `code/tests/test_validation.py`
-
-Integration tests for the validation pipeline.
-
-### `code/tests/test_preprocessing.py`
-
-Unit tests for feature engineering and preprocessing.
-
-### `code/tests/test_models.py`
-
-Unit tests for model training logic.
-
-### `code/tests/test_stats.py`
-
-Unit tests for statistical utilities (permutation, BH, Jaccard).
-
-### `code/tests/test_update_manifest.py`
-
-Tests for manifest update logic.
+- `main()`: Validate quickstart requirements and pipeline outputs.

@@ -1,0 +1,46 @@
+T010:
+  c: false
+  h: 812a4ead0351c7f6157d29609e6181e0834c380a4c7d8ee906d79ffbb52ed8b2
+  r: "The required output files `data/raw/genomic.vcf` (or the mock `data/raw/mock_genomic.vcf`)\
+    \ are absent, and the manifest records a JSON file instead of the VCF path. Moreover,\
+    \ the provided `ingestion.py` excerpt does not show the specific logic for checking\
+    \ `config.verified_urls['genomic']`, performing the disk\u2011space pre\u2011\
+    check, downloading the VCF, or invoking the mock generator as stipulated. These\
+    \ core requirements are missing."
+T011:
+  c: false
+  h: 8d704746aca99d4298844225b4b036a6fcee189f2b665d8452665f631800a597
+  r: The required output files `data/raw/env_data.csv` (or the mock `data/raw/mock_env.csv`)
+    are absent, and the manifest records an `env_data.json` artifact instead of the
+    expected CSV, indicating the ingestion logic and provenance update were not performed
+    as specified.
+T012:
+  c: false
+  h: 08ecec0d518d9c7d333a17a5e380fcaebfc59f5fcd59b53376ada7697fbb2c8d
+  r: The required output files `data/raw/compound_data.json` (or the mock `data/raw/mock_compounds.json`)
+    are not present, and therefore the verification step cannot be satisfied. Additionally,
+    the manifest lists `compound_data.json` but the file does not exist on disk. The
+    implementation must create one of these files with the required keys and update
+    the manifest accordingly.
+T013:
+  c: false
+  h: 7dbd9e0eb1ab03c39e2da76b6e2cd63bf64d9a3ccbd56e13f1a7fd4e536236f8
+  r: "The repository lacks the required input files (`data/raw/genomic.vcf`, `data/raw/env_data.csv`,\
+    \ `data/raw/compound_data.json`) and the expected output file (`data/processed/merged_raw.csv`).\
+    \ Consequently the validation script cannot actually perform the inner\u2011join\
+    \ and produce the merged CSV, so the task\u2019s core requirement is not satisfied."
+T014:
+  c: false
+  h: 6c702271db8cd166b804ddbb7d8903a358bc92c5dfa6d5fac6cf22386fe7fde8
+  r: "The repository contains `code/data/validation.py`, but the file does not show\
+    \ any implementation of the retention calculation or the required `SystemExit`\
+    \ with error code `E-DATA-INSUFFICIENT`. Moreover, the essential input `data/processed/merged_raw.csv`\
+    \ is absent, so the script cannot perform the retention check at all. The task\u2019\
+    s core requirement is therefore unmet."
+T015:
+  c: false
+  h: 3ff3e161dc19749cf30b12dacc5770e6be765d2cd1fb463821e174697e3486d8
+  r: "The repository lacks the required `data/processed/merged_raw.csv` input and\
+    \ the resulting `data/processed/final_cleaned.csv` output (both are missing).\
+    \ Without these files, the validation script cannot be run or verified, so the\
+    \ task\u2019s core requirement is not satisfied."

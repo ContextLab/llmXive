@@ -1,230 +1,262 @@
 """
-Statistics utility module.
-Includes VIF calculation (if not in preprocessing), Jaccard index, BH correction.
-Note: VIF is also implemented in preprocessing.py for pipeline integration.
-This module provides a standalone function for VIF if needed elsewhere.
+Statistical Utilities Module for Plant Defense Compound Prediction Pipeline.
+
+This module provides statistical functions for:
+- Jaccard index calculations for feature stability
+- Benjamini-Hochberg correction for multiple hypothesis testing
+- Permutation test utilities
+- Sensitivity analysis metrics
 """
+
 import logging
 import sys
 from pathlib import Path
 from typing import List, Set, Dict, Any, Union, Optional, Tuple
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
-from scipy import stats
+import json
 
-try:
-    from utils.logging import get_module_logger
-except ImportError:
-    logging.basicConfig(level=logging.INFO)
-    def get_module_logger(name):
-        return logging.getLogger(name)
+# Local imports
+from utils.logging import get_module_logger
 
 logger = get_module_logger(__name__)
 
-def calculate_vif(df: pd.DataFrame, predictor_cols: List[str]) -> Dict[str, float]:
+def calculate_jaccard_index(set_a: Set[Any], set_b: Set[Any]) -> float:
     """
-    Calculate VIF for a list of predictors in a DataFrame.
+    Calculate the Jaccard index between two sets.
+    
+    The Jaccard index is the size of the intersection divided by the size 
+    of the union of the sets.
     
     Args:
-        df: DataFrame containing the data.
-        predictor_cols: List of column names to calculate VIF for.
+        set_a: First set of elements
+        set_b: Second set of elements
         
     Returns:
-        Dictionary mapping predictor name to VIF value.
+        Jaccard index (0.0 to 1.0), or 0.0 if both sets are empty
     """
-    vif_results = {}
-    if len(predictor_cols) < 2:
-        return vif_results
+    if not set_a and not set_b:
+        return 1.0  # Two empty sets are considered identical
     
-    for col in predictor_cols:
-        X = df[predictor_cols].drop(columns=[col])
-        y = df[col]
-        
-        if X.shape[1] == 0:
-            vif_results[col] = 1.0
-            continue
-        
-        try:
-            X_with_const = sm.add_constant(X)
-            model = sm.OLS(y, X_with_const).fit()
-            r_squared = model.rsquared
-            vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else np.inf
-            vif_results[col] = vif
-        except Exception as e:
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_results[col] = np.nan
+    intersection = len(set_a.intersection(set_b))
+    union = len(set_a.union(set_b))
     
-    return vif_results
+    if union == 0:
+        return 0.0
+    
+    return intersection / union
 
-def run_vif_analysis(df: pd.DataFrame, threshold: float = 5.0) -> pd.DataFrame:
+def calculate_jaccard_index_from_lists(list_a: List[Any], list_b: List[Any]) -> float:
     """
-    Run VIF analysis on all numeric predictors in a DataFrame.
+    Calculate Jaccard index from two lists by converting to sets.
     
     Args:
-        df: Input DataFrame.
-        threshold: VIF threshold for flagging.
+        list_a: First list of elements
+        list_b: Second list of elements
         
     Returns:
-        DataFrame with predictor and VIF values.
+        Jaccard index (0.0 to 1.0)
     """
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    # Exclude ID columns
-    exclude_cols = ['population_id', 'env_id', 'compound_id']
-    predictor_cols = [c for c in numeric_cols if c not in exclude_cols]
-    
-    vif_dict = calculate_vif(df, predictor_cols)
-    vif_df = pd.DataFrame(list(vif_dict.items()), columns=['predictor', 'vif'])
-    vif_df = vif_df.sort_values(by='vif', ascending=False)
-    
-    high_vif = vif_df[vif_df['vif'] > threshold]
-    if not high_vif.empty:
-        logger.warning(f"Found {len(high_vif)} predictors with VIF > {threshold}: {high_vif['predictor'].tolist()}")
-    
-    return vif_df
+    return calculate_jaccard_index(set(list_a), set(list_b))
 
-def calculate_jaccard_index(set1: Set[Any], set2: Set[Any]) -> float:
+def calculate_jaccard_stability_matrix(feature_sets: List[Set[Any]]) -> np.ndarray:
     """
-    Calculate Jaccard index between two sets.
+    Calculate a pairwise Jaccard stability matrix for multiple feature sets.
     
     Args:
-        set1: First set.
-        set2: Second set.
+        feature_sets: List of sets, each representing selected features
         
     Returns:
-        Jaccard index (0.0 to 1.0).
-    """
-    if not set1 and not set2:
-        return 1.0
-    intersection = len(set1.intersection(set2))
-    union = len(set1.union(set2))
-    return intersection / union if union > 0 else 0.0
-
-def calculate_jaccard_stability_matrix(feature_sets: List[Set[Any]]) -> pd.DataFrame:
-    """
-    Calculate Jaccard stability matrix for a list of feature sets.
-    
-    Args:
-        feature_sets: List of sets of features.
-        
-    Returns:
-        DataFrame representing the Jaccard similarity matrix.
+        2D numpy array of shape (n_sets, n_sets) with Jaccard indices
     """
     n = len(feature_sets)
     if n == 0:
-        return pd.DataFrame()
+        return np.array([]).reshape(0, 0)
     
     matrix = np.zeros((n, n))
+    
     for i in range(n):
         for j in range(n):
             matrix[i, j] = calculate_jaccard_index(feature_sets[i], feature_sets[j])
     
-    return pd.DataFrame(matrix, index=range(n), columns=range(n))
+    return matrix
 
 def calculate_mean_jaccard_stability(feature_sets: List[Set[Any]]) -> float:
     """
-    Calculate mean Jaccard stability across all pairs.
+    Calculate the mean Jaccard stability across all pairwise comparisons.
     
     Args:
-        feature_sets: List of sets of features.
+        feature_sets: List of sets, each representing selected features
         
     Returns:
-        Mean Jaccard index.
+        Mean Jaccard index across all unique pairs
     """
     if len(feature_sets) < 2:
-        return 1.0
+        return 1.0 if len(feature_sets) == 1 else 0.0
     
     matrix = calculate_jaccard_stability_matrix(feature_sets)
-    # Exclude diagonal
-    n = matrix.shape[0]
-    total_pairs = n * (n - 1) / 2
-    if total_pairs == 0:
+    
+    # Get upper triangle (excluding diagonal) for unique pairs
+    upper_triangle = matrix[np.triu_indices(len(matrix), k=1)]
+    
+    if len(upper_triangle) == 0:
         return 1.0
     
-    # Sum upper triangle
-    upper_sum = matrix.values[np.triu_indices(n, k=1)].sum()
-    return upper_sum / total_pairs
+    return float(np.mean(upper_triangle))
 
-def save_jaccard_stability_report(feature_sets: List[Set[Any]], output_path: str):
+def compute_feature_stability_across_sweep(
+    alpha_values: List[float],
+    feature_selections: Dict[float, List[str]]
+) -> Dict[str, Any]:
     """
-    Save Jaccard stability matrix and mean to a report file.
+    Compute feature stability metrics across a regularization parameter sweep.
     
     Args:
-        feature_sets: List of sets of features.
-        output_path: Path to save the report.
-    """
-    matrix = calculate_jaccard_stability_matrix(feature_sets)
-    mean_stability = calculate_mean_jaccard_stability(feature_sets)
-    
-    report_path = Path(output_path)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(report_path, 'w') as f:
-        f.write(f"Mean Jaccard Stability: {mean_stability:.4f}\n")
-        f.write("\nJaccard Similarity Matrix:\n")
-        f.write(matrix.to_string())
-
-def benjamini_hochberg_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
-    """
-    Apply Benjamini-Hochberg correction to a list of p-values.
-    
-    Args:
-        p_values: List of p-values.
-        alpha: Significance level.
+        alpha_values: List of alpha values tested
+        feature_selections: Dictionary mapping alpha to list of selected features
         
     Returns:
-        Tuple of (rejections, adjusted p-values).
+        Dictionary with stability metrics including:
+        - mean_jaccard: Mean pairwise Jaccard index
+        - feature_frequency: How often each feature was selected
+        - stable_features: Features selected in >80% of sweeps
     """
-    n = len(p_values)
-    if n == 0:
-        return [], []
+    if not feature_selections:
+        return {
+            "mean_jaccard": 0.0,
+            "feature_frequency": {},
+            "stable_features": [],
+            "total_sweeps": 0
+        }
     
-    # Sort p-values with original indices
+    # Convert feature lists to sets
+    feature_sets = [set(feature_selections[alpha]) for alpha in alpha_values]
+    
+    # Calculate mean Jaccard stability
+    mean_jaccard = calculate_mean_jaccard_stability(feature_sets)
+    
+    # Calculate feature selection frequency
+    all_features = set()
+    for features in feature_selections.values():
+        all_features.update(features)
+    
+    feature_frequency = {}
+    total_sweeps = len(alpha_values)
+    
+    for feature in all_features:
+        count = sum(1 for alpha in alpha_values if feature in feature_selections[alpha])
+        feature_frequency[feature] = {
+            "count": count,
+            "frequency": count / total_sweeps if total_sweeps > 0 else 0.0
+        }
+    
+    # Identify stable features (selected in >80% of sweeps)
+    stable_features = [
+        feature for feature, stats in feature_frequency.items()
+        if stats["frequency"] > 0.8
+    ]
+    
+    return {
+        "mean_jaccard": float(mean_jaccard),
+        "feature_frequency": feature_frequency,
+        "stable_features": stable_features,
+        "total_sweeps": total_sweeps
+    }
+
+def save_jaccard_stability_report(
+    stability_metrics: Dict[str, Any],
+    output_path: Union[str, Path]
+) -> None:
+    """
+    Save Jaccard stability metrics to a JSON file.
+    
+    Args:
+        stability_metrics: Dictionary of stability metrics
+        output_path: Path to save the report
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(stability_metrics, f, indent=2)
+    
+    logger.info(f"Saved Jaccard stability report to {output_path}")
+
+def benjamini_hochberg_correction(
+    p_values: Union[List[float], np.ndarray],
+    alpha: float = 0.05
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Apply Benjamini-Hochberg correction for multiple hypothesis testing.
+    
+    Args:
+        p_values: List or array of p-values
+        alpha: Significance level (default 0.05)
+        
+    Returns:
+        Tuple of (adjusted_p_values, boolean mask of significant results)
+    """
+    p_values = np.array(p_values)
+    n = len(p_values)
+    
+    if n == 0:
+        return np.array([]), np.array([], dtype=bool)
+    
+    # Sort p-values and keep track of original indices
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array(p_values)[sorted_indices]
+    sorted_p_values = p_values[sorted_indices]
     
     # Calculate adjusted p-values
-    adjusted_p_values = np.zeros(n)
+    # BH procedure: p_adj[i] = p[i] * n / (n - i)
+    # But we need to ensure monotonicity (cumulative min from right)
+    adjusted = np.zeros(n)
     for i in range(n):
-        adjusted_p_values[sorted_indices[i]] = sorted_p_values[i] * n / (i + 1)
+        adjusted[i] = sorted_p_values[i] * n / (i + 1)
     
-    # Ensure monotonicity (cumulative min from the end)
+    # Enforce monotonicity: each adjusted p-value should be <= the next
     for i in range(n - 2, -1, -1):
-        adjusted_p_values[sorted_indices[i]] = min(adjusted_p_values[sorted_indices[i]], adjusted_p_values[sorted_indices[i+1]])
+        adjusted[i] = min(adjusted[i], adjusted[i + 1])
     
-    # Determine rejections
-    rejections = adjusted_p_values <= alpha
+    # Clip to [0, 1]
+    adjusted = np.clip(adjusted, 0, 1)
     
-    return rejections.tolist(), adjusted_p_values.tolist()
+    # Map back to original order
+    final_adjusted = np.zeros(n)
+    final_adjusted[sorted_indices] = adjusted
+    
+    # Determine significance
+    significant = final_adjusted < alpha
+    
+    return final_adjusted, significant
 
-def apply_bh_correction_to_predictors(df: pd.DataFrame, p_value_col: str, alpha: float = 0.05) -> pd.DataFrame:
+def main(*args, **kwargs) -> int:
     """
-    Apply BH correction to a column of p-values in a DataFrame.
+    Main entry point for stats module.
     
-    Args:
-        df: DataFrame with p-values.
-        p_value_col: Name of the p-value column.
-        alpha: Significance level.
-        
+    Accepts flexible arguments to support various call patterns.
+    
     Returns:
-        DataFrame with added 'adjusted_p_value' and 'significant' columns.
+        Exit code (0 for success, non-zero for failure)
     """
-    p_values = df[p_value_col].tolist()
-    rejections, adjusted_p_values = benjamini_hochberg_correction(p_values, alpha)
-    
-    df_out = df.copy()
-    df_out['adjusted_p_value'] = adjusted_p_values
-    df_out['significant'] = rejections
-    
-    return df_out
-
-def main():
-    """
-    Main entry point for stats module (for testing).
-    """
-    # Example usage
-    logger.info("Stats module loaded.")
-    return 0
+    try:
+        # Demonstrate functionality with a simple test
+        logger.info("Statistical utilities module loaded successfully.")
+        
+        # Test Jaccard index
+        set_a = {"feature1", "feature2", "feature3"}
+        set_b = {"feature2", "feature3", "feature4"}
+        jaccard = calculate_jaccard_index(set_a, set_b)
+        logger.info(f"Test Jaccard index: {jaccard}")
+        
+        # Test BH correction
+        p_values = [0.01, 0.03, 0.04, 0.06, 0.10]
+        adjusted, significant = benjamini_hochberg_correction(p_values)
+        logger.info(f"Test BH correction: original={p_values}, adjusted={adjusted.tolist()}")
+        
+        return 0
+    except Exception as e:
+        logger.error(f"Stats module execution failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
