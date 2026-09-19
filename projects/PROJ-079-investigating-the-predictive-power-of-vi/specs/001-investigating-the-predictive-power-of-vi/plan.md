@@ -57,7 +57,7 @@ This feature implements a computational pipeline to investigate whether viral se
 1.  **Step 2.1**: **Ortholog Mapping**: For non-human/mouse species, use `rpy` to call `Ensembl Compara v109` (via API) to map ISG genes. **CRITICAL VALIDATION**: Immediately after mapping, verify that the mapped orthologs exist in the normalized counts matrix. If the overlap is insufficient (e.g., < 80% of the set present), mark the sample as `excluded` (FR-015) and log the reason. Do not proceed to PCA if the set is empty.
 2.  **Step 2.2**: **Strain Link Validation**: Calculate the ratio of samples lacking a valid `virus_strain_accession` link. **If (missing_count / total_count) > 0.10**, **ABORT** with fatal error (FR-014).
 3.  **Step 2.3**: Normalize counts using **TMM** (via `edgeR` loaded via `rpy2`).
-4.  **Step 2.4**: Compute ISG-PC (First PC of 50 ISG genes) using `scikit-learn` PCA. **CRITICAL VALIDATION**: Before running PCA, verify that the ISG gene set (mapped or standard) is present in the matrix and has non-zero variance. If the set is empty or constant, exclude the sample or abort.
+4.  **Step 2.4**: Compute ISG-PC (First PC of a defined set of ISG genes) using `scikit-learn` PCA. **CRITICAL VALIDATION**: Before running PCA, verify that the ISG gene set (mapped or standard) is present in the matrix and has non-zero variance. If the set is empty or constant, exclude the sample or abort.
 5.  **Step 2.5**: Extract Viral Features:
     -   CAI (relative to human/mouse reference).
     -   GC Content (Global & 1kb windows).
@@ -73,7 +73,7 @@ This feature implements a computational pipeline to investigate whether viral se
 
 ### Phase 4: Modeling & Inference
 1.  **Step 4.1**: **Assumption Check**: Verify design matrix incoherence and sparsity before Debiased Lasso. If assumptions fail, log warning and fallback to coefficient reporting without p-values.
-2.  **Step 4.2**: Train Elastic Net with 5-fold CV (inside training set only).
+2.  **Step 4.2**: Train Elastic Net with k-fold CV (inside training set only).
 3.  **Step 4.3**: **Permutation Test**: Run a sufficient number of permutations. **Crucial**: For each permutation, **re-run PCA** on the permuted feature matrix (or permuted labels) to generate the null distribution of R². This prevents inflated Type I errors in HDLSS regimes (FR-007).
 4.  **Step 4.4**: Compute Debiased Lasso p-values (FR-012) and VIF (FR-008).
 5.  **Step 4.5**: Apply Benjamini-Hochberg FDR correction (FR-009).

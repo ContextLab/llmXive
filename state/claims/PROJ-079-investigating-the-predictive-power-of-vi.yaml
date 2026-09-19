@@ -1,0 +1,305 @@
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if sample count less than 30
+  claim_id: c_a9285b68
+  context: 'T017: Implement filter_samples... ensures >=30 samples remain. Abort if
+    <30 per FR-013.'
+  evidence:
+    asserted: '30.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must abort if the number of samples is less than 30.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T10:31:01Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if total strains less than 5
+  claim_id: c_28a24425
+  context: 'T023: Add validation... assert len(aggregated_df[''strain_accession''].unique())
+    >= 5. Abort with fatal error if false per FR-017.'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must abort if the total number of unique strains is less
+    than 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T10:31:01Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if test strains less than 5
+  claim_id: c_ca458d87
+  context: 'T035: Add validation... assert len(test_df[''strain_accession''].unique())
+    >= 5. ABORT with fatal error if len(test_strains) < 5. per FR-017.'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must abort if the number of test strains is less than 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T10:31:01Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if ortholog mapping fails for more than 10 percent of non human
+    mouse samples
+  claim_id: c_40963f17
+  context: 'T015: ...ABORT with fatal error if >10% of total samples lack valid strain
+    links (FR-014) OR if ortholog mapping fails for >10% of non-human/mouse samples
+    (FR-015).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_ortholog_mapping_fails_for_more_than_10_percent_of
+  kind: magnitude
+  raw_text: Ortholog mapping must fail for no more than 10% of non-human/mouse samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:31:27Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: abort if more than 10 percent of total samples lack valid strain links
+  claim_id: c_c2814530
+  context: 'T015: ...ABORT with fatal error if >10% of total samples lack valid strain
+    links (FR-014)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_more_than_10_percent_of_total_samples_lack_valid_st
+  kind: magnitude
+  raw_text: More than 10% of total samples must not lack valid strain links.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:31:54Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: execute exactly 1000 permutations in permutation test
+  claim_id: c_8a68720e
+  context: 'T032b: ...Mandatory: Execute exactly 1,000 permutations as per Spec FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test must execute exactly 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:32:27Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: verify total runtime less than 4 hours on 2 core github actions runner
+  claim_id: c_40c3bca1
+  context: 'T044: ...Verify total runtime < 4 hours on the 2-core GitHub Actions runner
+    (Plan Target)...'
+  evidence:
+    candidates:
+    - - Log in Verify total runtime less than
+      - 4.0
+    - - Verify total runtime less than 4 hours on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_less_than_4_hours_on_2_core_github_acti
+  kind: magnitude
+  raw_text: The total runtime of the pipeline must be less than 4 hours on a 2-core
+    runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T10:33:12Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: pilot permutation test uses 10 shuffles
+  claim_id: c_2790f88a
+  context: 'T032a: ...runs a small pilot (e.g., 10 shuffles) to estimate runtime per
+    permutation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot permutation test uses 10 shuffles to estimate runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:33:34Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: verify coverage report indicates greater than 80 percent line coverage
+    for src modules
+  claim_id: c_0ba9f6f0
+  context: 'T043b: Verify coverage report exists and indicates >80% line coverage
+    for src/ modules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_coverage_report_indicates_greater_than_80_percent_lin
+  kind: magnitude
+  raw_text: The code coverage report must indicate greater than 80% line coverage
+    for src/ modules.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:33:58Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: k-mer extraction restricted to k equals 3 and k equals 4 only
+  claim_id: c_6e65d401
+  context: 'T018c: ...calculating k-mer frequencies for k=3, 4 ONLY as authorized
+    by docs/spec_amendments.md (T002c).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The k-mer extraction is restricted to k=3 and k=4 only.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:35:35Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: timeout decorator configured for 4 hours
+  claim_id: c_f8de3640
+  context: 'T008: ...src/utils/timeout.py with a decorator @timeout(seconds=4*3600)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout decorator is configured for 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:35:51Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: flag features with vif greater than 5
+  claim_id: c_9290659a
+  context: 'T027: ...Flag features with VIF > 5. Log warnings.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_features_with_vif_greater_than_5
+  kind: magnitude
+  raw_text: Features with a Variance Inflation Factor (VIF) greater than 5 are flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:36:41Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: generate partial dependence plots for top 5 features
+  claim_id: c_b1b6b1cb
+  context: 'T039: ...Define ''influential'' as top 5 ranked by absolute coefficient
+    magnitude...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Partial dependence plots are generated for the top 5 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:37:19Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: partial dependence plots use 50 points
+  claim_id: c_0fcede6b
+  context: 'T039: ...plot_partial_dependence(..., n_points: int=50)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Partial dependence plots use 50 points.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:37:43Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: use ensembl compara v109 to map human isg set to orthologs
+  claim_id: c_dd9d285f
+  context: 'T015: ...uses Ensembl Compara v109 API to map human ISG set to orthologs
+    for non-human species.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensembl Compara version 109 is used to map human ISG sets to orthologs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:38:02Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: elastic net model uses 5 fold cross validation
+  claim_id: c_07e0f2c3
+  context: 'T028: ...using sklearn.ElasticNetCV with 5-fold CV. Use sklearn.model_selection.cross_val_predict
+    with cv=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The elastic net model uses 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:38:38Z'
+- artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
+  attempts: 1
+  canonical: manifest file uses sha-256 checksum algorithm
+  claim_id: c_01c916f9
+  context: 'T006a: ...''checksum_algorithm'' (set to ''sha256'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manifest file uses the SHA-256 checksum algorithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T10:38:57Z'

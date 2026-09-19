@@ -4,11 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T011` (rejected 1x): declared artifact(s) missing/empty/invalid: tests/integration/test_data_pipeline.py, data/processed/merged_dataset.csv
-- `T012` (rejected 1x): The `fetch_viral_genomes` function in `src/download.py` is a stub that raises `NotImplementedError`, so no real NCBI Virus API query, FASTA parsing, or dict output is produced. Moreover, the required `data/manifest_v1.json` file does not exist, and the manifest generation logic does not compute SHA‑256 checksums or follow the exact key schema. The task’s core functionality and manifest output are missing.
-- `T013` (rejected 1x): The `fetch_geo_data` function is still a stub that raises `NotImplementedError`, so no GEO download or parsing occurs, and no dictionary of sample‑to‑strain accessions is produced. Moreover, the required `data/manifest_v2.json` file does not exist (and the manifest generation code leaves the `checksums` field empty). Both the core function and the manifest output are missing, so the task is not satisfied.
-- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/normalized_counts.csv
-- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/ortholog_map.csv
+- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/isg_scores.csv
+- `T017` (rejected 1x): The required file `src/preprocess.py` does not exist, so the `filter_samples` function cannot be present or verified. Consequently the task’s implementation is missing.
+- `T018b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/features.py
 
 ## Required change
 

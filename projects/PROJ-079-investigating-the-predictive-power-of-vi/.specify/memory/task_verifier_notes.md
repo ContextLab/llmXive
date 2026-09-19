@@ -2,8 +2,14 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T011** — declared artifact(s) missing/empty/invalid: tests/integration/test_data_pipeline.py, data/processed/merged_dataset.csv
-- **T012** — The `fetch_viral_genomes` function in `src/download.py` is a stub that raises `NotImplementedError`, so no real NCBI Virus API query, FASTA parsing, or dict output is produced. Moreover, the required `data/manifest_v1.json` file does not exist, and the manifest generation logic does not compute SHA‑256 checksums or follow the exact key schema. The task’s core functionality and manifest output are missing.
-- **T013** — The `fetch_geo_data` function is still a stub that raises `NotImplementedError`, so no GEO download or parsing occurs, and no dictionary of sample‑to‑strain accessions is produced. Moreover, the required `data/manifest_v2.json` file does not exist (and the manifest generation code leaves the `checksums` field empty). Both the core function and the manifest output are missing, so the task is not satisfied.
+- **T011a** — The repository contains the integration test file, but it writes/checks a manifest in a temporary directory, not the required `data/manifest.json`. Moreover, the actual `data/manifest.json` file is missing, so the test cannot verify that the pipeline produces the required manifest with checksums. The task’s core requirement is not met.
+- **T012** — The repository lacks a `fetch_all_data` implementation in `src/download.py` (the file only contains placeholder/stub functions that raise `NotImplementedError`). Additionally, the required unified `data/manifest.json` file is missing. Consequently, the task of fetching genomes, downloading GEO data, and producing a single manifest is not satisfied.
+- **T013** — No code, data files, model artifacts, or visualizations were provided; the required pipeline outputs (merged CSV, normalized matrix, interferon‑response scores, trained model file, performance metrics, and feature‑importance plots) are absent, so the task’s functional requirements are not demonstrated.
 - **T014** — declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/normalized_counts.csv
 - **T015** — declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/ortholog_map.csv
+- **T016** — declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/isg_scores.csv
+- **T017** — The required file `src/preprocess.py` does not exist, so the `filter_samples` function cannot be present or verified. Consequently the task’s implementation is missing.
+- **T018a** — declared artifact(s) missing/empty/invalid: src/features.py
+- **T018b** — declared artifact(s) missing/empty/invalid: src/features.py
+- **T018c** — The required `src/features.py` file does not exist in the repository, so the `calculate_kmer_frequencies` function cannot be inspected or used. Consequently the task of implementing k‑mer frequency extraction for k = 3 and 4 is not fulfilled. The missing file must be added with the specified function.
+- **T018d** — declared artifact(s) missing/empty/invalid: src/features.py

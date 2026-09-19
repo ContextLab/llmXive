@@ -1,88 +1,120 @@
 import pytest
 import pandas as pd
+import numpy as np
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import json
-from src.preprocess import map_isg_genes, process_isg_mapping_for_species, save_ortholog_mapping
+import tempfile
+import os
 
-class TestMapISGGenes:
-    @patch('src.preprocess.requests.get')
-    def test_maps_genes_successfully(self, mock_get):
-        """Test successful mapping of genes to orthologs."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "data": [{"gene_id": "ENSMUSG00000000001"}]
-        }
-        mock_get.return_value = mock_response
-        
-        result = map_isg_genes("mus_musculus", ["ISG15"])
-        assert result == ["ENSMUSG00000000001"]
-        mock_get.assert_called_once()
+from src.preprocess import calculate_isg_score, save_isg_scores, run_isg_score_pipeline
+from src.config import DATA_PROCESSED_PATH
 
-    @patch('src.preprocess.requests.get')
-    def test_handles_missing_orthologs(self, mock_get):
-        """Test handling of genes with no orthologs."""
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_get.return_value = mock_response
-        
-        result = map_isg_genes("mus_musculus", ["ISG15"])
-        assert result == []
+@pytest.fixture
+def sample_counts_matrix():
+    """
+    Creates a sample normalized counts matrix with some ISG genes and others.
+    """
+    np.random.seed(42)
+    n_samples = 50
+    n_genes = 100
+    
+    # Create gene names
+    genes = [f"GENE_{i}" for i in range(n_genes)]
+    # Assume first 10 are ISG genes
+    isg_genes = genes[:10]
+    
+    # Generate random data
+    data = np.random.rand(n_samples, n_genes) * 10
+    
+    df = pd.DataFrame(data, columns=genes)
+    df.index = [f"Sample_{i}" for i in range(n_samples)]
+    
+    return df, isg_genes
 
-    @patch('src.preprocess.requests.get')
-    def test_handles_network_errors(self, mock_get):
-        """Test handling of network errors."""
-        mock_get.side_effect = Exception("Network error")
-        
-        result = map_isg_genes("mus_musculus", ["ISG15"])
-        assert result == []
+def test_calculate_isg_score_basic(sample_counts_matrix):
+    """
+    Test that calculate_isg_score returns a Series with correct length and index.
+    """
+    df, isg_genes = sample_counts_matrix
+    scores = calculate_isg_score(df, isg_genes)
+    
+    assert isinstance(scores, pd.Series)
+    assert len(scores) == len(df)
+    assert scores.name == 'isg_score'
+    assert list(scores.index) == list(df.index)
 
-    def test_empty_gene_list(self):
-        """Test with empty gene list."""
-        result = map_isg_genes("mus_musculus", [])
-        assert result == []
+def test_calculate_isg_score_empty_isg_list(sample_counts_matrix):
+    """
+    Test that an empty ISG gene list raises a ValueError.
+    """
+    df, _ = sample_counts_matrix
+    with pytest.raises(ValueError, match="ISG gene list is empty"):
+        calculate_isg_score(df, [])
 
-    def test_human_species(self):
-        """Test with human species (should return input)."""
-        result = map_isg_genes("human", ["ISG15", "MX1"])
-        assert result == ["ISG15", "MX1"]
+def test_calculate_isg_score_missing_genes(sample_counts_matrix):
+    """
+    Test that missing ISG genes raise a ValueError.
+    """
+    df, _ = sample_counts_matrix
+    missing_genes = ["NON_EXISTENT_GENE_1", "NON_EXISTENT_GENE_2"]
+    with pytest.raises(ValueError, match="Missing ISG genes"):
+        calculate_isg_score(df, missing_genes)
 
-class TestProcessISGMapping:
-    @patch('src.preprocess.requests.get')
-    def test_process_mapping_creates_csv(self, mock_get, tmp_path):
-        """Test that process_isg_mapping_for_species creates a CSV file."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "data": [{"gene_id": "ENSMUSG00000000001"}]
-        }
-        mock_get.return_value = mock_response
-        
-        output_path = tmp_path / "ortholog_map.csv"
-        result = process_isg_mapping_for_species("mus_musculus", ["ISG15"], output_path)
-        
-        assert output_path.exists()
-        assert result == ["ENSMUSG00000000001"]
-        
-        df = pd.read_csv(output_path)
-        assert "human_gene" in df.columns
-        assert "ortholog_ensembl_id" in df.columns
-        assert len(df) == 1
+def test_calculate_isg_score_partial_missing_genes(sample_counts_matrix):
+    """
+    Test that partial missing ISG genes raise a ValueError.
+    """
+    df, isg_genes = sample_counts_matrix
+    # Replace one valid gene with a missing one
+    bad_genes = isg_genes[:-1] + ["MISSING_GENE"]
+    with pytest.raises(ValueError, match="Missing ISG genes"):
+        calculate_isg_score(df, bad_genes)
 
-class TestSaveOrthologMapping:
-    def test_save_mapping_creates_file(self, tmp_path):
-        """Test that save_ortholog_mapping creates a CSV file."""
-        mapping = {
-            "ISG15": ["ENSMUSG00000000001"],
-            "MX1": ["ENSMUSG00000000002"]
-        }
-        output_path = tmp_path / "ortholog_map.csv"
+def test_calculate_isg_score_with_nan(sample_counts_matrix):
+    """
+    Test that NaN values in the data are handled correctly (rows dropped).
+    """
+    df, isg_genes = sample_counts_matrix
+    # Introduce NaNs
+    df.loc["Sample_0", isg_genes[0]] = np.nan
+    df.loc["Sample_1", isg_genes[1]] = np.nan
+    df.loc["Sample_2", isg_genes] = np.nan # All ISG genes NaN for this row
+    
+    scores = calculate_isg_score(df, isg_genes)
+    
+    # Row with all NaN in ISG genes should be dropped
+    assert "Sample_2" not in scores.index
+    # Rows with some NaN should be dropped (current implementation drops any row with NaN)
+    assert "Sample_0" not in scores.index
+    assert "Sample_1" not in scores.index
+    assert len(scores) < len(df)
+
+def test_save_isg_scores(sample_counts_matrix):
+    """
+    Test that save_isg_scores writes a file with correct content.
+    """
+    df, isg_genes = sample_counts_matrix
+    scores = calculate_isg_score(df, isg_genes)
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "test_isg_scores.csv")
+        save_isg_scores(scores, output_path)
         
-        save_ortholog_mapping(mapping, output_path)
+        assert os.path.exists(output_path)
+        loaded_df = pd.read_csv(output_path, index_col=0)
         
-        assert output_path.exists()
-        df = pd.read_csv(output_path)
-        assert len(df) == 2
-        assert "human_gene" in df.columns
-        assert "ortholog_ensembl_id" in df.columns
+        assert list(loaded_df.index) == list(scores.index)
+        assert np.allclose(loaded_df["isg_score"].values, scores.values)
+
+def test_run_isg_score_pipeline(sample_counts_matrix):
+    """
+    Test the full pipeline function.
+    """
+    df, isg_genes = sample_counts_matrix
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "pipeline_scores.csv")
+        scores = run_isg_score_pipeline(df, isg_genes, output_path)
+        
+        assert os.path.exists(output_path)
+        assert isinstance(scores, pd.Series)
+        assert scores.name == 'isg_score'

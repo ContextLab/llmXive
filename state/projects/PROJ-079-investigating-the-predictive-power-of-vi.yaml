@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-079-investigating-the-predictive-power-of-vi
-last_run_id: b2032417-2721-477a-b391-c7223101c2ed
+last_run_id: ea949679-c1fb-473b-b930-14b4b993d20b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi
 title: Investigating the Predictive Power of Viral Sequence Features for Host Immune
   Response
-updated_at: '2026-09-10T21:28:55.235929Z'
+updated_at: '2026-09-19T10:50:02.169842Z'
