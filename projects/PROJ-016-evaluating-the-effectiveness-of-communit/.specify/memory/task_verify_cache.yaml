@@ -1,3 +1,11 @@
+T011:
+  c: false
+  h: f553569e9e0dd1f2a96db081c26db8ff6d6c1fb6d05df3d11b62af75a109afc5
+  r: "The required output file `data/raw/fao_land_use.csv` does not exist, and the\
+    \ provided `code/data/download.py` is incomplete (truncated) and does not contain\
+    \ logic that actually fetches the FAO indicator for 2000\u20112020 and writes\
+    \ it to the specified CSV. The implementation therefore does not meet the task\
+    \ requirements."
 T012:
   c: false
   h: 7e84148e62fd1b4a3bc27c287c428c15a23979acd6db651cea9999efd6eaf64e
@@ -6,6 +14,15 @@ T012:
     \ `data/raw/cbnrm_proxy.csv` without re\u2011fetching it. Additionally, the required\
     \ `data/raw/cbnrm_proxy.csv` file is absent from the repository. Both the functional\
     \ code and the proxy data file are missing, so the task is not satisfied."
+T013:
+  c: false
+  h: f175375b4ce2255922ca3ca8dff6a6d12429e143a8b1c9cedb617cbe9505044c
+  r: "The `code/data/clean.py` file is incomplete and contains errors (e.g., chaining\
+    \ `standardize_iso_code(...).standardize_year()` which will raise an AttributeError)\
+    \ and does not include any logic to write the merged DataFrame to `data/processed/merged_panel.csv`.\
+    \ Moreover, the required output file `data/processed/merged_panel.csv` is missing.\
+    \ The task\u2019s core requirement of saving the cleaned, merged panel is therefore\
+    \ not satisfied."
 T014:
   c: false
   h: 9bc01e6e69301162eb1913d33fe25e7b21cb3893f10f8857b86b5f90943c8bfe
@@ -14,23 +31,14 @@ T014:
     as described. Moreover, the required metadata file `data/processed/cbnrm_proxy_metadata.json`
     is missing, so the module cannot load the validated thresholds. Both the missing
     artifact and the incomplete function prevent the task from being genuinely fulfilled.
-T015:
+T022:
   c: false
-  h: fb85d5d44aa8a1ca1196148138f0aaebadee03ecb8db1a7186368198455fbcf1
-  r: "The repository lacks `data/processed/total_records_count.json` and `data/processed/metrics.json`,\
-    \ so the script cannot load the total count or write the coverage metric. Moreover,\
-    \ the shown portion of `code/data/clean.py` contains data\u2011loading and merging\
-    \ utilities but no implementation that reads the total count, computes `merged/total`,\
-    \ or logs the result to `metrics.json`. These essential pieces are missing, so\
-    \ the task is not satisfied."
-T023:
-  c: false
-  h: 6c3d37619523afebc28eeb8f90d72bb0ba70099c72a8dcae5d865850f7451269
-  r: "The repository lacks the required `data/processed/regression_results_primary.json`\
-    \ file, and the `run_fixed_effects_regression` function in `code/analysis/regression.py`\
-    \ is truncated before showing any actual regression computation or JSON\u2011\
-    saving logic. Consequently the fixed\u2011effects OLS model is not fully implemented\
-    \ nor are the results persisted as specified."
+  h: 92a733f49d7f83a1873a35f6492118460eb6f21a44a51c4da45eba095183d5e9
+  r: "The repository contains a `detect_time_invariant_countries` function and a `save_time_invariant_report`\
+    \ helper, but the required output file `data/processed/time_invariant_countries.json`\
+    \ does not exist, and there is no code that automatically runs the detection and\
+    \ writes to that exact path. The task\u2019s core deliverable \u2013 a JSON file\
+    \ with the flagged country codes \u2013 is missing."
 T024:
   c: false
   h: ad0cc2afed89fc36377cf1bd0810a74720809da8d0aa6b75a3948708b9ca84f8
@@ -61,6 +69,15 @@ T036:
     \ (`data/processed/metrics.json`, `data/processed/sensitivity_coefficients.json`,\
     \ `data/processed/regression_metadata.json`) are absent, so the script cannot\
     \ load the needed data. The task\u2019s core requirements are therefore unmet."
+T041:
+  c: false
+  h: f336e5edfd5069a1ecb26f234facdd246368b210da724b85a29bbdc23c375304
+  r: "The provided `regression.py` contains only utilities for detecting and filtering\
+    \ time\u2011invariant countries and a partially shown fixed\u2011effects regression\
+    \ function; it does not implement the Random Effects fallback, does not read the\
+    \ flagged\u2011country count, does not run a Hausman test, and does not write\
+    \ `model_selection.json`. Moreover, the required `data/processed/model_selection.json`\
+    \ file is missing."
 T050:
   c: false
   h: b9de05f9e422142d72193396e7db1f99c90e2c95bd5595f187791a231290471e

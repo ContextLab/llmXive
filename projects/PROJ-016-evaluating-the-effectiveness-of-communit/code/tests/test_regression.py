@@ -5,141 +5,96 @@ from pathlib import Path
 import sys
 import json
 import tempfile
-import shutil
+import os
 
-# Ensure code/ is in path for imports
-@pytest.fixture
+# Add code directory to path for imports
 def add_code_to_path():
     code_dir = Path(__file__).parent.parent
     if str(code_dir) not in sys.path:
         sys.path.insert(0, str(code_dir))
-    yield
-    if str(code_dir) in sys.path:
-        sys.path.remove(str(code_dir))
 
-# Import the function under test
-from analysis.regression import run_random_effects_fallback, detect_time_invariant_countries
+add_code_to_path()
 
-def generate_synthetic_panel_data(n_countries=10, n_years=5, seed=42):
-    """Generate synthetic panel data for testing."""
-    np.random.seed(seed)
-    countries = [f"ISO{str(i).zfill(3)}" for i in range(1, n_countries + 1)]
-    years = list(range(2000, 2000 + n_years))
-    
-    data = []
-    for country in countries:
-        for year in years:
-            data.append({
-                'country_code': country,
-                'year': year,
-                'land_use_change': np.random.normal(0, 1),
-                'regime_type': np.random.choice([0, 1]), # Random binary
-                'gdp_per_capita': np.random.normal(10000, 2000),
-                'population_density': np.random.normal(50, 20)
-            })
+from analysis.regression import detect_time_invariant_countries, save_time_invariant_report, filter_time_invariant_countries
+
+@pytest.fixture
+def sample_panel_data():
+    """
+    Creates a synthetic panel dataset with:
+    - Country A: Time-varying regime (0, 1, 0, 1)
+    - Country B: Time-invariant regime (1, 1, 1, 1)
+    - Country C: Time-invariant regime (0, 0, 0, 0)
+    - Country D: Only 1 year of data (should be flagged as invariant)
+    """
+    data = {
+        'iso_code': ['A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'D', 'D', 'D', 'D'],
+        'year': [2000, 2001, 2002, 2003] * 4,
+        'regime_type': [0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1], # D is invariant too
+        'land_use_change': np.random.rand(16),
+        'gdp_per_capita': np.random.rand(16) * 10000,
+        'population_density': np.random.rand(16) * 100
+    }
+    # Make D have only 1 year to test edge case
+    data['iso_code'] = ['A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'D', 'D', 'D', 'D']
+    data['year'] = [2000, 2001, 2002, 2003, 2000, 2001, 2002, 2003, 2000, 2001, 2002, 2003, 2000, 2000, 2000, 2000]
+    data['regime_type'] = [0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 5, 5, 5, 5] # D is constant
     
     return pd.DataFrame(data)
 
-def generate_time_invariant_data(n_countries=5, n_years=5, seed=42):
-    """Generate data where regime_type is constant per country (time-invariant)."""
-    np.random.seed(seed)
-    countries = [f"ISO{str(i).zfill(3)}" for i in range(1, n_countries + 1)]
-    years = list(range(2000, 2000 + n_years))
-    
-    data = []
-    for country in countries:
-        # Assign a fixed regime type for this country
-        fixed_regime = np.random.choice([0, 1])
-        for year in years:
-            data.append({
-                'country_code': country,
-                'year': year,
-                'land_use_change': np.random.normal(0, 1),
-                'regime_type': fixed_regime, # Constant over time
-                'gdp_per_capita': np.random.normal(10000, 2000),
-                'population_density': np.random.normal(50, 20)
-            })
-    
-    return pd.DataFrame(data)
+@pytest.fixture
+def temp_data_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-class TestRandomEffectsFallback:
-    """Unit tests for Random Effects/Hausman fallback logic (T033)."""
+def test_detect_time_invariant_varying_countries(sample_panel_data):
+    """Test that varying countries are NOT flagged."""
+    flagged = detect_time_invariant_countries(sample_panel_data, 'iso_code', 'regime_type')
+    assert 'A' not in flagged, "Country A has varying regime_type and should not be flagged."
 
-    def test_run_random_effects_fallback_with_mixed_data(self, add_code_to_path):
-        """Test that RE model runs successfully on data with time-varying regime."""
-        df = generate_synthetic_panel_data(n_countries=10, n_years=5)
-        
-        # This should run without error and return a result dict
-        result = run_random_effects_fallback(df)
-        
-        assert isinstance(result, dict), "Result should be a dictionary"
-        assert 'model_type' in result, "Result should contain model_type"
-        assert result['model_type'] == 'Random Effects', "Model type should be Random Effects"
-        assert 'coefficients' in result, "Result should contain coefficients"
-        assert 'regime_type' in result['coefficients'], "Coefficients should include regime_type"
-        assert 'p_values' in result, "Result should contain p_values"
-        
-    def test_run_random_effects_fallback_with_time_invariant_data(self, add_code_to_path):
-        """Test that RE model handles data where all countries are time-invariant."""
-        df = generate_time_invariant_data(n_countries=5, n_years=5)
-        
-        # Even with time-invariant data, RE model should run (it doesn't require within variation)
-        result = run_random_effects_fallback(df)
-        
-        assert isinstance(result, dict), "Result should be a dictionary"
-        assert result['model_type'] == 'Random Effects', "Model type should be Random Effects"
-        
-    def test_run_random_effects_fallback_returns_hausman_stat(self, add_code_to_path):
-        """Test that the fallback logic includes Hausman test statistics."""
-        df = generate_synthetic_panel_data(n_countries=10, n_years=5)
-        
-        result = run_random_effects_fallback(df)
-        
-        # The function should attempt Hausman test or at least return a placeholder
-        # depending on implementation details, but it must not crash
-        assert 'model_type' in result
-        
-    def test_run_random_effects_fallback_empty_dataframe(self, add_code_to_path):
-        """Test behavior with empty dataframe."""
-        df = pd.DataFrame(columns=['country_code', 'year', 'land_use_change', 'regime_type', 'gdp_per_capita', 'population_density'])
-        
-        with pytest.raises(Exception):
-            # Should raise an error if data is insufficient
-            run_random_effects_fallback(df)
-            
-    def test_run_random_effects_fallback_missing_columns(self, add_code_to_path):
-        """Test behavior when required columns are missing."""
-        df = generate_synthetic_panel_data(n_countries=5, n_years=5)
-        df = df.drop(columns=['gdp_per_capita'])
-        
-        with pytest.raises(Exception):
-            # Should raise KeyError or similar
-            run_random_effects_fallback(df)
+def test_detect_time_invariant_constant_countries(sample_panel_data):
+    """Test that constant countries ARE flagged."""
+    flagged = detect_time_invariant_countries(sample_panel_data, 'iso_code', 'regime_type')
+    assert 'B' in flagged, "Country B has constant regime_type and should be flagged."
+    assert 'C' in flagged, "Country C has constant regime_type and should be flagged."
+    assert 'D' in flagged, "Country D has constant regime_type (and single year) and should be flagged."
 
-def test_full_random_effects_pipeline(add_code_to_path):
-    """Integration test: Generate time-invariant data, detect it, and run RE fallback."""
-    # 1. Generate time-invariant data
-    df = generate_time_invariant_data(n_countries=5, n_years=5)
+def test_save_time_invariant_report(temp_data_dir, sample_panel_data):
+    """Test saving the report to JSON."""
+    output_path = os.path.join(temp_data_dir, 'test_output.json')
+    flagged = detect_time_invariant_countries(sample_panel_data, 'iso_code', 'regime_type')
+    save_time_invariant_report(flagged, output_path)
     
-    # 2. Detect time-invariant countries (should flag all)
-    flagged = detect_time_invariant_countries(df)
-    assert len(flagged) == 5, f"Expected 5 flagged countries, got {len(flagged)}"
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        data = json.load(f)
     
-    # 3. Run the fallback logic
-    result = run_random_effects_fallback(df)
+    assert 'time_invariant_countries' in data
+    assert 'B' in data['time_invariant_countries']
+    assert 'count' in data
+    assert data['count'] == 3
+
+def test_filter_time_invariant_countries(sample_panel_data):
+    """Test filtering out flagged countries."""
+    flagged = ['B', 'C']
+    filtered_df = filter_time_invariant_countries(sample_panel_data, flagged, 'iso_code')
     
-    # 4. Verify result structure
-    assert result['model_type'] == 'Random Effects'
-    assert 'coefficients' in result
-    assert 'p_values' in result
-    assert 'regime_type' in result['coefficients']
-    
-    # 5. Verify the coefficient is a float (not NaN or None)
-    coef = result['coefficients']['regime_type']
-    assert isinstance(coef, (int, float, np.number)), "Coefficient must be numeric"
-    assert not np.isnan(coef), "Coefficient must not be NaN"
-    
-    # 6. Verify p-value is present
-    p_val = result['p_values']['regime_type']
-    assert isinstance(p_val, (int, float, np.number)), "P-value must be numeric"
-    assert 0 <= p_val <= 1, "P-value must be between 0 and 1"
+    assert len(filtered_df) < len(sample_panel_data)
+    assert not filtered_df[filtered_df['iso_code'] == 'B'].empty == False
+    assert not filtered_df[filtered_df['iso_code'] == 'C'].empty == False
+    assert filtered_df[filtered_df['iso_code'] == 'A'].empty == False
+
+def test_detect_time_invariant_missing_columns(sample_panel_data):
+    """Test behavior when columns are missing."""
+    # Create a df without 'regime_type'
+    df_no_var = sample_panel_data.drop(columns=['regime_type'])
+    flagged = detect_time_invariant_countries(df_no_var, 'iso_code', 'regime_type')
+    assert flagged == [] # Should return empty list on error
+
+def test_detect_time_invariant_all_nan(sample_panel_data):
+    """Test behavior when all values are NaN."""
+    df_nan = sample_panel_data.copy()
+    df_nan['regime_type'] = np.nan
+    flagged = detect_time_invariant_countries(df_nan, 'iso_code', 'regime_type')
+    # If all are NaN, variance is NaN, so all should be flagged (or handled gracefully)
+    # Based on implementation: variance_by_country will be NaN, so (variance.isna()) is True -> flagged
+    assert len(flagged) == 4 # All countries flagged

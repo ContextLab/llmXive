@@ -1,174 +1,199 @@
-"""
-Regime classification logic for CBNRM vs State-Led management.
-
-This module loads the validated CBNRM proxy metadata and applies
-threshold-based classification to derive a binary regime_type variable.
-"""
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
-
 import pandas as pd
+import numpy as np
 
-# Import logging infrastructure from project root
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from logging_config import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
-
 
 def load_metadata(metadata_path: Path) -> Dict[str, Any]:
     """
-    Load the CBNRM proxy metadata containing indicator code and thresholds.
+    Load the CBNRM proxy metadata and validation results.
     
     Args:
-        metadata_path: Path to the JSON metadata file.
+        metadata_path: Path to the metadata JSON file (e.g., cbnrm_proxy_metadata.json)
         
     Returns:
-        Dictionary containing indicator code, thresholds, and source info.
+        Dictionary containing indicator code, thresholds, and validation status.
         
     Raises:
-        FileNotFoundError: If metadata file does not exist.
-        json.JSONDecodeError: If metadata file is not valid JSON.
+        FileNotFoundError: If the metadata file does not exist.
+        ValueError: If validation status is false or required keys are missing.
     """
     if not metadata_path.exists():
+        logger.error(f"Metadata file not found: {metadata_path}")
         raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
-        
-    with open(metadata_path, 'r', encoding='utf-8') as f:
+    
+    with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-        
-    logger.info(f"Loaded metadata for indicator: {metadata.get('indicator_code', 'Unknown')}")
+    
+    # Validate the metadata
+    if not metadata.get('validation_status', False):
+        logger.error("Proxy validation failed. Halting regime classification.")
+        raise ValueError("Proxy validation failed. Halting regime classification.")
+    
+    required_keys = ['indicator_code']
+    for key in required_keys:
+        if key not in metadata:
+            logger.error(f"Missing required key in metadata: {key}")
+            raise KeyError(f"Missing required key in metadata: {key}")
+    
     return metadata
 
-
-def classify_regime(df: pd.DataFrame, metadata: Dict[str, Any]) -> pd.DataFrame:
+def load_validation_results(validation_path: Path) -> Dict[str, Any]:
     """
-    Classify regime type based on CBNRM proxy thresholds.
-    
-    The classification logic:
-    - If CBNRM proxy value >= upper_threshold: 'CBNRM'
-    - If CBNRM proxy value <= lower_threshold: 'State-Led'
-    - If between thresholds: 'Mixed' (treated as 'State-Led' for binary output)
+    Load the proxy validation results to determine thresholds.
     
     Args:
-        df: DataFrame containing the CBNRM proxy data with a 'value' column.
-        metadata: Dictionary containing threshold values.
+        validation_path: Path to the validation JSON file.
         
     Returns:
-        DataFrame with added 'regime_type' column (binary: 0 or 1).
+        Dictionary containing variance and threshold information.
     """
-    # Extract thresholds from metadata
-    thresholds = metadata.get('thresholds', {})
-    lower_threshold = thresholds.get('lower', 0.0)
-    upper_threshold = thresholds.get('upper', 1.0)
+    if not validation_path.exists():
+        logger.error(f"Validation results file not found: {validation_path}")
+        raise FileNotFoundError(f"Validation results file not found: {validation_path}")
     
-    logger.info(f"Applying classification: lower={lower_threshold}, upper={upper_threshold}")
+    with open(validation_path, 'r') as f:
+        validation = json.load(f)
     
-    # Ensure we have the value column
-    if 'value' not in df.columns:
-        raise ValueError("DataFrame must contain a 'value' column for classification")
+    # Check for zero variance
+    if validation.get('variance', 1.0) == 0:
+        logger.error("Proxy has zero variance. Cannot classify regimes.")
+        raise ValueError("Proxy has zero variance. Cannot classify regimes.")
     
-    # Create a copy to avoid modifying the original
-    result_df = df.copy()
-    
-    # Apply classification logic directly to binary
-    def classify_row(value):
-        if pd.isna(value):
-            return None
-        if value >= upper_threshold:
-            return 1  # CBNRM
-        else:
-            return 0  # State-Led or Mixed (both 0)
-    
-    result_df['regime_type'] = result_df['value'].apply(classify_row)
-    
-    # Log distribution
-    regime_counts = result_df['regime_type'].value_counts()
-    logger.info(f"Binary classification distribution:\n{regime_counts}")
-    
-    return result_df
+    return validation
 
-
-def convert_to_binary(df: pd.DataFrame) -> pd.DataFrame:
+def classify_regime(df: pd.DataFrame, proxy_col: str, threshold: float) -> pd.Series:
     """
-    Convert regime_type to binary classification.
+    Classify regime type based on the CBNRM proxy value and a threshold.
     
-    This function is now a no-op for the main flow as classify_regime
-    already returns binary values, but kept for API compatibility.
+    Logic:
+    - If proxy value > threshold: 'CBNRM' (1)
+    - Else: 'State-Led' (0)
     
     Args:
-        df: DataFrame with 'regime_type' column.
+        df: DataFrame containing the proxy data.
+        proxy_col: Column name of the proxy indicator.
+        threshold: The threshold value for classification.
         
     Returns:
-        DataFrame with binary 'regime_type' column (0 or 1).
+        Series with regime classification (0 or 1).
     """
-    # Since classify_regime already returns binary, we just return a copy
-    return df.copy()
+    logger.info(f"Classifying regimes using {proxy_col} with threshold {threshold}")
+    
+    # Handle missing values in the proxy column
+    if df[proxy_col].isnull().any():
+        logger.warning(f"Found {df[proxy_col].isnull().sum()} missing values in {proxy_col}. Dropping or filling?")
+        # For strict classification, we drop rows with missing proxy values in this step
+        # The main function handles the merging and dropping of missing primary vars
+        # Here we just classify what we can
+        pass
+    
+    regime = (df[proxy_col] > threshold).astype(int)
+    return regime
 
+def convert_to_binary(df: pd.DataFrame, proxy_col: str, threshold: float) -> pd.DataFrame:
+    """
+    Add a binary 'regime_type' column to the DataFrame.
+    
+    Args:
+        df: Input DataFrame.
+        proxy_col: Column name of the proxy indicator.
+        threshold: Threshold for binary classification.
+        
+    Returns:
+        DataFrame with new 'regime_type' column.
+    """
+    df = df.copy()
+    df['regime_type'] = classify_regime(df, proxy_col, threshold)
+    logger.info(f"Added 'regime_type' column based on {proxy_col} > {threshold}")
+    return df
 
 def main():
     """
     Main entry point for regime classification.
     
-    This function:
-    1. Loads the CBNRM proxy metadata from data/processed/cbnrm_proxy_metadata.json
-    2. Loads the raw CBNRM proxy data from data/raw/cbnrm_proxy.csv
-    3. Classifies each record into regime types (binary)
-    4. Saves the classified data to data/processed/classified_regimes.csv
+    Loads the merged panel data, reads the CBNRM proxy metadata and validation results,
+    determines the threshold, and classifies the regime type for each country-year.
+    Saves the result to data/processed/classified_panel.csv.
     """
-    # Define paths relative to project root
+    # Define paths
     project_root = Path(__file__).resolve().parent.parent.parent
-    metadata_path = project_root / 'data' / 'processed' / 'cbnrm_proxy_metadata.json'
-    raw_data_path = project_root / 'data' / 'raw' / 'cbnrm_proxy.csv'
-    output_path = project_root / 'data' / 'processed' / 'classified_regimes.csv'
+    data_processed = project_root / 'data' / 'processed'
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Input files
+    merged_panel_path = data_processed / 'merged_panel.csv'
+    metadata_path = data_processed / 'cbnrm_proxy_metadata.json'
+    validation_path = data_processed / 'proxy_validation.json'
     
-    logger.info("Starting regime classification process")
+    # Output file
+    output_path = data_processed / 'classified_panel.csv'
     
     # Load metadata
     try:
         metadata = load_metadata(metadata_path)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to load metadata: {e}")
-        return 1
+        validation = load_validation_results(validation_path)
+    except (FileNotFoundError, ValueError, KeyError) as e:
+        logger.critical(f"Failed to load metadata or validation results: {e}")
+        sys.exit(1)
     
-    # Load raw data
-    if not raw_data_path.exists():
-        logger.error(f"Raw data file not found: {raw_data_path}")
-        return 1
-        
-    try:
-        df = pd.read_csv(raw_data_path)
-        logger.info(f"Loaded {len(df)} records from {raw_data_path}")
-    except Exception as e:
-        logger.error(f"Failed to load raw data: {e}")
-        return 1
+    # Load merged panel
+    if not merged_panel_path.exists():
+        logger.error(f"Merged panel not found: {merged_panel_path}")
+        sys.exit(1)
     
-    # Perform classification
-    try:
-        classified_df = classify_regime(df, metadata)
-        # convert_to_binary is effectively a no-op now but called for flow
-        binary_df = convert_to_binary(classified_df)
-    except Exception as e:
-        logger.error(f"Classification failed: {e}")
-        return 1
+    df = pd.read_csv(merged_panel_path)
+    logger.info(f"Loaded merged panel with {len(df)} rows")
     
-    # Save results
-    try:
-        binary_df.to_csv(output_path, index=False)
-        logger.info(f"Saved classified data to {output_path}")
-        logger.info(f"Output contains {len(binary_df)} records")
-    except Exception as e:
-        logger.error(f"Failed to save output: {e}")
-        return 1
+    # Determine proxy column name
+    # The metadata contains the indicator code, e.g., 'IC.LGL.CRED.XQ'
+    # We need to map this to the column name in the dataframe.
+    # Assuming the column name in the dataframe is the indicator code or a standardized version.
+    # If the dataframe column is named differently, we might need a mapping.
+    # For now, we assume the column name in the dataframe matches the indicator code.
+    proxy_indicator_code = metadata['indicator_code']
     
-    logger.info("Regime classification completed successfully")
-    return 0
+    # Check if the proxy column exists in the dataframe
+    if proxy_indicator_code not in df.columns:
+        # Try to find a column that might contain the proxy data
+        # Sometimes column names are standardized or have prefixes
+        possible_cols = [col for col in df.columns if proxy_indicator_code in col or col in proxy_indicator_code]
+        if possible_cols:
+            proxy_col = possible_cols[0]
+            logger.warning(f"Indicator code {proxy_indicator_code} not found. Using {proxy_col} instead.")
+        else:
+            logger.error(f"Proxy column {proxy_indicator_code} not found in merged panel.")
+            sys.exit(1)
+    else:
+        proxy_col = proxy_indicator_code
+    
+    # Determine threshold
+    # If the validation file has a specific threshold, use it.
+    # Otherwise, calculate the median as a default threshold.
+    if 'threshold' in validation:
+        threshold = validation['threshold']
+        logger.info(f"Using threshold from validation results: {threshold}")
+    else:
+        # Calculate median threshold
+        threshold = df[proxy_col].median()
+        logger.warning(f"No threshold in validation results. Using median: {threshold}")
+    
+    # Classify regimes
+    df_classified = convert_to_binary(df, proxy_col, threshold)
+    
+    # Save output
+    df_classified.to_csv(output_path, index=False)
+    logger.info(f"Saved classified panel to {output_path}")
+    
+    # Log summary
+    regime_counts = df_classified['regime_type'].value_counts()
+    logger.info(f"Regime distribution: CBNRM (1) = {regime_counts.get(1, 0)}, State-Led (0) = {regime_counts.get(0, 0)}")
 
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

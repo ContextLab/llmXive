@@ -1,127 +1,139 @@
+"""
+Tests for T009: Fetch CBNRM Proxy.
+"""
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pandas as pd
 import pytest
-
 import sys
 import os
-# Ensure code is in path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from data.fetch_cbmrm_proxy import fetch_world_bank_indicator, validate_indicator_code, save_outputs, CBNRM_INDICATOR_CODE
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from data.fetch_cbmrm_proxy import (
+    fetch_world_bank_indicator,
+    validate_indicator_code,
+    save_outputs,
+    main,
+    TARGET_INDICATORS,
+    YEARS
+)
 
 @pytest.fixture
 def mock_response_data():
+    """Mock World Bank API response data."""
     return [
-        {"page": 1, "pages": 1, "per_page": 10000, "total": 2},
+        {}, # Metadata (empty for simplicity)
         [
             {
-                "country": {"id": "USA", "value": "United States"},
                 "countryiso3code": "USA",
                 "date": "2000",
-                "value": 33.5,
-                "unit": "",
-                "obs_status": "",
-                "decimal": 1
+                "value": 10.5,
+                "unit": "Index",
+                "obs_status": ""
             },
             {
-                "country": {"id": "USA", "value": "United States"},
                 "countryiso3code": "USA",
                 "date": "2001",
-                "value": 33.6,
-                "unit": "",
-                "obs_status": "",
-                "decimal": 1
+                "value": 11.0,
+                "unit": "Index",
+                "obs_status": ""
             },
             {
-                "country": {"id": "BRA", "value": "Brazil"},
                 "countryiso3code": "BRA",
                 "date": "2000",
-                "value": 60.0,
-                "unit": "",
-                "obs_status": "",
-                "decimal": 1
+                "value": 8.2,
+                "unit": "Index",
+                "obs_status": ""
             }
         ]
     ]
 
-@patch('data.fetch_cbmrm_proxy.requests.get')
-def test_fetch_world_bank_indicator_success(mock_get, mock_response_data):
-    mock_response = MagicMock()
-    mock_response.json.return_value = mock_response_data
-    mock_response.raise_for_status.return_value = None
-    mock_get.return_value = mock_response
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    result = fetch_world_bank_indicator("TEST_IND", 2000, 2001)
+def test_fetch_world_bank_indicator_success(mock_response_data):
+    """Test successful fetch of World Bank indicator."""
+    with patch('data.fetch_cbmrm_proxy.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
 
-    assert len(result) == 3
-    assert result[0]["countryiso3code"] == "USA"
-    assert result[0]["value"] == 33.5
-    mock_get.assert_called_once()
+        result = fetch_world_bank_indicator("IC.LGL.CRED.XQ", YEARS)
 
-@patch('data.fetch_cbmrm_proxy.requests.get')
-def test_fetch_world_bank_indicator_retry(mock_get):
-    # First call fails, second succeeds
-    mock_response = MagicMock()
-    mock_response.json.return_value = [
-        {"page": 1, "pages": 1, "per_page": 100, "total": 1},
-        [{"country": "USA", "countryiso3code": "USA", "date": "2000", "value": 10.0}]
+        assert result is not None
+        assert len(result) == 3 # Metadata + 3 records
+        mock_get.assert_called_once()
+
+def test_fetch_world_bank_indicator_retry():
+    """Test retry logic on failure (simplified)."""
+    with patch('data.fetch_cbmrm_proxy.requests.get') as mock_get:
+        mock_get.side_effect = [
+            Exception("Connection Error"),
+            Exception("Connection Error"),
+            Exception("Connection Error")
+        ]
+
+        result = fetch_world_bank_indicator("IC.LGL.CRED.XQ", YEARS)
+        assert result is None
+        assert mock_get.call_count == 3
+
+def test_validate_indicator_code(mock_response_data):
+    """Test validation of indicator code."""
+    records = mock_response_data[1]
+    assert validate_indicator_code(records, "IC.LGL.CRED.XQ") is True
+
+def test_validate_indicator_code_no_data():
+    """Test validation when data is all null."""
+    records = [
+        {
+            "countryiso3code": "USA",
+            "date": "2000",
+            "value": None,
+            "unit": "Index",
+            "obs_status": ""
+        }
     ]
-    mock_response.raise_for_status.return_value = None
+    assert validate_indicator_code(records, "IC.LGL.CRED.XQ") is False
 
-    # Configure side effect: raise error first, then success
-    mock_get.side_effect = [
-        Exception("Connection Error"),
-        mock_response
-    ]
+def test_save_outputs(temp_data_dir, mock_response_data):
+    """Test saving outputs to CSV and JSON."""
+    records = mock_response_data[1]
+    indicator_code = "IC.LGL.CRED.XQ"
+    source_url = "https://api.worldbank.org/v2/country/all/indicator/IC.LGL.CRED.XQ"
+    validation_status = True
 
-    result = fetch_world_bank_indicator("TEST_IND", 2000, 2000)
+    save_outputs(records, indicator_code, source_url, validation_status, temp_data_dir)
 
-    assert len(result) == 1
-    assert mock_get.call_count == 2
-
-@patch('data.fetch_cbmrm_proxy.fetch_world_bank_indicator')
-def test_validate_indicator_code(mock_fetch):
-    mock_fetch.return_value = [
-        {"countryiso3code": "USA", "date": "2000", "value": 10.0}
-    ]
-
-    assert validate_indicator_code("TEST_IND") is True
-    mock_fetch.assert_called_once()
-
-@patch('data.fetch_cbmrm_proxy.fetch_world_bank_indicator')
-def test_validate_indicator_code_no_data(mock_fetch):
-    mock_fetch.return_value = []
-    assert validate_indicator_code("TEST_IND") is False
-
-def test_save_outputs(tmp_path):
-    raw_dir = tmp_path / "raw"
-    processed_dir = tmp_path / "processed"
-    raw_dir.mkdir()
-    processed_dir.mkdir()
-
-    data = [
-        {"countryiso3code": "USA", "country": {"value": "USA"}, "date": "2000", "value": 10.0},
-        {"countryiso3code": "USA", "country": {"value": "USA"}, "date": "2001", "value": 11.0},
-        {"countryiso3code": "BRA", "country": {"value": "Brazil"}, "date": "2000", "value": 20.0}
-    ]
-
-    save_outputs(data, "TEST_CODE", "http://example.com", raw_dir, processed_dir)
-
-    # Check CSV
-    csv_path = raw_dir / "cbnrm_proxy.csv"
+    # Check CSV exists
+    csv_path = temp_data_dir.parent / "raw" / "cbnrm_proxy.csv"
     assert csv_path.exists()
-    df = pd.read_csv(csv_path)
-    assert len(df) == 3
-    assert "USA" in df["country_iso3"].values
-    assert "BRA" in df["country_iso3"].values
 
-    # Check JSON
-    json_path = processed_dir / "cbnrm_proxy_metadata.json"
+    # Check JSON exists
+    json_path = temp_data_dir / "cbnrm_proxy_metadata.json"
     assert json_path.exists()
-    with open(json_path) as f:
-        meta = json.load(f)
-    assert meta["indicator_code"] == "TEST_CODE"
-    assert meta["total_records"] == 3
+
+    # Verify JSON content
+    with open(json_path, 'r') as f:
+        metadata = json.load(f)
+    assert metadata["indicator_code"] == indicator_code
+    assert metadata["validation_status"] is True
+    assert metadata["records_fetched"] == len(records)
+
+def test_main_halt_on_failure(temp_data_dir):
+    """Test that main() halts if no indicator is found."""
+    # Mock fetch to return None for all indicators
+    with patch('data.fetch_cbmrm_proxy.fetch_world_bank_indicator', return_value=None):
+        with patch('data.fetch_cbmrm_proxy.sys.exit') as mock_exit:
+            # We need to patch the loop to ensure it tries all
+            with patch.object(data.fetch_cbmrm_proxy, 'TARGET_INDICATORS', ['FAKE.IND']):
+                main()
+                mock_exit.assert_called_once_with(1)
