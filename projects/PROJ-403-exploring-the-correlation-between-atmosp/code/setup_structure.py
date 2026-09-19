@@ -1,30 +1,48 @@
+"""
+Script to initialize the project directory structure.
+Creates required directories and __init__.py files.
+"""
 import os
 from pathlib import Path
 
 def main():
-    """Initialize the project directory structure."""
-    dirs = [
-        "code/src",
-        "code/tests",
-        "code/tests/unit",
-        "code/tests/integration",
-        "code/data",
-        "code/data/processed",
-        "code/figures",
-        "code/logs",
-        "code/report",
-        "code/artifacts",
+    """Create the project directory structure."""
+    # Define the base directories required by the project
+    base_dirs = [
+        "src",
+        "tests",
+        "data",
+        "figures",
+        "logs",
+        "report",
+        "artifacts"
     ]
-
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-        # Create __init__.py in src and tests subdirectories
-        if d.startswith("code/src") or d.startswith("code/tests"):
-            init_file = Path(d) / "__init__.py"
-            if not init_file.exists():
-                init_file.touch()
     
-    print("Project structure initialized.")
+    # Define subdirectories that need __init__.py
+    init_dirs = [
+        "src",
+        "tests"
+    ]
+    
+    # Create base directories
+    for dir_name in base_dirs:
+        dir_path = Path(dir_name)
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    
+    # Create __init__.py files in src and tests
+    for dir_name in init_dirs:
+        init_path = Path(dir_name) / "__init__.py"
+        # Create empty __init__.py
+        init_path.touch(exist_ok=True)
+        print(f"Created {init_path}")
+    
+    # Create specific subdirectories mentioned in T011 (data/processed)
+    processed_dir = Path("data") / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Created directory: {processed_dir}")
+
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
     main()

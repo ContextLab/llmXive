@@ -1,3 +1,3 @@
 """
-Unit and integration tests for llmXive project.
+llmXive Automated Science Pipeline - Test Package
 """

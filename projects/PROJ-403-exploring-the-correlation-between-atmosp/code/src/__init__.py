@@ -1,3 +1,3 @@
 """
-llmXive project: Atmospheric River & Geopotential Height Analysis
+llmXive Automated Science Pipeline - Source Package
 """

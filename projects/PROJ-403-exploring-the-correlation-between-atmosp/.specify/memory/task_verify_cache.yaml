@@ -1,7 +1,17 @@
-T011:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/processed/` and `figures/` directories or\
-    \ their accompanying README files is provided; without these artifacts present,\
-    \ the task requirement is not satisfied. The implementer must add the two directories\
-    \ and include non\u2011empty README files in each."
+  r: No directory tree or file listings were provided, and there is no evidence that
+    the required `src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, `artifacts/`
+    folders (with `__init__.py` in `src/` and `tests/`) actually exist in the repository.
+    The implementer must supply the project structure or a file manifest confirming
+    its creation.
+T007:
+  c: false
+  h: 236c783e845e1d7081145271f1fca0fb18b5eba305e94101639ebc51b592a731
+  r: "The `src/data/download.py` file defines `calculate_sha256`, `verify_checksum`,\
+    \ and a generic `store_metadata` function, but it never calls these after downloading\
+    \ a file nor writes any checksum data to `data/metadata.yaml`. Moreover, the required\
+    \ `data/metadata.yaml` file is missing from the repository. The task\u2019s requirement\
+    \ to store SHA\u2011256 checksums for raw NetCDF files in that YAML file is therefore\
+    \ not satisfied."
