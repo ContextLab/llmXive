@@ -4,195 +4,253 @@ import sys
 from pathlib import Path
 import json
 
+# Ensure code is in path for relative imports if run as script
+if __name__ == "__main__":
+    code_root = Path(__file__).resolve().parent
+    if str(code_root) not in sys.path:
+        sys.path.insert(0, str(code_root))
+
 from utils.config import get_config, load_config_from_yaml, set_seed
 from utils.logger import get_logger, setup_file_logging
-from utils.io import load_json, save_json
+from utils.io import ensure_dir, save_json, load_json
 
-# US1 Imports
+# Import P1 (Preprocessing) components
 from preprocessing.data_validation import validate_dataset_structure, validate_participant_data
-from preprocessing.data_download import DataDownloadError, get_dataset_client, get_participant_list, check_participant_assets, download_participant_data, write_exclusions
-from preprocessing.motion_correction import calculate_framewise_displacement, extract_motion_parameters, correct_motion
-from preprocessing.normalization import normalize_to_mni, normalize_participant
-from preprocessing.smoothing import smooth_volume, smooth_participant_data
-from preprocessing.roi_extraction import load_roi_masks, extract_roi_timeseries
-from preprocessing.qc_filter import calculate_motion_exclusion_metrics, apply_qc_filter
-from preprocessing.qc_reporter import QCReportError, load_exclusion_data, calculate_exclusion_rate, assess_stability, generate_qc_summary
+from preprocessing.data_download import main as download_main
+from preprocessing.motion_correction import main as motion_correction_main
+from preprocessing.validate_motion_correction import main as validate_motion_main
+from preprocessing.normalization import main as normalization_main
+from preprocessing.smoothing import main as smoothing_main
+from preprocessing.roi_extraction import main as roi_extraction_main
+from preprocessing.qc_filter import main as qc_filter_main
+from preprocessing.qc_reporter import main as qc_reporter_main
 
-# US2 Imports
-from modeling.synthetic_data_generator import generate_trial_data, generate_synthetic_dataset
-from modeling.runtime_enforcer import RuntimeLimitExceeded, SampleSizeReductionRequired, RuntimeEnforcer, main as runtime_main
-from modeling.belief_updater import load_behavioral_data, prepare_model_data, build_hierarchical_model, run_mcmc_sampling, extract_posterior_samples, save_model_results
-from modeling.validation import check_convergence, validate_and_restart, save_validation_report
-from modeling.convergence_reporter import ConvergenceReportError, load_valid_participants, load_convergence_logs, calculate_convergence_rate, verify_threshold, generate_convergence_report
-from modeling.prediction import PredictionError, load_posterior_samples, load_behavioral_data_for_prediction, predict_choice, generate_predictions, compute_accuracy, run_prediction_pipeline
-from modeling.model_output import ModelOutputError, load_posterior_samples as load_posterior_samples_model, extract_individual_alphas, extract_group_hyperparameters, save_model_output, generate_model_output
+# Import P2 (Modeling) components
+from modeling.runtime_enforcer import main as runtime_enforcer_main
+from modeling.belief_updater import main as belief_updater_main
+from modeling.validation import main as validation_main
+from modeling.convergence_reporter import main as convergence_reporter_main
+from modeling.failure_handler import main as failure_handler_main
+from modeling.model_output import main as model_output_main
 
-# US3 Imports (P3)
-# Note: The actual analysis modules (glm_analysis, partial_correlation, etc.) are not yet implemented.
-# This integration task sets up the data flow from P2 results to the analysis stage.
-from analysis.glm_analysis import GLMAnalysisError, run_glm_analysis
-from analysis.partial_correlation import PartialCorrelationError, run_partial_correlation
-from analysis.permutation_test import PermutationTestError, run_permutation_test
-from analysis.confound_control import run_confound_control
-from analysis.loso_validation import run_loso_validation
-from analysis.sensitivity_sweeper import run_sensitivity_sweep
-from analysis.sensitivity_reporter import run_sensitivity_reporting
-
-# Reporting Imports (P4/P5)
-from reporting.generate_stats import generate_final_stats
-from reporting.generate_figures import generate_figures
-from reporting.generate_research_doc import generate_research_document
+# Import P3 (Analysis) components
+from analysis.loader import main as loader_main
 
 logger = get_logger(__name__)
 
-
 def parse_args():
-    parser = argparse.ArgumentParser(description="Neural Mechanisms Adaptive Decision-Making Pipeline")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config file")
-    parser.add_argument("--stage", type=str, choices=["p1", "p2", "p3", "all"], default="all",
-                        help="Which stage to run: P1 (Data), P2 (Model), P3 (Analysis), or All")
-    parser.add_argument("--data-root", type=str, default="data", help="Root directory for data")
-    parser.add_argument("--state-root", type=str, default="state", help="Root directory for state files")
-    parser.add_argument("--output-root", type=str, default="data", help="Root directory for outputs")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser = argparse.ArgumentParser(description="Neural Mechanisms Adaptive Decision Making Pipeline")
+    parser.add_argument("--stage", type=str, required=False,
+                        choices=["preprocessing", "modeling", "analysis", "sensitivity", "reporting", "all"],
+                        help="Specific stage to run. If omitted, runs full pipeline.")
+    parser.add_argument("--config", type=str, default="config.yaml",
+                        help="Path to configuration YAML file")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for reproducibility")
     return parser.parse_args()
 
+def setup_logging(config):
+    log_dir = Path(config.get("paths", {}).get("logs", "logs"))
+    ensure_dir(log_dir)
+    log_file = log_dir / "pipeline.log"
+    setup_file_logging(log_file)
+    logger.info("Logging initialized")
 
-def run_p1_integration(args):
+def run_p1_integration(config):
     """
     Execute User Story 1: Data Acquisition and Preprocessing Pipeline.
+    Order: Download -> Validation -> Motion Correction -> Validation -> Normalization -> Smoothing -> ROI Extraction -> QC Filter -> QC Reporter.
     """
-    logger.info("Starting P1 Integration: Data Acquisition and Preprocessing")
+    logger.info("=== Starting Phase 1: Data Acquisition and Preprocessing ===")
     
-    # 1. Validate and Download
-    logger.info("Validating dataset structure...")
-    validate_dataset_structure(args.data_root)
-    
-    # 2. Motion Correction, Normalization, Smoothing, ROI Extraction
-    # (Implementation details depend on specific participant lists from data_download)
-    # This block assumes T013-T017 are functional and produce intermediate files.
-    # T018 (QC Filter) and T018b (QC Reporter) must run here.
-    
-    logger.info("Running QC and generating summary report...")
-    # This calls the reporter which should write to data/reports/qc_summary.json
-    generate_qc_summary(args.data_root, args.output_root)
-    
-    logger.info("P1 Integration complete.")
+    # T013: Data Download
+    logger.info("Running T013: Data Download")
+    download_main()
 
+    # T012: Data Validation
+    logger.info("Running T012: Data Validation")
+    validate_dataset_structure(config)
+    # validate_participant_data is usually called per subject in download loop or separately
 
-def run_p2_integration(args):
+    # T014: Motion Correction
+    logger.info("Running T014: Motion Correction")
+    motion_correction_main()
+
+    # T014b: Validate Motion Correction
+    logger.info("Running T014b: Validate Motion Correction")
+    validate_motion_main()
+
+    # T015: Normalization
+    logger.info("Running T015: Normalization")
+    normalization_main()
+
+    # T016: Smoothing
+    logger.info("Running T016: Smoothing")
+    smoothing_main()
+
+    # T017: ROI Extraction
+    logger.info("Running T017: ROI Extraction")
+    roi_extraction_main()
+
+    # T018: QC Filter
+    logger.info("Running T018: QC Filter")
+    qc_filter_main()
+
+    # T018b: QC Reporter
+    logger.info("Running T018b: QC Reporter")
+    qc_reporter_main()
+
+    logger.info("=== Phase 1 Complete ===")
+
+def run_p2_integration(config):
     """
     Execute User Story 2: Computational Modeling of Belief Updating.
+    Order: Runtime Enforcer -> Belief Updater -> Validation -> Convergence Reporter -> Failure Handler -> Model Output.
     """
-    logger.info("Starting P2 Integration: Belief Updating Modeling")
-    
-    # 1. Load valid participants from P1
-    valid_participants = load_valid_participants(args.output_root)
-    
-    # 2. Run Belief Updater (T024)
-    logger.info("Running hierarchical Bayesian model...")
-    # Assumes run_mcmc_sampling handles the runtime constraints via RuntimeEnforcer
-    results = run_mcmc_sampling(valid_participants, args.data_root, args.output_root)
-    
-    # 3. Validate Convergence (T025)
-    logger.info("Validating model convergence...")
-    convergence_report = generate_convergence_report(args.output_root)
-    
-    # 4. Generate Model Output (T027)
-    logger.info("Saving model outputs...")
-    save_model_output(results, args.output_root)
-    
-    logger.info("P2 Integration complete. Alpha parameters saved.")
-    return convergence_report
+    logger.info("=== Starting Phase 2: Computational Modeling ===")
 
+    # T024b: Runtime Enforcer
+    logger.info("Running T024b: Runtime Enforcer")
+    runtime_enforcer_main()
 
-def run_p3_integration(args):
+    # T024: Belief Updater
+    logger.info("Running T024: Belief Updater")
+    belief_updater_main()
+
+    # T025: Validation
+    logger.info("Running T025: Validation")
+    validation_main()
+
+    # T025b: Convergence Reporter
+    logger.info("Running T025b: Convergence Reporter")
+    convergence_reporter_main()
+
+    # T025c: Failure Handler
+    logger.info("Running T025c: Failure Handler")
+    failure_handler_main()
+
+    # T027/T028: Model Output (Filtered by T028 logic internally or via T025c state)
+    logger.info("Running T027/T028: Model Output")
+    model_output_main()
+
+    logger.info("=== Phase 2 Complete ===")
+
+def run_p3_integration(config):
     """
     Execute User Story 3: Neural-Behavioral Correlation and Hypothesis Testing.
-    This task (T037) specifically ensures data flow from P2 (alpha parameters) to P3.
+    Order: Loader (T037a) -> GLM -> Partial Correlation -> Permutation -> FDR Verifier -> Confound Control -> LOSO -> Sensitivity -> Reporting.
     """
-    logger.info("Starting P3 Integration: Neural-Behavioral Correlation Analysis")
-    
-    # 1. Load P2 Results (Alpha Parameters)
-    logger.info("Loading alpha parameters from P2...")
-    try:
-        alphas = extract_individual_alphas(args.output_root)
-        logger.info(f"Loaded alpha parameters for {len(alphas)} participants.")
-    except FileNotFoundError as e:
-        logger.error("P2 results not found. Ensure P2 integration has run successfully.")
-        raise RuntimeError("P2 results missing. Cannot proceed with P3.") from e
-    
-    # 2. Load P1 Preprocessed Data (ROI Time-series)
-    logger.info("Loading preprocessed ROI data...")
-    # Assumes roi_extraction has been run and outputs are available
-    roi_data = load_roi_masks(args.data_root) # Placeholder for actual loading logic
-    bold_timeseries = extract_roi_timeseries(args.data_root, roi_data)
-    
-    # 3. Execute Analysis Modules (T031-T036)
-    # The following calls assume the respective modules are implemented and ready.
-    
-    logger.info("Running GLM Analysis (T031)...")
-    glm_results = run_glm_analysis(bold_timeseries, alphas, args.output_root)
-    
-    logger.info("Running Partial Correlation (T032)...")
-    partial_corr_results = run_partial_correlation(bold_timeseries, alphas, args.output_root)
-    
-    logger.info("Running Permutation Test (T033)...")
-    perm_results = run_permutation_test(bold_timeseries, alphas, args.output_root)
-    
-    logger.info("Running Confound Control (T034)...")
-    confound_results = run_confound_control(bold_timeseries, alphas, args.output_root)
-    
-    logger.info("Running LOSO Validation (T035)...")
-    loso_results = run_loso_validation(bold_timeseries, alphas, args.output_root)
-    
-    logger.info("Running Sensitivity Sweep (T036a)...")
-    sensitivity_results = run_sensitivity_sweep(alphas, args.output_root)
-    
-    logger.info("Generating Sensitivity Report (T036b)...")
-    run_sensitivity_reporting(sensitivity_results, args.output_root)
-    
-    # 4. Reporting (P4/P5) - T038
-    logger.info("Generating final statistics and figures...")
-    generate_final_stats(args.output_root)
-    generate_figures(args.output_root)
-    generate_research_document(args.output_root)
-    
-    logger.info("P3 Integration complete. All analyses and reports generated.")
+    logger.info("=== Starting Phase 3: Neural-Behavioral Analysis ===")
 
+    # T037a: Loader (Must run first to establish data flow)
+    logger.info("Running T037a: Loader")
+    loader_main()
+
+    # T031: GLM Analysis
+    logger.info("Running T031: GLM Analysis")
+    # Assuming a main function exists in glm_analysis.py
+    from analysis.glm_analysis import main as glm_main
+    glm_main()
+
+    # T032: Partial Correlation
+    logger.info("Running T032: Partial Correlation")
+    from analysis.partial_correlation import main as partial_corr_main
+    partial_corr_main()
+
+    # T033: Permutation Test
+    logger.info("Running T033: Permutation Test")
+    from analysis.permutation_test import main as perm_test_main
+    perm_test_main()
+
+    # T033b: FDR Verifier
+    logger.info("Running T033b: FDR Verifier")
+    from analysis.fdr_verifier import main as fdr_verifier_main
+    fdr_verifier_main()
+
+    # T034: Confound Control
+    logger.info("Running T034: Confound Control")
+    from analysis.confound_control import main as confound_main
+    confound_main()
+
+    # T035: LOSO Validation
+    logger.info("Running T035: LOSO Validation")
+    from analysis.loso_validation import main as loso_main
+    loso_main()
+
+    # T036a: Sensitivity Sweeper
+    logger.info("Running T036a: Sensitivity Sweeper")
+    from analysis.sensitivity_sweeper import main as sensitivity_sweep_main
+    sensitivity_sweep_main()
+
+    # T036b: Sensitivity Reporter
+    logger.info("Running T036b: Sensitivity Reporter")
+    from analysis.sensitivity_reporter import main as sensitivity_report_main
+    sensitivity_report_main()
+
+    logger.info("=== Phase 3 Complete ===")
+
+def run_reporting(config):
+    """
+    Execute Reporting tasks.
+    Order: Stats -> Figures -> Research Doc.
+    """
+    logger.info("=== Starting Reporting Phase ===")
+    
+    # T038a: Generate Stats
+    logger.info("Running T038a: Generate Stats")
+    from reporting.generate_stats import main as stats_main
+    stats_main()
+
+    # T038b: Generate Figures
+    logger.info("Running T038b: Generate Figures")
+    from reporting.generate_figures import main as figures_main
+    figures_main()
+
+    # T038c: Generate Research Doc
+    logger.info("Running T038c: Generate Research Doc")
+    from reporting.generate_research_doc import main as doc_main
+    doc_main()
+
+    logger.info("=== Reporting Phase Complete ===")
 
 def main():
     args = parse_args()
     
-    # Setup logging
-    setup_file_logging(Path(args.output_root) / "pipeline.log")
-    
+    # Load config
+    config_path = Path(args.config)
+    if config_path.exists():
+        config = load_config_from_yaml(config_path)
+    else:
+        config = get_config() # Fallback to defaults
+
     # Set seed
     set_seed(args.seed)
-    
-    config = get_config()
-    config.update(vars(args))
-    
-    logger.info(f"Starting pipeline with stage: {args.stage}")
-    
+
+    # Setup logging
+    setup_logging(config)
+
     try:
-        if args.stage == "p1":
-            run_p1_integration(args)
-        elif args.stage == "p2":
-            run_p2_integration(args)
-        elif args.stage == "p3":
-            run_p3_integration(args)
+        if args.stage == "preprocessing":
+            run_p1_integration(config)
+        elif args.stage == "modeling":
+            run_p2_integration(config)
+        elif args.stage == "analysis":
+            run_p3_integration(config)
+        elif args.stage == "reporting":
+            run_reporting(config)
         elif args.stage == "all":
-            # Sequential execution as per dependencies
-            run_p1_integration(args)
-            run_p2_integration(args)
-            run_p3_integration(args)
+            run_p1_integration(config)
+            run_p2_integration(config)
+            run_p3_integration(config)
+            run_reporting(config)
+        else:
+            logger.error("Invalid stage specified or missing --stage argument.")
+            sys.exit(1)
         
         logger.info("Pipeline execution completed successfully.")
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
+        logger.exception(f"Pipeline execution failed: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

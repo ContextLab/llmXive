@@ -1,0 +1,19 @@
+status: none
+intent: OpenNeuro ds003694 fMRI dlPFC ventral striatum ACC ROI time series python
+  package dataset
+required_fields:
+- participant_id
+- session_id
+- run_id
+- bold_nifti_path
+- behavioral_csv_path
+- motion_parameters
+- preprocessed_bold_path
+- roi_dlPFC_timeseries
+- roi_ventral_striatum_timeseries
+- roi_ACC_timeseries
+- timepoint
+- trial_event
+cache_key: c0b71800aa5021b33175244a0a83bc0cd5be49c83c95d30ba6b1ee928e3cf86a
+searched_at: '2026-09-19T00:41:14.406160+00:00'
+retry_count: 1
