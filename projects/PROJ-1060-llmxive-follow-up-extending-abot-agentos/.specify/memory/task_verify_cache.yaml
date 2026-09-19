@@ -1,18 +1,42 @@
 T009b:
   c: false
-  h: c751e86fb8e2a3fb68ca0c53311bb744c24140b2fa713476d087cbb9fdc9d4d3
-  r: "The provided `code/validator.py` is truncated (ends mid\u2011string at `\"edge_\"\
-    `) and contains no function that writes the computed error metrics to `data/results/reconstruction_error.json`.\
-    \ Moreover, the required `data/results/reconstruction_error.json` file is absent.\
-    \ Hence the task\u2019s required artifact and behavior are not fully delivered."
+  h: b4911b5bd8e426d279fddcb5eee45bcedd523693b1092b7777427b0a95996d35
+  r: The provided `code/validator.py` is truncated and contains a syntax error (unfinished
+    `f.write` line) and never writes the computed result to `data/results/reconstruction_error.json`.
+    The required `validation_warnings.log` file is absent, and the existing `reconstruction_error.json`
+    does not match the format the task specifies. The implementation therefore does
+    not fulfill the task requirements.
+T017:
+  c: false
+  h: bec86ca34f481e17c30d538300559f8981d46636710602aeba110814d86229f4
+  r: "The provided `code/graph_builder.py` lacks any logic that measures the memory\
+    \ usage of a graph built from 500 traces, does not perform a \u2264\u202F2\u202F\
+    GB check, and never writes a `memory_check.json` file. Moreover, the required\
+    \ `data/results/memory_check.json` does not exist. The artifact is therefore missing\
+    \ the core validation and output stipulated by the task."
 T023:
-  c: true
-  h: e998cf441f6a8f1cbe40690063a2694c2694e4362452f30504746db03da1af82
-  r: "The repository contains a non\u2011empty `code/latency_guard.py` that defines\
-    \ the `@latency_guard` decorator, measures execution time, and appends violations\
-    \ to `data/results/latency_violations.json` using the required schema while allowing\
-    \ the wrapped function to continue. The missing JSON file is expected to be created\
-    \ at runtime, not as a static artifact."
+  c: false
+  h: e54f18fc60b21461ade48742aa9868c403ecc8cdae030e1165ad9c978e4561a9
+  r: "The provided `code/latency_guard.py` is truncated and does not raise `LatencyExceededError`\
+    \ inside the decorator nor correctly log violations to `data/results/latency_violations.json`.\
+    \ The required JSON log file is missing entirely. The implementation therefore\
+    \ does not meet the task\u2019s specifications."
+T026:
+  c: false
+  h: 4aa3e702bd126887370ace5374977859aab50f0a131b2aaad50129063225fcc5
+  r: The integration test expects `data/results/final_report.md` to be created with
+    substantive content, but the file is missing. The only produced artifact, `data/results/deltas.json`,
+    contains placeholder zero values and does not demonstrate a real pipeline run.
+    The required output files are therefore not present or valid, so the task is not
+    genuinely completed.
+T030a:
+  c: false
+  h: 1612ce0ea2c3ce3a011c5b9071592ad4372e17e0f41432cc35c688d5dfb65926
+  r: "The `code/error_analysis.py` file is truncated and its `save_log` method is\
+    \ unfinished, so it never writes a JSON file containing only the `total_failures`\
+    \ key. Moreover, the required `data/results/error_analysis_log.json` does not\
+    \ exist. The task\u2019s core requirement\u2014to log the total failure count\
+    \ before categorization to that JSON file\u2014is therefore not satisfied."
 T030b:
   c: false
   h: 8569f46b4a46a8999c95879c46551fb1b4c4e68cc0f3ba102a39817768a0b2e4

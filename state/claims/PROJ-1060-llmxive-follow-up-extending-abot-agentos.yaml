@@ -1042,26 +1042,6 @@
   updated_at: '2026-09-05T16:55:26Z'
 - artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
   attempts: 1
-  canonical: assign unknown_object token for missing VLM matches
-  claim_id: c_c3ee5f81
-  context: 'T015 [US1] Depends on T012: Implement logic in code/graph_builder.py to
-    handle missing VLM matches by assigning ''unknown_object'' token and logging the
-    event.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Assign_unknown_object_token_for_missing_VLM_matches
-  kind: entity_fact
-  raw_text: Implement logic in code/graph_builder.py to handle missing VLM matches
-    by assigning 'unknown_object' token and logging the event.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-05T16:55:51Z'
-- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
-  attempts: 1
   canonical: memory footprint of constructed graph less than or equal to 2 GB for
     500 traces
   claim_id: c_b840388c
@@ -1148,3 +1128,458 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T16:57:16Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 0
+  canonical: 'dependencies pinned: networkx 3.2.1, pandas 2.1.4, scikit-learn 1.3.2,
+    statsmodels 0.14.1, datasets 2.16.1, transformers 4.37.2, pytest 7.4.3, ruff 0.1.11,
+    black 23.12.1'
+  claim_id: c_10decbe9
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create code/requirements.txt containing pinned versions for: networkx==3.2.1,
+    pandas==2.1.4, scikit-learn==1.3.2, statsmodels==0.14.1, datasets==2.16.1, transformers==4.37.2,
+    pytest==7.4.3, ruff==0.1.11, black==23.12.1.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T11:40:34Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: 'linting and formatting configuration: ruff line-length 88, black line-length
+    88'
+  claim_id: c_b991e5e6
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/.ruff.toml with line-length = 88 and select = ["E", "F", "I"].
+    Create code/pyproject.toml with [tool.black] line-length = 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:41:17Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: 'configuration parameters: random seed 42, model id google/vit-base-patch16-224,
+    max traces 500'
+  claim_id: c_7017e95f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create code/config.py with canonical seeds and hyperparameters: RANDOM_SEED
+    = 42, GRANULARITY = "coarse", PREDICATE_SET = "spatial", MODEL_ID = "google/vit-base-patch16-224",
+    MAX_TRACES = 500.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:41:38Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: data loader streams ALFWorld train split using datasets library
+  claim_id: c_8fcde003
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_streams_ALFWorld_train_split_using_datasets_libr
+  kind: entity_fact
+  raw_text: Implement code/data_loader.py to stream ALFWorld via datasets.load_dataset("alfworld/alfworld",
+    split="train", streaming=True) with checksum verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:42:06Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: baseline system ABot-AgentOS version 1.0.0
+  claim_id: c_d4697713
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T027a'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Acquire, install, or containerize the ABot-AgentOS baseline version via
+    Docker image ghcr.io/abot-agentos/baseline or pip download abot-agentos==1.0.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T11:42:06Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: graph reconstruction error rate threshold less than 1 percent
+  claim_id: c_fdb1ecd4
+  context: 'Phase 3: User Story 1 - Symbolic Graph Construction from Task Traces -
+    Goal section'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_reconstruction_error_rate_threshold_less_than_1_percen
+  kind: magnitude
+  raw_text: Success is defined by a graph reconstruction error rate < 1% against ground
+    truth.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:42:32Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: parametric sweep executed on random sample of 500 traces
+  claim_id: c_cbbb46f1
+  context: 'Phase 3: User Story 1 - Implementation - Task T016c'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the parametric sweep on the defined input slice (random sample
+    of 500 traces).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:43:16Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: memory footprint of constructed graph less than or equal to 2 GB for
+    500 traces
+  claim_id: c_807a8401
+  context: 'Phase 3: User Story 1 - Implementation - Task T017'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_of_constructed_graph_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Implement and execute validation in code/graph_builder.py to ensure memory\
+    \ footprint of constructed graph \u2264 2 GB for 500 traces."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:43:58Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: latency guard threshold average 150ms p95 100ms
+  claim_id: c_88668f0b
+  context: 'Phase 4: User Story 2 - Implementation - Task T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/latency_guard.py decorator @latency_guard(threshold_avg=150,
+    threshold_p95=100) to measure query latency over a batch of queries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:44:16Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: comparative pipeline generates final_report.md and deltas.json
+  claim_id: c_e7b211ca
+  context: 'Phase 5: User Story 3 - Tests - Task T026'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparative_pipeline_generates_final_report.md_and_deltas.js
+  kind: entity_fact
+  raw_text: Assert that running main.py with --compare produces data/results/final_report.md
+    and data/results/deltas.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:45:20Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: performance optimization target p95 latency less than 100ms
+  claim_id: c_9efe6c0b
+  context: 'Phase N: Polish & Cross-Cutting Concerns - Task T035'
+  evidence:
+    candidates:
+    - - ''
+      - 100.0
+    - - ''
+      - 95.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_p95_latency_less_than_100ms
+  kind: magnitude
+  raw_text: Optimize hot paths to achieve p95 latency < 100ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T11:45:48Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: graph reconstruction error rate less than 1% against ground truth
+  claim_id: c_739c01d6
+  context: 'Independent Test: The system can be tested by running the construction
+    pipeline on a subset of task traces from ALFWorld and verifying the output graph
+    structure (nodes, edges, predicates) against ground-truth annotations via a manual
+    audit of a random sample of traces. Success is defined by a graph reconstruction
+    error rate < 1% against ground truth.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_reconstruction_error_rate_less_than_1%25_against_ground
+  kind: magnitude
+  raw_text: Success is defined by a graph reconstruction error rate < 1% against ground
+    truth.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:52:25Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 2
+  canonical: assign unknown_object token for missing VLM matches
+  claim_id: c_c3ee5f81
+  context: 'T015 [US1] Depends on T012: Implement logic in code/graph_builder.py to
+    handle missing VLM matches by assigning ''unknown_object'' token and logging the
+    event.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Assign_unknown_object_token_for_missing_VLM_matches
+  kind: entity_fact
+  raw_text: Implement logic in code/graph_builder.py to handle missing VLM matches
+    by assigning 'unknown_object' token and logging the event.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:53:00Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: random sample of traces from ALFWorld split=train using seed 42
+  claim_id: c_8c2e5d92
+  context: 'T016a [P] [US1] Depends on T005, T004: Implement parametric sweep logic
+    in code/experiment_runner.py to iterate over granularity=[''coarse'', ''fine'']
+    and expressiveness=[''spatial'', ''spatial+temporal'']. Define the input slice
+    as a random sample of traces from ALFWorld split=train, using seed 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the input slice as a random sample of traces from ALFWorld split=train,
+    using seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:53:16Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: parametric sweep on random sample of 500 traces
+  claim_id: c_1de24d58
+  context: 'T016c [US1] Depends on T016a, T016b: Execute the parametric sweep on the
+    defined input slice (random sample of 500 traces) and write the results to data/results/sweep_metrics.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the parametric sweep on the defined input slice (random sample
+    of 500 traces) and write the results to data/results/sweep_metrics.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:53:51Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: memory footprint of constructed graph less than or equal to 2 GB for
+    500 traces
+  claim_id: c_4dc15f62
+  context: "T017 [US1] Depends on T013: Implement and execute validation in code/graph_builder.py\
+    \ to ensure memory footprint of constructed graph \u2264 2 GB for 500 traces.\
+    \ Deliverable: Write result to data/results/memory_check.json with key pass/fail."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_of_constructed_graph_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Implement and execute validation in code/graph_builder.py to ensure memory\
+    \ footprint of constructed graph \u2264 2 GB for 500 traces."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:53:53Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: latency guard threshold average 150ms and p95 100ms
+  claim_id: c_b67908f9
+  context: 'T023 [US2] Depends on T020: Implement code/latency_guard.py decorator
+    @latency_guard(threshold_avg=150, threshold_p95=100) to measure query latency
+    over a batch of queries; if the average exceeds a predefined threshold OR p95
+    exceeds a predefined threshold, raise LatencyExceededError (do NOT continue) and
+    log violation to data/results/latency_violations.json (schema: [{"query_batch_id":
+    str, "avg_ms": float, "p95_ms": float, "timestamp": str}]). This enforces SC-003.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define 'threshold_avg=150' and 'threshold_p95=100' for the @latency_guard
+    decorator.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:54:16Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: no GPU usage during query execution verified by torch and nvidia-smi
+  claim_id: c_bf75fad8
+  context: 'T024 [US2] Depends on T020: Add validation in tests/integration/test_gpu_free.py::test_no_gpu_usage:
+    Assert torch.cuda.is_available() is False (or ignored) AND torch.cuda.memory_allocated()
+    == 0 AND subprocess.run(["nvidia-smi"]).stdout contains no active processes during
+    query execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert 'torch.cuda.is_available()' is False (or ignored) AND 'torch.cuda.memory_allocated()'
+    == 0 AND 'subprocess.run(["nvidia-smi"]).stdout' contains no active processes
+    during query execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:54:37Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: compute p-value and statistic for binary outcomes using McNemar test
+  claim_id: c_9264d7c8
+  context: 'T029 [US3] Depends on T028: Implement code/metrics.py function run_mcnemar_test(success_symbolic:
+    list[bool], success_neural: list[bool]) -> (float, float) to compute p-value and
+    statistic for binary outcomes (success/failure). Mandatory: Validate len(success_symbolic)
+    == len(success_neural) and raise ValueError if not, ensuring paired data constraint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_p-value_and_statistic_for_binary_outcomes_using_McNe
+  kind: entity_fact
+  raw_text: 'Implement code/metrics.py function run_mcnemar_test(success_symbolic:
+    list[bool], success_neural: list[bool]) -> (float, float) to compute p-value and
+    statistic for binary outcomes (success/failure).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:54:59Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: calculate error analysis coverage percentage as categorized failures
+    divided by total failures times 100
+  claim_id: c_c7d743c1
+  context: 'T030b [US3] Depends on T030, T030a: Implement code/error_analysis.py to
+    calculate error analysis coverage percentage (categorized_failures / total_failures
+    * 100) and report to data/results/error_coverage.json (schema: {"total_failures":
+    int, "categorized_failures": int, "coverage_pct": float}).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate error analysis coverage percentage (categorized_failures / total_failures
+    * 100) and report to data/results/error_coverage.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:55:29Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: calculate success rate delta and memory reduction percentage
+  claim_id: c_4740824d
+  context: 'T032a [US3] Depends on T028, T029: Implement code/metrics.py to calculate
+    specific deltas: success_rate_delta = symbolic_rate - neural_rate and memory_reduction_pct
+    = (1 - symbolic_mem / neural_mem) * 100 ; write to data/results/deltas.json (schema:
+    {"success_rate_delta": float, "memory_reduction_pct": float}).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate specific deltas: ''success_rate_delta = symbolic_rate - neural_rate''
+    and ''memory_reduction_pct = (1 - symbolic_mem / neural_mem) * 100''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:55:57Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: evaluate if targets less than or equal to 5% and greater than or equal
+    to 80% are met
+  claim_id: c_09ab7ff8
+  context: "T032 [US3] Depends on T028, T029, T032a, T030b: Generate final report\
+    \ in data/results/final_report.md (Markdown format) containing p-values, test\
+    \ statistics, error counts, and the calculated deltas (success rate difference,\
+    \ memory reduction), evaluating if targets (\u22645%, \u226580%) are met. Sections:\
+    \ p-value, test_statistic, error_counts, deltas, target_met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Evaluate_if_targets_less_than_or_equal_to_5%25_and_greater_tha
+  kind: magnitude
+  raw_text: "Evaluate if targets (\u22645%, \u226580%) are met in the final report."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T11:56:23Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: optimize hot paths to achieve p95 latency less than 100ms
+  claim_id: c_a37891bb
+  context: 'T035 Performance optimization across all stories: Run cProfile on code/query_engine.py
+    and optimize hot paths to achieve p95 latency < 100ms. Constraint: Maximum 3 optimization
+    iterations; if target not met, document bottlenecks in data/results/perf_bottlenecks.md.'
+  evidence:
+    candidates:
+    - - ''
+      - 100.0
+    - - ''
+      - 95.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Optimize_hot_paths_to_achieve_p95_latency_less_than_100ms
+  kind: magnitude
+  raw_text: Optimize hot paths to achieve p95 latency < 100ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T11:56:25Z'
