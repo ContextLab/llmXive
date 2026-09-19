@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Rotation Matrix Definition"
+description: "Schema for a single pre-optimized rotation matrix derived from clustering."
+type: "object"
+properties:
+  cluster_id:
+    type: "integer"
+    minimum: 0
+    maximum: 15
+    description: "Index of the cluster (0-15) this matrix represents."
+  entropy_range_min:
+    type: "number"
+    description: "Minimum semantic entropy for this cluster."
+  entropy_range_max:
+    type: "number"
+    description: "Maximum semantic entropy for this cluster."
+  matrix_shape:
+    type: "array"
+    description: "Shape of the rotation matrix (e.g., [d, d])."
+    items:
+      type: "integer"
+  matrix_data_ref:
+    type: "string"
+    description: "Relative path to the binary matrix file (e.g., data/processed/rotation_matrices/matrix_0.npy)."
+  derived_from_split:
+    type: "string"
+    enum: ["train", "test"]
+    description: "Which data split the matrix was derived from (should be 'train')."
+required:
+  - cluster_id
+  - entropy_range_min
+  - entropy_range_max
+  - matrix_shape
+  - matrix_data_ref
+  - derived_from_split
+additionalProperties: false

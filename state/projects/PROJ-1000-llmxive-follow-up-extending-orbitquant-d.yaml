@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-07T04:53:50.300911Z'
-current_stage: flesh_out_complete
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1000-llmxive-follow-up-extending-orbitquant-d
-last_run_id: 51e1b9af-e1c1-457d-a5fe-ea3c4e4c7ac1
+last_run_id: b8114987-3b97-4342-b1fd-b3634f584731
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d
 title: 'llmXive follow-up: extending "OrbitQuant: Data-Agnostic Quantization for Image
   and Video Diffusion T"'
-updated_at: '2026-08-07T09:42:50.749622Z'
+updated_at: '2026-09-19T05:32:43.459435Z'
