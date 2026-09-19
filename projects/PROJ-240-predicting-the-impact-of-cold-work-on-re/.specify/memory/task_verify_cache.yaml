@@ -1,11 +1,39 @@
+T011:
+  c: false
+  h: b3774c882fee66d5bfe8a14d095700071d3065ca217dff090484613c44088746
+  r: "The required output file `data/raw/synthetic_baseline.csv` is missing and the\
+    \ accompanying checksum file contains a dummy value. Moreover, the script does\
+    \ not read a `N_ROWS_TARGET` variable nor enforce the specified hard\u2011cap\
+    \ logic, and it does not clearly raise a `RuntimeError` on failure. These gaps\
+    \ mean the deterministic synthetic data generation task is not fulfilled."
 T012:
   c: false
-  h: 484b87d94c49ea47a879dbfa6375db98dd532b6f268c4465dc78424c6cdf3e25
-  r: The required raw file `data/raw/synthetic_baseline.csv` does not exist, and the
-    expected output files `data/processed/validated.csv` and `artifacts/reports/validation_log.json`
-    are also missing. Moreover, `code/ingest.py` only defines helper functions and
-    lacks any orchestration logic that loads the specified CSV and writes the required
-    outputs.
+  h: 073dfcc2031e6223d06281d9f9e5595a816a7d6f123bdd86eb13ff0e0050e7ae
+  r: The required input file `data/processed/validated.csv` does not exist, and consequently
+    the output `artifacts/reports/baseline_stats.json` is also missing. Without these
+    artifacts the mean cannot be computed, so the task is not satisfied.
+T021:
+  c: false
+  h: 652b6ecd5df072c3db7ffc16c09c9cd6456d3df392c728c2a577d63014dcaab5
+  r: "The repository lacks `artifacts/reports/validation_log.json` and `data/processed/validated.csv`,\
+    \ and the shown portion of `code/ingest.py` does not contain any outlier\u2011\
+    clipping logic or code that writes the required JSON report. Consequently the\
+    \ required clipping, logging, and saved dataset are not present."
+T022:
+  c: false
+  h: 6c53274fcf4da41d9d96b9a830869024b19de67d0ee0557604f627eef580b33e
+  r: "The repository lacks the required `data/raw/synthetic_baseline.csv`, `data/processed/validated.csv`,\
+    \ and `artifacts/reports/validation_log.json` files, and the provided `code/ingest.py`\
+    \ does not automatically load a merged external dataset nor write the specified\
+    \ output files. Consequently the task\u2019s orchestration, fail\u2011fast check,\
+    \ and output generation are not fulfilled."
+T024:
+  c: false
+  h: 56ed9c4b1b97a1e2e78366c1b884836200ccdd76df6783ccb600385d393d5fab
+  r: "The repository contains `code/engineer.py` with functions that compute the required\
+    \ interaction columns, but the pipeline\u2019s final step that writes `data/processed/engineered_features.csv`\
+    \ is not present (the file is missing). Without the generated CSV, the task\u2019\
+    s output artifact is absent, so the requirement is not satisfied."
 T026:
   c: false
   h: 7e31c490e711755d1f9329434e877a39d2ea1bf28c9c6620b3557d3c3f2f5547
@@ -14,22 +42,14 @@ T026:
     \ or compare the test MAE to a threshold. Moreover, the required `reports/baseline_stats.json`\
     \ file is absent from the repository. Both the implementation and the dependent\
     \ artifact are missing, so the task is not satisfied."
-T032:
+T029:
   c: false
-  h: 54baed190ec23d706337cbd247955404629eae5a699f044f7989c7bdebaadb81
-  r: "The repository contains a `train_additive_model` function, but `code/evaluate.py`\
-    \ does not show any logic that loads the data, applies the same seed\u201142 split\
-    \ as T023, trains the model, and saves it to `artifacts/models/additive_model.pkl`.\
-    \ Moreover, the expected artifact `artifacts/models/additive_model.pkl` is absent.\
-    \ The required model file and the end\u2011to\u2011end training/saving workflow\
-    \ are missing."
-T033:
-  c: false
-  h: 7b7fce35d70a151ac84f70a212fb019430a759bca33ada6803a15b9166b6ca36
-  r: The repository lacks the required `artifacts/models/kinetic_model.pkl` file,
-    and `code/evaluate.py` contains no logic that loads this model or checks its parameters
-    before training. Consequently the Interaction Model consistency requirement is
-    not met.
+  h: f84db56764d12877c4452055f6471b7499855f934415380f0861431eea168cf3
+  r: "The required output files `artifacts/reports/training_metrics.json` and `artifacts/models/kinetic_model.pkl`\
+    \ are absent, and the provided `code/train.py` snippet is incomplete (truncated)\
+    \ with no visible implementation of the pure\u2011aluminum flag handling, dataset\u2011\
+    size check, or model saving. Consequently the task\u2019s specifications are not\
+    \ met."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

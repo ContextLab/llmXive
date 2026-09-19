@@ -1,13 +1,3 @@
-"""
-Data ingestion pipeline with security hardening and input sanitization.
-
-This module implements the data ingestion process with:
-- Explicit dtype enforcement for input sanitization
-- na_filter=True for proper missing value handling
-- Physical bounds validation
-- Outlier clipping
-- Missing value imputation
-"""
 import json
 import os
 import sys
@@ -16,267 +6,305 @@ from typing import Dict, Any, List, Tuple
 import pandas as pd
 import numpy as np
 
-# Import utility functions
+from config import (
+    get_project_root,
+    get_outlier_percentile,
+    get_min_rows,
+    get_max_rows,
+    get_random_seed,
+)
 from utils import (
-    sanitize_input_dataframe,
     validate_physical_bounds,
     normalize_time_to_minutes,
-    clip_outliers,
-    detect_type_confusion,
-    validate_and_sanitize_pipeline
+    impute_missing_composition,
 )
-from config import get_project_root, get_min_rows, get_max_rows, get_outlier_percentile
 
-def load_data(input_path: str, strict: bool = True) -> pd.DataFrame:
+
+def load_data(
+    synthetic_path: str,
+    external_path: str | None = None,
+    force_external: bool = False,
+) -> pd.DataFrame:
     """
-    Load and sanitize data from CSV with explicit dtype enforcement.
-    
-    Implements security hardening by:
-    - Using explicit dtype dictionary to prevent type confusion
-    - Setting na_filter=True to properly handle missing values
-    - Validating schema against expected columns
-    - Sanitizing input data types
-    
+    Load data with strict error handling and fallback logic.
+
+    Primary source: Synthetic dataset (T011).
+    Secondary source: External dataset (T055) if available and requested.
+
+    Logic:
+    1. If `force_external` is True and external_path exists, attempt to load external.
+       If external load fails, log warning and fall back to synthetic.
+    2. If `force_external` is False (default), load synthetic.
+    3. If synthetic load fails, raise FileNotFoundError (Fail-Loud for primary source).
+    4. If external is requested but fails, proceed with synthetic (Fail-Safe).
+
     Args:
-        input_path: Path to input CSV file
-        strict: If True, raise errors on schema mismatch; if False, log warnings
-        
+        synthetic_path: Path to synthetic_baseline.csv.
+        external_path: Optional path to merged external dataset.
+        force_external: If True, attempt external first.
+
     Returns:
-        Sanitized DataFrame with enforced dtypes
-        
+        DataFrame containing the loaded data.
+
     Raises:
-        FileNotFoundError: If input file doesn't exist
-        ValueError: If schema validation fails in strict mode
+        FileNotFoundError: If the primary synthetic source is missing.
+        ValueError: If the loaded dataset has fewer than `get_min_rows()` rows.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    # Load with explicit parameters for security
-    df = pd.read_csv(
-        input_path,
-        dtype={
-            'cold_work_pct': 'float64',
-            'Mn_wt': 'float64',
-            'Mg_wt': 'float64',
-            'Si_wt': 'float64',
-            'Cu_wt': 'float64',
-            'annealing_temp_K': 'float64',
-            'time_to_peak_min': 'float64'
-        },
-        na_filter=True,  # Explicitly enable NA filtering
-        keep_default_na=True,
-        na_values=['', 'NA', 'NaN', 'null', 'NULL', 'None'],
-        skipinitialspace=True
-    )
-    
-    # Apply additional sanitization
-    df = sanitize_input_dataframe(df, strict=strict)
-    
-    # Check for type confusion
-    type_check = detect_type_confusion(df)
-    if type_check['suspicious']:
-        raise ValueError(f"Type confusion detected in input data: {type_check['details']}")
-    
+    project_root = get_project_root()
+    min_rows = get_min_rows()
+
+    # Ensure paths are absolute relative to project root
+    synthetic_full_path = project_root / synthetic_path
+    external_full_path = project_root / external_path if external_path else None
+
+    df = None
+
+    # Attempt external fetch if requested and available
+    if force_external and external_full_path and external_full_path.exists():
+        try:
+            print(f"Attempting to load external data from {external_full_path}...")
+            df_ext = pd.read_csv(external_full_path)
+            print(f"Successfully loaded external data: {len(df_ext)} rows.")
+            df = df_ext
+        except Exception as e:
+            print(f"WARNING: External data fetch failed ({e}). Falling back to synthetic data.")
+            df = None  # Reset to force synthetic load
+
+    # If we don't have data yet (or didn't try external), load synthetic
+    if df is None:
+        if not synthetic_full_path.exists():
+            raise FileNotFoundError(
+                f"Primary data source not found: {synthetic_full_path}. "
+                "Please run T011 (generate_synthetic.py) first."
+            )
+
+        print(f"Loading primary synthetic data from {synthetic_full_path}...")
+        try:
+            df = pd.read_csv(synthetic_full_path)
+            print(f"Successfully loaded synthetic data: {len(df)} rows.")
+        except Exception as e:
+            # Fail loud on primary source corruption
+            raise RuntimeError(
+                f"Failed to read primary synthetic data: {e}"
+            ) from e
+
+    # Validate minimum row count immediately after loading
+    if len(df) < min_rows:
+        raise ValueError(
+            f"Dataset size ({len(df)}) is below the minimum required threshold ({min_rows}). "
+            "Data generation or fetch failed to produce sufficient data."
+        )
+
     return df
 
-def filter_missing_target(df: pd.DataFrame, target_col: str = 'time_to_peak_min') -> Tuple[pd.DataFrame, int]:
-    """
-    Filter out rows with missing target values.
-    
-    Args:
-        df: Input DataFrame
-        target_col: Name of target column
-        
-    Returns:
-        Tuple of (filtered DataFrame, count of filtered rows)
-    """
-    original_len = len(df)
-    df_filtered = df.dropna(subset=[target_col])
-    filtered_count = original_len - len(df_filtered)
-    
-    return df_filtered, filtered_count
 
-def impute_missing_composition(df: pd.DataFrame, composition_cols: List[str] = None) -> pd.DataFrame:
+def filter_missing_target(df: pd.DataFrame, target_col: str = "time_to_peak_min") -> pd.DataFrame:
     """
-    Impute missing composition values using group-specific means.
-    
-    Groups rows by alloy type or concentration range and imputes
-    missing values with the mean of that group. Falls back to column
-    mean if no grouping is available.
-    
-    Args:
-        df: Input DataFrame
-        composition_cols: List of composition column names
-        
-    Returns:
-        DataFrame with imputed values
+    Filter out rows where the target variable is missing.
+    Does NOT impute the target.
     """
-    if composition_cols is None:
-        composition_cols = ['Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt']
-    
-    df_imputed = df.copy()
-    
+    initial_count = len(df)
+    df = df.dropna(subset=[target_col])
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        print(f"Dropped {dropped} rows with missing target '{target_col}'.")
+    return df
+
+
+def impute_missing_composition(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Impute missing composition values using the mean of the specific alloy series.
+    If no series grouping is defined, falls back to column mean (as per T019 spec).
+    """
+    composition_cols = ["Mn_wt", "Mg_wt", "Si_wt", "Cu_wt"]
+    missing_mask = df[composition_cols].isnull().any(axis=1)
+
+    if not missing_mask.any():
+        return df
+
+    print("Imputing missing composition values...")
+    # Simple strategy: Group by a logical series if available, else global mean per column
+    # Assuming 'alloy_type' or similar might exist, but spec says "group by alloy type"
+    # If no grouping column exists, we use column mean as a safe fallback per T019 note
+    # Note: T019 says "Impute using the mean of the specific alloy series... or flag for exclusion"
+    # For this implementation, we use column mean as the robust fallback if no series column exists.
+
     for col in composition_cols:
-        if col not in df_imputed.columns:
-            continue
-        
-        # Check if there are missing values
-        if df_imputed[col].isna().sum() == 0:
-            continue
-        
-        # Try to group by a logical category if available
-        # For now, use column mean as fallback
-        group_mean = df_imputed[col].mean()
-        df_imputed[col] = df_imputed[col].fillna(group_mean)
-    
-    return df_imputed
+        if df[col].isnull().any():
+            mean_val = df[col].mean()
+            df[col] = df[col].fillna(mean_val)
+            print(f"  Imputed {col} with mean: {mean_val:.4f}")
 
-def clip_outliers_target(df: pd.DataFrame, target_col: str = 'time_to_peak_min', 
-                        percentile: float = None) -> Tuple[pd.DataFrame, List[int], float]:
+    return df
+
+
+def clip_outliers_target(
+    df: pd.DataFrame,
+    target_col: str = "time_to_peak_min",
+    percentile: float | None = None,
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Clip outliers in target variable using high percentile threshold.
-    
-    Uses numpy's linear interpolation method to calculate threshold
-    and clips values above it.
-    
+    Clip outliers on the target variable at the specified percentile.
+
     Args:
-        df: Input DataFrame
-        target_col: Name of target column
-        percentile: Percentile threshold (default: 99th from config)
-        
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        percentile: Percentile threshold (e.g., 99). Reads from config if None.
+
     Returns:
-        Tuple of (clipped DataFrame, list of clipped indices, threshold value)
+        Tuple of (clipped_df, log_dict) containing count and indices.
     """
     if percentile is None:
         percentile = get_outlier_percentile()
-    
-    df_clipped = df.copy()
-    values = df_clipped[target_col].dropna()
-    
-    if len(values) == 0:
-        return df_clipped, [], 0.0
-    
-    # Calculate threshold with linear interpolation
-    threshold = np.percentile(values, percentile, interpolation='linear')
-    
-    # Identify and clip outliers
-    mask = df_clipped[target_col] > threshold
-    clipped_indices = df_clipped[mask].index.tolist()
-    df_clipped.loc[mask, target_col] = threshold
-    
-    return df_clipped, clipped_indices, float(threshold)
 
-def validate_dataset_size(df: pd.DataFrame, min_rows: int = None, max_rows: int = None) -> None:
-    """
-    Validate dataset size meets requirements.
-    
-    Args:
-        df: Input DataFrame
-        min_rows: Minimum required rows (default: from config)
-        max_rows: Maximum allowed rows (default: from config)
-        
-    Raises:
-        ValueError: If dataset size is outside allowed range
-    """
-    if min_rows is None:
-        min_rows = get_min_rows()
-    if max_rows is None:
-        max_rows = get_max_rows()
-    
-    n_rows = len(df)
-    
-    if n_rows < min_rows:
-        raise ValueError(f"Dataset has {n_rows} rows, which is less than minimum required {min_rows} rows (FR-008)")
-    
-    if n_rows > max_rows:
-        raise ValueError(f"Dataset has {n_rows} rows, which exceeds maximum allowed {max_rows} rows (FR-003)")
+    threshold = np.percentile(df[target_col], percentile, method="linear")
+    initial_count = len(df)
 
-def run_ingestion_pipeline(input_path: str, output_path: str, log_path: str) -> Dict[str, Any]:
+    # Identify rows exceeding the threshold
+    outlier_mask = df[target_col] > threshold
+    outlier_indices = df[outlier_mask].index.tolist()
+    clipped_count = len(outlier_indices)
+
+    if clipped_count > 0:
+        print(f"Clipping {clipped_count} outliers (>{threshold:.2f}) at {percentile}th percentile.")
+        df.loc[outlier_mask, target_col] = threshold
+    else:
+        print(f"No outliers found above {percentile}th percentile ({threshold:.2f}).")
+
+    log_dict = {
+        "clipped_outliers_count": clipped_count,
+        "clipped_values_list": outlier_indices,
+        "threshold_99th_percentile": float(threshold),
+        "percentile_used": percentile,
+    }
+
+    return df, log_dict
+
+
+def validate_dataset_size(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run complete data ingestion pipeline.
-    
-    Steps:
-    1. Load and sanitize data
-    2. Validate physical bounds
-    3. Filter missing targets
-    4. Impute missing compositions
-    5. Clip outliers
-    6. Validate dataset size
-    7. Save outputs and logs
-    
-    Args:
-        input_path: Path to input CSV
-        output_path: Path for processed output CSV
-        log_path: Path for validation log JSON
-        
-    Returns:
-        Dictionary with pipeline metrics
+    Enforce the maximum row cap (FR-003) to prevent memory overflow.
     """
-    # Ensure output directories exist
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Step 1: Load and sanitize
-    df = load_data(input_path)
+    max_rows = get_max_rows()
+    if len(df) > max_rows:
+        print(f"Dataset size ({len(df)}) exceeds max cap ({max_rows}). Truncating.")
+        # Deterministic truncation based on seed
+        seed = get_random_seed()
+        np.random.seed(seed)
+        indices = np.random.choice(len(df), max_rows, replace=False)
+        df = df.loc[indices].reset_index(drop=True)
+    return df
+
+
+def run_ingestion_pipeline() -> None:
+    """
+    Orchestrate the full ingestion pipeline:
+    1. Load data (Synthetic primary, External optional).
+    2. Filter missing target.
+    3. Impute missing compositions.
+    4. Validate physical bounds.
+    5. Normalize units.
+    6. Clip outliers.
+    7. Validate size.
+    8. Save outputs.
+    """
+    project_root = get_project_root()
+    raw_dir = project_root / "data" / "raw"
+    processed_dir = project_root / "data" / "processed"
+    reports_dir = project_root / "artifacts" / "reports"
+
+    # Ensure directories exist
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    synthetic_path = "data/raw/synthetic_baseline.csv"
+    external_path = "data/raw/external_merged.csv"  # Optional, may not exist
+
+    # 1. Load Data
+    print("--- Starting Data Ingestion ---")
+    try:
+        df = load_data(synthetic_path, external_path, force_external=False)
+    except FileNotFoundError as e:
+        print(f"CRITICAL ERROR: {e}")
+        sys.exit(1)
+
     rows_input = len(df)
-    
-    # Step 2: Validate physical bounds
-    bounds_check = validate_physical_bounds(df)
-    
-    # Step 3: Filter missing targets
-    df, rows_filtered = filter_missing_target(df)
-    
-    # Step 4: Impute missing compositions
+    rows_dropped_nulls = 0
+    rows_dropped_other = 0
+
+    # 2. Filter Missing Target
+    initial_len = len(df)
+    df = filter_missing_target(df)
+    rows_dropped_nulls += initial_len - len(df)
+
+    # 3. Impute Missing Compositions
     df = impute_missing_composition(df)
-    
-    # Step 5: Clip outliers
-    df, clipped_indices, threshold = clip_outliers_target(df)
-    
-    # Step 6: Validate size
-    validate_dataset_size(df)
-    
+
+    # 4. Validate Physical Bounds (0 <= cold_work <= 100, time > 0)
+    initial_len = len(df)
+    df = validate_physical_bounds(df)
+    rows_dropped_other += initial_len - len(df)
+
+    # 5. Normalize Units (Time to minutes)
+    df = normalize_time_to_minutes(df)
+
+    # 6. Clip Outliers
+    df, outlier_log = clip_outliers_target(df)
+
+    # 7. Validate Size (Cap)
+    df = validate_dataset_size(df)
+
     rows_output = len(df)
-    
-    # Calculate metrics
-    metrics = {
-        'rows_ingested': rows_input,
-        'rows_filtered': rows_filtered,
-        'rows_output': rows_output,
-        'null_handling_success_rate': rows_output / rows_input if rows_input > 0 else 0.0
-    }
-    
-    # Create validation log
+
+    # 8. Save Outputs
+    validated_path = processed_dir / "validated.csv"
+    validation_log_path = reports_dir / "validation_log.json"
+    metrics_path = reports_dir / "ingestion_metrics.json"
+
+    print(f"Saving validated dataset to {validated_path}...")
+    df.to_csv(validated_path, index=False)
+
+    # Prepare validation log
     validation_log = {
-        'rows_ingested': rows_input,
-        'rows_filtered': rows_filtered,
-        'null_counts': df.isna().sum().to_dict(),
-        'clipped_outliers_count': len(clipped_indices),
-        'clipped_values_list': clipped_indices,
-        'threshold_99th_percentile': threshold
+        "rows_ingested": rows_input,
+        "rows_dropped_nulls": rows_dropped_nulls,
+        "rows_dropped_other": rows_dropped_other,
+        **outlier_log
     }
-    
-    # Save outputs
-    df.to_csv(output_path, index=False)
-    
-    with open(log_path, 'w') as f:
+
+    print(f"Saving validation log to {validation_log_path}...")
+    with open(validation_log_path, "w") as f:
         json.dump(validation_log, f, indent=2)
-    
-    return metrics
+
+    # Calculate metrics
+    null_handling_rate = (rows_input - rows_dropped_nulls) / rows_input if rows_input > 0 else 0.0
+    metrics = {
+        "rows_ingested": rows_input,
+        "rows_dropped_nulls": rows_dropped_nulls,
+        "rows_dropped_other": rows_dropped_other,
+        "rows_output": rows_output,
+        "null_handling_success_rate": null_handling_rate
+    }
+
+    # Append to existing metrics if file exists, otherwise create
+    if metrics_path.exists():
+        with open(metrics_path, "r") as f:
+            existing_metrics = json.load(f)
+        existing_metrics.update(metrics)
+        metrics = existing_metrics
+
+    print(f"Saving ingestion metrics to {metrics_path}...")
+    with open(metrics_path, "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    print("--- Ingestion Pipeline Complete ---")
+    print(f"Output: {validated_path} ({rows_output} rows)")
+
 
 def main():
-    """Main entry point for ingestion pipeline."""
-    project_root = get_project_root()
-    input_path = str(project_root / 'data' / 'raw' / 'synthetic_baseline.csv')
-    output_path = str(project_root / 'data' / 'processed' / 'validated.csv')
-    log_path = str(project_root / 'artifacts' / 'reports' / 'validation_log.json')
-    
-    try:
-        metrics = run_ingestion_pipeline(input_path, output_path, log_path)
-        print(f"Ingestion complete: {metrics['rows_output']} rows processed")
-        return 0
-    except Exception as e:
-        print(f"Ingestion failed: {e}", file=sys.stderr)
-        return 1
+    """Entry point for the ingestion script."""
+    run_ingestion_pipeline()
 
-if __name__ == '__main__':
-    sys.exit(main())
+
+if __name__ == "__main__":
+    main()

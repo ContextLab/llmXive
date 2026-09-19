@@ -1,41 +1,37 @@
 import os
 from pathlib import Path
 
-
 def main():
     """
-    Create the required artifacts subdirectories:
-    - artifacts/models
-    - artifacts/reports
-    - artifacts/figures
-
-    Creates .gitkeep files in each directory to ensure they are tracked by git.
+    Create all necessary directories and .gitkeep files for the project.
     """
-    # Determine the project root based on the script location
-    # The script is located at code/create_artifact_dirs.py
-    # Project root is two levels up
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-    artifacts_root = project_root / "artifacts"
+    # Determine project root
+    # Assuming this script is in code/ directory
+    project_root = Path(__file__).resolve().parent.parent
+    project_name = project_root.name
+    full_project_path = project_root / project_name
 
-    # Define the required subdirectories
-    subdirs = ["models", "reports", "figures"]
+    # Define directories to create
+    dirs_to_create = [
+        full_project_path / "code",
+        full_project_path / "tests",
+        full_project_path / "data" / "raw",
+        full_project_path / "data" / "processed",
+        full_project_path / "data" / "split",
+        full_project_path / "artifacts" / "models",
+        full_project_path / "artifacts" / "reports",
+        full_project_path / "artifacts" / "figures",
+    ]
 
-    for subdir_name in subdirs:
-        dir_path = artifacts_root / subdir_name
-        
-        # Create the directory if it doesn't exist
-        os.makedirs(dir_path, exist_ok=True)
-        
-        # Create .gitkeep file
+    # Create directories and .gitkeep files
+    for dir_path in dirs_to_create:
+        dir_path.mkdir(parents=True, exist_ok=True)
         gitkeep_path = dir_path / ".gitkeep"
-        gitkeep_path.touch()
-        
-        print(f"Created directory: {dir_path}")
-        print(f"Created .gitkeep: {gitkeep_path}")
+        if not gitkeep_path.exists():
+            gitkeep_path.write_text("")
+        print(f"Created: {dir_path}")
 
-    print("Artifact directory structure created successfully.")
-
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
     main()

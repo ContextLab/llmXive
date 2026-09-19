@@ -1,7 +1,7 @@
 """
-Feature Engineering Pipeline (T019).
-Calculates interaction features and ensures temperature is present.
-Implements chunked loading for large files (T044).
+T024: Interaction feature engineering.
+Calculates cold_work * Mn_content, etc., and saves engineered_features.csv.
+Implements T050: Chunked data loading for large files (>5MB).
 """
 import os
 import sys
@@ -10,121 +10,95 @@ from typing import Dict, Any, List, Tuple
 import pandas as pd
 import numpy as np
 
-# Ensure project root is in path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+from config import get_project_root, get_max_rows
 
-from config import get_project_root
+def load_data_chunked(input_path: str, chunksize: int = 1000) -> pd.DataFrame:
+    """
+    Load data, optionally in chunks if file size > 5MB to reduce memory peak.
+    T050 Implementation:
+    1. Check file size.
+    2. If > 5MB, read in chunks and concatenate.
+    3. If <= 5MB, read directly.
+    """
+    file_path = Path(input_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Input file {input_path} not found.")
+    
+    file_size_bytes = file_path.stat().st_size
+    file_size_mb = file_size_bytes / (1024 * 1024)
+    
+    if file_size_mb > 5.0:
+        print(f"File size ({file_size_mb:.2f} MB) > 5MB. Loading in chunks of {chunksize}...")
+        chunks = []
+        for chunk in pd.read_csv(input_path, chunksize=chunksize):
+            chunks.append(chunk)
+        df = pd.concat(chunks, ignore_index=True)
+        print(f"Loaded {len(df)} rows in chunks.")
+    else:
+        print(f"File size ({file_size_mb:.2f} MB) <= 5MB. Loading directly.")
+        df = pd.read_csv(input_path)
+    
+    return df
 
 def calculate_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate interaction features: cold_work * Mn, Mg, Si, Cu.
-    Do NOT include cold_work * Temperature.
+    Does NOT include cold_work * Temperature.
     """
     df = df.copy()
     
-    interaction_features = []
+    # Interaction terms
+    df['cold_work_Mn_content'] = df['cold_work_pct'] * df['Mn_wt']
+    df['cold_work_Mg_content'] = df['cold_work_pct'] * df['Mg_wt']
+    df['cold_work_Si_content'] = df['cold_work_pct'] * df['Si_wt']
+    df['cold_work_Cu_content'] = df['cold_work_pct'] * df['Cu_wt']
     
-    if 'cold_work_pct' in df.columns:
-        if 'Mn_wt' in df.columns:
-            col_name = "cold_work_Mn_interaction"
-            df[col_name] = df['cold_work_pct'] * df['Mn_wt']
-            interaction_features.append(col_name)
-        
-        if 'Mg_wt' in df.columns:
-            col_name = "cold_work_Mg_interaction"
-            df[col_name] = df['cold_work_pct'] * df['Mg_wt']
-            interaction_features.append(col_name)
-        
-        if 'Si_wt' in df.columns:
-            col_name = "cold_work_Si_interaction"
-            df[col_name] = df['cold_work_pct'] * df['Si_wt']
-            interaction_features.append(col_name)
-        
-        if 'Cu_wt' in df.columns:
-            col_name = "cold_work_Cu_interaction"
-            df[col_name] = df['cold_work_pct'] * df['Cu_wt']
-            interaction_features.append(col_name)
-    else:
-        print("Warning: 'cold_work_pct' not found. Skipping interaction features.")
-
-    print(f"Added interaction features: {interaction_features}")
     return df
 
 def ensure_temperature_feature(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Ensure annealing_temp_K is present as a direct feature (T019).
-    """
+    """Ensure annealing_temp_K is present as a standalone feature."""
     if 'annealing_temp_K' not in df.columns:
-        raise ValueError("annealing_temp_K is missing from the dataset. It must be present as a direct feature.")
-    
-    df['annealing_temp_K'] = pd.to_numeric(df['annealing_temp_K'], errors='coerce')
+        raise ValueError("Missing 'annealing_temp_K' column. Required as standalone feature.")
     return df
 
-def validate_dataset_size(df: pd.DataFrame):
-    """Check dataset size (T019 constraint)."""
-    if len(df) > 10000:
-        raise ValueError(f"Dataset size ({len(df)}) exceeds cap of 10000 rows.")
-
-def load_data_chunked(input_path: Path) -> pd.DataFrame:
-    """
-    Load data using chunked reading if file size > 5MB (T044).
-    """
-    file_size_bytes = input_path.stat().st_size
-    file_size_mb = file_size_bytes / (1024 * 1024)
-    
-    print(f"Input file size: {file_size_mb:.2f} MB")
-    
-    if file_size_mb > 5.0:
-        print("File size > 5MB. Using chunked loading (chunksize=1000).")
-        chunks = []
-        for chunk in pd.read_csv(input_path, chunksize=1000):
-            chunks.append(chunk)
-        df = pd.concat(chunks, ignore_index=True)
-    else:
-        print("File size <= 5MB. Loading directly.")
-        df = pd.read_csv(input_path)
-        
+def validate_dataset_size(df: pd.DataFrame) -> pd.DataFrame:
+    """Enforce max rows cap."""
+    max_rows = get_max_rows()
+    if len(df) > max_rows:
+        print(f"Warning: Dataset size ({len(df)}) exceeds cap ({max_rows}). Truncating.")
+        df = df.iloc[:max_rows].reset_index(drop=True)
     return df
 
 def run_engineering_pipeline():
-    """
-    Orchestrate engineering pipeline (T019).
-    Implements chunked loading (T044).
-    """
+    """Main orchestration for T024."""
     project_root = get_project_root()
     input_path = project_root / "data" / "processed" / "validated.csv"
     output_path = project_root / "data" / "processed" / "engineered_features.csv"
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input data not found: {input_path}. Run T013-T018 first.")
-
-    # Load with chunking logic (T044)
-    df = load_data_chunked(input_path)
-    print(f"Loaded {len(df)} rows for engineering.")
-
-    # Validate Size
-    validate_dataset_size(df)
-
-    # Ensure Temperature
+    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file {input_path} not found. Run T022 first.")
+    
+    print("Starting engineering pipeline...")
+    
+    # Load with T050 chunked logic
+    df = load_data_chunked(str(input_path))
+    
+    # Validate size
+    df = validate_dataset_size(df)
+    
+    # Ensure temperature
     df = ensure_temperature_feature(df)
-
-    # Calculate Interactions
+    
+    # Calculate interactions
     df = calculate_interaction_features(df)
-
+    
     # Save
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    print(f"Saved engineered features to {output_path}")
-
-    return df
+    print(f"Engineered features saved to {output_path}")
 
 def main():
-    try:
-        run_engineering_pipeline()
-    except Exception as e:
-        print(f"Error in engineering pipeline: {e}", file=sys.stderr)
-        sys.exit(1)
+    run_engineering_pipeline()
 
 if __name__ == "__main__":
     main()
