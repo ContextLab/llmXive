@@ -1,7 +1,7 @@
 """
 Base configuration module for the Ambient Temperature Influence on Moral Decision Speed project.
 
-Defines project paths, random seeds, and default thresholds used across the pipeline.
+Defines project paths, random seeds, and configurable thresholds used across the pipeline.
 """
 
 import os
@@ -34,7 +34,7 @@ DATA_QUALITY_LOG_PATH = PATH_LOGS / "data_quality_log.json"
 INGESTION_SUMMARY_LOG_PATH = PATH_LOGS / "ingestion_summary.log"
 MORAL_MACHINE_RAW_PATH = PATH_RAW_DATA / "moral_machine.csv.gz"
 ERA5_FULL_PATH = PATH_RAW_DATA / "era5_full.h5"
-ERA5_SAMPLE_PATH = PATH_RAW_DATA / "era_sample.h5"
+ERA5_SAMPLE_PATH = PATH_RAW_DATA / "era5_sample.h5"
 BOUNDING_BOX_PATH = PATH_EXTERNAL_DATA / "bounding_box.json"
 MERGED_DATASET_PATH = PATH_PROCESSED_DATA / "merged_dataset.parquet"
 
@@ -45,7 +45,7 @@ RANDOM_SEED = 42
 # --- Thresholds & Constants ---
 # Maximum distance (km) allowed for matching Moral Machine records to ERA5 grid points
 # Default: 100km as per FR-009
-MAX_MATCH_DISTANCE_KM = 100.0
+DISTANCE_THRESHOLD_KM = 100.0
 
 # Sensitivity Analysis Distance Thresholds (Configurable)
 # Used in T035b for distance sensitivity analysis
@@ -53,21 +53,26 @@ DISTANCE_THRESHOLD_SHORT_KM = 25.0
 DISTANCE_THRESHOLD_DEFAULT_KM = 100.0
 DISTANCE_THRESHOLD_LONG_KM = 150.0
 
+# Temperature thresholds (physically plausible range)
+TEMPERATURE_MIN = -50.0
+TEMPERATURE_MAX = 60.0
+
+# Response time filtering bounds (FR-002, FR-010)
+RESPONSE_TIME_MIN_MS = 100
+RESPONSE_TIME_MAX_MS = 10000
+
 # Temporal interpolation constraints (FR-002, Edge Case: Missing Temp)
 # Maximum gap in hours for which linear interpolation is permitted
 MAX_TEMPORAL_GAP_HOURS = 2.0
 
-# Response time filtering bounds (FR-002, FR-010)
-MIN_RESPONSE_TIME_MS = 100
-MAX_RESPONSE_TIME_MS = 10000
+# Anderson-Darling Test Configuration (T013a)
+# Sample fraction of residuals to use for the Anderson-Darling normality test
+# 0.1 means 10% of the total residuals will be used to reduce computational load
+# while maintaining statistical power for large datasets.
+AD_TEST_FRACTION = 0.1
 
-# Temperature thresholds (to be populated by T010b, defaults provided for safety)
-# T010b will overwrite these based on 1st/99th percentile of real data
-TEMPERATURE_COLD_THRESHOLD = -10.0  # Placeholder, will be updated
-TEMPERATURE_HOT_THRESHOLD = 50.0    # Placeholder, will be updated
-
-# Anderson-Darling Sample Fraction (T013a)
-ANDERSON_DARLING_SAMPLE_FRACTION = 0.1
+# Random seed for sampling residuals in the Anderson-Darling test to ensure reproducibility
+AD_TEST_SEED = 42
 
 # --- Environment Overrides ---
 # Allow overriding paths via environment variables for testing/CI

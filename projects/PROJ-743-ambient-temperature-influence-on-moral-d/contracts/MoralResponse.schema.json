@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/MoralResponse.schema.json",
+  "title": "MoralResponse",
+  "description": "Raw data entity representing a single moral dilemma response from the Moral Machine dataset.",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "description": "Unique identifier for the participant."
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude coordinate of the response location.",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude coordinate of the response location.",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 formatted timestamp of the response."
+    },
+    "response_time": {
+      "type": "number",
+      "description": "Response time in milliseconds.",
+      "minimum": 0
+    },
+    "country": {
+      "type": "string",
+      "description": "Country code or name associated with the response."
+    },
+    "dilemma_id": {
+      "type": "string",
+      "description": "Unique identifier for the specific dilemma scenario."
+    }
+  },
+  "required": [
+    "participant_id",
+    "latitude",
+    "longitude",
+    "timestamp",
+    "response_time",
+    "country",
+    "dilemma_id"
+  ],
+  "additionalProperties": false
+}

@@ -1,7 +1,3 @@
-"""
-Task T002e: Compute SHA-256 checksum of data/raw/era5_full.parquet and record it
-in state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml.
-"""
 import os
 import sys
 import hashlib
@@ -9,100 +5,85 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure parent directory is in path for imports if run directly
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
-from config import get_path_env_override
-from setup_logging import setup_logging, get_data_quality_logger
+STATE_FILE_PATH = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
+ERA5_FULL_FILE_PATH = Path("data/raw/era5_full.parquet")
 
-# Configuration
-STATE_FILE_REL = "state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
-DATA_FILE_REL = "data/raw/era5_full.parquet"
-ARTIFACT_KEY = "era5_full"
-ARTIFACT_HASH_KEY = "artifact_hashes"
-
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def ensure_state_file_exists(state_file: Path) -> None:
-    """Ensure the state YAML file exists. If not, create an empty structure."""
-    if not state_file.exists():
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-        # Create minimal valid YAML structure
-        with open(state_file, "w", encoding="utf-8") as f:
+def ensure_state_file_exists():
+    """Ensure the state YAML file exists, creating it with basic structure if not."""
+    if not STATE_FILE_PATH.exists():
+        logging.info(f"State file {STATE_FILE_PATH} not found. Creating basic structure.")
+        STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(STATE_FILE_PATH, 'w') as f:
             f.write("project_id: PROJ-743-ambient-temperature-influence-on-moral-d\n")
-            f.write("artifact_hashes: {}\n")
+            f.write("artifact_hashes:\n")
+            f.write("  era5_full: null\n")
+            f.write("  era5_sample: null\n")
             f.write("updated_at: null\n")
 
-def update_state_file(state_file: Path, hash_value: str, artifact_key: str) -> None:
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+    
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+def update_state_file(checksum: str):
     """Update the state YAML file with the new checksum and timestamp."""
     import yaml
 
-    # Load existing state
-    with open(state_file, "r", encoding="utf-8") as f:
-        state = yaml.safe_load(f) or {}
+    if not STATE_FILE_PATH.exists():
+        ensure_state_file_exists()
 
-    # Ensure nested keys exist
-    if ARTIFACT_HASH_KEY not in state:
-        state[ARTIFACT_HASH_KEY] = {}
+    with open(STATE_FILE_PATH, 'r') as f:
+        data = yaml.safe_load(f)
 
-    # Update hash
-    state[ARTIFACT_HASH_KEY][artifact_key] = hash_value
-
+    # Ensure structure exists
+    if 'artifact_hashes' not in data:
+        data['artifact_hashes'] = {}
+    
+    # Update checksum
+    data['artifact_hashes']['era5_full'] = checksum
+    
     # Update timestamp
-    state["updated_at"] = datetime.now(timezone.utc).isoformat()
+    data['updated_at'] = datetime.now(timezone.utc).isoformat()
 
-    # Write back
-    with open(state_file, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+    with open(STATE_FILE_PATH, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    
+    logging.info(f"Updated state file with checksum: {checksum}")
 
 def main():
-    """Main entry point for T002e."""
-    setup_logging()
-    logger = get_data_quality_logger()
+    """Main execution for T002e."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
 
-    # Resolve paths relative to project root
-    state_file = project_root / STATE_FILE_REL
-    data_file = project_root / DATA_FILE_REL
-
-    logger.info(f"Starting checksum computation for {DATA_FILE_REL}")
-
-    # Verify data file exists
-    if not data_file.exists():
-        logger.error(f"Data file not found: {data_file}")
-        logger.error("Task T002e FAILED: Input file missing. Dependencies (T002d) may not have completed.")
+    logger.info(f"Verifying existence of {ERA5_FULL_FILE_PATH}")
+    
+    if not ERA5_FULL_FILE_PATH.exists():
+        logger.error(f"Critical Error: {ERA5_FULL_FILE_PATH} does not exist. "
+                     "Task T002d must complete successfully before T002e can run.")
+        # Fail loudly as per constraints
         sys.exit(1)
 
-    # Verify file size > 0
-    if data_file.stat().st_size == 0:
-        logger.error(f"Data file is empty: {data_file}")
-        logger.error("Task T002e FAILED: Input file is empty.")
-        sys.exit(1)
+    logger.info(f"Computing SHA-256 checksum for {ERA5_FULL_FILE_PATH}")
+    checksum = compute_sha256(ERA5_FULL_FILE_PATH)
+    logger.info(f"Checksum computed: {checksum}")
 
-    try:
-        # Compute checksum
-        checksum = compute_sha256(data_file)
-        logger.info(f"Computed SHA-256 checksum: {checksum}")
+    logger.info(f"Updating {STATE_FILE_PATH}")
+    update_state_file(checksum)
 
-        # Ensure state file exists
-        ensure_state_file_exists(state_file)
-
-        # Update state file
-        update_state_file(state_file, checksum, ARTIFACT_KEY)
-        logger.info(f"Updated state file: {state_file}")
-        logger.info(f"Recorded checksum for '{ARTIFACT_KEY}' under '{ARTIFACT_HASH_KEY}'")
-
-        logger.info("Task T002e COMPLETED successfully.")
-
-    except Exception as e:
-        logger.error(f"Task T002e FAILED with exception: {e}", exc_info=True)
-        sys.exit(1)
+    logger.info("T002e Checksum Full ERA5 File task completed.")
 
 if __name__ == "__main__":
     main()

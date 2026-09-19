@@ -1,11 +1,12 @@
 """
-Task T004: Validate ERA5 Sample Integrity.
+T004: Validate ERA5 Sample Integrity.
 
-Programmatically confirms that `era5_sample.h5` meets hourly temporal resolution
-and grid size standards (fixed resolution). Logs Pass/Fail to
-`results/logs/data_validation_log.txt`.
+Programmatically confirms that `data/raw/era5_sample.h5` meets:
+1. Hourly temporal resolution.
+2. Fixed grid size standards.
+3. Physically plausible temperature range.
 
-Dependencies: T001b (fetch_era5_sample.py must have run successfully to produce the file).
+Logs Pass/Fail to `results/logs/data_validation_log.txt`.
 """
 import os
 import sys
@@ -14,215 +15,200 @@ from pathlib import Path
 import h5py
 import numpy as np
 
-# Ensure we can import from the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Ensure we can import from the code directory if run from root
+CODE_DIR = Path(__file__).resolve().parent
+if str(CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(CODE_DIR))
 
-from setup_logging import setup_logging, get_data_quality_logger
-from config import get_path_env_override
-
-# Constants for validation
-EXPECTED_RESOLUTION_HOURS = 1.0
-MIN_GRID_SIZE = 1  # At least 1x1 grid is valid, though we expect more
-VALID_TEMP_MIN = -90.0
-VALID_TEMP_MAX = 60.0
+LOG_FILE = Path("results/logs/data_validation_log.txt")
+DATA_FILE = Path("data/raw/era5_sample.h5")
 
 def ensure_directories():
-    """Ensure the results/logs directory exists."""
-    log_dir = PROJECT_ROOT / "results" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 def setup_custom_logger(name):
-    """Setup a custom logger for this task."""
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        handler = logging.FileHandler(LOG_FILE)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
 
-def validate_temporal_resolution(h5_path, logger):
+def validate_temporal_resolution(logger, dataset):
     """
-    Validates that the time dimension in the HDF5 file corresponds to hourly resolution.
-    Returns (is_valid, details).
+    Checks that the time dimension corresponds to hourly resolution.
+    Assumes the dataset has a 'time' or 'timestamp' dimension/variable.
     """
     try:
-        with h5py.File(h5_path, 'r') as f:
-            # Look for a time or date variable
-            time_key = None
-            for key in f.keys():
-                if 'time' in key.lower() or 'date' in key.lower():
-                    time_key = key
-                    break
+        if 'time' in dataset:
+            time_var = dataset['time']
+            # Get time values
+            time_vals = time_var[:]
+            if len(time_vals) < 2:
+                logger.error("Temporal validation failed: Less than 2 time points found.")
+                return False
+
+            # Calculate differences between consecutive time points
+            # ERA5 usually stores time in hours since epoch or similar.
+            # We check the difference in the raw unit first.
+            diffs = np.diff(time_vals)
             
-            if not time_key:
-                logger.warning(f"Could not find time variable in {h5_path}. Keys: {list(f.keys())}")
-                return False, "No time variable found"
-
-            time_data = f[time_key][:]
-            if len(time_data) < 2:
-                logger.warning(f"Insufficient time points ({len(time_data)}) to calculate resolution.")
-                return False, "Insufficient time points"
-
-            # Calculate differences (assuming time is in hours or convertible units)
-            # ERA5 data often stores time in hours since a reference date.
-            # We check the delta between consecutive points.
-            diffs = np.diff(time_data)
+            # If the unit is hours (common for ERA5), diffs should be 1.0
+            # If the unit is seconds, diffs should be 3600.0
+            # We normalize by the median difference to check consistency
             median_diff = np.median(diffs)
+            if median_diff == 0:
+                logger.error("Temporal validation failed: Zero time difference detected.")
+                return False
             
-            # If the unit is hours, median_diff should be ~1.0
-            # If the unit is seconds, median_diff should be ~3600.0
-            # We assume the dataset T001b downloaded uses standard ERA5 units (hours since reference)
-            # based on the task description "hourly resolution".
+            # Check if all diffs are effectively equal to the median (within 1%)
+            # This confirms fixed hourly steps regardless of the specific unit
+            tolerance = 0.01 * median_diff
+            is_consistent = np.allclose(diffs, median_diff, atol=tolerance)
             
-            is_hourly = abs(median_diff - 1.0) < 0.01 or abs(median_diff - 3600.0) < 10.0
-            
-            if is_hourly:
-                unit = "hours" if median_diff < 10 else "seconds"
-                logger.info(f"Temporal resolution validated: {median_diff} {unit} (median diff).")
-                return True, f"Resolution: {median_diff} {unit}"
-            else:
-                logger.error(f"Temporal resolution mismatch. Expected ~1 hour, got {median_diff}.")
-                return False, f"Resolution mismatch: {median_diff}"
+            if not is_consistent:
+                logger.error(f"Temporal validation failed: Time steps are inconsistent. Diffs: {diffs[:5]}...")
+                return False
 
+            # Check if the step size corresponds to an hour (either 1.0 or 3600.0)
+            # ERA5 CDS API typically returns time in hours since 1900-01-01 or similar.
+            # We check if the median diff is close to 1 (hour) or 3600 (seconds)
+            is_hourly = (np.isclose(median_diff, 1.0, atol=0.1) or np.isclose(median_diff, 3600.0, atol=36.0))
+            
+            if not is_hourly:
+                logger.warning(f"Temporal validation warning: Time step is {median_diff}, expected 1.0 (hours) or 3600.0 (seconds).")
+                # We might still pass if the data is consistent, but log a warning
+                # However, strict requirement says "hourly temporal resolution".
+                # If it's not 1 or 3600, we fail.
+                logger.error("Temporal validation failed: Time step does not correspond to 1 hour.")
+                return False
+
+            logger.info(f"Temporal validation passed: {len(time_vals)} points, step size {median_diff}.")
+            return True
+        else:
+            logger.error("Temporal validation failed: 'time' variable not found in HDF5 dataset.")
+            return False
     except Exception as e:
-        logger.error(f"Error validating temporal resolution: {e}")
-        return False, str(e)
+        logger.error(f"Temporal validation failed with exception: {e}")
+        return False
 
-def validate_grid_size(h5_path, logger):
+def validate_grid_size(logger, dataset):
     """
-    Validates that the grid dimensions are present and non-zero.
-    Returns (is_valid, details).
+    Checks that the spatial dimensions (lat/lon) are consistent and fixed.
     """
     try:
-        with h5py.File(h5_path, 'r') as f:
-            # Look for spatial dimensions (lat, lon, latitude, longitude, y, x)
-            spatial_dims = []
-            for key in f.keys():
-                if any(term in key.lower() for term in ['lat', 'lon', 'y', 'x']):
-                    spatial_dims.append(key)
-            
-            if not spatial_dims:
-                # Try to find dimensions in the data variable itself
-                data_var = None
-                for key in f.keys():
-                    if isinstance(f[key], h5py.Dataset) and f[key].shape:
-                        data_var = f[key]
-                        break
-                if data_var and len(data_var.shape) >= 2:
-                    logger.info(f"Found data variable with shape {data_var.shape}, assuming grid exists.")
-                    return True, f"Grid inferred from data shape: {data_var.shape}"
-                
-                logger.error(f"No spatial dimensions found in {h5_path}. Keys: {list(f.keys())}")
-                return False, "No spatial dimensions found"
+        # ERA5 usually has 'latitude' and 'longitude' or 'lat' and 'lon'
+        lat_var = None
+        lon_var = None
 
-            # Check sizes
-            sizes = {}
-            for dim in spatial_dims:
-                if isinstance(f[dim], h5py.Dataset):
-                    sizes[dim] = f[dim].shape[0]
-                else:
-                    sizes[dim] = len(f[dim])
-            
-            valid = all(s >= MIN_GRID_SIZE for s in sizes.values())
-            if valid:
-                logger.info(f"Grid size validated: {sizes}")
-                return True, f"Grid size: {sizes}"
-            else:
-                logger.error(f"Grid size too small: {sizes}")
-                return False, f"Grid size too small: {sizes}"
+        if 'latitude' in dataset:
+            lat_var = dataset['latitude']
+        elif 'lat' in dataset:
+            lat_var = dataset['lat']
+        
+        if 'longitude' in dataset:
+            lon_var = dataset['longitude']
+        elif 'lon' in dataset:
+            lon_var = dataset['lon']
+
+        if lat_var is None or lon_var is None:
+            logger.error("Grid validation failed: Missing latitude or longitude variables.")
+            return False
+
+        lat_vals = lat_var[:]
+        lon_vals = lon_var[:]
+
+        # Check for fixed grid: no NaNs, consistent shape
+        if np.any(np.isnan(lat_vals)) or np.any(np.isnan(lon_vals)):
+            logger.error("Grid validation failed: NaN values found in coordinate arrays.")
+            return False
+
+        # Check resolution consistency (e.g., 0.25 degrees)
+        # We check the difference between consecutive sorted values
+        lat_sorted = np.sort(lat_vals)
+        lon_sorted = np.sort(lon_vals)
+
+        lat_diffs = np.diff(lat_sorted)
+        lon_diffs = np.diff(lon_sorted)
+
+        # Check if diffs are constant (fixed grid)
+        if not np.allclose(lat_diffs, lat_diffs[0], atol=1e-4) or not np.allclose(lon_diffs, lon_diffs[0], atol=1e-4):
+            logger.error("Grid validation failed: Spatial grid is not uniform.")
+            return False
+
+        # Log the resolution
+        logger.info(f"Grid validation passed: Lat resolution {lat_diffs[0]:.4f}, Lon resolution {lon_diffs[0]:.4f}.")
+        return True
 
     except Exception as e:
-        logger.error(f"Error validating grid size: {e}")
-        return False, str(e)
+        logger.error(f"Grid validation failed with exception: {e}")
+        return False
 
-def validate_temperature_range(h5_path, logger):
+def validate_temperature_range(logger, dataset):
     """
-    Validates that temperature values are within physically plausible ranges.
-    Returns (is_valid, details).
+    Validates that temperature values are within physically plausible range (-90C to +60C).
     """
     try:
-        with h5py.File(h5_path, 'r') as f:
-            data_var = None
-            for key in f.keys():
-                if isinstance(f[key], h5py.Dataset):
-                    # Prefer a variable that looks like temperature
-                    if 'temp' in key.lower() or '2t' in key.lower():
-                        data_var = f[key]
-                        break
-            
-            if not data_var:
-                # Fallback to any dataset
-                for key in f.keys():
-                    if isinstance(f[key], h5py.Dataset):
-                        data_var = f[key]
-                        break
+        temp_var = None
+        # Common names
+        for key in ['temperature', 't2m', '2m_temperature', 'temp']:
+            if key in dataset:
+                temp_var = dataset[key]
+                break
+        
+        if temp_var is None:
+            logger.error("Temperature validation failed: Temperature variable not found.")
+            return False
 
-            if not data_var:
-                logger.warning("No data variable found to validate temperature range.")
-                return True, "No data variable to check"
+        temp_vals = temp_var[:]
+        
+        # Flatten to check all values
+        temp_flat = temp_vals.flatten()
+        
+        min_val = np.nanmin(temp_flat)
+        max_val = np.nanmax(temp_flat)
 
-            min_val = np.min(data_var[:])
-            max_val = np.max(data_var[:])
+        # Plausible range for Earth surface air temperature
+        if min_val < -90.0 or max_val > 60.0:
+            logger.error(f"Temperature validation failed: Values out of plausible range. Min: {min_val}, Max: {max_val}")
+            return False
 
-            logger.info(f"Temperature range: {min_val:.2f} to {max_val:.2f}")
-
-            if min_val < VALID_TEMP_MIN or max_val > VALID_TEMP_MAX:
-                logger.error(f"Temperature out of physical range [{VALID_TEMP_MIN}, {VALID_TEMP_MAX}].")
-                return False, f"Out of range: [{min_val}, {max_val}]"
-            
-            return True, f"Range OK: [{min_val:.2f}, {max_val:.2f}]"
+        logger.info(f"Temperature validation passed: Range [{min_val:.2f}, {max_val:.2f}] °C.")
+        return True
 
     except Exception as e:
-        logger.error(f"Error validating temperature range: {e}")
-        return False, str(e)
+        logger.error(f"Temperature validation failed with exception: {e}")
+        return False
 
 def main():
-    logger = setup_custom_logger("validate_era5_sample_integrity")
     ensure_directories()
-    data_quality_logger = get_data_quality_logger()
+    logger = setup_custom_logger("T004_Validation")
+    
+    if not DATA_FILE.exists():
+        logger.error(f"Data file not found: {DATA_FILE}")
+        logger.info("Status: FAIL - File missing")
+        return 1
 
-    sample_path = PROJECT_ROOT / "data" / "raw" / "era5_sample.h5"
-    
-    if not sample_path.exists():
-        error_msg = f"File not found: {sample_path}"
-        logger.error(error_msg)
-        if data_quality_logger:
-            data_quality_logger.error(f"T004 Validation Failed: {error_msg}")
-        print(f"T004 FAILED: {error_msg}")
-        sys.exit(1)
+    try:
+        with h5py.File(DATA_FILE, 'r') as hf:
+            logger.info(f"Validating file: {DATA_FILE}")
+            
+            res_ok = validate_temporal_resolution(logger, hf)
+            grid_ok = validate_grid_size(logger, hf)
+            temp_ok = validate_temperature_range(logger, hf)
 
-    logger.info(f"Validating integrity of {sample_path}...")
-    
-    results = {
-        "temporal_resolution": validate_temporal_resolution(sample_path, logger),
-        "grid_size": validate_grid_size(sample_path, logger),
-        "temperature_range": validate_temperature_range(sample_path, logger)
-    }
-
-    all_passed = all(r[0] for r in results.values())
-    status = "PASS" if all_passed else "FAIL"
-    
-    log_entry = f"T004: ERA5 Sample Integrity Validation - {status}\n"
-    for check, (passed, detail) in results.items():
-        status_str = "OK" if passed else "FAILED"
-        log_entry += f"  - {check}: {status_str} ({detail})\n"
-    
-    logger.info(log_entry)
-    
-    # Log to the main data validation log
-    if data_quality_logger:
-        data_quality_logger.info(log_entry)
-    
-    # Write to the specific log file as requested
-    log_file_path = PROJECT_ROOT / "results" / "logs" / "data_validation_log.txt"
-    with open(log_file_path, 'a') as f:
-        f.write(f"\n[{datetime.now().isoformat()}] {log_entry}")
-
-    print(f"T004 Result: {status}")
-    sys.exit(0 if all_passed else 1)
+            if res_ok and grid_ok and temp_ok:
+                logger.info("Status: PASS - All validations successful.")
+                return 0
+            else:
+                logger.info("Status: FAIL - One or more validations failed.")
+                return 1
+    except Exception as e:
+        logger.error(f"Critical error during validation: {e}")
+        logger.info("Status: FAIL - Exception")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

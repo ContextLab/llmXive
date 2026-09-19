@@ -4305,3 +4305,387 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T09:01:54Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset available at Kaggle ID mitmoral/moral-machine
+  claim_id: c_2d71fbc4
+  context: 'Task T000 instructs to fetch the canonical Moral Machine dataset from
+    Kaggle (ID: mitmoral/moral-machine) or the direct GitHub mirror.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_available_at_Kaggle_ID_mitmoral/moral-
+  kind: entity_fact
+  raw_text: 'The Moral Machine dataset is available from Kaggle (ID: mitmoral/moral-machine)
+    or a direct GitHub mirror.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:39:55Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 reanalysis data available for years 2014-2018
+  claim_id: c_916ea026
+  context: Task T001b specifies querying metadata for variable '2m_temperature' for
+    years ['2014','2015','2016','2017','2018'].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 reanalysis dataset covers the years 2014, 2015, 2016, 2017, and
+    2018.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:40:37Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 reanalysis global grid coverage latitude -90 to 90 longitude -180
+    to 180
+  claim_id: c_a88267e4
+  context: 'Task T001b verifies that the CDS API reports global grid coverage, e.g.,
+    area: [-90, -180, 90, 180] is valid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 reanalysis dataset has global grid coverage with an area extent
+    of latitude -90 to 90 and longitude -180 to 180.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:41:15Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 reanalysis grid resolution 0.25 by 0.25 degrees
+  claim_id: c_071b2ade
+  context: 'Task T001b and T002c specify fetching data with grid: ''0.25/0.25'' or
+    grid=''0.25/0.25''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 reanalysis dataset is available at a grid resolution of 0.25
+    degrees by 0.25 degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:42:14Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 reanalysis hourly temporal resolution
+  claim_id: c_9922ddf8
+  context: Task T001b validates that the fetched file contains hourly resolution.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: hourly
+    filled: true
+  kind: entity_fact
+  raw_text: The ERA5 reanalysis dataset provides hourly temporal resolution.
+  resolved_value: hourly
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T23:42:27Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank API indicators SP.POP.TOTL and SP.POP.TOTL.FE.ZS
+  claim_id: c_846c7ff6
+  context: Task T028a specifies retrieving age and gender proxies from the World Bank
+    API using specific indicators SP.POP.TOTL and SP.POP.TOTL.FE.ZS.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_API_indicators_SP.POP.TOTL_and_SP.POP.TOTL.FE.ZS
+  kind: entity_fact
+  raw_text: The World Bank API provides indicators for total population (SP.POP.TOTL)
+    and female population percentage (SP.POP.TOTL.FE.ZS).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:43:12Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset source is Kaggle ID mitmoral/moral-machine
+  claim_id: c_99101de1
+  context: 'Phase 0: Data Availability & Validation - T000 Download Moral Machine
+    Dataset'
+  evidence:
+    entailment_evidence: Moral Machine dataset source is Kaggle ID mitmoral/moral-mac
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_source_is_Kaggle_ID_mitmoral/moral-mac
+  kind: entity_fact
+  raw_text: 'Fetch the canonical Moral Machine dataset from Kaggle (ID: mitmoral/moral-machine)
+    or the direct GitHub mirror.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T23:44:32Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Copernicus CDS API reports global grid coverage for 2m_temperature reanalysis
+    2014-2018
+  claim_id: c_7f16bbb8
+  context: 'Phase 0: Data Availability & Validation - T001b Validate ERA5 Sample &
+    Global Coverage'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify that the CDS API reports global grid coverage (e.g., area: [-90,
+    -180, 90, 180] is valid) for variable 2m_temperature, product_type reanalysis,
+    years 2014-2018.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:44:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample subset fetched for London 51.5074 -0.1278 Jan 1-7 2016 at
+    0.25 degree grid
+  claim_id: c_4e900339
+  context: 'Phase 0: Data Availability & Validation - T001b Validate ERA5 Sample &
+    Global Coverage'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Fetch a specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074,\
+    \ -0.1278) using the CDS API with product_type reanalysis, variable 2m_temperature,\
+    \ and grid 0.25/0.25."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T23:44:53Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 dataset fetched with grid 0.25/0.25 and product_type reanalysis
+  claim_id: c_113efdd6
+  context: 'Phase 0: Data Availability & Validation - T002c Fetch ERA5 Full Dataset
+    (Streamed)'
+  evidence:
+    asserted: '0.25'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Requests tiles of moderate spatial extent using the CDS API with explicit
+    parameters: variable m_temperature, product_type reanalysis, grid 0.25/0.25.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T23:44:54Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Demographic proxies retrieved from World Bank API using indicators SP.POP.TOTL
+    and SP.POP.TOTL.FE.ZS
+  claim_id: c_e0c5da7e
+  context: 'Phase 3: User Story 1 - T028a Check and Fetch Demographic Covariates'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Demographic_proxies_retrieved_from_World_Bank_API_using_indi
+  kind: entity_fact
+  raw_text: Retrieve age and gender proxies from the World Bank API using specific
+    indicators SP.POP.TOTL for total population and SP.POP.TOTL.FE.ZS for female population
+    percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:45:21Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test uses seed 42 and fraction 0.1 for residual sampling
+  claim_id: c_91b90385
+  context: 'Phase 3: User Story 2 - T028j Anderson-Darling Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample residuals using AD_TEST_SEED=42 and AD_TEST_FRACTION=0.1 for the
+    Anderson-Darling Test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:45:43Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset on Kaggle ID mitmoral/moral-machine
+  claim_id: c_de73bc33
+  context: 'Fetch the canonical Moral Machine dataset from Kaggle (ID: `mitmoral/moral-machine`)
+    or the direct GitHub mirror.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_on_Kaggle_ID_mitmoral/moral-machine
+  kind: entity_fact
+  raw_text: The Moral Machine dataset is available from Kaggle with ID 'mitmoral/moral-machine'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:48:16Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 2m temperature reanalysis global coverage 2014-2018 via CDS API
+  claim_id: c_5d9492a5
+  context: 'Use `cdsapi` to query metadata for `variable: ''2m_temperature''`... and
+    verify that the CDS API reports global grid coverage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 reanalysis data for 2m temperature is available via the Copernicus
+    Climate Data Store (CDS) API for the years 2014 to 2018 with global grid coverage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:48:56Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 spatial grid resolution 0.25 degrees
+  claim_id: c_b8ea7d6c
+  context: 'Requests tiles of moderate spatial extent using the CDS API with explicit
+    parameters: ... `grid=''0.25/0.25''`.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: 0.25 degrees
+    filled: true
+  kind: numeric
+  raw_text: The ERA5 dataset is available at a spatial grid resolution of 0.25 degrees.
+  resolved_value: 0.25 degrees
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T23:49:03Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank indicators SP.POP.TOTL and SP.POP.TOTL.FE.ZS
+  claim_id: c_4d2c314e
+  context: Retrieve age and gender proxies from the World Bank API using specific
+    indicators (`SP.POP.TOTL` for total population, `SP.POP.TOTL.FE.ZS` for female
+    population percentage).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicators_SP.POP.TOTL_and_SP.POP.TOTL.FE.ZS
+  kind: entity_fact
+  raw_text: The World Bank API provides population indicators SP.POP.TOTL for total
+    population and SP.POP.TOTL.FE.ZS for female population percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:49:32Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine response time range 100 ms to 10000 ms
+  claim_id: c_80a94a5c
+  context: Filter out records with response times < 100 ms or > 10 000 ms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Moral Machine dataset contains records with response times that can
+    be filtered between 100 ms and 10,000 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T23:49:51Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 hourly temporal resolution
+  claim_id: c_b9d692e2
+  context: Validate that the file contains hourly resolution, a floating-point data
+    type, and temperature values within a physically plausible range.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: hourly
+    filled: true
+  kind: entity_fact
+  raw_text: The ERA5 reanalysis data provides hourly temporal resolution.
+  resolved_value: hourly
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T23:50:05Z'

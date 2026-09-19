@@ -1,32 +1,26 @@
-"""
-Runner script for T002d: Checksum ERA5 Full Dataset.
-
-This script provides a clean entry point to execute the checksum computation
-and state file update for the full ERA5 dataset.
-"""
 import sys
 import logging
 from pathlib import Path
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Add project root to path to ensure imports work regardless of cwd
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-def main():
-    """Main entry point."""
-    logger.info("Starting T002d: Checksum ERA5 Full Dataset")
+from setup_logging import setup_logging, get_data_quality_logger
+from update_state_checksum_era5_full import main
+
+def main_entry():
+    """Entry point for the T002e checksum update script."""
+    logger = setup_logging()
+    logger.info("Starting T002e: Checksum Full ERA5 File update.")
     
     try:
-        # Import and run the main logic
-        from update_state_checksum_era5_full import main as checksum_main
-        exit_code = checksum_main()
-        return exit_code
+        main()
+        logger.info("T002e completed successfully.")
     except Exception as e:
-        logger.error(f"Error during execution: {e}")
-        return 1
+        logger.error(f"T002e failed with error: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main_entry()

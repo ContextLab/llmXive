@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/MergedDataset.schema.json",
+  "title": "MergedDataset",
+  "description": "Derived entity combining Moral Response and Temperature Record data with additional derived features for analysis.",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "description": "Unique identifier for the participant (from MoralResponse)."
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude coordinate (from MoralResponse)."
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude coordinate (from MoralResponse)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the response (from MoralResponse)."
+    },
+    "response_time": {
+      "type": "number",
+      "description": "Response time in milliseconds (from MoralResponse)."
+    },
+    "country": {
+      "type": "string",
+      "description": "Country code or name (from MoralResponse)."
+    },
+    "dilemma_id": {
+      "type": "string",
+      "description": "Dilemma identifier (from MoralResponse)."
+    },
+    "grid_id": {
+      "type": "string",
+      "description": "ERA5 grid cell identifier (from TemperatureRecord)."
+    },
+    "temperature_celsius": {
+      "type": "number",
+      "description": "2-meter air temperature in degrees Celsius (from TemperatureRecord)."
+    },
+    "dilemma_choice": {
+      "type": "string",
+      "description": "Derived categorical variable indicating the choice made (e.g., 'save_many', 'save_few')."
+    },
+    "dilemma_complexity": {
+      "type": "number",
+      "description": "Derived static complexity score based on lives at stake and dilemma type."
+    },
+    "time_of_day": {
+      "type": "string",
+      "description": "Categorized time of day (e.g., 'morning', 'afternoon', 'evening', 'night')."
+    },
+    "match_quality": {
+      "type": "string",
+      "description": "Quality of the geospatial match (e.g., 'high', 'low').",
+      "enum": ["high", "low"]
+    },
+    "distance_km": {
+      "type": "number",
+      "description": "Distance in kilometers between response location and ERA5 grid point."
+    }
+  },
+  "required": [
+    "participant_id",
+    "latitude",
+    "longitude",
+    "timestamp",
+    "response_time",
+    "country",
+    "dilemma_id",
+    "grid_id",
+    "temperature_celsius",
+    "dilemma_choice",
+    "dilemma_complexity",
+    "time_of_day",
+    "match_quality",
+    "distance_km"
+  ],
+  "additionalProperties": false
+}

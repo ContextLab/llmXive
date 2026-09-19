@@ -6,13 +6,6 @@ T001b:
     is incomplete/truncated and there is no evidence that it fetched, saved, and validated
     the data as specified. The missing HDF5 file and lack of concrete validation logs
     must be addressed.
-T006:
-  c: false
-  h: 1c41e35d6933686ed8d2874830424cccaa076ff7a6c1bdba2d6106471e6d1213
-  r: "The required files `data/raw/era5_full.parquet` and `data/raw/moral_machine.csv.gz`\
-    \ are missing, yet the log reports a Pass status, and there is no evidence that\
-    \ the gate raised an exception on failure. The validation gate therefore does\
-    \ not meet the task\u2019s requirements."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,26 +16,34 @@ T007:
     \ or command output proving the structure is created."
 T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, `black` settings) or related scripts are present in the provided evidence,
-    so the requirement to configure ruff/flake8 and black cannot be verified as fulfilled.
-T011:
+  h: 10ca4135870ca7a986b1262c99675074e89a4172ae0a96cf6d119c62029f35ae
+  r: The repository contains a `pyproject.toml` with Black and Ruff configuration,
+    but the required `ruff.toml` file is absent and there is no evidence (e.g., command
+    output) that `ruff check` and `black --check` succeed on the `code/` and `tests/`
+    directories. Both the missing file and lack of verification mean the task is not
+    fully satisfied.
+T009b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or log files were provided showing that a logging infrastructure
-    has been created to write data quality logs and model diagnostics to `results/logs/`.
-    Without such artifacts, we cannot confirm the requirement has been met. The implementer
-    must add the logging setup (e.g., Python logging config, log file creation, and
-    example log entries) and ensure the `results/logs/` directory contains the generated
-    logs.
-T014:
+  r: No `contracts/models.py` file containing Pydantic model classes was provided;
+    the evidence contains only the task description and no code artifact, so the required
+    models are missing.
+T009c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration files, test scripts, or documentation for CPU\u2011\
-    only execution and stratified sampling were provided; the claim lacks any tangible\
-    \ artifact demonstrating that the unit\u2011test framework has been set up as\
-    \ required."
+  r: "I looked for the three JSON\u2011Schema files (`MoralResponse.schema.json`,\
+    \ `TemperatureRecord.schema.json`, `MergedDataset.schema.json`) in the `contracts/`\
+    \ directory and for the source Pydantic models in `contracts/models.py`. No such\
+    \ files or source code were provided, so the required schemas have not been generated.\
+    \ The task therefore remains unfinished."
+T009d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `contracts/models.py` file or `MergedDataset` Pydantic class was presented\
+    \ in the evidence; without the actual code file containing the required fields,\
+    \ the task\u2019s deliverable cannot be confirmed as completed. The implementer\
+    \ must add the `MergedDataset` model with the specified raw and derived columns\
+    \ in the indicated module."
 T017:
   c: false
   h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec

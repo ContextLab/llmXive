@@ -1,365 +1,405 @@
 """
-Ingestion module for Ambient Temperature Influence on Moral Decision Speed.
+Ingestion module for T017: Load, Filter & Count.
 
-This module implements the core data ingestion pipeline:
-1. Load and filter Moral Machine dataset
-2. Geospatial matching with ERA5 temperature data
-3. Temporal interpolation for temperature gaps
-4. Data quality logging and exclusion tracking
+This module implements the core data ingestion pipeline for User Story 1.
+It loads the Moral Machine dataset, applies hard filters for location and
+response time validity, and logs exclusion reasons.
+
+Dependencies:
+- T006: Pre-ingestion validation gate (ensures raw data exists)
+- T010: Configuration (thresholds)
 """
-
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
-
 import pandas as pd
 import numpy as np
-import geopandas as gpd
-from shapely.geometry import Point
 
+# Import configuration
 from config import get_path_env_override
-from loaders import load_chunked_parquet, load_parquet_as_df
-from setup_logging import setup_logging, get_data_quality_logger
 
-# Constants
-DISTANCE_THRESHOLD_KM = 100  # From config.py, but kept here for clarity
-TEMPORAL_GAP_HOURS = 2  # Maximum gap for interpolation
+# Setup logging infrastructure
+def setup_logging_custom(log_file: Optional[str] = None) -> logging.Logger:
+    """Setup custom logger for ingestion tasks."""
+    logger = logging.getLogger('ingestion')
+    logger.setLevel(logging.DEBUG)
+    
+    if not logger.handlers:
+        # Create formatter
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        
+        # File handler
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+        
+        # Console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+    
+    return logger
+
+def ensure_directories(base_path: Path) -> None:
+    """Ensure all required directories exist."""
+    dirs = [
+        base_path / 'data' / 'raw',
+        base_path / 'data' / 'processed',
+        base_path / 'results' / 'logs',
+        base_path / 'results' / 'figures',
+        base_path / 'results' / 'stats',
+        base_path / 'state' / 'projects'
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 def ensure_exclusion_log_exists(log_path: Path) -> None:
-    """Ensure the exclusion log file exists with proper headers."""
-    if not log_path.parent.exists():
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-    
+    """Ensure the exclusion log file exists and is initialized."""
     if not log_path.exists():
-        df = pd.DataFrame(columns=['participant_id', 'reason', 'timestamp'])
-        df.to_csv(log_path, index=False)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        # Initialize with header
+        with open(log_path, 'w') as f:
+            f.write('record_id,exclusion_reason,original_data\n')
 
-def log_excluded_records(df: pd.DataFrame, reason: str, log_path: Path) -> None:
-    """Log excluded records to the exclusion log."""
-    if df.empty:
-        return
-    
-    excluded = df[['participant_id']].copy()
-    excluded['reason'] = reason
-    excluded['timestamp'] = pd.Timestamp.now()
-    
-    existing = pd.read_csv(log_path)
-    updated = pd.concat([existing, excluded], ignore_index=True)
-    updated.to_csv(log_path, index=False)
-
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+def load_moral_machine_data(csv_path: Path) -> pd.DataFrame:
     """
-    Calculate the great-circle distance between two points on Earth.
+    Load the Moral Machine dataset from CSV.
     
     Args:
-        lat1, lon1: Coordinates of point 1 in degrees
-        lat2, lon2: Coordinates of point 2 in degrees
-    
-    Returns:
-        Distance in kilometers
-    """
-    R = 6371  # Earth's radius in km
-    
-    lat1_rad = np.radians(lat1)
-    lat2_rad = np.radians(lat2)
-    delta_lat = np.radians(lat2 - lat1)
-    delta_lon = np.radians(lon2 - lon1)
-    
-    a = np.sin(delta_lat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(delta_lon/2)**2
-    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-    
-    return R * c
-
-def match_geospatial_records(moral_df: pd.DataFrame, 
-                             era5_df: pd.DataFrame,
-                             distance_threshold_km: float = DISTANCE_THRESHOLD_KM) -> Tuple[pd.DataFrame, int]:
-    """
-    Match each Moral Machine record to the nearest ERA5 grid point.
-    
-    Args:
-        moral_df: Filtered Moral Machine dataset
-        era5_df: ERA5 temperature dataset with grid_id, latitude, longitude, timestamp
-        distance_threshold_km: Maximum distance for a valid match
-    
-    Returns:
-        Tuple of (matched dataframe with distance and match_quality, count_matched_pre_exclusion)
-    """
-    if moral_df.empty or era5_df.empty:
-        return moral_df, 0
-    
-    # Convert to GeoDataFrames for spatial operations
-    moral_gdf = gpd.GeoDataFrame(
-        moral_df,
-        geometry=gpd.points_from_xy(moral_df['longitude'], moral_df['latitude']),
-        crs="EPSG:4326"
-    )
-    
-    era5_gdf = gpd.GeoDataFrame(
-        era5_df,
-        geometry=gpd.points_from_xy(era5_df['longitude'], era5_df['latitude']),
-        crs="EPSG:4326"
-    )
-    
-    # For each moral record, find nearest ERA5 point
-    matched_records = []
-    count_matched_pre_exclusion = 0
-    
-    for idx, moral_row in moral_gdf.iterrows():
-        # Calculate distances to all ERA5 points (this is expensive, optimize if needed)
-        distances = []
-        for era5_idx, era5_row in era5_gdf.iterrows():
-            dist = haversine_distance(
-                moral_row['latitude'], moral_row['longitude'],
-                era5_row['latitude'], era5_row['longitude']
-            )
-            distances.append((era5_idx, dist))
+        csv_path: Path to the CSV file (can be gzipped)
         
-        if distances:
-            # Find nearest point
-            nearest_idx, min_dist = min(distances, key=lambda x: x[1])
-            count_matched_pre_exclusion += 1
-            
-            # Determine match quality
-            match_quality = 'high' if min_dist <= distance_threshold_km else 'low'
-            
-            # Create matched record
-            matched_record = moral_row.to_dict()
-            matched_record['nearest_era5_grid_id'] = era5_gdf.loc[nearest_idx, 'grid_id']
-            matched_record['nearest_era5_distance_km'] = min_dist
-            matched_record['match_quality'] = match_quality
-            matched_records.append(matched_record)
-    
-    matched_df = pd.DataFrame(matched_records)
-    return matched_df, count_matched_pre_exclusion
-
-def interpolate_temporal_gaps(matched_df: pd.DataFrame,
-                              era5_df: pd.DataFrame,
-                              temporal_gap_hours: float = TEMPORAL_GAP_HOURS) -> pd.DataFrame:
+    Returns:
+        DataFrame with raw Moral Machine data
     """
-    Interpolate temperature values for Moral Machine records.
+    logger = logging.getLogger('ingestion')
+    logger.info(f"Loading Moral Machine data from {csv_path}")
+    
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Moral Machine dataset not found at {csv_path}")
+    
+    try:
+        # Handle gzipped files
+        if str(csv_path).endswith('.gz'):
+            df = pd.read_csv(csv_path, compression='gzip')
+        else:
+            df = pd.read_csv(csv_path)
+        
+        logger.info(f"Loaded {len(df)} records from {csv_path}")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load dataset: {e}")
+        raise
+
+def apply_column_mapping(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply standard column name mappings.
+    
+    Maps:
+    - lat -> latitude
+    - lon -> longitude
+    - response_time_ms -> response_time
+    """
+    logger = logging.getLogger('ingestion')
+    mapping = {
+        'lat': 'latitude',
+        'lon': 'longitude',
+        'response_time_ms': 'response_time'
+    }
+    
+    # Only map columns that exist
+    existing_cols = {k: v for k, v in mapping.items() if k in df.columns}
+    if existing_cols:
+        df = df.rename(columns=existing_cols)
+        logger.info(f"Mapped columns: {existing_cols}")
+    
+    return df
+
+def filter_missing_location(df: pd.DataFrame, exclusion_log: Path) -> Tuple[pd.DataFrame, int]:
+    """
+    Filter out records with missing latitude or longitude.
     
     Args:
-        matched_df: Moral Machine records with nearest ERA5 grid ID
-        era5_df: ERA5 temperature dataset
-        temporal_gap_hours: Maximum gap for interpolation
-    
+        df: Input DataFrame
+        exclusion_log: Path to exclusion log file
+        
     Returns:
-        DataFrame with interpolated temperature values and gap flags
+        Tuple of (filtered DataFrame, count of excluded records)
     """
-    if matched_df.empty or era5_df.empty:
-        return matched_df
+    logger = logging.getLogger('ingestion')
     
-    result_df = matched_df.copy()
-    result_df['temperature_celsius'] = np.nan
-    result_df['gap_status'] = 'ok'
+    # Identify records with missing location
+    missing_mask = df['latitude'].isna() | df['longitude'].isna()
+    excluded_count = missing_mask.sum()
     
-    # Group ERA5 data by grid_id for efficient lookup
-    era5_grouped = era5_df.groupby('grid_id')
-    
-    for idx, row in result_df.iterrows():
-        grid_id = row.get('nearest_era5_grid_id')
-        moral_timestamp = row.get('timestamp')
+    if excluded_count > 0:
+        logger.warning(f"Excluding {excluded_count} records with missing location data")
         
-        if pd.isna(grid_id) or pd.isna(moral_timestamp):
-            continue
+        # Log excluded records
+        ensure_exclusion_log_exists(exclusion_log)
+        excluded_records = df[missing_mask].copy()
+        excluded_records['exclusion_reason'] = 'missing location'
         
-        # Get ERA5 data for this grid
-        try:
-            era5_grid_data = era5_grouped.get_group(grid_id)
-            era5_grid_data = era5_grid_data.sort_values('timestamp')
-            
-            # Find surrounding ERA5 timestamps
-            before_mask = era5_grid_data['timestamp'] <= moral_timestamp
-            after_mask = era5_grid_data['timestamp'] >= moral_timestamp
-            
-            before_data = era5_grid_data[before_mask]
-            after_data = era5_grid_data[after_mask]
-            
-            if before_data.empty and after_data.empty:
-                result_df.loc[idx, 'gap_status'] = 'no_data'
-                continue
-            
-            # Get closest timestamps
-            if before_data.empty:
-                nearest_before = after_data.iloc[0]
-                gap_hours = 0  # No gap before
-            elif after_data.empty:
-                nearest_after = before_data.iloc[-1]
-                gap_hours = 0  # No gap after
-            else:
-                nearest_before = before_data.iloc[-1]
-                nearest_after = after_data.iloc[0]
-                gap_hours = (nearest_after['timestamp'] - nearest_before['timestamp']).total_seconds() / 3600
-            
-            if gap_hours > temporal_gap_hours:
-                result_df.loc[idx, 'gap_status'] = 'gap_too_large'
-                continue
-            
-            # Linear interpolation
-            if pd.isna(nearest_before['temperature_celsius']) or pd.isna(nearest_after['temperature_celsius']):
-                # Use whatever is available
-                if not pd.isna(nearest_before['temperature_celsius']):
-                    temp = nearest_before['temperature_celsius']
-                elif not pd.isna(nearest_after['temperature_celsius']):
-                    temp = nearest_after['temperature_celsius']
-                else:
-                    result_df.loc[idx, 'gap_status'] = 'no_temp_data'
-                    continue
-            else:
-                # Linear interpolation
-                t0 = nearest_before['timestamp']
-                t1 = nearest_after['timestamp']
-                t = moral_timestamp
-                
-                if t1 == t0:
-                    temp = nearest_before['temperature_celsius']
-                else:
-                    weight = (t - t0).total_seconds() / (t1 - t0).total_seconds()
-                    temp = nearest_before['temperature_celsius'] + weight * (
-                        nearest_after['temperature_celsius'] - nearest_before['temperature_celsius']
-                    )
-            
-            result_df.loc[idx, 'temperature_celsius'] = temp
-            
-        except Exception as e:
-            logging.warning(f"Error interpolating for record {idx}: {e}")
-            result_df.loc[idx, 'gap_status'] = 'interpolation_error'
+        # Append to log
+        with open(exclusion_log, 'a') as f:
+            for _, row in excluded_records.iterrows():
+                # Create a simple string representation
+                record_data = ','.join(str(v) for v in row.values)
+                f.write(f"{row.name},missing location,{record_data}\n")
+        
+        # Filter
+        df = df[~missing_mask].copy()
     
-    return result_df
+    logger.info(f"Location filtering complete: {len(df)} records remain")
+    return df, excluded_count
 
-def capture_pre_filter_count(df: pd.DataFrame, log_path: Path) -> int:
+def filter_invalid_response_time(
+    df: pd.DataFrame, 
+    exclusion_log: Path,
+    min_ms: int = 100,
+    max_ms: int = 10000
+) -> Tuple[pd.DataFrame, int]:
     """
-    Count records with valid latitude/longitude before filtering.
+    Filter out records with response times outside valid range.
     
     Args:
-        df: Raw Moral Machine dataset
-        log_path: Path to counts.json log file
-    
+        df: Input DataFrame
+        exclusion_log: Path to exclusion log file
+        min_ms: Minimum valid response time in ms
+        max_ms: Maximum valid response time in ms
+        
     Returns:
-        Count of records with valid location data
+        Tuple of (filtered DataFrame, count of excluded records)
     """
-    valid_location = df[df['latitude'].notna() & df['longitude'].notna()].shape[0]
+    logger = logging.getLogger('ingestion')
     
-    # Update counts log
-    counts_log = {}
-    if log_path.exists():
-        with open(log_path, 'r') as f:
-            counts_log = json.load(f)
+    # Check if response_time column exists
+    if 'response_time' not in df.columns:
+        logger.warning("response_time column not found, skipping response time filter")
+        return df, 0
     
-    counts_log['count_total_original_valid_location'] = valid_location
+    # Identify invalid response times
+    invalid_mask = (df['response_time'] < min_ms) | (df['response_time'] > max_ms)
+    excluded_count = invalid_mask.sum()
     
-    with open(log_path, 'w') as f:
-        json.dump(counts_log, f, indent=2)
+    if excluded_count > 0:
+        logger.warning(f"Excluding {excluded_count} records with invalid response times")
+        
+        # Log excluded records
+        ensure_exclusion_log_exists(exclusion_log)
+        excluded_records = df[invalid_mask].copy()
+        excluded_records['exclusion_reason'] = 'invalid response time'
+        
+        # Append to log
+        with open(exclusion_log, 'a') as f:
+            for _, row in excluded_records.iterrows():
+                record_data = ','.join(str(v) for v in row.values)
+                f.write(f"{row.name},invalid response time,{record_data}\n")
+        
+        # Filter
+        df = df[~invalid_mask].copy()
     
-    return valid_location
+    logger.info(f"Response time filtering complete: {len(df)} records remain")
+    return df, excluded_count
 
-def main():
-    """Main ingestion pipeline."""
-    logger = setup_logging()
-    data_logger = get_data_quality_logger()
+def capture_pre_filter_count(df: pd.DataFrame, counts_log: Path) -> None:
+    """
+    Capture the count of records with valid latitude/longitude BEFORE filtering.
     
-    # Paths
-    input_path = Path(get_path_env_override('MORAL_MACHINE_PATH', 'data/raw/moral_machine.csv.gz'))
-    era5_path = Path(get_path_env_override('ERA5_PATH', 'data/raw/era5_full.parquet'))
-    output_path = Path(get_path_env_override('MERGED_OUTPUT_PATH', 'data/processed/merged_dataset.parquet'))
-    exclusion_log_path = Path('results/logs/exclusion_log.csv')
-    counts_log_path = Path('results/logs/counts.json')
-    quality_log_path = Path('results/logs/data_quality_log.json')
+    Args:
+        df: DataFrame before location filtering
+        counts_log: Path to counts JSON log file
+    """
+    logger = logging.getLogger('ingestion')
     
-    # Ensure directories exist
+    # Count records with valid location
+    valid_location_count = df['latitude'].notna() & df['longitude'].notna()
+    count_valid_location = valid_location_count.sum()
+    
+    # Ensure log directory exists
+    counts_log.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing counts or initialize
+    if counts_log.exists():
+        with open(counts_log, 'r') as f:
+            counts = json.load(f)
+    else:
+        counts = {}
+    
+    # Update counts
+    counts['count_total_original_valid_location'] = int(count_valid_location)
+    
+    # Save
+    with open(counts_log, 'w') as f:
+        json.dump(counts, f, indent=2)
+    
+    logger.info(f"Captured pre-filter count: {count_valid_location}")
+
+def save_filtered_data(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save filtered DataFrame to Parquet format.
+    
+    Args:
+        df: Filtered DataFrame
+        output_path: Output path for Parquet file
+    """
+    logger = logging.getLogger('ingestion')
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(output_path, index=False)
     
-    # Ensure exclusion log exists
-    ensure_exclusion_log_exists(exclusion_log_path)
+    logger.info(f"Saved filtered data to {output_path} ({len(df)} records)")
+
+def log_counts_to_file(
+    counts_log: Path,
+    count_filtered: int,
+    count_missing_location: int,
+    count_invalid_response_time: int
+) -> None:
+    """
+    Log all counts to the counts JSON file.
     
-    # Load data
-    logger.info(f"Loading Moral Machine data from {input_path}")
-    moral_df = load_parquet_as_df(input_path) if input_path.suffix == '.parquet' else pd.read_csv(input_path)
+    Args:
+        counts_log: Path to counts JSON log file
+        count_filtered: Final count after all filters
+        count_missing_location: Count excluded for missing location
+        count_invalid_response_time: Count excluded for invalid response time
+    """
+    logger = logging.getLogger('ingestion')
     
-    logger.info(f"Loading ERA5 data from {era5_path}")
-    era5_df = load_parquet_as_df(era5_path)
+    # Ensure log directory exists
+    counts_log.parent.mkdir(parents=True, exist_ok=True)
     
-    # Capture pre-filter count (T017a)
-    pre_filter_count = capture_pre_filter_count(moral_df, counts_log_path)
-    data_logger.info(f"Pre-filter count: {pre_filter_count}")
+    # Load existing counts or initialize
+    if counts_log.exists():
+        with open(counts_log, 'r') as f:
+            counts = json.load(f)
+    else:
+        counts = {}
     
-    # T017: Load, Filter & Count
-    # Filter 1: Missing location
-    location_mask = moral_df['latitude'].notna() & moral_df['longitude'].notna()
-    missing_location = moral_df[~location_mask]
-    log_excluded_records(missing_location, "missing location", exclusion_log_path)
-    moral_df = moral_df[location_mask]
+    # Update counts
+    counts['count_filtered_for_analysis'] = count_filtered
+    counts['count_excluded_missing_location'] = count_missing_location
+    counts['count_excluded_invalid_response_time'] = count_invalid_response_time
     
-    # Filter 2: Invalid response time
-    response_time_mask = (moral_df['response_time'] >= 100) & (moral_df['response_time'] <= 10000)
-    invalid_response_time = moral_df[~response_time_mask]
-    log_excluded_records(invalid_response_time, "invalid response time", exclusion_log_path)
-    moral_df = moral_df[response_time_mask]
+    # Save
+    with open(counts_log, 'w') as f:
+        json.dump(counts, f, indent=2)
     
-    count_filtered_for_analysis = moral_df.shape[0]
-    data_logger.info(f"Post-filter count: {count_filtered_for_analysis}")
+    logger.info(f"Logged counts: filtered={count_filtered}, missing_loc={count_missing_location}, invalid_rt={count_invalid_response_time}")
+
+def main(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    exclusion_log_path: Optional[str] = None,
+    counts_log_path: Optional[str] = None
+) -> None:
+    """
+    Main ingestion pipeline for T017.
     
-    # T019: Geospatial Matching & Flagging
-    logger.info("Performing geospatial matching...")
-    matched_df, count_matched_pre_exclusion = match_geospatial_records(moral_df, era5_df)
+    Args:
+        input_path: Path to input Moral Machine CSV
+        output_path: Path to output Parquet file
+        exclusion_log_path: Path to exclusion log CSV
+        counts_log_path: Path to counts JSON log
+    """
+    # Setup paths
+    base_path = Path(get_path_env_override('PROJECT_ROOT', '.'))
     
-    # Log pre-exclusion match count (T019a)
-    counts_log = {}
-    if counts_log_path.exists():
-        with open(counts_log_path, 'r') as f:
-            counts_log = json.load(f)
-    counts_log['count_matched_pre_exclusion'] = count_matched_pre_exclusion
-    with open(counts_log_path, 'w') as f:
-        json.dump(counts_log, f, indent=2)
+    if input_path is None:
+        input_path = base_path / 'data' / 'raw' / 'moral_machine.csv.gz'
+    else:
+        input_path = Path(input_path)
     
-    data_logger.info(f"Matched pre-exclusion: {count_matched_pre_exclusion}")
+    if output_path is None:
+        output_path = base_path / 'data' / 'processed' / 'merged_dataset.parquet'
+    else:
+        output_path = Path(output_path)
     
-    # Flag low quality matches
-    low_quality_matches = matched_df[matched_df['match_quality'] == 'low']
-    for _, row in low_quality_matches.iterrows():
-        log_entry = {
-            'participant_id': row['participant_id'],
-            'reason': 'distance > 100km',
-            'distance_km': row['nearest_era5_distance_km']
-        }
-        # Append to quality log
-        quality_log = []
-        if quality_log_path.exists():
-            with open(quality_log_path, 'r') as f:
-                quality_log = json.load(f)
-        quality_log.append(log_entry)
-        with open(quality_log_path, 'w') as f:
-            json.dump(quality_log, f, indent=2)
+    if exclusion_log_path is None:
+        exclusion_log_path = base_path / 'results' / 'logs' / 'exclusion_log.csv'
+    else:
+        exclusion_log_path = Path(exclusion_log_path)
     
-    # T019c: Interpolate & Flag Gaps
-    logger.info("Performing temporal interpolation...")
-    interpolated_df = interpolate_temporal_gaps(matched_df, era5_df)
+    if counts_log_path is None:
+        counts_log_path = base_path / 'results' / 'logs' / 'counts.json'
+    else:
+        counts_log_path = Path(counts_log_path)
     
-    # Flag records with unresolvable gaps
-    gap_failures = interpolated_df[interpolated_df['gap_status'].isin(['gap_too_large', 'no_data', 'no_temp_data', 'interpolation_error'])]
-    for _, row in gap_failures.iterrows():
-        log_entry = {
-            'participant_id': row['participant_id'],
-            'reason': f"temperature gap issue: {row['gap_status']}"
-        }
-        quality_log = []
-        if quality_log_path.exists():
-            with open(quality_log_path, 'r') as f:
-                quality_log = json.load(f)
-        quality_log.append(log_entry)
-        with open(quality_log_path, 'w') as f:
-            json.dump(quality_log, f, indent=2)
+    # Setup logging
+    log_file = base_path / 'results' / 'logs' / 'ingestion.log'
+    logger = setup_logging_custom(str(log_file))
     
-    # Save intermediate results
-    logger.info(f"Saving merged dataset to {output_path}")
-    interpolated_df.to_parquet(output_path, index=False)
+    logger.info("Starting T017: Load, Filter & Count")
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
     
-    logger.info("Ingestion pipeline completed successfully")
-    return output_path
+    try:
+        # Ensure directories
+        ensure_directories(base_path)
+        
+        # Load data
+        df = load_moral_machine_data(input_path)
+        
+        # Apply column mapping
+        df = apply_column_mapping(df)
+        
+        # Capture pre-filter count (before location filtering)
+        capture_pre_filter_count(df, counts_log_path)
+        
+        # Filter 1: Missing location
+        df, count_missing_location = filter_missing_location(df, exclusion_log_path)
+        
+        # Filter 2: Invalid response time
+        df, count_invalid_response_time = filter_invalid_response_time(
+            df, 
+            exclusion_log_path,
+            min_ms=100,
+            max_ms=10000
+        )
+        
+        # Log final counts
+        log_counts_to_file(
+            counts_log_path,
+            count_filtered=len(df),
+            count_missing_location=count_missing_location,
+            count_invalid_response_time=count_invalid_response_time
+        )
+        
+        # Save filtered data
+        save_filtered_data(df, output_path)
+        
+        logger.info("T017 completed successfully")
+        print(f"SUCCESS: Filtered dataset saved to {output_path}")
+        print(f"Total records after filtering: {len(df)}")
+        print(f"Excluded for missing location: {count_missing_location}")
+        print(f"Excluded for invalid response time: {count_invalid_response_time}")
+        
+    except Exception as e:
+        logger.error(f"T017 failed: {e}")
+        raise
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='T017: Load, Filter & Count')
+    parser.add_argument('--input', type=str, help='Input CSV path')
+    parser.add_argument('--output', type=str, help='Output Parquet path')
+    parser.add_argument('--exclusion-log', type=str, help='Exclusion log path')
+    parser.add_argument('--counts-log', type=str, help='Counts log path')
+    
+    args = parser.parse_args()
+    
+    main(
+        input_path=args.input,
+        output_path=args.output,
+        exclusion_log_path=args.exclusion_log,
+        counts_log_path=args.counts_log
+    )

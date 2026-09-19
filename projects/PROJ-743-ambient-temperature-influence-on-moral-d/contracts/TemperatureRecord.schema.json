@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/TemperatureRecord.schema.json",
+  "title": "TemperatureRecord",
+  "description": "Raw data entity representing a single temperature measurement from ERA5 reanalysis data.",
+  "type": "object",
+  "properties": {
+    "grid_id": {
+      "type": "string",
+      "description": "Unique identifier for the ERA5 grid cell."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 formatted timestamp of the measurement."
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude coordinate of the grid cell.",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude coordinate of the grid cell.",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "temperature_celsius": {
+      "type": "number",
+      "description": "2-meter air temperature in degrees Celsius."
+    }
+  },
+  "required": [
+    "grid_id",
+    "timestamp",
+    "latitude",
+    "longitude",
+    "temperature_celsius"
+  ],
+  "additionalProperties": false
+}

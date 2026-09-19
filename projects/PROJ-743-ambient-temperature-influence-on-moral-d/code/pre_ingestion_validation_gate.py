@@ -1,18 +1,16 @@
 """
-Pre-Ingestion Validation Gate (T006)
+Pre-Ingestion Validation Gate (All Sources) - Task T006
 
-Aggregates results from prior validation tasks (T001a, T001b, T001c, T002c, T002d,
-T002e, T003, T004) and verifies the existence of critical data artifacts before
-allowing the pipeline to proceed to ingestion.
+Aggregates results from Phase 0 tasks (T000-run) and verifies that all
+required data artifacts exist before proceeding to ingestion and modeling.
 
-Required Artifacts:
-- data/raw/moral_machine.csv.gz
-- data/raw/era5_full.parquet
+Artifacts checked:
+- data/raw/moral_machine.csv.gz (from T000)
+- data/raw/era5_full.parquet (from T002d/T002e)
 
-If any validation fails or required files are missing, this script raises an
-exception to abort the pipeline.
+If any validation fails, raises an exception to abort the pipeline and
+updates the project state status to 'blocked'.
 """
-
 import os
 import sys
 import json
@@ -20,145 +18,129 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Ensure we can import sibling modules
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path to allow imports if run as script
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from setup_logging import setup_logging, get_data_quality_logger
 from config import get_path_env_override
 
+# Configure logger
+logger = get_data_quality_logger()
+
 def ensure_directories():
-    """Ensure required log directories exist."""
-    log_dir = Path("results/logs")
+    """Ensure all required log directories exist."""
+    log_dir = project_root / "results" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir
 
-def load_json_log(log_path: Path) -> dict:
+def load_json_log(path: Path) -> dict:
     """Load a JSON log file if it exists, otherwise return empty dict."""
-    if not log_path.exists():
-        return {}
-    try:
-        with open(log_path, 'r', encoding='utf-8') as f:
+    if path.exists():
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        logging.warning(f"Could not load log {log_path}: {e}")
-        return {}
+    return {}
 
-def check_file_exists(file_path: Path, logger: logging.Logger) -> bool:
-    """Check if a specific file exists and is non-empty."""
-    if not file_path.exists():
-        logger.error(f"Required file missing: {file_path}")
+def check_file_exists(path: Path, artifact_name: str) -> bool:
+    """
+    Check if a file exists and is non-empty.
+    Returns True if valid, False otherwise.
+    """
+    if not path.exists():
+        logger.error(f"MISSING: {artifact_name} not found at {path}")
         return False
-    if file_path.stat().st_size == 0:
-        logger.error(f"Required file is empty: {file_path}")
+    if path.stat().st_size == 0:
+        logger.error(f"EMPTY: {artifact_name} at {path} is empty")
         return False
+    logger.info(f"FOUND: {artifact_name} at {path} ({path.stat().st_size} bytes)")
     return True
 
-def run_validation_gate(logger: logging.Logger) -> bool:
+def update_project_state(status: str, reason: str):
     """
-    Execute the pre-ingestion validation gate.
+    Update the project state YAML file to reflect the validation gate status.
+    """
+    state_path = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
+    if not state_path.exists():
+        logger.warning(f"State file not found at {state_path}. Cannot update status.")
+        return
 
+    try:
+        import yaml
+        with open(state_path, 'r', encoding='utf-8') as f:
+            state = yaml.safe_load(f) or {}
+
+        state['validation_gate'] = {
+            'status': status,
+            'updated_at': datetime.now(timezone.utc).isoformat(),
+            'reason': reason
+        }
+
+        with open(state_path, 'w', encoding='utf-8') as f:
+            yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+
+        logger.info(f"Updated project state to '{status}'")
+    except Exception as e:
+        logger.error(f"Failed to update project state: {e}")
+
+def run_validation_gate():
+    """
+    Main validation logic.
     Returns True if all checks pass, False otherwise.
-    Raises an exception if the gate fails to enforce the blocker.
     """
-    project_root = Path(__file__).parent.parent
-    data_raw = project_root / "data" / "raw"
-    
-    # Critical Artifacts
-    moral_machine_path = data_raw / "moral_machine.csv.gz"
-    era5_full_path = data_raw / "era5_full.parquet"
+    log_dir = ensure_directories()
+    log_file = log_dir / "data_validation_log.txt"
 
-    # Validation Log Paths (from completed tasks)
-    # T001a, T001b, T001c, T002c, T002d, T002e, T003, T004
-    # We assume these tasks wrote to results/logs/data_validation_log.txt
-    # and potentially specific JSON status files.
-    validation_log_path = project_root / "results" / "logs" / "data_validation_log.txt"
-    fetch_status_path = project_root / "results" / "logs" / "fetch_status.json"
-    bbox_status_path = project_root / "results" / "logs" / "bbox_status.json"
-    
-    # Check 1: Critical File Existence
-    logger.info("Checking critical data artifacts...")
-    checks_passed = True
+    # Setup file handler for this specific gate log
+    file_handler = logging.FileHandler(log_file, mode='a')
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
-    if not check_file_exists(moral_machine_path, logger):
-        checks_passed = False
-    
-    if not check_file_exists(era5_full_path, logger):
-        checks_passed = False
+    logger.info("=" * 60)
+    logger.info("Starting Pre-Ingestion Validation Gate (T006)")
+    logger.info("=" * 60)
 
-    # Check 2: Verify previous validation steps (optional but recommended)
-    # We check if the validation log exists and contains "Pass" or "Success"
-    # markers from previous tasks.
-    if validation_log_path.exists():
-        logger.info(f"Found previous validation log: {validation_log_path}")
-        # We don't strictly parse it here to avoid tight coupling to specific log formats,
-        # but we acknowledge its presence.
+    # Define required artifacts
+    required_artifacts = {
+        "moral_machine_dataset": project_root / "data" / "raw" / "moral_machine.csv.gz",
+        "era5_full_dataset": project_root / "data" / "raw" / "era5_full.parquet"
+    }
+
+    all_valid = True
+    missing_artifacts = []
+
+    for name, path in required_artifacts.items():
+        if not check_file_exists(path, name):
+            all_valid = False
+            missing_artifacts.append(name)
+
+    # Final status
+    if all_valid:
+        logger.info("VALIDATION PASSED: All required data artifacts are present and non-empty.")
+        update_project_state("passed", "All data artifacts verified.")
+        logger.info("Proceeding to Phase 1 (Ingestion).")
     else:
-        logger.warning(f"Previous validation log not found: {validation_log_path}")
-        # This might be okay if we rely solely on file existence, 
-        # but strictly speaking, T006 aggregates results.
-        # If the log is missing, we assume the aggregation step failed previously.
-        # However, the primary blocker is file existence.
-
-    # Check 3: Verify Fetch Status (T002c)
-    if fetch_status_path.exists():
-        try:
-            with open(fetch_status_path, 'r') as f:
-                status = json.load(f)
-            # Heuristic: if 'failed_tiles' > 0 or 'status' indicates failure
-            if status.get('status') == 'failed':
-                logger.error("ERA5 fetch status indicates failure.")
-                checks_passed = False
-        except json.JSONDecodeError:
-            logger.warning("Could not parse fetch_status.json")
-    else:
-        logger.warning("fetch_status.json not found. Assuming fetch step not completed.")
-        # If fetch status is missing, we might be in a state where T002c wasn't run.
-        # But if era5_full.parquet exists, the data is there.
-    
-    # Final Decision
-    if not checks_passed:
-        error_msg = "Pre-Ingestion Validation Gate FAILED. Critical artifacts missing or validation failed. Aborting pipeline."
+        error_msg = f"VALIDATION FAILED: Missing artifacts: {', '.join(missing_artifacts)}"
         logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    logger.info("Pre-Ingestion Validation Gate PASSED. All critical artifacts present and valid.")
-    return True
+        update_project_state("blocked", error_msg)
+        logger.info("Pipeline ABORTED. Fix missing data sources and re-run Phase 0.")
+
+    # Remove file handler to avoid duplicate logs
+    logger.removeHandler(file_handler)
+
+    return all_valid
 
 def main():
-    """Main entry point for the validation gate."""
-    ensure_directories()
-    
-    # Setup logger
-    logger = get_data_quality_logger()
-    if not logger:
-        logger = setup_logging()
-    
-    logger.info("Starting Pre-Ingestion Validation Gate (T006)...")
-    
+    """Entry point for the validation gate."""
     try:
-        success = run_validation_gate(logger)
-        
-        # Log final status to the main validation log
-        log_path = Path("results/logs/data_validation_log.txt")
-        with open(log_path, 'a', encoding='utf-8') as f:
-            timestamp = datetime.now().isoformat()
-            status_str = "PASS" if success else "FAIL"
-            f.write(f"[{timestamp}] T006 Pre-Ingestion Validation: {status_str}\n")
-        
-        if success:
-            logger.info("Validation Gate completed successfully.")
-            sys.exit(0)
-        else:
-            # Should have raised an exception, but just in case
-            logger.error("Validation Gate completed with errors.")
+        success = run_validation_gate()
+        if not success:
             sys.exit(1)
-            
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Validation Gate failed with exception: {e}")
-        # Log failure
-        log_path = Path("results/logs/data_validation_log.txt")
-        with open(log_path, 'a', encoding='utf-8') as f:
-            timestamp = datetime.now().isoformat()
-            f.write(f"[{timestamp}] T006 Pre-Ingestion Validation: FAIL - {str(e)}\n")
+        logger.critical(f"Unexpected error during validation gate: {e}")
+        update_project_state("blocked", f"Critical error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
