@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates how Type I and Type II error rates of common statistical tests (t-test, ANOVA, chi-squared) vary as a function of sample size and underlying data distribution. The technical approach involves a Monte Carlo simulation engine that generates synthetic datasets with known ground truth (normal, uniform, log-normal) across a range of sample sizes (n=10 to n=1000). The system will execute adaptive replicates until confidence intervals for error rates stabilize, classify outcomes against a nominal alpha of 0.05, and produce publication-ready visualizations and regression analyses to quantify deviations from theoretical expectations.
+This project investigates how Type I and Type II error rates of common statistical tests (t-test, ANOVA, chi-squared) vary as a function of sample size and underlying data distribution. The technical approach involves a Monte Carlo simulation engine that generates synthetic datasets with known ground truth (normal, uniform, log-normal) across a range of sample sizes (n=10 to n=1000). The system will execute adaptive replicates until confidence intervals for error rates stabilize, classify outcomes against a nominal significance threshold., and produce publication-ready visualizations and regression analyses to quantify deviations from theoretical expectations.
 
 ## Technical Context
 

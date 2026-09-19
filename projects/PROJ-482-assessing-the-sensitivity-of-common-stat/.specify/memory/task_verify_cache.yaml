@@ -27,15 +27,6 @@ T021c:
     \ is truncated and contains no explicit validation routine comparing observed\
     \ Type\u202FI error rates to the nominal alpha level. The required deliverable\
     \ is therefore missing."
-T022:
-  c: false
-  h: 5861ca8ac29df55d4a13530d1ee223f3c35ce669f7d6344a783179c42a4f6c21
-  r: "The `code/run_simulation.py` script exists but only writes `raw_pvalues.csv`\
-    \ and `validation_report.csv`; it never reads the required inputs from T021b (`data/processed/raw_pvalues.csv`)\
-    \ or T021c (`data/processed/validation_report.csv`). Moreover, `data/processed/raw_pvalues.csv`\
-    \ is missing, and the provided `validation_report.csv` contains only t\u2011test\
-    \ rows, not the three required test types. The orchestrator therefore does not\
-    \ satisfy the dependency or full\u2011batch requirements."
 T026b:
   c: false
   h: 2891b1726c4a32cce21cf697960b23dd0102e1a0066ba095587aad217ef6168a
@@ -52,10 +43,3 @@ T029:
     \ function writes the aggregated DataFrame to `data/processed/error_rates.csv`\
     \ and generates plots in `data/processed/plots/` as specified. The required output\
     \ files will be created when the script is executed."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md content was provided; the claim of updated documentation cannot\
-    \ be verified because the required artifact is missing. The next implementer must\
-    \ add a non\u2011empty README.md that clearly explains how to execute the simulation\
-    \ and how to interpret its output."
