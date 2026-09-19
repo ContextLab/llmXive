@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "avian-migration-predictor"
+version = "0.1.0"
+description = "Predicting avian migration patterns from eBird data"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "xgboost",
+    "scikit-learn",
+    "scipy",
+    "shap",
+    "requests",
+    "huggingface_hub",
+    "numpy",
+    "pytest",
+]
+
+[tool.ruff]
+# Target Python 3.9+
+target-version = "py39"
+
+# Exclude generated files and data
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+]
+
+line-length = 88
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules if necessary (e.g., line too long handled by formatter)
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''

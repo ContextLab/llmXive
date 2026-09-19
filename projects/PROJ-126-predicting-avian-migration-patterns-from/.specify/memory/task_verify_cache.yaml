@@ -1,0 +1,37 @@
+T010:
+  c: false
+  h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
+  r: "The required file `tests/integration/test_data_pipeline.py` does not exist,\
+    \ so no integration test artifact is present to verify the end\u2011to\u2011end\
+    \ pipeline. The task\u2019s core deliverable is missing."
+T023:
+  c: false
+  h: 68f1fbe01db97b1d53c649187786bff9d0abab96755928a9738fc1e273ad9062
+  r: The provided `code/model_training.py` does not contain any SHAP-related imports
+    or logic (e.g., no `import shap` or calls to `shap.TreeExplainer`), and the required
+    output file `data/outputs/shap_summary.png` is absent from the repository. Consequently,
+    the task of computing SHAP values and saving the beeswarm plot has not been fulfilled.
+T024:
+  c: false
+  h: 75124c6cfce29710c52cd1e634b7193d8fe680e10553fb84f1312ecad45cbb02
+  r: The provided `code/model_training.py` does not contain any implementation of
+    a permutation importance test nor code that writes results to `data/outputs/permutation_importance.csv`.
+    Additionally, the required CSV file is absent from the repository. Both the functional
+    code and the output artifact are missing.
+T029:
+  c: false
+  h: 473d081995973ae23f6e313a19783cc2a97948a0f54a5cccfc86958287d4b43c
+  r: "The provided `code/model_training.py` contains only data loading, splitting,\
+    \ and model training code; it does not compute bootstrap\u2011based RMSE differences,\
+    \ confidence intervals, or p\u2011values, nor does it write any of the required\
+    \ keys to `data/processed/metrics.json`. Moreover, the `data/processed/metrics.json`\
+    \ file is absent. These missing implementations and artifact mean the task is\
+    \ not fulfilled."
+T030:
+  c: false
+  h: 707daceb5b6ac52a60e3074ef5c2ae3069b4b7fc210db8a3240062122130d26f
+  r: "The `code/model_training.py` file contains only model\u2011training utilities\
+    \ and does not read or analyze `data/processed/first_arrival_sweep.csv` for the\
+    \ 3,\u202F5,\u202F10 thresholds, nor does it flag any variations. Moreover, the\
+    \ required `data/processed/first_arrival_sweep.csv` file is absent from the repository.\
+    \ Both the implementation and the input data are missing."

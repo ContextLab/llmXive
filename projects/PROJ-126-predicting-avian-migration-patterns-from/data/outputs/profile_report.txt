@@ -1,0 +1,19 @@
+Top 3 Bottlenecks in code/data_loader.py:
+----------------------------------------
+1. Function: main (data_loader.py:108)
+   Cumulative Time: 0.0000s
+   Call Count: 1
+
+2. Function: load_ebird_data (data_loader.py:35)
+   Cumulative Time: 0.0000s
+   Call Count: 1
+
+3. Function: load_modis_data (data_loader.py:82)
+   Cumulative Time: 0.0000s
+   Call Count: 1
+
+Memory Usage Analysis:
+----------------------------------------
+Current/Peak RAM Usage: 0.05 GB
+RAM usage is within acceptable limits (< 5GB).
+No refactoring required at this time.
