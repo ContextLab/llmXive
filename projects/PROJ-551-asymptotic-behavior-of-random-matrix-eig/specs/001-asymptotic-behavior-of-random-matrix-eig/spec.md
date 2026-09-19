@@ -6,7 +6,7 @@ This project investigates the asymptotic behavior of eigenvalues in large random
 ## Objectives
 1. Generate large Wigner matrices ($N \to \infty$) with standard scaling ($1/\sqrt{N}$).
 2. Apply sparse perturbations of varying rank and support density.
-3. Compute the top eigenvalues to detect outliers beyond the semicircle law bulk ($\pm 2.0$).
+3. Compute the top eigenvalues to detect outliers beyond the semicircle law bulk.
 4. Systematically sweep perturbation norms ($\theta$) to identify the critical threshold $\theta_c$.
 5. Analyze sensitivity to sparsity density ($p$) and perturbation structure.
 
@@ -21,7 +21,7 @@ This project investigates the asymptotic behavior of eigenvalues in large random
 
 ## Validation Criteria
 - Eigenvalues must be validated against the theoretical semicircle edge ($\pm 2.0$).
-- Outliers must be distinguished from numerical artifacts using strict tolerance ($1e-10$).
+- Outliers must be distinguished from numerical artifacts using strict tolerance.
 - Reproducibility is ensured via structured logging and checksums of raw matrix instances.
 
 ## Constraints

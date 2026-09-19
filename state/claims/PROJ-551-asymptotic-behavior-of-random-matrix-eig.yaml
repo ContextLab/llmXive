@@ -923,3 +923,177 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-08T20:45:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: BBP transition critical threshold theta_c equals 1 for rank-1 perturbations
+    in large-N limit
+  claim_id: c_1282fa59
+  context: 'The theoretical prediction follows the BBP transition: an outlier emerges
+    if and only if the perturbation strength $\theta > \theta_c$, where $\theta_c
+    = 1$ for rank-1 perturbations in the large-$N$ limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The theoretical prediction follows the BBP transition: an outlier emerges\
+    \ if and only if the perturbation strength \u03B8 > \u03B8c, where \u03B8c = 1\
+    \ for rank-1 perturbations in the large-N limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:35:12Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outlier emergence probability approaches 1 as N approaches infinity for
+    theta greater than 1.0
+  claim_id: c_863e1780
+  context: 'The computational experiments confirm the BBP phase transition: ... For
+    $\theta > 1.0$, a distinct outlier appears with probability approaching 1 as $N
+    \to \infty$.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outlier_emergence_probability_approaches_1_as_N_approaches_i
+  kind: magnitude
+  raw_text: "For \u03B8 > 1.0, a distinct outlier appears with probability approaching\
+    \ 1 as N \u2192 \u221E."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Standard deviation of critical threshold theta_c across density levels
+    is below 0.05
+  claim_id: c_4b1f74ae
+  context: 'The sensitivity analysis on support density p reveals: ... Standard deviation
+    of $\theta_c$ across density levels is below $0.05$, confirming robustness to
+    discrete sparsity configurations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Standard deviation of \u03B8c across density levels is below 0.05, confirming\
+    \ robustness to discrete sparsity configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:37:09Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold theta_c remains stable across varying sparsity densities
+  claim_id: c_b7e963dd
+  context: 'The computational experiments confirm the BBP phase transition: ... The
+    critical threshold $\theta_c$ remains stable across varying sparsity densities,
+    confirming the theoretical prediction that the transition depends primarily on
+    the perturbation norm, not the sparsity pattern.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_threshold_theta_c_remains_stable_across_varying_spa
+  kind: entity_fact
+  raw_text: "The critical threshold \u03B8c remains stable across varying sparsity\
+    \ densities, confirming the theoretical prediction that the transition depends\
+    \ primarily on the perturbation norm, not the sparsity pattern."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:37:34Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: "Simulations confirm the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition"
+  claim_id: c_b49a4354
+  context: "Section 3.1 BBP Phase Transition: Our simulations confirm the Baik-Ben\
+    \ Arous-P\xE9ch\xE9 (BBP) transition."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulations_confirm_the_Baik-Ben_Arous-P%C3%A9ch%C3%A9_(BBP)_transitio
+  kind: entity_fact
+  raw_text: "Our simulations confirm the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:39:50Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: No outliers observed for perturbation strengths below critical threshold
+    of 1.0
+  claim_id: c_5127bd68
+  context: 'Section 3.1 BBP Phase Transition: For perturbation strengths $\theta$
+    below the critical threshold $\theta_c \approx 1.0$, no outliers are observed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For perturbation strengths $\theta$ below the critical threshold $\theta_c
+    \approx 1.0$, no outliers are observed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:41:28Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Distinct outlier emerges for perturbation strengths above critical threshold
+  claim_id: c_79c79e68
+  context: 'Section 3.1 BBP Phase Transition: For $\theta > \theta_c$, a distinct
+    outlier emerges, consistent with theoretical predictions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_outlier_emerges_for_perturbation_strengths_above_cr
+  kind: entity_fact
+  raw_text: For $\theta > \theta_c$, a distinct outlier emerges, consistent with theoretical
+    predictions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:41:59Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold remains stable across sparsity densities from 0.1
+    to 0.5
+  claim_id: c_ada9fd93
+  context: 'Section 3.2 Sensitivity to Sparsity: Sensitivity analysis reveals that
+    the critical threshold $\theta_c$ remains stable across varying sparsity densities
+    $\rho \in [0.1, 0.5]$, confirming the robustness of the transition in the sparse
+    regime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis reveals that the critical threshold $\theta_c$ remains
+    stable across varying sparsity densities $\rho \in [0.1, 0.5]$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:42:24Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outliers emerge when perturbation strength theta exceeds 1 in standard
+    scaling
+  claim_id: c_b1bc5029
+  context: Results section detailing phase transition and threshold identification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The simulation confirms the theoretical prediction that outliers emerge\
+    \ when \u03B8 > 1 (for the standard scaling used)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:43:57Z'

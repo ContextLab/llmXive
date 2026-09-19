@@ -1,1 +1,1 @@
-# Integration tests initialization
+# Integration tests init

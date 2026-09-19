@@ -1,14 +1,1 @@
-"""
-Analysis package for spectral analysis and sweep operations.
-"""
-from .sweep_matrix_generator import (
-    generate_sweep_configs,
-    save_raw_sweep_matrix,
-    run_sweep_generation
-)
-
-__all__ = [
-    "generate_sweep_configs",
-    "save_raw_sweep_matrix",
-    "run_sweep_generation"
-]
+from .task019_hygiene import compute_file_sha256, load_existing_checksums, save_checksums, run_hygiene_capture, main

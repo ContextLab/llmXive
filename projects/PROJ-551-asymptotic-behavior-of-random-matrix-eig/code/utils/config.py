@@ -1,120 +1,69 @@
 """
 Configuration management for seeds, tolerances, and paths.
 """
+import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Any, Optional
+
+# Project root is assumed to be the parent of the 'code' directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+DEFAULT_CONFIG = {
+    "seeds": {
+        "default": 42,
+        "sweep": [42, 123, 456, 789]
+    },
+    "tolerances": {
+        "eigenvalue": 1e-10,
+        "convergence": 1e-10
+    },
+    "paths": {
+        "data_raw": "data/raw",
+        "data_processed": "data/processed",
+        "data_figures": "data/figures",
+        "data_logs": "data/logs",
+        "state": "state",
+        "code": "code"
+    }
+}
 
 def get_project_paths() -> Dict[str, Path]:
     """
-    Get project directory paths.
-    
+    Return absolute paths for project directories relative to PROJECT_ROOT.
+
     Returns:
-        Dict mapping path names to Path objects
+        Dict mapping logical names to absolute Path objects.
     """
-    # Assume running from code/ directory or project root
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-    
-    return {
-        'root': project_root,
-        'code': project_root / 'code',
-        'data': project_root / 'data',
-        'raw': project_root / 'data' / 'raw',
-        'processed': project_root / 'data' / 'processed',
-        'logs': project_root / 'data' / 'logs',
-        'figures': project_root / 'data' / 'figures',
-        'state': project_root / 'state',
-        'tests': project_root / 'tests',
-    }
+    paths = {}
+    for key, rel_path in DEFAULT_CONFIG["paths"].items():
+        abs_path = PROJECT_ROOT / rel_path
+        paths[key] = abs_path
+    return paths
+
+def get_config_value(key: str, default: Any = None) -> Any:
+    """
+    Retrieve a configuration value by key path (e.g., 'seeds.default').
+    """
+    keys = key.split(".")
+    value = DEFAULT_CONFIG
+    for k in keys:
+        if isinstance(value, dict) and k in value:
+            value = value[k]
+        else:
+            return default
+    return value
 
 def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load configuration from a JSON file.
-    
-    Args:
-        config_path: Path to config file (default: project root config.json)
-        
-    Returns:
-        Dict containing configuration values
+    Load configuration from a JSON file if provided, otherwise return defaults.
     """
-    if config_path is None:
-        paths = get_project_paths()
-        config_path = paths['root'] / 'config.json'
-    
-    if not config_path.exists():
-        # Return default configuration if file doesn't exist
-        return {
-            'seed': 42,
-            'tolerance': 1e-10,
-            'matrix_size': 1000,
-            'num_eigenvalues': 10,
-            'perturbation_norm': 2.5,
-            'sparsity_density': 0.1,
-            'num_mc_iterations': 100
-        }
-    
-    import json
-    with open(config_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    if config_path and config_path.exists():
+        with open(config_path, "r") as f:
+            return json.load(f)
+    return DEFAULT_CONFIG
 
-def ensure_directories() -> None:
-    """Create all required project directories if they don't exist."""
-    paths = get_project_paths()
-    for path in paths.values():
-        if path.name in ['raw', 'processed', 'logs', 'figures', 'state']:
-            path.mkdir(parents=True, exist_ok=True)
-
-def get_seed(config: Optional[Dict[str, Any]] = None) -> int:
-    """Get random seed from config or environment."""
-    if config is None:
-        config = load_config()
-    
-    # Check environment variable first
-    env_seed = os.environ.get('SIMULATION_SEED')
-    if env_seed is not None:
-        return int(env_seed)
-    
-    return config.get('seed', 42)
-
-def get_tolerance(config: Optional[Dict[str, Any]] = None) -> float:
-    """Get numerical tolerance from config."""
-    if config is None:
-        config = load_config()
-    
-    return config.get('tolerance', 1e-10)
-
-def get_matrix_size(config: Optional[Dict[str, Any]] = None) -> int:
-    """Get matrix size N from config."""
-    if config is None:
-        config = load_config()
-    
-    return config.get('matrix_size', 1000)
-
-def get_num_eigenvalues(config: Optional[Dict[str, Any]] = None) -> int:
-    """Get number of eigenvalues to compute from config."""
-    if config is None:
-        config = load_config()
-    
-    return config.get('num_eigenvalues', 10)
-
-def get_perturbation_norm(config: Optional[Dict[str, Any]] = None) -> float:
-    """Get perturbation norm (theta) from config."""
-    if config is None:
-        config = load_config()
-    
-    return config.get('perturbation_norm', 2.5)
-
-def get_sparsity_density(config: Optional[Dict[str, Any]] = None) -> float:
-    """Get sparsity density from config."""
-    if config is None:
-        config = load_config()
-    
-    return config.get('sparsity_density', 0.1)
-
-def get_num_mc_iterations(config: Optional[Dict[str, Any]] = None) -> int:
-    """Get number of Monte Carlo iterations from config."""
-    if config is None:
-        config = load_config()
-    
-    return config.get('num_mc_iterations', 100)
+def save_config(config: Dict[str, Any], config_path: Path) -> None:
+    """Save configuration to a JSON file."""
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)

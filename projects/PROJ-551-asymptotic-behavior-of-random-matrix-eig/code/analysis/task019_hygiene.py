@@ -1,7 +1,11 @@
 """
-Task T019: ATOMIC DATA HYGIENE
-Generate raw Wigner matrix instances and immediately checksum them.
-Produces data/raw/matrix_N{N}_seed{seed}.npy and updates state/checksums_raw.json.
+Task T019: Atomic Data Hygiene for Wigner Matrix Generation.
+
+Generates a raw Wigner matrix instance, saves it to disk, computes its SHA-256
+checksum, and registers the checksum in the unified metadata registry.
+
+This task ensures that raw data is checksummed immediately upon generation,
+satisfying Constitution Principle III (Data Hygiene).
 """
 import argparse
 import hashlib
@@ -9,190 +13,154 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Dict, Any
-
-import numpy as np
+from typing import Dict, Any, Optional
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.config import get_project_paths, get_seed, get_matrix_size
 from generators.wigner import generate_wigner_matrix
-from utils.checksum import compute_file_checksum, save_checksum_manifest
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from utils.config import get_project_paths
 
 def compute_file_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_existing_checksums(state_dir: Path) -> Dict[str, Any]:
-    """Load existing checksums manifest or return empty structure."""
-    checksum_file = state_dir / "checksums_raw.json"
-    if checksum_file.exists():
-        try:
-            with open(checksum_file, 'r') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not load existing checksums: {e}. Starting fresh.")
-    return {"checksums": [], "metadata": {"version": "1.0", "created": None}}
+def load_existing_checksums(registry_path: Path) -> Dict[str, Any]:
+    """Load the existing metadata registry if it exists."""
+    if registry_path.exists():
+        with open(registry_path, "r") as f:
+            return json.load(f)
+    return {"entries": []}
 
-def save_checksums(state_dir: Path, data: Dict[str, Any]) -> None:
-    """Save checksums manifest to disk."""
-    checksum_file = state_dir / "checksums_raw.json"
-    with open(checksum_file, 'w') as f:
+def save_checksums(registry_path: Path, data: Dict[str, Any]) -> None:
+    """Save the updated metadata registry."""
+    with open(registry_path, "w") as f:
         json.dump(data, f, indent=2)
-    logger.info(f"Checksums saved to {checksum_file}")
 
 def run_hygiene_capture(
-    N: Optional[int] = None,
-    seed: Optional[int] = None,
-    output_dir: Optional[Path] = None,
-    state_dir: Optional[Path] = None
+    n: int,
+    seed: int,
+    output_dir: Path,
+    registry_path: Path,
+    logger: logging.Logger
 ) -> Dict[str, Any]:
     """
-    Generate a single Wigner matrix, save it, compute checksum, and update manifest.
-    
-    Args:
-        N: Matrix dimension. Defaults to config value.
-        seed: Random seed. Defaults to config value.
-        output_dir: Directory for raw data. Defaults to config value.
-        state_dir: Directory for state/checksums. Defaults to config value.
-    
-    Returns:
-        Dictionary containing the result of the capture operation.
+    Generate a Wigner matrix, save it, compute checksum, and register.
+
+    Returns the metadata record created.
     """
-    # Resolve paths
-    paths = get_project_paths()
-    raw_dir = output_dir or paths["raw_data"]
-    state_directory = state_dir or paths["state"]
-    
-    # Ensure directories exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    state_directory.mkdir(parents=True, exist_ok=True)
-    
-    # Get parameters
-    if N is None:
-        N = get_matrix_size()
-    if seed is None:
-        seed = get_seed()
-    
-    logger.info(f"Generating Wigner matrix: N={N}, seed={seed}")
-    
-    # Generate matrix
-    matrix = generate_wigner_matrix(N, seed)
-    
-    # Define output file path
-    file_name = f"matrix_N{N}_seed{seed}.npy"
-    file_path = raw_dir / file_name
-    
-    # Save matrix
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate filename
+    filename = f"matrix_N{n}_seed{seed}.npy"
+    file_path = output_dir / filename
+
+    logger.info(f"Generating Wigner matrix (N={n}, seed={seed})...")
+    matrix = generate_wigner_matrix(n, seed=seed)
+
+    logger.info(f"Saving matrix to {file_path}...")
+    import numpy as np
     np.save(file_path, matrix)
-    logger.info(f"Matrix saved to {file_path}")
-    
-    # Compute checksum
+
+    logger.info(f"Computing SHA-256 checksum for {file_path}...")
     checksum = compute_file_sha256(file_path)
-    logger.info(f"Computed SHA-256: {checksum}")
-    
-    # Load existing manifest
-    manifest = load_existing_checksums(state_directory)
-    
-    # Create new entry
-    entry = {
-        "file": file_name,
-        "path": str(file_path),
-        "checksum": checksum,
-        "algorithm": "sha256",
+
+    # Create metadata record
+    metadata_record = {
+        "run_id": f"t019_N{n}_seed{seed}",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "parameters": {
-            "N": N,
-            "seed": seed
+            "n": n,
+            "seed": seed,
+            "type": "wigner_matrix"
         },
-        "timestamp": None  # Will be set by save_checksum_manifest if needed
-    }
-    
-    # Add to manifest
-    if "checksums" not in manifest:
-        manifest["checksums"] = []
-    manifest["checksums"].append(entry)
-    
-    # Update metadata timestamp
-    from datetime import datetime, timezone
-    manifest["metadata"]["created"] = datetime.now(timezone.utc).isoformat()
-    
-    # Save updated manifest
-    save_checksums(state_directory, manifest)
-    
-    return {
-        "success": True,
-        "file": str(file_path),
-        "checksum": checksum,
-        "N": N,
-        "seed": seed
+        "file_path": str(file_path.relative_to(PROJECT_ROOT)),
+        "checksum": {
+            "algorithm": "sha256",
+            "hash": checksum
+        },
+        "status": "completed"
     }
 
+    # Load existing registry and append
+    registry = load_existing_checksums(registry_path)
+    registry["entries"].append(metadata_record)
+    save_checksums(registry_path, registry)
+
+    logger.info(f"Checksum registered in {registry_path}")
+    logger.info(f"Checksum: {checksum}")
+
+    return metadata_record
+
 def main():
-    """CLI entry point for Task T019."""
+    """Main entry point for Task T019."""
     parser = argparse.ArgumentParser(
-        description="Task T019: Generate raw Wigner matrix and checksum."
-    )
-    parser.add_argument(
-        "--N",
-        type=int,
-        default=None,
-        help="Matrix dimension (default: from config)"
+        description="Task T019: Generate Wigner matrix and checksum it."
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=None,
-        help="Random seed (default: from config)"
+        default=42,
+        help="Random seed for matrix generation (default: 42)"
+    )
+    parser.add_argument(
+        "--N",
+        type=int,
+        default=1000,
+        help="Dimension of the Wigner matrix (default: 1000)"
     )
     parser.add_argument(
         "--output-dir",
-        type=str,
+        type=Path,
         default=None,
-        help="Output directory for raw data"
+        help="Directory to save the matrix (default: data/raw)"
     )
     parser.add_argument(
-        "--state-dir",
-        type=str,
+        "--registry-path",
+        type=Path,
         default=None,
-        help="Directory for state/checksums"
+        help="Path to metadata registry (default: state/metadata_registry.json)"
     )
-    
+
     args = parser.parse_args()
-    
+
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    logger = logging.getLogger("task019_hygiene")
+
+    # Resolve paths
+    project_paths = get_project_paths()
+    output_dir = args.output_dir or project_paths["data_raw"]
+    registry_path = args.registry_path or project_paths["state"] / "metadata_registry.json"
+
+    logger.info(f"Task T019 starting: N={args.N}, seed={args.seed}")
+    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Registry path: {registry_path}")
+
     try:
         result = run_hygiene_capture(
-            N=args.N,
+            n=args.N,
             seed=args.seed,
-            output_dir=Path(args.output_dir) if args.output_dir else None,
-            state_dir=Path(args.state_dir) if args.state_dir else None
+            output_dir=output_dir,
+            registry_path=registry_path,
+            logger=logger
         )
-        
-        if result["success"]:
-            logger.info(f"Task T019 completed successfully.")
-            logger.info(f"  File: {result['file']}")
-            logger.info(f"  Checksum: {result['checksum']}")
-            sys.exit(0)
-        else:
-            logger.error("Task T019 failed.")
-            sys.exit(1)
-            
+        logger.info(f"Task T019 completed successfully. Run ID: {result['run_id']}")
+        return 0
     except Exception as e:
-        logger.exception(f"Task T019 failed with exception: {e}")
-        sys.exit(1)
+        logger.error(f"Task T019 failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
