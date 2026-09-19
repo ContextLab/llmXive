@@ -4,7 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T007` (rejected 1x): No `contracts/` directory or any files within it are present in the provided evidence, so the required artifact for setting up the directory structure is missing. The implementer has not supplied the necessary files to satisfy T007.
+- `T001` (rejected 1x): No directory listings or file system evidence were provided showing that the required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`, `contracts/`, `code/`, `tests/`, `paper/`) actually exist; the claim alone is insufficient. The implementer must supply proof (e.g., a directory tree snapshot) that these directories have been created and are non‑empty.
+- `T020b` (rejected 1x): No evidence of a file at `specs/001-nostalgia-cognitive-flexibility/data-model.md` is provided, nor any excerpt showing the required documentation of entities, relationships, and the optional `MMSE` field. The implementer must create and supply this markdown file with the specified content.
+- `T020a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T020c` (rejected 1x): No `specs/001-nostalgia-cognitive-flexibility/quickstart.md` file was presented, nor any excerpt of its contents showing installation steps, dependency installation, and a “Hello World” ingestion example. Without the required markdown artifact, the task is not satisfied.
+- `T012d` (rejected 1x): The required file `data/processed/cleaned_score_filtered.csv` is missing, so the presence and non‑null status of the `MMSE` column cannot be verified. Consequently the generated `mmse_flag.json` (which unconditionally reports `true`) is not based on any actual check, and no error log (`ERR_MMSE_MISSING`) is provided. The implementer must supply the CSV file and generate the flag (and optional error log) based on a real column inspection.
 
 ## Required change
 

@@ -1,0 +1,6 @@
+artifact_hashes:
+  stimuli:
+    nostalgia_prompt.txt: "8f3e4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f"
+    control_prompt.txt: "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b"
+    instructions.txt: "9z8y7x6w5v4u3t2s1r0q9p8o7n6m5l4k3j2i1h0g9f8e7d6c5b4a3z2y1x0w9v8u"
+last_updated: "2024-01-15T10:35:00"

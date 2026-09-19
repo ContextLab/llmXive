@@ -1,3 +1,2 @@
-# This file ensures the stimuli directory is tracked in version control.
-# Stimuli files (images, audio, text prompts) for the nostalgia study
-# will be downloaded or generated into this directory by subsequent tasks.
+# This directory is for stimulus materials.
+# Nostalgia and control stimuli files will be stored here.

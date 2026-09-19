@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-524-the-impact-of-nostalgia-on-cognitive-fle
-last_run_id: 363f92b4-1dbd-4d68-afad-fce225ba2e6b
+last_run_id: d5bdc001-3fdf-43f7-a374-b0133b75b113
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-524-the-impact-of-nostalgia-on-cognitive-fle/specs/001-the-impact-of-nostalgia-on-cognitive-fle
 title: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
-updated_at: '2026-09-11T01:42:47.989986Z'
+updated_at: '2026-09-19T14:50:54.757860Z'

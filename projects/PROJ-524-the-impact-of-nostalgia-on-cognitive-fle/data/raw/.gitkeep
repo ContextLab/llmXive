@@ -1,3 +1,2 @@
-# Placeholder for raw data files
-# This directory is created by task T001a.
-# Raw datasets (e.g., from OpenML, HuggingFace, or local uploads) will be stored here.
+# This directory is for raw data files.
+# Files will be downloaded here during the ingestion process.

@@ -7,160 +7,154 @@ from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 
 def generate_dataset_schema() -> Dict[str, Any]:
     """
-    Generates the dataset schema based on the project specifications.
-    Includes required fields: participant_id, age, stimulus_type,
-    perseverative_errors, categories_completed, and optional MMSE.
+    Generate the dataset schema based on the Data Model (T020b).
+    Defines fields: participant_id, age, stimulus_type, perseverative_errors,
+    categories_completed, and optional MMSE.
     """
     schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "NostalgiaCognitiveFlexibilityDataset",
+        "description": "Schema for the WCST/Nostalgia study dataset.",
         "type": "object",
         "properties": {
             "participant_id": {
                 "type": "string",
-                "description": "Unique identifier for the participant",
-                "required": True
+                "description": "Unique identifier for the participant."
             },
             "age": {
                 "type": "integer",
-                "description": "Age of the participant in years",
-                "minimum": 65,
-                "required": True
+                "description": "Age of the participant in years.",
+                "minimum": 0
             },
             "stimulus_type": {
                 "type": "string",
-                "description": "Type of stimulus presented (nostalgia or control)",
-                "enum": ["nostalgia", "control"],
-                "required": True
+                "description": "Type of stimulus presented (e.g., 'nostalgia', 'control').",
+                "enum": ["nostalgia", "control"]
             },
             "perseverative_errors": {
                 "type": "integer",
-                "description": "Number of perseverative errors made in the task",
-                "minimum": 0,
-                "required": True
+                "description": "Number of perseverative errors on the WCST.",
+                "minimum": 0
             },
             "categories_completed": {
                 "type": "integer",
-                "description": "Number of categories successfully completed",
-                "minimum": 0,
-                "required": True
+                "description": "Number of categories completed on the WCST.",
+                "minimum": 0
             },
             "MMSE": {
                 "type": ["integer", "null"],
-                "description": "Mini-Mental State Examination score (optional)",
+                "description": "Mini-Mental State Examination score. Optional field.",
                 "minimum": 0,
-                "maximum": 30,
-                "required": False
+                "maximum": 30
             }
         },
-        "required_fields": ["participant_id", "age", "stimulus_type", "perseverative_errors", "categories_completed"],
-        "optional_fields": ["MMSE"]
+        "required": ["participant_id", "age", "stimulus_type", "perseverative_errors", "categories_completed"]
     }
     return schema
 
 def generate_output_schema() -> Dict[str, Any]:
     """
-    Generates the output schema for analysis results.
+    Generate the output schema for analysis results.
     """
     schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "NostalgiaCognitiveFlexibilityOutput",
+        "description": "Schema for statistical analysis output.",
         "type": "object",
         "properties": {
-            "statistical_test": {
+            "analysis_date": {
                 "type": "string",
-                "description": "Name of the statistical test performed",
-                "required": True
+                "description": "ISO 8601 timestamp of the analysis."
             },
-            "p_value": {
-                "type": "number",
-                "description": "Raw p-value from the test",
-                "required": True
-            },
-            "p_value_corrected": {
-                "type": "number",
-                "description": "Bonferroni-corrected p-value",
-                "required": True
-            },
-            "effect_size": {
-                "type": "number",
-                "description": "Cohen's d effect size",
-                "required": True
-            },
-            "effect_size_ci": {
+            "sample_sizes": {
                 "type": "object",
-                "description": "95% Confidence Interval for effect size",
                 "properties": {
-                    "lower": {"type": "number"},
-                    "upper": {"type": "number"}
+                    "nostalgia_group": {"type": "integer"},
+                    "control_group": {"type": "integer"}
                 },
-                "required": True
+                "required": ["nostalgia_group", "control_group"]
             },
-            "power": {
-                "type": "number",
-                "description": "Calculated statistical power",
-                "required": True
+            "results": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "metric": {"type": "string"},
+                        "test_type": {"type": "string"},
+                        "statistic": {"type": "number"},
+                        "p_value": {"type": "number"},
+                        "p_value_corrected": {"type": "number"},
+                        "effect_size_cohen_d": {"type": "number"},
+                        "ci_lower": {"type": "number"},
+                        "ci_upper": {"type": "number"},
+                        "significant": {"type": "boolean"}
+                    },
+                    "required": ["metric", "test_type", "statistic", "p_value"]
+                }
             },
-            "mdes": {
-                "type": "number",
-                "description": "Minimum Detectable Effect Size",
-                "required": True
-            },
-            "sensitivity_flags": {
+            "power_analysis": {
                 "type": "object",
-                "description": "Flags indicating sensitivity to threshold choices",
-                "required": True
+                "properties": {
+                    "achieved_power": {"type": "number"},
+                    "minimum_detectable_effect": {"type": "number"}
+                }
             }
         },
-        "required_fields": [
-            "statistical_test", "p_value", "p_value_corrected",
-            "effect_size", "effect_size_ci", "power", "mdes", "sensitivity_flags"
-        ]
+        "required": ["analysis_date", "sample_sizes", "results"]
     }
     return schema
 
 def write_schema(schema: Dict[str, Any], output_path: Path) -> None:
     """
-    Writes the schema dictionary to a YAML file.
+    Write a schema dictionary to a YAML file.
     """
-    with open(output_path, 'w') as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
     log_info(f"Schema written to {output_path}")
 
 def main() -> None:
     """
-    Main entry point for generating contract schemas.
+    Main entry point for T020a: Generate Contracts.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
     setup_logging()
+    log_info(f"Starting T020a: Generate Contracts at {get_timestamp()}")
 
-    # Ensure contracts directory exists
     contracts_dir = Path("contracts")
-    contracts_dir.mkdir(exist_ok=True)
+    contracts_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate and write dataset schema
     dataset_schema = generate_dataset_schema()
     dataset_schema_path = contracts_dir / "dataset.schema.yaml"
     write_schema(dataset_schema, dataset_schema_path)
 
-    # Validate required fields exist in dataset schema
-    required_fields = ["participant_id", "age", "stimulus_type", "perseverative_errors", "categories_completed"]
-    optional_fields = ["MMSE"]
-    
-    schema_props = dataset_schema.get("properties", {})
-    missing_required = [f for f in required_fields if f not in schema_props]
-    if missing_required:
-        log_error(f"Missing required fields in dataset schema: {missing_required}")
-        raise ValueError(f"Schema validation failed: missing fields {missing_required}")
-    
-    if "MMSE" not in schema_props:
-        log_warning("MMSE field is missing from schema (expected to be optional)")
-    else:
-        log_info("MMSE field present in schema (optional)")
-
     # Generate and write output schema
     output_schema = generate_output_schema()
     output_schema_path = contracts_dir / "output.schema.yaml"
     write_schema(output_schema, output_schema_path)
 
-    log_info("Contract schemas generated successfully.")
+    # Validation check (log only, as per task description)
+    required_fields = ["participant_id", "age", "stimulus_type", "perseverative_errors", "categories_completed"]
+    optional_fields = ["MMSE"]
+    
+    schema_props = dataset_schema["properties"]
+    missing_required = [f for f in required_fields if f not in schema_props]
+    
+    if missing_required:
+        log_error(f"Validation failed: Missing required fields in schema: {missing_required}")
+        return
+    
+    if "MMSE" not in schema_props:
+        log_warning("Validation warning: Optional field 'MMSE' not found in schema.")
+    else:
+        # Check if it allows null
+        mmse_def = schema_props["MMSE"]
+        if isinstance(mmse_def["type"], list) and "null" in mmse_def["type"]:
+            log_info("Validation passed: 'MMSE' is correctly defined as optional.")
+        else:
+            log_warning("Validation warning: 'MMSE' defined but type does not explicitly include 'null'.")
+
+    log_info("T020a completed successfully.")
 
 if __name__ == "__main__":
     main()

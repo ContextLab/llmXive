@@ -1,112 +1,150 @@
 """
-Unit tests for T014b validity metrics calculation.
+Unit tests for Task T014b: Validity Metrics.
 """
-import json
 import os
+import json
 import tempfile
 import pytest
+import pandas as pd
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Mock config and utils for testing
+# We need to mock the config to point to temp directories
 @pytest.fixture
-def mock_config():
-    return {
-        "data": {
-            "raw": "/tmp/test_raw",
-            "processed": "/tmp/test_processed"
-        }
-    }
-
-@pytest.fixture
-def temp_dirs():
+def temp_config():
+    """Create a temporary directory structure for testing."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir) / "raw"
-        processed_dir = Path(tmpdir) / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
+        tmp_path = Path(tmpdir)
+        raw_dir = tmp_path / "data" / "raw"
+        processed_dir = tmp_path / "data" / "processed"
+        results_dir = tmp_path / "data" / "results"
+        stimuli_dir = tmp_path / "data" / "stimuli"
+        contracts_dir = tmp_path / "contracts"
+        code_dir = tmp_path / "code"
+        tests_dir = tmp_path / "tests"
+        paper_dir = tmp_path / "paper"
         
-        # Create a fake metadata file
-        metadata = {"total_records": 150}
-        with open(raw_dir / "metadata.json", "w") as f:
-            json.dump(metadata, f)
+        # Create directories
+        for d in [raw_dir, processed_dir, results_dir, stimuli_dir, contracts_dir, code_dir, tests_dir, paper_dir]:
+            d.mkdir(parents=True, exist_ok=True)
         
-        # Create a fake exclusion log
-        exclusion = {
-            "total_excluded": 30,
-            "counts": {
-                "ERR_MISSING_AGE_FIELD": 10,
-                "ERR_MISSING_BIRTH_YEAR": 5,
-                "ERR_MISSING_SCORE": 15
-            }
+        # Create a mock raw dataset
+        raw_df = pd.DataFrame({
+            "participant_id": range(100),
+            "age": [70] * 100, # All valid age
+            "stimulus_type": ["nostalgia"] * 50 + ["control"] * 50,
+            "perseverative_errors": list(range(100)),
+            "categories_completed": list(range(100, 0, -1)),
+            "MMSE": [28] * 100
+        })
+        raw_path = raw_dir / "raw_dataset.csv"
+        raw_df.to_csv(raw_path, index=False)
+        
+        # Create a mock exclusion log (simulating 5 age exclusions, 2 score exclusions)
+        exclusion_log = {
+            "ERR_MISSING_AGE_FIELD": 5,
+            "ERR_MISSING_SCORE": 2,
+            "ERR_MMSE_IMPAIRED": 0,
+            "SIMULATION_FALLBACK": False
         }
-        with open(processed_dir / "exclusion_log.json", "w") as f:
-            json.dump(exclusion, f)
+        exclusion_path = processed_dir / "exclusion_log.json"
+        with open(exclusion_path, 'w') as f:
+            json.dump(exclusion_log, f)
         
         yield {
-            "raw": str(raw_dir),
-            "processed": str(processed_dir)
+            "base": tmp_path,
+            "raw_dir": raw_dir,
+            "processed_dir": processed_dir,
+            "raw_path": raw_path,
+            "exclusion_path": exclusion_path
         }
 
-@patch('code.task_t014b_validity_metrics.get_config')
-@patch('code.task_t014b_validity_metrics.ensure_dirs')
-def test_calculate_validity_metrics(mock_ensure, mock_get_config, temp_dirs, mock_config):
-    # Update mock config to point to temp dirs
-    mock_config["data"]["raw"] = temp_dirs["raw"]
-    mock_config["data"]["processed"] = temp_dirs["processed"]
-    mock_get_config.return_value = mock_config
-
-    from code.task_t014b_validity_metrics import calculate_validity_metrics
-
-    metrics = calculate_validity_metrics()
-
-    assert metrics["status"] == "success"
-    assert metrics["total_raw_records"] == 150
-    assert metrics["excluded_records_count"] == 30
-    assert metrics["valid_records_count"] == 120
-    assert metrics["validity_percentage"] == 80.0
-    assert "ERR_MISSING_AGE_FIELD" in metrics["exclusion_breakdown"]
-
-@patch('code.task_t014b_validity_metrics.get_config')
-@patch('code.task_t014b_validity_metrics.ensure_dirs')
-def test_calculate_validity_metrics_missing_metadata(mock_ensure, mock_get_config, temp_dirs, mock_config):
-    # Remove metadata file to test fallback
-    os.remove(Path(temp_dirs["raw"]) / "metadata.json")
+def test_calculate_validity_metrics(temp_config):
+    """Test the calculation logic of validity metrics."""
+    # Import the function under test
+    # We need to ensure the module path is correct relative to the project root
+    # For this test, we assume the test is run from the project root or code is in path
+    import sys
+    sys.path.insert(0, str(temp_config["base"]))
     
-    # Create a fake CSV to test fallback counting
-    with open(Path(temp_dirs["raw"]) / "dataset.csv", "w") as f:
-        f.write("id,value\n1,10\n2,20\n3,30\n4,40\n5,50\n") # 5 rows
+    # Mock the config to return our temp paths
+    from unittest.mock import MagicMock
+    mock_config = {
+        "paths": {
+            "raw_dir": temp_config["raw_dir"],
+            "processed_dir": temp_config["processed_dir"]
+        }
+    }
     
-    mock_config["data"]["raw"] = temp_dirs["raw"]
-    mock_config["data"]["processed"] = temp_dirs["processed"]
-    mock_get_config.return_value = mock_config
+    with patch('code.task_t014b_validity_metrics.get_config', return_value=mock_config):
+        from code.task_t014b_validity_metrics import load_exclusion_log, load_raw_count, calculate_validity_metrics
+        
+        # Load data
+        exclusion_log = load_exclusion_log()
+        raw_count = load_raw_count()
+        
+        # Calculate
+        metrics = calculate_validity_metrics(exclusion_log, raw_count)
+        
+        # Assertions
+        assert metrics["raw_record_count"] == 100
+        assert metrics["excluded_age"] == 5
+        assert metrics["excluded_score"] == 2
+        assert metrics["excluded_mmse"] == 0
+        assert metrics["valid_record_count"] == 93 # 100 - 5 - 2
+        assert metrics["validity_percentage"] == 93.0
+        assert metrics["target_met"] is True
 
-    from code.task_t014b_validity_metrics import calculate_validity_metrics
-
-    metrics = calculate_validity_metrics()
-
-    # Should fall back to CSV count (5 rows)
-    assert metrics["total_raw_records"] == 5
-    # Excluded count remains 30 from exclusion log
-    # But valid = 5 - 30 = -25 -> clamped to 0 in logic
-    assert metrics["valid_records_count"] == 0
-    assert metrics["validity_percentage"] == 0.0
-
-@patch('code.task_t014b_validity_metrics.get_config')
-@patch('code.task_t014b_validity_metrics.ensure_dirs')
-def test_calculate_validity_metrics_unknown_total(mock_ensure, mock_get_config, temp_dirs, mock_config):
-    # Remove all sources of total count
-    os.remove(Path(temp_dirs["raw"]) / "metadata.json")
-    os.remove(Path(temp_dirs["raw"]) / "dataset.csv")
+def test_target_not_met(temp_config):
+    """Test scenario where validity target is not met."""
+    # Modify exclusion log to have high exclusions
+    exclusion_log = {
+        "ERR_MISSING_AGE_FIELD": 20,
+        "ERR_MISSING_SCORE": 15,
+        "ERR_MMSE_IMPAIRED": 10,
+        "SIMULATION_FALLBACK": False
+    }
+    with open(temp_config["exclusion_path"], 'w') as f:
+        json.dump(exclusion_log, f)
+        
+    import sys
+    sys.path.insert(0, str(temp_config["base"]))
     
-    mock_config["data"]["raw"] = temp_dirs["raw"]
-    mock_config["data"]["processed"] = temp_dirs["processed"]
-    mock_get_config.return_value = mock_config
+    mock_config = {
+        "paths": {
+            "raw_dir": temp_config["raw_dir"],
+            "processed_dir": temp_config["processed_dir"]
+        }
+    }
+    
+    with patch('code.task_t014b_validity_metrics.get_config', return_value=mock_config):
+        from code.task_t014b_validity_metrics import load_exclusion_log, load_raw_count, calculate_validity_metrics
+        
+        exclusion_log = load_exclusion_log()
+        raw_count = load_raw_count()
+        metrics = calculate_validity_metrics(exclusion_log, raw_count)
+        
+        # 100 - 20 - 15 - 10 = 55 valid
+        assert metrics["valid_record_count"] == 55
+        assert metrics["validity_percentage"] == 55.0
+        assert metrics["target_met"] is False
 
-    from code.task_t014b_validity_metrics import calculate_validity_metrics
-
-    metrics = calculate_validity_metrics()
-
-    assert metrics["status"] == "unknown"
-    assert metrics["total_raw_records"] == 0
-    assert "Could not determine" in metrics["message"]
+def test_missing_raw_file(temp_config):
+    """Test error handling when raw file is missing."""
+    os.remove(temp_config["raw_path"])
+    
+    import sys
+    sys.path.insert(0, str(temp_config["base"]))
+    
+    mock_config = {
+        "paths": {
+            "raw_dir": temp_config["raw_dir"],
+            "processed_dir": temp_config["processed_dir"]
+        }
+    }
+    
+    with patch('code.task_t014b_validity_metrics.get_config', return_value=mock_config):
+        from code.task_t014b_validity_metrics import load_raw_count
+        
+        with pytest.raises(FileNotFoundError):
+            load_raw_count()

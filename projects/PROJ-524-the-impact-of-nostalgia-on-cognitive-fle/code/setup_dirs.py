@@ -1,7 +1,3 @@
-"""
-Task T001: Create all required data directories.
-Creates: data/raw/, data/processed/, data/results/, data/stimuli/, contracts/, code/, tests/, paper/
-"""
 import os
 import sys
 import logging
@@ -11,11 +7,18 @@ from utils import setup_logging, log_info, log_warning
 
 def create_required_directories():
     """
-    Creates the standard directory structure required for the project.
-    Returns a list of created directory paths.
+    Creates all required data directories for the project:
+    - data/raw/
+    - data/processed/
+    - data/results/
+    - data/stimuli/
+    - contracts/
+    - code/
+    - tests/
+    - paper/
     """
     config = get_config()
-    base_dir = config.get('base_dir', Path.cwd())
+    root = Path(config.get('root_dir', '.'))
     
     required_dirs = [
         'data/raw',
@@ -28,36 +31,25 @@ def create_required_directories():
         'paper'
     ]
     
-    created_dirs = []
-    for dir_path in required_dirs:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            log_info(f"Created directory: {full_path}")
-            created_dirs.append(str(full_path))
+    created_count = 0
+    for dir_name in required_dirs:
+        dir_path = root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            log_info(f"Created directory: {dir_path}")
+            created_count += 1
         else:
-            log_info(f"Directory already exists: {full_path}")
-            created_dirs.append(str(full_path))
+            log_info(f"Directory already exists: {dir_path}")
     
-    return created_dirs
+    log_info(f"Successfully created/verified {created_count}/{len(required_dirs)} directories.")
+    return created_count
 
 def main():
-    """
-    Main entry point for T001 execution.
-    """
-    # Setup logging
-    log_level = get_config().get('log_level', 'INFO')
-    logger = setup_logging(level=log_level)
-    
-    log_info("Starting T001: Create required data directories")
-    
-    try:
-        created = create_required_directories()
-        log_info(f"Successfully created/verified {len(created)} directories")
-        return 0
-    except Exception as e:
-        log_error(f"Failed to create directories: {e}")
-        return 1
+    setup_logging()
+    log_info("Starting directory creation task (T001)...")
+    count = create_required_directories()
+    log_info(f"Task T001 completed. Created {count} directories.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,2 +1,2 @@
-# This file ensures the data/processed/ directory is tracked by version control.
-# It serves as a placeholder to satisfy the directory existence requirement.
+# This directory is for processed data files.
+# Intermediate and final cleaned datasets will be stored here.
