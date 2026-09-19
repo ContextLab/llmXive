@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.12895",
+  "judged_at": "2026-09-19T18:41:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "rationale": "The paper focuses on human-centered evaluation (trust, usability) of an LLM for business process modeling, which is a distinct domain and construct from the user's question regarding zero-shot motion tracking and humanoid structure scaling. It fails to satisfy any inclusion criteria as it does not measure the same biological/physical mechanism, share the same empirical population (human motion vs. business experts), or provide a baseline for the specific algorithmic properties of motion tracking",
+  "relevant": false
+}

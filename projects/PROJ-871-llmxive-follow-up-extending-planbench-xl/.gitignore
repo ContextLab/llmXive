@@ -1,67 +1,47 @@
-# Python
+# Data artifacts - large files
+data/
+*.parquet
+*.jsonl
+*.json
+*.csv
+*.h5
+*.pth
+*.pt
+
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environments
+# Virtual environments
 venv/
-ENV/
-env/
 .venv/
+env/
+.env/
 
-# IDEs
+# Logs and temporary files
+*.log
+.logs/
+tmp/
+*.tmp
+
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# Data (Large Artifacts)
-data/
-*.parquet
-*.jsonl
-*.csv
-*.h5
-*.hdf5
-*.pkl
-*.pickle
-
-# Logs
-*.log
-data/logs/
-
-# Results
-data/results/
-
-# OS
+# OS specific
 .DS_Store
 Thumbs.db
 
-# Testing
-.pytest_cache/
+# Test coverage
 .coverage
 htmlcov/
-.tox/
+.pytest_cache/
 
-# Misc
-*.bak
-*.tmp
-.cache
-.mypy_cache/
-.ruff_cache/
+# Build artifacts
+dist/
+build/
+*.egg-info/

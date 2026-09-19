@@ -2,93 +2,79 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Project root is determined relative to this file's location
-# Assuming the structure: projects/PROJ-871-.../code/utils/config.py
-# We go up 3 levels to reach the project root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-# Default configuration values
-DEFAULT_HYPERPARAMETERS = {
-    "llm_batch_size": 1,  # Minimal batch size for CPU memory safety (Task T030a)
-    "max_tokens": 512,
-    "temperature": 0.7,
-    "seed": 42,
-    "model_name": "meta-llama/Llama-3-8B-Quantized",
-    "cpu_only": True,
-}
-
-# Path aliases relative to project root
-PATH_ALIASES = {
-    "data_raw": "data/raw",
-    "data_derived": "data/derived",
-    "data_logs": "data/logs",
-    "data_results": "data/results",
-    "code_agents": "code/agents",
-    "code_analysis": "code/analysis",
-    "code_dataset": "code/dataset",
-    "code_utils": "code/utils",
-    "tests": "tests",
-}
+# Project root is determined by the presence of a marker or by traversing up
+# Assuming the project root is the directory containing this file's parent structure
+# In the deployed structure: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/
+# This script runs from code/, so we look for the project root.
+_PROJECT_ROOT = None
 
 def get_project_root() -> Path:
-    """Return the absolute path to the project root directory."""
+    global _PROJECT_ROOT
+    if _PROJECT_ROOT is None:
+        # Try to find the project root by looking for the specific project directory name
+        # or by traversing up from the current file location
+        current = Path(__file__).resolve()
+        # Traverse up until we find the specific project folder or a marker
+        # Assuming the structure: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/utils/config.py
+        # We look for 'code' then the project folder
+        parts = current.parts
+        try:
+            # Find the index of 'code'
+            code_idx = parts.index('code')
+            # The project root is the parent of 'code'
+            _PROJECT_ROOT = Path(*parts[:code_idx])
+        except ValueError:
+            # Fallback: assume current working directory is project root or parent
+            _PROJECT_ROOT = Path.cwd()
     return _PROJECT_ROOT
 
-def get_path(alias: str) -> Path:
+def get_path(key: str) -> str:
     """
-    Resolve a path alias to an absolute path within the project.
-    
-    Args:
-        alias: One of the keys in PATH_ALIASES or an absolute path string.
-    
-    Returns:
-        Absolute Path object.
+    Retrieve a path from the configuration based on a key.
+    Defaults to standard relative paths if not explicitly configured.
     """
-    if alias in PATH_ALIASES:
-        return _PROJECT_ROOT / PATH_ALIASES[alias]
-    # If it looks like an absolute path or doesn't match, treat as relative to root
-    return _PROJECT_ROOT / alias
+    root = get_project_root()
+    paths_map = {
+        "raw_data": "data/raw",
+        "derived_data": "data/derived",
+        "logs": "data/logs",
+        "results": "data/results",
+        "failure_signatures": "data/derived/failure_signatures.json",
+        "implicit_failure_subset": "data/derived/implicit_failure_subset.jsonl",
+        "baseline_log": "data/logs/baseline_execution.jsonl",
+        "augmented_log": "data/logs/augmented_execution.jsonl",
+        "final_report": "data/results/final_report.json",
+    }
+    relative = paths_map.get(key, key)
+    return str(root / relative)
 
-def get_hyperparameter(name: str, default: Any = None) -> Any:
+def get_hyperparameter(key: str, default: Any = None) -> Any:
     """
-    Retrieve a hyperparameter value.
-    
-    Priority:
-    1. Environment variable (e.g., LLMXIVE_BATCH_SIZE)
-    2. DEFAULT_HYPERPARAMETERS
-    3. Provided default
-    
-    Args:
-        name: The hyperparameter name.
-        default: Fallback value if not found.
-    
-    Returns:
-        The resolved value.
+    Retrieve a hyperparameter from the configuration.
+    In a real system, this might read from a config.yaml or env vars.
+    For now, it returns defaults or environment variables.
     """
-    env_var_name = f"LLMXIVE_{name.upper()}"
-    if env_var_name in os.environ:
-        val = os.environ[env_var_name]
-        # Attempt type conversion for common types
-        if name in ["llm_batch_size", "max_tokens", "seed"]:
-            return int(val)
-        elif name in ["temperature", "threshold"]:
-            return float(val)
-        elif val.lower() in ["true", "false"]:
-            return val.lower() == "true"
-        return val
+    env_val = os.getenv(f"LLMXIVE_{key.upper()}")
+    if env_val is not None:
+        return env_val
+    defaults = {
+        "max_tokens": 512,
+        "temperature": 0.7,
+        "model": "llama-3-8b-quantized",
+        "seed": 42,
+    }
+    return defaults.get(key, default)
 
-    if name in DEFAULT_HYPERPARAMETERS:
-        return DEFAULT_HYPERPARAMETERS[name]
-    
-    return default
-
-def ensure_dirs_exist(*paths: str) -> None:
+def ensure_dirs_exist() -> None:
     """
-    Ensure that the specified directory paths exist, creating them if necessary.
-    
-    Args:
-        *paths: Directory aliases or relative paths to ensure exist.
+    Ensure all required data directories exist.
     """
-    for path_str in paths:
-        target = get_path(path_str)
-        target.mkdir(parents=True, exist_ok=True)
+    root = get_project_root()
+    dirs = [
+        root / "data" / "raw",
+        root / "data" / "derived",
+        root / "data" / "logs",
+        root / "data" / "results",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)

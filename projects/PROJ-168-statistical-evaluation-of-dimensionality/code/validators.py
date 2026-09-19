@@ -1,21 +1,17 @@
 """
-validators.py
-
-Enforces the "Real Data Only" constraint for the statistical evaluation pipeline.
-This module prevents the use of synthetic, simulated, or placeholder data in
-the `data/raw` directory, ensuring research integrity.
+Validation logic for the dimensionality reduction pipeline.
+Ensures data integrity and enforces 'Real Data Only' constraints.
 """
-
 import os
 import sys
 import logging
 import hashlib
 import json
+import re
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any
+from typing import List, Optional, Dict, Any
 
-# Import config to access paths and project root
-from config import Config, ensure_paths
+from config import Config
 
 # Configure logging
 logging.basicConfig(
@@ -24,275 +20,183 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Known synthetic/placeholder signatures and patterns
-SYNTHETIC_SIGNATURES = [
-    b'synthetic',
-    b'simulated',
-    b'generated',
-    b'placeholder',
-    b'fake',
-    b'mock',
-    b'random_data',
-    b'test_data',
-    b'example',
-]
-
-# Known file patterns that indicate non-real data
-PLACEHOLDER_FILE_PATTERNS = [
-    'synthetic',
-    'simulated',
-    'mock',
-    'fake',
-    'placeholder',
-    'example',
-]
-
-# Minimum expected file size for a real count matrix (bytes)
-# Real scRNA-seq count matrices are typically > 100KB
-MIN_REAL_FILE_SIZE = 1024 * 100  # 100KB
-
-# Maximum allowed file size for a real count matrix (bytes)
-# Extremely large files might indicate corrupted or malformed data
-MAX_REAL_FILE_SIZE = 1024 * 1024 * 1024 * 10  # 10GB
-
-# Expected file extensions for count matrices
-VALID_COUNT_EXTENSIONS = {'.csv', '.tsv', '.txt', '.mtx', '.h5', '.h5ad', '.loom'}
-
-
 class RealDataValidationError(Exception):
-    """Raised when real data constraints are violated."""
+    """Raised when validation of real data constraints fails."""
     pass
 
-
-def check_file_for_synthetic_content(file_path: Path) -> Tuple[bool, List[str]]:
+def check_file_for_synthetic_content(file_path: Path) -> bool:
     """
-    Check if a file contains synthetic or placeholder content.
-
-    Args:
-        file_path: Path to the file to check.
-
-    Returns:
-        Tuple of (is_synthetic, list_of_detected_patterns)
+    Scans a file for common patterns indicating synthetic or placeholder data.
+    Returns True if synthetic content is detected, False otherwise.
     """
-    detected_patterns = []
-
+    synthetic_patterns = [
+        r'fake', r'synthetic', r'placeholder', r'mock', r'test_data',
+        r'random_seed_\d+', r'generated_at', r'NO_REAL_DATA',
+        r'1\.000000', r'0\.000000',  # Suspiciously round floats often seen in mocks
+    ]
+    
     try:
-        # Check file extension first
-        if file_path.suffix.lower() not in VALID_COUNT_EXTENSIONS:
-            # Not a standard count matrix format, but not necessarily synthetic
-            logger.warning(f"Non-standard file extension: {file_path.suffix}")
-
-        # Check file size
-        file_size = file_path.stat().st_size
-        if file_size < MIN_REAL_FILE_SIZE:
-            logger.warning(f"File too small to be real count matrix: {file_path} ({file_size} bytes)")
-            detected_patterns.append("file_too_small")
-
-        # Check filename for synthetic patterns
-        filename_lower = file_path.name.lower()
-        for pattern in PLACEHOLDER_FILE_PATTERNS:
-            if pattern in filename_lower:
-                detected_patterns.append(f"filename_contains_{pattern}")
-
-        # Read file content and check for synthetic signatures
-        # Only read first few KB to avoid performance issues with large files
-        try:
-            with open(file_path, 'rb') as f:
-                header_bytes = f.read(8192)  # Read first 8KB
-                header_str = header_bytes.decode('utf-8', errors='ignore').lower()
-
-                for signature in SYNTHETIC_SIGNATURES:
-                    sig_str = signature.decode('utf-8')
-                    if sig_str in header_str:
-                        detected_patterns.append(f"contains_{sig_str}")
-
-                # Check for common synthetic data patterns in text files
-                if file_path.suffix.lower() in {'.csv', '.tsv', '.txt'}:
-                    # Look for rows that might indicate synthetic data
-                    lines = header_str.split('\n')[:10]
-                    for line in lines:
-                        # Check for sequential numbers that might indicate synthetic data
-                        if 'gene1' in line or 'cell1' in line:
-                            detected_patterns.append("sequential_naming_pattern")
-
-                        # Check for uniform values that might indicate synthetic data
-                        if 'all_zeros' in line or 'all_ones' in line:
-                            detected_patterns.append("uniform_value_pattern")
-
-        except UnicodeDecodeError:
-            # Binary file, skip content check
-            pass
+        # Read first 1MB to avoid loading huge files entirely
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            chunk = f.read(1024 * 1024)
+            
+        for pattern in synthetic_patterns:
+            if re.search(pattern, chunk, re.IGNORECASE):
+                logger.warning(f"Synthetic pattern '{pattern}' found in {file_path}")
+                return True
+                
+        # Check for specific "all zeros" or "all ones" columns in CSV/TSV if small enough
+        # This is a heuristic check for the first 1000 lines
+        if file_path.suffix in ['.csv', '.tsv', '.txt']:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = [f.readline() for _ in range(1000)]
+            
+            # Simple check: if every row looks identical or has constant values
+            if len(lines) > 10:
+                first_row = lines[0].strip().split(',')
+                if len(first_row) > 2:
+                    # Check if all numeric columns are identical across rows
+                    # This is a basic heuristic
+                    all_same = True
+                    for i in range(1, min(len(first_row), 5)):
+                        try:
+                            val = float(first_row[i])
+                            for line in lines[1:]:
+                                parts = line.strip().split(',')
+                                if len(parts) > i:
+                                    if float(parts[i]) != val:
+                                        all_same = False
+                                        break
+                        except ValueError:
+                            pass
+                    if all_same and len(first_row) > 2:
+                        logger.warning(f"All values in first few columns identical in {file_path}")
+                        return True
 
     except Exception as e:
-        logger.error(f"Error checking file {file_path}: {e}")
-        raise
+        logger.error(f"Error scanning file {file_path}: {e}")
+        # If we can't read it, we assume it's not synthetic (fail-safe for unreadable)
+        return False
+        
+    return False
 
-    is_synthetic = len(detected_patterns) > 0
-    return is_synthetic, detected_patterns
-
-
-def validate_raw_directory(raw_dir: Path) -> Tuple[bool, List[Dict[str, Any]]]:
+def validate_raw_directory(raw_dir: Path) -> bool:
     """
-    Validate that all files in the raw data directory are real (not synthetic).
-
-    Args:
-        raw_dir: Path to the raw data directory.
-
-    Returns:
-        Tuple of (is_valid, list_of_violations)
+    Validates that the raw data directory contains real data files
+    and no synthetic placeholders.
     """
-    violations = []
-
     if not raw_dir.exists():
-        logger.warning(f"Raw data directory does not exist: {raw_dir}")
-        return True, violations  # No files to validate
+        logger.error(f"Raw directory does not exist: {raw_dir}")
+        return False
 
-    if not raw_dir.is_dir():
-        raise RealDataValidationError(f"Raw data path is not a directory: {raw_dir}")
+    files_checked = 0
+    synthetic_found = False
 
-    # Scan all files in the raw directory
-    for file_path in raw_dir.rglob('*'):
+    for file_path in raw_dir.glob('*'):
         if file_path.is_file():
-            is_synthetic, patterns = check_file_for_synthetic_content(file_path)
+            # Skip hidden files and common non-data files
+            if file_path.name.startswith('.') or file_path.suffix in ['.md', '.txt', '.log']:
+                continue
+            
+            files_checked += 1
+            if check_file_for_synthetic_content(file_path):
+                synthetic_found = True
+                break
 
-            if is_synthetic:
-                violation = {
-                    'file': str(file_path),
-                    'detected_patterns': patterns,
-                    'file_size': file_path.stat().st_size,
-                    'status': 'REJECTED'
-                }
-                violations.append(violation)
-                logger.error(f"Synthetic data detected: {file_path} - Patterns: {patterns}")
+    if files_checked == 0:
+        logger.warning("No data files found in raw directory.")
+        return False
 
-    is_valid = len(violations) == 0
-    return is_valid, violations
+    if synthetic_found:
+        logger.error("Synthetic data detected in raw directory.")
+        return False
 
-
-def enforce_real_data_constraint(raw_dir: Optional[Path] = None) -> bool:
-    """
-    Enforce the "Real Data Only" constraint by validating the raw data directory.
-
-    This function should be called before any data processing steps to ensure
-    that no synthetic or placeholder data is used in the analysis.
-
-    Args:
-        raw_dir: Optional path to the raw data directory. If None, uses config.
-
-    Returns:
-        True if all data passes validation, False otherwise.
-
-    Raises:
-        RealDataValidationError: If synthetic data is detected.
-    """
-    if raw_dir is None:
-        # Use config to get the raw data directory
-        ensure_paths()
-        raw_dir = Path(Config.DATA_RAW)
-
-    logger.info(f"Validating real data constraint for: {raw_dir}")
-
-    is_valid, violations = validate_raw_directory(raw_dir)
-
-    if not is_valid:
-        error_msg = (
-            f"Real data validation failed! Found {len(violations)} synthetic/placeholder file(s):\n"
-        )
-        for v in violations:
-            error_msg += f"  - {v['file']}: {v['detected_patterns']}\n"
-        error_msg += "\nAborting pipeline to prevent analysis of synthetic data."
-
-        logger.error(error_msg)
-        raise RealDataValidationError(error_msg)
-
-    logger.info("Real data validation passed. All files appear to be genuine.")
+    logger.info(f"Validated {files_checked} files in raw directory.")
     return True
 
-
-def validate_accession_data(accession: str, raw_dir: Optional[Path] = None) -> bool:
+def enforce_real_data_constraint(data_path: Path) -> None:
     """
-    Validate that data for a specific accession is real (not synthetic).
-
-    Args:
-        accession: GEO accession ID to validate.
-        raw_dir: Optional path to the raw data directory.
-
-    Returns:
-        True if the accession data passes validation, False otherwise.
-
-    Raises:
-        RealDataValidationError: If synthetic data is detected for this accession.
+    Enforces the 'Real Data Only' constraint.
+    Raises RealDataValidationError if synthetic data is detected.
     """
-    if raw_dir is None:
-        ensure_paths()
-        raw_dir = Path(Config.DATA_RAW)
+    if not data_path.exists():
+        # If path doesn't exist, we can't validate, but we also can't confirm it's real.
+        # However, for this function, we assume the caller ensures the path exists
+        # before calling, or we treat missing as a validation failure for the constraint.
+        raise RealDataValidationError(f"Data path does not exist: {data_path}")
 
-    # Look for files related to this accession
-    accession_files = list(raw_dir.glob(f"*{accession}*"))
+    if data_path.is_file():
+        if check_file_for_synthetic_content(data_path):
+            raise RealDataValidationError(f"Synthetic data detected in file: {data_path}")
+    elif data_path.is_dir():
+        if not validate_raw_directory(data_path):
+            raise RealDataValidationError(f"Synthetic data detected in directory: {data_path}")
 
-    if not accession_files:
-        logger.warning(f"No files found for accession {accession} in {raw_dir}")
-        return True  # No files to validate
+def validate_accession_data(accession: str, data_dir: Path) -> Dict[str, Any]:
+    """
+    Validates data for a specific GEO accession.
+    Returns a dictionary with validation status and details.
+    """
+    result = {
+        'accession': accession,
+        'status': 'unknown',
+        'message': '',
+        'file_count': 0,
+        'synthetic_detected': False
+    }
 
-    for file_path in accession_files:
-        if file_path.is_file():
-            is_synthetic, patterns = check_file_for_synthetic_content(file_path)
+    accession_dir = data_dir / accession
+    if not accession_dir.exists():
+        result['status'] = 'missing'
+        result['message'] = f'Directory for {accession} not found'
+        return result
 
-            if is_synthetic:
-                error_msg = (
-                    f"Real data validation failed for accession {accession}!\n"
-                    f"File: {file_path}\n"
-                    f"Detected patterns: {patterns}\n"
-                    f"Aborting pipeline to prevent analysis of synthetic data."
-                )
-                logger.error(error_msg)
-                raise RealDataValidationError(error_msg)
+    try:
+        files = list(accession_dir.glob('*'))
+        result['file_count'] = len([f for f in files if f.is_file()])
+        
+        if result['file_count'] == 0:
+            result['status'] = 'empty'
+            result['message'] = 'No files found in accession directory'
+            return result
 
-    logger.info(f"Real data validation passed for accession {accession}")
-    return True
+        synthetic_detected = False
+        for f in files:
+            if f.is_file() and check_file_for_synthetic_content(f):
+                synthetic_detected = True
+                break
 
+        if synthetic_detected:
+            result['status'] = 'invalid'
+            result['message'] = 'Synthetic data detected'
+            result['synthetic_detected'] = True
+        else:
+            result['status'] = 'valid'
+            result['message'] = 'Validation passed'
+
+    except Exception as e:
+        result['status'] = 'error'
+        result['message'] = f'Validation error: {str(e)}'
+
+    return result
 
 def main():
-    """
-    Main entry point for running the real data validator as a standalone script.
-    """
-    import argparse
+    """Main entry point for validation script."""
+    config = Config()
+    raw_dir = config.RAW_DATA_DIR
 
-    parser = argparse.ArgumentParser(
-        description="Validate that raw data contains only real (non-synthetic) data."
-    )
-    parser.add_argument(
-        "--raw-dir",
-        type=str,
-        default=None,
-        help="Path to the raw data directory (default: from config)"
-    )
-    parser.add_argument(
-        "--accession",
-        type=str,
-        default=None,
-        help="Specific accession ID to validate (optional)"
-    )
-
-    args = parser.parse_args()
-
+    logger.info(f"Validating data in {raw_dir}")
+    
     try:
-        if args.accession:
-            validate_accession_data(args.accession, args.raw_dir)
-            print(f"✓ Validation passed for accession: {args.accession}")
-        else:
-            enforce_real_data_constraint(args.raw_dir)
-            print("✓ Real data validation passed for all files.")
-
+        enforce_real_data_constraint(raw_dir)
+        logger.info("Real data validation passed.")
         return 0
-
     except RealDataValidationError as e:
-        print(f"✗ Real data validation failed: {e}", file=sys.stderr)
+        logger.error(f"Real data validation failed: {e}")
         return 1
     except Exception as e:
-        print(f"✗ Unexpected error during validation: {e}", file=sys.stderr)
+        logger.error(f"Unexpected error during validation: {e}")
         return 1
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

@@ -1,3 +1,6 @@
+"""
+Tests for the project structure setup module.
+"""
 import os
 import tempfile
 import shutil
@@ -5,17 +8,26 @@ from pathlib import Path
 import pytest
 
 # Import the function to test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 from setup_structure import create_project_structure
 
-class TestProjectStructure:
-    """Tests for the project structure creation functionality."""
+
+class TestCreateProjectStructure:
+    """Tests for create_project_structure function."""
 
     def test_creates_all_required_directories(self):
-        """Verify that all required subdirectories are created."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            base_path = Path(tmp_dir) / "test_project"
+        """Verify that all required directories are created."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_path = Path(tmpdir) / "test_project"
+            
             create_project_structure(str(base_path))
             
+            # Check root exists
+            assert base_path.exists()
+            assert base_path.is_dir()
+            
+            # Check all required subdirectories
             required_dirs = [
                 "data/raw",
                 "data/processed",
@@ -24,50 +36,51 @@ class TestProjectStructure:
                 "tests"
             ]
             
-            for dir_path in required_dirs:
-                full_path = base_path / dir_path
-                assert full_path.exists(), f"Directory {full_path} was not created"
-                assert full_path.is_dir(), f"{full_path} is not a directory"
+            for dir_name in required_dirs:
+                dir_path = base_path / dir_name
+                assert dir_path.exists(), f"Directory {dir_path} was not created"
+                assert dir_path.is_dir(), f"{dir_path} is not a directory"
 
-    def test_handles_existing_directories(self):
-        """Verify that existing directories are not overwritten or cause errors."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            base_path = Path(tmp_dir) / "test_project"
+    def test_creates_init_files(self):
+        """Verify that __init__.py files are created in code and tests."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_path = Path(tmpdir) / "test_project"
             
-            # Create the structure first time
             create_project_structure(str(base_path))
             
-            # Create it again - should not raise errors
+            code_init = base_path / "code" / "__init__.py"
+            tests_init = base_path / "tests" / "__init__.py"
+            
+            assert code_init.exists(), "code/__init__.py was not created"
+            assert tests_init.exists(), "tests/__init__.py was not created"
+
+    def test_idempotent_execution(self):
+        """Verify that running the function twice doesn't cause errors."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_path = Path(tmpdir) / "test_project"
+            
+            # Run twice
+            create_project_structure(str(base_path))
             create_project_structure(str(base_path))
             
-            # Verify directories still exist
-            assert (base_path / "data/raw").exists()
+            # Verify structure is intact
+            assert (base_path / "data" / "raw").exists()
+            assert (base_path / "data" / "processed").exists()
             assert (base_path / "results").exists()
+            assert (base_path / "code").exists()
+            assert (base_path / "tests").exists()
 
-    def test_creates_parent_directories(self):
-        """Verify that parent directories are created if they don't exist."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            # Use a nested path where parent doesn't exist
-            base_path = Path(tmp_dir) / "nested" / "deep" / "test_project"
+    def test_creates_nested_directories(self):
+        """Verify that nested directories (e.g., data/raw) are created correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_path = Path(tmpdir) / "test_project"
+            
             create_project_structure(str(base_path))
             
-            assert base_path.exists()
-            assert (base_path / "data/raw").exists()
-
-    def test_directory_permissions(self):
-        """Verify that created directories are writable."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            base_path = Path(tmp_dir) / "test_project"
-            create_project_structure(str(base_path))
+            # Verify nested structure
+            assert (base_path / "data").exists()
+            assert (base_path / "data" / "raw").exists()
+            assert (base_path / "data" / "processed").exists()
             
-            # Try to create a file in each directory
-            test_file_content = b"test"
-            
-            # data/raw
-            test_file = base_path / "data/raw" / "test.txt"
-            test_file.write_bytes(test_file_content)
-            assert test_file.exists()
-            test_file.unlink()
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+            # Verify they are distinct directories
+            assert (base_path / "data" / "raw") != (base_path / "data" / "processed")

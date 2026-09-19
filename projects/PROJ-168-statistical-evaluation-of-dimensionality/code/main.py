@@ -5,6 +5,7 @@ This script orchestrates the full workflow:
 1. Invokes data_gap_resolver to verify dataset availability.
 2. Sets pipeline mode (Aborted, Case-Study, or Full) based on findings.
 3. Executes the Snakemake workflow with appropriate configuration flags.
+4. Writes results/summary.json with the appropriate header based on mode.
 """
 
 import sys
@@ -32,6 +33,45 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+def write_summary_json(mode: str, found_datasets: list, missing_datasets: list):
+    """
+    Writes the results/summary.json file with the appropriate header
+    based on the pipeline mode.
+    """
+    results_dir = Path(project_root) / Config.RESULTS_DIR
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    summary_path = results_dir / "summary.json"
+    
+    if mode == "CASE_STUDY":
+        header = "Descriptive Case Study"
+        model_type = "Single Dataset Mode (Fixed-Effects ANOVA)"
+        logger.info("CASE_STUDY_MODE detected: Switching statistical model to 'Single Dataset Mode' and setting summary header to 'Descriptive Case Study'.")
+    elif mode == "FIXED_EFFECTS":
+        header = "Fixed-Effects Analysis"
+        model_type = "Fixed-Effects ANOVA"
+    elif mode == "MIXED_EFFECTS":
+        header = "Mixed-Effects Analysis"
+        model_type = "Mixed-Effects Model"
+    else:
+        header = "Unknown Mode"
+        model_type = "N/A"
+
+    summary_data = {
+        "header": header,
+        "pipeline_mode": mode,
+        "statistical_model": model_type,
+        "datasets_found": [d.accession for d in found_datasets],
+        "datasets_missing": missing_datasets,
+        "count": len(found_datasets)
+    }
+
+    with open(summary_path, 'w') as f:
+        json.dump(summary_data, f, indent=2)
+    
+    logger.info(f"Summary report saved to {summary_path}")
+    return summary_path
 
 def main():
     """
@@ -93,6 +133,9 @@ def main():
     with open(report_path, 'w') as f:
         json.dump(report_data, f, indent=2)
     logger.info(f"Data gap report saved to {report_path}")
+    
+    # T051: Write summary.json with appropriate header based on mode
+    write_summary_json(mode, found_datasets, missing_datasets)
     
     # Proceed to Snakemake execution
     logger.info(f"Launching Snakemake workflow in {mode} mode...")

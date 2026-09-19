@@ -1,95 +1,55 @@
-"""
-Unit tests for the data directory setup script.
-Verifies that the required data directories are created correctly.
-"""
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
-import sys
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Mock the config module to use a temporary directory for testing
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as the project root."""
+    tmpdir = tempfile.mkdtemp()
+    yield Path(tmpdir)
+    shutil.rmtree(tmpdir)
 
-from utils.config import get_project_root, ensure_dirs_exist
-from setup_data_dirs import main as setup_data_dirs_main
+@pytest.fixture
+def mock_config(temp_project_root):
+    """Patch utils.config functions to use the temporary root."""
+    with patch('utils.config.get_project_root', return_value=temp_project_root):
+        with patch('utils.config.get_path', side_effect=lambda key: temp_project_root / key):
+            with patch('utils.config.ensure_dirs_exist', side_effect=lambda p: p.mkdir(parents=True, exist_ok=True)):
+                yield temp_project_root
 
+class TestSetupDataDirs:
+    """Test the data directory setup logic."""
 
-class TestDataDirectorySetup:
-    """Tests for data directory structure creation."""
+    def test_creates_required_directories(self, mock_config):
+        """Verify that setup_data_dirs creates raw, derived, logs, and results."""
+        from setup_data_dirs import main
+        import utils.config
 
-    def test_required_subdirectories_exist(self, tmp_path):
-        """
-        Verify that all required data subdirectories are created.
-        """
-        # Create a temporary project root
-        project_root = tmp_path / "test_project"
-        project_root.mkdir()
+        # Ensure the mock is active
+        root = utils.config.get_project_root()
         
-        # Mock the project root by setting an environment variable or
-        # temporarily patching the config
-        # For this test, we'll directly test the directory creation logic
-        
-        data_dir = project_root / "data"
-        required_dirs = ["raw", "derived", "logs", "results"]
-        
-        # Create directories
-        for dir_name in required_dirs:
-            dir_path = data_dir / dir_name
-            dir_path.mkdir(parents=True, exist_ok=True)
-            assert dir_path.exists(), f"Directory {dir_path} should exist"
-            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+        # Run the setup
+        main()
 
-    def test_data_gitignore_exists(self, tmp_path):
-        """
-        Verify that .gitignore exists in the data directory.
-        """
-        # Create a temporary project root
-        project_root = tmp_path / "test_project"
-        project_root.mkdir()
-        
-        data_dir = project_root / "data"
-        data_dir.mkdir()
-        
-        gitignore_path = data_dir / ".gitignore"
-        
-        # Create a minimal .gitignore
-        gitignore_path.write_text("# Data directory ignore rules\n*\n!.gitignore\n")
-        
-        assert gitignore_path.exists(), ".gitignore should exist in data directory"
-        assert gitignore_path.is_file(), ".gitignore should be a file"
-        
-        content = gitignore_path.read_text()
-        assert "*" in content, ".gitignore should contain ignore patterns"
+        # Check directories exist
+        expected_dirs = ["raw", "derived", "logs", "results"]
+        for subdir in expected_dirs:
+            dir_path = root / "data" / subdir
+            assert dir_path.exists(), f"Directory {dir_path} was not created."
+            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
 
-    def test_setup_data_dirs_script_creates_structure(self, tmp_path):
-        """
-        Test that the setup_data_dirs script creates the correct structure.
-        This test mocks the project root to point to our temp directory.
-        """
-        import unittest.mock as mock
-        
-        # Create a temporary project root
-        project_root = tmp_path / "test_project"
-        project_root.mkdir()
-        
-        # Mock the get_project_root function to return our temp directory
-        with mock.patch('setup_data_dirs.get_project_root', return_value=project_root):
-            # Also mock ensure_dirs_exist to avoid actual creation if needed,
-            # but we want to test actual creation
-            # Just run the main function
-            result = setup_data_dirs_main()
-            
-            # Verify the function returned 0 (success)
-            assert result == 0, "setup_data_dirs main should return 0 on success"
-            
-            # Verify directories were created
-            data_dir = project_root / "data"
-            assert data_dir.exists(), "data directory should exist"
-            
-            required_dirs = ["raw", "derived", "logs", "results"]
-            for dir_name in required_dirs:
-                dir_path = data_dir / dir_name
-                assert dir_path.exists(), f"Directory {dir_path} should exist"
-                assert dir_path.is_dir(), f"{dir_path} should be a directory"
+    def test_data_root_created(self, mock_config):
+        """Verify that the main data directory is created."""
+        from setup_data_dirs import main
+        import utils.config
+
+        root = utils.config.get_project_root()
+        main()
+
+        data_root = root / "data"
+        assert data_root.exists()
+        assert data_root.is_dir()

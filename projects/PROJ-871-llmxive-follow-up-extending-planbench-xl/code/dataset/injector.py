@@ -1,7 +1,3 @@
-"""
-Synthetic Failure Injection Module.
-Creates an implicit failure subset from the PlanBench-XL dataset.
-"""
 import json
 import os
 import random
@@ -10,159 +6,185 @@ from typing import Any, Dict, List, Optional
 
 from utils.config import get_path, get_hyperparameter
 
+
 def load_raw_planbench_xl() -> List[Dict[str, Any]]:
     """
-    Loads the raw PlanBench-XL dataset from the local cache.
-    Expects the file to be at data/raw/planbench_xl.jsonl (converted from parquet by T008).
-    If the parquet file exists, it attempts to convert it or load it directly if pandas is available.
+    Load the raw PlanBench-XL dataset from the derived data directory.
+    Expects the raw data to be available as a JSONL or JSON file in data/raw/
+    or data/derived/ based on the loader's previous execution.
+    For this task, we assume T008 has populated data/raw/ with a file named
+    'planbench_xl_raw.jsonl' or similar.
     """
-    raw_path = get_path("data_raw")
-    parquet_path = raw_path / "planbench_xl.parquet"
-    jsonl_path = raw_path / "planbench_xl.jsonl"
-
-    # Priority 1: Load from pre-converted JSONL if it exists
-    if jsonl_path.exists():
-        tasks = []
-        with open(jsonl_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    tasks.append(json.loads(line))
-        return tasks
-
-    # Priority 2: Try to load parquet if pandas is available (T008 dependency)
-    if parquet_path.exists():
-        try:
+    # Determine the source file path
+    # T008 saves raw parquet to data/raw/, but we need to convert or load JSONL
+    # Assuming T008 produced a JSONL for compatibility or we read the parquet
+    # Here we assume the loader in T008 produced a JSONL for ease, or we handle parquet
+    # If T008 produced parquet, we need to load it.
+    # Let's assume T008 produced data/raw/planbench_xl_raw.jsonl for this implementation
+    # If it's parquet, we'd need pandas. The requirements.txt includes pandas.
+    
+    raw_path = get_path("data_raw") / "planbench_xl_raw.jsonl"
+    
+    if not raw_path.exists():
+        # Fallback: check for parquet if loader saved it as such
+        parquet_path = get_path("data_raw") / "planbench_xl_raw.parquet"
+        if parquet_path.exists():
             import pandas as pd
             df = pd.read_parquet(parquet_path)
-            # Convert dataframe to list of dicts
-            tasks = df.to_dict(orient='records')
-            return tasks
-        except ImportError:
-            raise RuntimeError(
-                "PlanBench-XL parquet file found but pandas is not installed. "
-                "Please install pandas or ensure T008 has converted the data to JSONL."
+            return df.to_dict(orient='records')
+        else:
+            raise FileNotFoundError(
+                f"Raw PlanBench-XL data not found at {raw_path} or {parquet_path}. "
+                "Ensure T008 (loader) has been executed successfully."
             )
-        except Exception as e:
-            raise RuntimeError(f"Failed to load parquet file: {e}")
 
-    raise FileNotFoundError(
-        f"Raw PlanBench-XL data not found. Expected at {jsonl_path} or {parquet_path}. "
-        "Ensure T008 (loader) has completed successfully."
-    )
+    data = []
+    with open(raw_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                data.append(json.loads(line))
+    return data
+
 
 def inject_failures(
-    tasks: List[Dict[str, Any]],
-    seed: int = 42,
-    target_proportion: float = 0.3
+    data: List[Dict[str, Any]], 
+    seed: int = 42, 
+    injection_ratio: float = 0.3
 ) -> List[Dict[str, Any]]:
     """
-    Injects deterministic error patterns into a subset of tasks.
+    Select a subset of tasks with 'success' ground truth and inject deterministic
+    error patterns into their tool outputs.
     
     Args:
-        tasks: List of task dictionaries.
+        data: List of task dictionaries from the raw dataset.
         seed: Random seed for reproducibility.
-        target_proportion: Proportion of success tasks to inject.
+        injection_ratio: Fraction of success tasks to inject errors into.
         
     Returns:
-        List of tasks with injected errors.
+        List of modified task dictionaries with injected errors.
     """
     random.seed(seed)
-    injected_tasks = []
     
-    # Identify success tasks based on ground_truth field
-    # We look for "success", "completed", or "true" in the ground_truth string
-    success_tasks_indices = []
-    for i, task in enumerate(tasks):
-        gt = str(task.get("ground_truth", "")).lower()
-        if gt in ["success", "completed", "true", "successful"]:
-            success_tasks_indices.append(i)
+    # Filter tasks with ground_truth == "success"
+    success_tasks = [
+        task for task in data 
+        if task.get("ground_truth", "").lower() == "success"
+    ]
     
-    if not success_tasks_indices:
+    if not success_tasks:
         raise ValueError(
-            "No tasks with 'success' ground truth found in the dataset. "
-            "Cannot inject failures into non-existent success tasks."
+            "No tasks with ground_truth='success' found in the dataset. "
+            "Cannot inject failures."
         )
-
-    # Select subset to inject
-    num_to_inject = int(len(success_tasks_indices) * target_proportion)
-    # Ensure we inject at least 1 if there are success tasks
-    num_to_inject = max(1, num_to_inject)
     
-    selected_indices_set = set(random.sample(success_tasks_indices, min(num_to_inject, len(success_tasks_indices))))
+    # Select a subset to inject
+    num_to_inject = max(1, int(len(success_tasks) * injection_ratio))
+    selected_indices = random.sample(range(len(success_tasks)), num_to_inject)
+    selected_tasks = [success_tasks[i] for i in selected_indices]
     
-    for i, task in enumerate(tasks):
-        new_task = task.copy()
-        new_task["injected_error"] = False
+    injected_data = []
+    
+    # Add non-selected success tasks unchanged
+    for task in success_tasks:
+        if task not in selected_tasks:
+            injected_data.append(task)
+    
+    # Add non-success tasks unchanged
+    for task in data:
+        if task.get("ground_truth", "").lower() != "success":
+            injected_data.append(task)
+    
+    # Process selected tasks to inject errors
+    # Note: We must be careful to maintain the original structure
+    # and ONLY modify tool outputs, not ground_truth.
+    for task in selected_tasks:
+        # Deep copy to avoid modifying original data
+        modified_task = json.loads(json.dumps(task))
         
-        if i in selected_indices_set:
-            # Inject error pattern
-            new_task["injected_error"] = True
-            # Append error to tool outputs or create the list if missing
-            if "tool_outputs" in new_task:
-                if isinstance(new_task["tool_outputs"], list):
-                    new_task["tool_outputs"].append("ERROR: silent_tool_failure")
-                else:
-                    # If it's a string, convert to list
-                    new_task["tool_outputs"] = [new_task["tool_outputs"], "ERROR: silent_tool_failure"]
+        # Inject error into tool outputs
+        # Assuming 'tool_outputs' or similar field exists in the task structure
+        # If the structure varies, we need to handle it robustly
+        if "tool_outputs" in modified_task:
+            if isinstance(modified_task["tool_outputs"], list):
+                # Append error to the first tool output or all
+                for i, output in enumerate(modified_task["tool_outputs"]):
+                    if isinstance(output, str):
+                        modified_task["tool_outputs"][i] = f"{output}\nERROR: silent_tool_failure"
+                    elif isinstance(output, dict):
+                        # If output is a dict, add to a 'content' or 'result' field
+                        if "content" in output:
+                            output["content"] = f"{output['content']}\nERROR: silent_tool_failure"
+                        elif "result" in output:
+                            output["result"] = f"{output['result']}\nERROR: silent_tool_failure"
+                        else:
+                            # Fallback: add a new field
+                            output["injected_error"] = "ERROR: silent_tool_failure"
+                # Mark the task as having an injected error
+                modified_task["injected_error"] = True
             else:
-                new_task["tool_outputs"] = ["ERROR: silent_tool_failure"]
+                # Single string output
+                modified_task["tool_outputs"] = f"{modified_task['tool_outputs']}\nERROR: silent_tool_failure"
+                modified_task["injected_error"] = True
+        else:
+            # If no tool_outputs field, we might need to inject at a different level
+            # or skip. For now, we'll add a flag and a synthetic error field.
+            modified_task["injected_error"] = True
+            modified_task["synthetic_error"] = "ERROR: silent_tool_failure"
         
-        injected_tasks.append(new_task)
+        injected_data.append(modified_task)
     
-    return injected_tasks
+    return injected_data
 
-def save_injected_data(tasks: List[Dict[str, Any]], output_path: Optional[str] = None) -> str:
+
+def save_injected_data(data: List[Dict[str, Any]], output_path: Optional[str] = None) -> Path:
     """
-    Saves the injected dataset to a JSONL file.
+    Save the injected data to a JSONL file.
     
     Args:
-        tasks: List of injected task dictionaries.
-        output_path: Optional output path.
+        data: List of task dictionaries.
+        output_path: Optional path to save the file. Defaults to data/derived/implicit_failure_subset.jsonl
         
     Returns:
         Path to the saved file.
     """
     if output_path is None:
-        # Ensure the path points to data/derived as per spec
-        derived_dir = get_path("data_derived")
-        output_path = str(derived_dir / "implicit_failure_subset.jsonl")
+        output_path = get_path("data_derived") / "implicit_failure_subset.jsonl"
+    else:
+        output_path = Path(output_path)
     
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path_obj, 'w', encoding='utf-8') as f:
-        for task in tasks:
-            f.write(json.dumps(task, ensure_ascii=False) + "\n")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for item in data:
+            f.write(json.dumps(item) + '\n')
     
-    return str(output_path_obj)
+    return output_path
+
 
 def main():
     """
-    Main entry point for data injection.
-    Loads raw data, injects failures, and saves the result.
+    Main entry point for the synthetic failure injection task.
     """
     print("Loading raw PlanBench-XL data...")
-    try:
-        tasks = load_raw_planbench_xl()
-    except (FileNotFoundError, RuntimeError) as e:
-        print(f"ERROR: {e}")
-        return
+    raw_data = load_raw_planbench_xl()
+    print(f"Loaded {len(raw_data)} tasks.")
     
-    print(f"Loaded {len(tasks)} tasks.")
-    
-    # Get hyperparameters if available, otherwise use defaults
+    # Get hyperparameters from config if available, else use defaults
     seed = get_hyperparameter("injection_seed", 42)
-    proportion = get_hyperparameter("injection_proportion", 0.3)
+    ratio = get_hyperparameter("injection_ratio", 0.3)
     
-    print(f"Injecting failures (seed={seed}, proportion={proportion})...")
-    injected_tasks = inject_failures(tasks, seed=seed, target_proportion=proportion)
+    print(f"Injecting failures with seed={seed}, ratio={ratio}...")
+    injected_data = inject_failures(raw_data, seed=seed, injection_ratio=ratio)
     
-    success_count = sum(1 for t in injected_tasks if t.get("injected_error", False))
-    print(f"Injected errors into {success_count} tasks.")
+    print(f"Injected failures into {len([t for t in injected_data if t.get('injected_error')])} tasks.")
     
-    output_path = save_injected_data(injected_tasks)
-    print(f"Injected data saved to {output_path}")
+    output_file = save_injected_data(injected_data)
+    print(f"Saved injected data to {output_file}")
+    
+    return output_file
+
 
 if __name__ == "__main__":
     main()

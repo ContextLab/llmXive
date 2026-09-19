@@ -146,3 +146,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T09:35:22Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Baseline agent uses Llama-3-8B-Quantized with max_tokens=512 and temperature=0.7
+  claim_id: c_4e1a4d37
+  context: 'T012 [US1] Implement baseline agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py`
+    using internal LLM reasoning only (no external index access). **Model**: Llama-3-8B-Quantized
+    (4-bit if available on CPU, else 8-bit), **Params**: max_tokens=512, temperature=0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses Llama-3-8B-Quantized (4-bit if available on CPU, else
+    8-bit) with max_tokens=512 and temperature=0.7 for the baseline agent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:09Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic failure injection uses random seed 42
+  claim_id: c_21a9b753
+  context: 'T009a [P] Implement synthetic failure injection in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py`:
+    Load raw data, select a subset of tasks with ''success'' ground truth (using random
+    seed 42, targeting a significant proportion of success tasks), inject deterministic
+    error patterns...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic failure injection uses random seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Dependencies pinned to datasets 2.14.0, transformers 4.35.0, torch 2.1.0,
+    scikit-learn 1.3.0, pandas 2.1.0, pytest 7.4.0, requests 2.31.0
+  claim_id: c_26185305
+  context: 'T001b Create `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt`
+    with pinned versions: `datasets==2.14.0`, `transformers==4.35.0`, `torch==2.1.0`,
+    `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `requests==2.31.0`'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins datasets==2.14.0, transformers==4.35.0,
+    torch==2.1.0, scikit-learn==1.3.0, pandas==2.1.0, pytest==7.4.0, and requests==2.31.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses Fisher's Exact test for n < 30, otherwise two-proportion
+    z-test
+  claim_id: c_9184b4e1
+  context: 'T023 [P] [US3] Implement statistical analysis module in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/stats.py`:
+    **Logic**: Count events from logs. If n < 30, use `scipy.stats.fisher_exact`;
+    otherwise, use `scipy.stats.proportions_ztest`. Output p-value and test type.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses Fisher's Exact test if n < 30, otherwise
+    a two-proportion z-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Augmented agent requires 100% match threshold to trigger recovery
+  claim_id: c_2ce74bcc
+  context: 'T018 [US2] Implement augmented agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py`
+    with string-matching check against `data/derived/failure_signatures.json` post-invocation.
+    **Matching**: Exact string match or regex if pattern contains wildcards. **Threshold**:
+    100% match required to trigger recovery.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The augmented agent requires a 100% match threshold to trigger recovery.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: LLM inference constrained to 7GB RAM limit
+  claim_id: c_c33eba2c
+  context: '**CRITICAL**: Ensure the LLM used for agents is CPU-tractable (e.g., quantized
+    4-bit/8-bit if available on CPU, or a smaller model like Llama-3-8B on CPU) to
+    fit within 7GB RAM and 6-hour runtime.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LLM_inference_constrained_to_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: The LLM inference must fit within a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:37:16Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: End-to-end reproducibility validation within 6 hours
+  claim_id: c_06504add
+  context: 'T032 Run `quickstart.md` validation to ensure end-to-end reproducibility
+    within 6 hours <!-- ATOMIZE: requested -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The end-to-end reproducibility validation must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:37:36Z'

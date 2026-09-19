@@ -1,47 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, pre\u2011commit hooks, or documentation of how flake8/black\
-    \ are set up) are present in the `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`\
-    \ directory. The implementer provided only the task description and specifications,\
-    \ but no concrete artifacts that configure or enable flake8/black, so the requirement\
-    \ is not satisfied."
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw`, `data/derived`, `data/logs`, `data/results`\
-    \ directories or a `.gitignore` file was provided; without these artifacts the\
-    \ task\u2019s deliverable is not satisfied."
-T009a:
-  c: false
-  h: 643858190dbef521f7c78c293643e9133d17031ec344341b5da99ff4754a4618
-  r: "The required output file `data/derived/implicit_failure_subset.jsonl` does not\
-    \ exist, and the provided `injector.py` snippet is incomplete (it stops before\
-    \ any injection or saving logic). Without the generated JSONL file and full implementation,\
-    \ the task\u2019s requirements are not met."
-T009b:
-  c: false
-  h: bd2882461fc447b36e00a273aad97499e893eb600f4414ec6bd7e15020427e16
-  r: The required input `data/derived/implicit_failure_subset.jsonl` does not exist,
-    nor does the expected output `data/derived/failure_signatures.json`. Moreover,
-    while `indexer.py` contains loading and extraction helpers, it lacks any implementation
-    that writes the extracted signatures to the JSON file, so the core requirement
-    is unmet.
-T010:
-  c: false
-  h: 5e81ad97a63d553fa35f16242f9f47a03e9fc40ed006d4f1b23d0b013135e004
-  r: The test file `tests/unit/test_loader.py` is present, but the required data file
-    `data/derived/implicit_failure_subset.jsonl` does not exist, causing the fixture
-    to fail and the contract test to be unusable. The missing dataset prevents the
-    test from verifying the loader as required.
-T013:
-  c: false
-  h: 0870f0c85de101102e930077d840f70834ea80c4ce3f05dca872b883e92d3835
-  r: The `run_baseline.py` script exists, but the required input file `data/derived/implicit_failure_subset.jsonl`
-    is missing, and consequently the expected output log `data/logs/baseline_execution.jsonl`
-    was never created. Without the input dataset the runner cannot execute, so the
-    task is not genuinely fulfilled.
 T018:
   c: false
   h: 1d0d3134a7641c9dc115ca61a95ef7467b86b0e36660e6ae66b6c0c9424b3dcd
@@ -66,3 +22,32 @@ T024:
     and `data/logs/augmented_execution.jsonl` are absent, so the parser cannot actually
     aggregate the needed success/failure counts. The missing files and incomplete
     code must be provided for the task to be considered complete.
+T025:
+  c: false
+  h: 216a240549eed5b821129a1118a00c7a7967d78d1127089c331a585dba180123
+  r: "The `report.py` file is incomplete (truncated function, recursive `get_project_root`\
+    \ bug) and the required output file `data/results/final_report.json` does not\
+    \ exist. The task\u2019s required artifact is missing and the implementation is\
+    \ not functional."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The required file `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/run_experiment.py`
+    is not present (or is empty) in the repository, so no orchestrating code for loading
+    data, indexing signatures, running baseline and augmented agents, performing analysis,
+    or generating a report exists. The task therefore remains unfinished.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md or quickstart.md files from the specified project path were presented,\
+    \ and no content showing the required documentation updates was provided. Without\
+    \ the actual artifacts, we cannot confirm that the documentation was modified\
+    \ as required. The implementer must supply the updated files (non\u2011empty)\
+    \ showing the changes."
+T029c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only a feature specification and user story documentation;
+    there is no evidence of any code cleanup, verification that all paths in `code/`
+    use the config loader, nor any linting output from flake8 or black. The required
+    artifacts (updated code and linting reports) are missing.

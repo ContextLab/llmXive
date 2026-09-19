@@ -1,0 +1,82 @@
+name: Research Pipeline CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r code/requirements.txt
+        pip install snakemake
+
+    - name: Run Data Gap Resolution
+      run: |
+        python code/data_gap_resolver.py
+        echo "Data gap resolution completed"
+
+    - name: Run Pipeline with Resource Constraints
+      run: |
+        # Run the pipeline with a timeout and resource monitoring
+        # The pipeline itself contains logic to abort if RAM > 7GB
+        # We enforce the 6-hour runtime limit here via timeout command
+        timeout 6h snakemake --cores 2 --keep-going || {
+          exit_code=$?
+          if [ $exit_code -eq 124 ]; then
+            echo "ERROR: Pipeline exceeded 6-hour time limit"
+            exit 1
+          fi
+          exit $exit_code
+        }
+
+    - name: Verify RAM Constraints
+      run: |
+        # Check if the monitoring CSV exists and contains valid data
+        if [ ! -f "results/monitoring.csv" ]; then
+          echo "ERROR: results/monitoring.csv not found. Pipeline may have failed."
+          exit 1
+        fi
+
+        # Check for any RAM usage exceeding 7GB in the logs
+        # The pipeline should have aborted if this happened, but we verify the log
+        if awk -F',' 'NR>1 {if ($3 > 7000) exit 1}' results/monitoring.csv; then
+          echo "SUCCESS: Peak RAM usage stayed under 7GB limit"
+        else
+          echo "ERROR: Peak RAM usage exceeded 7GB limit"
+          exit 1
+        fi
+
+    - name: Verify Runtime Constraints
+      run: |
+        # Calculate total runtime from monitoring CSV if available, 
+        # otherwise rely on the timeout command success
+        if [ -f "results/monitoring.csv" ]; then
+          # If we are here, the timeout command succeeded, meaning runtime < 6h
+          echo "SUCCESS: Total pipeline runtime was under 6 hours"
+        fi
+
+    - name: Upload Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: research-results
+        path: |
+          results/
+          data/processed/
+          code/monitoring.log
+        retention-days: 7

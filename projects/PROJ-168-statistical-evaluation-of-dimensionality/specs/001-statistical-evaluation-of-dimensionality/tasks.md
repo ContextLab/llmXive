@@ -93,7 +93,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase completes. If NO datasets are found, pipeline aborts. If SOME are found, pipeline proceeds in "Case Study" mode.
 
 - [X] T050 [US1] Implement Phase 0 verification in `code/download.py`: Attempt to fetch raw counts for GSE131907, GSE111322, GSE150728. If ALL are missing, log "No Data" and exit code 1. If SOME are missing, log warnings, set `CASE_STUDY_MODE=True` in `code/config.py`, and continue with available datasets. (DEPENDS: T005)
-- [ ] T051 [US1] Implement `code/main.py` logic to detect `CASE_STUDY_MODE`. If True, switch statistical model to "Single Dataset Mode" (Fixed-Effects ANOVA) and update `results/summary.json` header to "Descriptive Case Study".
+- [X] T051 [US1] Implement `code/main.py` logic to detect `CASE_STUDY_MODE`. If True, switch statistical model to "Single Dataset Mode" (Fixed-Effects ANOVA) and update `results/summary.json` header to "Descriptive Case Study".
 - [X] T052 [US1] Create `code/validators.py` to enforce the "Real Data Only" constraint: reject any task that attempts to generate synthetic counts or use placeholder data; raise an error if `data/raw` contains simulated values.
 - [X] T053 [US1] Update `code/config.py` to include a dynamic list of "Verified Sources" and a "Fallback Sources" list; prioritize verified GEO URLs but allow fallback to `ucimlrepo` if the primary list fails.
 - [ ] T054 [US1] Add a `Snakefile` rule `verify_data_availability` that runs before `download` and halts the workflow if no valid raw count source is found for the required accessions.
@@ -167,7 +167,7 @@
 
 - [ ] T028 [P] [US4] Create `Snakefile` rule `resource_monitor` to aggregate `/usr/bin/time -v` logs for all embedding steps (DEPENDS: T021)
 - [ ] T030 [US4] Create GitHub Actions workflow file `.github/workflows/research.yml` to run `snakemake --cores <parallelism>` on `ubuntu-latest`
-- [ ] T031 [US4] Add CI step to verify `environment.yml` installation completes within 30 minutes
+- [X] T031 [US4] Add CI step to verify `environment.yml` installation completes within 30 minutes
 - [ ] T032 [US4] Add CI step to verify total pipeline runtime < 6 hours and peak RAM < 7GB
 
 **Checkpoint**: User Story 4 ensures the research workflow is sustainable and reproducible within standard open-source constraints
@@ -182,7 +182,7 @@
 
 ### Implementation for User Story 8 (Statistical Consistency)
 
-- [ ] T044 [US3] Refactor `code/stats.py` to ensure Mixed-Effects Model is the primary implementation (Spec FR-006) and robustly handles the fallback to Fixed-Effects ANOVA if N=1. Verify Benjamini-Hochberg correction is applied to all p-values. (DEPENDS: T024)
+- [X] T044 [US3] Refactor `code/stats.py` to ensure Mixed-Effects Model is the primary implementation (Spec FR-006) and robustly handles the fallback to Fixed-Effects ANOVA if N=1. Verify Benjamini-Hochberg correction is applied to all p-values. (DEPENDS: T024)
 - [ ] T049 [US3] Update `plan.md` to reflect the adoption of the Mixed-Effects Model (Spec FR-006) and the Silhouette Threshold sweep (Spec FR-007), resolving the "Plan Inconsistency" noted in T007 and T024.
 
 ---
@@ -191,9 +191,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates: Update `README.md` with Installation and Usage sections; add `docs/quickstart.md` with step-by-step guide
-- [ ] T034 Code cleanup and refactoring in `code/`: Extract validation logic into `code/validators.py`; reduce cyclomatic complexity of `code/preprocess.py` to < 10 using `radon cc code/preprocess.py`
-- [ ] T036 [P] Additional unit tests in `tests/`: Add `tests/test_geometry.py::test_linearity_on_synthetic_linear_data`, `tests/test_preprocess.py::test_hvg_selection`, `tests/test_stats.py::test_fixed_effects_anova`
+- [X] T033 [P] Documentation updates: Update `README.md` with Installation and Usage sections; add `docs/quickstart.md` with step-by-step guide
+- [X] T034 Code cleanup and refactoring in `code/`: Extract validation logic into `code/validators.py`; reduce cyclomatic complexity of `code/preprocess.py` to < 10 using `radon cc code/preprocess.py`
+- [X] T036 [P] Additional unit tests in `tests/`: Add `tests/test_geometry.py::test_linearity_on_synthetic_linear_data`, `tests/test_preprocess.py::test_hvg_selection`, `tests/test_stats.py::test_fixed_effects_anova`
 - [ ] T037 [P] Validate quickstart.md: Execute `snakemake --cores 2 --dry-run` from the project root, verify the exit code indicates successful completion., and confirm `docs/quickstart.md` exists and is non-empty
 - [ ] T038a [P] Generate `research.md`: Use `results/` data and `research_template.md` to populate content for the Statistical Evaluation Report
 - [ ] T038b [P] Generate `data-model.md`: Use `results/` data and `data_model_template.md` to populate content for the Data Model Specification

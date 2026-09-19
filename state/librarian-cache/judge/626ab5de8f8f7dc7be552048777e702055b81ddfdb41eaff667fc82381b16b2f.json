@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.14700",
+  "judged_at": "2026-09-19T18:41:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "rationale": "The paper focuses on zero-shot speech synthesis and efficiency in audio generation, which is a distinct domain from the user's question regarding zero-shot motion tracking and humanoid structure scaling. While both involve \"zero-shot\" learning and large models, they address different physical observables (audio vs. motion) and lack a shared mechanism, variable, or canonical population connection required for inclusion.",
+  "relevant": false
+}

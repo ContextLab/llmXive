@@ -7,27 +7,50 @@ T001:
     supply proof (e.g., a directory listing) that the specified folders are present.
 T021:
   c: false
-  h: 937518f7228f137ef46cbfca5391ecaa4664340884f7f04181009a55175060d1
-  r: "The `code/utils.py` file defines the parser and header creation but the `record_metrics`\
-    \ method is truncated and never writes the actual metric row, and the required\
-    \ `results/monitoring.csv` file does not exist. The implementation therefore does\
-    \ not produce the per\u2011step CSV output the task demands."
+  h: d9ffbf44a7d78de78f7fa46a72d143664f0f6e39f4dfeacec24340e8ebb89d69
+  r: The provided `code/utils.py` contains a `ResourceMonitor` class that can write
+    metrics to a CSV, but it lacks any parser that reads `/usr/bin/time` log output,
+    and the file ends abruptly (truncated) with no parsing logic. Moreover, the required
+    output file `results/monitoring.csv` does not exist on disk. Both the parser implementation
+    and the generated CSV are missing, so the task is not fulfilled.
+T028#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No Snakefile (or fragment thereof) containing a `resource_monitor` rule was provided,
+    nor any evidence that such a rule aggregates `/usr/bin/time -v` logs for embedding
+    steps. The required artifact is missing, so the task is not satisfied.
 T029:
   c: false
-  h: 937518f7228f137ef46cbfca5391ecaa4664340884f7f04181009a55175060d1
-  r: "The `ResourceMonitor` class in `code/utils.py` never checks RAM against the\
-    \ 7\u202FGB threshold nor aborts execution, and its `record_metrics` method only\
-    \ writes a CSV header without logging any metric rows. Moreover, the required\
-    \ output file `results/monitoring.csv` does not exist. The task\u2019s core requirements\
-    \ are therefore unmet."
-T051:
+  h: d9ffbf44a7d78de78f7fa46a72d143664f0f6e39f4dfeacec24340e8ebb89d69
+  r: "The provided `code/utils.py` defines a `ResourceMonitor` with logging and a\
+    \ RAM\u2011limit check, but the file is truncated (ends mid\u2011definition) and\
+    \ does not contain a wrapper function that actually runs a command, aborts when\
+    \ RAM\u202F>\u202F7\u202FGB, and records the step. Moreover, the required output\
+    \ file `results/monitoring.csv` is absent. The task\u2019s core requirements are\
+    \ therefore not satisfied."
+T032:
   c: false
-  h: 5ca82c7990facbf269c48798fd34b5840409fe3d4d83adbbc7b922d633fc50ad
-  r: "`code/main.py` does contain logic that detects a single\u2011dataset (case\u2011\
-    study) situation and sets environment variables for a fixed\u2011effects model,\
-    \ but it never writes or modifies `results/summary.json`. The required `results/summary.json`\
-    \ file is missing entirely, so the header update cannot have been performed. The\
-    \ task is therefore not fully satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI configuration, script, or test artifact that checks total pipeline runtime\
+    \ and peak RAM is present in the provided evidence. The claim lacks any file (e.g.,\
+    \ a GitHub Actions workflow or CI job) that implements the <\u202F6\u202Fh runtime\
+    \ and <\u202F7\u202FGB RAM verification step."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `plan.md` file is provided; there is no evidence that the document\
+    \ was modified to include the Mixed\u2011Effects Model (FR\u2011006) and the Silhouette\
+    \ Threshold sweep (FR\u2011007) or that the prior plan inconsistency was resolved.\
+    \ The required artifact is missing."
+T051:
+  c: true
+  h: 913479494ed380e46c1d72a85e44943f8d6e4134f66e7317d0e37d71211190eb
+  r: "The repository contains a non\u2011empty `code/main.py` (6\u202FKB) that defines\
+    \ `write_summary_json` which sets the header to **\"Descriptive Case Study\"**\
+    \ and the model type to **\"Single Dataset Mode (Fixed\u2011Effects ANOVA)\"**\
+    \ when the mode equals `\"CASE_STUDY\"`. This fulfills the required detection\
+    \ and update behavior; the `results/summary.json` file is meant to be generated\
+    \ at runtime, so its absence does not indicate a missing implementation."
 T054:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
