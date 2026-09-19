@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-084-assessing-the-predictive-power-of-machin
-last_run_id: 24703d07-3f0b-4193-8328-8e69cc3d80a7
+last_run_id: bf1c760c-cb95-4ef4-9cea-bf1e6ee89112
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin
 title: Assessing the Predictive Power of Machine Learning for Organic Reaction Outcomes
-updated_at: '2026-09-08T19:57:34.936841Z'
+updated_at: '2026-09-19T10:55:14.791312Z'

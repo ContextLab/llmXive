@@ -1,23 +1,21 @@
-"""
-Download USPTO dataset from verified public source.
-
-Primary Source: HuggingFace ChemBL USPTO Yield dataset.
-Fallback: Direct DOI download if HF fails.
-Output: data/raw/uspto_raw.parquet
-Checksum: data/results/download_checksum.txt
-"""
 import hashlib
 import logging
-import os
-import shutil
 import sys
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from huggingface_hub import hf_hub_download
+from datasets import load_dataset
 
-# Configure logging
+# Ensure we can find config if needed, though we use local constants
+try:
+    from config import ensure_dirs
+except ImportError:
+    # Fallback for direct execution context if config is not in sys.path
+    def ensure_dirs():
+        Path("data/raw").mkdir(parents=True, exist_ok=True)
+        Path("data/results").mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -26,183 +24,127 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-DATASET_SOURCE = "chembl/USPTO_yield"
-FILE_NAME = "uspto_yield.parquet"
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_FILE = OUTPUT_DIR / "uspto_raw.parquet"
-CHECKSUM_DIR = Path("data/results")
-CHECKSUM_FILE = CHECKSUM_DIR / "download_checksum.txt"
-REPO_ID = "chembl/USPTO_yield"
-
-# Fallback DOI URL (resolved to raw data link)
-# Note: The specific DOI was empty in the prompt, using the known Zenodo/DOI for USPTO Yield
-Fallback_URL = "https://zenodo.org/records/10059826/files/uspto_yield.parquet"
+HF_DATASET_ID = "farside/uspto-yields"
+RAW_DATA_DIR = Path("data/raw")
+RESULTS_DIR = Path("data/results")
+OUTPUT_FILE = RAW_DATA_DIR / "uspto_raw.parquet"
+CHECKSUM_FILE = RESULTS_DIR / "download_checksum.txt"
+MEMORY_LIMIT_GB = 7.0
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
+    logger.info(f"Calculating SHA256 for {file_path}...")
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def download_from_hf() -> Optional[Path]:
+def download_from_hf(dataset_id: str, output_path: Path) -> Optional[str]:
     """
-    Attempt to download from HuggingFace.
-    Returns Path if successful, None if it fails.
-    """
-    try:
-        logger.info(f"Attempting to download from HuggingFace: {REPO_ID}...")
-        downloaded_path = hf_hub_download(
-            repo_id=REPO_ID,
-            filename=FILE_NAME,
-            repo_type="dataset",
-        )
-        
-        # Ensure target directory exists
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        
-        # Copy to our output location
-        shutil.copy2(downloaded_path, OUTPUT_FILE)
-        
-        if not OUTPUT_FILE.exists() or OUTPUT_FILE.stat().st_size == 0:
-            logger.error("Downloaded file is missing or empty.")
-            return None
-            
-        logger.info(f"Successfully downloaded from HF: {OUTPUT_FILE}")
-        return OUTPUT_FILE
-        
-    except Exception as e:
-        logger.warning(f"HF download failed: {str(e)}")
-        return None
-
-def download_from_fallback() -> Optional[Path]:
-    """
-    Attempt to download from fallback URL (DOI/Zenodo).
-    Returns Path if successful, None if it fails.
+    Download dataset from HuggingFace Hub.
+    Returns the source string if successful, None otherwise.
+    Strictly adheres to the requirement: NO synthetic fallback.
     """
     try:
-        logger.info(f"Attempting fallback download from URL: {Fallback_URL}...")
-        import urllib.request
+        logger.info(f"Attempting to download dataset '{dataset_id}' from HuggingFace...")
         
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        # Load dataset with streaming=False to ensure we get the full data for processing
+        # The task requires a real download. If the dataset is too large for memory,
+        # we rely on the runner's constraints or the dataset's actual size.
+        # We attempt to load the 'train' split as it's the standard for USPTO.
+        try:
+            dataset = load_dataset(dataset_id, split="train", streaming=False)
+        except Exception as e:
+            # If 'train' split fails, try loading without split to see available splits
+            logger.warning(f"Split 'train' not found or failed: {e}. Attempting default load.")
+            full_dataset = load_dataset(dataset_id, streaming=False)
+            if isinstance(full_dataset, dict):
+                if "train" in full_dataset:
+                    dataset = full_dataset["train"]
+                else:
+                    # Fallback to first available split if 'train' is missing
+                    first_key = next(iter(full_dataset))
+                    logger.warning(f"Using split '{first_key}' as 'train' was missing.")
+                    dataset = full_dataset[first_key]
+            else:
+                dataset = full_dataset
+
+        logger.info(f"Dataset loaded. Columns: {dataset.column_names}")
+        logger.info(f"Dataset size: {len(dataset)} rows")
+
+        # Convert to DataFrame
+        # Note: This may be memory intensive. The task requires real data.
+        df = dataset.to_pandas()
         
-        # Download with progress
-        def report_hook(count, block_size, total_size):
-            if total_size > 0:
-                percent = min(100, count * block_size * 100 / total_size)
-                sys.stdout.write(f"\rDownloading: {percent:.1f}%")
-                sys.stdout.flush()
+        # Verify memory usage
+        mem_usage_mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
+        if mem_usage_mb > (MEMORY_LIMIT_GB * 1024):
+            logger.warning(f"Dataset size ({mem_usage_mb:.2f} MB) exceeds recommended limit ({MEMORY_LIMIT_GB} GB). Proceeding...")
         
-        urllib.request.urlretrieve(Fallback_URL, OUTPUT_FILE, reporthook=report_hook)
-        sys.stdout.write("\n") # Newline after progress
+        # Save to Parquet
+        logger.info(f"Saving to {output_path}...")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_parquet(output_path, index=False)
         
-        if not OUTPUT_FILE.exists() or OUTPUT_FILE.stat().st_size == 0:
-            logger.error("Fallback downloaded file is missing or empty.")
-            return None
-            
-        logger.info(f"Successfully downloaded from Fallback: {OUTPUT_FILE}")
-        return OUTPUT_FILE
+        logger.info(f"Successfully saved {output_path}")
+        return dataset_id
         
     except Exception as e:
-        logger.warning(f"Fallback download failed: {str(e)}")
+        logger.error(f"Failed to download from HuggingFace: {e}")
         return None
 
-def download_uspto_dataset() -> Path:
+def write_checksum(source: str, checksum: str, file_path: Path) -> None:
+    """Write source and checksum to the checksum file."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, "w") as f:
+        f.write(f"Source: {source}\n")
+        f.write(f"Checksum: {checksum}\n")
+    logger.info(f"Wrote checksum to {file_path}")
+
+def download_uspto_dataset() -> None:
     """
-    Download the USPTO dataset from verified sources.
-    Tries HF first, then fallback.
-    
-    Returns:
-        Path: Path to the downloaded parquet file.
-        
-    Raises:
-        FileNotFoundError: If all download sources fail.
+    Main orchestration function to download the USPTO dataset.
+    1. Attempts download from HuggingFace.
+    2. If that fails, raises FileNotFoundError.
+    3. On success, calculates checksum and writes to data/results/download_checksum.txt.
     """
-    # Ensure output directories exist
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    CHECKSUM_DIR.mkdir(parents=True, exist_ok=True)
+    source = None
     
     # Try Primary Source
-    result_path = download_from_hf()
-    source_used = "HuggingFace"
+    source = download_from_hf(HF_DATASET_ID, OUTPUT_FILE)
     
-    if result_path is None:
-        # Try Fallback
-        result_path = download_from_fallback()
-        source_used = "Fallback DOI/Zenodo"
-        
-    if result_path is None:
-        raise FileNotFoundError("No verified canonical data source available")
-        
-    logger.info(f"Download completed using source: {source_used}")
-    return result_path
+    # Per task requirements: DO NOT implement fallback mechanisms.
+    # If primary fails, we must fail loudly.
+    if source is None:
+        error_msg = f"Failed to download dataset from {HF_DATASET_ID}. No fallback allowed."
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
 
-def write_checksum(file_path: Path, source: str) -> str:
-    """Calculate and write checksum to file."""
-    checksum = calculate_sha256(file_path)
-    with open(CHECKSUM_FILE, "w") as f:
-        f.write(f"{checksum}  {file_path.name}\n")
-        f.write(f"source: {source}\n")
-    logger.info(f"Checksum written to {CHECKSUM_FILE}: {checksum}")
-    logger.info(f"Source logged: {source}")
-    return checksum
+    # Verify output file exists
+    if not OUTPUT_FILE.exists():
+        error_msg = f"Download completed but output file {OUTPUT_FILE} not found."
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+
+    # Calculate and write checksum
+    checksum = calculate_sha256(OUTPUT_FILE)
+    write_checksum(source, checksum, CHECKSUM_FILE)
+    
+    logger.info(f"Download complete. Source: {source}, Checksum: {checksum}")
 
 def main():
-    """Main entry point for the download script."""
-    logger.info("Starting USPTO dataset download...")
-    
+    """Entry point for the download script."""
     try:
-        # Download the dataset
-        output_path = download_uspto_dataset()
-        
-        # Determine source for logging (re-verify or infer from logic if needed, 
-        # but for simplicity in this script structure, we assume the successful call defined it)
-        # To be precise, we'd refactor to return (path, source), but we'll re-check file presence
-        # and assume the last successful path is the one. 
-        # A cleaner way in this script structure:
-        source = "HuggingFace" if download_from_hf() else "Fallback DOI/Zenodo"
-        # Actually, we need to know which one succeeded. 
-        # Let's refine the logic in download_uspto_dataset to return source too?
-        # Or just re-run the check logic.
-        # Simpler: The download_uspto_dataset function above sets 'source_used' but doesn't return it.
-        # Let's fix the flow:
-        
-        # Re-implementing the flow inside main for clarity and source tracking:
-        final_path = None
-        final_source = None
-        
-        # Try HF
-        hf_res = download_from_hf()
-        if hf_res:
-            final_path = hf_res
-            final_source = "HuggingFace"
-        else:
-            # Try Fallback
-            fb_res = download_from_fallback()
-            if fb_res:
-                final_path = fb_res
-                final_source = "Fallback DOI/Zenodo"
-        
-        if not final_path:
-            raise FileNotFoundError("No verified canonical data source available")
-        
-        # Calculate and write checksum
-        checksum = write_checksum(final_path, final_source)
-        
-        logger.info("Download and checksum verification completed successfully.")
-        logger.info(f"Output file: {final_path}")
-        logger.info(f"Checksum: {checksum}")
-        logger.info(f"Source: {final_source}")
-        
-        return 0
-        
+        ensure_dirs()
+        download_uspto_dataset()
+        logger.info("T019 Download task completed successfully.")
     except FileNotFoundError as e:
-        logger.error(f"Critical error: {str(e)}")
-        return 1
+        logger.error(f"Task failed: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        return 1
+        logger.error(f"Unexpected error during download: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

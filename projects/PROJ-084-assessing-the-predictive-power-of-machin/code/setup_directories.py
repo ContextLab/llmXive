@@ -3,34 +3,32 @@ from pathlib import Path
 
 def main():
     """
-    Create the required project directory structure.
-    Implements task T001a: Create code/, data/raw/, data/processed/, data/results/, tests/
+    Create the standard project directory structure.
+    This script ensures that code/, data/raw/, data/processed/, data/results/, and tests/ exist.
     """
-    # Define the project root (current directory or parent if in a subdirectory)
-    # Assuming this script is run from the project root
-    root = Path.cwd()
-
-    # Define relative paths to create
-    directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "tests"
+    root = Path(".")
+    
+    dirs_to_create = [
+        root / "code",
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "results",
+        root / "tests",
     ]
 
     created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+    for d in dirs_to_create:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {d}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {d}")
 
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return 0
+    if created_count == 0:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {created_count} new directories.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

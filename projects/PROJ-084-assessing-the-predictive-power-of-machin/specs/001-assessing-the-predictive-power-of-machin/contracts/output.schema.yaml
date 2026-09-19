@@ -1,33 +1,26 @@
-model_type:
-  type: string
-  description: Name of the model type (e.g., "RandomForest", "SVM")
-hyperparameters:
-  type: dict
-  description: Dictionary of hyperparameters used for training
-  additionalProperties: true
-metrics:
-  type: dict
-  required:
-    - R2
-    - RMSE
-    - MAE
-  properties:
-    R2:
-      type: number
-      description: R-squared coefficient
-    RMSE:
-      type: number
-      description: Root Mean Squared Error
-    MAE:
-      type: number
-      description: Mean Absolute Error
-split_ratios:
-  type: dict
-  description: Ratios of train/val/test splits
-  properties:
-    train:
-      type: number
-    val:
-      type: number
-    test:
-      type: number
+type: object
+properties:
+  model_type:
+    type: string
+  hyperparameters:
+    type: object
+  metrics:
+    type: object
+    properties:
+      R2:
+        type: number
+      RMSE:
+        type: number
+      MAE:
+        type: number
+    required:
+      - R2
+      - RMSE
+      - MAE
+  split_ratios:
+    type: object
+required:
+  - model_type
+  - hyperparameters
+  - metrics
+  - split_ratios

@@ -1,244 +1,170 @@
 """
-Unit tests for fingerprint generation functionality.
-
-Tests verify:
-- ECFP4 dimensionality (2048 bits)
-- MACCS dimensionality (167 bits)
-- Correct handling of invalid SMILES
-- Chunked processing behavior
+Unit tests for fingerprint generation.
+Tests T013: Verify fingerprint dimensionality (ECFP4=2048, MACCS=167).
 """
 import pytest
 import numpy as np
+import pandas as pd
 from pathlib import Path
 import tempfile
-import pandas as pd
+import json
 
 from rdkit import Chem
 from rdkit.Chem import AllChem, MACCSkeys
 
-# Import the module under test
+# Import the functions to test
 from preprocessing.fingerprints import (
     generate_ecfp4,
     generate_maccs,
     generate_fingerprints_batch,
     process_fingerprints_chunked,
-    ECFP_SIZE,
-    MACCS_SIZE
+    ECFP_LENGTH,
+    MACCS_LENGTH
 )
 
-# Sample test molecules
-VALID_SMILES = [
-    "CCO",  # Ethanol
-    "CC(=O)O",  # Acetic acid
-    "c1ccccc1",  # Benzene
-    "CCOCC",  # Diethyl ether
-    "CC(C)C",  # Isobutane
-]
+class TestFingerprintDimensions:
+    """Test that fingerprints have correct dimensions."""
 
-INVALID_SMILES = [
-    "",  # Empty string
-    "INVALID_SMILES",  # Invalid format
-    "C((",  # Malformed
-]
+    def test_ecfp4_length(self):
+        """Verify ECFP4 fingerprint length is 2048."""
+        smiles = "CCO"  # Ethanol
+        fp = generate_ecfp4(smiles)
+        assert fp is not None, "ECFP4 generation failed"
+        assert len(fp) == ECFP_LENGTH, f"ECFP4 length is {len(fp)}, expected {ECFP_LENGTH}"
+        assert ECFP_LENGTH == 2048, "ECFP_LENGTH constant should be 2048"
 
-class TestECFP4Generation:
-    """Tests for ECFP4 fingerprint generation."""
+    def test_maccs_length(self):
+        """Verify MACCS fingerprint length is 167."""
+        smiles = "CCO"  # Ethanol
+        fp = generate_maccs(smiles)
+        assert fp is not None, "MACCS generation failed"
+        assert len(fp) == MACCS_LENGTH, f"MACCS length is {len(fp)}, expected {MACCS_LENGTH}"
+        assert MACCS_LENGTH == 167, "MACCS_LENGTH constant should be 167"
 
-    def test_ecfp4_dimensionality(self):
-        """Test that ECFP4 fingerprints have exactly 2048 bits."""
-        mol = Chem.MolFromSmiles("CCO")
-        fp = generate_ecfp4(mol)
+    def test_ecfp4_with_complex_molecule(self):
+        """Test ECFP4 with a more complex molecule."""
+        smiles = "CC(=O)Oc1ccccc1C(=O)O"  # Aspirin
+        fp = generate_ecfp4(smiles)
+        assert fp is not None
+        assert len(fp) == 2048
 
-        assert len(fp) == ECFP_SIZE, f"Expected {ECFP_SIZE} bits, got {len(fp)}"
-        assert all(bit in [0, 1] for bit in fp), "All bits should be 0 or 1"
+    def test_maccs_with_complex_molecule(self):
+        """Test MACCS with a more complex molecule."""
+        smiles = "CC(=O)Oc1ccccc1C(=O)O"  # Aspirin
+        fp = generate_maccs(smiles)
+        assert fp is not None
+        assert len(fp) == 167
 
-    def test_ecfp4_non_zero_for_complex_molecules(self):
-        """Test that complex molecules have non-zero fingerprints."""
-        mol = Chem.MolFromSmiles("c1ccccc1C(=O)O")  # Benzoic acid
-        fp = generate_ecfp4(mol)
+    def test_invalid_smiles_returns_none(self):
+        """Test that invalid SMILES returns None."""
+        assert generate_ecfp4("invalid_smiles") is None
+        assert generate_maccs("invalid_smiles") is None
 
-        assert sum(fp) > 0, "Complex molecule should have some bits set"
+    def test_empty_smiles_returns_none(self):
+        """Test that empty SMILES returns None."""
+        assert generate_ecfp4("") is None
+        assert generate_maccs("") is None
 
-    def test_ecfp4_for_null_molecule(self):
-        """Test that None molecule returns zero fingerprint."""
-        fp = generate_ecfp4(None)
+    def test_batch_generation_dimensions(self):
+        """Test batch generation maintains correct dimensions."""
+        df = pd.DataFrame({
+            'smiles': ['CCO', 'CC(=O)Oc1ccccc1C(=O)O', 'invalid'],
+            'yield': [50.0, 75.0, 60.0]
+        })
+        
+        result = generate_fingerprints_batch(df)
+        
+        assert 'fingerprint_ecfp' in result.columns
+        assert 'fingerprint_maccs' in result.columns
+        
+        # Check valid rows have correct dimensions
+        assert len(result['fingerprint_ecfp'].iloc[0]) == 2048
+        assert len(result['fingerprint_maccs'].iloc[0]) == 167
+        assert len(result['fingerprint_ecfp'].iloc[1]) == 2048
+        assert len(result['fingerprint_maccs'].iloc[1]) == 167
 
-        assert len(fp) == ECFP_SIZE
-        assert all(bit == 0 for bit in fp)
+class TestFingerprintContent:
+    """Test fingerprint content and properties."""
 
-    def test_ecfp4_deterministic(self):
-        """Test that ECFP4 generation is deterministic."""
-        mol = Chem.MolFromSmiles("CCO")
-        fp1 = generate_ecfp4(mol)
-        fp2 = generate_ecfp4(mol)
+    def test_ecfp4_bit_values(self):
+        """Verify ECFP4 contains only 0 and 1."""
+        fp = generate_ecfp4("CCO")
+        assert all(v in [0, 1] for v in fp), "ECFP4 should only contain 0 and 1"
 
-        assert fp1 == fp2, "ECFP4 generation should be deterministic"
+    def test_maccs_bit_values(self):
+        """Verify MACCS contains only 0 and 1."""
+        fp = generate_maccs("CCO")
+        assert all(v in [0, 1] for v in fp), "MACCS should only contain 0 and 1"
 
-class TestMACCSGeneration:
-    """Tests for MACCS fingerprint generation."""
+    def test_ecfp4_different_molecules_different_fingerprints(self):
+        """Verify different molecules produce different fingerprints."""
+        fp1 = generate_ecfp4("CCO")
+        fp2 = generate_ecfp4("CCCO")
+        assert not np.array_equal(fp1, fp2), "Different molecules should have different fingerprints"
 
-    def test_maccs_dimensionality(self):
-        """Test that MACCS fingerprints have exactly 167 bits."""
-        mol = Chem.MolFromSmiles("CCO")
-        fp = generate_maccs(mol)
-
-        assert len(fp) == MACCS_SIZE, f"Expected {MACCS_SIZE} bits, got {len(fp)}"
-        assert all(bit in [0, 1] for bit in fp), "All bits should be 0 or 1"
-
-    def test_maccs_non_zero_for_complex_molecules(self):
-        """Test that complex molecules have non-zero MACCS fingerprints."""
-        mol = Chem.MolFromSmiles("c1ccccc1C(=O)O")  # Benzoic acid
-        fp = generate_maccs(mol)
-
-        assert sum(fp) > 0, "Complex molecule should have some bits set"
-
-    def test_maccs_for_null_molecule(self):
-        """Test that None molecule returns zero fingerprint."""
-        fp = generate_maccs(None)
-
-        assert len(fp) == MACCS_SIZE
-        assert all(bit == 0 for bit in fp)
-
-    def test_maccs_deterministic(self):
-        """Test that MACCS generation is deterministic."""
-        mol = Chem.MolFromSmiles("CCO")
-        fp1 = generate_maccs(mol)
-        fp2 = generate_maccs(mol)
-
-        assert fp1 == fp2, "MACCS generation should be deterministic"
-
-class TestBatchGeneration:
-    """Tests for batch fingerprint generation."""
-
-    def test_batch_processing_valid_smiles(self):
-        """Test batch processing of valid SMILES."""
-        ecfp_fps, maccs_fps, valid_indices = generate_fingerprints_batch(VALID_SMILES)
-
-        assert len(ecfp_fps) == len(VALID_SMILES)
-        assert len(maccs_fps) == len(VALID_SMILES)
-        assert len(valid_indices) == len(VALID_SMILES)
-
-        # Check dimensions
-        for fp in ecfp_fps:
-            assert len(fp) == ECFP_SIZE
-
-        for fp in maccs_fps:
-            assert len(fp) == MACCS_SIZE
-
-    def test_batch_processing_invalid_smiles(self):
-        """Test that invalid SMILES are skipped."""
-        mixed_smiles = VALID_SMILES + INVALID_SMILES
-        ecfp_fps, maccs_fps, valid_indices = generate_fingerprints_batch(mixed_smiles)
-
-        # Should only process valid SMILES
-        assert len(ecfp_fps) == len(VALID_SMILES)
-        assert len(maccs_fps) == len(VALID_SMILES)
-        assert len(valid_indices) == len(VALID_SMILES)
-
-    def test_batch_processing_empty_list(self):
-        """Test batch processing with empty list."""
-        ecfp_fps, maccs_fps, valid_indices = generate_fingerprints_batch([])
-
-        assert len(ecfp_fps) == 0
-        assert len(maccs_fps) == 0
-        assert len(valid_indices) == 0
+    def test_maccs_different_molecules_different_fingerprints(self):
+        """Verify different molecules produce different MACCS fingerprints."""
+        fp1 = generate_maccs("CCO")
+        fp2 = generate_maccs("CCCO")
+        assert not np.array_equal(fp1, fp2), "Different molecules should have different MACCS fingerprints"
 
 class TestChunkedProcessing:
-    """Tests for chunked processing functionality."""
+    """Test chunked processing functionality."""
 
     def test_chunked_processing_creates_output(self):
-        """Test that chunked processing creates output file."""
+        """Verify chunked processing creates output file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             input_path = Path(tmpdir) / "input.parquet"
             output_path = Path(tmpdir) / "output.parquet"
-
+            
             # Create test data
-            test_df = pd.DataFrame({
-                'smiles': VALID_SMILES,
-                'yield': [50.0, 60.0, 70.0, 80.0, 90.0],
-                'reaction_class': ['A', 'B', 'A', 'B', 'A']
+            df = pd.DataFrame({
+                'smiles': ['CCO', 'CCCO', 'CCCCO'] * 100,
+                'yield': [50.0] * 300
             })
-            test_df.to_parquet(input_path)
-
+            df.to_parquet(input_path)
+            
             # Process
-            stats = process_fingerprints_chunked(input_path, output_path)
-
+            result = process_fingerprints_chunked(str(input_path), str(output_path))
+            
             # Verify output exists
             assert output_path.exists(), "Output file should be created"
-
-            # Verify stats
-            assert stats['processed_rows'] == len(VALID_SMILES)
-            assert stats['invalid_rows'] == 0
-            assert stats['fingerprint_dimensions']['ecfp4'] == ECFP_SIZE
-            assert stats['fingerprint_dimensions']['maccs'] == MACCS_SIZE
+            assert len(result) == 300, "All rows should be processed"
+            
+            # Verify dimensions
+            assert len(result['fingerprint_ecfp'].iloc[0]) == 2048
+            assert len(result['fingerprint_maccs'].iloc[0]) == 167
 
     def test_chunked_processing_logs_dimensions(self):
-        """Test that fingerprint dimensions are logged."""
+        """Verify chunked processing creates dimension log."""
         with tempfile.TemporaryDirectory() as tmpdir:
             input_path = Path(tmpdir) / "input.parquet"
             output_path = Path(tmpdir) / "output.parquet"
-            results_dir = Path(tmpdir) / "results"
-            results_dir.mkdir()
-
-            # Temporarily change the log path for testing
-            import preprocessing.fingerprints as fp_module
-            original_log_path = fp_module.Path('data/results/fingerprint_dimensions.log')
-            fp_module.Path = lambda x: Path(tmpdir) / x if 'results' in str(x) else Path(x)
-
+            log_path = Path(tmpdir) / "fingerprint_dimensions.log"
+            
             # Create test data
-            test_df = pd.DataFrame({
-                'smiles': VALID_SMILES,
-                'yield': [50.0, 60.0, 70.0, 80.0, 90.0],
-                'reaction_class': ['A', 'B', 'A', 'B', 'A']
+            df = pd.DataFrame({
+                'smiles': ['CCO'] * 10,
+                'yield': [50.0] * 10
             })
-            test_df.to_parquet(input_path)
-
-            # Process
-            stats = process_fingerprints_chunked(input_path, output_path)
-
-            # Verify log file exists
-            log_path = results_dir / "fingerprint_dimensions.log"
-            # Note: The actual log path is hardcoded, so we check if it was created
-            # in the default location or the test location depending on implementation
-
-    def test_chunked_processing_with_invalid_smiles(self):
-        """Test chunked processing with some invalid SMILES."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.parquet"
-            output_path = Path(tmpdir) / "output.parquet"
-
-            # Create test data with mixed valid/invalid
-            mixed_smiles = VALID_SMILES + INVALID_SMILES
-            test_df = pd.DataFrame({
-                'smiles': mixed_smiles,
-                'yield': [50.0] * len(mixed_smiles),
-                'reaction_class': ['A'] * len(mixed_smiles)
-            })
-            test_df.to_parquet(input_path)
-
-            # Process
-            stats = process_fingerprints_chunked(input_path, output_path)
-
-            # Should only process valid SMILES
-            assert stats['processed_rows'] == len(VALID_SMILES)
-            assert stats['invalid_rows'] == len(INVALID_SMILES)
-
-class TestFingerprintDimensions:
-    """Tests for fingerprint dimension validation."""
-
-    def test_ecfp4_is_2048(self):
-        """Verify ECFP4 constant is 2048."""
-        assert ECFP_SIZE == 2048
-
-    def test_maccs_is_167(self):
-        """Verify MACCS constant is 167."""
-        assert MACCS_SIZE == 167
-
-    def test_generated_fingerprints_match_constants(self):
-        """Test that generated fingerprints match expected dimensions."""
-        mol = Chem.MolFromSmiles("CCO")
-        ecfp_fp = generate_ecfp4(mol)
-        maccs_fp = generate_maccs(mol)
-
-        assert len(ecfp_fp) == ECFP_SIZE
-        assert len(maccs_fp) == MACCS_SIZE
+            df.to_parquet(input_path)
+            
+            # Temporarily override DATA_RESULTS_DIR
+            import preprocessing.fingerprints as fp_module
+            original_dir = fp_module.DATA_RESULTS_DIR
+            fp_module.DATA_RESULTS_DIR = Path(tmpdir)
+            
+            try:
+                process_fingerprints_chunked(str(input_path), str(output_path))
+                
+                # Check log file exists
+                assert log_path.exists(), "Dimension log should be created"
+                
+                # Check log content
+                with open(log_path, 'r') as f:
+                    content = f.read()
+                
+                assert "2048" in content, "Log should mention ECFP4 length"
+                assert "167" in content, "Log should mention MACCS length"
+            finally:
+                fp_module.DATA_RESULTS_DIR = original_dir

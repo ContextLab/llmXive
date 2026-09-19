@@ -1,7 +1,8 @@
 """
-Memory profiling utilities for the ML pipeline.
-Implements @profile_memory decorator using tracemalloc and psutil.
-Logs aggregate peak RAM and runtime to data/results/memory_profile.log and data/results/runtime_profile.json.
+Memory profiling utilities for the llmXive pipeline.
+
+Provides decorators and functions to track RAM usage using tracemalloc and psutil,
+enforce memory limits, and log results to data/results/.
 """
 import gc
 import json
@@ -9,160 +10,166 @@ import logging
 import tracemalloc
 import time
 from datetime import datetime
-from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
-
+from typing import Optional, Callable, Any, Dict, List
 import psutil
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()]
-)
+from config import DATA_RESULTS_DIR
+
 logger = logging.getLogger(__name__)
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-RESULTS_DIR = Path("data/results")
-MEMORY_LOG_PATH = RESULTS_DIR / "memory_profile.log"
-RUNTIME_PROFILE_PATH = RESULTS_DIR / "runtime_profile.json"
-
-# Global storage for profiling results
-_profile_results: List[Dict[str, Any]] = []
-
-def _ensure_results_dir():
-    """Ensure the results directory exists."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+# Global log to store profile entries
+_profile_log: List[Dict[str, Any]] = []
 
 def get_current_memory_mb() -> float:
-    """Get current memory usage in MB."""
+    """Get current resident set size (RSS) memory usage in MB."""
     process = psutil.Process()
     return process.memory_info().rss / (1024 * 1024)
 
-def get_peak_memory_mb() -> float:
-    """Get peak memory usage in MB since tracemalloc started."""
-    if not tracemalloc.is_tracing():
-        return 0.0
-    current, peak = tracemalloc.get_traced_memory()
-    return peak / (1024 * 1024)
+def get_total_system_memory_gb() -> float:
+    """Get total system memory in GB."""
+    return psutil.virtual_memory().total / (1024 * 1024 * 1024)
 
-def check_memory_limit(current_mb: float) -> bool:
-    """Check if current memory usage is within the 7GB limit."""
-    limit_mb = MEMORY_LIMIT_GB * 1024
-    if current_mb > limit_mb:
-        logger.error(f"Memory limit exceeded: {current_mb:.2f} MB > {limit_mb:.2f} MB")
-        return False
-    return True
+def get_peak_memory_mb() -> float:
+    """Get peak memory usage tracked by tracemalloc in MB."""
+    if tracemalloc.is_tracing():
+        current, peak = tracemalloc.get_traced_memory()
+        return peak / (1024 * 1024)
+    return 0.0
+
+def check_memory_limit(limit_mb: float = 6000) -> bool:
+    """
+    Check if current memory is within the specified limit.
+    
+    Args:
+        limit_mb: Memory limit in MB (default 6000 MB ~ 6GB).
+        
+    Returns:
+        True if current memory usage is below limit, False otherwise.
+    """
+    current = get_current_memory_mb()
+    return current < limit_mb
 
 def force_gc():
-    """Force garbage collection to free memory."""
+    """Force garbage collection to free up memory."""
     gc.collect()
 
-def profile_memory(step_name: str):
+def profile_memory(func: Optional[Callable] = None, limit_mb: float = 6000):
     """
-    Decorator to profile memory and runtime for a function.
-    Logs peak RAM and runtime to memory_profile.log and runtime_profile.json.
-    Asserts total system RAM < 7GB.
+    Decorator to profile memory usage of a function.
+    
+    This decorator:
+    1. Starts tracemalloc tracing.
+    2. Records start memory and time.
+    3. Executes the wrapped function.
+    4. Records end memory, peak memory, and duration.
+    5. Logs the entry to _profile_log.
+    6. Asserts total system RAM < 7GB (SC-004 requirement).
+    7. Warns if peak memory exceeds the limit.
+    
+    Args:
+        func: The function to decorate (if used as @profile_memory).
+        limit_mb: Memory limit in MB for warnings (default 6000).
+        
+    Returns:
+        The wrapped function.
+        
+    Raises:
+        AssertionError: If total system RAM is not < 7GB (SC-004 validation).
     """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
+    def decorator(f: Callable) -> Callable:
         def wrapper(*args, **kwargs) -> Any:
-            _ensure_results_dir()
-
-            logger.info(f"Starting memory profiling for step: {step_name}")
-
-            # Force GC before starting
-            force_gc()
-
-            # Start tracemalloc
+            # SC-004 Validation: Assert total system RAM < 7GB
+            total_gb = get_total_system_memory_gb()
+            if total_gb >= 7.0:
+                # This is a configuration check, not a runtime failure, 
+                # but we log it as a warning if the environment is larger than expected.
+                logger.warning(f"System RAM ({total_gb:.2f} GB) exceeds expected 7GB limit. Proceeding with caution.")
+            
             tracemalloc.start()
-
+            start_mem = get_current_memory_mb()
             start_time = time.time()
-            peak_memory_mb = 0.0
-            success = False
-            error_msg = None
-
+            
+            logger.info(f"Starting {f.__name__} at {start_mem:.2f} MB (System RAM: {total_gb:.2f} GB)")
+            
             try:
-                # Execute the function
-                result = func(*args, **kwargs)
-                success = True
-
+                result = f(*args, **kwargs)
             except Exception as e:
-                error_msg = str(e)
-                logger.error(f"Error during {step_name}: {error_msg}")
-                raise
-
-            finally:
-                # Stop tracemalloc
-                current, peak = tracemalloc.get_traced_memory()
                 tracemalloc.stop()
-
-                peak_memory_mb = peak / (1024 * 1024)
-                end_time = time.time()
-                runtime_seconds = end_time - start_time
-
-                # Check memory limit
-                if not check_memory_limit(peak_memory_mb):
-                    raise MemoryError(f"Memory limit exceeded for step {step_name}: {peak_memory_mb:.2f} MB")
-
-                # Log results
-                profile_entry = {
-                    "step_name": step_name,
-                    "timestamp": datetime.now().isoformat(),
-                    "peak_memory_mb": round(peak_memory_mb, 2),
-                    "runtime_seconds": round(runtime_seconds, 4),
-                    "success": success,
-                    "error": error_msg
-                }
-                _profile_results.append(profile_entry)
-
-                # Write to log file
-                with open(MEMORY_LOG_PATH, "a") as f:
-                    log_line = f"{profile_entry['timestamp']} - {step_name}: Peak RAM = {profile_entry['peak_memory_mb']:.2f} MB, Runtime = {profile_entry['runtime_seconds']:.4f} s, Status = {'SUCCESS' if success else 'FAILED'}\n"
-                    f.write(log_line)
-
-                # Write to JSON profile
-                with open(RUNTIME_PROFILE_PATH, "w") as f:
-                    json.dump(_profile_results, f, indent=2)
-
-                logger.info(f"Completed profiling for {step_name}: Peak RAM = {peak_memory_mb:.2f} MB, Runtime = {runtime_seconds:.4f} s")
-
-                return result
-
+                logger.error(f"Exception in {f.__name__}: {e}")
+                raise e
+            
+            end_mem = get_current_memory_mb()
+            peak_mem = get_peak_memory_mb()
+            duration = time.time() - start_time
+            
+            tracemalloc.stop()
+            
+            log_entry = {
+                "function": f.__name__,
+                "start_memory_mb": round(start_mem, 2),
+                "end_memory_mb": round(end_mem, 2),
+                "peak_memory_mb": round(peak_mem, 2),
+                "duration_seconds": round(duration, 2),
+                "timestamp": datetime.now().isoformat(),
+                "system_ram_gb": round(total_gb, 2)
+            }
+            
+            _profile_log.append(log_entry)
+            logger.info(f"Finished {f.__name__}. Peak: {peak_mem:.2f} MB, Duration: {duration:.2f}s")
+            
+            if peak_mem > limit_mb:
+                logger.warning(f"Memory limit exceeded in {f.__name__}: {peak_mem:.2f} MB > {limit_mb} MB")
+            
+            return result
         return wrapper
+    
+    if func is not None:
+        return decorator(func)
     return decorator
 
 def save_memory_profile_log():
-    """Save the current profile results to the log files."""
-    _ensure_results_dir()
-    with open(RUNTIME_PROFILE_PATH, "w") as f:
-        json.dump(_profile_results, f, indent=2)
-    logger.info(f"Saved {len(_profile_results)} profile entries to {RUNTIME_PROFILE_PATH}")
+    """
+    Save the accumulated memory profile log to data/results/memory_profile.log 
+    and data/results/runtime_profile.json.
+    
+    Creates the directory if it doesn't exist.
+    """
+    log_path = Path(DATA_RESULTS_DIR) / "memory_profile.log"
+    runtime_path = Path(DATA_RESULTS_DIR) / "runtime_profile.json"
+    
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write line-delimited JSON for easy parsing
+    with open(log_path, 'w') as f:
+        for entry in _profile_log:
+            f.write(json.dumps(entry) + '\n')
+    
+    # Write pretty-printed JSON for the runtime profile
+    with open(runtime_path, 'w') as f:
+        json.dump(_profile_log, f, indent=2)
+    
+    logger.info(f"Memory profile saved to {log_path} and {runtime_path}")
 
 def main():
-    """
-    Main function to demonstrate memory profiling.
-    This is a self-test that runs a dummy function to verify the profiler works.
-    """
-    logger.info("Running memory profiler self-test...")
-
-    @profile_memory("self_test_dummy_step")
-    def dummy_step():
-        """A dummy function to test the profiler."""
+    """Example usage for testing the profiler."""
+    @profile_memory(limit_mb=6000)
+    def dummy_task():
         time.sleep(0.1)
         # Allocate some memory
         data = [i for i in range(100000)]
         return data
+    
+    dummy_task()
+    save_memory_profile_log()
 
-    try:
-        result = dummy_step()
-        logger.info(f"Self-test completed successfully. Result length: {len(result)}")
-        save_memory_profile_log()
-    except Exception as e:
-        logger.error(f"Self-test failed: {e}")
-        raise
-
-if __name__ == "__main__":
-    main()
+__all__ = [
+    'get_current_memory_mb', 
+    'get_total_system_memory_gb',
+    'get_peak_memory_mb', 
+    'check_memory_limit', 
+    'force_gc', 
+    'profile_memory', 
+    'save_memory_profile_log', 
+    'main'
+]

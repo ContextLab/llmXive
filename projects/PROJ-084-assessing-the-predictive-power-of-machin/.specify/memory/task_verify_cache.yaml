@@ -1,3 +1,45 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided to show that `code/`, `data/raw/`,
+    `data/processed/`, `data/results/`, and `tests/` actually exist; the claim is
+    unsubstantiated. The implementer must supply evidence (e.g., `ls -R` output or
+    a file tree) confirming the creation of these directories.
+T007b:
+  c: false
+  h: 150f0d2083a24ee35a2279348ce9446ef547adda80f183028ff07b85bc4b8a28
+  r: The repository lacks the required `dataset.schema.yaml` file, so the validator
+    cannot load the external schema. Moreover, `validators.py` does not contain a
+    complete function that validates a sample row against the loaded schema and raises
+    a `ValidationError` on mismatch (the file is truncated and missing such logic).
+    These missing pieces prevent the task from being fulfilled.
+T008b:
+  c: false
+  h: 150f0d2083a24ee35a2279348ce9446ef547adda80f183028ff07b85bc4b8a28
+  r: "The repository lacks the required `output.schema.yaml` (or any `schema.yaml`)\
+    \ file, so the validator cannot load the schema. Moreover, `validators.py` is\
+    \ truncated (e.g., an unfinished `validate_column_schema` function, an empty `SplitRatiosRecord`,\
+    \ and no logic that actually validates a sample output object against the loaded\
+    \ schema). The implementation therefore does not fulfill the task\u2019s requirement\
+    \ to load and enforce the output schema."
+T010:
+  c: false
+  h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
+  r: The repository contains a partially implemented `code/preprocessing/scaffold.py`,
+    but it never reads `data/processed/cleaned_reactions.parquet` nor writes `data/processed/scaffold_groups.parquet`.
+    Moreover, the required output column should be named `scaffold_id`, while the
+    script creates a column called `murcko_scaffold`. The input parquet file and the
+    expected output file are both missing.
+T014:
+  c: false
+  h: 70d220e5adec491822544cb26407979485bd70f640a03d01b7d62b0805f33914
+  r: The provided `sanitize.py` is truncated (the `remove_salts_and_standardize` function
+    ends abruptly) and never loads the Parquet file, applies `MolStandardize.Cleaner().clean()`,
+    calls `RemoveHs`, or writes out sanitized SMILES. Moreover, the required data
+    files (`data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt`)
+    are absent, so the script cannot be exercised as specified. The implementation
+    must be completed to read the raw data, verify the checksum, sanitize each SMILES
+    using the specified RDKit calls, and output the results.
 T015:
   c: false
   h: aac6c9aceaec1a160f3fd2327763aa1fb9be9f77bae7c35b9e46d1b2aad1d301
@@ -6,48 +48,22 @@ T015:
     \ reading `YIELD_RANGE_STRATEGY` from `config.py` or implementing the midpoint\
     \ vs. exclude logic and logging it to the report. Consequently the task\u2019\
     s core requirements are not satisfied."
-T017a:
+T016:
   c: false
-  h: e1a685965e387f29b419716f52744dd13fcd2fc502b0fe47149b4270b1e08706
-  r: "The provided `code/preprocessing/ingest.py` writes to `data/processed/cleaned_reactions.parquet`\
-    \ and its docstring describes a full ingestion pipeline, not the specific sanitization\
-    \ step that should produce `data/processed/sanitized_reactions.parquet`. Moreover,\
-    \ the required `sanitized_reactions.parquet` file is absent from the repository.\
-    \ The task\u2019s output artifact is missing and the script does not match the\
-    \ specified behavior."
-T017b:
+  h: fa9857ae4cd3a5b9a01a33744b88c1db0809d2c370218c15326a5b435fdf0dd8
+  r: "The `fingerprints.py` script is present, but it never writes the required bit\u2011\
+    length information to `data/results/fingerprint_dimensions.log` (the file is missing),\
+    \ and the shown code does not contain the logging implementation. Consequently\
+    \ the task\u2019s logging requirement is not fulfilled, and the chunked processing\
+    \ may be incomplete as the function body is truncated. The missing log file must\
+    \ be created and populated with the ECFP and MACCS dimensions."
+T017:
   c: false
-  h: 933e128e0e6bf2f5f8fb213395bcc3569d8f3257e5652c7306850a036fe92f1f
-  r: "The repository contains `code/preprocessing/ingest.py`, but it writes to `data/processed/cleaned_reactions.parquet`\
-    \ and includes sanitization/fingerprint steps rather than solely orchestrating\
-    \ yield parsing on already\u2011sanitized data. The required output file `data/processed/parsed_reactions.parquet`\
-    \ is absent. The implementation does not meet the specified output name or the\
-    \ focused scope of the task."
-T017c:
-  c: false
-  h: d18681f3728e8e8a9dee2a8ca38078501450b21e62ab9f5cb08457c0a83f5cad
-  r: "The provided `code/preprocessing/ingest.py` writes to `cleaned_reactions.parquet`\
-    \ instead of the required `fingerprinted_reactions.parquet`, and it loads the\
-    \ entire raw file at once rather than using batched/chunked loading. Moreover,\
-    \ the expected output file `data/processed/fingerprinted_reactions.parquet` is\
-    \ missing. The task\u2019s core requirements are therefore not satisfied."
-T017d:
-  c: false
-  h: 579d34aea9987bad55f014fbc3334ac5b25b6bac8a232bfc03bc152dec3399f9
-  r: The repository contains an `ingest.py` script, but the required output artifacts
-    (`data/processed/cleaned_reactions.parquet`, `data/results/data_quality_report.json`)
-    are not present, and the referenced `dataset.schema.yaml` is also missing. Without
-    these files the pipeline cannot be verified as functional.
-T019:
-  c: false
-  h: fc52284daa48988ac2756a80fb14fa9261d18ad09ac8dbc64f7cd08cef0e5ccf
-  r: "The `download.py` script is present but truncated and does not contain the full\
-    \ logic required: it lacks a coordinating routine that chooses between HF and\
-    \ fallback, writes the source used and SHA256 checksum to `data/results/download_checksum.txt`,\
-    \ and raises `FileNotFoundError` if both downloads fail. Moreover, the expected\
-    \ output files (`data/raw/uspto_raw.parquet` and the checksum file) are missing.\
-    \ The next implementer must complete the script\u2019s main flow, ensure checksum\
-    \ logging, and verify that the required files are created."
+  h: f99108385a50126b6335bc693dfb097c7cf43bcccae0d7a3d3bb24e561607521
+  r: The `ingest.py` script exists, but the required output file `data/processed/cleaned_reactions.parquet`
+    is missing, and the schema file `dataset.schema.yaml` (needed for validation)
+    is also absent. Without these artifacts the pipeline cannot be verified as producing
+    and validating the cleaned dataset.
 T022b:
   c: false
   h: 679c9d7c6e5fdc31b89fe4e0292bb79a2a065f301abf1eea10a1c0f482b79618
@@ -73,13 +89,6 @@ T027b:
     \ log and JSON files, nor does it wrap the T017, T024, and T025 steps. Additionally,\
     \ the required output files `data/results/memory_profile.log` and `data/results/runtime_profile.json`\
     \ are missing. The task\u2019s core requirements are therefore not satisfied."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/results/best_models/` directory or any saved model files/hyperparameter
-    JSONs is present in the provided artifacts. The implementer did not include code
-    or output demonstrating that the best model artifacts are actually written to
-    the required path, so the task requirement is not satisfied.
 T030:
   c: false
   h: ab39ea1f432ee4ca454e13511e907ff980817575b515b77a35d4e27d9bd2625b

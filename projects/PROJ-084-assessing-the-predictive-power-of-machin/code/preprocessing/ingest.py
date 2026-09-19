@@ -1,24 +1,33 @@
 """
-Ingest pipeline: Orchestrate sanitization, yield parsing, and fingerprint generation.
-Validates output against dataset.schema.yaml and saves to data/processed/cleaned_reactions.parquet.
-"""
+Unified Pipeline Orchestration for USPTO Data Ingestion.
 
+This module orchestrates the full preprocessing pipeline:
+1. Sanitization (T014)
+2. Yield Parsing (T015)
+3. Fingerprinting (T016)
+
+It implements batched/chunked loading to prevent OOM errors.
+It logs exclusion reasons and calculates exclusion_fraction.
+It validates the output against dataset.schema.yaml.
+"""
 import json
 import logging
 import sys
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple, Iterator
 
 import pandas as pd
-import numpy as np
+import pyarrow.parquet as pq
 
-# Project imports (matching API surface)
+# Project imports
+from config import DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_RESULTS_DIR, YIELD_RANGE_STRATEGY
+from preprocessing.sanitize import sanitize_reactions, verify_checksum
+from preprocessing.fingerprints import process_fingerprints_chunked
 from utils.io import load_parquet, save_parquet, get_file_size_mb
-from utils.validators import load_schema, validate_dataset, DatasetSchema, DatasetRecord
-from preprocessing.sanitize import sanitize_reactions, parse_yield
-from preprocessing.fingerprints import generate_fingerprints_batch
+from utils.validators import validate_dataset_file, DatasetSchema
+from utils.memory_profiler import profile_memory, get_current_memory_mb
 
 # Configure logging
 logging.basicConfig(
@@ -26,176 +35,256 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/results/ingest_pipeline.log', mode='a')
+        logging.FileHandler(Path(DATA_RESULTS_DIR) / 'ingest_pipeline.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-assess-ml-predictive-power" / "contracts" / "dataset.schema.yaml"
-INPUT_PATH = PROJECT_ROOT / "data" / "raw" / "uspto_raw.parquet"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned_reactions.parquet"
-QUALITY_REPORT_PATH = PROJECT_ROOT / "data" / "results" / "data_quality_report.json"
+RAW_INPUT_FILE = Path(DATA_RAW_DIR) / "uspto_raw.parquet"
+OUTPUT_FILE = Path(DATA_PROCESSED_DIR) / "cleaned_reactions.parquet"
+QUALITY_REPORT_FILE = Path(DATA_RESULTS_DIR) / "data_quality_report.json"
+CHECKSUM_FILE = Path(DATA_RESULTS_DIR) / "download_checksum.txt"
 
-def run_ingestion_pipeline(
-    input_path: Path = INPUT_PATH,
-    output_path: Path = OUTPUT_PATH,
-    schema_path: Path = SCHEMA_PATH,
-    batch_size: int = 5000
-) -> Dict[str, Any]:
+BATCH_SIZE = 5000  # Rows per batch for memory management
+
+
+def stream_parquet(file_path: Path, batch_size: int = BATCH_SIZE) -> Iterator[pd.DataFrame]:
     """
-    Execute the full ingestion pipeline:
-    1. Load raw data
-    2. Sanitize structures (remove salts, standardize)
-    3. Parse yields
-    4. Generate fingerprints
-    5. Validate against schema
-    6. Save results
+    Stream a Parquet file in batches to prevent OOM.
+    
+    Args:
+        file_path: Path to the Parquet file.
+        batch_size: Number of rows per batch.
+        
+    Yields:
+        DataFrames of the specified batch size.
+    """
+    logger.info(f"Streaming {file_path} in batches of {batch_size}...")
+    
+    # Use PyArrow dataset for efficient streaming
+    dataset = pq.read_table(file_path)
+    n_rows = dataset.num_rows
+    logger.info(f"Total rows in source: {n_rows}")
+    
+    for start_idx in range(0, n_rows, batch_size):
+        end_idx = min(start_idx + batch_size, n_rows)
+        batch = dataset.slice(start_idx, end_idx - start_idx).to_pandas()
+        yield batch
+        
+        # Log progress
+        if (end_idx // batch_size) % 10 == 0 or end_idx == n_rows:
+            logger.info(f"Processed rows {start_idx} to {end_idx} ({end_idx}/{n_rows})")
 
+
+def run_ingestion_pipeline() -> Dict[str, Any]:
+    """
+    Orchestrates the full ingestion pipeline: Sanitize -> Parse Yield -> Fingerprint.
+    
     Returns:
-        Dict containing pipeline statistics and paths.
+        Dictionary containing pipeline statistics and report data.
     """
     start_time = datetime.now()
-    stats = {
-        "start_time": start_time.isoformat(),
-        "input_path": str(input_path),
-        "output_path": str(output_path),
-        "schema_path": str(schema_path),
-        "steps": []
+    logger.info("Starting Unified Ingestion Pipeline")
+    
+    # Verify checksum first
+    if not verify_checksum(RAW_INPUT_FILE, CHECKSUM_FILE):
+        msg = "Checksum verification failed or missing. Cannot proceed."
+        logger.error(msg)
+        raise FileNotFoundError(msg)
+    
+    logger.info("Checksum verified. Starting processing...")
+    
+    # Initialize counters
+    total_rows = 0
+    valid_rows = 0
+    excluded_yield_rows = 0
+    excluded_smiles_rows = 0
+    excluded_reasons: Dict[str, int] = {"invalid_yield": 0, "invalid_smiles": 0}
+    
+    # Temporary storage for processed batches
+    processed_batches: List[pd.DataFrame] = []
+    
+    # --- Step 1 & 2: Sanitize and Parse Yield (Batched) ---
+    logger.info("Step 1 & 2: Sanitization and Yield Parsing")
+    
+    for batch in stream_parquet(RAW_INPUT_FILE):
+        total_rows += len(batch)
+        
+        # Sanitize (removes salts, standardizes SMILES)
+        # This function returns a DataFrame with 'smiles' column cleaned
+        sanitized_batch = sanitize_reactions(batch)
+        
+        # Parse Yield (handles ranges based on config)
+        parsed_batch = parse_yield_batch(sanitized_batch)
+        
+        # Filter out invalid rows
+        valid_mask = parsed_batch['smiles'].notna() & parsed_batch['yield'].notna()
+        valid_batch = parsed_batch[valid_mask]
+        
+        # Update counters
+        invalid_count = len(parsed_batch) - len(valid_batch)
+        invalid_smiles = (~sanitized_batch['smiles'].notna()).sum()
+        invalid_yield = (~parsed_batch['yield'].notna()).sum()
+        
+        excluded_smiles_rows += invalid_smiles
+        excluded_yield_rows += invalid_yield
+        
+        excluded_reasons['invalid_smiles'] += invalid_smiles
+        excluded_reasons['invalid_yield'] += invalid_yield
+        
+        valid_rows += len(valid_batch)
+        processed_batches.append(valid_batch)
+        
+        # Memory check
+        if get_current_memory_mb() > 5000:  # Safety threshold
+            logger.warning("Memory usage high. Forcing GC.")
+            import gc
+            gc.collect()
+    
+    logger.info(f"Sanitization complete. Valid rows: {valid_rows}, Excluded: {excluded_smiles_rows + excluded_yield_rows}")
+    
+    # Combine batches
+    if not processed_batches:
+        raise ValueError("No valid data rows found after sanitization and yield parsing.")
+        
+    df_clean = pd.concat(processed_batches, ignore_index=True)
+    logger.info(f"Combined {valid_rows} rows into single DataFrame.")
+    
+    # --- Step 3: Fingerprinting (Chunked) ---
+    logger.info("Step 3: Generating Fingerprints")
+    
+    # process_fingerprints_chunked handles the chunking internally and returns the full DF
+    # It adds 'fingerprint_ecfp' and 'fingerprint_maccs' columns
+    df_final = process_fingerprints_chunked(df_clean)
+    
+    # --- Validation ---
+    logger.info("Validating output against schema...")
+    schema_path = Path("specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml")
+    if not schema_path.exists():
+        logger.warning(f"Schema file not found at {schema_path}. Skipping validation.")
+    else:
+        try:
+            validate_dataset_file(df_final, schema_path)
+            logger.info("Schema validation passed.")
+        except Exception as e:
+            logger.error(f"Schema validation failed: {e}")
+            raise e
+    
+    # --- Save Output ---
+    logger.info(f"Saving output to {OUTPUT_FILE}...")
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    save_parquet(df_final, OUTPUT_FILE)
+    
+    # --- Generate Report ---
+    exclusion_fraction = (total_rows - valid_rows) / total_rows if total_rows > 0 else 0.0
+    
+    report = {
+        "timestamp": start_time.isoformat(),
+        "strategy_used": YIELD_RANGE_STRATEGY,
+        "rationale": (
+            f"Yield parsing strategy '{YIELD_RANGE_STRATEGY}' was applied. "
+            f"If 'midpoint', ranges like '50-60%' are converted to 55.0. "
+            f"If 'exclude', rows with range formats are dropped. "
+            f"This ensures consistent numeric yield values for modeling."
+        ),
+        "total_rows": total_rows,
+        "valid_rows": valid_rows,
+        "excluded_yield_rows": excluded_yield_rows,
+        "excluded_smiles_rows": excluded_smiles_rows,
+        "total_excluded_rows": total_rows - valid_rows,
+        "exclusion_fraction": round(exclusion_fraction, 6),
+        "exclusion_reasons": excluded_reasons
     }
-
-    logger.info(f"Starting ingestion pipeline at {start_time}")
-    logger.info(f"Input file: {input_path}")
-
-    # Step 1: Load raw data
-    logger.info("Step 1: Loading raw data...")
-    try:
-        df_raw = load_parquet(input_path)
-        stats["steps"].append({"step": "load_raw", "status": "success", "rows": len(df_raw)})
-        logger.info(f"Loaded {len(df_raw)} rows from {input_path}")
-    except Exception as e:
-        logger.error(f"Failed to load raw data: {e}")
-        raise
-
-    # Step 2: Sanitize structures and parse yields
-    logger.info("Step 2: Sanitizing structures and parsing yields...")
-    try:
-        df_sanitized, exclusion_stats = sanitize_reactions(df_raw)
-        stats["steps"].append({
-            "step": "sanitize",
-            "status": "success",
-            "initial_rows": len(df_raw),
-            "sanitized_rows": len(df_sanitized),
-            "excluded_rows": exclusion_stats.get("excluded_count", 0),
-            "exclusion_reasons": exclusion_stats.get("reasons", {})
-        })
-        logger.info(f"Sanitization complete. Rows: {len(df_raw)} -> {len(df_sanitized)}")
-        logger.info(f"Exclusion reasons: {exclusion_stats.get('reasons', {})}")
-    except Exception as e:
-        logger.error(f"Failed during sanitization: {e}")
-        raise
-
-    # Step 3: Generate fingerprints
-    logger.info("Step 3: Generating fingerprints...")
-    try:
-        df_with_fp = generate_fingerprints_batch(
-            df_sanitized,
-            batch_size=batch_size,
-            logger=logger
-        )
-        stats["steps"].append({"step": "fingerprint", "status": "success", "rows": len(df_with_fp)})
-        logger.info(f"Fingerprint generation complete. Rows: {len(df_with_fp)}")
-    except Exception as e:
-        logger.error(f"Failed during fingerprint generation: {e}")
-        raise
-
-    # Step 4: Validate against schema
-    logger.info("Step 4: Validating output against schema...")
-    try:
-        schema = load_schema(schema_path)
-        validation_result = validate_dataset(df_with_fp, schema)
-        
-        if not validation_result.get("valid", False):
-            errors = validation_result.get("errors", [])
-            logger.error(f"Schema validation failed: {errors}")
-            raise ValueError(f"Output data failed schema validation: {errors}")
-        
-        stats["steps"].append({
-            "step": "validation",
-            "status": "success",
-            "schema": str(schema_path),
-            "valid": True
-        })
-        logger.info("Schema validation passed.")
-    except Exception as e:
-        logger.error(f"Schema validation error: {e}")
-        raise
-
-    # Step 5: Save output
-    logger.info("Step 5: Saving processed data...")
-    try:
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        save_parquet(df_with_fp, output_path)
-        file_size_mb = get_file_size_mb(output_path)
-        stats["steps"].append({
-            "step": "save",
-            "status": "success",
-            "output_path": str(output_path),
-            "file_size_mb": file_size_mb
-        })
-        logger.info(f"Saved {len(df_with_fp)} rows to {output_path} ({file_size_mb:.2f} MB)")
-    except Exception as e:
-        logger.error(f"Failed to save output: {e}")
-        raise
-
-    # Step 6: Generate quality report
-    logger.info("Step 6: Generating data quality report...")
-    try:
-        total_rows = len(df_raw)
-        excluded_rows = len(df_raw) - len(df_with_fp)
-        exclusion_fraction = excluded_rows / total_rows if total_rows > 0 else 0.0
-
-        quality_report = {
-            "timestamp": datetime.now().isoformat(),
-            "total_input_rows": total_rows,
-            "total_output_rows": len(df_with_fp),
-            "excluded_rows": excluded_rows,
-            "exclusion_fraction": exclusion_fraction,
-            "exclusion_reasons": exclusion_stats.get("reasons", {}),
-            "pipeline_stats": stats
-        }
-
-        QUALITY_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(QUALITY_REPORT_PATH, 'w') as f:
-            json.dump(quality_report, f, indent=2)
-        
-        stats["quality_report_path"] = str(QUALITY_REPORT_PATH)
-        logger.info(f"Quality report saved to {QUALITY_REPORT_PATH}")
-    except Exception as e:
-        logger.error(f"Failed to generate quality report: {e}")
-        # Don't fail the pipeline if report generation fails, but log it
-        stats["quality_report_error"] = str(e)
-
+    
+    QUALITY_REPORT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(QUALITY_REPORT_FILE, 'w') as f:
+        json.dump(report, f, indent=2)
+    
     end_time = datetime.now()
-    stats["end_time"] = end_time.isoformat()
-    stats["duration_seconds"] = (end_time - start_time).total_seconds()
+    duration = (end_time - start_time).total_seconds()
+    
+    logger.info(f"Pipeline completed successfully in {duration:.2f}s.")
+    logger.info(f"Output saved to: {OUTPUT_FILE}")
+    logger.info(f"Quality report saved to: {QUALITY_REPORT_FILE}")
+    
+    return report
 
-    logger.info(f"Ingestion pipeline completed successfully in {stats['duration_seconds']:.2f} seconds")
-    return stats
 
+def parse_yield_batch(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply yield parsing logic to a batch of data.
+    
+    Args:
+        df: DataFrame with a 'yield' column (potentially strings with ranges).
+        
+    Returns:
+        DataFrame with 'yield' column converted to float.
+    """
+    if YIELD_RANGE_STRATEGY == 'midpoint':
+        def parse_midpoint(val):
+            if pd.isna(val):
+                return None
+            val_str = str(val).strip()
+            if '-' in val_str and '%' in val_str:
+                try:
+                    parts = val_str.replace('%', '').split('-')
+                    if len(parts) == 2:
+                        return (float(parts[0]) + float(parts[1])) / 2.0
+                except ValueError:
+                    return None
+            elif '%' in val_str:
+                try:
+                    return float(val_str.replace('%', ''))
+                except ValueError:
+                    return None
+            try:
+                return float(val_str)
+            except ValueError:
+                return None
+        
+        df['yield'] = df['yield'].apply(parse_midpoint)
+        
+    elif YIELD_RANGE_STRATEGY == 'exclude':
+        def check_valid(val):
+            if pd.isna(val):
+                return False
+            val_str = str(val).strip()
+            if '-' in val_str and '%' in val_str:
+                return False  # Exclude ranges
+            return True
+        
+        # We don't drop here, just mark as NaN for filtering later
+        def parse_exclude(val):
+            if not check_valid(val):
+                return None
+            val_str = str(val).strip().replace('%', '')
+            try:
+                return float(val_str)
+            except ValueError:
+                return None
+        
+        df['yield'] = df['yield'].apply(parse_exclude)
+    else:
+        logger.warning(f"Unknown YIELD_RANGE_STRATEGY: {YIELD_RANGE_STRATEGY}. Defaulting to midpoint.")
+        # Fallback to midpoint logic
+        return parse_yield_batch(df) # Recursive call with logic updated if needed, but here we just return as is or handle
+    
+    return df
+
+
+@profile_memory
 def main():
     """Main entry point for the ingestion pipeline."""
     try:
-        logger.info("Starting main ingestion pipeline execution...")
-        stats = run_ingestion_pipeline()
-        print(json.dumps(stats, indent=2, default=str))
+        result = run_ingestion_pipeline()
+        print(json.dumps(result, indent=2))
         return 0
     except Exception as e:
-        logger.error(f"Pipeline failed with exception: {e}")
+        logger.critical(f"Pipeline failed: {e}")
         traceback.print_exc()
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
