@@ -1,126 +1,87 @@
-# Quick Start Guide: Predicting Plant Root Architecture from Soil Nutrient Profiles
+# Quickstart Guide: Predicting Plant Root Architecture from Soil Nutrient Profiles
 
-This guide provides the steps to set up the environment, run the data ingestion pipeline, train the predictive models, and generate the final sensitivity analysis report.
+This guide provides step-by-step instructions to set up the environment, run the data ingestion pipeline, train models, and generate reports.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package installer)
-- Access to the internet (for downloading data and packages)
+- Python 3.9+
+- `pip` package manager
+- Access to the internet (for data fetching)
+- (Optional) API keys for specific data providers if required by `research.md`
 
-## 1. Setup Directory Structure
+## 1. Setup Environment
 
-The project requires a specific directory structure for data, code, and artifacts. Run the setup script to create these directories automatically.
+### Install Dependencies
 
 ```bash
-cd code
-python setup_dirs.py
+pip install -r requirements.txt
 ```
 
-This will create:
-- `data/` (raw, processed, logs)
-- `code/`
-- `tests/`
-- `artifacts/`
-- `figures/`
+### Configure Environment Variables
 
-## 2. Install Dependencies
-
-Install the required Python packages using the provided `requirements.txt` file.
+Create a `.env` file in the project root based on the template (if provided) or set the following variables:
 
 ```bash
-pip install -r code/requirements.txt
-```
-
-## 3. Configure Environment
-
-Ensure the `.env` file is present in the project root (or `code/` depending on configuration).
-If not present, run:
-
-```bash
-python code/setup_env.py
-```
-
-This creates a default `.env` file. Verify that any required API keys (if applicable for data sources) are set.
-
-## 4. Run Data Ingestion Pipeline (User Story 1)
-
-Execute the ingestion pipeline to fetch soil data, load trait data, merge them, and validate the dataset.
-
-```bash
-# Set run mode (production or test)
+# Run Mode: 'production' (default) or 'test'
 export RUN_MODE=production
-
-# Step 1: Load and process soil data
-python code/ingestion/soil_data.py
-
-# Step 2: Load and validate trait data
-python code/ingestion/trait_data.py
-
-# Step 3: Merge datasets
-python code/ingestion/merge.py
-
-# Step 4: Validate data quality
-python code/ingestion/validation.py
-
-# Step 5: Generate exclusion summaries
-python code/ingestion/generate_outputs.py
 ```
 
-**Note**: In `production` mode, the pipeline will fail if real data cannot be fetched. In `test` mode, it will use synthetic data for structural validation.
+*Note: In `production` mode, the pipeline will fail if real data cannot be fetched. In `test` mode, it uses synthetic data for structural validation.*
 
-## 5. Train Predictive Models (User Story 2)
+## 2. Initialize Project Structure
 
-Train the Random Forest models using Leave-One-Species-Out (LOSO) cross-validation.
+Ensure the directory structure exists:
 
 ```bash
-# Train Model A (Soil-Only) and Model B (Soil+Species)
-python code/modeling/train.py
-
-# Calculate baseline metrics
-python code/modeling/baseline.py
-
-# Run permutation tests
-python code/modeling/train.py --permutation
-
-# Validate SC-002 compliance
-python code/modeling/sc002_validator.py
-
-# Generate final metrics JSON
-python code/modeling/generate_metrics.py
-
-# Generate feature importance plots
-python code/modeling/generate_feature_plot.py
+python code/setup_directories.py
 ```
 
-## 6. Perform Sensitivity Analysis (User Story 3)
+This creates `code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, and `figures/`.
 
-Analyze the stability of feature importance rankings across different p-value thresholds.
+## 3. Verify Data Sources (Optional but Recommended)
+
+Before running the full pipeline, verify that the external data sources listed in `specs/001-predict-root-architecture/research.md` are accessible:
 
 ```bash
-python code/modeling/sensitivity.py
+python code/ingestion/source_validation.py
 ```
 
-This generates the `artifacts/sensitivity_report.md` containing the threshold stability table and justification.
+This logs the status of all sources to `data/logs/source_validation.log`.
 
-## 7. Verify Outputs
+## 4. Run the Full Pipeline
 
-After running the full pipeline, verify that the following artifacts exist:
+Execute the main pipeline script to run ingestion, modeling, and reporting:
 
-- `data/processed/merged_dataset.csv`
-- `artifacts/model_metrics.json`
-- `artifacts/feature_importance.csv`
-- `figures/feature_importance.png`
-- `artifacts/sensitivity_report.md`
+```bash
+python code/main.py
+```
+
+**What this script does:**
+1. **Ingestion**: Fetches root trait data and SoilGrids data, merges them, and filters for valid species.
+2. **Modeling**: Trains Random Forest models (Soil-Only and Soil+Species) using Stratified 5-Fold CV and LOSO.
+3. **Validation**: Runs permutation tests to validate SC-002 compliance.
+4. **Reporting**: Generates feature importance plots and sensitivity analysis reports.
+
+**Expected Outputs:**
+- `data/processed/merged_dataset.csv`: The final unified dataset.
+- `artifacts/model_metrics.json`: Performance metrics (R², RMSE).
+- `artifacts/sc002_status.json`: Pass/Fail status for statistical significance.
+- `figures/feature_importance.png`: Visualization of feature importance.
+- `artifacts/sensitivity_report.md`: Final analysis report.
+
+## 5. Inspect Results
+
+- **Metrics**: Open `artifacts/model_metrics.json` to view model performance.
+- **Logs**: Check `data/logs/` for execution details and error logs.
+- **Reports**: Read `artifacts/sensitivity_report.md` for the final scientific justification.
 
 ## Troubleshooting
 
-- **Data Fetch Errors**: If the pipeline fails in production mode, check your internet connection and the availability of the data sources listed in `specs/001-predict-root-architecture/research.md`.
-- **Import Errors**: Ensure all dependencies are installed and the Python path includes the `code/` directory.
-- **Checksum Failures**: If checksum verification fails, re-run `code/ingestion/soil_data.py` to regenerate the data and checksum files.
+- **Data Fetch Errors**: Ensure `RUN_MODE=production` is set correctly and you have internet access. If a specific source fails, check `data/logs/source_validation.log`.
+- **Missing Dependencies**: Re-run `pip install -r requirements.txt`.
+- **Timeout**: If the pipeline exceeds the 6-hour limit, check `data/logs/timing.log` for stage-specific timing.
 
-## Research & Citations
+## References
 
-For detailed information on the data sources, significance levels, and methodology, refer to:
-- `specs/001-predict-root-architecture/research.md`
-- `artifacts/sensitivity_report.md`
+- See `specs/001-predict-root-architecture/research.md` for dataset citations and community standards.
+- See `docs/architecture.md` (if available) for system design details.

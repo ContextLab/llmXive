@@ -467,3 +467,135 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-11T03:05:21Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: standard significance level for ecological regression studies is 0.05
+  claim_id: c_de39c330
+  context: "The project adheres to the standard community threshold for ecological\
+    \ and agricultural regression studies: Significance Level (\u03B1): 0.05. Justification:\
+    \ This threshold is widely accepted in ecological literature (e.g., Hurlbert et\
+    \ al., 2019) to balance Type I and Type II errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project adheres to the standard community threshold for ecological\
+    \ and agricultural regression studies: Significance Level (\u03B1): 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:30:12Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: 1000 permutation test iterations used for p-value stability
+  claim_id: c_4a8902fb
+  context: 'Standard Practice: 1,000 iterations are used to ensure stability of p-values
+    below 0.05. Reference: Good, P. (2005). Permutation, Parametric, and Bootstrap
+    Tests of Hypotheses. Springer.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 iterations are used to ensure stability of p-values below 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:30:44Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: global-root-trait-database contains root depth, branching density, and
+    species information
+  claim_id: c_5034101b
+  context: 'Dataset ID: global-root-trait-database. Description: Contains root depth,
+    branching density, and species information from global field studies. Citation:
+    McCormack, M. L., et al. (2020).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global-root-trait-database_contains_root_depth,_branching_de
+  kind: entity_fact
+  raw_text: The global-root-trait-database dataset contains root depth, branching
+    density, and species information from global field studies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:31:09Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m provides N, P, K, and pH at 250m resolution
+  claim_id: c_9dbe719b
+  context: 'Dataset ID: soilgrids-250m-nutrients. Description: Global soil properties
+    including Nitrogen (N), Phosphorus (P), Potassium (K), and pH at 250m resolution.
+    Citation: Poggio, L., et al. (2021).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SoilGrids 250m dataset provides global soil properties including Nitrogen
+    (N), Phosphorus (P), Potassium (K), and pH at 250m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:31:25Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/docs/research.md
+  attempts: 1
+  canonical: Stratified k-Fold Cross-Validation with k=5 used as primary validation
+    method
+  claim_id: c_7e1169c6
+  context: 'Model Validation Standards: Stratified k-Fold Cross-Validation (k=5) is
+    used as the primary validation method to ensure representative sampling across
+    species. Reference: Kohavi, R. (1995).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified k-Fold Cross-Validation (k=5) is used as the primary validation
+    method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:37:25Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/docs/research.md
+  attempts: 1
+  canonical: Feature importance stability evaluated across p-value thresholds 0.01,
+    0.05, and 0.10
+  claim_id: c_9fdf78b5
+  context: 'Feature Importance Thresholds: Feature importance rankings are evaluated
+    for stability across p-value thresholds {0.01, 0.05, 0.10}. Reference: Strobl,
+    C., et al. (2008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature importance rankings are evaluated for stability across p-value
+    thresholds 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:37:48Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/docs/research.md
+  attempts: 1
+  canonical: 1000 permutation iterations used to establish null distribution for feature
+    importance and model performance
+  claim_id: c_c51bda25
+  context: 'Statistical Rigor: Permutation Tests: 1000 iterations are used to establish
+    the null distribution for feature importance and model performance. Reference:
+    Ojala, M., & Garriga, G. C. (2010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 iterations are used to establish the null distribution for feature
+    importance and model performance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:38:07Z'

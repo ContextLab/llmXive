@@ -95,7 +95,9 @@ projects/PROJ-434-predicting-plant-root-architecture-from-/
 6.  **Output**: `data/processed/merged_dataset.csv`.
 
 ### Phase 1: Predictive Modeling & Validation (US-2)
-*Goal: Train RF models and evaluate via Stratified 5-Fold CV (Primary) and LOSO (Secondary).*
+*Goal: Train RF models and evaluate via Stratified K-Fold CV (Primary)
+
+The research question is to evaluate the model's generalization performance across different data subsets. The method involves implementing stratified K-fold cross-validation to ensure representative class distribution in each fold, as recommended by [Citation]. and LOSO (Secondary).*
 1.  **Preprocessing**: Encode 'Species' as categorical.
 2.  **Model Strategy**:
     *   **Model A (Soil-Only)**: Predictors = [N, P, K, pH]. Targets = [Depth, Branching]. **Primary test for generalization.**

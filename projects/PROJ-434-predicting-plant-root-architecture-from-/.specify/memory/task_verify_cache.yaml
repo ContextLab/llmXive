@@ -1,20 +1,29 @@
-T001c:
+T000:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file was provided or referenced in the evidence; the implementer\
-    \ did not supply the required artifact containing Python and data\u2011artifact\
-    \ ignore patterns. The task remains undone."
-T001d:
+  r: "No artifacts (e.g., ingestion script, merged CSV, logs, model training script,\
+    \ JSON metrics, feature\u2011importance plot) were provided; the claim cannot\
+    \ be verified against any actual output. The required dataset, model results,\
+    \ and visualizations are missing."
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file was provided or described; the evidence contains no artifact\
-    \ showing its existence or contents, so the requirement to create a Python\u2011\
-    and\u2011data\u2011artifact `.gitignore` is not satisfied."
+  r: "No directory tree or script was provided to demonstrate that the required folders\
+    \ (`code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`,\
+    \ `figures/`) actually exist. The implementer\u2019s claim lacks any tangible\
+    \ artifact (e.g., a screenshot, `tree` output, or `init_project.py` file) confirming\
+    \ the initialization of the project structure."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `code/utils/` directory or an `__init__.py` file was provided;
     without these artifacts the task requirement is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, configuration script, or documentation for handling API keys
+    is present in the provided artifacts; the task required concrete environment configuration
+    management, which is missing.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,13 +39,25 @@ T025a:
   r: "No `artifacts/feature_importance.csv` file was presented, and no evidence of\
     \ its contents (required columns `feature_name` and `importance_score`) was provided.\
     \ Consequently the task\u2019s deliverable is missing."
-T031:
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, refactored scripts, or documentation were provided in the `code/`\
-    \ directory, nor any evidence (e.g., diff, commit log, before\u2011after comparison)\
-    \ showing that cleanup or refactoring was performed. The claim lacks any tangible\
-    \ artifact to verify the required work."
+  r: "No `quickstart.md` or `research.md` files were provided; the only evidence shown\
+    \ relates to feature specifications and user stories, not the required documentation\
+    \ artifacts. The task\u2019s deliverables are missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `tests/unit/` was provided; the implementer did
+    not supply the additional unit test code required by task T033. The required test
+    artifacts are missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, reproduced\
+    \ output, or a report confirming end\u2011to\u2011end reproducibility) is present;\
+    \ the implementer provided only the feature specification without any artifacts\
+    \ demonstrating the required validation."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,10 +65,3 @@ T035:
     provided; thus the required document with community significance standards and
     dataset citations is missing. The implementer must create and supply that markdown
     file with the specified information.
-T035#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/001-predict-root-architecture/research.md` file was provided, and\
-    \ thus there is no evidence that it contains the required community standards\
-    \ for significance levels and citations for soil/root trait datasets. The task\u2019\
-    s primary artifact is missing."

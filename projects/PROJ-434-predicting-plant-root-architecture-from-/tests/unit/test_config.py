@@ -1,83 +1,181 @@
 """
-Unit tests for configuration management utilities.
+Unit tests for the configuration management module.
 """
 import os
 import pytest
+from unittest.mock import patch, MagicMock
 from pathlib import Path
+import tempfile
 
-from utils.config import Config, load_environment, get_env, get_config
-
-
-class TestConfig:
-    """Tests for the Config class."""
-
-    def test_config_get(self):
-        """Test getting values from Config."""
-        config_dict = {'key1': 'value1', 'key2': 42, 'key3': True}
-        config = Config(config_dict)
-
-        assert config.get('key1') == 'value1'
-        assert config.get('key2') == 42
-        assert config.get('key3') is True
-        assert config.get('missing_key') is None
-        assert config.get('missing_key', 'default') == 'default'
-
-    def test_config_get_int(self):
-        """Test getting integer values from Config."""
-        config_dict = {'int_key': '42', 'invalid_int': 'not_a_number'}
-        config = Config(config_dict)
-
-        assert config.get_int('int_key') == 42
-        assert config.get_int('invalid_int') == 0
-        assert config.get_int('missing_key', 10) == 10
-
-    def test_config_get_bool(self):
-        """Test getting boolean values from Config."""
-        config_dict = {
-            'true_str': 'true',
-            'false_str': 'false',
-            'true_num': '1',
-            'false_num': '0',
-            'bool_true': True,
-            'bool_false': False
-        }
-        config = Config(config_dict)
-
-        assert config.get_bool('true_str') is True
-        assert config.get_bool('false_str') is False
-        assert config.get_bool('true_num') is True
-        assert config.get_bool('false_num') is False
-        assert config.get_bool('bool_true') is True
-        assert config.get_bool('bool_false') is False
+# Import the module to test
+from utils.config import (
+    load_environment,
+    get_env,
+    get_config,
+    validate_config,
+    Config,
+    DEFAULT_RUN_MODE,
+    DEFAULT_RANDOM_SEED,
+    VALID_RUN_MODES,
+)
 
 
 class TestLoadEnvironment:
-    """Tests for load_environment function."""
+    def test_load_environment_existing_file(self, tmp_path):
+        """Test loading from an existing .env file."""
+        env_file = tmp_path / ".env"
+        env_file.write_text("TEST_VAR=test_value\n")
 
-    def test_load_environment(self):
-        """Test loading environment configuration."""
-        config = load_environment()
+        with patch("utils.config.load_dotenv") as mock_load_dotenv:
+            result = load_environment(env_file)
+            mock_load_dotenv.assert_called_once()
+            assert result is True
 
-        assert isinstance(config, Config)
-        assert config.get('run_mode') in ['production', 'test']
-        assert isinstance(config.get_int('random_seed'), int)
-        assert 'RUN_MODE' in config.get('required_vars', [])
+    def test_load_environment_missing_file(self):
+        """Test loading from a non-existent .env file."""
+        with patch("utils.config.logger") as mock_logger:
+            result = load_environment(Path("/nonexistent/.env"))
+            assert result is False
+            mock_logger.warning.assert_called()
 
-    def test_get_env(self):
-        """Test getting environment variables."""
-        # Test existing variable
-        run_mode = get_env('RUN_MODE')
-        assert run_mode is not None
+    def test_load_environment_default_path(self, tmp_path):
+        """Test loading from default path (project root .env)."""
+        # Create a .env in a temp directory and mock the project root
+        env_file = tmp_path / ".env"
+        env_file.write_text("TEST_VAR=test_value\n")
 
-        # Test non-existing variable with default
-        value = get_env('NON_EXISTING_VAR', 'default')
-        assert value == 'default'
+        # Mock Path(__file__).resolve().parent.parent.parent to return tmp_path
+        with patch("utils.config.Path") as mock_path_class:
+            mock_path_instance = MagicMock()
+            mock_path_instance.return_value = tmp_path
+            mock_path_class.return_value = mock_path_instance
 
-        # Test non-existing variable without default
-        value = get_env('NON_EXISTING_VAR')
-        assert value is None
+            with patch("utils.config.load_dotenv") as mock_load_dotenv:
+                load_environment()
+                mock_load_dotenv.assert_called_once()
 
-    def test_get_config(self):
-        """Test get_config convenience function."""
+
+class TestGetEnv:
+    def test_get_env_existing(self):
+        """Test getting an existing environment variable."""
+        os.environ["TEST_VAR"] = "test_value"
+        assert get_env("TEST_VAR") == "test_value"
+
+    def test_get_env_missing(self):
+        """Test getting a missing environment variable."""
+        if "NONEXISTENT_VAR" in os.environ:
+            del os.environ["NONEXISTENT_VAR"]
+        assert get_env("NONEXISTENT_VAR") is None
+
+    def test_get_env_with_default(self):
+        """Test getting a missing variable with a default."""
+        assert get_env("NONEXISTENT_VAR", "default_value") == "default_value"
+
+
+class TestGetConfig:
+    @patch("utils.config.load_environment")
+    def test_get_config_defaults(self, mock_load_env):
+        """Test that get_config returns default values when env vars are missing."""
+        mock_load_env.return_value = True
+        # Clear relevant env vars
+        for key in ["RUN_MODE", "RANDOM_SEED", "LOG_LEVEL", "PERMUTATION_ITERATIONS"]:
+            if key in os.environ:
+                del os.environ[key]
+
         config = get_config()
-        assert isinstance(config, Config)
+
+        assert config["RUN_MODE"] == DEFAULT_RUN_MODE
+        assert config["RANDOM_SEED"] == DEFAULT_RANDOM_SEED
+        assert config["LOG_LEVEL"] == "INFO"
+        assert config["PERMUTATION_ITERATIONS"] == DEFAULT_PERMUTATION_ITERATIONS
+
+    @patch("utils.config.load_environment")
+    def test_get_config_custom_values(self, mock_load_env):
+        """Test get_config with custom environment variables."""
+        mock_load_env.return_value = True
+        os.environ["RUN_MODE"] = "test"
+        os.environ["RANDOM_SEED"] = "123"
+        os.environ["LOG_LEVEL"] = "DEBUG"
+        os.environ["PERMUTATION_ITERATIONS"] = "500"
+
+        config = get_config()
+
+        assert config["RUN_MODE"] == "test"
+        assert config["RANDOM_SEED"] == 123
+        assert config["LOG_LEVEL"] == "DEBUG"
+        assert config["PERMUTATION_ITERATIONS"] == 500
+
+        # Cleanup
+        for key in ["RUN_MODE", "RANDOM_SEED", "LOG_LEVEL", "PERMUTATION_ITERATIONS"]:
+            del os.environ[key]
+
+    @patch("utils.config.load_environment")
+    def test_get_config_invalid_run_mode(self, mock_load_env):
+        """Test get_config raises error for invalid RUN_MODE."""
+        mock_load_env.return_value = True
+        os.environ["RUN_MODE"] = "invalid_mode"
+
+        with pytest.raises(ValueError, match="Invalid RUN_MODE"):
+            get_config()
+
+        del os.environ["RUN_MODE"]
+
+    @patch("utils.config.load_environment")
+    def test_get_config_invalid_random_seed(self, mock_load_env):
+        """Test get_config raises error for non-integer RANDOM_SEED."""
+        mock_load_env.return_value = True
+        os.environ["RANDOM_SEED"] = "not_an_int"
+
+        with pytest.raises(ValueError, match="RANDOM_SEED must be an integer"):
+            get_config()
+
+        del os.environ["RANDOM_SEED"]
+
+    @patch("utils.config.load_environment")
+    def test_get_config_invalid_permutations(self, mock_load_env):
+        """Test get_config raises error for non-positive PERMUTATION_ITERATIONS."""
+        mock_load_env.return_value = True
+        os.environ["PERMUTATION_ITERATIONS"] = "-10"
+
+        with pytest.raises(ValueError, match="PERMUTATION_ITERATIONS must be a positive integer"):
+            get_config()
+
+        del os.environ["PERMUTATION_ITERATIONS"]
+
+
+class TestConfigClass:
+    @patch("utils.config.get_config")
+    def test_config_singleton(self, mock_get_config):
+        """Test that Config is a singleton."""
+        mock_get_config.return_value = {"RUN_MODE": "test", "RANDOM_SEED": 42}
+
+        config1 = Config()
+        config2 = Config()
+
+        assert config1 is config2
+
+    @patch("utils.config.get_config")
+    def test_config_get(self, mock_get_config):
+        """Test Config.get method."""
+        mock_get_config.return_value = {"RUN_MODE": "production", "RANDOM_SEED": 99}
+
+        config = Config()
+        assert config.get("RUN_MODE") == "production"
+        assert config.get("RANDOM_SEED") == 99
+        assert config.get("MISSING", "default") == "default"
+
+    @patch("utils.config.get_config")
+    def test_config_run_mode_helpers(self, mock_get_config):
+        """Test Config run mode helper methods."""
+        mock_get_config.return_value = {"RUN_MODE": "test", "RANDOM_SEED": 42}
+
+        config = Config()
+        assert config.is_test() is True
+        assert config.is_production() is False
+
+        mock_get_config.return_value = {"RUN_MODE": "production", "RANDOM_SEED": 42}
+        # Note: Singleton caches the first config, so we need a new instance for testing
+        Config._instance = None
+        config2 = Config()
+        assert config2.is_production() is True
+        assert config2.is_test() is False

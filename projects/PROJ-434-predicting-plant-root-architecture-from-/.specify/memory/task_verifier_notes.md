@@ -2,9 +2,10 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001d** — No `.gitignore` file was provided or described; the evidence contains no artifact showing its existence or contents, so the requirement to create a Python‑and‑data‑artifact `.gitignore` is not satisfied.
-- **T035#1** — No `specs/001-predict-root-architecture/research.md` file was provided, and thus there is no evidence that it contains the required community standards for significance levels and citations for soil/root trait datasets. The task’s primary artifact is missing.
-- **T012b** — declared artifact(s) missing/empty/invalid: data/processed/soil_extracted.csv, data/processed/soil_extracted.csv.sha256, data/logs/checksum_verification.log
-- **T017** — declared artifact(s) missing/empty/invalid: data/processed/excluded_species_summary.csv, data/logs/species_exclusions.log
-- **T025b** — declared artifact(s) missing/empty/invalid: figures/feature_importance.png
-- **T030** — No `quickstart.md` or `research.md` files were presented in the evidence, and there is no content indicating they were created or populated. The required documentation artifacts are missing, so the task is not satisfied.
+- **T000** — No artifacts (e.g., ingestion script, merged CSV, logs, model training script, JSON metrics, feature‑importance plot) were provided; the claim cannot be verified against any actual output. The required dataset, model results, and visualizations are missing.
+- **T001a** — No directory tree or script was provided to demonstrate that the required folders (`code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`) actually exist. The implementer’s claim lacks any tangible artifact (e.g., a screenshot, `tree` output, or `init_project.py` file) confirming the initialization of the project structure.
+- **T009** — No `.env` file, configuration script, or documentation for handling API keys is present in the provided artifacts; the task required concrete environment configuration management, which is missing.
+- **T030** — No `quickstart.md` or `research.md` files were provided; the only evidence shown relates to feature specifications and user stories, not the required documentation artifacts. The task’s deliverables are missing.
+- **T031** — No code files, refactored scripts, or documentation were provided in the `code/` directory, nor any evidence (e.g., diff, commit log, before‑after comparison) showing that cleanup or refactoring was performed. The claim lacks any tangible artifact to verify the required work.
+- **T033** — No evidence of any files under `tests/unit/` was provided; the implementer did not supply the additional unit test code required by task T033. The required test artifacts are missing.
+- **T034** — No evidence of a `quickstart.md` validation run (e.g., execution logs, reproduced output, or a report confirming end‑to‑end reproducibility) is present; the implementer provided only the feature specification without any artifacts demonstrating the required validation.
