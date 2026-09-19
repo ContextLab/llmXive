@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-10T10:16:32Z",
+  "fetched_at": "2026-09-19T13:09:59Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward Infinite Context Mode\"",
       "target_n": 5
     },
-    "duration_seconds": 48.443,
-    "ended_at": "2026-08-10T10:16:32Z",
+    "duration_seconds": 34.765,
+    "ended_at": "2026-09-19T13:09:59Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "infinite context window techniques for NLP"
+          "infinite context window techniques for LLMs"
         ],
         [
           3,
-          "sparse attention patterns for long document understanding"
+          "sparse attention patterns for long-context language processing"
         ],
         [
           4,
-          "extending context length in transformer architectures"
+          "efficient attention architectures for extended context"
         ],
         [
           5,
-          "linear attention mechanisms for long sequences"
+          "long-range dependency modeling in transformer-based language models"
         ],
         [
           6,
-          "efficient attention models for extended context"
+          "context window expansion strategies for generative AI"
         ],
         [
           7,
-          "long-range dependency modeling in language models"
+          "hierarchical token selection in large language models"
         ],
         [
           8,
-          "memory-efficient attention for large context windows"
+          "memory-efficient attention for long documents in NLP"
         ],
         [
           9,
-          "sliding window attention for infinite context"
+          "retrieval-augmented generation for extended context understanding"
         ],
         [
           10,
-          "hierarchical context modeling in LLMs"
+          "sliding window attention mechanisms for language modeling"
         ],
         [
           11,
-          "sparse transformer variants for long text"
+          "block-sparse attention for infinite sequence processing"
         ],
         [
           12,
-          "asymptotic context handling in neural language models"
+          "linear attention approximations for long-context LLMs"
         ],
         [
           13,
-          "attention compression for extended input sequences"
+          "compressing context representations in transformer networks"
         ],
         [
           14,
-          "long-context language modeling strategies"
+          "long-context understanding in large language models"
         ],
         [
           15,
-          "sparse connectivity in deep transformer layers"
+          "sparse transformer architectures for natural language generation"
         ],
         [
           16,
-          "token selection mechanisms for infinite context"
+          "attention sink phenomena in long-context language models"
         ],
         [
           17,
-          "scalable attention for document-level understanding"
+          "hierarchical encoding for ultra-long text sequences"
         ],
         [
           18,
-          "hierarchical information retrieval in LLMs"
+          "context length limitations and solutions in large language models"
         ],
         [
           19,
-          "context window expansion techniques in NLP"
+          "structured sparsity in attention mechanisms for NLP"
         ],
         [
           20,
-          "efficient sequence modeling for ultra-long inputs"
+          "efficient inference for long-context language tasks"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "sparse attention linguistic complexity token entropy",
-      "context window length corpus linguistics discourse analysis",
-      "long-form text generation coherence discourse markers",
-      "hierarchical attention perplexity linguistic benchmark evaluation",
-      "memory compression information theory linguistic structure"
+      "hierarchical sparse attention infinite context linguistics",
+      "long-context language model token compression retrieval",
+      "sparse attention homophily heterophity linguistic structure",
+      "perplexity long-document evaluation linguistic benchmarks",
+      "context window expansion data contamination memorization"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2512.07011"
+        "2601.15305"
       ]
     },
     "per_query_hit_count": {
-      "context window length corpus linguistics discourse analysis": 3,
-      "hierarchical attention perplexity linguistic benchmark evaluation": 3,
+      "context window expansion data contamination memorization": 3,
+      "hierarchical sparse attention infinite context linguistics": 3,
       "llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward Infinite Context Mode\" linguistics": 3,
-      "long-form text generation coherence discourse markers": 3,
-      "memory compression information theory linguistic structure": 3,
-      "sparse attention linguistic complexity token entropy": 3
+      "long-context language model token compression retrieval": 3,
+      "perplexity long-document evaluation linguistic benchmarks": 3,
+      "sparse attention homophily heterophity linguistic structure": 1
     },
     "relevance_judge": {
       "enabled": true,
@@ -154,7 +154,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-10T10:15:44Z",
+    "started_at": "2026-09-19T13:09:25Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"hierarchical sparse attention done right: toward infinite context mode\" linguistics",
       "raw": "llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward Infinite Context Mode\" linguistics"
@@ -174,7 +174,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
@@ -191,7 +191,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
@@ -207,7 +207,7 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
@@ -224,7 +224,23 @@
           "primary_pointer": "2601.15305"
         },
         "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Gated Sparse Attention: Combining Computational Efficiency with Training Stability for Long-Context Language Models')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "failed_at": "2026-09-19T13:09:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interpretation of natural language is inherently context-sensitive. Most words in natural language are ambiguous and their meanings are heavily dependent on the linguistic context in which they are used. The study of lexical semantics can not be separated from the notion of context. This paper takes a contextual approach to lexical semantics and studies the linguistic context of lexical atoms, or \"sticky\" phrases such as \"hot dog\". Since such lexical atoms may occur frequently in unrestricted natural language text, recognizing them is crucial for understanding naturally-occurring text. The paper proposes several heuristic approaches to exploiting the linguistic context to identify lexical atoms from arbitrary natural language text.",
+          "claimed_authors": [
+            "Chengxiang Zhai"
+          ],
+          "claimed_title": "Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1997,
+          "primary_pointer": "cmp-lg/9701001"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Exploiting Context to Identify Lexical Atoms -- A Statistical View of Linguistic Context')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
@@ -245,250 +261,202 @@
           "primary_pointer": "2512.07011"
         },
         "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Block Sparse Flash Attention')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Approximate entropy (ApEn) and sample entropy (SampEn) are widely used for temporal complexity analysis of real-world phenomena. However, their relationship with the Hurst exponent as a measure of self-similarity is not widely studied. Additionally, ApEn and SampEn are susceptible to signal amplitude changes. A common practice for addressing this issue is to correct their input signal amplitude by its standard deviation. In this study, we first show, using simulations, that ApEn and SampEn are related to the Hurst exponent in their tolerance r and embedding dimension m parameters. We then propose a modification to ApEn and SampEn called range entropy or RangeEn. We show that RangeEn is more robust to nonstationary signal changes, and it has a more linear relationship with the Hurst exponent, compared to ApEn and SampEn. RangeEn is bounded in the tolerance r-plane between 0 (maximum entropy) and 1 (minimum entropy) and it has no need for signal amplitude correction. Finally, we demonstrate the clinical usefulness of signal entropy measures for characterisation of epileptic EEG data as a real-world example.",
+          "claimed_abstract": "Many applications of large language models (LLMs) require long-context understanding, but models continue to struggle with such tasks. We hypothesize that conventional next-token prediction training could contribute to this, because each token is assigned equal weight. Yet, intuitively, the amount of context needed to predict the next token accurately varies greatly across different data. To reflect this, we propose various novel token-weighting schemes that assign different weights to each training token in the loss, thereby generalizing existing works. For this, we categorize token-weighting methods using a two-step framework which compares the confidences of a long-context and short-context model to score tokens. We evaluate all methods on multiple long-context understanding tasks and show that non-uniform loss weights are helpful to improve the long-context abilities of LLMs. Different short-context models can be used effectively for token scoring, including models that are much smaller than the long-context model that is trained. All in all, this work contributes to a better understanding of the trade-offs long-context language modeling faces and provides guidelines for model steering via loss-weighting based on empirical evidence. The code can be found on Github.",
           "claimed_authors": [
-            "Amir Omidvarnia",
-            "Mostefa Mesbah",
-            "Mangor Pedersen",
-            "Graeme Jackson"
+            "Falko Helm",
+            "Nico Daheim",
+            "Iryna Gurevych"
           ],
-          "claimed_title": "Range entropy: A bridge between signal complexity and self-similarity",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1809.06500"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Range entropy: A bridge between signal complexity and self-similarity')",
-        "failed_at": "2026-08-10T10:16:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
-          "claimed_authors": [
-            "Leon Derczynski",
-            "Robert Gaizauskas"
-          ],
-          "claimed_title": "A Corpus-based Study of Temporal Signals",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1203.5066"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='A Corpus-based Study of Temporal Signals')",
-        "failed_at": "2026-08-10T10:16:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present a novel corpus of 445 human- and computer-generated documents, comprising about 27,000 clauses, annotated for semantic clause types and coherence relations that allow for nuanced comparison of artificial and natural discourse modes. The corpus covers both formal and informal discourse, and contains documents generated using fine-tuned GPT-2 (Zellers et al., 2019) and GPT-3(Brown et al., 2020). We showcase the usefulness of this corpus for detailed discourse analysis of text generation by providing preliminary evidence that less numerous, shorter and more often incoherent clause relations are associated with lower perceived quality of computer-generated narratives and arguments.",
-          "claimed_authors": [
-            "Babak Hemmatian",
-            "Sheridan Feucht",
-            "Rachel Avram",
-            "Alexander Wey",
-            "Muskaan Garg",
-            "Kate Spitalnic",
-            "Carsten Eickhoff",
-            "Ellie Pavlick",
-            "Bjorn Sandstede",
-            "Steven Sloman"
-          ],
-          "claimed_title": "A Novel Corpus of Discourse Structure in Humans and Computers",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2111.05940"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='A Novel Corpus of Discourse Structure in Humans and Computers')",
-        "failed_at": "2026-08-10T10:16:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With the increasing use of generative Artificial Intelligence (AI) methods to support science workflows, we are interested in the use of discourse-level information to find supporting evidence for AI generated scientific claims. A first step towards this objective is to examine the task of inferring discourse structure in scientific writing.\n  In this work, we present a preliminary investigation of pretrained language model (PLM) and Large Language Model (LLM) approaches for Discourse Relation Classification (DRC), focusing on scientific publications, an under-studied genre for this task. We examine how context can help with the DRC task, with our experiments showing that context, as defined by discourse structure, is generally helpful. We also present an analysis of which scientific discourse relation types might benefit most from context.",
-          "claimed_authors": [
-            "Stephen Wan",
-            "Wei Liu",
-            "Michael Strube"
-          ],
-          "claimed_title": "On the Role of Context for Discourse Relation Classification in Scientific Writing",
+          "claimed_title": "Token Weighting for Long-Range Language Modeling",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2510.26354"
+          "primary_pointer": "2503.09202"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='On the Role of Context for Discourse Relation Classification in Scientific Writing')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Token Weighting for Long-Range Language Modeling')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper, we present a method for identifying discourse marker usage in spontaneous speech based on machine learning. Discourse markers are denoted by special POS tags, and thus the process of POS tagging can be used to identify discourse markers. By incorporating POS tagging into language modeling, discourse markers can be identified during speech recognition, in which the timeliness of the information can be used to help predict the following words. We contrast this approach with an alternative machine learning approach proposed by Litman (1996). This paper also argues that discourse markers can be used to help the hearer predict the role that the upcoming utterance plays in the dialog. Thus discourse markers should provide valuable evidence for automatic dialog act prediction.",
+          "claimed_abstract": "Multimodal large language models (MLLMs) have made remarkable strides, largely driven by their ability to process increasingly long and complex contexts, such as high-resolution images, extended video sequences, and lengthy audio input. While this ability significantly enhances MLLM capabilities, it introduces substantial computational challenges, primarily due to the quadratic complexity of self-attention mechanisms with numerous input tokens. To mitigate these bottlenecks, token compression has emerged as an auspicious and critical approach, efficiently reducing the number of tokens during both training and inference. In this paper, we present the first systematic survey and synthesis of the burgeoning field of multimodal long context token compression. Recognizing that effective compression strategies are deeply tied to the unique characteristics and redundancies of each modality, we categorize existing approaches by their primary data focus, enabling researchers to quickly access and learn methods tailored to their specific area of interest: (1) image-centric compression, which addresses spatial redundancy in visual data; (2) video-centric compression, which tackles spatio-temporal redundancy in dynamic sequences; and (3) audio-centric compression, which handles temporal and spectral redundancy in acoustic signals. Beyond this modality-driven categorization, we further dissect methods based on their underlying mechanisms, including transformation-based, similarity-based, attention-based, and query-based approaches. By providing a comprehensive and structured overview, this survey aims to consolidate current progress, identify key challenges, and inspire future research directions in this rapidly evolving domain.",
           "claimed_authors": [
-            "Peter A. Heeman",
-            "Donna Byron",
-            "James F. Allen"
+            "Kele Shao",
+            "Keda Tao",
+            "Kejia Zhang",
+            "Sicheng Feng",
+            "Mu Cai",
+            "Yuzhang Shang",
+            "Haoxuan You",
+            "Can Qin",
+            "Yang Sui",
+            "Huan Wang"
           ],
-          "claimed_title": "Identifying Discourse Markers in Spoken Dialog",
+          "claimed_title": "A Survey of Token Compression for Efficient Multimodal Large Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 1998,
-          "primary_pointer": "cmp-lg/9801002"
+          "claimed_year": 2025,
+          "primary_pointer": "2507.20198"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Identifying Discourse Markers in Spoken Dialog')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='A Survey of Token Compression for Efficient Multimodal Large Language Models')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The capabilities and use cases of automatic natural language processing (NLP) have grown significantly over the last few years. While much work has been devoted to understanding how humans deal with discourse connectives, this phenomenon is understudied in computational systems. Therefore, it is important to put NLP models under the microscope and examine whether they can adequately comprehend, process, and reason within the complexity of natural language. In this chapter, we introduce the main mechanisms behind automatic sentence processing systems step by step and then focus on evaluating discourse connective processing. We assess nine popular systems in their ability to understand English discourse connectives and analyze how context and language understanding tasks affect their connective comprehension. The results show that NLP systems do not process all discourse connectives equally well and that the computational processing complexity of different connective kinds is not always consistently in line with the presumed complexity order found in human processing. In addition, while humans are more inclined to be influenced during the reading procedure but not necessarily in the final comprehension performance, discourse connectives have a significant impact on the final accuracy of NLP systems. The richer knowledge of connectives a system learns, the more negative effect inappropriate connectives have on it. This suggests that the correct explicitation of discourse connectives is important for computational natural language processing.",
+          "claimed_abstract": "Long Context Language Models (LCLMs) have emerged as a new paradigm to perform Information Retrieval (IR), which enables the direct ingestion and retrieval of information by processing an entire corpus in their single context, showcasing the potential to surpass traditional sparse and dense retrieval methods. However, processing a large number of passages within in-context for retrieval is computationally expensive, and handling their representations during inference further exacerbates the processing time; thus, we aim to make LCLM retrieval more efficient and potentially more effective with passage compression. Specifically, we propose a new compression approach tailored for LCLM retrieval, which is trained to maximize the retrieval performance while minimizing the length of the compressed passages. To accomplish this, we generate the synthetic data, where compressed passages are automatically created and labeled as chosen or rejected according to their retrieval success for a given query, and we train the proposed Compression model for Long context Retrieval (CoLoR) with this data via preference optimization while adding the length regularization loss on top of it to enforce brevity. Through extensive experiments on 9 datasets, we show that CoLoR improves the retrieval performance by 6% while compressing the in-context size by a factor of 1.91. Our code is available at: https://github.com/going-doer/CoLoR.",
           "claimed_authors": [
-            "Ruiqi Li",
-            "Liesbeth Allein",
-            "Damien Sileo",
-            "Marie-Francine Moens"
+            "Minju Seo",
+            "Jinheon Baek",
+            "Seongyun Lee",
+            "Sung Ju Hwang"
           ],
-          "claimed_title": "When Do Discourse Markers Affect Computational Sentence Understanding?",
+          "claimed_title": "Efficient Long Context Language Model Retrieval with Compression",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.00368"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.18232"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='When Do Discourse Markers Affect Computational Sentence Understanding?')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Efficient Long Context Language Model Retrieval with Compression')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper investigates the influence of discourse features on text complexity assessment. To do so, we created two data sets based on the Penn Discourse Treebank and the Simple English Wikipedia corpora and compared the influence of coherence, cohesion, surface, lexical and syntactic features to assess text complexity.\n  Results show that with both data sets coherence features are more correlated to text complexity than the other types of features. In addition, feature selection revealed that with both data sets the top most discriminating feature is a coherence feature.",
+          "claimed_abstract": "The degree heterogeneity and homophily are two typical features in network data. In this paper, we formulate a general model for undirected networks with these two features and present the moment estimation for inferring the degree and homophily parameters. The binary or nonbinary network edges are simultaneously considered. We establish a unified theoretical framework under which the consistency of the moment estimator holds as the size of networks goes to infinity. We also derive the asymptotic representation of the moment estimator that can be used to characterize its limiting distribution. The asymptotic representation of the moment estimator of the homophily parameter contains a bias term. Two applications are provided to illustrate the theoretical result. Numerical studies and a real data analysis demonstrate our theoretical findings.",
           "claimed_authors": [
-            "Elnaz Davoodi",
-            "Leila Kosseim"
+            "Ting Yan"
           ],
-          "claimed_title": "On the Contribution of Discourse Structure on Text Complexity Assessment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1708.05800"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='On the Contribution of Discourse Structure on Text Complexity Assessment')",
-        "failed_at": "2026-08-10T10:16:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
-          "claimed_authors": [
-            "Sina Mohseni",
-            "Jeremy E. Block",
-            "Eric D. Ragan"
-          ],
-          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_title": "A Unified Framework for Inference in Network Models with Degree Heterogeneity and Homophily",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1801.05075"
+          "primary_pointer": "1806.02550"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='A Unified Framework for Inference in Network Models with Degree Heterogeneity and Homophily')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Hierarchical forecasting problems arise when time series have a natural group structure, and predictions at multiple levels of aggregation and disaggregation across the groups are needed. In such problems, it is often desired to satisfy the aggregation constraints in a given hierarchy, referred to as hierarchical coherence in the literature. Maintaining coherence while producing accurate forecasts can be a challenging problem, especially in the case of probabilistic forecasting. We present a novel method capable of accurate and coherent probabilistic forecasts for time series when reliable hierarchical information is present. We call it Deep Poisson Mixture Network (DPMN). It relies on the combination of neural networks and a statistical model for the joint distribution of the hierarchical multivariate time series structure. By construction, the model guarantees hierarchical coherence and provides simple rules for aggregation and disaggregation of the predictive distributions. We perform an extensive empirical evaluation comparing the DPMN to other state-of-the-art methods which produce hierarchically coherent probabilistic forecasts on multiple public datasets. Comparing to existing coherent probabilistic models, we obtain a relative improvement in the overall Continuous Ranked Probability Score (CRPS) of 11.8% on Australian domestic tourism data, and 8.1% on the Favorita grocery sales dataset, where time series are grouped with geographical hierarchies or travel intent hierarchies. For San Francisco Bay Area highway traffic, where the series' hierarchical structure is randomly assigned, and their correlations are less informative, our method does not show significant performance differences over statistical baselines.",
+          "claimed_abstract": "Since their release, Transformers have revolutionized many fields from Natural Language Understanding to Computer Vision. Document Understanding (DU) was not left behind with first Transformer based models for DU dating from late 2019. However, the computational complexity of the self-attention operation limits their capabilities to small sequences. In this paper we explore multiple strategies to apply Transformer based models to long multi-page documents. We introduce 2 new multi-modal (text + layout) long-range models for DU. They are based on efficient implementations of Transformers for long sequences. Long-range models can process whole documents at once effectively and are less impaired by the document's length. We compare them to LayoutLM, a classical Transformer adapted for DU and pre-trained on millions of documents. We further propose 2D relative attention bias to guide self-attention towards relevant tokens without harming model efficiency. We observe improvements on multi-page business documents on Information Retrieval for a small performance cost on smaller sequences. Relative 2D attention revealed to be effective on dense text for both normal and long-range models.",
           "claimed_authors": [
-            "Kin G. Olivares",
-            "O. Nganba Meetei",
-            "Ruijun Ma",
-            "Rohan Reddy",
-            "Mengfei Cao",
-            "Lee Dicker"
+            "Thibault Douzon",
+            "Stefan Duffner",
+            "Christophe Garcia",
+            "Jérémy Espinas"
           ],
-          "claimed_title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2110.13179"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures')",
-        "failed_at": "2026-08-10T10:16:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present CausalVLR (Causal Visual-Linguistic Reasoning), an open-source toolbox containing a rich set of state-of-the-art causal relation discovery and causal inference methods for various visual-linguistic reasoning tasks, such as VQA, image/video captioning, medical report generation, model generalization and robustness, etc. These methods have been included in the toolbox with PyTorch implementations under NVIDIA computing system. It not only includes training and inference codes, but also provides model weights. We believe this toolbox is by far the most complete visual-linguitic causal reasoning toolbox. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to re-implement existing methods and develop their own new causal reasoning methods. Code and models are available at https://github.com/HCPLab-SYSU/CausalVLR. The project is under active development by HCP-Lab's contributors and we will keep this document updated.",
-          "claimed_authors": [
-            "Yang Liu",
-            "Weixing Chen",
-            "Guanbin Li",
-            "Liang Lin"
-          ],
-          "claimed_title": "CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning",
+          "claimed_title": "Long-Range Transformer Architectures for Document Understanding",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2306.17462"
+          "primary_pointer": "2309.05503"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Long-Range Transformer Architectures for Document Understanding')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We consider the scenario of classical communication over a finite-dimensional quantum channel with memory using a separable-state input ensemble and local output measurements. We propose algorithms for estimating the information rate of such communication setups, along with algorithms for bounding the information rate based on so-called auxiliary channels. Some of the algorithms are extensions of their counterparts for (classical) finite-state-machine channels. Notably, we discuss suitable graphical models for doing the relevant computations. Moreover, the auxiliary channels are learned in a data-driven approach; i.e., only input/output sequences of the true channel are needed, but not the channel model of the true channel.",
+          "claimed_abstract": "Transformers are not suited for processing long documents, due to their quadratically increasing memory and time consumption. Simply truncating a long document or applying the sparse attention mechanism will incur the context fragmentation problem or lead to an inferior modeling capability against comparable model sizes. In this paper, we propose ERNIE-Doc, a document-level language pretraining model based on Recurrence Transformers. Two well-designed techniques, namely the retrospective feed mechanism and the enhanced recurrence mechanism, enable ERNIE-Doc, which has a much longer effective context length, to capture the contextual information of a complete document. We pretrain ERNIE-Doc to explicitly learn the relationships among segments with an additional document-aware segment-reordering objective. Various experiments were conducted on both English and Chinese document-level tasks. ERNIE-Doc improved the state-of-the-art language modeling result of perplexity to 16.8 on WikiText-103. Moreover, it outperformed competitive pretraining models by a large margin on most language understanding tasks, such as text classification and question answering.",
           "claimed_authors": [
-            "Michael X. Cao",
-            "Pascal O. Vontobel"
+            "Siyu Ding",
+            "Junyuan Shang",
+            "Shuohuan Wang",
+            "Yu Sun",
+            "Hao Tian",
+            "Hua Wu",
+            "Haifeng Wang"
           ],
-          "claimed_title": "Bounding and Estimating the Classical Information Rate of Quantum Channels with Memory",
+          "claimed_title": "ERNIE-Doc: A Retrospective Long-Document Modeling Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.15688"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='ERNIE-Doc: A Retrospective Long-Document Modeling Transformer')",
+        "failed_at": "2026-09-19T13:09:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning research depends on objectively interpretable, comparable, and reproducible algorithm benchmarks. We advocate the use of curated, comprehensive suites of machine learning tasks to standardize the setup, execution, and reporting of benchmarks. We enable this through software tools that help to create and leverage these benchmarking suites. These are seamlessly integrated into the OpenML platform, and accessible through interfaces in Python, Java, and R. OpenML benchmarking suites (a) are easy to use through standardized data formats, APIs, and client libraries; (b) come with extensive meta-information on the included datasets; and (c) allow benchmarks to be shared and reused in future studies. We then present a first, carefully curated and practical benchmarking suite for classification: the OpenML Curated Classification benchmarking suite 2018 (OpenML-CC18). Finally, we discuss use cases and applications which demonstrate the usefulness of OpenML benchmarking suites and the OpenML-CC18 in particular.",
+          "claimed_authors": [
+            "Bernd Bischl",
+            "Giuseppe Casalicchio",
+            "Matthias Feurer",
+            "Pieter Gijsbers",
+            "Frank Hutter",
+            "Michel Lang",
+            "Rafael G. Mantovani",
+            "Jan N. van Rijn",
+            "Joaquin Vanschoren"
+          ],
+          "claimed_title": "OpenML Benchmarking Suites",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.03731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='OpenML Benchmarking Suites')",
+        "failed_at": "2026-09-19T13:09:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1903.00199"
+          "primary_pointer": "1907.02664"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Bounding and Estimating the Classical Information Rate of Quantum Channels with Memory')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The main contribution of this paper is to design an Information Retrieval (IR) technique based on Algorithmic Information Theory (using the Normalized Compression Distance- NCD), statistical techniques (outliers), and novel organization of data base structure. The paper shows how they can be integrated to retrieve information from generic databases using long (text-based) queries. Two important problems are analyzed in the paper. On the one hand, how to detect \"false positives\" when the distance among the documents is very low and there is actual similarity. On the other hand, we propose a way to structure a document database which similarities distance estimation depends on the length of the selected text. Finally, the experimental evaluations that have been carried out to study previous problems are shown.",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
           "claimed_authors": [
-            "Rafael Martinez",
-            "Manuel Cebrian",
-            "Francisco de Borja Rodriguez",
-            "David Camacho"
+            "Deepesh Data",
+            "Suhas Diggavi"
           ],
-          "claimed_title": "Contextual Information Retrieval based on Algorithmic Information Theory and Statistical Outlier Detection",
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
           "claimed_venue": "arXiv",
-          "claimed_year": 2007,
-          "primary_pointer": "0711.4388"
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Contextual Information Retrieval based on Algorithmic Information Theory and Statistical Outlier Detection')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This work is motivated by the necessity to automate the discovery of structure in vast and evergrowing collection of relational data commonly represented as graphs, for example genomic networks. A novel algorithm, dubbed Graphitour, for structure induction by lossless graph compression is presented and illustrated by a clear and broadly known case of nested structure in a DNA molecule. This work extends to graphs some well established approaches to grammatical inference previously applied only to strings. The bottom-up graph compression problem is related to the maximum cardinality (non-bipartite) maximum cardinality matching problem. The algorithm accepts a variety of graph types including directed graphs and graphs with labeled nodes and arcs. The resulting structure could be used for representation and classification of graphs.",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
           "claimed_authors": [
-            "Leonid Peshkin"
+            "Data Mania",
+            "Bharat Ratra"
           ],
-          "claimed_title": "Structure induction by lossless graph compression",
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
           "claimed_venue": "arXiv",
-          "claimed_year": 2007,
-          "primary_pointer": "cs/0703132"
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Structure induction by lossless graph compression')",
-        "failed_at": "2026-08-10T10:16:14Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Hierarchical Sparse Attention Done Right: Toward I', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-09-19T13:09:52Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -510,13 +478,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2601.15305",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2405,
           "query_relevance_score": 0.7143,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-10T10:16:20Z"
+          "verified_at": "2026-09-19T13:09:57Z"
         }
       },
       {
@@ -540,13 +508,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2512.07011",
           "http_status": 200,
-          "pdf_sample_score": 0.2716,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.7143,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-10T10:16:21Z"
+          "verified_at": "2026-09-19T13:09:59Z"
         }
       }
     ]

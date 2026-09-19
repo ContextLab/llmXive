@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StaticIndex
+description: Static lookup table containing cluster centroids and chunk-to-cluster mappings.
+type: object
+properties:
+  k:
+    type: integer
+    description: Number of clusters.
+  centroids:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: Cluster centroid vectors (in PCA space).
+  chunk_to_cluster_map:
+    type: object
+    additionalProperties:
+      type: integer
+    description: Mapping from chunk ID to cluster ID.
+  validation_checksum:
+    type: string
+    description: SHA-256 checksum of the validation set used for clustering.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO8601 timestamp of creation.
+  seed:
+    type: integer
+    description: Random seed used for K-Means initialization.
+  pca_components:
+    type: integer
+    description: Number of PCA components retained.
+  distance_metric:
+    type: string
+    description: Distance metric used for clustering (e.g., 'cosine').
+required:
+  - k
+  - centroids
+  - chunk_to_cluster_map
+  - validation_checksum
+  - created_at
+  - seed
+  - pca_components
+  - distance_metric
+additionalProperties: false

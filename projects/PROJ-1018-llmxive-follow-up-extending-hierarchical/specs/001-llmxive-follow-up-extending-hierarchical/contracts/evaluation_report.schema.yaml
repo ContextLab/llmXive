@@ -1,0 +1,75 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EvaluationReport
+description: Structured output containing log-perplexity, QA accuracy, p-value (Wilcoxon), and latency metrics.
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run.
+  k_value:
+    type: integer
+    description: Number of clusters used in the static index.
+  metrics:
+    type: object
+    properties:
+      dynamic:
+        type: object
+        properties:
+          log_perplexity:
+            type: number
+            description: Log-perplexity (cross-entropy) of the dynamic model.
+          qa_accuracy:
+            type: number
+          latency_ms:
+            type: number
+        required:
+          - log_perplexity
+          - qa_accuracy
+          - latency_ms
+      static:
+        type: object
+        properties:
+          log_perplexity:
+            type: number
+            description: Log-perplexity (cross-entropy) of the static model.
+          qa_accuracy:
+            type: number
+          latency_ms:
+            type: number
+        required:
+          - log_perplexity
+          - qa_accuracy
+          - latency_ms
+    required:
+      - dynamic
+      - static
+  statistical_test:
+    type: object
+    properties:
+      method:
+        type: string
+        description: Statistical method used (e.g., 'Wilcoxon signed-rank test').
+      p_value:
+        type: number
+      significance:
+        type: boolean
+      confidence_interval:
+        type: array
+        items:
+          type: number
+    required:
+      - method
+      - p_value
+      - significance
+  latency_reduction_factor:
+    type: number
+  memory_footprint_bytes:
+    type: integer
+required:
+  - experiment_id
+  - k_value
+  - metrics
+  - statistical_test
+  - latency_reduction_factor
+  - memory_footprint_bytes
+additionalProperties: false

@@ -1,0 +1,13 @@
+status: none
+intent: download PG-19 and arXiv long-context validation sets python package dataset
+required_fields:
+- document_id
+- chunk_id
+- chunk_text
+- token_start
+- token_end
+- retrieval_scores
+- relevance_profile
+cache_key: 40cd84a333d5aa231ea6f824c6f536b52509175dd41f000b07ffe2389c7602d6
+searched_at: '2026-09-19T13:15:43.394179+00:00'
+retry_count: 1

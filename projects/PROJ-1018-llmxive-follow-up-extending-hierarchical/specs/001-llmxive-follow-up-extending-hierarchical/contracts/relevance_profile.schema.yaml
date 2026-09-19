@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RelevanceProfile
+description: Aggregated retrieval scores for a specific document chunk.
+type: object
+properties:
+  document_id:
+    type: string
+    description: Unique identifier for the document.
+  chunk_id:
+    type: integer
+    description: Unique identifier for the chunk within the document.
+  start_token:
+    type: integer
+    description: Starting token index of the chunk.
+  end_token:
+    type: integer
+    description: Ending token index of the chunk.
+  relevance_scores:
+    type: array
+    items:
+      type: number
+    description: Raw retrieval scores for the chunk.
+  aggregated_profile:
+    type: array
+    items:
+      type: number
+    description: Mean retrieval scores aggregated across the validation set.
+  pca_components:
+    type: array
+    items:
+      type: number
+    description: PCA-transformed components (if PCA was applied).
+  checksum:
+    type: string
+    description: SHA-256 checksum of the chunk content.
+required:
+  - document_id
+  - chunk_id
+  - start_token
+  - end_token
+  - relevance_scores
+  - aggregated_profile
+  - checksum
+additionalProperties: false
