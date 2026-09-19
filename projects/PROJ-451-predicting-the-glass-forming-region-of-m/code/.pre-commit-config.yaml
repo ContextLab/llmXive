@@ -1,0 +1,31 @@
+# Pre-commit configuration for llmXive project
+# Install hooks with: pre-commit install
+# Run all hooks on all files: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # Using ruff format instead of black for consistency,
+        # but keeping black hook as requested in task description
+        # Note: ruff format is a drop-in replacement for black
+        # If strict black is required, uncomment below and remove ruff-format:
+        # - id: black
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+
+  - repo: local
+    hooks:
+      - id: check-files-exist
+        name: Check required project files exist
+        entry: python -c "import os; files=['.pre-commit-config.yaml', '.ruff.toml', 'pyproject.toml', 'requirements.txt']; missing=[f for f in files if not os.path.exists(f)]; exit(1) if missing else exit(0)"
+        language: python
+        pass_filenames: false
+        always_run: true

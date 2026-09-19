@@ -1,17 +1,3 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, or corresponding entry\u2011point scripts)\
-    \ are present in the provided evidence, so the requirement to configure ruff and\
-    \ Black has not been satisfied. The implementer must add the appropriate configuration\
-    \ files and ensure they are non\u2011empty and correctly set up."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env.example` file or `utils/config.py` module was presented in the evidence,
-    and thus there is no proof that the required placeholders and validation logic
-    exist. The implementer must supply these two files with the specified contents.
 T010c:
   c: false
   h: b6ac17158d9553471f9b96c50b99a620b0d0bf1b093bcbdd10b282e3dcaa0529

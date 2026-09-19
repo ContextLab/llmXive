@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-451-predicting-the-glass-forming-region-of-m",
+  "tasks": [
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "No `.env.example` file or `utils/config.py` module was presented in the evidence, and thus there is no proof that the required placeholders and validation logic exist. The implementer must supply these two files with the specified contents.",
+      "first_seen": "2026-09-19T18:49:14.665450+00:00",
+      "last_seen": "2026-09-19T18:49:14.665450+00:00"
+    }
+  ],
+  "updated_at": "2026-09-19T18:49:14.665450+00:00"
+}

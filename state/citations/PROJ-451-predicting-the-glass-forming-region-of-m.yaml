@@ -44,7 +44,7 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
   verified_at: '2026-07-27T18:57:54.261635Z'
-- artifact_hash: c23f1929efda32a57db452c5c1202c6bd01b4730111c7438c3cc2d3206d462d5
+- artifact_hash: af28767305fc3cf1b557d5b143740f2dce2ce55186846f547af99fa5af288101
   artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -55,4 +55,4 @@
   value: 10.1126/sciadv.aaq1566
   verification_status: pending
   verified_against_url: https://doi.org/10.1126/sciadv.aaq1566
-  verified_at: '2026-09-09T01:33:49.286966Z'
+  verified_at: '2026-09-19T18:39:02.154397Z'
