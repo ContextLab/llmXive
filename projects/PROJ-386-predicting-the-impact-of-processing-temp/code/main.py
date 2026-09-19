@@ -15,7 +15,9 @@ import time
 from datetime import timedelta
 
 # Import config for paths and timeout settings
-from config import GITHUB_ACTIONS_TIMEOUT, DATA_RAW_PATH, DATA_PROCESSED_PATH, ARTIFACTS_PATH
+from config import GITHUB_ACTIONS_TIMEOUT
+from config import ensure_dirs
+from config import get_config
 
 # Configure logging
 logging.basicConfig(
@@ -67,52 +69,89 @@ def verify_runner_environment():
 def run_pipeline():
     """
     Executes the pipeline stages.
-    Currently a placeholder for the actual pipeline logic which will be
-    populated by subsequent tasks (T012, T020, T030, etc.).
+    Orchestrates the execution of data ingestion, preprocessing, and modeling.
     """
     logger.info("Starting pipeline execution...")
     
-    # Stage 1: Data Ingestion (T012-T016)
-    # This will be implemented by T013. For now, we check if the script exists.
+    # Ensure directories exist
+    ensure_dirs()
+    
+    # Stage 1: Data Ingestion
+    # Uses the main entry point from data.ingestion
     ingestion_script = os.path.join(os.path.dirname(__file__), 'data', 'ingestion.py')
     if os.path.exists(ingestion_script):
         logger.info("Data ingestion module found. Executing...")
-        # In a real scenario, we would import and run the function here
-        # from data.ingestion import run_ingestion
-        # run_ingestion()
-        logger.info("Data ingestion stage complete (simulated).")
+        # Import and run the ingestion pipeline
+        from data.ingestion import main as ingestion_main
+        # We pass a small sample size for quick verification if needed, 
+        # but the script handles its own args.
+        # To avoid arg conflicts, we temporarily replace sys.argv
+        original_argv = sys.argv
+        sys.argv = [ingestion_script] # Run with default args
+        try:
+            ingestion_main()
+        except SystemExit as e:
+            if e.code != 0:
+                raise RuntimeError(f"Data ingestion failed with exit code {e.code}")
+        finally:
+            sys.argv = original_argv
+        logger.info("Data ingestion stage complete.")
     else:
-        logger.info("Data ingestion module not yet implemented. Skipping.")
+        raise FileNotFoundError("Data ingestion module (code/data/ingestion.py) not found.")
 
-    # Stage 2: Preprocessing (T020-T023)
+    # Stage 2: Preprocessing
     preprocessing_script = os.path.join(os.path.dirname(__file__), 'data', 'preprocessing.py')
     if os.path.exists(preprocessing_script):
         logger.info("Preprocessing module found. Executing...")
-        # from data.preprocessing import run_preprocessing
-        # run_preprocessing()
-        logger.info("Preprocessing stage complete (simulated).")
+        from data.preprocessing import main as preprocessing_main
+        original_argv = sys.argv
+        sys.argv = [preprocessing_script]
+        try:
+            preprocessing_main()
+        except SystemExit as e:
+            if e.code != 0:
+                raise RuntimeError(f"Preprocessing failed with exit code {e.code}")
+        finally:
+            sys.argv = original_argv
+        logger.info("Preprocessing stage complete.")
     else:
-        logger.info("Preprocessing module not yet implemented. Skipping.")
+        raise FileNotFoundError("Preprocessing module (code/data/preprocessing.py) not found.")
 
-    # Stage 3: Baseline Modeling (T024-T026)
+    # Stage 3: Baseline Modeling
     baseline_script = os.path.join(os.path.dirname(__file__), 'modeling', 'baseline.py')
     if os.path.exists(baseline_script):
         logger.info("Baseline modeling module found. Executing...")
-        # from modeling.baseline import run_baseline
-        # run_baseline()
-        logger.info("Baseline modeling stage complete (simulated).")
+        from modeling.baseline import main as baseline_main
+        original_argv = sys.argv
+        sys.argv = [baseline_script]
+        try:
+            baseline_main()
+        except SystemExit as e:
+            if e.code != 0:
+                raise RuntimeError(f"Baseline modeling failed with exit code {e.code}")
+        finally:
+            sys.argv = original_argv
+        logger.info("Baseline modeling stage complete.")
     else:
-        logger.info("Baseline modeling module not yet implemented. Skipping.")
+        raise FileNotFoundError("Baseline modeling module (code/modeling/baseline.py) not found.")
 
-    # Stage 4: RF Modeling & Analysis (T030-T036)
+    # Stage 4: RF Modeling & Analysis
     rf_script = os.path.join(os.path.dirname(__file__), 'modeling', 'rf_model.py')
     if os.path.exists(rf_script):
         logger.info("Random Forest modeling module found. Executing...")
-        # from modeling.rf_model import run_rf
-        # run_rf()
-        logger.info("RF modeling stage complete (simulated).")
+        from modeling.rf_model import main as rf_main
+        original_argv = sys.argv
+        sys.argv = [rf_script]
+        try:
+            rf_main()
+        except SystemExit as e:
+            if e.code != 0:
+                raise RuntimeError(f"RF modeling failed with exit code {e.code}")
+        finally:
+            sys.argv = original_argv
+        logger.info("RF modeling stage complete.")
     else:
-        logger.info("Random Forest modeling module not yet implemented. Skipping.")
+        raise FileNotFoundError("Random Forest modeling module (code/modeling/rf_model.py) not found.")
 
     logger.info("Pipeline execution finished successfully.")
 

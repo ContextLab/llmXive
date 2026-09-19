@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T001** — No directory structure was presented or listed; the claim provides no evidence that the required folders (`code/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/`, `state/`) actually exist on disk. The implementer must create and show the project hierarchy to satisfy the task.
-- **T007** — No `state/projects/PROJ-386...yaml` file (or any equivalent YAML schema) was presented, and there is no evidence that a schema for artifact hashing and checksums was created. The required artifact is missing, so the task is not satisfied.
-- **T023** — The provided `preprocessing.py` contains data loading, interaction generation, and normalization code but shows no function that computes pairwise correlations, flags pairs with correlation > 0.8, or writes a JSON report. Moreover, the required `data/artifacts/collinearity_report.json` file does not exist. Both the core functionality and the output artifact are missing.

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-386-predicting-the-impact-of-processing-temp",
+  "ok": false,
+  "reason": "2 command(s) failed: python code/main.py --sample-size 100 --timeout 3600 (rc=1); python code/main.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --sample-size 100 --timeout 3600 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/main.py\", line 18, in <module>\n    from config import GITHUB_ACTIONS_TIMEOUT, DATA_RAW_PATH, DATA_PROCESSED_PATH, ARTIFACTS_PATH\nImportError: cannot import name 'DATA_RAW_PATH' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/config.py)",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/main.py\", line 18, in <module>\n    from config import GITHUB_ACTIONS_TIMEOUT, DATA_RAW_PATH, DATA_PROCESSED_PATH, ARTIFACTS_PATH\nImportError: cannot import name 'DATA_RAW_PATH' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-386-predicting-the-impact-of-processing-temp/code/config.py)"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-386-predicting-the-impact-of-processi",
+    "submitted_at": "2026-09-19T12:42:36Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-09-19T12:42:38Z"
+}
