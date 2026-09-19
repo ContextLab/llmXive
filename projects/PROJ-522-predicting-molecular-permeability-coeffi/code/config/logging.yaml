@@ -11,13 +11,17 @@ handlers:
   file:
     class: logging.FileHandler
     formatter: default
-    filename: logs/training.log
+    filename: data/processed/pipeline.log
     level: INFO
 loggers:
-  training:
+  ingestion:
+    level: INFO
+    handlers: [console, file]
+    propagate: no
+  utils.data_loader:
     level: INFO
     handlers: [console, file]
     propagate: no
 root:
   level: INFO
-  handlers: [console]
+  handlers: [console, file]

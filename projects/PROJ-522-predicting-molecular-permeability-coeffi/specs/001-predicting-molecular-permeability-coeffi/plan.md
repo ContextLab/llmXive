@@ -103,7 +103,7 @@ projects/PROJ-522-predicting-molecular-permeability-coeffi/
 ### 2. Model Architecture (FR-002)
 - **GNN**: 3-layer Graph Convolutional Network (GCN).
  - **Parameters**: ≤ 500,000.
- - **Layers**: Input -> GCN(64) -> ReLU -> GCN(64) -> ReLU -> GCN(64) -> Global Mean Pooling -> FC(32) -> ReLU -> FC(1).
+ - **Layers**: Input -> GCN(hidden_dim) -> ReLU -> GCN(hidden_dim) -> ReLU -> GCN(hidden_dim) -> Global Mean Pooling -> FC(hidden_units) -> ReLU -> FC(1).
  - **Regularization**: Dropout (a moderate rate), Weight Decay (a small regularization coefficient), Early Stopping (patience=10).
  - **Device**: CPU (PyTorch CPU backend).
 - **Baselines**:
@@ -124,7 +124,7 @@ projects/PROJ-522-predicting-molecular-permeability-coeffi/
 - **Causal Disclaimer**: All conclusions framed as "associational" (FR-006).
 
 ### 5. Compute Feasibility (FR-007)
-- **CPU-First**: The small parameter count (≤500K) and [deferred] dataset size are designed to run on 2 cores / 7GB RAM within 2 hours.
+- **CPU-First**: The small parameter count (≤500K) and [deferred] dataset size are designed to run on A small number of cores / 7GB RAM within 2 hours.
 - **GPU Escape Hatch**: If the training step exceeds a reasonable duration on CPU, the execution agent will automatically re-run on a Kaggle GPU (scaled down: 8-bit quantization or fewer epochs) as per the "Compute feasibility" rules.
  - **Reproducibility**: The Kaggle run uses a pinned Docker image (`pytorch/pytorch:.1-cuda11.7-cudnn8-runtime`) and a specific Kaggle kernel ID to ensure the environment is identical to the local CPU run.
  - **No Synthetic Approximation**: No synthetic CPU approximation of a GPU-only method is planned.

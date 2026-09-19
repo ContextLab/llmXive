@@ -1,25 +1,16 @@
+"""
+Setup script to initialize the project directory structure.
+Creates necessary directories for data, code, and tests.
+"""
 import os
 import sys
 from pathlib import Path
 
 def create_directories():
-    """
-    Creates the required project directory structure for the molecular permeability
-    prediction pipeline.
+    """Create the required project directory structure."""
+    base_dir = Path(__file__).parent.parent
     
-    Creates:
-    - data/raw/
-    - data/processed/
-    - code/models/
-    - code/analysis/
-    - code/utils/
-    - code/config/
-    - tests/contract/
-    - tests/unit/
-    - tests/integration/
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    
+    # Define directories to create
     directories = [
         "data/raw",
         "data/processed",
@@ -29,33 +20,38 @@ def create_directories():
         "code/config",
         "tests/contract",
         "tests/unit",
-        "tests/integration"
+        "tests/integration",
     ]
     
     created_count = 0
-    existing_count = 0
-    
     for dir_path in directories:
-        full_path = project_root / dir_path
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            existing_count += 1
+            print(f"Directory already exists: {full_path}")
     
-    print(f"\nDirectory setup complete.")
-    print(f"  Created: {created_count}")
-    print(f"  Existing: {existing_count}")
-    print(f"  Total: {len(directories)}")
+    # Create .gitkeep files in data directories to preserve structure in git
+    data_dirs = ["data/raw", "data/processed"]
+    for dir_path in data_dirs:
+        full_path = base_dir / dir_path / ".gitkeep"
+        full_path.touch()
+        print(f"Created .gitkeep in: {full_path}")
     
-    return created_count, existing_count
+    print(f"\nDirectory setup complete. Created {created_count} new directories.")
+    return True
 
 def main():
-    """Entry point for directory creation script."""
-    print("Initializing project directory structure...")
-    created, existing = create_directories()
-    print("Done.")
+    """Main entry point for the setup script."""
+    try:
+        create_directories()
+        print("SUCCESS: Project structure initialized.")
+        return 0
+    except Exception as e:
+        print(f"ERROR: Failed to initialize project structure: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

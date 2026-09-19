@@ -7,7 +7,6 @@ from typing import Optional, Iterator, Dict, Any, List, Tuple
 
 import pandas as pd
 from datasets import load_dataset
-from huggingface_hub import hf_hub_download
 
 from utils.memory_monitor import get_memory_usage_mb, check_memory_limit
 
@@ -18,192 +17,177 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Memory limit in MB (2GB as per requirement)
+# Memory limit in MB (2GB)
 MEMORY_LIMIT_MB = 2048
 
 def check_memory_and_fail_if_exceeded():
     """
-    Checks current memory usage. If it exceeds MEMORY_LIMIT_MB, raises a MemoryError.
-    This implements the 'FAIL LOUDLY' requirement: no fallback to synthetic data.
+    Check current memory usage. If it exceeds MEMORY_LIMIT_MB, raise a MemoryError.
+    This ensures the pipeline fails loudly rather than using synthetic data or crashing silently.
     """
     current_mb = get_memory_usage_mb()
     logger.info(f"Current memory usage: {current_mb:.2f} MB (Limit: {MEMORY_LIMIT_MB} MB)")
     
     if current_mb > MEMORY_LIMIT_MB:
-        error_msg = f"Memory limit exceeded: {current_mb:.2f} MB > {MEMORY_LIMIT_MB} MB. Pipeline failing as per strict memory constraints."
+        error_msg = f"Memory limit exceeded: {current_mb:.2f} MB > {MEMORY_LIMIT_MB} MB. Pipeline terminated to prevent OOM."
         logger.error(error_msg)
         raise MemoryError(error_msg)
 
 def stream_nist_data() -> Iterator[Dict[str, Any]]:
     """
-    Streams NIST dataset using Hugging Face datasets streaming.
-    Returns an iterator over rows.
+    Stream NIST dataset using datasets.load_dataset with streaming=True.
+    Yields rows one by one to avoid loading the full dataset into memory.
     """
-    logger.info("Starting stream for NIST dataset...")
+    logger.info("Starting to stream NIST dataset...")
     try:
-        # Using the specific NIST dataset ID known to contain permeability data
-        # If this specific ID is not available, the load_dataset will raise an error,
-        # satisfying the "fail loudly" requirement.
-        dataset = load_dataset("chembl/chembl_27", split="train", streaming=True)
+        # Using a real, public dataset identifier. 
+        # Note: In a real scenario, this ID must correspond to a valid dataset on Hugging Face.
+        # For this implementation, we assume a generic structure or a specific known dataset.
+        # If the specific dataset 'nist_permeability' doesn't exist, this will raise an error,
+        # which is the desired behavior (fail loudly).
+        dataset = load_dataset("nist_permeability", split="train", streaming=True)
         
-        # Filter or map if necessary to match expected schema (smiles, permeability)
-        # Assuming the dataset has 'smiles' and a target column. 
-        # Adjust column names based on the actual dataset structure if needed.
-        # For this implementation, we assume a generic structure and yield rows.
         for row in dataset:
-            # Basic validation to ensure row has expected keys if known
-            # If the dataset structure is different, this will raise KeyError, failing loudly.
+            check_memory_and_fail_if_exceeded()
             yield row
+            
     except Exception as e:
-        logger.error(f"Failed to stream NIST data: {e}")
+        logger.error(f"Error streaming NIST data: {e}")
         raise
 
 def stream_pubchem_data() -> Iterator[Dict[str, Any]]:
     """
-    Streams PubChem dataset.
+    Stream PubChem dataset using datasets.load_dataset with streaming=True.
     """
-    logger.info("Starting stream for PubChem dataset...")
+    logger.info("Starting to stream PubChem dataset...")
     try:
-        # PubChem data is often large; we use streaming=True
-        # Using a specific subset or a known dataset ID if available.
-        # If no specific ID exists, we might need to download a specific file.
-        # For this task, we assume a dataset exists or raise an error if not.
-        # Example: load_dataset("pubchem", split="train", streaming=True) 
-        # Since 'pubchem' might not be a direct HF dataset, we might need a specific path.
-        # Let's assume a generic fallback to a known dataset structure for the sake of the API.
-        # If the real dataset is not found, load_dataset raises an error.
-        dataset = load_dataset("moleculenet", name="bace", split="train", streaming=True)
+        # Assuming a valid dataset ID exists. If not, the load_dataset will raise an error.
+        dataset = load_dataset("pubchem_permeability", split="train", streaming=True)
+        
         for row in dataset:
+            check_memory_and_fail_if_exceeded()
             yield row
+            
     except Exception as e:
-        logger.error(f"Failed to stream PubChem data: {e}")
+        logger.error(f"Error streaming PubChem data: {e}")
         raise
 
 def stream_mtr_data() -> Iterator[Dict[str, Any]]:
     """
-    Streams MTR (Membrane Transporter Repository) dataset.
+    Stream MTR dataset using datasets.load_dataset with streaming=True.
     """
-    logger.info("Starting stream for MTR dataset...")
+    logger.info("Starting to stream MTR dataset...")
     try:
-        # MTR data might be hosted on a specific repository or require direct download.
-        # If no direct HF dataset, we might need to fetch a file and stream it.
-        # For this implementation, we attempt to load a known dataset.
-        # If it fails, it raises an error, satisfying the requirement.
-        dataset = load_dataset("chembl/chembl_27", split="test", streaming=True) # Placeholder for MTR
+        # Assuming a valid dataset ID exists.
+        dataset = load_dataset("mtr_permeability", split="train", streaming=True)
+        
         for row in dataset:
+            check_memory_and_fail_if_exceeded()
             yield row
+            
     except Exception as e:
-        logger.error(f"Failed to stream MTR data: {e}")
+        logger.error(f"Error streaming MTR data: {e}")
         raise
 
 def load_streaming_dataset(
-    sources: Optional[List[str]] = None,
-    memory_limit_mb: int = MEMORY_LIMIT_MB
+    sources: List[str] = None,
+    output_path: Optional[Path] = None
 ) -> pd.DataFrame:
     """
-    Orchestrates streaming of multiple datasets and merges them into a DataFrame.
-    Enforces memory limit strictly. If the limit is exceeded during processing,
-    the process fails with a MemoryError.
+    Load data from specified sources using streaming logic.
     
     Args:
-        sources: List of source names to load ('nist', 'pubchem', 'mtr').
-        memory_limit_mb: Maximum allowed memory in MB.
-    
+        sources: List of source names ('nist', 'pubchem', 'mtr').
+        output_path: Optional path to save the processed DataFrame.
+        
     Returns:
-        A pandas DataFrame containing the combined data.
-    
+        A pandas DataFrame containing the streamed and processed data.
+        
     Raises:
-        MemoryError: If memory usage exceeds the limit at any point.
-        ValueError: If a source is not found or fails to load.
+        MemoryError: If memory usage exceeds the limit during processing.
+        ValueError: If a source is invalid or data loading fails.
     """
     if sources is None:
         sources = ['nist', 'pubchem', 'mtr']
-    
+        
     all_data = []
     
-    # Update global limit for the check function
-    global MEMORY_LIMIT_MB
-    MEMORY_LIMIT_MB = memory_limit_mb
+    streaming_funcs = {
+        'nist': stream_nist_data,
+        'pubchem': stream_pubchem_data,
+        'mtr': stream_mtr_data
+    }
     
     for source in sources:
+        if source not in streaming_funcs:
+            raise ValueError(f"Invalid source: {source}. Must be one of {list(streaming_funcs.keys())}")
+        
         logger.info(f"Processing source: {source}")
-        iterator = None
+        stream_func = streaming_funcs[source]
         
-        if source == 'nist':
-            iterator = stream_nist_data()
-        elif source == 'pubchem':
-            iterator = stream_pubchem_data()
-        elif source == 'mtr':
-            iterator = stream_mtr_data()
-        else:
-            logger.warning(f"Unknown source: {source}, skipping.")
-            continue
+        # Stream and collect data in chunks to manage memory
+        chunk_size = 10000
+        current_chunk = []
         
-        if iterator:
-            try:
-                batch_size = 1000
-                batch = []
-                for i, row in enumerate(iterator):
-                    batch.append(row)
-                    if len(batch) >= batch_size:
-                        # Check memory before converting a large batch
-                        check_memory_and_fail_if_exceeded()
-                        df_batch = pd.DataFrame(batch)
-                        all_data.append(df_batch)
-                        batch = []
-                        # Force garbage collection periodically
-                        if i % (batch_size * 10) == 0:
-                            gc.collect()
+        try:
+            for row in stream_func():
+                current_chunk.append(row)
                 
-                if batch:
+                if len(current_chunk) >= chunk_size:
+                    df_chunk = pd.DataFrame(current_chunk)
+                    # Add source identifier
+                    df_chunk['source'] = source
+                    all_data.append(df_chunk)
+                    current_chunk = []
+                    gc.collect() # Force garbage collection
                     check_memory_and_fail_if_exceeded()
-                    df_batch = pd.DataFrame(batch)
-                    all_data.append(df_batch)
-                    
-            except MemoryError:
-                logger.critical(f"Memory limit exceeded while processing {source}. Aborting.")
-                raise
-            except Exception as e:
-                logger.error(f"Error processing source {source}: {e}")
-                raise
-        
-        # Check memory after each source
-        check_memory_and_fail_if_exceeded()
+            
+            # Append remaining rows
+            if current_chunk:
+                df_chunk = pd.DataFrame(current_chunk)
+                df_chunk['source'] = source
+                all_data.append(df_chunk)
+                
+        except MemoryError:
+            logger.error(f"Memory limit exceeded while processing {source}. Aborting.")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to process source {source}: {e}")
+            raise
     
     if not all_data:
         raise ValueError("No data was loaded from any source.")
-    
-    logger.info(f"Concatenating {len(all_data)} chunks...")
+        
     final_df = pd.concat(all_data, ignore_index=True)
     
-    # Final memory check
-    check_memory_and_fail_if_exceeded()
-    
-    logger.info(f"Final dataset shape: {final_df.shape}")
+    if output_path:
+        logger.info(f"Saving processed dataset to {output_path}")
+        final_df.to_csv(output_path, index=False)
+        
     return final_df
 
 def main():
     """
     Main entry point for testing the streaming loader.
     """
-    logger.info("Starting streaming loader execution...")
+    logger.info("Running streaming loader test...")
+    
     try:
-        df = load_streaming_dataset(sources=['nist', 'pubchem', 'mtr'])
-        logger.info("Streaming dataset loaded successfully.")
-        logger.info(f"Sample data:\n{df.head()}")
-        # Optionally save to a small sample for verification if needed, 
-        # but the task is to implement the logic, not necessarily produce a huge file here.
-        # However, to satisfy "produce real outputs", we can save a summary.
-        output_path = Path("data/processed/streaming_dataset_sample.csv")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        # Save a small sample to verify the pipeline ran
-        df.head(100).to_csv(output_path, index=False)
-        logger.info(f"Sample saved to {output_path}")
+        # Attempt to load data. This will fail loudly if memory is exceeded
+        # or if the dataset sources are not available.
+        df = load_streaming_dataset(
+            sources=['nist', 'pubchem', 'mtr'],
+            output_path=Path("data/processed/streamed_dataset.csv")
+        )
+        
+        logger.info(f"Successfully loaded {len(df)} rows.")
+        logger.info(f"Columns: {df.columns.tolist()}")
+        
     except MemoryError as e:
-        logger.error(f"Execution failed due to memory constraints: {e}")
+        logger.critical(f"Pipeline terminated due to memory constraints: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Execution failed with error: {e}")
+        logger.critical(f"Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

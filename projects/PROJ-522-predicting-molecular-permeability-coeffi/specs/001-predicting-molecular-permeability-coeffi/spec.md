@@ -86,7 +86,12 @@ The system MUST perform a sensitivity analysis on the model's prediction confide
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The GNN model's mean R² on the 5-fold cross-validation test set is measured against the Random Forest baseline R² to determine if the graph-based approach provides a statistically significant improvement (See FR-003).
+- **SC-001**: The GNN model's mean R² on the k-fold cross-validation
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
+k-fold cross-validation test set is measured against the Random Forest baseline R² to determine if the graph-based approach provides a statistically significant improvement (See FR-003).
 - **SC-002**: The Mean Absolute Error (MAE) is measured against the baseline error rates across a range of width sweep values to validate the robustness of the uncertainty estimates (See FR-004).
 - **SC-003**: The total training and inference time for the 5-fold cross-validation process is measured against a predefined CPU time limit to ensure compute feasibility (See FR-002).
 - **SC-004**: The permutation importance scores are validated via a perturbation experiment: if specific functional groups (hydroxyl, carboxyl, amine) are removed from a molecule, the model's predicted permeability must change in the direction consistent with chemical intuition (e.g., removal of polar groups increases predicted permeability) (See FR-005).

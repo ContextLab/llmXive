@@ -5,34 +5,26 @@ import yaml
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(config_path: Optional[str] = None):
-    """
-    Setup logging configuration.
-    """
-    if config_path is None:
-        config_path = Path(__file__).parent.parent / "config" / "logging.yaml"
-    
-    if os.path.exists(config_path):
+def setup_logging():
+    """Setup logging configuration."""
+    config_path = Path("code/config/logging.yaml")
+    if config_path.exists():
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
             logging.config.dictConfig(config)
     else:
-        # Fallback to basic config
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
+    return logging.getLogger(__name__)
 
-def log_timeout(operation: str, timeout_minutes: int):
-    """
-    Log a timeout event.
-    """
-    logger = logging.getLogger(__name__)
-    logger.warning(f"TIMEOUT: {operation} exceeded {timeout_minutes} minutes")
+def log_timeout(message: str):
+    """Log a timeout message."""
+    logger = setup_logging()
+    logger.error(f"TIMEOUT: {message}")
 
-def log_missing_data(reason: str):
-    """
-    Log missing data event.
-    """
-    logger = logging.getLogger(__name__)
-    logger.warning(f"Missing data: {reason}")
+def log_missing_data(message: str):
+    """Log a missing data message."""
+    logger = setup_logging()
+    logger.warning(f"MISSING DATA: {message}")

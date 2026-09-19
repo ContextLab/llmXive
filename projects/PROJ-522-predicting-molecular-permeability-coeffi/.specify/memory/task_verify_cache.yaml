@@ -1,3 +1,46 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any `__init__.py` files in the `code/` or `tests/` subdirectories\
+    \ is provided; without seeing those files we cannot confirm they exist and are\
+    \ non\u2011empty. The required package initializer files are missing from the\
+    \ artifact set."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitkeep` files are present in any `data/` subdirectory; the repository lacks
+    the required placeholder files to preserve empty directories in version control.
+    The task therefore remains undone.
+T003:
+  c: true
+  h: 66eb473bd48acb85008dd1f9ee344e2b7f5aa13d8da72b294ea528dbe406010e
+  r: "Both `code/.ruff.toml` and `code/.black.toml` are present, non\u2011empty, and\
+    \ contain the required settings (ignore\u202F=\u202F\"E501\" and line\u2011length\u202F\
+    =\u202F100). The files are valid TOML configurations, satisfying the task\u2019\
+    s deliverable."
+T012a:
+  c: false
+  h: 819c3f1d0163fce28428496cca2a703a5044aeefb5b50a44f1f4a4d0f095d9a5
+  r: The repository contains an `ingestion.py` script, but it never writes the required
+    Parquet files and the helper functions it calls (`fetch_nist_data`, etc.) are
+    not shown to produce or save the data. The three expected output files (`data/raw/nist.parquet`,
+    `data/raw/pubchem.parquet`, `data/raw/mtr.parquet`) are absent. The task therefore
+    remains unfinished.
+T012c:
+  c: false
+  h: 3c4a353bd16d4ba012793370f5dbad236f6e89a2d731cc1c3eaa94ff0af82217
+  r: The `deduplicate_smiles` function exists but its output columns differ from the
+    required schema (`source_ids` vs. `source_id`) and the script never writes the
+    deduplicated DataFrame to `data/processed/deduplicated.csv`. Moreover, the expected
+    CSV file is missing from the repository. The task is therefore not fully satisfied.
+T012d:
+  c: false
+  h: 43ea5d5afcd3239f9aa4b7556d84dae50ac6263948dfb7113251b48b535eefb8
+  r: "The required output files `data/processed/exclusion_log.json` and `data/processed/validation_report.json`\
+    \ are absent, and the provided `code/ingestion.py` (as shown) does not contain\
+    \ logic to enforce the \u2265500 unique\u2011compound check, raise an error if\
+    \ the count is lower, or write the specified JSON reports. The implementation\
+    \ therefore does not meet the task\u2019s functional requirements."
 T020c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,11 +70,3 @@ T024:
   r: No artifact (code, data, statistical test results, or report) was provided showing
     a paired t-test comparison between GNN and RF/LR, nor any normality test output.
     Without these concrete results, the requirement is not satisfied.
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No comparison report (e.g., CSV, PDF, or markdown) containing the mean and standard\
-    \ deviation of the performance metrics and the results of a paired t\u2011test\
-    \ is present. The implementer provided only the task description and specifications,\
-    \ but no actual artifact that fulfills the requirement. The missing deliverable\
-    \ must be created and supplied."

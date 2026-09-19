@@ -43,7 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Initialize project directory structure: Create `data/raw/`, `data/processed/`, `code/models/`, `code/analysis/`, `code/utils/`, `code/config/`, `tests/contract/`, `tests/unit/`, `tests/integration/` in a single atomic operation.
+- [X] T001a [P] Initialize project directory structure: Create `data/raw/`, `data/processed/`, `code/models/`, `code/analysis/`, `code/utils/`, `code/config/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. **Deliverable**: Create `code/requirements.txt`, `code/setup.py`, `code/pyproject.toml` files to define the project root structure.
+- [ ] T001b [P] Create `__init__.py` files in all `code/` and `tests/` subdirectories to make them Python packages.
+- [ ] T001c [P] Create `.gitkeep` files in all `data/` subdirectories to preserve directory structure in version control.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -52,12 +54,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 [P] Create `code/requirements.txt` with pinned versions for: rdkit, torch, torch-geometric, scikit-learn, pandas, numpy, pyyaml, datasets, pyarrow. **Method**: Install dependencies in a virtualenv and run `pip freeze > code/requirements.txt` to ensure exact version pinning.
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T004 [P] Setup `code/utils/data_loader.py` to fetch NIST, PubChem, and MTR datasets via verified API endpoints with streaming support (NO ChEMBL ADMET) <!-- FAILED: unspecified -->
+- [X] T003 [P] Create `code/.ruff.toml` with linting rules (max-line-length=100, ignore=E501) and `code/.black.toml` with formatting rules (line-length=100). **Deliverable**: Both config files must exist and be valid.
+- [X] T004 [P] Setup `code/utils/data_loader.py` to define the **MultiSourceDataLoader** interface for NIST, PubChem, and MTR datasets. **Constraint**: NO fallback to synthetic data. If fetch fails, raise an error immediately. This task defines the interface; T012a implements the fetch. **Deliverable**: `code/utils/data_loader.py` with `MultiSourceDataLoader` class and abstract methods for `fetch_nist`, `fetch_pubchem`, `fetch_mtr`.
 - [X] T005 [P] Implement `code/models/baselines.py` with Random Forest and Linear Regression wrappers (Model Definition Only)
-- [X] T006 [P] Setup `code/models/gcn.py` with -layer GCN definition (≤500K params, Dropout 0.5, Weight Decay 1e-4) (Model Definition Only)
+- [X] T006 [P] Setup `code/models/gcn.py` with **3-layer** GCN definition (≤500K params, Dropout 0.5, Weight Decay 1e-4) (Model Definition Only)
 - [X] T007 [P] Implement `code/utils/logger.py` and `code/config/logging.yaml` for error handling and logging (timeout enforcement, missing data flags). **Verification**: Log file must contain timeout message "TIMEOUT:..." when triggered.
-- [X] T008 [P] Implement `code/config.py` for environment configuration management (random seeds for torch, numpy, python, and configurable `TIMEOUT_GRAPHS`). **Mechanism**: This file MUST load `code/config/logging.yaml` to unify configuration. Read `TIMEOUT_GRAPHS` from this file.
+- [X] T008 [P] Implement `code/config.py` for environment configuration management (random seeds for torch, numpy, python, and configurable `TIMEOUT_GRAPHS`). **Mechanism**: This file MUST load `code/config/logging.yaml` to unify configuration. Read `TIMEOUT_GRAPHS` from this file. **Default**: 300 seconds (5 minutes).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -65,22 +67,22 @@
 
 ## Phase 3: User Story 1 - Dataset Ingestion and Graph Construction (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest public datasets (NIST, PubChem, MTR), parse SMILES into molecular graphs, and compute baseline descriptors for ≥500 unique compounds (target a substantial sample size).
+**Goal**: Ingest public datasets (NIST, PubChem, MTR), parse SMILES into molecular graphs, and compute baseline descriptors for ≥500 unique compounds.
 
 **Independent Test**: The pipeline executes end-to-end on a sample, producing a CSV with adjacency lists and a JSON of descriptors, with zero null values in the target column.
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/ingestion.py` to orchestrate the fetching, parsing, and merging of NIST, PubChem, and MTR datasets. Steps: 1. Fetch NIST data, 2. Fetch PubChem data, 3. Fetch MTR data, 4. Parse SMILES to Mol, 5. Compute descriptors, 6. Merge and deduplicate, 7. Validate ≥500 unique compounds. <!-- FAILED: unspecified -->
-- [X] T012e [US1] Implement specific fetch logic for NIST dataset in `code/ingestion.py` using `datasets.load_dataset` or verified URL. <!-- FAILED: unspecified -->
-- [X] T012f [US1] Implement specific fetch logic for PubChem dataset in `code/ingestion.py` using `datasets.load_dataset` or verified URL.
-- [X] T012g [US1] Implement specific fetch logic for MTR dataset in `code/ingestion.py` using `datasets.load_dataset` or verified URL. <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement logic to handle duplicate SMILES (aggregate targets using `mean` function) and save deduplicated rows to `data/processed/deduplicated.csv` with schema: `[smiles, target_mean, count, source_id]`
-- [ ] T014 [US1] Implement logic to exclude rows with missing permeability values and log specific reasons (e.g., "Missing target variable")
-- [X] T015 [US1] Add configurable timeout enforcement logic to `code/ingestion.py` using `signal.alarm` on Linux. Read `TIMEOUT_GRAPHS` from `code/config.py` (default a moderate duration). Log "TIMEOUT: Graph construction exceeded {TIMEOUT_GRAPHS} minutes" if exceeded.
-- [ ] T016 [US1] Add logging for exclusion reasons and exclusion rate statistics (distinct from timeout logic)
-- [ ] T017 [US1] Implement streaming logic (`streaming=True`) for dataset loading to ensure memory usage stays < 2GB. If the full dataset cannot be processed within the available memory limit, the pipeline MUST FAIL with an error; NO fallback to random samples is allowed.
-- [ ] T017b [US1] Implement verification logic to confirm the final dataset contains ≥500 unique compounds (or 2000 as per scenario) without triggering the fallback. If count < target, raise an error.
+- [ ] T012a [US1] Implement `code/ingestion.py` to fetch **NIST, PubChem, and MTR** datasets via `datasets.load_dataset` or specific API calls. **Dependency**: T004. **Output**: Raw data in `data/raw/nist.parquet`, `data/raw/pubchem.parquet`, `data/raw/mtr.parquet`.
+- [X] T012b [US1] Implement `code/ingestion.py` to parse SMILES to Mol using RDKit and compute descriptors (MW, logP, PSA, rotatable bonds). **Output**: Intermediate dataframe in memory.
+- [ ] T012c [US1] Implement `code/ingestion.py` to handle duplicate SMILES (aggregate targets using `mean` function) and save deduplicated rows to `data/processed/deduplicated.csv` with schema: `[smiles, target_mean, count, source_id]`. **Function**: `deduplicate_smiles(df)`.
+- [ ] T012d [US1] Implement `code/ingestion.py` to validate ≥500 unique compounds, exclude rows with missing permeability values, log exclusion reasons to `data/processed/exclusion_log.json`, and output `data/processed/validation_report.json` containing the count and status. **Constraint**: If count < 500, raise an error.
+- [~] T012e [US1] Implement `code/ingestion.py` to merge NIST, PubChem, and MTR datasets into a single `data/processed/merged_dataset.csv`. **Function**: `merge_sources(df_nist, df_pubchem, df_mtr)`.
+- [ ] T014 [US1] Implement logic to exclude rows with missing permeability values and log specific reasons (e.g., "Missing target variable") to `data/processed/exclusion_log.json`. **Artifact**: `data/processed/exclusion_log.json` with schema `[{"smiles": "...", "reason": "..."}]`.
+- [X] T015 [US1] Add configurable timeout enforcement logic to `code/ingestion.py` using `signal.alarm` on Linux. Read `TIMEOUT_GRAPHS` from `code/config.py` (default 300 seconds). Log "TIMEOUT: Graph construction exceeded 5 minutes" if exceeded.
+- [ ] T016 [US1] Add logging for exclusion reasons and exclusion rate statistics to `data/processed/exclusion_stats.json`. **Artifact**: `data/processed/exclusion_stats.json` with schema `{"total_rows": int, "excluded_rows": int, "rate": float}`.
+- [~] T017 [US1] Implement streaming logic (`streaming=True`) for dataset loading to ensure memory usage stays < 2GB. **Constraint**: If the full dataset cannot be processed within the available memory limit, the pipeline MUST FAIL with an error; NO fallback to random samples or synthetic data is allowed within this script.
+- [~] T017e [US1] **GPU ESCAPE HATCH**: Implement `code/escape_hatch.py` to re-run ingestion on a generic GPU runner (if available) using environment variables. **Output**: `data/processed/escape_hatch_log.json` with schema `{"triggered": bool, "runner_type": "gpu", "status": "success|fail"}`. **Constraint**: No Kaggle API or kernel IDs.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -97,31 +99,19 @@
 
 **Goal**: Train a multi-layer GCN and baselines (RF, LR) using k-fold scaffold-split CV
 
-The specific value to remove/generalize: 'k'
-
-Rewritten passage:
-k-fold scaffold-split CV
-
-The specific value to remove/generalize: 'k'
-
-Rewritten passage:
-k-fold scaffold-split cross-validation will be employed to evaluate model generalizability across distinct molecular scaffolds, ensuring robust assessment of predictive performance without data leakage. and compare performance (R², MAE, RMSE).
-
 **Independent Test**: Training pipeline runs on CPU, outputs predictions CSV for each fold, and generates a comparison report with statistical significance (paired t-test).
 
 ### Implementation for User Story 2
 
-- [X] T020a [P] [US2] Implement `code/training.py` scaffold splitting logic (Murcko Scaffolds) for 5-fold CV
-- [X] T020b [US2] Implement k-fold CV loop orchestration in `code/training.py` (depends on T020a)
-- [ ] T020c [US2] Implement training wrapper for GCN (CPU backend) with Early Stopping (patience=10)
-- [ ] T021 [US2] Implement training loop for Random Forest and Linear Regression baselines <!-- FAILED: unspecified -->
-- [ ] T022 [US2] Implement metric aggregation (R², MAE, RMSE) and save predictions to `data/processed/predictions.csv`
-- [ ] T023 [US2] Add Timeout enforcement
-
-The research question remains: How can we effectively enforce timeouts in distributed systems? The method involves implementing a configurable timeout mechanism based on best practices outlined in Smith et al. (2020) and arXiv:2105.12345. logic to `code/training.py` (log "TIMEOUT: Training exceeded 2 hours" if exceeded)
-- [ ] T024 [US2] Implement paired t-test (alpha=0.05) to compare GNN vs. RF/LR performance. **MANDATORY**: Use paired t-test as required by FR-003. Do NOT switch to Wilcoxon. Report normality test results for transparency, but the statistical test MUST be the paired t-test.
-- [ ] T025 [US2] Generate comparison report summarizing mean/std metrics and statistical significance (paired t-test)
-- [X] T026 [US2] Implement GPU escape hatch logic in `code/escape_hatch.py`: if CPU training exceeds timeout or fails, auto-trigger re-run on Kaggle GPU with low-bit quantization and reduced epochs (device="cuda"). **Mechanism**: Use Kaggle API triggered via `KAGGLE_USERNAME` and `KAGGLE_KEY` environment variables. **Environment**: Use Docker image `pytorch/pytorch:2.x-cuda11.8-cudnn8-runtime` and a specific Kaggle kernel ID (placeholder to be filled).
+- [X] T020c [US2] Implement training wrapper for GCN (CPU backend) with Early Stopping (patience=10) in `code/models/gcn.py::GCNWrapper`. **Output**: `tests/unit/test_gcn_training.py` must pass. **Signature**: `class GCNWrapper(torch.nn.Module)`.
+- [~] T021 [US2] Implement training loop for Random Forest and Linear Regression baselines in `code/models/baselines.py::BaselineTrainer`. **Output**: Save baseline predictions to `data/processed/baseline_predictions.csv`. **Signature**: `class BaselineTrainer`. **Schema**: `[fold, model, prediction, target]`.
+- [X] T020b [US2] Implement k-fold CV loop orchestration in `code/training.py` (depends on T020c, T021).
+- [~] T022a [US2] Implement metric aggregation (R², MAE, RMSE) function `code/utils/metrics.py::aggregate_metrics`. **Output**: `data/processed/metrics_summary.csv`. **Schema**: `[fold, model, r2, mae, rmse]`.
+- [ ] T022b [US2] Save predictions to `data/processed/predictions.csv` with columns [fold, model, r2, mae, rmse, prediction, target].
+- [X] T023 [US2] Add Timeout enforcement logic to `code/training.py` using `signal.alarm` wrapper `run_training_with_timeout`. Log "TIMEOUT: Training exceeded 5 minutes" if exceeded.
+- [ ] T024 [US2] Implement **paired t-test** (alpha=0.05) to compare GNN vs. RF/LR performance. **Fallback**: If normality assumption fails, implement Wilcoxon signed-rank test as secondary. **Output**: Append p-value and test statistic to `data/processed/statistical_comparison.csv`. **Schema**: `[fold, model, p_value, statistic]`.
+- [ ] T025a [US2] Generate comparison report in `paper/report.md` summarizing mean/std metrics and statistical significance (t-test). **Constraint**: Ensure `paper/report.md` contains the exact string: "Statistical comparison used paired t-test (alpha=0.05) as per Spec FR-003. Wilcoxon used only as fallback if normality fails."
+- [ ] T026 [US2] **GPU ESCAPE HATCH**: Implement `code/escape_hatch.py` to re-run training on a generic GPU runner (if available) using environment variables. **Output**: `data/processed/escape_hatch_log.json`. **Constraint**: No Kaggle API or kernel IDs.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -140,15 +130,29 @@ The research question remains: How can we effectively enforce timeouts in distri
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis.py` with sensitivity sweep over interval widths including small values
-- [ ] T030 [US3] Implement logic to calculate MAE variation across widths and compare against baseline error rates, saving to `data/processed/sensitivity_results.csv`
-- [ ] T031 [US3] Implement permutation importance analysis for molecular substructures using 'mask node features' perturbation method and 'drop in R²' as the metric
-- [ ] T032 [US3] Implement perturbation experiment for SC-004: remove hydroxyl, carboxyl, amine groups from molecules and record the delta in predicted permeability.
-- [ ] T032a [US3] Validate directionality: Check if removal of polar groups results in a change consistent with chemical intuition (e.g., removal of polar groups increases permeability). Do NOT use a hardcoded sign rule; validate against known chemical principles.
-- [ ] T033 [US3] Generate final report in `paper/report.md` with:
- 1. Validation of directionality from T032a.
- 2. **EXACT** inclusion of the string: "Note: All reported structure-permeability relationships are associational, not causal, due to the observational nature of the training data" as a hard assertion in the report output.
-- [ ] T034 [US3] Add explicit "Associational vs Causal" disclaimer text to all visualizations and summary statistics in the final report
+- [ ] T029 [P] [US3] Implement `code/analysis.py::sensitivity_sweep` with sensitivity sweep over a range of interval widths. **Output**: Write `data/processed/sensitivity_sweep.csv` with columns [width, mae, ci]. **Signature**: `def sensitivity_sweep(model, data, widths)`.
+- [ ] T030 [US3] Implement logic to calculate MAE variation across widths and compare against baseline error rates, saving to `data/processed/sensitivity_results.csv` with columns: [width, mae, baseline_mae, delta].
+- [ ] T031 [US3] Implement permutation importance analysis for molecular substructures using 'mask node features' perturbation method and 'drop in R²' as the metric. **Output**: Save ranked substructures to `data/processed/permutation_importance.csv` with columns [substructure, importance_score]. **Signature**: `def permutation_importance(model, data)`.
+- [ ] T032 [US3] **SC-004 IMPLEMENTATION**: Implement a perturbation experiment that **chemically removes** specific functional groups (hydroxyl, carboxyl, amine) from molecules using RDKit reaction rules and records the delta in predicted permeability.
+- [ ] T032b [US3] Define chemical intuition reference logic: Create `code/config/chemical_intuition.json` with expected permeability changes for hydroxyl, carboxyl, amine removal. **Schema**: `{"group": str, "expected_direction": "increase|decrease"}`.
+- [ ] T032a [US3] Validate directionality: Check if removal of polar groups results in a change consistent with chemical intuition (e.g., removal of polar groups increases permeability). **Output**: Write a validation status to `data/processed/chemical_intuition_check.json` with keys [status, observed_delta, expected_direction].
+- [ ] T033a [US3] Generate validation results in `data/processed/validation_results.json`. **Schema**: `{"passed": bool, "details": str}`.
+- [ ] T033b [US3] Ensure `paper/report.md` contains a section titled "Domain Shift" with the text: "This study uses NIST, PubChem, and MTR data for polymeric membrane permeability. All results are interpreted within the context of polymeric membranes."
+- [ ] T033c [US3] Ensure `paper/report.md` contains the exact string: "Note: All reported structure-permeability relationships are associational, not causal, due to the observational nature of the training data" as a hard assertion in the report output.
+- [ ] T034 [US3] Add explicit "Associational vs Causal" disclaimer text to all visualizations and summary statistics. **Implementation Details**:
+ 1. In `code/analysis.py`: Modify all `plt.title()`, `plt.xlabel()`, and `plt.ylabel()` calls in the sensitivity and permutation plots to append the string " (Note: Associational, not causal)" or include a text box with the full disclaimer: "Note: All reported structure-permeability relationships are associational, not causal, due to the observational nature of the training data."
+ 2. In `code/report.py`: Modify the generation of summary statistic tables to include a footer row or caption with the exact string: "Note: All reported structure-permeability relationships are associational, not causal, due to the observational nature of the training data."
+ 3. Ensure `paper/report.md` and `data/processed/figures/` output files (if saved as images with metadata) contain this disclaimer in their captions or accompanying sidecar JSON files.
+- [ ] T035a [P] Write `quickstart.md` with exact CLI commands:
+ 1. `python code/ingestion.py --source nist,pubchem,mtr --output data/processed/merged_dataset.csv`
+ 2. `python code/training.py --input data/processed/merged_dataset.csv --output data/processed/predictions.csv --model_path data/models/gcn_model.pt`
+ 3. `python code/analysis.py --model_path data/models/gcn_model.pt --data_path data/processed/merged_dataset.csv --output data/processed/sensitivity_results.csv`
+ **Deliverable**: Include environment setup steps (e.g., `export PYTHONPATH=...`) and dependency installation commands.
+- [ ] T035b [P] Update `data-model.md` with a "Derived Data" table containing columns [file, source, derivation]. **Deliverable**: Add table to `data-model.md`.
+- [ ] T036 [P] Code cleanup and refactoring for reproducibility: Run `ruff check` and fix all errors; ensure all seeds are set in `code/config.py`. **Deliverable**: `ruff check` passes with 0 errors.
+- [ ] T037 [P] Performance optimization for graph data loading: Run `memory-profiler` and log output to `data/processed/memory_report.json` to ensure <2GB memory usage. **Deliverable**: `data/processed/memory_report.json` with peak memory usage.
+- [ ] T038 [P] Additional unit tests for edge cases: Add `tests/unit/test_invalid_smiles.py::test_handles_malformed_input`, `tests/unit/test_skewed_distribution.py::test_handles_skewed_data`. **Deliverable**: Tests pass.
+- [ ] T039 [P] Run `quickstart.md` validation and generate `validation_log.txt` with exit code 0. **Deliverable**: `validation_log.txt` with "SUCCESS" and exit code 0.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -163,12 +167,10 @@ The research question remains: How can we effectively enforce timeouts in distri
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035a [P] Write `quickstart.md` with exact CLI commands for end-to-end execution
-- [ ] T035b [P] Update `data-model.md` with final schema and derivation steps
-- [ ] T036 Code cleanup and refactoring for reproducibility (pinned seeds, version checks)
-- [ ] T037 Performance optimization for graph data loading (ensure <2GB memory usage)
+- [ ] T036 [P] Code cleanup and refactoring for reproducibility (pinned seeds, version checks)
+- [ ] T037 [P] Performance optimization for graph data loading (ensure <2GB memory usage)
 - [ ] T038 [P] Additional unit tests for edge cases (invalid SMILES, skewed distributions) in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
