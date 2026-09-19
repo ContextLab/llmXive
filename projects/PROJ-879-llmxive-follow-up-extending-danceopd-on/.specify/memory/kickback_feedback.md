@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/generate_teacher.py, models/train_tree.py
+- `T014` (rejected 1x): The provided `code/00_data_extraction.py` is incomplete (the core extraction and write‑to‑Parquet logic is truncated and not present), and the required output file `data/processed/teacher_routing_dataset.parquet` does not exist. Consequently the task’s requirement—to extract the four fields and stream them to the specified Parquet file—has not been fulfilled.
 
 ## Required change
 
