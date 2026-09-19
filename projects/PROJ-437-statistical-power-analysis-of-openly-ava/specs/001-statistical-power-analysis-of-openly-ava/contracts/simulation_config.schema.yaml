@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationConfig"
+type: "object"
+properties:
+  sample_size_target:
+    type: "integer"
+    minimum: 1
+    description: "Target number of subjects for simulation"
+  smoothing_kernel:
+    type: "number"
+    description: "Temporal smoothing kernel size in time points"
+  num_iterations:
+    type: "integer"
+    minimum: 50
+    description: "Number of bootstrap iterations (minimum 50)"
+  random_seed:
+    type: "integer"
+    description: "Fixed random seed for reproducibility"
+  dataset_id:
+    type: "string"
+    pattern: "^ds\\d{6}$"
+    description: "OpenNeuro dataset ID (e.g., ds000030)"
+  target_effect_size:
+    type: "number"
+    description: "Known ground-truth effect size (Cohen's d)"
+  snr_level:
+    type: "number"
+    minimum: 0.0
+    description: "Signal-to-Noise Ratio input for simulation"
+  alpha_threshold:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Significance threshold for power calculation"
+  pipeline_config_hash:
+    type: "string"
+    description: "SHA256 hash of the ROI extraction + smoothing configuration"
+required:
+  - sample_size_target
+  - smoothing_kernel
+  - num_iterations
+  - random_seed
+  - dataset_id
+  - target_effect_size
+  - snr_level
+  - alpha_threshold
+  - pipeline_config_hash
+additionalProperties: false

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReplicationResult"
+type: "object"
+properties:
+  effect_size_est:
+    type: "number"
+    description: "Cohen's d estimated on training set"
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from test set significance test"
+  replication_success:
+    type: "integer"
+    enum: [0, 1]
+    description: "Binary replication success (1 if known effect detected AND direction matches)"
+  smoothing_kernel_used:
+    type: "number"
+    description: "Temporal smoothing kernel applied"
+  iteration_id:
+    type: "integer"
+    minimum: 0
+    description: "Bootstrap iteration number"
+  sample_size_actual:
+    type: "integer"
+    minimum: 1
+    description: "Actual sample size used (may be clamped)"
+  failure_reason:
+    type: "string"
+    enum: ["GLM_convergence", "data_corruption", "memory_overflow", null]
+    description: "Optional failure reason (null if successful)"
+  pipeline_config_hash:
+    type: "string"
+    description: "SHA256 hash of the ROI extraction + smoothing configuration"
+  alpha_threshold:
+    type: "number"
+    description: "Alpha threshold used for this run"
+  target_effect_size:
+    type: "number"
+    description: "Known ground-truth effect size"
+required:
+  - effect_size_est
+  - p_value
+  - replication_success
+  - smoothing_kernel_used
+  - iteration_id
+  - sample_size_actual
+  - pipeline_config_hash
+  - alpha_threshold
+  - target_effect_size
+additionalProperties: false

@@ -1,35 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
-**Verdict**: fail
-
-The current framing describes a methodological exercise (conducting power analysis on datasets) rather than a substantive scientific question about neuroscience. Power analysis is a tool for study design, not a phenomenon to be discovered. The underlying question needs to be reframed toward what scientific inference these datasets enable or what systematic patterns in statistical power exist across neuroimaging research.
-
-### Circularity check
-
 **Verdict**: pass
 
-If the power analysis evaluates existing datasets for future study planning, the predictor (dataset characteristics like sample size, effect sizes) and outcome (statistical power estimates) are derived from the same source but not in a mechanically guaranteed way—power depends on multiple interacting factors that can vary non-trivially. No circularity detected.
+The question asks about the relationship between specific study-design factors (sample size, preprocessing, effect size estimation) and the empirical probability of replicating neuroimaging findings. This is a substantive question about the statistical properties of the field and the behavior of the BOLD signal under different experimental constraints, rather than a query about the performance of a specific software tool or algorithm.
+
+### Circularity check
+**Verdict**: pass
+
+The predictor variables (sample size, preprocessing pipeline choice, and estimated effect size from a training subset) are derived from the experimental design and a portion of the data. The predicted variable (replication success) is derived from a statistically independent held-out test subset or a split-half validation. The methodology explicitly ensures that the outcome is not mechanically guaranteed by the input, as replication is an empirical test on new data, not a mathematical identity.
 
 ### Triviality check
+**Verdict**: pass
 
-**Verdict**: concern
-
-A descriptive catalog of power levels across open datasets is informative for the field, but either outcome (most studies are underpowered vs. adequately powered) is somewhat predictable given existing literature on neuroimaging power. The question needs an additional layer—e.g., what factors systematically predict power across studies, or how power relates to reproducibility—to make both positive and null results informative.
+While it is a general domain belief that "larger samples improve power," the specific non-linear thresholds for different cognitive paradigms and the quantitative impact of specific preprocessing choices on replication rates are not known. A finding that specific pipelines drastically alter power or that certain tasks require unexpectedly large N would be highly informative; conversely, confirming that standard practices are sufficient for most tasks would also be a valuable, publishable negative result that validates current norms.
 
 ### Question-narrowing check
+**Verdict**: pass
 
-**Verdict**: fail
-
-The current framing names a methodological task ("conduct power analysis on datasets") rather than a domain relationship. A domain question would ask about patterns or consequences of power in neuroimaging research, not the act of computing power itself.
+The question names a clear domain relationship: how design factors determine replicability in fMRI. It does not fixate on implementation constraints like "Can this specific GPU run this specific code in 6 hours?" but rather investigates the scientific phenomenon of statistical sensitivity across open datasets. The mention of "GLM" and "fMRIPrep" refers to the standard tools used to measure the phenomenon, not the object of the inquiry itself.
 
 ### Overall verdict
+**Verdict**: validated
 
-**Verdict**: validator_revise
-
-[REVISED]
-What systematic patterns in statistical power across open fMRI datasets predict reproducibility of reported effects, and which study-design factors (sample size, effect size estimation method, preprocessing pipeline) most strongly determine whether published findings are replicable?
-[/REVISED]
-
-This reframing transforms the project from a methodological exercise into an investigation of meta-scientific patterns in neuroimaging research. It asks about relationships between study characteristics and outcomes (reproducibility), which is a substantive question with informative results regardless of whether power correlates strongly with replicability.
+All four checks pass. The research question addresses a genuine gap in understanding the quantitative link between study design and reproducibility in neuroimaging. The methodology avoids circularity through split-sample validation, and the outcome is non-trivial regardless of the direction of the results. The project is ready to advance to initialization.

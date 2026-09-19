@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PowerCurve"
+type: "object"
+properties:
+  paradigm_type:
+    type: "string"
+    description: "Cognitive paradigm (e.g., motor, working_memory)"
+  sample_sizes_tested:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 1
+    description: "List of sample sizes tested"
+  empirical_rates:
+    type: "array"
+    items:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    description: "Empirical replication rates (True Positive Rate) for each sample size"
+  logistic_model_coef:
+    type: "object"
+    properties:
+      sample_size:
+        type: "number"
+      smoothing_kernel:
+        type: "number"
+      snr_level:
+        type: "number"
+      effect_size_group:
+        type: "string"
+    description: "Logistic regression coefficients"
+  fdr_corrected:
+    type: "boolean"
+    description: "Whether Benjamini-Hochberg correction applied"
+  alpha_threshold:
+    type: "number"
+    description: "Alpha threshold used for this curve"
+  target_effect_size:
+    type: "number"
+    description: "Known ground-truth effect size"
+  interaction_terms:
+    type: "object"
+    properties:
+      sample_size_smoothing_kernel:
+        type: "number"
+    description: "Coefficients for interaction terms"
+required:
+  - paradigm_type
+  - sample_sizes_tested
+  - empirical_rates
+  - logistic_model_coef
+  - fdr_corrected
+  - alpha_threshold
+  - target_effect_size
+additionalProperties: false
