@@ -43,7 +43,7 @@ specs/001-yeast-cre-analysis/
 code/
 ├── 01_download_data.sh # FR‑001: download & MD5 verify GEO/SRA data (manifest‑driven)
 ├── 02_preprocess_chipseq.sh # FR‑002: fastp + bowtie2 (≤2 threads)
-├── 03_call_peaks.sh # FR‑003: MACS with FDR sweep (0.01,0.05,0.10)
+├── 03_call_peaks.sh # FR‑003: MACS with FDR sweep (low, moderate, high thresholds)
 ├── 04_merge_annotate.sh # FR‑004: merge peaks, annotate promoter/distal
 ├── 05_fetch_atac.sh # FR‑013: download ATAC‑seq (optional); logs ATAC_MANDATORY_SKIP
 ├── 05_validate_cre_gating.py # FR‑014/FR‑015: motif & Hi‑C validation, compute weights
@@ -75,7 +75,7 @@ tests/
 |------|-------------|-------------|----------|
 | 0 | **Data Acquisition** – download all required ChIP‑seq, ATAC‑seq, eQTL, Hi‑C files via `manifest.yaml`; abort if any required accession missing. | `01_download_data.sh`, `05_fetch_atac.sh` | `data/raw/` files, MD5 log |
 | 1 | **Pre‑processing** – adapter trimming (`fastp`), alignment (`bowtie2` ≤2 threads, MAPQ ≥ 30). | `02_preprocess_chipseq.sh` | Sorted BAMs (`data/processed/`) |
-| 2 | **Peak Calling & FDR Sweep** – run MACS2 at q ≤ 0.01, 0.05, 0.10; record peak counts and overlap of top‑20 CREs across thresholds. | `03_call_peaks.sh` | Peak BEDs per TF/condition, sweep summary |
+| 2 | **Peak Calling & FDR Sweep** – run MACS2 at q ≤ 0.01, 0.05, 0.10; record peak counts and overlap of top-ranked CREs across thresholds. | `03_call_peaks.sh` | Peak BEDs per TF/condition, sweep summary |
 | 3 | **Merge & Annotate** – merge overlapping peaks across TFs/conditions, annotate promoter vs distal (>500 bp). | `04_merge_annotate.sh` | `CRE_merged.bed` |
 | 4 | **Validation & Weighting** – (a) motif scanning (PWM p‑value < 1e‑4) **or** Hi‑C contact frequency (>100 reads) for distal CREs; (b) compute observation weight = `log(motif_score + 1)` **or** `log(hi_c_score + 1)` (whichever is available); (c) compute VIF for each CRE and **exclude** any with VIF > 5 from downstream modeling (FR‑012). | `05_validate_cre_gating.py` | `CRE_validated.bed` with `motif_score`, `hi_c_score`, `weight`, `is_collinear` flag |
 | 5 | **Null‑Region Definition** – select distal genomic windows (>10 kb from any gene) as control; compute `null_region_signal`. | `06_define_null_region.sh` | `null_regions.bed` |
@@ -128,7 +128,7 @@ Key concepts:
 
 | Dataset | Description | Verified URL | Access Method |
 |---------|-------------|--------------|---------------|
-| **ChIP‑seq** | Raw FASTQ for Hsf1, Msn2, Msn4, Hog1 under control + each stress. Each TF‑condition pair has its own GEO/SRA accession (e.g., SRRXXXXXX). | User‑provided URLs in `manifest.yaml` (validated by Reference‑Validator). | `prefetch`/`fasterq-dump` + MD5 verification (FR‑001). |
+| **ChIP‑seq** | Raw FASTQ for Hsf, Msn2, Msn4, Hog1 under control + each stress. Each TF‑condition pair has its own GEO/SRA accession (e.g., SRRXXXXXX). | User‑provided URLs in `manifest.yaml` (validated by Reference‑Validator). | `prefetch`/`fasterq-dump` + MD5 verification (FR‑001). |
 | **eQTL** | Stress‑specific expression fold‑changes and effect sizes for all genes. Example: GEO **GSE123456** (validated stress‑response eQTL study). | URL in `manifest.yaml`. | `datasets.load_dataset("gse123456")`. |
 | **Hi‑C** | Condition‑independent high‑resolution yeast 3D genome map (e.g., GEO **GSE123789**). | URL in `manifest.yaml`. | Load `.cool` file with `cooler`. |
 | **ATAC‑seq** | Independent chromatin accessibility data (optional). Multiple runs may be listed; if none are present the pipeline logs `ATAC_MANDATORY_SKIP`. | URLs in `manifest.yaml` (if provided). | Same download pipeline as ChIP‑seq. |
@@ -160,7 +160,7 @@ Y_{g,s}= \beta_0 + \beta_1 \underbrace{\bigl(\text{CRE\_signal}_{g,s} - \text{nu
 - **Fit**: GLS via `nlme::gls` with observation weights = 1 (weight already embedded in predictor). No random intercepts (methodology‑5525a25f).
 - **Hypothesis**: \(H_0\!:\!\beta_1 = 0\) vs \(H_1\!:\!\beta_1 \neq 0\).
 - **Test**: Likelihood‑ratio test comparing full GLS to reduced model (without weighted_ΔPeakSignal).
-- **Multiple‑testing**: Benjamini‑Hochberg FDR across all CRE‑gene pairs (FR‑007).
+- **Multiple‑testing**: Benjamini‑Hochberg FDR across all CRE‑gene pairs (FR‑).
 - **Significance threshold**: q ≤ 0.05 (SC‑001).
 
 ### 3.2 Permutation Test (Block‑Permutation)
@@ -183,8 +183,8 @@ Y_{g,s}= \beta_0 + \beta_1 \underbrace{\bigl(\text{CRE\_signal}_{g,s} - \text{nu
 
 ### 3.5 Summit‑Match Verification (SC‑005)
 
-- For the top‑10 CREs (by adjusted q‑value) compute the percentage where the MACS2 summit lies within ±5 bp of the maximum signal in the corresponding bigWig track.
-- Compute Spearman correlation (ρ) between reported log₂FC and bigWig signal intensity for these top‑10 CREs.
+- For the top‑ CREs (by adjusted q‑value) compute the percentage where the MACS2 summit lies within ±5 bp of the maximum signal in the corresponding bigWig track.
+- Compute Spearman correlation (ρ) between reported log₂FC and bigWig signal intensity for these top‑ CREs.
 - Results are stored in `summit_match_<stress>.txt` and incorporated into the PDF report.
 
 ### 3.6 Reporting

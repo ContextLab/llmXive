@@ -1,15 +1,5 @@
-# Existing dependencies
-pandas
-numpy
-pyyaml
-requests
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-
-# R dependencies (managed via conda/environment.yml, listed for documentation)
-# dplyr
-# readr
-# stringr
-# tools (base R)
+# Python dependencies (if any needed for pre-processing)
+# The main analysis is in R.
+# If T031 (bigWig creation) used Python, it would be listed here.
+# For T032, we rely on R packages: rtracklayer, GenomicRanges, dplyr, readr.
+# Ensure R environment has these installed.
