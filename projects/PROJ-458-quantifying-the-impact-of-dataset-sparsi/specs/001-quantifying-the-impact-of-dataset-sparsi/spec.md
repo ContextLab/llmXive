@@ -1,74 +1,51 @@
-# Specification: Quantifying the Impact of Dataset Sparsity on Materials Property Prediction
+# Specification: Quantifying the Impact of Dataset Sparsity on Model Performance
 
-## Overview
-This project investigates how dataset size (sparsity) affects the predictive performance and uncertainty calibration of machine learning models for materials property prediction.
+## 1. Overview
+This project quantifies how dataset sparsity (reduced training data volume) affects the predictive performance and uncertainty calibration of materials property models.
 
-## User Stories
-
-### US-0: Spec Alignment and Foundation
-**Goal**: Ensure specification matches implementation plan and foundational infrastructure is in place.
-- [x] Align FR-003 with Plan: Use Representative Stratified Sample (RSS) instead of full dataset.
-- [x] Align FR-006 with Plan: Use Linear Mixed-Effects Modeling (LMM) instead of Repeated Measures ANOVA.
-- [x] Align Assumptions with Plan: Require MP_API_KEY environment variable.
-- [x] Align FR-007 with Plan: Explicitly include "slope variance < 10%" threshold.
-- [x] Align US-3 Acceptance Scenario 3 with Plan: Reflect "slope variance < 10%" threshold.
-- [x] Align SC-003 with Plan: Replace "Repeated Measures ANOVA" with "Linear Mixed-Effects Modeling (LMM)".
-
-### US-1: Data Retrieval and Preprocessing Pipeline
-**Goal**: Download, filter, and engineer features for the Materials Project dataset.
-- **FR-001**: Download at least 30,000 entries from Materials Project API.
-- **FR-002**: Filter entries to retain only those with valid formation_energy and dft_computed=True.
-- **FR-003**: Generate elemental property descriptors using matminer.
-- **FR-004**: Impute missing values using training pool statistics only.
-- **FR-005**: Cap training pool at RSS_SIZE entries using stratified sampling.
-- **FR-009**: Create a Fixed Test Set independent of the training pool partitioning.
-
-### US-2: Sparsity Subsampling and Model Training
-**Goal**: Generate nested sparsity levels and train models to measure performance degradation.
-- **FR-003**: Generate strictly nested stratified subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred] of RSS).
-- **FR-005**: Train Gaussian Process Regression (GPR) and Random Forest models on CPU only.
-- **FR-006**: Evaluate models using RMSE, MAE, Predictive Variance, and Calibration Slope.
-- **FR-009**: Ensure test set independence is maintained throughout training.
-
-### US-3: Statistical Analysis and Visualization
-**Goal**: Perform statistical validation and generate research artifacts.
-- **FR-006**: Perform Linear Mixed-Effects Modeling (LMM) with formula `error ~ sparsity_level + (1|seed)`.
-- **FR-007**: Verify elbow point stability with slope variance < 10% between consecutive levels.
-- **FR-008**: Generate final report summarizing findings as associational evidence.
-- **SC-001**: Measure RMSE, MAE, Predictive Variance, and Calibration Slope.
-- **SC-002**: Generate learning curves (error vs. dataset size) with error bars.
-- **SC-003**: Apply pairwise contrasts with Tukey-adjusted p-values to LMM results to report p-values for differences between sparsity levels (threshold p < 0.05).
-
-## Functional Requirements
-
+## 2. Functional Requirements
+### FR-001: Data Retrieval
+Retrieve at least 150,000 material entries from the Materials Project API.
+### FR-002: Filtering
+Filter entries to retain only those with valid formation energy and DFT-computed status.
 ### FR-003: Representative Stratified Sample (RSS)
-The training pool shall be capped at a Representative Stratified Sample (RSS) of sufficient size to ensure statistical robustness. The sparsity levels shall span a range from highly sparse to fully dense configurations.
-
-### FR-005: Model Evaluation Metrics
-Models shall be evaluated using RMSE, MAE, Predictive Variance, and Calibration Slope.
-
-### FR-006: Statistical Analysis Method
-Statistical analysis shall use Linear Mixed-Effects Modeling (LMM) with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels. Pairwise contrasts with Tukey-adjusted p-values shall be applied.
-
-### FR-007: Trend Stability Threshold
-The slope variance between consecutive sparsity levels shall be < 10% to verify trend stability.
-
+Create a Representative Stratified Sample (RSS) of 30,000 entries from the filtered pool. The RSS must preserve the distribution of formation energy. From this RSS, generate 7 strictly nested stratified subsets at sparsity levels: 1, 2, 5, 10, 25, 50, 100 percent.
+### FR-004: Imputation
+Apply mean imputation for missing descriptors, calculated only on the training pool (excluding the fixed test set).
+### FR-005: Model Training
+Train Gaussian Process Regression (GPR) and Random Forest (RF) models on CPU only. Evaluate on a fixed, independent test set.
+### FR-006: Statistical Analysis
+Perform Linear Mixed-Effects Modeling (LMM) with the formula `error ~ sparsity_level + (1|seed)` to analyze the impact of sparsity levels on error, accounting for nested random effects of seeds.
+### FR-007: Sensitivity Analysis
+Calculate slope variance between consecutive sparsity levels. The threshold for acceptable stability is slope variance < 10%.
+### FR-008: Reporting
+Generate a final report summarizing findings as associational evidence.
 ### FR-009: Test Set Independence
-A Fixed Test Set shall be created from the raw pool before any training pool partitioning or filtering, ensuring strict independence.
+Partition a fixed test set (5,000 rows) from the raw pool BEFORE any filtering or imputation statistics are calculated to ensure strict independence.
 
-## Assumptions
+## 3. Success Criteria
+### SC-001: Metrics
+Log RMSE, MAE, Predictive Variance, and Calibration Slope for all models and sparsity levels.
+### SC-002: Visualization
+Generate learning curves with error bars showing error vs. dataset size.
+### SC-003: Significance
+Apply pairwise contrasts with Tukey-adjusted p-values to LMM results to determine statistical significance between sparsity levels (p < 0.05).
 
-- Requires MP_API_KEY environment variable to be set.
-- Materials Project API is accessible during runtime.
-- Sufficient memory is available for descriptor generation (handled by chunked processing).
+## 4. User Stories
+### US-1: Data Pipeline
+As a researcher, I want to download and preprocess a large corpus of materials data so that I have a valid input pool for sparsity analysis.
+### US-2: Sparsity & Training
+As a researcher, I want to generate nested sparsity subsets and train models on CPU so that I can measure performance degradation.
+### US-3: Analysis
+As a researcher, I want to perform statistical analysis (LMM) and visualization so that I can validate the impact of sparsity and generate research artifacts.
 
-## Acceptance Scenarios
+## 5. Assumptions
+- The Materials Project API is accessible.
+- **Requires MP_API_KEY environment variable** to be set for authentication.
+- Sufficient CPU resources are available for model training.
+- The "no authentication barriers" assumption from previous drafts is incorrect; authentication is required.
 
-### SC-001: Metric Calculation
-Given a trained model and the Fixed Test Set, when evaluation is performed, then RMSE, MAE, Predictive Variance, and Calibration Slope are calculated and logged.
-
-### SC-002: Learning Curve Generation
-Given metrics across all sparsity levels, when learning curves are generated, then error vs. dataset size plots with error bars are produced for multiple sparsity levels ([deferred] to [deferred]).
-
-### SC-003: Statistical Significance Testing
-Given LMM results, when pairwise contrasts are applied with Tukey adjustment, then p-values for differences between sparsity levels are reported (threshold p < 0.05).
+## 6. Constraints
+- No GPU usage for training.
+- No synthetic data generation; all data must come from the real Materials Project API.
+- Strict data leakage prevention: Test set must be split before any training statistics are computed.

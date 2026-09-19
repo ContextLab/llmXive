@@ -34,37 +34,25 @@ T034:
   r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
     files, nor any listing of their contents with the required keys (`seed`, `percentage`,
     `criteria`, `checksum`). Consequently the required metadata artifacts are missing.
-T057:
+T054:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file was provided, and there is no evidence that FR\u2011\
-    007 was modified to explicitly mention the \u201Cslope variance <\u202F10%\u201D\
-    \ threshold. The required artifact (the revised specification) is missing."
-T058:
+  r: "No evidence of an updated `spec.md` was provided; the required strings (\u201C\
+    1, 2, 5, 10, 25, 50, 100\u201D and \u201CLinear Mixed-Effects\u201D) cannot be\
+    \ verified as present. The artifact needed to confirm the task\u2019s completion\
+    \ is missing."
+T055:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` file or excerpt showing the updated US\u20113 Acceptance Scenario\u202F\
-    3 is provided; without the actual document containing the \u201Cslope variance\u202F\
-    <\u202F10%\u201D threshold, we cannot verify that the required change was made.\
-    \ The artifact is missing."
-T059:
+  r: "No `spec.md` content was supplied, and there is no evidence that the file was\
+    \ updated to include the phrase \u201Cslope variance < 10%\u201D or references\
+    \ to Linear Mixed\u2011Effects Modeling in sections FR\u2011007, SC\u2011003,\
+    \ and US\u20113. The required artifact is missing."
+T056:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No spec.md file or excerpt showing the change to SC-003 is provided; without\
-    \ the updated document we cannot confirm that \u201CRepeated Measures ANOVA\u201D\
-    \ was replaced with \u201CLinear Mixed-Effects Modeling (LMM)\u201D. The required\
-    \ artifact (the modified spec.md) is missing."
-T060a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` file or excerpt showing the updated SC-001 section is provided;\
-    \ therefore we cannot confirm that \u201CPredictive Variance\u201D and \u201C\
-    Calibration Slope\u201D were added alongside RMSE and MAE as required. The necessary\
-    \ artifact (the modified specification document) is missing."
-T060b:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt shows FR\u2011005 under Functional Requirements\
-    \ now reads \u201CModels shall be evaluated using RMSE, MAE, Predictive Variance,\
-    \ and **Calibration Slope**,\u201D which directly satisfies the task\u2019s requirement\
-    \ to mandate Calibration Slope as a success metric."
+  r: "The claim references updates to `spec.md` and `plan.md`, but no file contents\
+    \ or excerpts are provided to confirm that `spec.md` now contains \u201CMP_API_KEY\u201D\
+    \ and that `plan.md` lists \u201C1, 2, 5, 10, 25, 50, 100\u201D. Without the actual\
+    \ artifacts, the requirement cannot be verified. The implementer must supply the\
+    \ updated files (or excerpts) showing the required strings."

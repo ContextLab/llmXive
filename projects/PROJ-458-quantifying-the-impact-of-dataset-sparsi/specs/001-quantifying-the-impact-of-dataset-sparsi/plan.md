@@ -26,7 +26,7 @@ The approach involves ingesting data from the Materials Project API, engineering
 **Project Type**: Data science research pipeline  
 **Performance Goals**: Complete full pipeline (ingestion to LMM) within 6 hours on free-tier runner; model training per subset < 60 minutes.  
 **Constraints**: No GPU usage; memory usage < 7 GB; strict reproducibility via pinned seeds.  
-**Scale/Scope**: Target dataset >150,000 material entries; Multiple sparsity levels (, 20, 30, 40, 50, 100); Multiple random seeds per level (multiple total runs).
+**Scale/Scope**: Target dataset >150,000 material entries; Multiple sparsity levels (ranging from low to high, including 30, 40, 50, 100); Multiple random seeds per level (multiple total runs).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
