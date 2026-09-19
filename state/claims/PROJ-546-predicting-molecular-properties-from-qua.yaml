@@ -2373,3 +2373,430 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T04:48:08Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Zenodo Accession ID 1048765
+  claim_id: c_89684cf0
+  context: 'T004a [P] [FR-001] Resolve Zenodo ID: Extract the specific Zenodo Accession
+    ID 1048765 from idea/predicting-molecular-properties-from-qua.md and hardcode
+    it into code/config.py as ZENODO_ID = "1048765".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract the specific Zenodo Accession ID 1048765 from idea/predicting-molecular-properties-from-qua.md.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:18:53Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Select 50 samples if N >= 50
+  claim_id: c_9b569bfa
+  context: 'T020a [US2] Implement code/dft_calculator.py subset selection logic: Read
+    data/raw/barrier_dataset.csv, calculate total valid samples (N). If N >= 50, select
+    50; else select all.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_50_samples_if_N_%3E=_50
+  kind: magnitude
+  raw_text: Select 50 samples if the total valid samples N is greater than or equal
+    to 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:19:55Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if remaining count < 50
+  claim_id: c_157d14af
+  context: 'T020b [US2] Implement code/dft_calculator.py DFT calculation logic: ...
+    If the remaining count is < 50, raise a RuntimeError with a clear message: "Insufficient
+    optimized geometries for stratified subset (N < 50). Pipeline halted."'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_RuntimeError_if_remaining_count_%3C_50
+  kind: magnitude
+  raw_text: Raise a RuntimeError if the remaining count of optimized geometries is
+    less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:20:47Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Inject Gaussian noise sigma 0.01 and 0.05
+  claim_id: c_50e7476d
+  context: "T030b [US3] [FR-007] Implement code/noise_injection.py to inject Gaussian\
+    \ noise (\u03C3=0.01, \u03C3=0.05) into the descriptor features of the training\
+    \ set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject Gaussian noise with sigma=0.01 and sigma=0.05 into descriptor features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:21:12Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stable if rho >= 0.9
+  claim_id: c_162a26a2
+  context: 'T030b [US3] [FR-007] ... Threshold: stable = True if rho >= 0.9. Log results
+    to reports/sensitivity.csv.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stable_if_rho_%3E=_0.9
+  kind: magnitude
+  raw_text: Mark the model as stable if Spearman's rank correlation (rho) is greater
+    than or equal to 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:21:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Total runtime <= 6 hours
+  claim_id: c_702c7687
+  context: "T033b [P] Validate Resource Constraints: Validate runtime logs from T033a:\
+    \ verify total runtime \u2264 6 hours and peak memory \u2264 7 GB per Constitution\
+    \ Principle VII (Resource-Bound Execution)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_%3C=_6_hours
+  kind: magnitude
+  raw_text: Validate total runtime is less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:22:26Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Peak memory <= 7 GB
+  claim_id: c_7b985724
+  context: "T033b [P] Validate Resource Constraints: Validate runtime logs from T033a:\
+    \ verify total runtime \u2264 6 hours and peak memory \u2264 7 GB per Constitution\
+    \ Principle VII (Resource-Bound Execution)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_%3C=_7_GB
+  kind: magnitude
+  raw_text: Validate peak memory usage is less than or equal to 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:22:50Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Low feature importance cutoff is 0.01
+  claim_id: c_f5803d7a
+  context: T031b [US3] Implement code/sensitivity_sweep.py logic to sweep feature
+    importance cutoffs {low, 0.05, 0.1} (where 'low' = 0.01) on the base and perturbed
+    datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for low feature importance cutoff is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:23:17Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/README.md
+  attempts: 1
+  canonical: high-level DFT baseline calculated on stratified subset of 50 molecules
+  claim_id: c_c5ecf9f2
+  context: DFTB+ (semi-empirical) is used for the full dataset due to its speed, while
+    high-level DFT (Psi4) is restricted to a stratified subset of 50 molecules.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline utilizes a stratified subset of 50 molecules for high-level
+    DFT (Psi4) baseline calculations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:24:10Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/README.md
+  attempts: 1
+  canonical: experimental barrier dataset Zenodo ID 1048765 used as ground truth
+  claim_id: c_fa951bab
+  context: The ground truth for model training is derived from the experimental barrier
+    dataset (Zenodo ID 1048765), which represents measured experimental values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth for model training is derived from the experimental barrier
+    dataset with Zenodo ID 1048765.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:24:27Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: Project uses experimental barrier dataset from Zenodo
+  claim_id: c_b1ae0a59
+  context: 'The project uses the experimental barrier dataset from Zenodo. Zenodo
+    ID: 1048765.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_experimental_barrier_dataset_from_Zenodo
+  kind: entity_fact
+  raw_text: The project uses the experimental barrier dataset from Zenodo.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:25:38Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: Zenodo ID is 1048765
+  claim_id: c_84cd1150
+  context: 'Data Source Details: Zenodo ID: 1048765, Dataset Name: Experimental Barrier
+    Dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Zenodo ID is 1048765.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:26:02Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: Dataset version is 1.0.0
+  claim_id: c_ac5d6685
+  context: 'Data Source Details: Version: 1.0.0, Accession: 10.5281/zenodo.1048765.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset version is 1.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:26:22Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: Accession is 10.5281/zenodo.1048765
+  claim_id: c_0a8ff2e3
+  context: 'Data Source Details: Accession: 10.5281/zenodo.1048765.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The accession is 10.5281/zenodo.1048765.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:26:26Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: SHA-256 checksum of barrier_dataset.csv is a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+  claim_id: c_a797eab2
+  context: 'Checksum (SHA-256): a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456.
+    Note: The checksum above is the verified SHA-256 hash of the barrier_dataset.csv
+    file after download and conversion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SHA-256 checksum of the barrier_dataset.csv file is a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:26:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/reports/summary_report.md
+  attempts: 1
+  canonical: Experimental barrier dataset retrieved from Zenodo ID 1048765
+  claim_id: c_40246a8a
+  context: 'Source: Experimental barrier dataset retrieved from Zenodo (ID: 1048765).
+    Volume: Processed N molecules from the raw dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Experimental barrier dataset retrieved from Zenodo (ID: 1048765).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:27:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/reports/summary_report.md
+  attempts: 1
+  canonical: Computed B3LYP/def2-SVP descriptors for a stratified subset of 50 molecules
+  claim_id: c_cd4025ad
+  context: 'High-Level DFT (Psi4): Computed B3LYP/def2-SVP descriptors for a stratified
+    subset (N=50). Output: data/descriptors_dft.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Computed B3LYP/def2-SVP descriptors for a stratified subset (N=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:28:20Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/reports/summary_report.md
+  attempts: 1
+  canonical: Spearman's rho greater than or equal to 0.9 for top 3 descriptors in
+    sensitivity analysis
+  claim_id: c_5dd512c4
+  context: 'Stability: Sensitivity analysis with Gaussian noise injection confirmed
+    model stability (Spearman''s rho >= 0.9 for top 3 descriptors). Output: reports/sensitivity.csv'
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 3.0
+    - - ''
+      - 0.9
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Spearman's_rho_greater_than_or_equal_to_0.9_for_top_3_descri
+  kind: magnitude
+  raw_text: Sensitivity analysis with Gaussian noise injection confirmed model stability
+    (Spearman's rho >= 0.9 for top 3 descriptors).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T20:28:53Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/reports/summary_report.md
+  attempts: 1
+  canonical: Pipeline adheres to 6-hour runtime and 7GB memory constraints
+  claim_id: c_431a9a4a
+  context: The runtime_validation.json confirms the full pipeline adheres to the 6-hour
+    runtime and 7GB memory constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline adheres to the 6-hour runtime and 7GB memory constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:29:16Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/quickstart.md
+  attempts: 1
+  canonical: experimental barrier dataset Zenodo ID 1048765
+  claim_id: c_2bd1ff50
+  context: 'The experimental barrier dataset is sourced from Zenodo. ### Dataset Details
+    - **Zenodo ID**: 1048765'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experimental barrier dataset is sourced from Zenodo with Zenodo ID
+    1048765.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:30:19Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/README.md
+  attempts: 1
+  canonical: Experimental barrier heights sourced from Zenodo ID 1048765
+  claim_id: c_23324abb
+  context: The pipeline distinguishes between the experimental barrier heights (sourced
+    from Zenodo ID 1048765, a curated dataset of measured values) and the calculated
+    descriptors (HOMO/LUMO energies, Mayer bond orders) generated by DFTB+ and Psi4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline distinguishes between the experimental barrier heights (sourced
+    from Zenodo ID 1048765, a curated dataset of measured values) and the calculated
+    descriptors (HOMO/LUMO energies, Mayer bond orders) generated by DFTB+ and Psi4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:31:26Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/README.md
+  attempts: 2
+  canonical: Pipeline execution stays within 6-hour runtime and 7GB memory budget
+  claim_id: c_44a7e9a4
+  context: Task T033b validates that the full pipeline execution stays within the
+    6-hour runtime and 7GB memory budget. Results are reported in reports/runtime_validation.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task T033b validates that the full pipeline execution stays within the
+    6-hour runtime and 7GB memory budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:31:44Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/README.md
+  attempts: 1
+  canonical: High-level Psi4 applied to stratified subset of max 50 molecules
+  claim_id: c_40e0a6bf
+  context: 'High-Level (Psi4): Computationally expensive, applied only to a stratified
+    subset (max 50 molecules) for baseline validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: High-Level (Psi4) is applied only to a stratified subset (max 50 molecules)
+    for baseline validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:32:08Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/README.md
+  attempts: 1
+  canonical: Spearman rank correlation rho >= 0.9 used as measure of robustness
+  claim_id: c_7bab2e9b
+  context: Tasks T030b and T031c perform noise injection and threshold sweeps to test
+    the stability of the top-ranked descriptors. The Spearman rank correlation (rho
+    >= 0.9) serves as a quantitative measure of robustness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spearman rank correlation (rho >= 0.9) serves as a quantitative measure
+    of robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:32:41Z'
