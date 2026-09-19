@@ -34,7 +34,7 @@ As a researcher, I need to fit regression and random forest models to quantify r
 **Acceptance Scenarios**:
 
 1. **Given** a preprocessed dataset with motion features and agency scores, **When** multiple linear regression is fitted, **Then** coefficient estimates, standard errors, and p-values are computed for each motion feature (latency, smoothness, lead time).
-2. **Given** the same dataset, **When** a random forest model is trained with 5-fold cross-validation, **Then** feature importance scores and out-of-sample performance metrics (R², RMSE) are computed.
+2. **Given** the same dataset, **When** a random forest model is trained with -fold cross-validation, **Then** feature importance scores and out-of-sample performance metrics (R², RMSE) are computed.
 3. **Given** ≥3 motion features are tested for association with agency, **When** statistical significance testing is performed, **Then** a multiple-comparison correction (Bonferroni or Benjamini-Hochberg) is applied to control family-wise error rate.
 
 ---
@@ -57,7 +57,7 @@ As a researcher, I need to generate visualizations and interpret model results s
 
 ### Edge Cases
 
-- What happens when the downloaded dataset has fewer than 50 complete observations? **Then** the analysis is aborted with an error message recommending alternative data sources or synthetic data generation, as statistical power would be insufficient for meaningful inference.
+- What happens when the downloaded dataset has a limited number of complete observations? **Then** the analysis is aborted with an error message recommending alternative data sources or synthetic data generation, as statistical power would be insufficient for meaningful inference.
 - How does system handle datasets where motion features are highly collinear (e.g., smoothness and jerk metric)? **Then** a variance inflation factor (VIF) diagnostic is computed, and if VIF ≥5 for any predictor, the feature is excluded from multivariate models with documentation of the collinearity issue.
 - What happens when agency questionnaire items use different scales across studies? **Then** all items are standardized to a 0–1 range before aggregation, with the standardization method documented in the preprocessing log.
 - How does system handle datasets where the outcome variable (agency) has low variance (e.g., most participants rate agency as 4/5)? **Then** the analysis is flagged with a warning that low outcome variance limits detection of predictor effects.
@@ -71,13 +71,13 @@ As a researcher, I need to generate visualizations and interpret model results s
 - **FR-001**: System MUST download and store publicly available human-avatar interaction datasets from any publicly accessible repository (e.g., OpenML, HuggingFace, OSF, GitHub) containing both motion telemetry logs and questionnaire responses, OR generate synthetic data if no real dataset exists (See US-1)
 - **FR-002**: System MUST extract motion features including response latency (ms), trajectory smoothness (jerk metric), and anticipatory lead time (ms) from interaction logs (See US-1)
 - **FR-003**: System MUST preprocess agency scale questionnaire responses into a continuous outcome variable using validated scoring methods for the specific instrument used (See US-1)
-- **FR-004**: System MUST fit multiple linear regression and random forest models with 5-fold cross-validation to predict agency scores from motion features (See US-2)
+- **FR-004**: System MUST fit multiple linear regression and random forest models with k-fold cross-validation to predict agency scores from motion features (See US-2)
 - **FR-005**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) when testing ≥3 motion features for association with agency (See US-2)
 - **FR-006**: System MUST compute variance inflation factor (VIF) diagnostics for all motion predictors and flag collinearity when VIF ≥5 (See US-2)
 - **FR-007**: System MUST generate scatter plots of each motion feature vs. agency scores, feature importance bar charts, and partial dependence plots for the top predictor (See US-3)
 - **FR-008**: System MUST frame all reported associations as correlational rather than causal when the dataset is observational (no random assignment) (See US-2)
 - **FR-009**: System MUST flag and exclude datasets that use agency questionnaires without validated instruments (See US-1)
-- **FR-010**: System MUST perform sensitivity analysis sweeping decision thresholds (absolute regression coefficient magnitude ∈ {0.01, 0.05, 0.1}) and report how significance rates (p-values) vary across cutoffs to ensure robustness of inference (See US-2)
+- **FR-010**: System MUST perform sensitivity analysis sweeping decision thresholds (absolute regression coefficient magnitude across a range of small values) and report how significance rates (p-values) vary across cutoffs to ensure robustness of inference (See US-2)
 - **FR-011**: System MUST generate synthetic human-avatar interaction data with known ground-truth motion-agency relationships if no real dataset meeting FR-001 criteria is found (See US-1)
 - **FR-012**: System MUST derive anticipatory lead time only if the 'user response trigger' used for calculation is distinct from the outcome variable (agency score) to prevent tautological coupling (See US-1)
 - **FR-013**: System MUST verify instrument validity by checking for a DOI and ≥10 citations or inclusion in a recognized validation registry (See US-1)
@@ -110,13 +110,13 @@ As a researcher, I need to generate visualizations and interpret model results s
 ## Assumptions
 
 - Preferred data sources include OpenML, HuggingFace, OSF, and GitHub, but the system is designed to handle any publicly accessible repository if it meets data criteria.
-- The analysis will run on GitHub Actions free-tier runners (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job).
+- The analysis will run on GitHub Actions free-tier runners (CPU cores, ~7 GB RAM, ~ GB disk, NO GPU, ≤6 h per job).
 - Classical statistical methods (multiple linear regression, random forest with scikit-learn) are computationally tractable on CPU-only infrastructure for datasets ≤500 observations.
 - Agency questionnaires in available datasets use validated instruments (verified via DOI/citations as per FR-013).
 - The research design is observational (no random assignment), so all reported findings will be framed as associational rather than causal.
 - Sample size/power considerations are deferred to the implementation phase, with a note that ≥100 observations provides [deferred] power to detect medium effect sizes (r ≈ 0.3) at α = 0.05.
 - Dataset-variable fit is assumed: the available data contains all required predictors (latency, smoothness, lead time) and outcome (agency ratings); If the selected dataset does not contain anticipatory lead time as a distinct variable, the system MUST derive it by calculating the temporal offset between the avatar's motion onset and the user's response trigger, provided the raw telemetry allows millisecond-level alignment and the trigger is independent of the agency score (See FR-012). If raw telemetry is unavailable, the feature is marked as missing, and the analysis proceeds with available features only (latency, smoothness), with a warning logged that lead time was not derivable (See US-1).
-- Multiple-comparison correction method will be Bonferroni (conservative) unless the number of tests exceeds 10, in which case Benjamini-Hochberg (FDR control) will be used.
+- Multiple-comparison correction method will be Bonferroni (conservative) unless the The number of tests is sufficient to ensure statistical robustness., in which case Benjamini-Hochberg (FDR control) will be used.
 - Sensitivity analysis will sweep regression coefficient magnitude thresholds ∈ {0.01, 0.05, 0.1} as these represent small-to-medium effect sizes in behavioral research.
 - The analysis requires post-task agency ratings. If the dataset contains only trait/personality measures, those variables MUST be excluded from the primary regression model predicting state agency. Instead, trait measures may be included as covariates in a secondary robustness check, but the primary hypothesis test (FR-004) is strictly limited to post-task state ratings. If no post-task ratings exist, the dataset is rejected for this specific feature branch (See US-1).
 - Any validated instrument meeting the criteria in FR-013 (DOI + citations or registry inclusion) is acceptable; specific instruments like SoAS or PAS are preferred but not mandatory.

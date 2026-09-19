@@ -1,95 +1,97 @@
-import os
 import json
-import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+import os
 import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pytest
 
-# Add code to path if needed
+# Add code directory to path for imports if running from tests/
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from download_data import download_data
+from download_data import check_openml_dataset, validate_instrument, download_data
 
-def test_download_data_creates_status_file():
-    """Verify that download_data creates the status file even on failure."""
-    with patch('download_data.requests.get') as mock_get, \
-         patch('download_data.sys.exit') as mock_exit:
-        
+class TestDownloadData:
+    def test_check_openml_dataset_exists(self):
+        """Test that check_openml_dataset returns True for a valid active dataset."""
+        # Mock the requests.get to return a 200 OK with active status
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "data": {
-                "data_set_description": {
-                    "name": "test_dataset",
-                    "citation": "test citation"
-                }
+                "status": "active",
+                "name": "Test Dataset"
             }
         }
-        mock_get.return_value = mock_response
         
-        # The function should exit with code 1 because the dataset won't match schema
-        with pytest.raises(SystemExit) as exc_info:
-            download_data()
-        
-        assert exc_info.value.code == 1
-        
-        # Verify status file was created
-        status_file = Path("data/raw/download_status.json")
-        assert status_file.exists()
-        
-        with open(status_file) as f:
-            status = json.load(f)
-        
-        assert status["status"] == "unavailable"
-        assert "reason" in status
+        with patch('download_data.requests.get', return_value=mock_response):
+            assert check_openml_dataset(123) is True
 
-def test_download_data_url_reachability():
-    """Verify URL reachability check logic (mocked)."""
-    with patch('download_data.requests.get') as mock_get, \
-         patch('download_data.sys.exit') as mock_exit:
-        
-        # Simulate network failure
-        mock_get.side_effect = Exception("Network error")
-        
-        with pytest.raises(SystemExit) as exc_info:
-            download_data()
-        
-        assert exc_info.value.code == 1
-        
-        status_file = Path("data/raw/download_status.json")
-        assert status_file.exists()
-        
-        with open(status_file) as f:
-            status = json.load(f)
-        
-        assert status["status"] == "failed"
-        assert "error" in status
-
-def test_download_data_checksum_validation_logic():
-    """
-    Verify that the logic for checksum validation is present (even if mocked).
-    Since we don't have a real file to checksum, we verify the code path exists.
-    """
-    # This test verifies that the code structure allows for checksum validation
-    # In a real scenario, this would compare a downloaded file's hash.
-    # Here we just ensure the function doesn't crash and handles the flow.
-    with patch('download_data.requests.get') as mock_get, \
-         patch('download_data.sys.exit') as mock_exit:
-        
+    def test_check_openml_dataset_not_found(self):
+        """Test that check_openml_dataset returns False for 404 or inactive."""
         mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "data": {
-                "data_set_description": {
-                    "name": "test",
-                    "citation": "test"
-                }
-            }
-        }
-        mock_get.return_value = mock_response
+        mock_response.status_code = 404
         
-        with pytest.raises(SystemExit):
-            download_data()
+        with patch('download_data.requests.get', return_value=mock_response):
+            assert check_openml_dataset(999) is False
+
+    def test_validate_instrument_returns_false(self):
+        """
+        Test that validate_instrument returns False in this stress-test context,
+        triggering the 'unavailable' status.
+        """
+        # The implementation currently returns False as no real validated instrument is found.
+        assert validate_instrument({"name": "Test"}) is False
+
+    def test_download_data_writes_unavailable_status(self, tmp_path):
+        """
+        Test that download_data writes 'unavailable' to the status file
+        when no real data is found, and does not exit with code 1.
+        """
+        # Create a temporary directory for the test
+        original_cwd = os.getcwd()
+        os.chdir(tmp_path)
         
-        # If we get here, the logic ran without crashing
-        assert True
+        # Ensure the data/raw directory exists
+        (tmp_path / "data" / "raw").mkdir(parents=True)
+        
+        # Mock the helper functions to ensure they return False/Unavailable
+        with patch('download_data.check_openml_dataset', return_value=False), \
+             patch('download_data.validate_instrument', return_value=False):
+            
+            # Run the function
+            result = download_data()
+            
+            # Verify the file was created
+            status_file = Path("data/raw/download_status.json")
+            assert status_file.exists(), "download_status.json was not created"
+            
+            # Verify content
+            with open(status_file, 'r') as f:
+                data = json.load(f)
+            
+            assert data["status"] == "unavailable"
+            assert data["reason"] is not None
+            assert result == "unavailable"
+        
+        os.chdir(original_cwd)
+
+    def test_download_data_exits_on_invalid(self):
+        """
+        Test that download_data exits with code 1 if status is 'invalid'.
+        """
+        original_cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            os.chdir(tmp_dir)
+            Path("data/raw").mkdir(parents=True)
+            
+            with patch('download_data.check_openml_dataset', return_value=True), \
+                 patch('download_data.validate_instrument', return_value=False):
+                
+                    # We expect SystemExit
+                    with pytest.raises(SystemExit) as exc_info:
+                        download_data()
+                    
+                    assert exc_info.value.code == 1
+        
+        os.chdir(original_cwd)

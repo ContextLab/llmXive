@@ -1,10 +1,19 @@
 T012:
   c: false
-  h: 3ccba4f690bea55ddc7ad5edd0ee698ab3da006595efb287e4e0da8983f4e8be
-  r: "The `code/download_data.py` script is only partially shown and lacks the actual\
-    \ download logic and JSON\u2011writing code; moreover the required `data/raw/download_status.json`\
-    \ file does not exist. The implementation does not demonstrably fulfill the fetching,\
-    \ DOI verification, and output requirements."
+  h: 748e34db654f86208819c500fed5f53ea06e453a0c2dd18d0e27d45d827ca8ba
+  r: "The repository contains a partially shown `code/download_data.py`, but the implementation\
+    \ is truncated and does not clearly write `data/raw/download_status.json` or handle\
+    \ the \u201Cinvalid\u201D exit case. Moreover, the required `data/raw/download_status.json`\
+    \ file is absent. The task\u2019s output artifact is missing and the script\u2019\
+    s behavior cannot be verified as meeting the specification."
+T013:
+  c: false
+  h: 2a8bb830ef8f642481014267cca5bc0136a748a7c634465b6796decd2c8f9567
+  r: "The repository lacks the required `data/raw/download_status.json` and the generated\
+    \ `data/raw/synthetic_data.csv`. Moreover, the provided `generate_synthetic_data.py`\
+    \ is truncated and does not show the creation of the `user_response_trigger` column,\
+    \ the correlation check (<\u202F0.05), or the CSV write step, so the implementation\
+    \ does not fully meet the task specifications."
 T016:
   c: false
   h: bbd786e1a1c1f6bf7f141047fa6903f0262f7b15e99f86bada7880d8fee5eeb7

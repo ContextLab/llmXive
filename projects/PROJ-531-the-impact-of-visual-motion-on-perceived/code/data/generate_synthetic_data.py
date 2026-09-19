@@ -1,132 +1,104 @@
+"""
+T013: Generate synthetic data IF download_status is 'unavailable'.
+Checks status file. Raises SystemExit if 'invalid'.
+Generates data with independent trigger column.
+"""
 import os
 import json
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
+from utils.logging_config import get_logger
 
-def generate_synthetic_data(n_samples: int = 150, seed: int = 42) -> pd.DataFrame:
+logger = get_logger(__name__)
+
+def check_download_status():
+    """Read data/raw/download_status.json."""
+    status_path = Path("data/raw/download_status.json")
+    if not status_path.exists():
+        logger.error("download_status.json not found. Run T012 first.")
+        return None
+    
+    with open(status_path, 'r') as f:
+        return json.load(f).get("status")
+
+def generate_synthetic_data(n_samples: int = 150):
     """
-    Generate synthetic human-avatar interaction data with known ground-truth
-    motion-agency relationships (FR-011).
-
-    This generator is used ONLY if T012 (real data download) fails or returns
-    "unavailable"/"invalid".
-
-    Features:
-    - latency: Interaction latency in ms (0-500ms)
-    - smoothness: Jerk metric normalized (0-1, higher is smoother)
-    - lead_time: Predictive lead time in ms (-100 to 200ms)
-    - user_response_trigger: Distinct from agency score (FR-012)
-    - agency_score: Perceived agency score (0-100)
-
-    Ground-truth relationships:
-    - Agency increases with smoother motion (positive correlation with smoothness)
-    - Agency decreases with higher latency (negative correlation with latency)
-    - Agency increases with positive lead_time (predictive motion)
-    - User response trigger is independent noise to ensure distinctness (FR-012)
+    Generate synthetic human-avatar interaction data.
+    - Ground truth motion-agency relationships.
+    - Independent user_response_trigger.
     """
-    np.random.seed(seed)
-
-    # Generate base features
-    latency = np.random.normal(loc=150, scale=80, size=n_samples)
-    latency = np.clip(latency, 0, 500)
-
-    smoothness = np.random.beta(a=2, b=5, size=n_samples)  # Skewed towards lower smoothness
-    smoothness = np.clip(smoothness, 0, 1)
-
-    lead_time = np.random.normal(loc=50, scale=60, size=n_samples)
-    lead_time = np.clip(lead_time, -100, 200)
-
-    # User response trigger (distinct from agency score per FR-012)
-    # This represents a separate behavioral metric
-    user_response_trigger = np.random.normal(loc=0.5, scale=0.2, size=n_samples)
-    user_response_trigger = np.clip(user_response_trigger, 0, 1)
-
-    # Generate agency score with known ground-truth relationships (FR-011)
-    # Agency = f(smoothness, latency, lead_time) + noise
-    # Weights chosen to create realistic but known correlations
-    agency_score = (
-        30 * smoothness -  # Positive correlation with smoothness
-        0.1 * latency +     # Negative correlation with latency
-        0.15 * lead_time +  # Positive correlation with lead_time
-        np.random.normal(0, 5, size=n_samples)  # Random noise
-    )
-
-    # Scale agency to 0-100 range
-    agency_score = np.clip(agency_score, 0, 100)
-
-    # Create DataFrame
+    logger.info(f"Generating {n_samples} synthetic samples.")
+    
+    # 1. Generate Motion Features (Latency, Smoothness, Lead_time)
+    latency = np.random.normal(loc=200, scale=50, size=n_samples) # ms
+    smoothness = np.random.beta(a=5, b=2, size=n_samples) # 0-1
+    lead_time = np.random.normal(loc=100, scale=30, size=n_samples) # ms
+    
+    # 2. Generate Agency Score (Ground Truth: Function of motion)
+    # Agency = 0.5*smoothness - 0.3*(latency/500) + noise
+    agency_raw = (0.5 * smoothness) - (0.3 * (latency / 500)) + (0.2 * np.random.normal(0, 1, n_samples))
+    # Normalize to 0-1
+    agency_score = (agency_raw - agency_raw.min()) / (agency_raw.max() - agency_raw.min())
+    
+    # 3. Generate User Response Trigger (INDEPENDENT of Agency)
+    # Must be statistically independent.
+    # We generate it from a different distribution and ensure no correlation.
+    trigger_raw = np.random.exponential(scale=1.0, size=n_samples)
+    trigger = (trigger_raw - trigger_raw.min()) / (trigger_raw.max() - trigger_raw.min())
+    
+    # 4. Verify Independence
+    corr = np.corrcoef(trigger, agency_score)[0, 1]
+    if abs(corr) >= 0.05:
+        logger.error(f"Synthetic data failed independence check: |corr| = {abs(corr):.4f}")
+        # Regenerate or fail. Failing is safer to prevent bad data.
+        raise ValueError(f"Trigger/Agency correlation {corr} exceeds threshold 0.05")
+    
+    logger.info(f"Trigger/Agency correlation: {corr:.4f} (OK)")
+    
+    # 5. Assemble DataFrame
     df = pd.DataFrame({
-        'participant_id': [f'P{str(i).zfill(4)}' for i in range(n_samples)],
-        'latency': np.round(latency, 2),
-        'smoothness': np.round(smoothness, 4),
-        'lead_time': np.round(lead_time, 2),
-        'user_response_trigger': np.round(user_response_trigger, 4),
-        'agency_score': np.round(agency_score, 2)
+        "participant_id": [f"P{i:03d}" for i in range(n_samples)],
+        "latency": latency,
+        "smoothness": smoothness,
+        "lead_time": lead_time,
+        "agency_score": agency_score,
+        "user_response_trigger": trigger
     })
-
+    
     return df
 
 def main():
-    """
-    Main entry point for synthetic data generation.
-    Checks if real data is available; if not, generates synthetic data.
-    """
-    # Define paths
-    raw_dir = Path('data/raw')
-    processed_dir = Path('data/processed')
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    status = check_download_status()
+    
+    if status is None:
+        sys.exit(1)
+    
+    if status == "invalid":
+        logger.error("Dataset excluded: Unvalidated instrument (FR-009). Aborting synthetic generation.")
+        sys.exit(1)
+    
+    if status == "success":
+        logger.info("Real data available. Skipping synthetic generation.")
+        return 0
+    
+    if status == "unavailable":
+        try:
+            df = generate_synthetic_data()
+            
+            output_path = Path("data/raw/synthetic_data.csv")
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            df.to_csv(output_path, index=False)
+            logger.info(f"Saved synthetic data to {output_path}")
+            return 0
+        except Exception as e:
+            logger.error(f"Synthetic generation failed: {e}")
+            sys.exit(1)
+    
+    return 0
 
-    # Check if real data is available (T012 output)
-    download_status_path = raw_dir / 'download_status.json'
-    use_synthetic = True
-
-    if download_status_path.exists():
-        with open(download_status_path, 'r') as f:
-            status_data = json.load(f)
-            if status_data.get('status') in ['available', 'valid']:
-                use_synthetic = False
-                print("Real data is available. Skipping synthetic generation.")
-                # We still create a marker to indicate we checked
-                marker_path = processed_dir / 'synthetic_data_status.json'
-                with open(marker_path, 'w') as f:
-                    json.dump({
-                        'status': 'skipped',
-                        'reason': 'Real data available',
-                        'timestamp': datetime.now().isoformat()
-                    }, f, indent=2)
-                return
-
-    # Generate synthetic data
-    print("Real data unavailable or invalid. Generating synthetic data...")
-    df = generate_synthetic_data(n_samples=150, seed=42)
-
-    # Save to processed directory
-    output_path = processed_dir / 'cleaned_data.csv'
-    df.to_csv(output_path, index=False)
-
-    # Save metadata
-    metadata = {
-        'source': 'synthetic_generator',
-        'n_samples': len(df),
-        'ground_truth_relationships': {
-            'latency': 'negative_correlation',
-            'smoothness': 'positive_correlation',
-            'lead_time': 'positive_correlation'
-        },
-        'distinct_user_trigger': True,
-        'timestamp': datetime.now().isoformat()
-    }
-
-    metadata_path = processed_dir / 'synthetic_data_status.json'
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-
-    print(f"Generated {len(df)} synthetic samples.")
-    print(f"Output saved to: {output_path}")
-    print(f"Metadata saved to: {metadata_path}")
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

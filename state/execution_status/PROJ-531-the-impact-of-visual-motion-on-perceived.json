@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-531-the-impact-of-visual-motion-on-perceived",
+  "ok": false,
+  "reason": "25 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/generate_synthetic_data.py: metric `latency` assigned from an RNG draw (line 32); code/data/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic human-avatar interaction\u2026\u201d; code/data/generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Main entry point for synthetic data generation.     Checks i\u2026\u201d; 5 command(s) failed: python code/download_data.py (rc=1); python code/preprocessing/preprocess.py (rc=1); python code/modeling/model_fitting.py (rc=1); 4 declared deliverable(s) absent: data/processed/modeling_config.json; data/raw/download_status.json; data/results/model_metrics.json",
+  "artifacts": [],
+  "failures": [
+    "python code/download_data.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-531-the-impact-of-visual-motion-on-perceived/code/download_data.py\", line 3, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/preprocessing/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-531-the-impact-of-visual-motion-on-perceived/code/preprocessing/preprocess.py\", line 3, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/modeling/model_fitting.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-531-the-impact-of-visual-motion-on-perceived/code/modeling/model_fitting.py\", line 3, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/modeling/sensitivity_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-531-the-impact-of-visual-motion-on-perceived/code/modeling/sensitivity_analysis.py\", line 11, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/visualization.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-531-the-impact-of-visual-motion-on-perceived/code/visualization.py\", line 6, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-19T08:27:35Z"
+}
