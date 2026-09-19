@@ -1,0 +1,78 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelPerformanceSchema
+description: "Schema for model performance metrics and validation reports"
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the model (e.g., Random Forest)"
+  best_params:
+    type: object
+    description: "Best hyperparameters found via GridSearch"
+  metrics:
+    type: object
+    properties:
+      r2_train:
+        type: number
+      r2_test:
+        type: number
+      mae_test:
+        type: number
+      rmse_test:
+        type: number
+    required:
+      - r2_train
+      - r2_test
+      - mae_test
+      - rmse_test
+  validation:
+    type: object
+    properties:
+      loo_r2_ratio:
+        type: number
+        description: "Ratio of LOO R2 to standard test R2"
+      transferability_failure:
+        type: boolean
+        description: "True if loo_r2_ratio < 0.8"
+      material_classes_count:
+        type: integer
+    required:
+      - loo_r2_ratio
+      - transferability_failure
+      - material_classes_count
+  shap_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        mean_abs_shap:
+          type: number
+      required:
+        - feature
+        - mean_abs_shap
+  data_summary:
+    type: object
+    properties:
+      total_records:
+        type: integer
+      normalized_count:
+        type: integer
+      raw_count:
+        type: integer
+      missing_record_count:
+        type: integer
+    required:
+      - total_records
+      - normalized_count
+      - raw_count
+      - missing_record_count
+required:
+  - model_name
+  - best_params
+  - metrics
+  - validation
+  - shap_importance
+  - data_summary
+additionalProperties: false

@@ -29,6 +29,7 @@ properties:
       - "validated"
       - "associational_only"
       - "validation_target_unavailable"
+      - "physically_inconsistent"
 required:
   - feature_name
   - mean_abs_shap

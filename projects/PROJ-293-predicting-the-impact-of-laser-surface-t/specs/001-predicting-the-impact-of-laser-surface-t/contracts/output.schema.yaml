@@ -99,6 +99,7 @@ properties:
       - "validated"
       - "associational_only"
       - "validation_target_unavailable"
+      - "physically_inconsistent"
 required:
   - best_model
   - best_hyperparameters

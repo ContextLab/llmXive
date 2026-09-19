@@ -1,59 +1,45 @@
 # Implementation Plan: Predicting the Impact of Laser Surface Texturing on Wear Resistance
 
-**Branch**: `001-predict-lst-wear` | **Date**: 2026-07-26 | **Spec**: `specs/001-predict-lst-wear/spec.md`
+**Branch**: `001-predict-lst-wear` | **Date**: 2026-08-22 | **Spec**: `specs/001-predict-lst-wear/spec.md`
 **Input**: Feature specification from `/specs/001-predict-lst-wear/spec.md`
 
 ## Summary
 
-This feature implements a reproducible data science pipeline to predict wear resistance outcomes based on Laser Surface Texturing (LST) parameters and material properties. The approach aggregates tabular data from multiple open sources, standardizes it using Archard's law for wear normalization, trains and validates multiple regression models (Linear, RF, GB) on a CPU-constrained environment, and interprets results using SHAP values and **conditional** permutation testing. The plan strictly adheres to the spec's requirement for associational framing, VIF diagnostics, and leave-one-material-class-out validation, with explicit safeguards against circular validation and statistical invalidity in small samples.
+This project implements a data-driven pipeline to predict the impact of Laser Surface Texturing (LST) parameters on wear resistance. The approach aggregates observational data from multiple open sources (OpenML, Zenodo), standardizes it using a corrected Archard's law normalization (incorporating hardness and explicit unit conversion), and trains regression models (Linear, Random Forest, Gradient Boosting) to identify non-linear functional relationships. Key analysis includes SHAP-based interpretability, leave-one-material-class-out cross-validation (with fallback logic and power warnings) for generalizability, and permutation testing for significance, all executed within CPU constraints on GitHub Actions.
+
+**Critical Constraint**: No synthetic data generation is permitted. If the aggregated dataset size is < 300, the project proceeds with a 'Power Limitation' flag and reduced statistical confidence. If critical LST variables are missing from verified sources, the pipeline halts with `data_insufficiency_error` and reports `validation_target_unavailable` (SC-002).
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `scikit-learn`, `shap`, `numpy`, `requests`, `pyyaml`, `scipy`
-**Storage**: Local CSV/Parquet files under `data/` (streamed/processed in memory or chunked)
-**Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline flow)
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)
-**Project Type**: Data Science Pipeline / CLI Tool
-**Performance Goals**: Complete full pipeline (ingestion to SHAP) within 6 hours; memory usage < 6 GB peak.
-**Constraints**: No GPU acceleration (FR-003); no missing predictor imputation (FR-002); strict data hygiene (checksums, no in-place modification); **explicit exclusion of `contact_load`/`sliding_speed` from predictors when predicting normalized wear coefficient K**.
-**Scale/Scope**: Target a substantial volume of records post-merging; + material classes; Multiple data sources
-
-The research question remains: What are the primary factors influencing user engagement? The method involves a mixed-methods approach combining quantitative surveys and qualitative interviews. References include Smith et al. (2020) and DOI:10.1038/s41598-021-00000-0.. **Contingency: If normalized records < 100, analysis degrades to descriptive statistics on raw data.**
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `scikit-learn`, `shap`, `datasets` (HuggingFace), `pyyaml`, `openml`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `reports`)  
+**Testing**: `pytest` (contract tests, unit tests for ingestion/logic)  
+**Target Platform**: Linux (GitHub Actions Free Runner: Limited CPU and RAM resources.)  
+**Project Type**: Data Science / Computational Materials Science  
+**Performance Goals**: Complete full pipeline (ingestion to SHAP) within 6 hours.  
+**Constraints**: CPU-only execution (FR-003); no GPU usage; strict memory limits (constrained RAM); no data imputation for predictors (FR-002).  
+**Scale/Scope**: Target dataset size ≥300 records (SC-004); minimum 3 material classes for LOO-CV (FR-006).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-1.  **I. Reproducibility**:
-    *   **Plan Compliance**: The plan mandates pinned random seeds in `code/`, use of `requirements.txt` for dependency pinning, and execution in an isolated virtualenv. External datasets will be fetched from **specific, static** canonical sources (OpenML/HF IDs) or fixed local files. Dynamic search logic is removed.
-    *   **Action**: `code/` will include a `seed.py` module setting `numpy` and `random` seeds globally. `setup-plan.sh` will verify `requirements.txt` existence.
+| Principle | Status | Verification Detail |
+|-----------|--------|---------------------|
+| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic data fetching from verified URLs (OpenML dataset
 
-2.  **II. Verified Accuracy**:
-    *   **Plan Compliance**: **Correction**: The Reference-Validator Agent runs *before* the plan is finalized (during the research phase), not during execution. All URLs in `research.md` are marked as 'Pending Validation' until confirmed. No plan proceeds with unverified citations.
-    *   **Action**: `research.md` will explicitly state "NO verified source found" for any dataset without a specific, static ID, and the pipeline will fail gracefully if the required ID is missing, rather than attempting a search.
+The specific value to remove/generalize: 'specific dataset identifier'
 
-3.  **III. Data Hygiene**:
-    *   **Plan Compliance**: Raw data will be downloaded to `data/raw/` with checksums recorded in `state/`. Derived data (normalized, merged) will be written to `data/processed/` with new filenames. No in-place edits.
-    *   **Action**: `ingest.py` will generate MD5 checksums for raw files and log them to `state/artifact_hashes.yaml`.
-
-4.  **IV. Single Source of Truth**:
-    *   **Plan Compliance**: All figures and statistics will be generated by code reading from `data/processed/`. No hand-typed numbers in reports.
-    *   **Action**: The `report.py` script will read the final model metrics and SHAP values directly from the artifacts generated by the training step.
-
-5.  **V. Versioning Discipline**:
-    *   **Plan Compliance**: Every artifact (code, data, report) will carry a content hash. The `state` file will be updated upon successful run completion.
-    *   **Action**: The pipeline will compute SHA-256 hashes for input/output files and update the project state YAML.
-
-6.  **VI. Numerical Stability in Sparse Regression**:
-    *   **Plan Compliance**: The plan explicitly schedules feature scaling and interaction construction *inside* the cross-validation loop (using `ColumnTransformer` or custom CV splitters) to prevent data leakage. -fold CV is mandated.
-    *   **Action**: `train.py` will use `sklearn.pipeline.Pipeline` with `StandardScaler` inside the CV folds.
-
-7.  **VII. Cross-Material Generalizability Validation**:
-    *   **Plan Compliance**: The plan includes a specific phase for "Leave-One-Material-Class-Out" (LOMO) validation. If <3 classes exist, it falls back to K-Fold with a warning. **Added**: If a specific material class has < 15 records, the LOMO test for that class is skipped and marked as 'insufficient_samples'.
-    *   **Action**: `validate.py` will implement a custom CV splitter that iterates through unique `material_class` values, checks sample size (n >= 15), and skips testing on classes that are too small.
+Rewritten passage:, Zenodo ID). |
+| **II. Verified Accuracy** | PASS | Plan includes a **Dataset Schema Verification Step** and **Unit Conversion Check** to verify the downloaded dataset contains required columns (pulse_duration, power, etc.) and valid units before proceeding. If variables are missing, the system halts with `data_insufficiency_error` and reports `validation_target_unavailable` (SC-002), ensuring content matches the spec's schema. |
+| **III. Data Hygiene** | PASS | Plan specifies `data/raw` (immutable) vs `data/processed` (derived) separation. Checksums will be generated for raw files and recorded in `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`. |
+| **IV. Single Source of Truth** | PASS | All metrics in `reports/` will be programmatically generated from `data/processed` and `models/` artifacts. |
+| **V. Versioning Discipline** | PASS | Plan includes content hashing for data and model artifacts in `state/projects/PROJ-293-predicting-the-impact-of-laser-surface-t.yaml`. The hash registry path is explicitly referenced. |
+| **VI. Numerical Stability** | PASS | Plan explicitly schedules VIF diagnostics (FR-010), feature scaling within CV folds (Constitution Principle VI), and handling of collinear features. |
+| **VII. Cross-Material Generalizability** | PASS | Plan mandates Leave-One-Material-Class-Out (LOO-CV) as a primary validation step (FR-006, Constitution Principle VII) with a documented fallback to K-Fold (K=5) if <3 material classes or insufficient samples exist. The plan explicitly acknowledges that with ~300 records, LOO-CV is an *estimation* with high variance, and a 'Statistical Power Warning' will be logged. |
 
 ## Project Structure
 
@@ -66,73 +52,64 @@ specs/001-predict-lst-wear/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── feature_importance.schema.yaml
+│   ├── model_output.schema.yaml
+│   ├── model_report.schema.yaml
+│   └── output.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-293-predicting-the-impact-of-laser-surface-t/
-├── code/
-│   ├── __init__.py
-│   ├── seed.py              # Global seed management
-│   ├── ingest.py            # Data ingestion & standardization (FR-001, FR-002, FR-009)
-│   ├── preprocess.py        # Scaling, VIF, interaction terms (FR-010)
-│   ├── train.py             # Model training, GridSearch, LOMO CV (FR-003, FR-004, FR-006, FR-011)
-│   ├── interpret.py         # SHAP, Conditional Permutation tests (FR-005, FR-008)
-│   ├── report.py            # JSON/Markdown report generation
-│   └── requirements.txt     # Pinned dependencies
-├── data/
-│   ├── raw/                 # Downloaded raw CSVs (checksummed, fixed IDs)
-│   └── processed/           # Merged, normalized, cleaned datasets
-├── state/
-│   └── artifact_hashes.yaml # Checksums for data hygiene
-└── tests/
-    ├── unit/
-    └── integration/
+code/
+├── 01_ingest.py          # Data ingestion, standardization, Archard normalization (with hardness correction and unit conversion)
+├── 02_preprocess.py      # Missing value handling, VIF check, scaling
+├── 03_train.py           # Model training, GridSearchCV, LOO-CV (with fallback)
+├── 04_interpret.py       # SHAP analysis, permutation testing, Literature Consensus Check
+├── 05_report.py          # Metric aggregation, JSON/CSV report generation
+├── requirements.txt      # Pinned dependencies
+└── utils/
+    ├── schema_map.json   # Column mapping logic
+    └── config.py         # Random seeds, paths
+
+data/
+├── raw/                  # Immutable downloaded datasets
+└── processed/            # Cleaned, normalized, merged datasets
+
+models/
+└── best_model.pkl        # Serialized best model
+
+reports/
+├── model_report.json     # Metrics, transferability flags, validation status
+├── shap_summary.png      # Feature importance plot
+└── validation_log.txt    # LOO-CV results and warnings
+
+tests/
+├── contract/             # Schema validation tests
+├── integration/          # Pipeline end-to-end tests
+└── unit/                 # Logic tests (e.g., Archard calc, unit conversion)
 ```
 
-**Structure Decision**: Single project structure selected (`code/`, `data/`, `tests/`) to align with the "reproducible pipeline" nature of the spec. No frontend/backend split is required as this is a batch processing research tool.
+**Structure Decision**: Single project structure (`code/`, `data/`, `models/`) selected to align with the computational data science workflow. This minimizes overhead for a pipeline that runs sequentially on a single runner.
 
-## Phase Breakdown & FR/SC Mapping
+## Complexity Tracking
 
-### Phase 0: Data Ingestion & Standardization
-*   **Goal**: Aggregate data from + sources, map to canonical schema, handle missing values per FR-002/FR-009. **Pre-check**: Verify `contact_load` and `sliding_speed` availability to estimate `normalized_count`.
-*   **FR Coverage**:
-    *   **FR-001**: Ingest from OpenML, HF, literature (specific IDs or local files only).
-    *   **FR-002**: **Clarified**: Drop records missing *predictors* (`pulse_duration`, `power`, etc.). **RETAIN** records missing *test parameters* (`contact_load`, `sliding_speed`) with `normalization_method='raw'`.
-    *   **FR-009**: Normalize wear rate using Archard's law; flag raw records. **Constraint**: When predicting `K`, `contact_load` and `sliding_speed` are excluded from the predictor set to avoid circular validation.
-*   **SC Coverage**:
-    *   **SC-004**: Count records (`normalized_count`, `raw_count`); warn if < 300.
-    *   **SC-006**: **Contingency**: If `normalized_count` < 100, trigger `data_insufficiency_error`, halt primary regression, and proceed only to sensitivity analysis (FR-011) and descriptive statistics on the 'raw' subset.
-*   **Deliverables**: `data/processed/aggregated_clean.csv`, `state/artifact_hashes.yaml`, `reports/pre_check.json`.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Leave-One-Material-Class-Out (LOO-CV)** | Required by Constitution Principle VII and FR-006 to assess generalizability across material classes. | Standard K-Fold CV is insufficient because it does not explicitly test the model's ability to predict *new* material classes, which is the core "virtual prototyping" goal. |
+| **Permutation Testing for Significance** | Required by FR-008 to avoid assumptions of independence in feature importance. | Standard p-values from linear models are invalid for non-linear models (RF/GB) and multiple comparisons; permutation is the robust alternative. |
+| **VIF Diagnostics** | Required by FR-010 to handle collinearity (e.g., Power vs. Scanning Speed). | Ignoring collinearity would lead to spurious feature importance rankings, violating the "Single Source of Truth" for scientific insight. |
+| **Physical Validation Check (SC-002)** | Required by SC-002 to report `validation_target_unavailable` or `physically_inconsistent` if microstructural data is missing or contradicts literature. | A simple error log is insufficient; the system must explicitly set `validation_status` in the output schema to distinguish between a failed validation and an unavailable target. |
+| **Unit Conversion Logic** | Required to ensure Archard normalization is physically meaningful. | Without explicit unit conversion, the calculated wear coefficient is dimensionally inconsistent and scientifically invalid. |
 
-### Phase 1: Preprocessing & Diagnostics
-*   **Goal**: Feature engineering, VIF diagnostics, scaling.
-*   **FR Coverage**:
-    *   **FR-010**: VIF diagnostics; drop collinear features (>5) before permutation tests.
-    *   **Constitution VI**: Ensure scaling happens inside CV folds.
-*   **Deliverables**: `data/processed/features_scaled.csv`, `reports/vif_report.json`.
+## Tasks
 
-### Phase 2: Model Training & Validation
-*   **Goal**: Train Linear, RF, GB; GridSearch; LOMO CV; Sensitivity Analysis.
-*   **FR Coverage**:
-    *   **FR-003**: Train 3 models (CPU only).
-    *   **FR-004**: GridSearch (multiple combinations, k-fold CV).
-    *   **FR-006**: LOMO CV; **Small Sample Handling**: Skip LOMO test for any class with < 15 records; fallback to K-Fold if < 3 classes total.
-    *   **FR-007**: Associational framing in logs.
-    *   **FR-011**: Sensitivity analysis (normalized vs. full). **Explicitly uses** `normalization_method` field to split the dataset.
-*   **SC Coverage**:
-    *   **SC-001**: Compare R² against Linear baseline.
-    *   **SC-003**: Measure generalization error drop in LOMO (only over valid classes).
-    *   **SC-005**: Runtime check (<6h).
-*   **Deliverables**: `models/best_model.joblib`, `reports/model_performance.json`.
-
-### Phase 3: Interpretation & Reporting
-*   **Goal**: SHAP analysis, Conditional Permutation tests, Final Report.
-*   **FR Coverage**:
-    *   **FR-005**: SHAP values, summary plots, dependency plots.
-    *   **FR-008**: **Conditional** Permutation testing (2,000+ permutations) for significance. **Method**: Use conditional permutation or orthogonalization to handle collinearity, avoiding standard permutation which is invalid for correlated features.
-*   **SC Coverage**:
-    *   **SC-002**: Compare SHAP ranking to physical evidence. **Contingency**: If no independent ground truth exists, report `validation_target_unavailable` and limit claims to associational patterns.
-*   **Deliverables**: `reports/interpretation.html`, `final_report.md`.
+- [ ] **T001**: Create directory structure (`code/`, `data/raw`, `data/processed`, `models`, `reports`, `tests/`, `state/`). **Evidence**: Run `ls -R` or script output confirming all directories exist.
+- [ ] **T009**: Verify directory creation via `ls` or script output. **Evidence**: Log output showing `data/raw`, `data/processed`, `models`, `reports` exist.
+- [ ] **T012**: Implement `02_preprocess.py` to drop records with missing predictors while retaining those missing `contact_load`/`sliding_speed` and setting `normalization_method='raw'`. Output `missing_record_count`. **Evidence**: Script output and a sample of the cleaned CSV showing the flag.
+- [ ] **T018**: Implement `03_train.py` with GridSearchCV (≥10 combinations) and 5-fold CV, ensuring no data leakage. **Evidence**: Script output showing the grid search results and the best model parameters.
+- [ ] **T031a**: Implement Physical Validation Check in `04_interpret.py` to check for `microstructural_features` column AND perform 'Literature Consensus Check' (compare top 3 SHAP features against known tribological mechanisms). **Evidence**: Code snippet showing the check for the column and the logic to set `validation_status`.
+- [ ] **T031b**: Implement reporting logic in `05_report.py` to set `validation_status` in `model_report.json` to one of: 'validated', 'associational_only', 'validation_target_unavailable', or 'physically_inconsistent' based on T031a results. **Evidence**: Sample `model_report.json` showing the `validation_status` field populated correctly when the column is missing.
+- [ ] **T039**: Ensure `research.md` contains only static, pre-verified URLs (OpenML 4594, Zenodo 1006980) and no dynamic search logic. **Evidence**: Content of `research.md` showing the static URLs and no search logic.

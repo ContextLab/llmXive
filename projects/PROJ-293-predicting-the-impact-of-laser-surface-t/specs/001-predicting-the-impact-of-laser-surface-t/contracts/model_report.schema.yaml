@@ -30,7 +30,7 @@ properties:
     description: "Mean Absolute Error."
   test_rmse:
     type: "number"
-    description: "Root Mean Squared Error."
+    description: "Root Mean Square Error."
   loo_r2_ratio:
     type: ["number", "null"]
     description: "Ratio of LOMO R² to standard test R²."
