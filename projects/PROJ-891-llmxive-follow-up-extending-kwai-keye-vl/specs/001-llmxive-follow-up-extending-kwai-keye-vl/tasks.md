@@ -1,4 +1,4 @@
-# Tasks: llmXive follow-up: extending "Kwai Keye-VL-2.0 Technical Report"
+# Tasks: llmXive follow-up: extending "Kwai Keye-VL-2.0 Technical Report (2606.10651, https://arxiv.org/abs/2606.10651)"
 
 **Input**: Design documents from `/specs/001-extreme-aspect-ratio-robustness/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
@@ -43,10 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create data directory structure: `data/raw`, `data/distorted`, `data/outputs`, `data/metadata`
+- [ ] T001a [P] Create data directory structure: `data/raw`, `data/distorted`, `data/outputs`, `data/metadata`, `output/control`
 - [ ] T001b [P] Create source directory structure: `src/generators`, `src/inference`, `src/analysis`
 - [ ] T001c [P] Create test directory structure: `tests/unit`, `tests/integration`
-- [X] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (opencv-python, ffmpeg-python, transformers, optimum-intel, llama-cpp-python, pandas, scipy, numpy, requests, huggingface_hub, pytest). **MUST pin exact versions (e.g., `opencv-python>=4.8.0,<5.0.0`) to ensure reproducibility.**
+- [X] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (opencv-python, ffmpeg-python, transformers, optimum-intel, llama-cpp-python, pandas, scipy, numpy, requests, huggingface_hub, pytest, **psutil**). **MUST pin exact versions (e.g., `opencv-python>=4.8.0,<5.0.0`) to ensure reproducibility. `psutil` is required for memory limit verification (FR-006).**
+- [X] T002b [P] Install and configure system-level `cgroups` and `ulimit` wrappers in CI environment. **Create `scripts/setup_limits.sh` to enforce memory limits via `cgexec` or `ulimit`**. **Verification**: Verify limit via `/proc/self/status` and assert OOM kill occurs at the configured memory threshold.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Implement `scripts/validate_citations.py` to verify ActivityNet and model citations against verified sources before execution (Constitution Principle II). **Must run pre-execution.**
 
@@ -59,10 +60,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005 Create model cache directory: `models/`
-- [ ] T007a [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml` for synthetic video metadata
+- [ ] T007a [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml` for synthetic video metadata. **MUST include `source_id` as the mandatory join key for linking Distorted and Square-Cropped pairs.**
 - [ ] T007b [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/prediction.schema.yaml` for inference output
 - [ ] T007c [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/metric.schema.yaml` for evaluation results
 - [ ] T008 Setup environment configuration for memory limits (cgroups/ulimit wrappers) and time limits
+- [ ] T012c Implement `src/generators/bounding_box_heuristic.py`:
+ - Implement FR-001 bounding box integrity check.
+ - Logic: Identify the "primary subject" by calculating the ratio of the **largest detected contour area** to the frame area after distortion.
+ - **Explicit Definition**: In the absence of a grounding model, the "primary subject" is deterministically approximated as the object corresponding to the largest contour. If no contour is found, or if the ratio < 5% (implying >95% reduction of the largest object), flag as "unresolvable" and exclude.
+ - **Note**: This heuristic is the defined implementation for the "primary subject" check in this project.
+ - **Dependency**: Must complete before T013.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,7 +79,7 @@
 
 **Goal**: Programmatically generate a synthetic video benchmark dataset by applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet Captions dataset while preserving temporal ground-truth annotations.
 
-**Independent Test**: Run the generation script and verify `output/distorted/` contains the expected number of videos distributed equally across ratios. with valid codecs, correct aspect ratios (±0.1%), and a metadata CSV mapping to original timestamps. Verify `output/control/` contains a representative set of square-cropped clips
+**Independent Test**: Run `scripts/validate_distortion.py` (T016) and assert exit code 0. Verify `data/raw/original/` contains original unmodified clips for the Independent test. Verify `data/distorted/` contains a sufficient volume of clips (distributed across ratios) with valid codecs and correct aspect ratios. Verify `output/control/` contains square-cropped clips.
 
 Research Question: How can we ensure data consistency across generated video clips?
 Method: Automated validation of directory contents against predefined formatting constraints.
@@ -88,20 +95,25 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 
 ### Implementation for User Story 1
 
-- [ ] T012b [US1] Implement `src/generators/fetch_original.py`: <!-- FAILED: unspecified -->
- - Retrieve **Original Unmodified ActivityNet Captions** clips for the control group required by the Plan (Independent Samples).
+- [ ] T012b [US1] Implement `src/generators/fetch_original.py`:
+ - Retrieve **Original Unmodified ActivityNet Captions** clips for the **Secondary Independent Test** (Plan requirement).
  - Use `huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train', streaming=True)` to fetch a representative subset of source clips.
  - Save to `data/raw/original/` with metadata mapping IDs to timestamps.
- - **Distinct from T013**: This provides the "Original Unmodified" control set for the Independent test (Plan), while T013 provides the "Square-Cropped" control set for the Paired test (Spec).
-- [ ] T013 [US1] Implement `src/generators/distort_video.py`: <!-- FAILED: unspecified -->
+ - **Prerequisite**: T004 (Citation Validation) must complete before this task runs.
+ - **Role**: Provides the "Original Unmodified" control set for the Independent test (Plan), distinct from the Paired test control.
+- [ ] T013 [US1] Implement `src/generators/distort_video.py`:
  - Stream ActivityNet Captions data using `huggingface_hub.load_dataset('ActivityNet/activitynet-captions', split='train', streaming=True)`.
- - Apply geometric distortions at varying aspect ratios spanning from highly compressed to highly elongated configurations. using `ffmpeg` or `opencv-python`.
- - Implement FR-001 logic: exclude/regenerate clips where primary subject bounding box area is reduced >95%. **Use YOLOv8 to detect primary subject bounding box if ActivityNet annotations are unavailable. [UNRESOLVED-CLAIM: c_4b4d2ce8 — status=not_enough_info]**
- - **Generate a set of square-cropped clips from the SAME source IDs used for distortion (distributed across ratio groups).** for the Paired test (Spec).
+ - Apply geometric distortions at varying aspect ratios spanning from highly compressed to highly elongated configurations using `ffmpeg` or `opencv-python`.
+ - Implement FR-001 logic: Call `src/generators/bounding_box_heuristic.py` (T012c) to check primary subject integrity. If area reduction >95% or no primary subject found, skip clip and log to `data/outputs/exclusions.json`.
+ - **Dynamic Batch Sizing**: Do NOT hard-code a fixed count of 500 clips. Instead, implement a `BATCH_TIMEOUT` mechanism that dynamically reduces the count if the 6-hour time limit is approached. The script must estimate processing time per clip and stop generating when the remaining budget is insufficient for another full batch.
+ - **Generate Square-Cropped clips** to `output/control/` for the **Primary Paired Test** (Spec US-001 Acceptance Scenario 4). **Output Path**: Square-cropped clips MUST be saved to `output/control/`.
+ - **Generate a representative set of extreme-aspect clips** (1:10, 10:1, 1:20, 20:1) with dynamic reduction allowed if time limits are exceeded (configurable via `MAX_CLIPS` parameter).
  - Preserve original temporal ground-truth annotations.
- - Output metadata CSV linking distorted videos to original IDs and timestamps.
+ - Output metadata CSV linking distorted videos to original IDs and timestamps. **MUST include `source_id` as the join key for the Paired test.**
+ - **Dependency**: Requires T012c completion.
 - [ ] T014 [US1] Implement `src/generators/validate_generation.py` to verify output dimensions and metadata integrity
 - [ ] T015 [US1] Add error handling for low frame rate videos (skip/upsample with warning) and unresolvable 1-pixel lines (flag as "unresolvable", exclude, log)
+- [ ] T016 [US1] Implement `scripts/validate_distortion.py` to run automated checks on `data/distorted/`, `data/raw/original/`, and `output/control/` (assert exit code 0 for valid run). **Verify `output/control/` contains square-cropped clips.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,12 +135,13 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 - [ ] T020 [US2] Implement `src/inference/run_inference.py`:
  - Load the **Kwai-Kyle/Kwai-Keye-VL-2.0-Int4** checkpoint (or verified equivalent from T004) in INT4 quantization. (or FP16 vision encoder fallback per FR-002)
  - Implement CPU-only execution logic using `llama.cpp` or `optimum-intel`
- - **Requires completion of T014 (Validation)**
+ - **Prerequisite**: Requires completion of Phase 3 (T013, T014) to ensure validated data exists.
  - Process generated distorted, square-cropped (T013), and original unmodified (T012b) clips.
  - Output predictions (start/end timestamps) in JSON format compatible with mIoU calculation.
-- [ ] T021 [US2] Implement memory limit enforcement using `cgroups` or `ulimit` wrapper (FR-006). **Use `cgexec -g memory:limit_group` or `ulimit -v 7340032` (7GB in KB) and send SIGKILL on OOM.**
-- [ ] T022 [US2] Implement retry mechanism with fallback to **FP16 for Vision Encoder only, keeping LLM in INT4** for specific clips if INT4 crashes (log deviations per FR-002).
-- [ ] T023 [US2] Implement total batch time limit wrapper (FR-006) to abort if -hour limit is exceeded.
+ - **Fallback Logging**: Log fallback events to `data/outputs/fallback_log.json` with `{clip_id, error, fallback_mode}` if INT4 fails and FP16 vision encoder is used (FR-002).
+- [ ] T021 [US2] Implement memory limit enforcement using `cgroups` or `ulimit` wrapper (FR-006). **Use `cgexec -g memory:limit_group` or `ulimit -v` with a memory limit set to a predefined threshold and send SIGKILL on OOM.** **Verification**: Verify limit via `/proc/self/status` and assert OOM kill occurs at the configured memory threshold in integration test.
+- [ ] T022 [US2] Implement retry mechanism with fallback to **Full FP16 (Vision + LLM)** for specific clips if INT4 crashes (log deviations per FR-002). **Logic**: Attempt INT4. If crash occurs, **immediately retry with Full FP16 for that specific clip**. Log the fallback. Do not attempt partial fallbacks.
+- [ ] T023 [US2] Implement total batch time limit wrapper (FR-006) to abort if **6-hour** limit is exceeded.
 - [ ] T024 [US2] Add logging for OOM events, fallback activations, and excluded clips.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -138,8 +151,7 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 ## Phase 5: User Story 3 - Statistical Analysis & Reporting (Priority: P3)
 
 **Goal**: Calculate mIoU for both conditions and perform a paired statistical test to determine significance of performance drop.
-
-**Independent Test**: Run analysis script with pre-generated JSON predictions and ground truths. Verify report contains mIoU for both groups, p-value, test statistic, and significance statement (p < 0.05).
+**Independent Test**: Run analysis script with pre-generated JSON predictions and ground truths. Verify report contains mIoU for both groups, p-value, test statistic, and significance statement (p < 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)).
 
 ### Tests for User Story 3 (TDD First) ⚠️
 
@@ -151,17 +163,15 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 - [ ] T026 [US3] Implement `src/analysis/mIoU.py`:
  - Calculate mean Intersection-over-Union for predicted vs. ground-truth timestamps.
  - Separate results by condition (extreme-aspect vs. square-cropped vs. original).
- - Output to `data/outputs/metrics.csv` with columns `video_id`, `condition`, `mIoU`.
+ - Output to `data/outputs/metrics.csv` with columns `video_id`, `condition`, `mIoU`, `source_id`.
+ - **Ensure `source_id` is preserved to enable Paired test linking.**
 - [ ] T027 [US3] Implement `src/analysis/stats.py`:
- - **Perform Shapiro-Wilk test to check normality (alpha=0.05)**.
- - **Select and execute PAIRED t-test or Wilcoxon signed-rank test** on the **Paired mIoU scores from same source IDs (distorted vs. square-cropped)**.
- - Calculate p-value and effect size.
+ - **Primary**: Perform Shapiro-Wilk test to check normality (alpha=0.05). **Select and execute PAIRED t-test or Wilcoxon signed-rank test** on the **Paired mIoU scores from same source IDs (distorted vs. square-cropped)**. **Join Key**: Use `source_id` to link distorted and square-cropped sets.
+ - **Secondary**: Perform Welch's t-test or Mann-Whitney U on **Independent mIoU scores from Original Unmodified (T012b) vs. Distorted sets** (Plan requirement for robustness check).
+ - Calculate p-value and effect size for both.
+ - **Merge Strategy**: Combine results into a single report stating the **Primary conclusion (Paired test)** and the **Secondary robustness check (Independent test)**.
  - Generate report stating statistical significance (SC-002).
  - **Requires output of T026 (mIoU scores)**.
-- [ ] T029 [US3] Implement `src/analysis/stats_independent.py`:
- - **Perform Welch's t-test or Mann-Whitney U** on **Independent mIoU scores from Original Unmodified vs. Distorted sets** (Plan requirement).
- - Calculate p-value and effect size.
- - Append results to the final report as a robustness check of the Plan's methodology.
 - [ ] T028 [US3] Implement report generation to output structured JSON/Markdown with all metrics and conclusions.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -275,5 +285,8 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Never use synthetic data as a fallback for real data. If ActivityNet fetch fails, the process must fail loudly.
 - **Resource Limits**: Strictly adhere to RAM and time limits via wrappers.
-- **Model Quantization**: Use INT4 for CPU inference; fallback to FP16 vision encoder if necessary, but log deviations.
-- **Statistical Validity**: Ensure paired tests are used for within-subject comparisons (distorted vs. square-cropped) and independent tests for original vs. distorted (Plan).
+- **Model Quantization**: Use INT4 for CPU inference; fallback to Full FP16 for specific clips if INT4 crashes, but log deviations.
+- **Statistical Validity**: Ensure PAIRED tests are used for Primary hypothesis (distorted vs. square-cropped) and Independent tests for Secondary robustness (original vs. distorted).
+- **Control Sets**: T012b provides "Original Unmodified" for Secondary Independent Test; T013 provides "Square-Cropped" for Primary Paired Test (output to `output/control/`).
+- **Primary Subject Logic**: T012c uses Largest Contour heuristic to identify the primary subject for FR-001.
+- **Dynamic Reduction**: Extreme-aspect and Square-Cropped counts are flexible and controlled by `BATCH_TIMEOUT` and `MAX_CLIPS` to ensure time limit compliance.

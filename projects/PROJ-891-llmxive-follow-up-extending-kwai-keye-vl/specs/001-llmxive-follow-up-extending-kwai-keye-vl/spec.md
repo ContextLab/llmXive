@@ -9,7 +9,7 @@
 
 ### User Story 1 - Synthetic Benchmark Generation (Priority: P1)
 
-As a researcher, I need to programmatically generate a synthetic video benchmark dataset by applying extreme aspect ratio distortions (1:10, 10:1, 1:20, 20:1) to the ActivityNet Captions dataset, while preserving the original temporal ground-truth annotations, so that I can isolate the impact of geometric distortion on model performance without introducing temporal noise.
+As a researcher, I need to programmatically generate a synthetic video benchmark dataset by applying extreme aspect ratio distortions to the ActivityNet Captions dataset., while preserving the original temporal ground-truth annotations, so that I can isolate the impact of geometric distortion on model performance without introducing temporal noise.
 
 **Why this priority**: This is the foundational data layer. Without a valid, controlled dataset where the only variable is aspect ratio, no subsequent inference or analysis can yield valid conclusions. It directly enables the core hypothesis test.
 
@@ -20,7 +20,7 @@ As a researcher, I need to programmatically generate a synthetic video benchmark
 1. **Given** the ActivityNet Captions source dataset is available, **When** the generation script runs with parameters for 1:10, 10:1, 1:20, and 20:1 ratios, **Then** the output directory contains a substantial set of videos for each ratio with valid video codecs and a metadata CSV linking them to original timestamps.
 2. **Given** the generation script is executed, **When** the output is inspected, **Then** the spatial dimensions of the generated frames strictly adhere to the target aspect ratios (e.g., width/height = 0.1 for 1:10) without unintended cropping of the original content's bounding boxes.
 3. **Given** the original ground-truth annotations exist, **When** the new metadata is generated, **Then** the start and end timestamps remain identical to the source, ensuring the temporal variable is held constant.
-4. **Given** the generation script is executed, **When** the square-cropped control set is generated, **Then** the output directory `output/control/` contains exactly 500 clips with a uniform aspect ratio and valid metadata linking to the same source IDs.
+4. **Given** the generation script is executed, **When** the square-cropped control set is generated, **Then** the output directory `output/control/` contains a substantial set of clips with a uniform aspect ratio and valid metadata linking to the same source IDs.
 
 ---
 
@@ -66,8 +66,8 @@ As a researcher, I need to calculate the mean Intersection-over-Union (mIoU) for
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST programmatically generate 500 synthetic video clips from ActivityNet Captions with aspect ratios of:10, 10:1, 1:20, and 20:1 (125 clips per ratio), preserving original temporal ground-truth annotations. The system MUST exclude and regenerate any clip where the distortion reduces the primary subject's bounding box area by >95% to ensure semantic integrity is preserved (See US-001).
-- **FR-002**: The system MUST load the Kwai Keye-VL checkpoint in INT4 quantization. and execute inference on a CPU-only environment without requiring CUDA or GPU accelerators. If INT4 load fails due to memory constraints, the system MUST fallback to FP for the vision encoder (keeping LLM in INT4) and log the deviation (See US-002).
+- **FR-001**: The system MUST programmatically generate synthetic video clips from ActivityNet Captions with a range of extreme aspect ratios, preserving original temporal ground-truth annotations. The system MUST exclude and regenerate any clip where the distortion reduces the primary subject's bounding box area by >95% to ensure semantic integrity is preserved (See US-001).
+- **FR-002**: The system MUST load the Kwai Keye-VL checkpoint in a low-bit quantization format. and execute inference on a CPU-only environment without requiring CUDA or GPU accelerators. If INT4 load fails due to memory constraints, the system MUST fallback to FP for the vision encoder (keeping LLM in INT4) and log the deviation (See US-002).
 - **FR-003**: The system MUST output prediction timestamps (start/end) for every processed video clip in a structured JSON format compatible with the mIoU calculation (See US-002).
 - **FR-004**: The system MUST calculate the mean Intersection-over-Union (mIoU) for the predicted timestamps against the preserved ground-truth annotations for both the extreme-aspect and square-cropped conditions (See US-003).
 - **FR-005**: The system MUST perform a paired statistical test (t-test or Wilcoxon signed-rank) to compare the mIoU distributions and report the p-value and effect size (See US-003).
@@ -89,14 +89,14 @@ As a researcher, I need to calculate the mean Intersection-over-Union (mIoU) for
 
 - **SC-001**: The mIoU score for the extreme-aspect condition is measured against the mIoU score of the square-cropped control condition to determine the performance delta (See FR-004, FR-005).
 - **SC-002**: The statistical significance of the performance difference is measured against the standard alpha threshold of p < 0.05 using a paired test (See FR-005).
-- **SC-003**: The inference execution time per video is measured against the 6-hour total job limit to ensure feasibility on free-tier CI (See FR-002).
-- **SC-004**: The memory footprint of the inference process is measured against the 7GB RAM limit to ensure no OOM failures occur (See FR-002).
+- **SC-003**: The inference execution time per video is measured against a predefined total job limit to ensure feasibility on free-tier CI. (See FR-002).
+- **SC-004**: The memory footprint of the inference process is measured against a predefined RAM limit to ensure no OOM failures occur. (See FR-002).
 - **SC-005**: The dataset completeness is measured against the target of a representative set of distorted video clips (distributed across ratios) and a corresponding set of square-cropped control clips to ensure statistical power (See FR-001).
 
 ## Assumptions
 
-- **Assumption about data**: The ActivityNet Captions dataset is accessible and contains sufficient video content that can be distorted to extreme aspect ratios (1:20) without losing all semantic visual information (e.g., the video is not already a single vertical strip).
+- **Assumption about data**: The ActivityNet Captions dataset is accessible and contains sufficient video content that can be distorted to extreme aspect ratios without losing all semantic visual information. (e.g., the video is not already a single vertical strip).
 - **Assumption about model availability**: The Kwai Keye-VL-2.0 checkpoint is available in a format compatible with `llama.cpp` or `Optimum-Intel` for CPU inference, or a compatible INT4 quantized version can be derived without violating the 7GB RAM constraint.
-- **Assumption about computational limits**: The 500 video clips, when processed sequentially on a 2-core CPU, will complete within the 6-hour limit; if the average inference time exceeds a predefined threshold, the dataset size will be dynamically reduced to a manageable subset to maintain feasibility.
+- **Assumption about computational limits**: A set of video clips, when processed sequentially on a 2-core CPU, will complete within the 6-hour limit; if the average inference time exceeds a predefined threshold, the dataset size will be dynamically reduced to a manageable subset to maintain feasibility.
 - **Assumption about ground truth**: The original ActivityNet ground-truth timestamps are accurate and do not require adjustment when the video aspect ratio is changed, as the temporal event boundaries remain constant regardless of spatial distortion, provided the visual signal is not destroyed (clips failing the semantic integrity check in FR-001 are excluded).
 - **Assumption about quantization**: The INT4 quantization of the model does not degrade the temporal grounding accuracy so severely that it masks the effect of aspect ratio distortion (i.e., the signal-to-noise ratio remains sufficient to detect a >15% drop).

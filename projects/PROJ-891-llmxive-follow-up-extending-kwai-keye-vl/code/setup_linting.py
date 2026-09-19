@@ -1,141 +1,115 @@
+"""
+setup_linting.py
+Implements T003: Configure linting (ruff) and formatting (black) tools.
+
+This script ensures the necessary configuration files (.ruff.toml, pyproject.toml)
+are present and correctly configured for the project. It also verifies
+that the required dev dependencies (black, ruff) are listed in requirements.txt.
+"""
 import os
 import sys
-import subprocess
 from pathlib import Path
 
 def ensure_requirements_entry():
-    """Ensure ruff and black are listed in requirements.txt."""
-    requirements_path = Path("requirements.txt")
-    if not requirements_path.exists():
-        raise FileNotFoundError("requirements.txt not found in project root.")
+    """Ensures ruff and black are listed in requirements.txt."""
+    req_path = Path("requirements.txt")
+    if not req_path.exists():
+        print("Warning: requirements.txt not found. Creating it.")
+        req_path.write_text("# Project dependencies\n")
+
+    content = req_path.read_text()
+    if "ruff" not in content:
+        req_path.write_text(content + "ruff>=0.1.0,<0.2.0\n")
+        print("Added 'ruff' to requirements.txt")
     
-    content = requirements_path.read_text()
-    lines = content.splitlines()
-    
-    # Check for existing entries
-    has_ruff = any("ruff" in line for line in lines)
-    has_black = any("black" in line for line in lines)
-    
-    new_lines = []
-    if not has_ruff:
-        new_lines.append("ruff>=0.1.0")
-    if not has_black:
-        new_lines.append("black>=23.0.0")
-    
-    if new_lines:
-        with open(requirements_path, "a") as f:
-            f.write("\n" + "\n".join(new_lines) + "\n")
-        print("Updated requirements.txt with linting dependencies.")
-    else:
-        print("Linting dependencies already present in requirements.txt.")
+    if "black" not in content:
+        req_path.write_text(content + "black>=23.0.0,<24.0.0\n")
+        print("Added 'black' to requirements.txt")
 
 def install_dev_dependencies():
-    """Install ruff and black if not already installed."""
+    """Installs dev dependencies if pip is available."""
     try:
-        import ruff
-        import black
-        print("Linting tools already installed.")
-        return
-    except ImportError:
-        pass
-
-    print("Installing linting tools...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black"])
-    print("Linting tools installed successfully.")
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "ruff", "black"])
+        print("Successfully installed ruff and black.")
+    except subprocess.CalledProcessError as e:
+        print(f"Warning: Failed to install dependencies automatically: {e}")
+        print("Please run: pip install ruff black")
 
 def write_ruff_config():
-    """Create .ruff.toml configuration file."""
+    """Creates .ruff.toml if it doesn't exist."""
     config_path = Path(".ruff.toml")
     if config_path.exists():
-        print(".ruff.toml already exists, skipping creation.")
+        print(f"{config_path} already exists. Skipping creation.")
         return
 
-    config_content = """# Ruff configuration
+    config_content = """# Ruff configuration for llmXive project
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "B008", "SIM105"]
+fixable = ["ALL"]
+unfixable = []
+exclude = [
+    ".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg", ".mypy_cache",
+    ".nox", ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv",
+    "__pypackages__", "_build", "buck-out", "build", "dist", "node_modules", "venv",
+]
 target-version = "py311"
 
-[lint]
-select = [
-    "E",  # pyflake errors
-    "F",  # pyflake warnings
-    "I",  # isort
-    "N",  # pep8-naming
-    "D",  # pydocstyle
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # py-up
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "E203", # Whitespace before ':'
-    "W292", # No newline at end of file (handled by black)
-]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow asserts in tests
+[lint.mccabe]
+max-complexity = 15
 
 [lint.isort]
-known-first-party = ["src", "tests", "scripts"]
+lines-after-imports = 2
+known-first-party = ["src", "tests", "setup_data_dirs", "setup_env_limits", "setup_linting", "setup_model_cache", "setup_python_env", "setup_source_dirs"]
 """
     config_path.write_text(config_content)
-    print("Created .ruff.toml configuration.")
+    print(f"Created {config_path}")
 
 def write_black_config():
-    """Create pyproject.toml section for Black if not present."""
-    pyproject_path = Path("pyproject.toml")
+    """Ensures Black configuration exists in pyproject.toml."""
+    config_path = Path("pyproject.toml")
+    if not config_path.exists():
+        config_path.write_text("[project]\nname = 'llmxive-research'\n")
     
-    if not pyproject_path.exists():
-        pyproject_path.write_text("""[tool.black]
-line-length = 88
-target-version = ['py311']
-exclude = [
-    "\\.git",
-    "\\.venv",
-    "__pycache__",
-    "dist",
-    "build",
-]
-""")
-        print("Created pyproject.toml with Black configuration.")
-        return
-
-    content = pyproject_path.read_text()
-    if "[tool.black]" in content:
-        print("Black configuration already present in pyproject.toml.")
-        return
-
-    # Append configuration
-    new_config = """
+    content = config_path.read_text()
+    if "[tool.black]" not in content:
+        black_section = """
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
-exclude = [
-    "\\.git",
-    "\\.venv",
-    "__pycache__",
-    "dist",
-    "build",
-]
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 """
-    with open(pyproject_path, "a") as f:
-        f.write(new_config)
-    print("Added Black configuration to pyproject.toml.")
+        config_path.write_text(content + black_section)
+        print("Added [tool.black] section to pyproject.toml")
+    else:
+        print("Black configuration already present in pyproject.toml")
 
 def main():
-    """Main entry point for linting setup."""
-    print("Setting up linting (ruff) and formatting (black)...")
+    """Main entry point for T003 implementation."""
+    print("Starting T003: Configure linting (ruff) and formatting (black) tools...")
     
-    # Ensure dependencies
     ensure_requirements_entry()
-    install_dev_dependencies()
-    
-    # Write configuration files
     write_ruff_config()
     write_black_config()
     
-    print("Linting and formatting setup complete.")
-    print("To run checks: ruff check .")
-    print("To format code: black .")
-    print("To auto-fix: ruff check . --fix")
+    # Attempt installation
+    install_dev_dependencies()
+    
+    print("T003 Configuration complete.")
 
 if __name__ == "__main__":
     main()

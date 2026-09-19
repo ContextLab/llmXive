@@ -1,9 +1,45 @@
-T007c:
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or screenshots were provided showing the required folders\
+    \ (`data/raw`, `data/distorted`, `data/outputs`, `data/metadata`, `output/control`).\
+    \ Without concrete evidence that these paths exist (and are non\u2011empty), the\
+    \ task requirement is not satisfied."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, screenshots, or code snippets were provided to demonstrate
+    that the required `src/generators`, `src/inference`, and `src/analysis` folders
+    actually exist in the repository. Without concrete evidence of these paths, the
+    claim cannot be verified. The implementer must supply proof (e.g., a tree view,
+    `ls` output, or a commit diff) showing the three directories are present.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the `tests/unit` and `tests/integration`
+    directories actually exist in the project repository; without such artifacts the
+    requirement to create the test directory structure is not satisfied. The implementer
+    must add the directories (and optionally placeholder test files) and confirm their
+    presence.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
+    `.ruff.toml`, or a `black` config) or any documentation of their setup were provided.
+    Consequently, the required artifact for task T003 is missing.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `models/` directory is provided; the artifact list is empty,
+    so we cannot confirm that the required cache directory was created. The implementer
+    must add the actual `models/` folder (or a listing showing its creation) to satisfy
+    the task.
+T007a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `specs/001-extreme-aspect-ratio-robustness/contracts/metric.schema.yaml`
-    is missing from the repository, so no schema definition is provided. Without this
-    artifact the task is not satisfied.
+  r: "The required file `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml`\
+    \ does not exist, so the mandatory `source_id` field cannot be verified. The task\u2019\
+    s core deliverable is missing."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

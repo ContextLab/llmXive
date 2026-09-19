@@ -3,28 +3,34 @@ from pathlib import Path
 
 def main():
     """
-    Create the source directory structure for the project.
+    Create the source directory structure required for the project.
     Creates: src/generators, src/inference, src/analysis
     """
-    project_root = Path(__file__).resolve().parent.parent
+    project_root = Path(__file__).resolve().parent
     src_root = project_root / "src"
     
     directories = [
-        src_root / "generators",
-        src_root / "inference",
-        src_root / "analysis",
+        "generators",
+        "inference",
+        "analysis"
     ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory.relative_to(project_root)}")
+    created_count = 0
+    for dir_name in directories:
+        dir_path = src_root / dir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+        
+        # Create __init__.py to make it a Python package
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            created_count += 1
+        else:
+            created_count += 1 # Count as created if it exists too
+        
+        print(f"Ensured existence of: {dir_path}")
     
-    # Create __init__.py files to make them proper Python packages
-    for directory in directories:
-        init_file = directory / "__init__.py"
-        init_file.touch(exist_ok=True)
-    
-    print("Source directory structure setup complete.")
+    print(f"Source directory structure setup complete. Created/verified {created_count} directories.")
 
 if __name__ == "__main__":
     main()
