@@ -57,7 +57,9 @@
 - [X] T005 [P] Implement basic logging infrastructure in `code/__init__.py` and `code/main.py`
 - [ ] T006 [P] Setup environment configuration management (load IBM Quantum API tokens/defaults)
 - [X] T007 Create base data models (dataclasses) for `QubitDevice`, `GraphMetric`, `PerformanceMetric`, `CorrelationResult` in `code/models.py`
-- [X] T008 [US1] Update `spec.md` (FR-003) to formally retract the "historical time window" requirement for topology, documenting the resolution as a cross-sectional study (per Plan.md Spec Gap). This task must be completed before T028/T029.
+- [ ] T008A [US1] **Verification**: Confirm that `spec.md` (Section FR-003) contains the explicit retraction of the "historical time window" requirement for topology and documents the resolution as a cross-sectional study (per Plan.md Spec Gap).
+ - **Verification Action**: Inspect `specs/001-explore-network-structure-superconducting-qubit-coupling/spec.md` at Section FR-003.
+ - **Dependency Note**: This verified state is a prerequisite for T028 and T029.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,17 +75,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml` <!-- FAILED: unspecified -->
+- [ ] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`
 - [X] T011 [P] [US1] Integration test for live API fetch with rate-limit handling in `tests/test_integration_fetch.py`
 
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `fetch_backends_list` in `code/fetcher.py` to retrieve all accessible backend names
-- [X] T013a [US1] Implement `retry_with_exponential_backoff` in `code/fetcher.py` with explicit parameters: max 3 attempts, 2^N backoff delay, and 60-second timeout to handle 503 errors as a distinct unit of work.
-- [X] T013b [US1] Implement `fetch_backend_properties` in `code/fetcher.py` using the retry logic from T013a, handling 503 errors and malformed data (log warning and exclude device) per US1 Acceptance Scenario 2.
-- [X] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 60-second timeout constraint is enforced.
+- [X] T013a [US1] Implement `retry_with_exponential_backoff` in `code/fetcher.py` with explicit parameters: max a limited number of attempts, 2^N backoff delay, and A timeout mechanism with a duration appropriate for the task will be implemented. to handle 503 errors as a distinct unit of work.
+- [X] T013b [US1] Implement `fetch_backend_properties` in `code/fetcher.py` using the retry logic from T013a, handling 503 errors and malformed data (log warning with format "Device {id} excluded: {reason}" and exclude device) per US1 Acceptance Scenario 2.
+- [X] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 30-second timeout constraint is enforced.
 - [X] T015a [US1] Implement `extract_topology_data` in `code/fetcher.py` to extract `coupling_map` and qubit indices from raw JSON.
-- [X] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract `T1`, `T2`, `gate_errors`, and `readout_errors` from raw JSON.
+- [X] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract T1, T2, `cx` gate errors (mean aggregation), `readout_errors` (mean aggregation), and coupling maps from raw JSON.
 - [ ] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
 - [ ] T017 [US1] Generate structured CSV `data/processed/raw_calibration.csv` containing all valid device metrics
 
@@ -123,19 +125,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026 [P] [US3] Unit test for Spearman correlation and FDR correction in `tests/test_stats_engine.py`
-- [X] T027 [P] [US3] Integration test for full pipeline with synthetic data in `tests/test_stats_engine.py` <!-- FAILED: unspecified -->
+- [ ] T026 [P] [US3] Unit test for Spearman correlation and FDR correction in `tests/test_stats_engine.py`
+- [ ] T027 [P] [US3] Integration test for full pipeline with synthetic data in `tests/test_stats_engine.py`
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Implement `load_and_merge_metrics` in `code/stats_engine.py` to join graph metrics and performance metrics by `device_id` ONLY, ignoring timestamps (cross-sectional logic per T008 spec retraction).
-- [X] T029 [US3] Implement `compute_spearman_correlations` in `code/stats_engine.py` for all metric pairs using simultaneous data, handling missing values by exclusion, and explicitly documenting the deviation from original FR-003 temporal window.
-- [X] T030 [US3] Implement `apply_benjamini_hochberg_fdr` in `code/stats_engine.py` to adjust p-values and flag significant results (`adj_p < 0.05`)
-- [X] T031a [US3] Implement `robustness_check_lodo` in `code/stats_engine.py` to perform leave-one-device-out (LODO) analysis and verify stability of significant correlations (|Δρ| ≤ 0.1) across subsets.
-- [X] T031b [US3] Implement `robustness_check_time_window` in `code/stats_engine.py` to retrieve performance metrics from a fixed 30-day historical window and compare correlation direction/magnitude with the full dataset (satisfying SC-004). <!-- FAILED: unspecified -->
-- [X] T032 [US3] Implement `sensitivity_analysis` in `code/stats_engine.py` sweeping a configurable set of p-value thresholds (derived from a constant) over conventional values
-- [X] T033 [US3] Implement `power_analysis` in `code/stats_engine.py` to estimate Minimum Detectable Effect Size (MDES) given sample size (N), number of tests performed (multiple comparison burden), and report 95% CI if N < 30
-- [X] T034 [US3] Generate `data/processed/correlation_results.csv` with `metric_a`, `metric_b`, `spearman_rho`, `p_value`, `adj_p_value`, `is_significant`, `is_excluded`
+- [ ] T028 [US3] **Prerequisite: T008A**. Implement `load_and_merge_metrics` in `code/stats_engine.py` to join graph metrics and performance metrics by `device_id` ONLY, ignoring timestamps (cross-sectional logic per T008A spec retraction).
+- [ ] T029 [US3] **Prerequisite: T008A**. Implement `compute_spearman_correlations` in `code/stats_engine.py` for all metric pairs using simultaneous data, handling missing values by exclusion, and explicitly documenting the deviation from original FR-003 temporal window in code comments.
+- [ ] T030 [US3] Implement `apply_benjamini_hochberg_fdr` in `code/stats_engine.py` to adjust p-values and flag significant results (`adj_p < 0.05`)
+- [ ] T031a [US3] Implement `robustness_check_lodo` in `code/stats_engine.py` to perform leave-one-device-out (LODO) analysis and verify stability of significant correlations (|Δρ| ≤ 0.1) across subsets.
+- [ ] T031b [US3] Implement `robustness_check_time_window` in `code/stats_engine.py` to perform a robustness check using the current dataset's cross-sectional variance (simulating temporal variance via device heterogeneity). This task MUST:
+ 1. Explicitly document in `research.md` and `code/stats_engine.py` comments that a true historical time window check is not feasible due to IBM Quantum API limitations (no historical state retention) and that this check uses the current snapshot's variance as a proxy.
+ 2. Rely on the deviation documentation established in T029 for the primary analysis, but add a specific note for this robustness check.
+- [ ] T032 [US3] Implement `sensitivity_analysis` in `code/stats_engine.py` sweeping a configurable set of p-value thresholds. The constant `P_VALUE_THRESHOLDS` includes a set of standard significance levels, such as conventional thresholds used in statistical hypothesis testing., representing conventional thresholds for statistical inference. must be defined in `code/stats_engine.py` and used for the sweep.
+- [ ] T033 [US3] Implement `power_analysis` in `code/stats_engine.py` to estimate Minimum Detectable Effect Size (MDES) given sample size (N), number of tests performed (multiple comparison burden), statistical power = 0.8, significance level alpha = 0.05, and report 95% CI if N < 30.
+- [ ] T034 [US3] Generate `data/processed/correlation_results.csv` with `metric_a`, `metric_b`, `spearman_rho`, `p_value`, `adj_p_value`, `is_significant`, `is_excluded`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,9 +149,9 @@
 
 **Purpose**: Generate visualizations and final reports
 
-- [X] T035 [US3] Implement `generate_scatter_plots` in `code/viz.py` for significant correlations
-- [X] T036 [US3] Implement `generate_heatmap` in `code/viz.py` for the full correlation matrix
-- [X] T037 [US3] Generate final summary report artifact `docs/report.md` aggregating plots from T035/T036, including sections for: Methodology (referencing T008), Correlation Results, Robustness Checks (LODO and Time Window), and Power Analysis.
+- [ ] T035 [US3] Implement `generate_scatter_plots` in `code/viz.py` for significant correlations
+- [ ] T036 [US3] Implement `generate_heatmap` in `code/viz.py` for the full correlation matrix
+- [ ] T037 [US3] Generate final summary report artifact `docs/report.md` aggregating plots from T035/T036, including sections for: Methodology (referencing T028/T029 and `research.md`), Correlation Results, Robustness Checks (LODO and Time Window - requires T031b completion), and Power Analysis.
 - [ ] T038 [P] Run `code/hygiene.py` to update artifact hashes and state file
 - [ ] T039 [P] Validate `quickstart.md` and ensure all scripts run end-to-end
 
@@ -242,7 +246,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All analysis tasks must run on CPU-only CI (limited cores, modest RAM). No GPU models, no 8-bit quantization, no large LLMs. Use `scipy`, `networkx`, `pandas` only.
+- **Constraint**: All analysis tasks must run on CPU-only CI (limited cores, modest RAM). No GPU models, no low-bit quantization, no large LLMs. Use `scipy`, `networkx`, `pandas` only.
 - **Data Integrity**: No synthetic/fake data generation. All metrics must derive from real IBM Quantum API data.
 - **Data Flow**: US1 (Fetch) → US2 (Graph) → US3 (Stats). Ensure US3 tasks run after US1/US2 produce `data/processed/` files.
-- **Scientific Correction**: US3 tasks (T028, T029, T031a, T031b) must use simultaneous data (T028) and cross-sectional robustness (LODO + Time Window) per Plan.md Spec Gap and T008 spec retraction, ignoring the original FR-003 temporal window requirement for topology.
+- **Scientific Correction**: US3 tasks (T028, T029, T031a, T031b) must use simultaneous data (T028) and cross-sectional robustness (LODO + Time Window) per Plan.md Spec Gap and T008A spec retraction, ignoring the original FR-003 temporal window requirement for topology.
+- **Dependency Resolution**: T028 and T029 explicitly depend on the verification state established by T008A.

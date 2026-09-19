@@ -1,82 +1,104 @@
 """
-Project Structure Setup Script for llmXive PROJ-163.
+Project Structure Setup Module.
 
-This script creates the required directory structure for the research project:
-- code/: Source code modules
-- data/raw/: Raw data snapshots from IBM Quantum API
-- data/processed/: Processed data (CSVs, metrics)
-- tests/: Unit and integration tests
-- specs/: Feature specifications and contracts
-- docs/: Final reports and documentation
-- figures/: Generated plots and visualizations
-- state/: Project state tracking (artifacts, hashes)
+This module is responsible for creating the foundational directory hierarchy
+required for the llmXive automated science pipeline project.
+
+It creates the following directories relative to the project root:
+- code/
+- data/raw/
+- data/processed/
+- tests/
+- specs/ (if not present, though typically pre-existing)
+- docs/ (if not present)
 
 Usage:
     python code/setup_project.py
 """
-
 import os
 from pathlib import Path
+import logging
 
+# Configure logging for the module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def create_project_structure():
-    """Create the standard project directory structure."""
-    root = Path(__file__).resolve().parent.parent
-
-    # Define required directories
-    directories = [
+def create_project_structure(root_dir: Optional[Path] = None) -> bool:
+    """
+    Creates the standard project directory structure.
+    
+    Args:
+        root_dir: The root directory of the project. Defaults to the current 
+                  working directory if None.
+    
+    Returns:
+        True if all directories were created or already existed successfully,
+        False if any error occurred.
+    """
+    if root_dir is None:
+        root_dir = Path.cwd()
+    
+    # Define the required directory structure
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
         "tests",
-        "specs/001-explore-network-structure-superconducting-qubit-coupling",
-        "specs/001-explore-network-structure-superconducting-qubit-coupling/contracts",
         "docs",
-        "figures",
-        "state/projects"
+        "specs"
     ]
-
-    created = []
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
+    
+    success = True
+    
+    for dir_path in required_dirs:
+        full_path = root_dir / dir_path
+        try:
+            # create_parents=True ensures parent directories are created if needed
+            # exist_ok=True prevents errors if the directory already exists
             full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path.relative_to(root)))
-        else:
-            # Ensure it's a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-
-    # Create .gitkeep files to ensure directories are tracked by git
-    keep_files = []
-    for dir_path in directories:
-        full_path = root / dir_path / ".gitkeep"
-        if not full_path.exists():
-            full_path.write_text("# Keep this directory in git\n")
-            keep_files.append(str(full_path.relative_to(root)))
-
-    return created, keep_files
-
+            
+            # Create .gitkeep files to ensure directories are tracked by git
+            # even if they are empty
+            gitkeep_path = full_path / ".gitkeep"
+            if not gitkeep_path.exists():
+                gitkeep_path.write_text("# Keep this directory in git\n")
+                logger.info(f"Created directory: {full_path} with .gitkeep")
+            else:
+                logger.info(f"Directory already exists: {full_path}")
+                
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            success = False
+        except Exception as e:
+            logger.error(f"Unexpected error creating directory {full_path}: {e}")
+            success = False
+    
+    return success
 
 def main():
-    """Entry point for the setup script."""
-    print("Initializing project structure for PROJ-163...")
-    created, kept = create_project_structure()
-
-    if created:
-        print(f"Created directories:")
-        for d in created:
-            print(f"  - {d}")
+    """
+    Entry point for the script. Creates the project structure in the current directory.
+    """
+    logger.info("Starting project structure setup...")
+    root = Path.cwd()
+    logger.info(f"Project root: {root}")
+    
+    success = create_project_structure(root)
+    
+    if success:
+        logger.info("Project structure setup completed successfully.")
+        # List the created structure for verification
+        logger.info("Created directories:")
+        for item in sorted(root.iterdir()):
+            if item.is_dir():
+                logger.info(f"  - {item.name}")
+        return 0
     else:
-        print("All directories already exist.")
-
-    if kept:
-        print(f"Created .gitkeep files:")
-        for f in kept:
-            print(f"  - {f}")
-
-    print("Project structure setup complete.")
-
+        logger.error("Project structure setup failed.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -1,85 +1,115 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "IBM Quantum Raw Calibration Response"
-description: "Schema for validating the raw JSON response from IBM Quantum backend properties API."
+$schema: http://json-schema.org/draft-07/schema#
+title: IBM Quantum Backend Calibration Snapshot
+description: Schema for raw calibration data fetched from IBM Quantum backends.
 type: object
 required:
   - backend_name
-  - backend_version
-  - last_update_date
   - qubits
   - gates
-  - general
+  - last_update_date
+  - general_properties
 properties:
   backend_name:
     type: string
-    description: "Name of the backend device."
+    description: Name of the backend device.
   backend_version:
     type: string
-    description: "Version of the backend software."
+    description: Version of the backend software.
   last_update_date:
     type: string
     format: date-time
-    description: "ISO 8601 timestamp of the last calibration update."
+    description: ISO 8601 timestamp of the last calibration update.
+  general_properties:
+    type: object
+    description: General properties of the backend.
+    properties:
+      n_qubits:
+        type: integer
+        minimum: 1
+      basis_gates:
+        type: array
+        items:
+          type: string
+      max_shots:
+        type: integer
+        minimum: 1
+      coupling_map:
+        type: array
+        description: List of directed coupling pairs [control, target].
+        items:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 2
+      online_date:
+        type: string
+        format: date-time
+      operational:
+        type: boolean
+    required:
+      - n_qubits
+      - basis_gates
+      - max_shots
+      - coupling_map
+      - online_date
+      - operational
   qubits:
     type: array
-    description: "List of qubit properties (T1, T2, frequency, readout error, etc.)."
+    description: Calibration data for each physical qubit.
     items:
       type: array
-      description: "Each qubit is represented as a list of [name, value] pairs."
+      description: List of properties for a single qubit (multiple entries per qubit).
       items:
         type: object
         required:
           - name
           - value
+          - unit
         properties:
           name:
             type: string
+            description: Property name (e.g., 'T1', 'T2', 'frequency', 'readout_error').
           value:
             type: number
+          unit:
+            type: string
+          date:
+            type: string
+            format: date-time
   gates:
     type: array
-    description: "List of gate properties (error rates, duration, etc.)."
-    items:
-      type: object
-      required:
-        - gate
-        - qubits
-        - parameters
-        - gate_error
-      properties:
-        gate:
-          type: string
-        qubits:
-          type: array
-          items:
-            type: integer
-        parameters:
-          type: array
-          items:
-            type: number
-        gate_error:
-          type: number
-        gate_length:
-          type: number
-  general:
-    type: array
-    description: "General backend properties (coupling map, basis gates, etc.)."
+    description: Calibration data for gates (e.g., CX).
     items:
       type: object
       required:
         - name
-        - value
+        - qubits
+        - parameters
       properties:
         name:
           type: string
-        value:
-          oneOf:
-            - type: array
-              items:
-                type: array
-                items:
-                  type: integer
-            - type: string
-            - type: number
-            - type: boolean
-additionalProperties: true
+          description: Gate name (e.g., 'cx').
+        qubits:
+          type: array
+          items:
+            type: integer
+          description: Qubits involved in the gate operation.
+        parameters:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - value
+              - unit
+            properties:
+              name:
+                type: string
+              value:
+                type: number
+              unit:
+                type: string
+              date:
+                type: string
+                format: date-time

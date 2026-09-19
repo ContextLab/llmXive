@@ -1,1 +1,33 @@
-[]
+- artifact_hash: af978e00233025396d6d69f17ebe283dfd9d5e5d813fb9c9b49ef213a4b0cffc
+  artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Introduction | IBM Quantum Documentation
+  kind: url
+  value: https://docs.quantum.ibm.com/
+  verification_status: pending
+  verified_against_url: https://quantum.cloud.ibm.com/docs/en/guides
+  verified_at: '2026-09-19T19:36:59.615851Z'
+- artifact_hash: af978e00233025396d6d69f17ebe283dfd9d5e5d813fb9c9b49ef213a4b0cffc
+  artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Software for Complex Networks &#8212; NetworkX 3.6.1 documentation
+  kind: url
+  value: https://networkx.org/documentation/stable/
+  verification_status: pending
+  verified_against_url: https://networkx.org/documentation/stable/
+  verified_at: '2026-09-19T19:36:59.615851Z'
+- artifact_hash: af978e00233025396d6d69f17ebe283dfd9d5e5d813fb9c9b49ef213a4b0cffc
+  artifact_path: projects/PROJ-163-exploring-the-role-of-network-structure-/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Introduction | IBM Quantum Documentation
+  kind: url
+  value: https://qiskit.org/documentation/ibm-runtime/
+  verification_status: pending
+  verified_against_url: https://quantum.cloud.ibm.com/docs/en/guides
+  verified_at: '2026-09-19T19:36:59.615851Z'

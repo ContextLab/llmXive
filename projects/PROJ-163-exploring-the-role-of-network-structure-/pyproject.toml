@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-163"
+name = "llmXive-superconducting-qubit-coupling"
 version = "0.1.0"
-description = "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
+description = "Exploring the role of network structure in superconducting qubit coupling"
 requires-python = ">=3.11"
 dependencies = [
     "qiskit-ibm-runtime",
@@ -17,12 +17,13 @@ dependencies = [
     "pytest",
     "seaborn",
     "pyyaml",
+    "jsonschema"
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
+include = "code/|tests/"
 exclude = '''
 /(
     \.git
@@ -38,12 +39,34 @@ exclude = '''
 '''
 
 [tool.ruff]
-# Ruff configuration is also in .ruff.toml for lint rules,
-# but we keep this file for project metadata and Black settings.
-# This ensures Black and Ruff are configured in the same place for the project.
-extend-include = ["*.ipynb"]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "N",  # flake8-blind-parens
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+pythonpath = ["."]
 addopts = "-v --tb=short"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Marks tests that take a long time to run"
+]

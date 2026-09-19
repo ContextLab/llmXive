@@ -1,16 +1,39 @@
-T008:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt includes an updated **FR\u2011003** section\
-    \ that explicitly retracts the \u201Chistorical time window\u201D requirement\
-    \ and documents the new cross\u2011sectional analysis approach, satisfying the\
-    \ task\u2019s deliverable. No further artifacts are needed."
-T016:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files under `data/raw/` containing the raw JSON calibration
-    snapshots, nor any accompanying timestamps or checksum metadata, is provided.
-    The required artifact is missing, so the task is not satisfied.
+  r: No evidence of the required directory hierarchy (`code/`, `data/raw/`, `data/processed/`,
+    `tests/`) is provided; the implementer did not supply any artifact showing these
+    folders exist or contain files. The task cannot be considered completed until
+    the project structure is created and visible.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, or a `setup.cfg`)\
+    \ are present to demonstrate that a Python\u202F3.11 project was created and that\
+    \ the listed dependencies (`qiskit-ibm-runtime`, `networkx`, `pandas`, `scipy`,\
+    \ `matplotlib`, `requests`, `pytest`) are declared. The implementer must provide\
+    \ the initialized project structure with the required dependency specifications."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8`) are present in the provided
+    evidence, so the requirement to configure ruff/flake8 and Black cannot be verified.
+    The task lacks the necessary artifacts to confirm completion.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided that demonstrates
+    loading IBM Quantum API tokens or setting default environment parameters. The
+    required artifact for task T006 (e.g., a Python module or YAML/JSON config handling
+    token retrieval and defaults) is missing, so the claim cannot be verified.
+T010:
+  c: false
+  h: ea85f8cd8c1a6c11dea2fad48a6e8d9e1416b3f607e6becbc0a2657a17c0e8f3
+  r: "The test file `tests/test_fetcher.py` is present and attempts to load a schema,\
+    \ but the required schema file `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`\
+    \ is missing, so the contract validation cannot actually be performed. Add the\
+    \ missing schema file (non\u2011empty) at the specified path."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

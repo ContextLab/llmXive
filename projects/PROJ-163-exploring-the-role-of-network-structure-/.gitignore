@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,61 +20,47 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 
-# IDEs and Editors
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.project
-.settings/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# mypy
-.mypy_cache/
-
-# Ruff
-.ruff_cache/
-
-# Data files (tracked selectively if needed, but raw/processed usually ignored in CI)
+# Data (raw and processed)
 data/raw/*.json
 data/processed/*.csv
-data/processed/*.png
-docs/report.md
-state/
+data/processed/*.parquet
+
+# Figures
+figures/*.png
+figures/*.pdf
+figures/*.svg
+
+# State
+state/*.yaml
+state/*.json
+
+# Logs
+*.log
 logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Environment variables (local overrides)
+.env
+.env.local
