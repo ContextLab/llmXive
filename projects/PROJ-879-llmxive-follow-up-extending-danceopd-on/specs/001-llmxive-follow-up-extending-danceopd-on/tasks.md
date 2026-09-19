@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -209,3 +209,35 @@
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [X] T032 Reconcile run-book vs implementation for `code/models/train_tree.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/models/train_tree.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [X] T033 Reconcile run-book vs implementation for `code/utils/stats.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/stats.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+
+---
+
+## Phase 6: Data Integrity & Streaming Corrections (Revision Round)
+
+**Purpose**: Address analysis findings regarding data loading robustness and streaming implementation to prevent silent synthetic fallbacks.
+
+- [ ] T034 [US1] **Implement Real Data Streaming Loader**. Replace any placeholder or non-streaming data loading in `code/00_data_stream.py` with a true streaming implementation using `datasets.load_dataset(..., streaming=True)`.
+ - **Rationale**: The current implementation risks loading full datasets into RAM, violating the <7GB RAM constraint and failing on large real datasets.
+ - **Logic**: Implement a generator that yields batches of `(prompt_embedding, noise_level)` from the real ImageNet/LAION sources without loading the entire dataset.
+ - **Constraint**: Must use `itertools.islice` or similar for controlled sampling if the full stream is too long, explicitly logging the sample size and seed.
+ - **Deliverable**: `code/00_data_stream.py` updated to use streaming API and log sample metadata.
+- [ ] T035 [US1] **Remove Synthetic Fallback Logic**. Audit `code/00_data_fetch.py` and `code/00_data_stream.py` to ensure NO `try/except` blocks or conditional logic fall back to synthetic/mock data if real data fetch fails.
+ - **Rationale**: Constitution Principle III (Data Hygiene) and the "Fail Loud" rule require that real data fetch failures raise exceptions, not silent fallbacks.
+ - **Logic**: Remove any `generate_synthetic_*` calls or `mock_*` data generation logic. Ensure `FileNotFoundError` or `HTTPError` propagates to exit the process.
+ - **Deliverable**: Verified absence of synthetic fallback code in data loading scripts.
+- [ ] T036 [US3] **Implement Full Sample Evaluation**. Ensure `code/02_evaluate_fidelity.py` iterates over ALL test samples (not just matched ones) to measure total system error as per FR-005.
+ - **Rationale**: Filtering to "matched" cases hides the degradation caused by misrouting, violating the requirement to measure total fidelity drop.
+ - **Logic**: Remove any `if routing_match:` filtering before metric calculation. Calculate FID/CLIP for the entire test set regardless of routing correctness.
+ - **Deliverable**: `code/02_evaluate_fidelity.py` updated to process full test set.
+
+---
+
+## Phase N: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T037 [P] Documentation updates in `docs/` reflecting the streaming data strategy and fail-loud behavior.
+- [ ] T038 Code cleanup and refactoring to remove duplicate imports and unused variables.
+- [ ] T039 Performance optimization for the Euler integrator (vectorization where possible).
+- [ ] T040 [P] Additional unit tests for streaming logic in `tests/unit/test_streaming.py`.
+- [ ] T041 Run `quickstart.md` validation to ensure the updated pipeline executes end-to-end.
