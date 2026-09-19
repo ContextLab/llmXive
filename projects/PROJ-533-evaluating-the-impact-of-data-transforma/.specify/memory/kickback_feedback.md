@@ -1,12 +1,19 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 11 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): No directory listing or other proof was provided showing that the exact `mkdir -p …` command was executed and the required folder hierarchy exists; without such evidence the task cannot be confirmed as completed.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- T014b (update state YAML) depends on T014 (checksums), but T014 depends on T013 (download). However, T014b also lists T006b (data_model) as a dependency. T006b is in Phase 2, which is correct, but the dependency chain T013 -> T014 -> T014b is broken if T013 is not explicitly marked as a prerequisite for T014 in the task description (it says 'Must run immediately AFTER' but lacks a formal dependency tag).
+- T024 (simulate_null) depends on T022 (transformations). T022 depends on T009 (logging). T009 is in Phase 2. However, T024 also requires the 'fixed seed' logic which is defined in T008 (simulation_seeds.txt). T008 is in Phase 2, but T024 does not explicitly list T008 as a dependency, creating a hidden ordering risk for the seed file creation.
+- T015a and T016a define schemas for CSV files. T015 and T016 implement the logic to write to these files. The order is correct (schema before implementation), but T015a is listed after T015 in the text flow (T015a is before T015 in the list, but the dependency arrow in T015 points to T015a). The visual ordering is slightly confusing; ensure schema definition tasks are visually grouped before their implementation tasks.
+- T001a-T001d and T003a are not executable: they describe creating directories/files but lack a concrete verification step (e.g., 'verify file exists via `test -f`' or 'verify content via `grep`'). Without a verification mechanism, an implementer cannot deterministically confirm completion.
+- T009 (logging_config.py) is not executable: it specifies a JSON format and atomic writes but does not define the exact log message structure (e.,g., keys for 'data' object) or the specific file locking mechanism (e.,g., `flock` vs `fcntl`). The implementer cannot implement 'atomic writes' deterministically without these specifics.
+- T004 (checkpointing.py) is not executable: it lists functions but does not specify the exact JSON schema for the checkpoint file (e.,g., keys for 'current_dataset_id', 'last_seed'), nor the atomic write strategy (e.,g., write to temp file then rename). This prevents deterministic implementation.
+- T013 (download_datasets.py) is not executable: it mandates 'no try/except fallback' but does not specify the exact error handling behavior (e.,g., 'raise `ConnectionError` with message X' vs 'exit with code 1'). The implementer cannot implement the 'halt' logic deterministically without this detail.
+- T015a and T016a are not executable: they define CSV schemas but do not specify the exact column order, data types, or delimiter (e.,g., 'comma' vs 'semicolon'). Without this, the implementer cannot generate the files deterministically.
+- T006 is too coarse: it combines defining a specification document (data-model.md) with defining exact attributes and relationships. This should be split into 'Create data-model.md skeleton' and 'Populate data-model.md with entity definitions' to allow independent verification.
+- T005 is too coarse: it lists four statistical test functions in one task. This should be split into separate tasks for 't_test', 'anova', 'shapiro_wilk', and 'friedman' to allow independent testing and implementation.
+- T013 and T014 are too coarse: they combine downloading and checksumming into one task. T014 explicitly depends on T013, but the download logic and checksum logic should be separate tasks to allow independent verification of the download artifact before checksumming.

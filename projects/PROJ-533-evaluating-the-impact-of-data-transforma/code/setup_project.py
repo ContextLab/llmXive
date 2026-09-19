@@ -1,38 +1,48 @@
+"""
+Master setup script to initialize the project directory structure.
+This script orchestrates the creation of all required top-level directories.
+"""
 import os
+import sys
 from pathlib import Path
 
 def main():
-    """
-    Creates the project directory structure as specified in T001.
-    Command equivalent: mkdir -p code/utils data/raw data/processed results/type1_error results/power results/aggregated results/checkpoints tests/unit tests/integration
-    """
-    # Define the root directory (current working directory)
-    root = Path.cwd()
-
-    # Define all required relative paths based on the task description
+    """Create all required project directories."""
+    project_root = Path(__file__).resolve().parent.parent
+    print(f"Project root: {project_root}")
+    
+    # Define directories to create
     directories = [
-        "code/utils",
-        "data/raw",
-        "data/processed",
-        "results/type1_error",
-        "results/power",
-        "results/aggregated",
-        "results/checkpoints",
-        "tests/unit",
-        "tests/integration"
+        "code",
+        "data",
+        "results",
+        "tests"
     ]
-
-    created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
+    
+    created = []
+    skipped = []
+    
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(dir_path)
+            print(f"Created: {dir_path}")
         else:
-            print(f"Directory already exists: {full_path}")
-
-    print(f"Project structure setup complete. {created_count} new directories created.")
+            skipped.append(dir_path)
+            print(f"Exists: {dir_path}")
+    
+    print(f"\nSummary: {len(created)} directories created, {len(skipped)} already existed.")
+    
+    # Create __init__.py files to make them packages
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created: {init_file}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

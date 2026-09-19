@@ -1,40 +1,44 @@
-T003:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration artifacts (e.g., .flake8, pyproject.toml,\
-    \ setup.cfg, requirements.txt, or pre\u2011commit hook files) are present or referenced,\
-    \ and the provided evidence only describes a data\u2011transformation feature,\
-    \ not the required flake8/black setup. The task therefore lacks the necessary\
-    \ files to satisfy the linting/formatting configuration requirement."
-T004:
+  r: No artifact showing a `code/` directory was provided; the claim lacks any file
+    system evidence (e.g., a listing or screenshot) that `mkdir -p code` was executed,
+    so the required directory creation cannot be verified.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/checkpointing.py` file or any code implementing state saving/loading\
-    \ was provided; the only artifacts shown relate to dataset handling and analysis,\
-    \ not to the required checkpointing utility. The task\u2019s core requirement\
-    \ remains unmet."
-T005:
+  r: No evidence of a `data/` directory being created is provided; the implementer
+    did not supply any filesystem listing, script output, or screenshot confirming
+    that `mkdir -p data` was executed and the directory exists. The required artifact
+    is missing.
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/statistical_tests.py` file or its contents are present; the claim\
-    \ provides only high\u2011level user story descriptions and no actual code implementing\
-    \ t\u2011test, ANOVA, Shapiro\u2011Wilk, or Friedman test wrappers. The required\
-    \ module is missing, so the task is not satisfied."
-T006:
+  r: No evidence of a `results/` directory being created is provided; the artifact
+    is missing, so the requirement to create the directory with `mkdir -p results`
+    is not satisfied.
+T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No download, transformation, or aggregation scripts, datasets, result tables,\
-    \ or figures are present; the required artifacts (\u226550 filtered real\u2011\
-    world datasets, Type\u202FI error estimates per transformation, aggregated summary\
-    \ tables/plots) are missing, so the task is not satisfied."
+  r: No evidence of a `tests/` directory (or any listing showing it) is provided;
+    the claim cannot be verified from the given artifacts. The required directory
+    must be shown to exist (e.g., a directory listing or file within `tests/`).
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for a `.flake8` configuration file in the repository (especially under\
+    \ a `code/` directory) containing the required settings (`max-line-length = 100`\
+    \ and `ignore = E501,W503,W504`). No such file was presented or referenced in\
+    \ the provided evidence, so the required artifact is missing. The implementer\
+    \ must add a non\u2011empty `.flake8` file with the specified options."
 T009:
-  c: true
-  h: b7058e7d475f41ad12907873495d405451a159f27c102bb18c0fb9e67c5152a6
-  r: "The `code/utils/logging_config.py` file exists, is fully implemented (\u2248\
-    3\u202FKB), configures a logger that writes to `results/pipeline.log`, defines\
-    \ a formatter, and provides helper functions (`log_exclusion`, `log_imputation_rate`,\
-    \ `log_transformation_intervention`) that log the required events with the specified\
-    \ information. No placeholder or missing functionality is evident."
+  c: false
+  h: 1619a04d0a47c31760634f8163eddfd2fa3555cda8fe75070f7b1ad612e7137d
+  r: "The provided `code/utils/logging_config.py` is truncated (the `emit` method\
+    \ and any logger\u2011setup code are missing) and does not show a concrete logger\
+    \ configured to write to `results/pipeline.log`. Additionally, the required `results/pipeline.log`\
+    \ file is absent. The artifact therefore does not fully satisfy the task\u2019\
+    s specifications."
 T012a:
   c: true
   h: bb253b7df505af45bd78dc3e324293c1e19fd4ae9a53d277a093ff0d2d6665a0
@@ -45,9 +49,37 @@ T012a:
     \ test implementation is present."
 T014:
   c: false
-  h: a3c898b4b8eeedd7a5c098f6b2f3852c579014ebe667b4cdfe61c202e024affa
-  r: "The repository lacks the required `data/checksums.csv` file and the `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml`\
-    \ artifact, so the checksum output and the artifact_hashes map update are not\
-    \ present. Additionally, the `download_datasets.py` script is truncated before\
-    \ showing a complete implementation of writing the SHA\u2011256 hash, indicating\
-    \ the functionality is not fully realized."
+  h: d77f8306cb24457341318713a2072c594f5dd6b9baff46870caca5f2759cbc24
+  r: "The `download_datasets.py` script defines a `compute_sha256` function and a\
+    \ `CHECKSUMS_CSV` path, but there is no evidence in the provided code that it\
+    \ actually computes checksums for downloaded files and writes them to `data/checksums.csv`.\
+    \ Moreover, the `data/checksums.csv` file is missing entirely. The task\u2019\
+    s requirement to append checksum computation and persist the results is therefore\
+    \ not fulfilled."
+T014b:
+  c: false
+  h: d52eae63806b75e56dca68af20609204aa2110e3e28f282182f02c9d3aaa1417
+  r: "The required file `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml`\
+    \ is missing, so no artifact_hashes map could be updated with the checksums from\
+    \ T014. Without the file, the task\u2019s core requirement is not satisfied."
+T015:
+  c: false
+  h: 3f8ef9497387835bcad3f73fe6292c133fb1448bdd6868e18a9e1853dcb7ee54
+  r: "The `filter_datasets.py` file only defines helper functions and the imputation\
+    \ routine is truncated; there is no code that writes imputation logs or exclusion\
+    \ records to the CSV files, and the provided `data/imputation_log.csv` and `data/exclusions.csv`\
+    \ contain only headers with no actual entries. Consequently, the required imputation,\
+    \ >10\u202F% missing\u2011value exclusion logic, and logging outputs are missing."
+T015a:
+  c: false
+  h: 7bbd301d356573b12063ff7906aa01c4239b27f374260f8c07ced144c99e2ef5
+  r: The `data/imputation_log.csv` file correctly contains the required headers, but
+    `data/exclusions.csv` includes an extra `variable` column and omits the exact
+    required schema (`dataset_id, reason, details`). The exclusions file must be updated
+    to match the specified headers exactly.
+T016a:
+  c: false
+  h: 23158b0a8d48277b2cfc7e133e5eeb9469fa5c03c973bd1f4fc7e9bf111ed38b
+  r: The required `data/filter_results.csv` file is missing entirely, so no schema
+    or headers are present to verify. Without the file, the task of defining the schema
+    cannot be considered done.

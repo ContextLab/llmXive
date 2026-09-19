@@ -1,42 +1,38 @@
 """
-Utilities for logging simulation seeds to ensure reproducibility.
-Satisfies Constitution VII "alongside results" requirement.
+Simulation seeds logging utility.
+
+Provides functionality to log simulation seeds to a dedicated file
+for reproducibility and audit purposes.
 """
 from pathlib import Path
 from typing import Optional
 import os
 
-SEEDS_FILE_PATH = "results/simulation_seeds.txt"
+# Path to the simulation seeds log file
+SEEDS_LOG_PATH = Path("results/simulation_seeds.txt")
 
-def log_simulation_seed(run_id: str, seed: int = 42, output_dir: Optional[str] = None) -> str:
+def log_simulation_seed(run_id: str, seed: int, file_path: Optional[Path] = None) -> None:
     """
-    Logs a simulation seed to the central seeds log file.
-    
-    This function ensures the seed is recorded BEFORE the simulation loop executes,
-    satisfying the precondition requirement for reproducibility (Constitution VII).
+    Log a simulation seed to the designated log file.
     
     Args:
-        run_id: Unique identifier for the simulation run.
-        seed: The random seed used for this run (default 42).
-        output_dir: Optional override for the output directory. Defaults to 'results/'.
-        
-    Returns:
-        The absolute path to the seeds file where the entry was logged.
-        
+        run_id: Unique identifier for the simulation run
+        seed: Random seed value used for the simulation
+        file_path: Optional custom path for the log file (defaults to SEEDS_LOG_PATH)
+    
     Raises:
-        FileNotFoundError: If the results directory does not exist and cannot be created.
+        FileNotFoundError: If the results directory doesn't exist
+        PermissionError: If unable to write to the file
     """
-    if output_dir is None:
-        output_dir = "results"
+    if file_path is None:
+        file_path = SEEDS_LOG_PATH
     
-    seeds_path = Path(output_dir)
-    seeds_path.mkdir(parents=True, exist_ok=True)
+    # Ensure the directory exists
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     
-    file_path = seeds_path / "simulation_seeds.txt"
-    
+    # Format the log entry
     log_entry = f"RUN_ID={run_id} SEED={seed}\n"
     
-    with open(file_path, "a", encoding="utf-8") as f:
+    # Append to the file
+    with open(file_path, 'a', encoding='utf-8') as f:
         f.write(log_entry)
-        
-    return str(file_path)

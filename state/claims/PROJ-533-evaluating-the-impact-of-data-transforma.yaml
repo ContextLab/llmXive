@@ -145,23 +145,6 @@
   updated_at: '2026-07-01T23:27:12Z'
 - artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
   attempts: 1
-  canonical: Filter for sample size N >= 30
-  claim_id: c_a3c1e72a
-  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
-    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
-    \ metadata."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "sample size (N \u2265 30)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-01T23:32:51Z'
-- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
-  attempts: 1
   canonical: Estimate Type I error via shuffles with fixed seed
   claim_id: c_fb36d8b1
   context: 'Independent Test: Run `code/apply_transformations.py` and `code/simulate_null.py`
@@ -308,42 +291,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T23:40:46Z'
-- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
-  attempts: 2
-  canonical: Download at least 50 public datasets from UCI/OpenML
-  claim_id: c_a80b79fe
-  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
-    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
-    \ metadata."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Download_at_least_50_public_datasets_from_UCI/OpenML
-  kind: magnitude
-  raw_text: Download at least 50 public datasets from UCI/OpenML
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-01T23:41:24Z'
-- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
-  attempts: 1
-  canonical: "Filter datasets for sample size N \u2265 30"
-  claim_id: c_0a3ec49f
-  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
-    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
-    \ metadata."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "sample size (N \u2265 30)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-01T23:41:24Z'
 - artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
   attempts: 2
   canonical: Generated data has skewness greater than 0.5
@@ -922,42 +869,6 @@
   updated_at: '2026-09-10T19:58:12Z'
 - artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
   attempts: 1
-  canonical: Memory usage less than 6GB
-  claim_id: c_f22fb034
-  context: 'Feasibility Check: All tasks are CPU-only, no GPU/CUDA required, Memory
-    usage < 6GB, Runtime < 6h.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB
-  kind: magnitude
-  raw_text: Memory usage < 6GB
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-10T19:58:33Z'
-- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
-  attempts: 1
-  canonical: Runtime less than 6 hours
-  claim_id: c_833a5aca
-  context: 'Feasibility Check: All tasks are CPU-only, no GPU/CUDA required, Memory
-    usage < 6GB, Runtime < 6h.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
-  kind: magnitude
-  raw_text: Runtime < 6h
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-10T19:59:09Z'
-- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
-  attempts: 1
   canonical: Download at least 50 public datasets from UCI/OpenML
   claim_id: c_3ccba2ec
   context: "Phase 3: User Story 1 - Download and Filter Real-World Datasets (Priority:\
@@ -1214,3 +1125,572 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-10T20:07:03Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: generate at least 1000 simulated datasets per effect size
+  claim_id: c_91d8dcc0
+  context: 'Phase 5: User Story 4 - Simulate Data with Known Ground Truth for Power
+    Analysis (Priority: P4) Implementation for User Story 4: T031 [US4] Implement
+    code/simulate_power.py to generate at least 1000 simulated datasets per effect
+    size (small, medium, large) with ground truth labels (FR-005, US-4 Acceptance
+    Scenario 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_simulated_datasets_per_effect_size
+  kind: magnitude
+  raw_text: Generate at least 1000 simulated datasets per effect size (small, medium,
+    large) with ground truth labels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:29:11Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: verify power estimates match expected values within 95% CI half-width
+    plus or minus 0.02
+  claim_id: c_60b35fa8
+  context: "Phase 5: User Story 4 - Simulate Data with Known Ground Truth for Power\
+    \ Analysis (Priority: P4) Independent Test: Run code/simulate_power.py with fixed\
+    \ effect sizes and verify power estimates match expected values within 95% CI\
+    \ half-width \xB10.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify power estimates match expected values within 95% CI half-width\
+    \ \xB10.02."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:29:12Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: tasks are CPU-only with memory usage less than 6GB and runtime less than
+    6 hours
+  claim_id: c_46c00e40
+  context: 'Notes: Feasibility Check: All tasks are CPU-only, no GPU/CUDA required,
+    Memory usage < 6GB, Runtime < 6h. No 8-bit/4-bit quantization or large model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tasks_are_CPU-only_with_memory_usage_less_than_6GB_and_runti
+  kind: magnitude
+  raw_text: All tasks are CPU-only, no GPU/CUDA required, Memory usage < 6GB, Runtime
+    < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:29:30Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 2
+  canonical: Filter for sample size N >= 30
+  claim_id: c_a3c1e72a
+  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
+    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
+    \ metadata."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample size (N \u2265 30)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:36:11Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Verify Type I error estimated via sufficient shuffles with fixed seed
+  claim_id: c_5363ebd5
+  context: 'Independent Test: Run code/apply_transformations.py and code/simulate_null.py
+    on a single dataset and verify Type I error is estimated via a sufficient number
+    of shuffles with a fixed seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Type_I_error_estimated_via_sufficient_shuffles_with_f
+  kind: entity_fact
+  raw_text: Verify Type I error is estimated via a sufficient number of shuffles with
+    a fixed seed
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:36:13Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 6GB
+  claim_id: c_401fb1b2
+  context: 'Feasibility Check: All tasks are CPU-only, no GPU/CUDA required, Memory
+    usage < 6GB, Runtime < 6h. No 8-bit/4-bit quantization or large model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: Memory usage < 6GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:36:46Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Runtime less than 6 hours
+  claim_id: c_634c0db3
+  context: 'Feasibility Check: All tasks are CPU-only, no GPU/CUDA required, Memory
+    usage < 6GB, Runtime < 6h. No 8-bit/4-bit quantization or large model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:36:47Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Generate at least 50 public datasets from UCI/OpenML
+  claim_id: c_a3a14cc3
+  context: "Independent Test: Execute code/download_datasets.py and code/filter_datasets.py\
+    \ and verify data/datasets.csv contains \u226550 valid entries with SHA-256 checksums\
+    \ in data/checksums.csv."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_public_datasets_from_UCI/OpenML
+  kind: magnitude
+  raw_text: Generate at least 50 public datasets from UCI/OpenML
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:37:07Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Generate at least 1000 simulated datasets per effect size
+  claim_id: c_3b362d10
+  context: 'Phase 5: User Story 4 - Simulate Data with Known Ground Truth for Power
+    Analysis (Priority: P4) Implementation for User Story 4: T031 [US4] Implement
+    code/simulate_power.py to generate at least 1000 simulated datasets per effect
+    size (small, medium, large) with ground truth labels (FR-005, US-4 Acceptance
+    Scenario 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_simulated_datasets_per_effect_size
+  kind: magnitude
+  raw_text: Generate at least 1000 simulated datasets per effect size (small, medium,
+    large) with ground truth labels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:37:21Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Verify power estimates match expected values within 95% CI half-width
+    0.02
+  claim_id: c_c15defaa
+  context: "Phase 5: User Story 4 - Simulate Data with Known Ground Truth for Power\
+    \ Analysis (Priority: P4) Independent Test: Run code/simulate_power.py with fixed\
+    \ effect sizes and verify power estimates match expected values within 95% CI\
+    \ half-width \xB10.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify power estimates match expected values within 95% CI half-width\
+    \ \xB10.02."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:37:21Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Ensure runtime is less than 6 hours total
+  claim_id: c_d4e42db9
+  context: 'Phase N: Polish & Cross-Cutting Concerns T048 Profile code/aggregate_results.py
+    and optimize loop X; record runtime in results/benchmark.log to ensure < 6h total
+    runtime.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_runtime_is_less_than_6_hours_total
+  kind: magnitude
+  raw_text: Ensure runtime is less than 6 hours total.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:37:40Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Memory usage is less than 6GB
+  claim_id: c_540a5131
+  context: 'Notes Feasibility Check: All tasks are CPU-only, no GPU/CUDA required,
+    Memory usage < 6GB, Runtime < 6h. No 8-bit/4-bit quantization or large model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_is_less_than_6GB
+  kind: magnitude
+  raw_text: Memory usage is less than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:37:58Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 2
+  canonical: Verify Type I error estimation via sufficient shuffles with fixed seed
+  claim_id: c_9e24225b
+  context: 'Independent Test: Run code/apply_transformations.py and code/simulate_null.py
+    on a single dataset and verify Type I error is estimated via a sufficient number
+    of shuffles with a fixed seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Type_I_error_estimation_via_sufficient_shuffles_with
+  kind: entity_fact
+  raw_text: Verify Type I error is estimated via a sufficient number of shuffles with
+    a fixed seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:38:51Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 2
+  canonical: Generate at least 1000 simulated datasets per effect size with ground
+    truth labels
+  claim_id: c_bebd26cc
+  context: Implement code/simulate_power.py to generate at least 1000 simulated datasets
+    per effect size (small, medium, large) with ground truth labels (FR-005, US-4
+    Acceptance Scenario 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_simulated_datasets_per_effect_size_wi
+  kind: magnitude
+  raw_text: Generate at least 1000 simulated datasets per effect size (small, medium,
+    large) with ground truth labels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:38:52Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 3
+  canonical: Verify power estimates match expected values within 95% CI half-width
+    0.02
+  claim_id: c_32c6e1ea
+  context: "Independent Test: Run code/simulate_power.py with fixed effect sizes and\
+    \ verify power estimates match expected values within 95% CI half-width \xB10.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify power estimates match expected values within 95% CI half-width\
+    \ \xB10.02."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:38:53Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Generated data has skewness greater than 0.5
+  claim_id: c_15fe0a98
+  context: 'Unit test for simulated data generation (non-normal distributions): Implement
+    tests/unit/test_simulate_power.py::test_non_normal_data_generation asserting Generated
+    data has skewness > 0.5'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generated_data_has_skewness_greater_than_0.5
+  kind: magnitude
+  raw_text: Generated data has skewness > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:39:33Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 2
+  canonical: "Filter datasets for sample size N \u2265 30"
+  claim_id: c_0a3ec49f
+  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
+    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
+    \ metadata."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample size (N \u2265 30)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:40:27Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Generate at least 1000 simulated datasets per effect size
+  claim_id: c_15a243fe
+  context: Implement `code/simulate_power.py` to generate at least 1000 simulated
+    datasets per effect size (small, medium, large) with ground truth labels (FR-005,
+    US-4 Acceptance Scenario 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_simulated_datasets_per_effect_size
+  kind: magnitude
+  raw_text: Generate at least 1000 simulated datasets per effect size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:40:29Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: "Verify power estimates match expected values within 95% CI half-width\
+    \ \xB10.02"
+  claim_id: c_a87a5559
+  context: "Independent Test: Run `code/simulate_power.py` with fixed effect sizes\
+    \ and verify power estimates match expected values within 95% CI half-width \xB1\
+    0.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify power estimates match expected values within 95% CI half-width\
+    \ \xB10.02"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:40:29Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 6GB
+  claim_id: c_a11ac2d1
+  context: '**Feasibility Check**: All tasks are CPU-only, no GPU/CUDA required, Memory
+    usage < 6GB, Runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: Memory usage < 6GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:40:31Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Runtime less than 6 hours
+  claim_id: c_956d1fb0
+  context: '**Feasibility Check**: All tasks are CPU-only, no GPU/CUDA required, Memory
+    usage < 6GB, Runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:40:33Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Exclude datasets with more than 10% missing values
+  claim_id: c_b25c2c32
+  context: Implement missing value imputation (mean/median) and exclusion logic (>10%
+    missing) in `code/filter_datasets.py`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_datasets_with_more_than_10%25_missing_values
+  kind: magnitude
+  raw_text: Filter datasets with more than 10% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:40:54Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 5
+  canonical: Download at least 50 public datasets from UCI/OpenML
+  claim_id: c_a80b79fe
+  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
+    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
+    \ metadata."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_at_least_50_public_datasets_from_UCI/OpenML
+  kind: magnitude
+  raw_text: Download at least 50 public datasets from UCI/OpenML
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:42:03Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Filter datasets for sample size N greater than or equal to 30
+  claim_id: c_2f6c58f6
+  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
+    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
+    \ metadata."
+  evidence:
+    entailment_evidence: Filter datasets for sample size N greater than or equal to
+      3
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Filter_datasets_for_sample_size_N_greater_than_or_equal_to_3
+  kind: magnitude
+  raw_text: "Filter for sample size (N \u2265 30)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T08:43:53Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 2
+  canonical: Generate at least 1000 simulated datasets per effect size
+  claim_id: c_985ff3ae
+  context: Implement code/simulate_power.py to generate at least 1000 simulated datasets
+    per effect size (small, medium, large) with ground truth labels (FR-005, US-4
+    Acceptance Scenario 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1000_simulated_datasets_per_effect_size
+  kind: magnitude
+  raw_text: Generate at least 1000 simulated datasets per effect size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:43:57Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Verify power estimates match expected values within 95% CI half-width
+    plus or minus 0.02
+  claim_id: c_9a946145
+  context: "Independent Test: Run code/simulate_power.py with fixed effect sizes and\
+    \ verify power estimates match expected values within 95% CI half-width \xB10.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify power estimates match expected values within 95% CI half-width\
+    \ \xB10.02"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:43:58Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Assert generated data has skewness greater than 0.5
+  claim_id: c_cd0cc8e3
+  context: 'Unit test for simulated data generation (non-normal distributions): Implement
+    tests/unit/test_simulate_power.py::test_non_normal_data_generation asserting Generated
+    data has skewness > 0.5'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_generated_data_has_skewness_greater_than_0.5
+  kind: magnitude
+  raw_text: Assert Generated data has skewness > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:44:37Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 4
+  canonical: Memory usage less than 6GB
+  claim_id: c_f22fb034
+  context: 'Feasibility Check: All tasks are CPU-only, no GPU/CUDA required, Memory
+    usage < 6GB, Runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB
+  kind: magnitude
+  raw_text: Memory usage < 6GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:44:38Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 4
+  canonical: Runtime less than 6 hours
+  claim_id: c_833a5aca
+  context: 'Feasibility Check: All tasks are CPU-only, no GPU/CUDA required, Memory
+    usage < 6GB, Runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:44:40Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: Exclusion logic for missing values greater than 10 percent
+  claim_id: c_c4bff521
+  context: Implement missing value imputation (mean/median) and exclusion logic (>10%
+    missing) in code/filter_datasets.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_logic_for_missing_values_greater_than_10_percent
+  kind: magnitude
+  raw_text: Exclusion logic (>10% missing)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T08:45:30Z'

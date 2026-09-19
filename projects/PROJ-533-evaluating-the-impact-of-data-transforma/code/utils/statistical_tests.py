@@ -1,153 +1,106 @@
+"""
+Statistical test wrappers for the data transformation sensitivity pipeline.
+
+This module provides standardized interfaces for common statistical tests:
+- t_test: Independent samples t-test
+- anova_one_way: One-way ANOVA
+- shapiro_test: Shapiro-Wilk normality test
+- friedman_test: Friedman test for repeated measures
+
+All functions accept numpy arrays and return p-values (and statistics where applicable).
+"""
+
 import numpy as np
 import pandas as pd
 from scipy import stats
 from typing import Union, List, Tuple, Optional
 
 
-def t_test(
-    group1: Union[np.ndarray, List[float], pd.Series],
-    group2: Union[np.ndarray, List[float], pd.Series],
-    equal_var: bool = True
-) -> Tuple[float, float]:
+def t_test(group1: np.ndarray, group2: np.ndarray) -> float:
     """
     Perform an independent two-sample t-test.
 
     Args:
-        group1: Data for the first group.
-        group2: Data for the second group.
-        equal_var: If True (default), perform standard Student's t-test assuming equal
-                   population variances. If False, perform Welch's t-test.
+        group1: First group of data (numpy array).
+        group2: Second group of data (numpy array).
 
     Returns:
-        A tuple (statistic, p_value).
-
-    Raises:
-        ValueError: If input arrays are empty or contain non-numeric data.
+        float: The p-value of the test.
     """
-    arr1 = np.asarray(group1)
-    arr2 = np.asarray(group2)
+    if len(group1) < 2 or len(group2) < 2:
+        raise ValueError("Both groups must have at least 2 samples for t-test.")
 
-    if arr1.size == 0 or arr2.size == 0:
-        raise ValueError("Input arrays cannot be empty.")
-
-    if not np.issubdtype(arr1.dtype, np.number) or not np.issubdtype(arr2.dtype, np.number):
-        raise ValueError("Input arrays must contain numeric data.")
-
-    statistic, p_value = stats.ttest_ind(arr1, arr2, equal_var=equal_var)
-    return float(statistic), float(p_value)
+    statistic, p_value = stats.ttest_ind(group1, group2)
+    return float(p_value)
 
 
-def anova_one_way(
-    groups: Union[List[Union[np.ndarray, List[float], pd.Series]], np.ndarray]
-) -> Tuple[float, float]:
+def anova_one_way(groups: Union[List[np.ndarray], np.ndarray]) -> float:
     """
-    Perform a one-way ANOVA test.
+    Perform a one-way ANOVA.
 
     Args:
-        groups: A list of array-like data groups, or a 2D array where each row/column
-                represents a group.
+        groups: A list of numpy arrays, where each array represents a group,
+                or a single 2D numpy array where rows are groups.
 
     Returns:
-        A tuple (f_statistic, p_value).
-
-    Raises:
-        ValueError: If fewer than 2 groups are provided or if data is invalid.
+        float: The p-value of the ANOVA test.
     """
-    if isinstance(groups, np.ndarray) and groups.ndim == 2:
-        # If 2D, treat rows as groups if shape[0] < shape[1], else columns
-        # Standard scipy expects *args, so we unpack.
-        # If passed as a list of arrays, we unpack that too.
-        pass
-
-    if isinstance(groups, list):
-        if len(groups) < 2:
-            raise ValueError("ANOVA requires at least 2 groups.")
-        arrays = [np.asarray(g) for g in groups]
-    elif isinstance(groups, np.ndarray) and groups.ndim == 2:
-        # Assuming rows are groups for 2D input in this context, or columns.
-        # Let's assume the user passes a list of arrays for clarity,
-        # but handle 2D array by iterating rows.
-        if groups.shape[0] < 2:
-            raise ValueError("ANOVA requires at least 2 groups.")
-        arrays = [groups[i, :] for i in range(groups.shape[0])]
+    if isinstance(groups, np.ndarray):
+        if groups.ndim == 1:
+            raise ValueError("Input must be a list of groups or a 2D array.")
+        # Convert 2D array to list of rows
+        group_list = [groups[i] for i in range(groups.shape[0])]
     else:
-        raise ValueError("Input must be a list of groups or a 2D numpy array.")
+        group_list = groups
 
-    # Validate data
-    for i, arr in enumerate(arrays):
-        if arr.size == 0:
-            raise ValueError(f"Group {i} is empty.")
-        if not np.issubdtype(arr.dtype, np.number):
-            raise ValueError(f"Group {i} contains non-numeric data.")
+    if len(group_list) < 2:
+        raise ValueError("At least two groups are required for ANOVA.")
 
-    statistic, p_value = stats.f_oneway(*arrays)
-    return float(statistic), float(p_value)
+    # Filter out any empty groups if they exist (though unlikely in valid input)
+    valid_groups = [g for g in group_list if len(g) > 0]
+
+    if len(valid_groups) < 2:
+        raise ValueError("Need at least two non-empty groups for ANOVA.")
+
+    statistic, p_value = stats.f_oneway(*valid_groups)
+    return float(p_value)
 
 
-def shapiro_test(
-    data: Union[np.ndarray, List[float], pd.Series]
-) -> Tuple[float, float]:
+def shapiro_test(data: np.ndarray) -> Tuple[float, float]:
     """
     Perform the Shapiro-Wilk test for normality.
 
     Args:
-        data: Array-like data to test.
+        data: The data sample (numpy array).
 
     Returns:
-        A tuple (statistic, p_value).
-
-    Raises:
-        ValueError: If data is too small (n < 3) or too large (n > 5000) for this test,
-                    or if data is not numeric.
+        Tuple[float, float]: A tuple containing (statistic, p_value).
     """
-    arr = np.asarray(data)
+    if len(data) < 3 or len(data) > 5000:
+        # scipy.stats.shapiro has limits, though 5000 is the hard limit in older versions.
+        # We'll let scipy handle the specific error if out of bounds, but warn if too small.
+        if len(data) < 3:
+            raise ValueError("Shapiro-Wilk test requires at least 3 samples.")
 
-    if arr.size < 3:
-        raise ValueError("Shapiro-Wilk test requires at least 3 samples.")
-    if arr.size > 5000:
-        raise ValueError("Shapiro-Wilk test is limited to 5000 samples. "
-                         "Consider using the Anderson-Darling test for larger datasets.")
-    if not np.issubdtype(arr.dtype, np.number):
-        raise ValueError("Input data must be numeric.")
-
-    statistic, p_value = stats.shapiro(arr)
+    statistic, p_value = stats.shapiro(data)
     return float(statistic), float(p_value)
 
 
-def friedman_test(
-    data: Union[np.ndarray, pd.DataFrame]
-) -> Tuple[float, float]:
+def friedman_test(data_matrix: np.ndarray) -> Tuple[float, float]:
     """
     Perform the Friedman test (non-parametric repeated measures ANOVA).
 
     Args:
-        data: A 2D array or DataFrame where rows are blocks (subjects) and columns
-              are treatments (groups).
+        data_matrix: A 2D numpy array where rows represent subjects and columns represent conditions.
 
     Returns:
-        A tuple (chi2_statistic, p_value).
-
-    Raises:
-        ValueError: If data is not 2D or does not have at least 2 groups (columns).
+        Tuple[float, float]: A tuple containing (statistic, p_value).
     """
-    if isinstance(data, pd.DataFrame):
-        arr = data.values
-    else:
-        arr = np.asarray(data)
+    if data_matrix.ndim != 2:
+        raise ValueError("Input must be a 2D array (subjects x conditions).")
 
-    if arr.ndim != 2:
-        raise ValueError("Input data must be 2D (rows=blocks, columns=treatments).")
-    if arr.shape[1] < 2:
-        raise ValueError("Friedman test requires at least 2 groups (columns).")
-    if arr.shape[0] < 2:
-        raise ValueError("Friedman test requires at least 2 blocks (rows).")
+    if data_matrix.shape[0] < 2 or data_matrix.shape[1] < 2:
+        raise ValueError("Need at least 2 subjects and 2 conditions for Friedman test.")
 
-    if not np.issubdtype(arr.dtype, np.number):
-        raise ValueError("Input data must be numeric.")
-
-    # Handle NaNs if any (scipy might raise, so we check or let it fail loudly)
-    if np.isnan(arr).any():
-        raise ValueError("Input data contains NaN values. Please handle missing data before testing.")
-
-    statistic, p_value = stats.friedmanchisquare(*arr.T)
+    statistic, p_value = stats.friedmanchisquare(*data_matrix.T)
     return float(statistic), float(p_value)
