@@ -1,43 +1,109 @@
-"""
-Script to initialize the directory structure for the Socratic Transformers project.
-This script creates the necessary folders and placeholder files as defined in T001.
-"""
 import os
 from pathlib import Path
 
-def main():
-    project_root = Path(__file__).parent
-    base_dirs = [
-        "src",
-        "src/data",
-        "src/train",
-        "src/eval",
-        "src/analyze",
-        "src/utils",
-        "tests",
-        "tests/contract",
-        "tests/integration",
+def create_directories(base_path: Path) -> None:
+    """
+    Create the required directory structure for the project.
+    
+    Args:
+        base_path: The root directory for the project structure.
+    """
+    # Define the directories to create
+    directories = [
+        base_path / "src",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "tests",
     ]
+    
+    # Create each directory if it doesn't exist
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
 
-    print(f"Setting up project structure in: {project_root}")
+def create_gitkeep_files(base_path: Path) -> None:
+    """
+    Create .gitkeep files in data directories to ensure they are tracked by git.
+    
+    Args:
+        base_path: The root directory for the project structure.
+    """
+    # Define the data directories that need .gitkeep files
+    data_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+    ]
+    
+    # Create .gitkeep in each data directory
+    for directory in data_dirs:
+        gitkeep_path = directory / ".gitkeep"
+        gitkeep_path.touch()
+        print(f"Created .gitkeep in: {directory}")
 
-    for dir_path in base_dirs:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"  Created directory: {full_path}")
+def verify_structure(base_path: Path) -> bool:
+    """
+    Verify that all required directories and .gitkeep files exist.
+    
+    Args:
+        base_path: The root directory for the project structure.
+        
+    Returns:
+        bool: True if all required paths exist, False otherwise.
+    """
+    # Define the required paths
+    required_dirs = [
+        base_path / "src",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "tests",
+    ]
+    
+    required_gitkeep_files = [
+        base_path / "data" / "raw" / ".gitkeep",
+        base_path / "data" / "processed" / ".gitkeep",
+        base_path / "data" / "results" / ".gitkeep",
+    ]
+    
+    # Check directories
+    for directory in required_dirs:
+        if not directory.is_dir():
+            print(f"Missing directory: {directory}")
+            return False
+    
+    # Check .gitkeep files
+    for file_path in required_gitkeep_files:
+        if not file_path.is_file():
+            print(f"Missing .gitkeep file: {file_path}")
+            return False
+    
+    return True
 
-    # Ensure __init__.py files exist in src and tests root
-    src_init = project_root / "src" / "__init__.py"
-    if not src_init.exists():
-        src_init.write_text('"""Core source package."""\n')
-        print(f"  Created: {src_init}")
-
-    tests_init = project_root / "tests" / "__init__.py"
-    if not tests_init.exists():
-        tests_init.write_text('"""Test suite."""\n')
-        print(f"  Created: {tests_init}")
-
-    print("Project structure setup complete.")
+def main():
+    """
+    Main function to initialize the project directory structure.
+    """
+    # Define the base path for this project
+    base_path = Path(__file__).parent
+    
+    print(f"Initializing project structure in: {base_path}")
+    
+    # Create directories
+    create_directories(base_path)
+    
+    # Create .gitkeep files
+    create_gitkeep_files(base_path)
+    
+    # Verify structure
+    if verify_structure(base_path):
+        print("Project structure verification: SUCCESS")
+    else:
+        print("Project structure verification: FAILED")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

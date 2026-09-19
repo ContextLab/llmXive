@@ -1231,3 +1231,711 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T06:52:52Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset available as openai/gsm8k on HuggingFace
+  claim_id: c_a41c1e02
+  context: Fetch checksums from the spec.md 'Verified Datasets' block for GSM8K (openai/gsm8k)
+    and MATH (hendrycks/math)...
+  evidence:
+    entailment_evidence: GSM8K dataset available as openai/gsm8k on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_available_as_openai/gsm8k_on_HuggingFace
+  kind: entity_fact
+  raw_text: The dataset GSM8K is available as 'openai/gsm8k' on HuggingFace.
+  resolved_value: GSM8K dataset available as openai/gsm8k on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T01:44:58Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: MATH dataset available as hendrycks/math on HuggingFace
+  claim_id: c_2496bfed
+  context: Fetch checksums from the spec.md 'Verified Datasets' block for GSM8K (openai/gsm8k)
+    and MATH (hendrycks/math)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_available_as_hendrycks/math_on_HuggingFace
+  kind: entity_fact
+  raw_text: The dataset MATH is available as 'hendrycks/math' on HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:45:31Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: transformers library version 4.35.0 required
+  claim_id: c_ec64fee8
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transformers_library_version_4.35.0_required
+  kind: entity_fact
+  raw_text: The transformers library version 4.35.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:46:21Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: peft library version 0.7.0 required
+  claim_id: c_dd012cc6
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peft_library_version_0.7.0_required
+  kind: entity_fact
+  raw_text: The peft library version 0.7.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:46:51Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: bitsandbytes library version 0.41.0 required
+  claim_id: c_51fced90
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bitsandbytes_library_version_0.41.0_required
+  kind: entity_fact
+  raw_text: The bitsandbytes library version 0.41.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:47:07Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: datasets library version 2.14.0 required
+  claim_id: c_be6a54d0
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_library_version_2.14.0_required
+  kind: entity_fact
+  raw_text: The datasets library version 2.14.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:47:29Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: scikit-learn library version 1.3.0 required
+  claim_id: c_9d760231
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scikit-learn_library_version_1.3.0_required
+  kind: entity_fact
+  raw_text: The scikit-learn library version 1.3.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:47:48Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: pandas library version 2.0.0 required
+  claim_id: c_ad63a11f
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pandas_library_version_2.0.0_required
+  kind: entity_fact
+  raw_text: The pandas library version 2.0.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:48:09Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: pytest library version 7.4.0 required
+  claim_id: c_dfc08bce
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pytest_library_version_7.4.0_required
+  kind: entity_fact
+  raw_text: The pytest library version 7.4.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:48:28Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: tokenizers library version 0.14.0 required
+  claim_id: c_e56b3278
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0, tokenizers==0.14.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tokenizers_library_version_0.14.0_required
+  kind: entity_fact
+  raw_text: The tokenizers library version 0.14.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:48:51Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: nltk library version 3.8.0 required
+  claim_id: c_d1210aa8
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0, tokenizers==0.14.0,
+    nltk==3.8.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nltk_library_version_3.8.0_required
+  kind: entity_fact
+  raw_text: The nltk library version 3.8.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:49:10Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: psutil library version 5.9.0 required
+  claim_id: c_18d64596
+  context: 'Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0, tokenizers==0.14.0,
+    nltk==3.8.0, psutil==5.9.0.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Psutil_library_version_5.9.0_required
+  kind: entity_fact
+  raw_text: The psutil library version 5.9.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:49:26Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha level 0.025 for Independent t-tests
+  claim_id: c_5173c38d
+  context: "Implement run_t_test(condition_a, condition_b) for Independent t-tests\
+    \ (Selection vs. Ablation, Selection vs. Static) with Bonferroni correction ($\a\
+    lpha = 0.025$)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction sets the alpha level to 0.025 for the statistical
+    tests described.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:49:50Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies list: transformers 4.35.0, peft 0.7.0, bitsandbytes
+    0.41.0, datasets 2.14.0, scikit-learn 1.3.0, pandas 2.0.0, pytest 7.4.0, tokenizers
+    0.14.0, nltk 3.8.0, psutil 5.9.0'
+  claim_id: c_85c48602
+  context: 'T002 [P] Initialize Python project with dependencies in requirements.txt.
+    Required Lines: transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0, tokenizers==0.14.0, nltk==3.8.0,
+    psutil==5.9.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Required dependencies include transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0, tokenizers==0.14.0,
+    nltk==3.8.0, and psutil==5.9.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:50:58Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Training loop hard timeout set to 5 hours
+  claim_id: c_e613916a
+  context: T021 [FR-008] Implement CPU-safe training loop in src/train/train_loop.py
+    with a hard timeout of 5 hours using signal.signal(signal.SIGALRM, timeout_handler).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop has a hard timeout of 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:51:47Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory warning threshold set to 6.5GB
+  claim_id: c_05660164
+  context: T021 [FR-008] Implement CPU-safe training loop... Implement a loop in train_loop.py
+    that samples psutil.Process().memory_info().rss every 60s, logging a warning if
+    > 6.5GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory monitoring logs a warning if usage exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:52:08Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha set to 0.025
+  claim_id: c_cf9bb4c8
+  context: 'T033a [FR-006] [P] Create src/utils/stats_analysis.py: Deliverable: Implement
+    run_t_test(condition_a, condition_b) for Independent t-tests (Selection vs. Ablation,
+    Selection vs. Static) with Bonferroni correction (alpha = 0.025).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a Bonferroni correction with alpha equal
+    to 0.025.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:52:27Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Critic model identified as google/flan-t5-small
+  claim_id: c_54702652
+  context: T006 [P] Setup environment configuration management... Define GENERATOR_MODEL_ID
+    (e.g., google/flan-t5-base) and CRITIC_MODEL_ID (e.g., google/flan-t5-small).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critic_model_identified_as_google/flan-t5-small
+  kind: entity_fact
+  raw_text: The Critic Model used is google/flan-t5-small.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:52:52Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Generator model identified as google/flan-t5-base
+  claim_id: c_b822139f
+  context: T006 [P] Setup environment configuration management... Define GENERATOR_MODEL_ID
+    (e.g., google/flan-t5-base) and CRITIC_MODEL_ID (e.g., google/flan-t5-small).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generator_model_identified_as_google/flan-t5-base
+  kind: entity_fact
+  raw_text: The Generator Model used is google/flan-t5-base.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:53:20Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Datasets identified as GSM8K and MATH
+  claim_id: c_ab536a72
+  context: T010 [P] Implement verify_datasets.py... Fetch checksums from the spec.md
+    'Verified Datasets' block for GSM8K (openai/gsm8k) and MATH (hendrycks/math)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_identified_as_GSM8K_and_MATH
+  kind: entity_fact
+  raw_text: The datasets used are GSM8K (openai/gsm8k) and MATH (hendrycks/math).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:53:50Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Default candidate count K set to 5
+  claim_id: c_24c940f9
+  context: 'T014b [FR-001] Implement Revised Answer Generation... Logic: For each
+    critique in critiques.jsonl, generate K candidates (default K=5) using the Generator
+    Model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of candidates generated for revised answers is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:54:17Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Batch size constraint set to less than or equal to 2
+  claim_id: c_5a79aa17
+  context: T020 [FR-003] [P] Implement LoRA configuration in src/train/lora_config.py
+    with batch_size <= 2, gradient_accumulation_steps = 4, and 4-bit quantization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_size_constraint_set_to_less_than_or_equal_to_2
+  kind: magnitude
+  raw_text: The batch size is less than or equal to 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:55:36Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory monitoring sampling interval set to 60 seconds
+  claim_id: c_a6dfa001
+  context: T021 [FR-008] Implement CPU-safe training loop... Implement a loop in train_loop.py
+    that samples psutil.Process().memory_info().rss every 60s...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory monitoring loop samples every 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:56:13Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Ablation token count tolerance set to plus or minus 1
+  claim_id: c_43416834
+  context: "T015b [FR-007] Implement ablation data generator... Ensure the total token\
+    \ count matches within \xB11... Verification: Assert that the token count of the\
+    \ generated placeholder matches the original critique's token count within a tolerance\
+    \ of \xB11 token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The ablation placeholder token count must match the original critique\
+    \ within a tolerance of \xB11 token."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:56:40Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Critic model loaded with 4-bit quantization
+  claim_id: c_b3eefc83
+  context: T007 [P] Implement base model loader utility... supporting 4-bit quantization
+    via bitsandbytes... T014a... Load Critic Model... with 4-bit quantization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Critic Model is loaded with 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:57:08Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Generator model temperature set to 0.0
+  claim_id: c_563f3229
+  context: 'T014a... Generate Initial Answer: Generates an initial answer using the
+    Generator Model (Temperature=0.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Generator Model uses a temperature of 0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:57:48Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Revised answer generation temperature set to 0.0
+  claim_id: c_88f1e56d
+  context: T014b... generate K candidates (default K=5) using the Generator Model
+    (Temperature=0.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Revised Answer Generation uses a temperature of 0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T01:58:09Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 0
+  canonical: GSM8K dataset source is openai/gsm8k
+  claim_id: c_72141b35
+  context: 'Phase 2, Task T010: Verify datasets against checksums.'
+  evidence:
+    entailment_evidence: GSM8K dataset source is openai/gsm8k
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_source_is_openai/gsm8k
+  kind: entity_fact
+  raw_text: The GSM8K dataset is sourced from openai/gsm8k.
+  resolved_value: GSM8K dataset source is openai/gsm8k
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T02:04:16Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: dependencies list for Socratic Transformers project
+  claim_id: c_7c1781d9
+  context: 'Phase 1, Task T002: Initialize Python project with dependencies in requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires transformers==4.35.0, peft==0.7.0, bitsandbytes==0.41.0,
+    datasets==2.14.0, scikit-learn==1.3.0, pandas==2.0.0, pytest==7.4.0, tokenizers==0.14.0,
+    nltk==3.8.0, and psutil==5.9.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:04:47Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Generator Model ID is google/flan-t5-base
+  claim_id: c_c46d06e7
+  context: 'Phase 2, Task T006: Setup environment configuration management.'
+  evidence:
+    entailment_evidence: Generator Model ID is google/flan-t5-base
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Generator_Model_ID_is_google/flan-t5-base
+  kind: entity_fact
+  raw_text: The Generator Model is specified as google/flan-t5-base.
+  resolved_value: Generator Model ID is google/flan-t5-base
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T02:04:50Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Critic Model ID is google/flan-t5-small
+  claim_id: c_b57c83c7
+  context: 'Phase 2, Task T006: Setup environment configuration management.'
+  evidence:
+    entailment_evidence: Critic Model ID is google/flan-t5-small
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Critic_Model_ID_is_google/flan-t5-small
+  kind: entity_fact
+  raw_text: The Critic Model is specified as google/flan-t5-small.
+  resolved_value: Critic Model ID is google/flan-t5-small
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T02:04:52Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: MATH dataset source is hendrycks/math
+  claim_id: c_f4cc5fe9
+  context: 'Phase 2, Task T010: Verify datasets against checksums.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_source_is_hendrycks/math
+  kind: entity_fact
+  raw_text: The MATH dataset is sourced from hendrycks/math.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:05:18Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Training loop timeout is 5 hours
+  claim_id: c_077f43b6
+  context: 'Phase 4, Task T021: Implement CPU-safe training loop with hard timeout.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop has a hard timeout of 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:05:19Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory warning threshold is 6.5GB
+  claim_id: c_7c32a363
+  context: 'Phase 4, Task T021: Implement CPU-safe training loop with memory monitoring.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory monitoring logs a warning if RSS exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:05:32Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.025
+  claim_id: c_e9714119
+  context: 'Phase 5, Task T033a: Create stats analysis with Independent t-tests.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction sets alpha to 0.025 for Independent t-tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:05:52Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Critic Model uses 4-bit quantization
+  claim_id: c_29f4aa71
+  context: 'Phase 3, Task T014a: Load Critic Model with 4-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Critic Model uses 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:06:13Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Generator Model temperature is 0.0
+  claim_id: c_64679f25
+  context: 'Phase 3, Task T014a: Generate Initial Answer using Generator Model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Generator Model uses a temperature of 0.0 for initial answer generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:06:43Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Default number of ablation candidates is 5
+  claim_id: c_4abe37d8
+  context: 'Phase 3, Task T014b: Revised Answer Generation logic.'
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The ablation data generator creates K candidates with a default of 5.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T02:06:43Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA batch size is less than or equal to 2
+  claim_id: c_1c633433
+  context: 'Phase 4, Task T020: Implement LoRA configuration.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LoRA_batch_size_is_less_than_or_equal_to_2
+  kind: magnitude
+  raw_text: The batch size for LoRA configuration is less than or equal to 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:07:18Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory sampling interval is 60 seconds
+  claim_id: c_f0d7341a
+  context: 'Phase 4, Task T021: Memory Monitoring implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory monitoring loop samples psutil.Process().memory_info().rss
+    every 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:07:48Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Token count tolerance is 1
+  claim_id: c_4502698a
+  context: 'Phase 3, Task T015b: Ablation data generator logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The token count tolerance for the Syntactic Mirror Algorithm is \xB1\
+    1 token."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T02:08:13Z'

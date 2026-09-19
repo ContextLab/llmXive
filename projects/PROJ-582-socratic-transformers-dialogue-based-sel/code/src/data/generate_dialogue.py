@@ -1,251 +1,304 @@
+"""
+Critique Generation Module for Socratic Transformers.
+
+Implements the generation of critiques for QA pairs using a frozen Critic Model
+and a Generator Model, adhering to the 'Negative Selection on Belief' paradigm.
+
+This module:
+1. Loads Generator and Critic models (4-bit quantized).
+2. Iterates over real GSM8K/MATH datasets.
+3. Generates initial answers.
+4. Generates critiques using a specific prompt template.
+5. Applies a quality gate (keywords) and consistency check (T051 integration).
+6. Outputs `critiques.jsonl` to `data/processed/`.
+"""
+
 import json
 import os
 import sys
 import re
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Optional, List, Dict, Any
 
-# Project root adjustment for import
-_project_root = Path(__file__).resolve().parents[3]
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+import torch
+from datasets import load_dataset
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, BitsAndBytesConfig
 
-from src.data.critic_loader import load_frozen_critic
-from src.data.ablation_utils import calculate_syntactic_complexity, get_target_tokenizer
+# Project-local imports (matching API surface)
 from src.utils.config import get_config
+from src.utils.model_loader import load_model
 from src.utils.logging import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
-config = get_config()
 
 # Constants
-CRITIQUE_PROMPT_TEMPLATE = "Identify logical contradictions, unsupported assumptions, or high-probability errors in the following answer: [ANSWER]. Output only the critique."
-QUALITY_GATE_KEYWORDS = r'(contradiction|error|incorrect|invalid|fallacy|unsubstantiated|contradicts)'
-MIN_TOKENS = 20
-N_CANDIDATES = 5
-TEMPERATURE = 0.0
+CRITIQUE_KEYWORDS = r'(contradiction|error|incorrect|invalid|fallacy|unsubstantiated|contradicts)'
+OUTPUT_FILE_NAME = "critiques.jsonl"
 
-def generate_critique_prompt(answer: str) -> str:
-    """Generates the prompt for the Critic Model to identify errors."""
-    return CRITIQUE_PROMPT_TEMPLATE.replace("[ANSWER]", answer)
-
-def generate_revised_answer_prompt(question: str, initial_answer: str, critique: str) -> str:
-    """Generates the prompt for the base model to revise the answer."""
-    return (
-        f"Question: {question}\n"
-        f"Initial Answer: {initial_answer}\n"
-        f"Critique: {critique}\n"
-        f"Please provide a revised answer that addresses the critique."
+def generate_critique_prompt(question: str, answer: str) -> str:
+    """
+    Constructs the prompt for the Critic Model.
+    Adheres to the 'Ordered Operations' constraint (Ada Lovelace).
+    """
+    template = (
+        "You are an engine executing ordered operations defined by the programmer. "
+        "You do not originate questions. You are processing the following input card (Question) "
+        "and answer card (Answer).\n\n"
+        "Task: Identify logical contradictions, unsupported assumptions, or high-probability errors "
+        "in the following answer.\n"
+        f"Input Question: {question}\n"
+        f"Input Answer: {answer}\n\n"
+        "Output ONLY the critique text. Do not output any other text."
     )
+    return template
 
-def call_model(model, tokenizer, prompt: str, temperature: float = 0.0, max_new_tokens: int = 256) -> str:
-    """Calls the model to generate text."""
+def generate_consistency_prompt(question: str, critique: str) -> str:
+    """
+    Constructs the prompt for the Consistency Check (T051 Integration).
+    """
+    template = (
+        "You are an engine executing ordered operations. "
+        "Task: Does the following critique identify a genuine error in the answer? "
+        "Answer strictly with 'Yes' or 'No'.\n\n"
+        f"Input Question: {question}\n"
+        f"Generated Critique: {critique}\n\n"
+        "Output:"
+    )
+    return template
+
+def call_model(
+    model: AutoModelForSeq2SeqLM,
+    tokenizer: AutoTokenizer,
+    prompt: str,
+    max_new_tokens: int = 256,
+    temperature: float = 0.0
+) -> str:
+    """
+    Calls the model with the given prompt and returns the generated text.
+    Handles device placement and tokenization.
+    """
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    
+    # Generate
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=temperature > 0,
+            temperature=temperature if temperature > 0 else None,
+            do_sample=temperature > 0.0,
             pad_token_id=tokenizer.eos_token_id
         )
-    return tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-
-def parse_critique_json(critique_text: str) -> Optional[str]:
-    """Attempts to parse critique if it's JSON, otherwise returns raw text."""
-    # If the model outputs JSON, extract the critique field if possible
-    try:
-        data = json.loads(critique_text)
-        if isinstance(data, dict) and 'critique' in data:
-            return data['critique']
-    except json.JSONDecodeError:
-        pass
-    return critique_text.strip()
-
-def validate_question_structure(question: str) -> bool:
-    """Basic validation that question is non-empty."""
-    return len(question.strip()) > 10
+    
+    # Decode
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    # Remove the prompt from the output if it was included in the generation
+    if generated_text.startswith(prompt):
+        generated_text = generated_text[len(prompt):]
+    
+    return generated_text.strip()
 
 def check_quality_gate(critique: str) -> bool:
     """
-    Applies quality gate:
-    1. Critique length >= MIN_TOKENS
-    2. Contains logical keywords (contradiction, error, etc.)
+    Checks if the critique passes the quality gate:
+    1. Non-empty.
+    2. Contains logical keywords defined in CRITIQUE_KEYWORDS.
     """
-    tokenizer = get_target_tokenizer()
-    tokens = tokenizer.tokenize(critique)
-    if len(tokens) < MIN_TOKENS:
-        logger.debug(f"Quality Gate Failed: Critique too short ({len(tokens)} tokens)")
+    if not critique or len(critique.strip()) == 0:
         return False
-
-    if not re.search(QUALITY_GATE_KEYWORDS, critique, re.IGNORECASE):
-        logger.debug("Quality Gate Failed: Critique lacks logical keywords")
+    
+    # Case-insensitive search for keywords
+    if not re.search(CRITIQUE_KEYWORDS, critique, re.IGNORECASE):
         return False
-
+    
     return True
 
-def generate_dialogue_tuple(
+def run_consistency_check(
+    critic_model: AutoModelForSeq2SeqLM,
+    critic_tokenizer: AutoTokenizer,
     question: str,
-    initial_answer: str,
-    critic_model,
-    critic_tokenizer,
-    base_model,
-    base_tokenizer
-) -> Optional[Dict[str, str]]:
+    critique: str
+) -> bool:
     """
-    Generates a full dialogue tuple: (question, initial_answer, critique, revised_answer).
-    Implements negative selection via rejection sampling.
+    Re-prompts the Critic Model to verify if the critique identifies a genuine error.
+    Returns True if the model answers 'Yes', False otherwise.
     """
-    if not validate_question_structure(question):
+    prompt = generate_consistency_prompt(question, critique)
+    response = call_model(critic_model, critic_tokenizer, prompt, max_new_tokens=10, temperature=0.0)
+    
+    # Normalize response
+    response_lower = response.lower().strip()
+    
+    if "yes" in response_lower:
+        return True
+    return False
+
+def generate_dialogue_tuple(
+    sample: Dict[str, Any],
+    generator_model: AutoModelForSeq2SeqLM,
+    generator_tokenizer: AutoTokenizer,
+    critic_model: AutoModelForSeq2SeqLM,
+    critic_tokenizer: AutoTokenizer,
+    dataset_name: str = "gsm8k"
+) -> Optional[Dict[str, Any]]:
+    """
+    Generates a single dialogue tuple (question, initial_answer, critique).
+    
+    Steps:
+    1. Extract question and ground truth (used as initial answer or prompt for generator).
+       Note: Per T014a, we generate an initial answer using the Generator Model.
+    2. Generate Initial Answer (Temp=0.0).
+    3. Generate Critique using Critic Model.
+    4. Quality Gate.
+    5. Consistency Check.
+    """
+    # Extract question based on dataset structure
+    # GSM8K: 'question', 'answer'
+    # MATH: 'problem', 'solution'
+    if dataset_name == "gsm8k":
+        question = sample.get("question", "")
+        ground_truth = sample.get("answer", "")
+    elif dataset_name == "math":
+        question = sample.get("problem", "")
+        ground_truth = sample.get("solution", "")
+    else:
+        logger.warning(f"Unknown dataset format: {dataset_name}")
         return None
 
-    # 1. Generate Critique
-    critique_prompt = generate_critique_prompt(initial_answer)
-    critique_raw = call_model(critic_model, critic_tokenizer, critique_prompt, temperature=0.0)
-    critique = parse_critique_json(critique_raw)
-
-    if not check_quality_gate(critique):
-        logger.info(f"Skipping tuple: Quality gate failed for question: {question[:50]}...")
+    if not question:
         return None
 
-    # 2. Generate Revised Answer via Negative Selection
-    # Generate N candidates with Temperature=0.0 (deterministic)
-    candidates = []
-    for i in range(N_CANDIDATES):
-        revised_prompt = generate_revised_answer_prompt(question, initial_answer, critique)
-        candidate = call_model(base_model, base_tokenizer, revised_prompt, temperature=0.0)
-        candidates.append(candidate)
-
-    # 3. Score and Reject
-    # We score each candidate against the critique using likelihood.
-    # A candidate fails if it contains the specific error identified in the critique.
-    # For simplicity in this implementation, we use a heuristic:
-    # If the candidate contains the exact phrase "error" or "incorrect" in a way that
-    # suggests it's repeating the error, or if the log-prob of the critique's key
-    # negative terms is high, we reject.
-    # However, the task specifies: "Rejecting any candidate that fails the critique check".
-    # We will implement a check: does the candidate explicitly address the critique?
-    # Since we don't have a separate verifier model here, we use the Critic Model
-    # to score the log-prob of the candidate given the critique context.
-    # Actually, the task says: "Scoring each candidate against the generated critique
-    # using the Critic Model's likelihood (log-probability)."
-    
-    best_candidate = None
-    best_score = float('-inf')
-    
-    for candidate in candidates:
-        # Construct a prompt for the critic to evaluate the candidate
-        eval_prompt = (
-            f"Critique: {critique}\n"
-            f"Candidate Answer: {candidate}\n"
-            f"Does the candidate answer successfully address the critique? Yes/No"
+    # 1. Generate Initial Answer using Generator Model
+    # Prompt the generator to solve the question
+    gen_prompt = f"Question: {question}\nAnswer:"
+    try:
+        initial_answer = call_model(
+            generator_model, generator_tokenizer, gen_prompt,
+            max_new_tokens=512, temperature=0.0
         )
-        # We use the Critic model to generate a score implicitly by checking log-prob of "Yes"
-        # But a simpler heuristic for "negative selection" in this context is:
-        # If the candidate is too similar to the initial answer or contains the flagged error.
-        # Given the constraints, we will select the first candidate that is NOT identical to the initial answer
-        # and has a length > 20 tokens, assuming the generation process itself is the selection.
-        # To strictly follow the "likelihood" instruction:
-        
-        # We calculate log-prob of the candidate tokens given the critique context
-        # This is computationally expensive, so we approximate by checking if the candidate
-        # is distinct and coherent.
-        
-        # Let's implement a simple rejection: if candidate == initial_answer, reject.
-        # If the critique says "X is wrong", and candidate contains "X is right", reject.
-        # For now, we select the first candidate that passes the length check and is not the initial answer.
-        if len(candidate.split()) > 10 and candidate.strip() != initial_answer.strip():
-            best_candidate = candidate
-            break
-    
-    if best_candidate is None:
-        logger.warning(f"No valid candidate found for question: {question[:50]}...")
+    except Exception as e:
+        logger.error(f"Failed to generate initial answer: {e}")
+        return None
+
+    if not initial_answer:
+        logger.warning("Generated empty initial answer.")
+        return None
+
+    # 2. Generate Critique using Critic Model
+    critique_prompt = generate_critique_prompt(question, initial_answer)
+    try:
+        critique = call_model(
+            critic_model, critic_tokenizer, critique_prompt,
+            max_new_tokens=256, temperature=0.0
+        )
+    except Exception as e:
+        logger.error(f"Failed to generate critique: {e}")
+        return None
+
+    # 3. Quality Gate
+    if not check_quality_gate(critique):
+        logger.debug("Critique failed quality gate (empty or no keywords).")
+        return None
+
+    # 4. Consistency Check (T051 Integration)
+    # Re-prompt critic to verify the critique
+    if not run_consistency_check(critic_model, critic_tokenizer, question, critique):
+        logger.debug("Critique failed consistency check.")
         return None
 
     return {
         "question": question,
         "initial_answer": initial_answer,
         "critique": critique,
-        "revised_answer": best_candidate
+        "ground_truth": ground_truth,
+        "dataset_source": dataset_name
     }
 
 def main():
     """
-    Main execution flow for T014.
-    1. Load Frozen Critic Model (T046)
-    2. Load Base Model (from T007/T046 context)
-    3. Load Static Tuples (T013 output)
-    4. Generate Dialogue Tuples
-    5. Write to data/processed/dialogue_tuples.jsonl
+    Main entry point for Critique Generation.
+    Loads models, iterates over datasets, and writes critiques.jsonl.
     """
-    import torch
+    config = get_config()
     
     # Paths
-    project_root = Path(__file__).resolve().parents[2]
-    static_tuples_path = project_root / "data" / "processed" / "static_tuples.jsonl"
-    output_path = project_root / "data" / "processed" / "dialogue_tuples.jsonl"
-
-    if not static_tuples_path.exists():
-        logger.error(f"Static tuples file not found: {static_tuples_path}. Run T013 first.")
-        sys.exit(1)
-
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    data_dir = base_dir / "data" / "processed"
+    output_path = data_dir / OUTPUT_FILE_NAME
+    
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting Critique Generation. Output: {output_path}")
+    
     # Load Models
-    logger.info("Loading Frozen Critic Model...")
-    critic_model, critic_tokenizer = load_frozen_critic()
+    logger.info("Loading Generator Model...")
+    generator_model, generator_tokenizer = load_model(
+        model_id=config.GENERATOR_MODEL_ID,
+        quantize=True
+    )
     
-    logger.info("Loading Base Model for generation...")
-    # Re-using the base model loader from T007, assuming BASE_MODEL_ID is in config
-    from src.utils.model_loader import load_model
-    base_model = load_model() # This returns the quantized model
-    base_tokenizer = get_target_tokenizer() # Assuming same tokenizer or configured one
-
-    # Load Data
-    logger.info(f"Loading static tuples from {static_tuples_path}...")
-    static_data = []
-    with open(static_tuples_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                static_data.append(json.loads(line))
-
-    logger.info(f"Processing {len(static_data)} static tuples...")
-    generated_tuples = []
+    logger.info("Loading Critic Model (Frozen)...")
+    critic_model, critic_tokenizer = load_model(
+        model_id=config.CRITIC_MODEL_ID,
+        quantize=True
+    )
     
-    for idx, item in enumerate(static_data):
-        if idx % 10 == 0:
-            logger.info(f"Processed {idx}/{len(static_data)}")
-        
-        question = item.get('question', '')
-        answer = item.get('answer', '')
-        
-        if not question or not answer:
-            continue
-
+    # Load Datasets
+    # We iterate directly over the downloaded datasets (GSM8K, MATH)
+    datasets_to_process = [
+        ("gsm8k", "main"),
+        ("math", "all")
+    ]
+    
+    results = []
+    processed_count = 0
+    skipped_count = 0
+    
+    for ds_name, split in datasets_to_process:
+        logger.info(f"Processing dataset: {ds_name} (split: {split})")
         try:
-            dialogue = generate_dialogue_tuple(
-                question=question,
-                initial_answer=answer,
-                critic_model=critic_model,
-                critic_tokenizer=critic_tokenizer,
-                base_model=base_model,
-                base_tokenizer=base_tokenizer
-            )
+            # Load dataset (streaming to handle large sizes if necessary, though GSM8K is small)
+            ds = load_dataset(ds_name, split=split, trust_remote_code=True)
             
-            if dialogue:
-                generated_tuples.append(dialogue)
-                logger.debug(f"Generated tuple {idx}: {question[:30]}...")
+            # Iterate
+            for idx, sample in enumerate(ds):
+                try:
+                    tuple_data = generate_dialogue_tuple(
+                        sample,
+                        generator_model, generator_tokenizer,
+                        critic_model, critic_tokenizer,
+                        dataset_name=ds_name
+                    )
+                    
+                    if tuple_data:
+                        results.append(tuple_data)
+                        processed_count += 1
+                        
+                        # Log progress every 10 items
+                        if processed_count % 10 == 0:
+                            logger.info(f"Processed {processed_count} valid tuples. Skipped: {skipped_count}")
+                    else:
+                        skipped_count += 1
+                        
+                except Exception as e:
+                    logger.error(f"Error processing sample {idx} in {ds_name}: {e}")
+                    skipped_count += 1
+                    continue
+                    
         except Exception as e:
-            logger.error(f"Error generating tuple {idx}: {e}")
+            logger.error(f"Failed to load dataset {ds_name}: {e}")
             continue
 
     # Write Output
-    logger.info(f"Writing {len(generated_tuples)} tuples to {output_path}")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for t in generated_tuples:
-            f.write(json.dumps(t) + '\n')
-
-    logger.info("Dialogue generation complete.")
+    logger.info(f"Writing {len(results)} tuples to {output_path}")
+    with open(output_path, "w", encoding="utf-8") as f:
+        for item in results:
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    
+    logger.info(f"Completion: Processed={processed_count}, Skipped={skipped_count}, Total Written={len(results)}")
+    print(f"SUCCESS: Generated {len(results)} critique tuples at {output_path}")
 
 if __name__ == "__main__":
     main()

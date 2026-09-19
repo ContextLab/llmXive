@@ -4,11 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: pyproject.toml, ruff.toml
-- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/logging.py
-- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/config.py
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/model_loader.py
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/metrics.py
+- `T001` (rejected 1x): No directory structure or `.gitkeep` files are shown in the provided evidence, and the required verification command cannot be demonstrated to succeed. The implementer must create the specified folders and placeholder files and show that the assertion script runs without error.
+- `T002` (rejected 1x): The required file `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt` does not exist, so the specified dependencies are not placed at the correct location and the verification command cannot succeed. The existing `code/requirements.txt` is irrelevant to the task’s path requirement.
 
 ## Required change
 

@@ -1,69 +1,61 @@
 # Ruff configuration for Socratic Transformers project
-# Extends settings from pyproject.toml but provides explicit overrides
-
+target-version = 'py39'
 line-length = 88
-target-version = "py39"
-
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    "*.egg-info",
-    ".eggs",
-    "venv",
-    ".venv"
-]
 
 [lint]
-# Enable specific rule sets
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # Pyflakes
-    "I",    # isort
-    "N",    # pep8-naming
-    "UP",   # pyupgrade
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-    "SIM",  # flake8-simplify
-    "ARG",  # flake8-unused-arguments
-    "PTH"   # flake8-use-pathlib
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
-
-# Ignore specific rules that conflict with project style or are too strict
 ignore = [
-    "E501",  # Line too long (black handles this)
-    "W291",  # Trailing whitespace
-    "B904",  # Within an except clause, raise exceptions with raise ... from err
-    "ARG002" # Unused method argument (sometimes needed for API compatibility)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
-# Per-file ignores
-[lint.per-file-ignores]
-"tests/*" = ["S101", "ARG001"]  # Allow assert in tests, unused args in fixtures
-"src/utils/config.py" = ["ARG001"] # Config often has unused args for extensibility
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files and directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+per-file-ignores = {}
 
 [lint.isort]
 known-first-party = ["src"]
-known-third-party = [
-    "datasets",
-    "nltk",
-    "pandas",
-    "peft",
-    "pytest",
-    "scikit_learn",
-    "tokenizers",
-    "transformers",
-    "bitsandbytes",
-    "psutil"
-]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-force-single-line = false
-lines-after-imports = 2
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [lint.pydocstyle]
 convention = "google"
-
-[lint.flake8-unused-arguments]
-ignore-variadic-names = true
