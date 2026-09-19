@@ -3578,3 +3578,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-11T15:34:58Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Model converted to 4-bit quantized format
+  claim_id: c_028b8b2c
+  context: 'T040 [US2] **Model Preparation**: Implement `code/inference/model_prep.py`
+    to download **`mmpro/MMProLong-7B-1.0`** (per Spec FR-002) from HuggingFace and
+    convert it to a 4-bit quantized format.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2309.13866'
+        url: https://arxiv.org/abs/2309.13866
+        value: '4'
+      quote: Pareto-Optimal Quantized ResNet Is Mostly 4-bit
+      source_id: '2105.03536'
+      url: https://arxiv.org/abs/2105.03536
+      value: 4-bit
+    filled: true
+  kind: numeric
+  raw_text: The model is converted to a 4-bit quantized format.
+  resolved_value: 4-bit
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T20:52:24Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Inference completes on CPU within 6 hours
+  claim_id: c_9382fffc
+  context: 'Goal: Execute "needle-in-a-haystack" retrieval on the generated dataset
+    using **`mmpro/MMProLong-7B-1.0`** (4-bit quantized via `llama-cpp-python` OR
+    ONNX Runtime) on a -core CPU runner within 6 hours, with robust OOM handling and
+    integrated memory monitoring.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference must complete on a CPU runner within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:53:19Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Peak memory threshold 7GB
+  claim_id: c_2d099007
+  context: '**Memory Monitoring**: Use `psutil` to measure peak memory per sample.
+    If peak memory > 7GB, log `MEMORY_EXCEEDED`, mark sample as ''skipped'', and continue.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_threshold_7GB
+  kind: magnitude
+  raw_text: Peak memory must be less than 7GB to avoid skipping samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:54:04Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Pilot run uses 1 sample, 128K tokens, 10 images
+  claim_id: c_cc6da1d6
+  context: '**Feasibility Gate**: Implement pilot run logic here to test memory feasibility.
+    **Pilot Run Parameters**: Run on **1 sample** (128K tokens, 10 images).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot run uses 1 sample with 128K tokens and 10 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:57:15Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Significance threshold alpha 0.05
+  claim_id: c_a1e50337
+  context: 'Significance threshold: **alpha = 0.05**.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold for statistical tests is alpha = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T20:57:34Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Short-context text token count <= 4K
+  claim_id: c_82074d3a
+  context: "T052 [P] [US4] Implement `code/analysis/short_context_reporter.py` to\
+    \ filter results from `data/results/short_context_raw.jsonl` (produced by T046)\
+    \ where `text_token_count` \u2264 4K."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Short-context_text_token_count_%3C=_4K
+  kind: magnitude
+  raw_text: Short-context samples must have text_token_count less than or equal to
+    4K.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:57:57Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Short-context grounding accuracy >= 95%
+  claim_id: c_1283ab79
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Short-context_grounding_accuracy_%3E=_95%25
+  kind: magnitude
+  raw_text: Short-context visual grounding questions require an accuracy of at least
+    95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T20:58:34Z'

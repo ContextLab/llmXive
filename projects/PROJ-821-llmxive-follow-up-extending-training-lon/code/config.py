@@ -40,7 +40,8 @@ def get_arm_config() -> Dict[str, Any]:
     max_tokens = int(os.getenv("MAX_TOKENS", "4096"))
     seed = int(os.getenv("SEED", "42"))
     
-    # Model ID from task T005 requirements
+    # Model ID from task T005 requirements and Spec FR-002
+    # Resolves contradiction by prioritizing Spec FR-002 (mmpro) over Plan.md (Qwen)
     model_id = os.getenv("MODEL_ID", "mmpro/MMProLong-7B-1.0")
     
     return {

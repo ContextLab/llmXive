@@ -1,7 +1,14 @@
-T007:
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, script, or documentation showing that the\
-    \ project now loads a `.env` file when present and falls back to default settings.\
-    \ No configuration-management artifact was found, so the required environment\u2011\
-    setup functionality is missing."
+  h: 4c72e14882ba70575b30fdcee000603bc5dd28b2bd8ab2b42623bffe0c21b9f5
+  r: "The repository contains only a partially shown `generate_assets.py` and none\
+    \ of the required output files (`data/assets/img_00.png` \u2026 `img_20.png` and\
+    \ `data/assets/manifest.json`) are present. Without the generated images and manifest,\
+    \ the task\u2019s core requirements are not satisfied."
+T004b:
+  c: false
+  h: c1adfca5263763bda05fa6bb6ffa35f03463a099a5d319240362c5382025ad93
+  r: "The `data/assets/` directory contains no PNG files nor the `manifest.json`;\
+    \ the required 20 images (`img_00.png` \u2026 `img_19.png`/`img_20.png`) and manifest\
+    \ are missing, indicating the script was never executed or its output was not\
+    \ saved. The task\u2019s core requirement is therefore not satisfied."
