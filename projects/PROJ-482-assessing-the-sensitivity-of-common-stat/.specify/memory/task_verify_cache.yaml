@@ -20,6 +20,14 @@ T021b#1:
     \ or writes p\u2011values to `data/processed/raw_pvalues.csv`; the required CSV\
     \ file does not exist. Consequently the task\u2019s core requirement\u2014recording\
     \ every raw p\u2011value in the specified schema\u2014is not satisfied."
+T021b#2:
+  c: false
+  h: 6a747bd10fbf13271d3baa262269f8c943219be5319ddf2b5ef165c3c81743e3
+  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
+    \ the shown portion of `code/simulation_engine.py` does not contain any implementation\
+    \ that streams or writes raw p\u2011values to that CSV (only imports related utilities).\
+    \ Without the output file and concrete writing logic, the task\u2019s requirement\
+    \ is not satisfied."
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b
@@ -27,15 +35,6 @@ T021c:
     \ is truncated and contains no explicit validation routine comparing observed\
     \ Type\u202FI error rates to the nominal alpha level. The required deliverable\
     \ is therefore missing."
-T026b:
-  c: false
-  h: 2891b1726c4a32cce21cf697960b23dd0102e1a0066ba095587aad217ef6168a
-  r: "The repository contains a partial `analyzer.py` that loads data and aggregates\
-    \ Type\u202FI error rates, but it never performs a regression trend analysis,\
-    \ does not write `data/processed/stability_trend.csv`, and does not generate the\
-    \ required plot. Moreover, the expected `stability_trend.csv` file is absent from\
-    \ the project. These missing artifacts mean the task\u2019s requirements are not\
-    \ satisfied."
 T029:
   c: true
   h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023

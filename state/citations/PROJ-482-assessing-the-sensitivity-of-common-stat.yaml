@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 21e144a811b1c04620d2bd8348a80d163f46878d59142681158cac73c4c6f52a
+  artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: MD5 - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q185235
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q185235
+  verified_at: '2026-09-19T04:49:59.684841Z'

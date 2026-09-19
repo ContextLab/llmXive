@@ -1,2 +1,2 @@
-# This directory holds processed simulation results.
-# Created by T006.
+# This directory is for processed simulation results
+# Raw p-values will be written here by the simulation engine

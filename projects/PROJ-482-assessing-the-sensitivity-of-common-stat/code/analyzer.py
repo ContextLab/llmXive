@@ -1,276 +1,296 @@
+"""
+Analyzer module for the llmXive statistical sensitivity pipeline.
+
+This module provides functions to load simulation results, aggregate data,
+compute confidence intervals using bootstrap resampling, analyze stability trends,
+fit regression models, and export results. It is designed to work with the
+output of the simulation engine to assess the sensitivity of statistical tests
+to dataset size.
+"""
+
 import pandas as pd
 import numpy as np
 from typing import Tuple, Optional, List, Dict, Any
 import logging
 import os
 from scipy import stats
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure module-level logger
 logger = logging.getLogger(__name__)
 
-def load_simulation_results(filepath: str = "data/processed/raw_pvalues.csv") -> pd.DataFrame:
+# Constants for numerical stability and default parameters
+DEFAULT_ALPHA = 0.05
+DEFAULT_N_BOOTSTRAP = 1000
+LOG_EPSILON = 1e-15  # Small constant to prevent log(0)
+
+
+def load_simulation_results(filepath: str) -> pd.DataFrame:
     """
-    Load the raw p-values and simulation metadata from the CSV file.
+    Load simulation results from a CSV file.
+
+    This function reads the aggregated simulation results (e.g., error rates
+    per sample size, distribution, and test type) from a CSV file into a
+    pandas DataFrame.
+
+    Args:
+        filepath (str): Path to the CSV file containing simulation results.
+                        Expected columns include 'sample_size', 'distribution_type',
+                        'test_type', 'error_rate', and 'n_replicates'.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the loaded simulation results.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the file is empty or lacks expected columns.
     """
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Simulation results file not found at {filepath}")
-    
-    logger.info(f"Loading simulation results from {filepath}")
+        logger.error(f"Simulation results file not found: {filepath}")
+        raise FileNotFoundError(f"File not found: {filepath}")
+
     df = pd.read_csv(filepath)
-    
-    required_cols = ['sample_size', 'distribution_type', 'test_type', 'p_value', 'hypothesis_type']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {filepath}: {missing}")
-    
+
+    if df.empty:
+        logger.error(f"Simulation results file is empty: {filepath}")
+        raise ValueError(f"File is empty: {filepath}")
+
+    # Log the shape and columns for debugging
+    logger.info(f"Loaded {len(df)} rows from {filepath}. Columns: {list(df.columns)}")
     return df
 
-def aggregate_results(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Aggregate results by (sample_size, distribution_type, test_type).
-    Calculates the observed Type I error rate (proportion of rejections under Null).
-    """
-    logger.info("Aggregating simulation results")
-    
-    # Define rejection: p_value < alpha (0.05)
-    alpha = 0.05
-    df['rejected'] = (df['p_value'] < alpha).astype(int)
-    
-    # Filter for Type I error calculation (Hypothesis Type = Null)
-    # Note: Depending on data, hypothesis_type might be 'Null' or 'Alternative'
-    # We specifically need the rate of rejection when the Null is TRUE.
-    # Assuming 'hypothesis_type' column distinguishes them.
-    null_df = df[df['hypothesis_type'].str.lower().str.contains('null', na=False)]
-    
-    if null_df.empty:
-        logger.warning("No Null hypothesis scenarios found in data. Cannot calculate Type I error.")
-        # Fallback to full data if column naming is inconsistent, but log warning
-        # This handles cases where the column might be named differently or data is mixed
-        # However, strictly following the spec, we need Null scenarios.
-        # If the data contains mixed types, we must isolate the Null ones.
-        # If the column doesn't exist or is empty, we might need to infer or fail.
-        # For robustness, let's assume if the specific filter fails, we check the raw data.
-        # But the spec says "Calculate the Type I error rate for each sample size".
-        # This implies we are looking at the Null scenarios.
-        raise ValueError("No Null hypothesis scenarios found to calculate Type I error rate.")
 
-    # Group by sample_size, distribution_type, test_type
-    grouped = null_df.groupby(['sample_size', 'distribution_type', 'test_type'])
-    
-    agg_df = grouped.agg(
-        total_replicates=('rejected', 'count'),
-        rejections=('rejected', 'sum'),
-        type_i_error_rate=('rejected', 'mean')
-    ).reset_index()
-    
-    logger.info(f"Aggregated {len(agg_df)} unique configurations")
-    return agg_df
-
-def compute_bootstrap_ci(outcomes: np.ndarray, n_bootstrap: int = 1000, alpha: float = 0.05) -> Tuple[float, float]:
+def aggregate_results(raw_pvalues_path: str) -> pd.DataFrame:
     """
-    Compute Bootstrap Resampling confidence interval for a proportion.
-    
+    Aggregate raw p-values into error rates per configuration.
+
+    This function reads the raw p-values generated by the simulation engine,
+    groups them by sample size, distribution type, and test type, and calculates
+    the proportion of rejections (p < alpha) for each group. This provides the
+    empirical Type I error rate (or power) for each scenario.
+
     Args:
-        outcomes: Binary array (0 or 1) of outcomes.
-        n_bootstrap: Number of bootstrap samples.
-        alpha: Significance level for CI.
-        
+        raw_pvalues_path (str): Path to the CSV file containing raw p-values.
+                                Expected columns: 'sample_size', 'distribution_type',
+                                'test_type', 'p_value', 'hypothesis_type'.
+
     Returns:
-        Tuple (lower_bound, upper_bound)
+        pd.DataFrame: Aggregated DataFrame with columns:
+                      'sample_size', 'distribution_type', 'test_type',
+                      'error_rate', 'n_replicates', 'hypothesis_type'.
     """
-    n = len(outcomes)
-    if n == 0:
-        return (0.0, 0.0)
-        
-    boot_means = []
-    for _ in range(n_bootstrap):
-        sample = np.random.choice(outcomes, size=n, replace=True)
-        boot_means.append(np.mean(sample))
-    
-    boot_means = np.array(boot_means)
-    lower = np.percentile(boot_means, 100 * alpha / 2)
-    upper = np.percentile(boot_means, 100 * (1 - alpha / 2))
-    
-    return (lower, upper)
-
-def analyze_stability_trend(
-    aggregated_df: pd.DataFrame, 
-    output_csv: str = "data/processed/stability_trend.csv",
-    plot_path: Optional[str] = "data/processed/stability_trend.png"
-) -> pd.DataFrame:
-    """
-    Calculate Type I error rate for each sample size and perform trend analysis.
-    
-    This function:
-    1. Groups aggregated data by sample_size (and potentially other factors if needed).
-    2. Calculates the mean Type I error rate per sample size.
-    3. Performs a linear regression of error rate vs. log(sample_size) to verify stability.
-    4. Outputs a CSV with the trend analysis results.
-    5. Generates a plot of error rate vs. sample size.
-    
-    Args:
-        aggregated_df: DataFrame from aggregate_results.
-        output_csv: Path to save the trend analysis CSV.
-        plot_path: Path to save the plot.
-        
-    Returns:
-        DataFrame containing the trend analysis results.
-    """
-    logger.info("Analyzing stability trend...")
-    
-    # Ensure we have data
-    if aggregated_df.empty:
-        logger.error("Aggregated DataFrame is empty. Cannot analyze trend.")
-        return pd.DataFrame()
-    
-    # Group by sample_size to get overall trend (ignoring distribution/test for the main trend plot
-    # unless we want to facet. The task asks for "error rate for each sample size".
-    # We will calculate the mean error rate across all distributions/tests for each n.
-    trend_df = aggregated_df.groupby('sample_size').agg(
-        mean_error_rate=('type_i_error_rate', 'mean'),
-        std_error_rate=('type_i_error_rate', 'std'),
-        count=('type_i_error_rate', 'count')
-    ).reset_index()
-    
-    # Sort by sample size
-    trend_df = trend_df.sort_values('sample_size')
-    
-    # Perform Trend Analysis: Linear Regression of Error Rate vs Log(Sample Size)
-    # SC-002 Verification: We expect the error rate to stabilize around alpha (0.05) as n increases.
-    # A significant slope might indicate instability or systematic bias.
-    trend_df['log_n'] = np.log(trend_df['sample_size'])
-    
-    # Fit simple linear regression
-    X = trend_df['log_n'].values
-    y = trend_df['mean_error_rate'].values
-    
-    # Handle potential division by zero or constant X if only one sample size exists
-    if len(np.unique(X)) < 2:
-        logger.warning("Not enough unique sample sizes to perform regression trend analysis.")
-        slope = 0.0
-        intercept = y[0] if len(y) > 0 else 0.0
-        r_squared = 0.0
-        p_value = 1.0
-    else:
-        slope, intercept, r_value, p_value, std_err = stats.linregress(X, y)
-        r_squared = r_value**2
-    
-    # Add regression results to the dataframe for export
-    trend_df['regression_slope'] = slope
-    trend_df['regression_intercept'] = intercept
-    trend_df['regression_p_value'] = p_value
-    trend_df['regression_r_squared'] = r_squared
-    
-    # Calculate Bootstrap CI for the mean error rate at each sample size
-    # We need to go back to the raw data or the aggregated data to get the distribution of errors?
-    # The aggregated_df has 'type_i_error_rate' which is a mean of replicates.
-    # To get a CI for the mean error rate, we would ideally need the raw replicates or the count.
-    # Since we have 'rejections' and 'total_replicates', we can approximate or use the aggregated mean.
-    # However, the task asks for "Bootstrap Resampling confidence intervals for final reporting" in T026.
-    # Here in T026b, we are doing trend analysis. We will compute CI for the mean error rate.
-    # Since we don't have the raw binary outcomes for the *mean* (we have the mean itself),
-    # we can use the standard error if we assume normality, or we can reconstruct if we had raw data.
-    # Given the aggregated data, we can use the standard deviation of the error rates across tests/distros
-    # as a proxy for variability, or just report the mean.
-    # Let's compute a CI for the mean error rate using the standard error of the mean (SEM) if we have multiple tests/distros per n.
-    # Or, if we treat the 'mean_error_rate' as the point estimate, we can't bootstrap without the underlying distribution.
-    # We will use the standard error of the mean (SEM) from the grouped std for the CI band in the plot.
-    # For the CSV, we will just export the regression stats and the mean rates.
-    
-    # If we have multiple entries per sample_size (different tests/dists), we can compute CI on the mean_error_rate values.
-    trend_df['ci_lower'] = np.nan
-    trend_df['ci_upper'] = np.nan
-    
-    for n in trend_df['sample_size']:
-        subset = aggregated_df[aggregated_df['sample_size'] == n]['type_i_error_rate']
-        if len(subset) > 1:
-            # Use the standard deviation of the error rates across tests/distributions
-            # This reflects the variability of the test performance, not just the sampling error of one test.
-            # This is a reasonable proxy for stability across test types.
-            mean_val = subset.mean()
-            std_val = subset.std()
-            n_sub = len(subset)
-            # 95% CI using t-distribution
-            t_crit = stats.t.ppf(0.975, n_sub - 1)
-            margin = t_crit * (std_val / np.sqrt(n_sub))
-            trend_df.loc[trend_df['sample_size'] == n, 'ci_lower'] = mean_val - margin
-            trend_df.loc[trend_df['sample_size'] == n, 'ci_upper'] = mean_val + margin
-        elif len(subset) == 1:
-            # If only one data point, CI is just the point (or undefined)
-            mean_val = subset.iloc[0]
-            trend_df.loc[trend_df['sample_size'] == n, 'ci_lower'] = mean_val
-            trend_df.loc[trend_df['sample_size'] == n, 'ci_upper'] = mean_val
-    
-    # Save to CSV
-    os.makedirs(os.path.dirname(output_csv), exist_ok=True)
-    trend_df.to_csv(output_csv, index=False)
-    logger.info(f"Trend analysis saved to {output_csv}")
-    
-    # Generate Plot
-    if plot_path:
-        os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-        plt.figure(figsize=(10, 6))
-        
-        # Plot mean error rate
-        plt.errorbar(
-            trend_df['sample_size'], 
-            trend_df['mean_error_rate'], 
-            yerr=trend_df['ci_upper'] - trend_df['mean_error_rate'], # Approximate for plot
-            fmt='o', 
-            label='Mean Type I Error Rate', 
-            capsize=5,
-            color='blue'
-        )
-        
-        # Plot nominal alpha
-        plt.axhline(y=0.05, color='red', linestyle='--', label='Nominal Alpha (0.05)')
-        
-        # Plot regression line
-        # Create a smooth line for regression
-        x_reg = np.linspace(trend_df['log_n'].min(), trend_df['log_n'].max(), 100)
-        y_reg = slope * x_reg + intercept
-        plt.plot(np.exp(x_reg), y_reg, color='green', linestyle='-', label=f'Trend (Slope={slope:.4f})')
-        
-        plt.xlabel('Sample Size (n)')
-        plt.ylabel('Type I Error Rate')
-        plt.title('Stability of Type I Error Rate vs Sample Size')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.xscale('log') # Log scale for x-axis often better for sample sizes
-        
-        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Stability plot saved to {plot_path}")
-    
-    return trend_df
-
-def analyze_log_pvalue_regression(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Placeholder for T027 regression analysis.
-    """
-    return {}
-
-def export_regression_results(results: Dict[str, Any], filepath: str) -> None:
-    """
-    Placeholder for T027 export.
-    """
-    pass
-
-def analyze_and_export(input_file: str = "data/processed/raw_pvalues.csv") -> None:
-    """
-    Main entry point for the analyzer to run aggregation, stability analysis, and export.
-    """
+    logger.info(f"Loading raw p-values from {raw_pvalues_path}")
     try:
-        df = load_simulation_results(input_file)
-        agg_df = aggregate_results(df)
-        trend_df = analyze_stability_trend(agg_df)
-        logger.info("Analysis and export completed successfully.")
+        df = pd.read_csv(raw_pvalues_path)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"Failed to read raw p-values: {e}")
         raise
 
-if __name__ == "__main__":
-    analyze_and_export()
+    # Filter for valid p-values (numeric)
+    df = df[pd.to_numeric(df['p_value'], errors='coerce').notna()]
+
+    # Define significance level
+    alpha = 0.05
+
+    # Classify outcomes: 1 if p < alpha (reject null), 0 otherwise
+    # Note: For Type I error, we look at 'null_true' scenarios.
+    # For Power, we look at 'alternative_true'.
+    # This function aggregates all, assuming the caller filters hypothesis_type.
+    df['is_rejected'] = (df['p_value'] < alpha).astype(int)
+
+    # Group by configuration
+    group_cols = ['sample_size', 'distribution_type', 'test_type', 'hypothesis_type']
+    agg_df = df.groupby(group_cols).agg(
+        error_rate=('is_rejected', 'mean'),
+        n_replicates=('is_rejected', 'count')
+    ).reset_index()
+
+    logger.info(f"Aggregated {len(agg_df)} unique configurations.")
+    return agg_df
+
+
+def compute_bootstrap_ci(outcomes: List[int], n_resamples: int = DEFAULT_N_BOOTSTRAP, alpha: float = DEFAULT_ALPHA) -> Tuple[float, float]:
+    """
+    Compute a confidence interval for a proportion using bootstrap resampling.
+
+    This function estimates the 95% confidence interval for a binary outcome
+    (e.g., rejection indicator) by resampling the data with replacement.
+    This method is robust and does not rely on normal approximations, making
+    it suitable for small sample sizes or skewed distributions.
+
+    Args:
+        outcomes (List[int]): List of binary outcomes (0 or 1).
+        n_resamples (int): Number of bootstrap resamples to generate.
+        alpha (float): Significance level for the confidence interval (e.g., 0.05 for 95% CI).
+
+    Returns:
+        Tuple[float, float]: A tuple containing the lower and upper bounds of the CI.
+    """
+    if not outcomes:
+        logger.warning("Empty outcomes list provided to bootstrap_ci. Returning (0, 0).")
+        return (0.0, 0.0)
+
+    n = len(outcomes)
+    # Convert to numpy array for efficient resampling
+    outcomes_arr = np.array(outcomes)
+
+    # Perform bootstrap resampling
+    bootstrap_means = []
+    for _ in range(n_resamples):
+        # Resample with replacement
+        resample = np.random.choice(outcomes_arr, size=n, replace=True)
+        # Calculate mean of the resample (proportion of 1s)
+        bootstrap_means.append(np.mean(resample))
+
+    bootstrap_means = np.array(bootstrap_means)
+
+    # Calculate percentile-based confidence interval
+    lower_percentile = 100 * (alpha / 2)
+    upper_percentile = 100 * (1 - alpha / 2)
+
+    lower_bound = np.percentile(bootstrap_means, lower_percentile)
+    upper_bound = np.percentile(bootstrap_means, upper_percentile)
+
+    logger.debug(f"Bootstrap CI calculated: [{lower_bound:.6f}, {upper_bound:.6f}]")
+    return (lower_bound, upper_bound)
+
+
+def analyze_stability_trend(agg_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Analyze the stability of error rates across sample sizes.
+
+    This function performs a regression analysis to determine if the error rate
+    converges to the nominal alpha level as sample size increases. It calculates
+    the trend and computes an aggregate stability metric.
+
+    Args:
+        agg_df (pd.DataFrame): Aggregated results DataFrame from `aggregate_results`.
+                               Must contain 'sample_size', 'error_rate', and 'test_type'.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing stability metrics for each test type,
+                      including slope, intercept, R-squared, and an aggregate stability score.
+    """
+    results = []
+    alpha_nominal = 0.05
+
+    # Iterate over each test type to analyze trends
+    for test_type in agg_df['test_type'].unique():
+        subset = agg_df[agg_df['test_type'] == test_type].copy()
+        subset = subset.sort_values('sample_size')
+
+        if len(subset) < 2:
+            logger.warning(f"Not enough data points for {test_type} to analyze trend.")
+            continue
+
+        # Prepare data for regression
+        x = subset['sample_size'].values
+        y = subset['error_rate'].values
+
+        # Perform linear regression
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+
+        # Calculate stability metric: Mean Absolute Error from nominal alpha
+        # A lower MAE indicates better stability (closer to nominal alpha)
+        # We expect error rates to stabilize near alpha as n increases.
+        # For simplicity, we calculate MAE across all points, but ideally
+        # we might weight larger n more heavily.
+        predicted = slope * x + intercept
+        mae = np.mean(np.abs(predicted - alpha_nominal))
+
+        results.append({
+            'test_type': test_type,
+            'slope': slope,
+            'intercept': intercept,
+            'r_squared': r_value ** 2,
+            'p_value': p_value,
+            'mae_from_alpha': mae,
+            'n_points': len(subset)
+        })
+
+    stability_df = pd.DataFrame(results)
+    logger.info(f"Stability analysis complete for {len(stability_df)} test types.")
+    return stability_df
+
+
+def plot_stability_trend(stability_df: pd.DataFrame, output_path: str) -> None:
+    """
+    Generate a plot visualizing the stability trend analysis results.
+
+    This function creates a bar chart showing the Mean Absolute Error (MAE)
+    from the nominal alpha level for each test type, providing a visual
+    representation of how well each test maintains its Type I error rate.
+
+    Args:
+        stability_df (pd.DataFrame): DataFrame containing stability metrics
+                                     from `analyze_stability_trend`.
+        output_path (str): Path where the plot will be saved (PNG format).
+    """
+    import matplotlib
+    matplotlib.use('Agg')  # Use non-interactive backend
+    import matplotlib.pyplot as plt
+
+    if stability_df.empty:
+        logger.warning("Stability DataFrame is empty. Skipping plot generation.")
+        return
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(stability_df['test_type'], stability_df['mae_from_alpha'], color='skyblue', edgecolor='black')
+    plt.xlabel('Test Type')
+    plt.ylabel('Mean Absolute Error from Nominal Alpha (0.05)')
+    plt.title('Stability of Type I Error Rates by Test Type')
+    plt.xticks(rotation=45)
+    plt.ylim(bottom=0)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Stability trend plot saved to {output_path}")
+
+
+def export_stability_results(stability_df: pd.DataFrame, output_path: str) -> None:
+    """
+    Export stability analysis results to a CSV file.
+
+    Args:
+        stability_df (pd.DataFrame): DataFrame containing stability metrics.
+        output_path (str): Path for the output CSV file.
+    """
+    stability_df.to_csv(output_path, index=False)
+    logger.info(f"Stability results exported to {output_path}")
+
+
+def analyze_and_export(raw_pvalues_path: str, output_dir: str) -> None:
+    """
+    Main orchestration function for analysis and export.
+
+    This function orchestrates the entire analysis pipeline:
+    1. Loads raw p-values.
+    2. Aggregates results to compute error rates.
+    3. Analyzes stability trends.
+    4. Generates and saves plots.
+    5. Exports numerical results to CSV.
+
+    Args:
+        raw_pvalues_path (str): Path to the raw p-values CSV file.
+        output_dir (str): Directory where results and plots will be saved.
+    """
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 1. Aggregate results
+    agg_df = aggregate_results(raw_pvalues_path)
+
+    # 2. Analyze stability
+    stability_df = analyze_stability_trend(agg_df)
+
+    # 3. Plot stability
+    plot_path = os.path.join(output_dir, 'stability_trend.png')
+    plot_stability_trend(stability_df, plot_path)
+
+    # 4. Export results
+    csv_path = os.path.join(output_dir, 'stability_trend.csv')
+    export_stability_results(stability_df, csv_path)
+
+    logger.info("Analysis and export completed successfully.")
+    return agg_df, stability_df

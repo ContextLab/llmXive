@@ -1,160 +1,183 @@
 """
-Simulation Runner Script.
+Orchestrator for the full simulation batch.
 
-Orchestrates the full batch of simulations across sample sizes,
-distributions, and test types, saving intermediate results.
+This script coordinates the execution of Monte Carlo simulations across
+multiple sample sizes, distributions, and statistical tests. It consumes
+intermediate results from T021b (raw_pvalues.csv) and T021c (validation_report.csv)
+and saves aggregated intermediate results to data/processed/.
+
+Execution Order: T017b -> T018 -> T020-1 -> T020-2 -> T021b-0 -> T021b -> T021c -> T022
 """
 import os
 import sys
 import csv
 import logging
+import time
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional
+from pathlib import Path
 
-# Import from sibling modules
-from config import get_simulation_grid, SimulationConfig, RAW_PVALUES_SCHEMA
-from data_generator import generate_data
-from simulation_engine import run_adaptive_simulation
-from utils.file_lock import write_pvalue_batch
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
+from config import SimulationConfig, get_simulation_grid, get_test_grid
+from simulation_engine import run_full_simulation_batch, validate_type_i_error_rates
+from analyzer import load_simulation_results, aggregate_results
+from utils.file_lock import file_lock
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/simulation.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
-def run_full_batch(
-    output_dir: str = "data/processed",
-    save_raw_pvalues: bool = True
-) -> List[Dict[str, Any]]:
+def ensure_output_dirs():
+    """Ensure all required output directories exist."""
+    dirs = [
+        'data/processed',
+        'data/processed/plots',
+        'logs'
+    ]
+    for dir_path in dirs:
+        full_path = PROJECT_ROOT / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Ensured directory exists: {full_path}")
+
+def verify_input_files():
+    """Verify that required input files from T021b and T021c exist."""
+    raw_pvalues_path = PROJECT_ROOT / 'data/processed' / 'raw_pvalues.csv'
+    validation_report_path = PROJECT_ROOT / 'data/processed' / 'validation_report.csv'
+    
+    missing_files = []
+    if not raw_pvalues_path.exists():
+        missing_files.append(str(raw_pvalues_path))
+    if not validation_report_path.exists():
+        missing_files.append(str(validation_report_path))
+        
+    if missing_files:
+        error_msg = f"Missing required input files: {', '.join(missing_files)}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+    
+    logger.info("All required input files verified.")
+
+def run_full_batch():
     """
-    Execute the full simulation grid.
+    Execute the full simulation batch across all configurations.
+    
+    This function:
+    1. Verifies input files from T021b and T021c
+    2. Runs the full simulation batch
+    3. Saves intermediate results to data/processed/
+    """
+    ensure_output_dirs()
+    verify_input_files()
+    
+    start_time = time.time()
+    logger.info("Starting full simulation batch execution.")
+    
+    try:
+        # Get simulation grids
+        sample_sizes = [10, 20, 50, 100, 200, 500, 1000]
+        distributions = ['normal', 'uniform', 'log_normal']
+        test_types = ['t_test', 'anova', 'chi_squared']
+        
+        # Run the full simulation batch
+        # This will reuse the simulation engine which already has access to
+        # raw p-values from T021b and validation data from T021c
+        results = run_full_simulation_batch(
+            sample_sizes=sample_sizes,
+            distributions=distributions,
+            test_types=test_types,
+            alpha=0.05,
+            min_replicates=1000,
+            max_replicates=10000,
+            target_ci_width=0.01
+        )
+        
+        elapsed_time = time.time() - start_time
+        logger.info(f"Full simulation batch completed in {elapsed_time:.2f} seconds.")
+        
+        # Save intermediate results
+        save_intermediate_results(results)
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error during simulation batch execution: {str(e)}", exc_info=True)
+        raise
+
+def save_intermediate_results(results: List[Dict[str, Any]]):
+    """
+    Save intermediate results to data/processed/.
     
     Args:
-        output_dir: Directory to save results.
-        save_raw_pvalues: Whether to save raw p-values for regression analysis.
-        
-    Returns:
-        List of result dictionaries.
+        results: List of simulation result dictionaries
     """
-    grid = get_simulation_grid()
-    results = []
-    
-    os.makedirs(output_dir, exist_ok=True)
-    
-    pval_path = os.path.join(output_dir, "raw_pvalues.csv")
-    validation_path = os.path.join(output_dir, "validation_report.csv")
-    
-    # Initialize raw p-values file with header if saving
-    if save_raw_pvalues:
-        with open(pval_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=RAW_PVALUES_SCHEMA)
-            writer.writeheader()
-    
-    # Initialize validation report header
-    with open(validation_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "sample_size", "distribution", "test_type",
-            "observed_error_rate", "theoretical_alpha", "difference", "status"
-        ])
-
-    logger.info(f"Starting simulation batch. Total scenarios: {len(grid)}")
-    
-    for i, scenario in enumerate(grid):
-        logger.info(f"Scenario {i+1}/{len(grid)}: n={scenario['sample_size']}, "
-                    f"dist={scenario['distribution']}, test={scenario['test_type']}, "
-                    f"effect={scenario['effect_size']}")
-                        
-        # Generate data
-        s1, s2 = generate_data(
-            n=scenario['sample_size'],
-            distribution=scenario['distribution'],
-            effect_size=scenario['effect_size'],
-            seed=scenario['seed']
-        )
-        
-        # Run simulation
-        sim_result = run_adaptive_simulation(
-            sample1=s1,
-            sample2=s2,
-            test_type=scenario['test_type'],
-            alpha=scenario['alpha'],
-            min_reps=scenario['n_replicates']
-        )
-        
-        # Store aggregated result
-        result_record = {
-            "sample_size": scenario['sample_size'],
-            "distribution": scenario['distribution'],
-            "test_type": scenario['test_type'],
-            "effect_size": scenario['effect_size'],
-            "error_rate": sim_result['error_rate'],
-            "ci_lower": sim_result['ci_lower'],
-            "ci_upper": sim_result['ci_upper'],
-            "n_reps": sim_result['n_reps']
-        }
-        results.append(result_record)
-        
-        # Save raw p-values if requested
-        if save_raw_pvalues:
-            pval_records = []
-            for idx, p_val in enumerate(sim_result['p_values']):
-                pval_records.append({
-                    "sample_size": scenario['sample_size'],
-                    "distribution": scenario['distribution'],
-                    "test_type": scenario['test_type'],
-                    "effect_size": scenario['effect_size'],
-                    "replicate_id": idx,
-                    "p_value": p_val
-                })
-            
-            write_pvalue_batch(pval_path, pval_records)
-        
-        # Validate Type I error rates for null hypothesis scenarios (effect_size == 0)
-        if scenario['effect_size'] == 0.0:
-            observed = sim_result['error_rate']
-            theoretical = scenario['alpha']
-            diff = abs(observed - theoretical)
-            status = "PASS" if diff < 0.01 else "WARN" # Simple heuristic
-            
-            with open(validation_path, 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    scenario['sample_size'],
-                    scenario['distribution'],
-                    scenario['test_type'],
-                    observed,
-                    theoretical,
-                    diff,
-                    status
-                ])
-                
-    return results
-
-def save_intermediate_results(results: List[Dict[str, Any]], filepath: str):
-    """Save current results to a CSV file."""
     if not results:
+        logger.warning("No results to save.")
         return
-          
-    with open(filepath, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].keys())
-        writer.writeheader()
-        writer.writerows(results)
+    
+    output_path = PROJECT_ROOT / 'data/processed' / 'intermediate_results.csv'
+    
+    try:
+        with file_lock(output_path):
+            with open(output_path, 'w', newline='', encoding='utf-8') as f:
+                if results:
+                    # Get all unique keys from all results
+                    all_keys = set()
+                    for result in results:
+                        all_keys.update(result.keys())
+                    
+                    # Define column order
+                    columns = ['sample_size', 'distribution_type', 'test_type', 
+                             'hypothesis_type', 'replicates', 'type_i_errors', 
+                             'type_ii_errors', 'observed_error_rate', 'ci_lower', 
+                             'ci_upper', 'ci_width', 'stable']
+                    
+                    # Write header
+                    writer = csv.DictWriter(f, fieldnames=columns, extrasaction='ignore')
+                    writer.writeheader()
+                    
+                    # Write data
+                    for result in results:
+                        # Ensure all required fields are present with defaults
+                        row = {col: result.get(col, None) for col in columns}
+                        writer.writerow(row)
         
+        logger.info(f"Intermediate results saved to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Error saving intermediate results: {str(e)}", exc_info=True)
+        raise
+
 def main():
-    """Entry point for the simulation runner."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    """Main entry point for the simulation orchestrator."""
+    logger.info("=" * 60)
+    logger.info("Starting T022: Simulation Orchestrator")
+    logger.info("=" * 60)
     
-    output_dir = "data/processed"
-    os.makedirs(output_dir, exist_ok=True)
-    
-    results = run_full_batch(output_dir=output_dir)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    final_path = os.path.join(output_dir, f"simulation_results_{timestamp}.csv")
-    save_intermediate_results(results, final_path)
-    
-    logger.info(f"Simulation complete. Results saved to {final_path}")
+    try:
+        results = run_full_batch()
+        
+        if results:
+            logger.info(f"Successfully processed {len(results)} simulation scenarios.")
+            logger.info("Intermediate results saved to data/processed/intermediate_results.csv")
+            logger.info("Pipeline execution completed successfully.")
+            return 0
+        else:
+            logger.warning("No results were generated.")
+            return 1
+            
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {str(e)}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

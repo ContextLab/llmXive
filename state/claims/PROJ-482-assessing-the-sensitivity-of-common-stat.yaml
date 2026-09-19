@@ -1397,3 +1397,27 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-10T09:34:18Z'
+- artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
+  attempts: 0
+  canonical: MD5 checksum definition Wikidata Q185235
+  claim_id: c_f769c8dc
+  context: Task T014 defines the CSV schema for sample validation, specifying that
+    the checksum column must be the MD5 hash of the row data, citing Wikidata Q185235.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: MD5
+      source_id: Q185235
+      url: https://www.wikidata.org/wiki/Q185235
+      value: MD5
+    filled: true
+  kind: entity_fact
+  raw_text: The checksum must be MD5 (Wikidata Q185235, https://www.wikidata.org/wiki/Q185235)
+    of the row data.
+  resolved_value: MD5
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T04:37:17Z'
