@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalReport"
+description: "Schema for the final statistical analysis report."
+type: object
+required:
+  - test_type
+  - p_value
+  - statistic
+  - contingency_table
+  - framing
+  - correction_applied
+  - minimum_sample_size_met
+properties:
+  test_type:
+    type: string
+    description: "Type of statistical test performed."
+    enum:
+      - "Chi-squared"
+      - "Fisher's Exact"
+  p_value:
+    type: number
+    description: "The calculated p-value."
+    minimum: 0
+    maximum: 1
+  statistic:
+    type: number
+    description: "The test statistic (Chi-sq value or Odds Ratio)."
+  contingency_table:
+    type: object
+    description: "Counts of errors per category."
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: integer
+  framing:
+    type: string
+    description: "Explicit framing of the findings."
+    const: "Associational"
+  correction_applied:
+    type: string
+    description: "Multiple comparison correction method."
+    enum:
+      - "Bonferroni"
+      - "Benjamini-Hochberg"
+      - "None"
+  minimum_sample_size_met:
+    type: boolean
+    description: "True if sample size >= 40 (MVS)."
+  notes:
+    type: string
+    description: "Additional notes on power limitations or assumptions."
+additionalProperties: false

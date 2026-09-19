@@ -1,0 +1,12 @@
+status: none
+intent: Blind-Spots-Bench official dataset download HuggingFace python package dataset
+required_fields:
+- id
+- subtask_category
+- task_type
+- input
+- output
+- metadata
+cache_key: 2a9e6ac0d3ef815c643dad078e26b7d0afe90a21aa967a955d8a378e3a709a89
+searched_at: '2026-09-19T17:38:51.760863+00:00'
+retry_count: 1

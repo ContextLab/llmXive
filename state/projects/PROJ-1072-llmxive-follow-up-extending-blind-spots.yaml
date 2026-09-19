@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-16T03:07:41.533492Z'
-current_stage: flesh_out_complete
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1072-llmxive-follow-up-extending-blind-spots
-last_run_id: 73f45012-7c0f-47e1-804a-df5faf4d598b
+last_run_id: 0511bd3a-203c-4e1a-9675-69bb47a85992
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots
 title: 'llmXive follow-up: extending "Blind-Spots-Bench: Evaluating Blind Spots in
   Multimodal Models"'
-updated_at: '2026-08-12T00:49:01.385940Z'
+updated_at: '2026-09-19T17:52:55.150546Z'

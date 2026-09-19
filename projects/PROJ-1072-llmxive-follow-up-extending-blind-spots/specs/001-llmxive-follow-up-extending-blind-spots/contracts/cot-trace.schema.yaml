@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CoTTrace"
+description: "Schema for a generated Chain-of-Thought trace"
+type: "object"
+required:
+  - "task_id"
+  - "model_id"
+  - "raw_trace"
+  - "generation_time"
+  - "status"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the TaskRecord"
+  model_id:
+    type: "string"
+    description: "Identifier of the model used (e.g., Llama-3-8B-Int4)"
+  raw_trace:
+    type: "string"
+    description: "The complete, unmodified text output from the model"
+  generation_time:
+    type: "number"
+    description: "Time taken in seconds"
+    minimum: 0
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "error"
+    description: "Status of the generation"
+  error_message:
+    type: ["string", "null"]
+    description: "Error details if status is not success"

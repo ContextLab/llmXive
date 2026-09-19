@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TaskRecord"
+description: "Schema for a filtered task record from Blind-Spots-Bench"
+type: "object"
+required:
+  - "task_id"
+  - "category"
+  - "prompt"
+  - "constraint"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task"
+  category:
+    type: "string"
+    enum:
+      - "Abstract Reasoning"
+      - "Object-Centric"
+    description: "The sub-task category"
+  prompt:
+    type: "string"
+    description: "The full text prompt for the task"
+  constraint:
+    type: "string"
+    description: "The explicit constraint string to be tracked"
+    minLength: 1
+  ground_truth:
+    type: ["string", "null"]
+    description: "Optional ground truth answer"
+  metadata:
+    type: "object"
+    description: "Additional metadata from the source"
+    additionalProperties: true
