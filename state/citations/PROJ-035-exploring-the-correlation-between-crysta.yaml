@@ -9,14 +9,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/perovskite-thermal-correlation
   verified_at: '2026-06-29T05:43:03.882230Z'
-- artifact_hash: e325e16a03440670d21c2c37cbe288d0da7f758b02ecc6d271992d1011fed4e1
+- artifact_hash: 043239d4e7cb5241d1020e6b1ad9bbbecbcbb996fc3d062be8705609402e33e5
   artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Pi - Wikipedia
+  fetched_title: null
   kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-09-18T14:58:02.712100Z'
+  value: https://www.nist.gov/materials-data/thermal-conductivity
+  verification_status: mismatch
+  verified_against_url: https://www.nist.gov/materials-data/thermal-conductivity
+  verified_at: '2026-09-19T06:48:31.251771Z'

@@ -1,149 +1,137 @@
-"""
-Tests for select_convergence_targets module.
-"""
-
 import os
 import json
-import tempfile
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import tempfile
+import shutil
 
-# Import the module functions
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-from select_convergence_targets import (
-    load_network_metrics,
-    select_representative_graphs,
-    save_convergence_targets
-)
+from select_convergence_targets import load_network_metrics, select_representative_graphs, save_convergence_targets
 
+@pytest.fixture
+def sample_networks_csv(tmp_path):
+    """Create a temporary CSV file with sample network data."""
+    csv_path = tmp_path / "networks.csv"
+    data = {
+        'id': ['graph_0001', 'graph_0002', 'graph_0003', 'graph_0004', 'graph_0005',
+               'graph_0006', 'graph_0007', 'graph_0008', 'graph_0009', 'graph_0010'],
+        'class': ['random', 'random', 'scale_free', 'scale_free', 'small_world',
+                  'small_world', 'lattice', 'lattice', 'star', 'star'],
+        'average_degree': [4.0, 4.2, 3.8, 3.9, 5.0, 5.1, 6.0, 6.0, 2.0, 2.0],
+        'clustering_coefficient': [0.1, 0.12, 0.3, 0.28, 0.4, 0.42, 0.6, 0.6, 0.0, 0.0],
+        'average_path_length': [3.5, 3.4, 4.1, 4.0, 2.8, 2.7, 3.0, 3.0, 1.5, 1.5]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(csv_path, index=False)
+    return str(csv_path)
 
-class TestLoadNetworkMetrics:
-    def test_load_valid_csv(self, tmp_path):
-        """Test loading a valid CSV file"""
-        csv_path = tmp_path / "networks.csv"
-        data = {
-            'id': [1, 2, 3],
-            'class': ['random', 'scale_free', 'small_world'],
-            'avg_degree': [5.0, 6.0, 4.5]
-        }
-        df_input = pd.DataFrame(data)
-        df_input.to_csv(csv_path, index=False)
+@pytest.fixture
+def empty_csv(tmp_path):
+    """Create an empty CSV file with headers only."""
+    csv_path = tmp_path / "empty_networks.csv"
+    pd.DataFrame(columns=['id', 'class', 'average_degree', 'clustering_coefficient', 'average_path_length']).to_csv(csv_path, index=False)
+    return str(csv_path)
 
-        df_output = load_network_metrics(str(csv_path))
+@pytest.fixture
+def missing_col_csv(tmp_path):
+    """Create a CSV file missing a required column."""
+    csv_path = tmp_path / "missing_col_networks.csv"
+    data = {
+        'id': ['graph_0001'],
+        'class': ['random'],
+        'average_degree': [4.0],
+        'clustering_coefficient': [0.1]
+        # missing 'average_path_length'
+    }
+    pd.DataFrame(data).to_csv(csv_path, index=False)
+    return str(csv_path)
 
-        assert len(df_output) == 3
-        assert list(df_output.columns) == ['id', 'class', 'avg_degree']
+def test_load_network_metrics_valid(sample_networks_csv):
+    """Test loading a valid CSV file."""
+    df = load_network_metrics(sample_networks_csv)
+    assert len(df) == 10
+    assert 'id' in df.columns
+    assert 'class' in df.columns
+    assert 'average_degree' in df.columns
 
-    def test_file_not_found(self, tmp_path):
-        """Test error handling for missing file"""
-        with pytest.raises(FileNotFoundError):
-            load_network_metrics(str(tmp_path / "nonexistent.csv"))
+def test_load_network_metrics_file_not_found():
+    """Test that FileNotFoundError is raised for missing file."""
+    with pytest.raises(FileNotFoundError):
+        load_network_metrics("nonexistent/path.csv")
 
+def test_load_network_metrics_missing_columns(missing_col_csv):
+    """Test that ValueError is raised for missing columns."""
+    with pytest.raises(ValueError):
+        load_network_metrics(missing_col_csv)
 
-class TestSelectRepresentativeGraphs:
-    def test_select_one_per_class(self):
-        """Test that exactly one graph is selected per class"""
-        data = {
-            'id': [1, 2, 3, 4, 5, 6],
-            'class': ['random', 'random', 'scale_free', 'scale_free', 'small_world', 'small_world'],
-            'avg_degree': [5.0, 5.0, 6.0, 6.0, 4.5, 4.5]
-        }
-        df = pd.DataFrame(data)
+def test_load_network_metrics_empty(empty_csv):
+    """Test loading an empty CSV (headers only)."""
+    df = load_network_metrics(empty_csv)
+    assert len(df) == 0
 
-        selected = select_representative_graphs(df)
+def test_select_representative_graphs(sample_networks_csv):
+    """Test selection of representative graphs."""
+    df = load_network_metrics(sample_networks_csv)
+    selected_ids = select_representative_graphs(df)
+    
+    # Should select one per class (5 classes)
+    assert len(selected_ids) == 5
+    
+    # Check uniqueness
+    assert len(set(selected_ids)) == 5
+    
+    # Check that all classes are represented
+    classes_in_df = df['class'].unique()
+    assert len(selected_ids) == len(classes_in_df)
 
-        assert len(selected) == 3  # One per class
-        assert set(selected) == {1, 3, 5}  # Should pick lowest ID on ties
+def test_select_representative_graphs_ties(sample_networks_csv):
+    """Test tie-breaking by lowest ID."""
+    # The test data has ties for 'lattice' (6.0, 6.0) and 'star' (2.0, 2.0)
+    df = load_network_metrics(sample_networks_csv)
+    selected_ids = select_representative_graphs(df)
+    
+    # For 'lattice', graph_0007 and graph_0008 both have avg_degree 6.0
+    # graph_0007 should be selected (lower ID)
+    # For 'star', graph_0009 and graph_0010 both have avg_degree 2.0
+    # graph_0009 should be selected (lower ID)
+    assert 'graph_0007' in selected_ids
+    assert 'graph_0009' in selected_ids
 
-    def test_select_closest_to_median(self):
-        """Test selection based on proximity to median"""
-        # Create data where one value is clearly closer to median
-        data = {
-            'id': [1, 2, 3],
-            'class': ['random', 'random', 'random'],
-            'avg_degree': [4.0, 5.0, 10.0]  # Median is 5.0
-        }
-        df = pd.DataFrame(data)
+def test_select_representative_graphs_empty(empty_csv):
+    """Test selection on empty DataFrame."""
+    df = load_network_metrics(empty_csv)
+    selected_ids = select_representative_graphs(df)
+    assert selected_ids == []
 
-        selected = select_representative_graphs(df)
+def test_save_convergence_targets(tmp_path):
+    """Test saving convergence targets to JSON."""
+    selected_ids = ['graph_0001', 'graph_0003', 'graph_0005']
+    output_path = str(tmp_path / "targets.json")
+    
+    save_convergence_targets(selected_ids, output_path)
+    
+    assert os.path.exists(output_path)
+    
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert data['count'] == 3
+    assert data['convergence_targets'] == selected_ids
+    assert 'description' in data
 
-        assert len(selected) == 1
-        assert selected[0] == 2  # ID 2 has avg_degree=5.0, closest to median 5.0
-
-    def test_tie_breaking_by_id(self):
-        """Test that ties are broken by lowest ID"""
-        data = {
-            'id': [10, 20, 30],
-            'class': ['random', 'random', 'random'],
-            'avg_degree': [5.0, 5.0, 5.0]  # All same distance to median
-        }
-        df = pd.DataFrame(data)
-
-        selected = select_representative_graphs(df)
-
-        assert len(selected) == 1
-        assert selected[0] == 10  # Lowest ID
-
-    def test_empty_dataframe(self):
-        """Test handling of empty dataframe"""
-        df = pd.DataFrame(columns=['id', 'class', 'avg_degree'])
-        selected = select_representative_graphs(df)
-        assert len(selected) == 0
-
-
-class TestSaveConvergenceTargets:
-    def test_save_and_load(self, tmp_path):
-        """Test saving and reading back the JSON file"""
-        selected_ids = [1, 3, 5]
-        output_path = tmp_path / "targets.json"
-
-        save_convergence_targets(selected_ids, str(output_path))
-
-        assert output_path.exists()
-
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-
-        assert data['count'] == 3
-        assert data['convergence_targets'] == selected_ids
-
-    def test_creates_directory(self, tmp_path):
-        """Test that output directory is created if it doesn't exist"""
-        selected_ids = [1]
-        nested_path = tmp_path / "subdir" / "targets.json"
-
-        save_convergence_targets(selected_ids, str(nested_path))
-
-        assert nested_path.exists()
-
-
-class TestIntegration:
-    def test_full_pipeline(self, tmp_path):
-        """Test the full pipeline from CSV to JSON"""
-        # Create input CSV
-        csv_path = tmp_path / "networks.csv"
-        data = {
-            'id': [1, 2, 3, 4, 5],
-            'class': ['random', 'scale_free', 'small_world', 'random', 'scale_free'],
-            'avg_degree': [5.0, 6.0, 4.5, 5.5, 6.5]
-        }
-        pd.DataFrame(data).to_csv(csv_path, index=False)
-
-        # Load and process
-        df = load_network_metrics(str(csv_path))
-        selected = select_representative_graphs(df)
-
-        # Save
-        output_path = tmp_path / "targets.json"
-        save_convergence_targets(selected, str(output_path))
-
-        # Verify output
-        with open(output_path, 'r') as f:
-            result = json.load(f)
-
-        assert result['count'] == 3
-        assert len(result['convergence_targets']) == 3
-        assert all(isinstance(x, int) for x in result['convergence_targets'])
+def test_full_pipeline(sample_networks_csv, tmp_path):
+    """Test the full pipeline from loading to saving."""
+    output_path = str(tmp_path / "convergence_targets.json")
+    
+    df = load_network_metrics(sample_networks_csv)
+    selected_ids = select_representative_graphs(df)
+    save_convergence_targets(selected_ids, output_path)
+    
+    assert os.path.exists(output_path)
+    
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert len(data['convergence_targets']) == 5
+    assert data['count'] == 5

@@ -1,6 +1,6 @@
 """
 Preprocessing pipeline for time perception datasets.
-Implements streaming for large datasets (T041) and Markov transition matrix construction.
+Implements streaming for large datasets and online Markov matrix construction.
 """
 import os
 import sys
@@ -10,18 +10,13 @@ import time
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Iterator, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Iterator
 from collections import defaultdict
+from datasets import load_dataset
 
-# Import config utilities
-try:
-    from config import get_data_dir, get_processed_dir, get_config
-except ImportError:
-    # Fallback for direct execution
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).parent))
-    from config import get_data_dir, get_processed_dir, get_config
+# Import from local modules
+from config import get_data_dir, get_processed_dir, get_config
+from utils import load_dataset_chunked
 
 # Configure logging
 logging.basicConfig(
@@ -33,391 +28,407 @@ logger = logging.getLogger(__name__)
 # Constants
 MAX_TRIALS = 5000
 LAPLACE_ALPHA = 1.0
-SEQUENCE_COLUMN = 'stimulus_sequence'
-PARTICIPANT_COLUMN = 'participant_id'
-DURATION_COLUMN = 'duration_estimate'
-MODALITY_COLUMN = 'stimulus_modality'
-LENGTH_COLUMN = 'sequence_length'
 
 def get_data_dir() -> Path:
     """Get the data directory path."""
-    data_dir = os.getenv('DATA_DIR', 'data')
-    return Path(data_dir)
+    return Path("data")
 
 def get_processed_dir() -> Path:
     """Get the processed data directory path."""
-    processed_dir = os.getenv('PROCESSED_DIR', 'data/processed')
-    return Path(processed_dir)
+    return get_data_dir() / "processed"
 
-def load_dataset_streaming(dataset_id: str, source: str = 'huggingface') -> Iterator[pd.DataFrame]:
+def load_dataset_streaming(dataset_source: str, dataset_type: str = "huggingface") -> Iterator[Dict[str, Any]]:
     """
-    Load dataset in streaming mode to avoid loading full dataset into RAM.
+    Load dataset in streaming mode to avoid memory issues.
     
     Args:
-        dataset_id: The ID of the dataset to load
-        source: 'huggingface' or 'openml'
+        dataset_source: Dataset ID or path
+        dataset_type: 'huggingface' or 'openml'
         
     Yields:
-        DataFrame chunks of the dataset
+        Rows from the dataset as dictionaries
     """
-    if source == 'huggingface':
+    if dataset_type == "huggingface":
         try:
-            from datasets import load_dataset
-            # Use streaming mode for HuggingFace datasets
-            dataset = load_dataset(dataset_id, streaming=True)
-            
-            # Iterate through the dataset in chunks
-            for split in dataset:
-                for batch in dataset[split]:
-                    # Convert batch dict to DataFrame
-                    df = pd.DataFrame([batch])
-                    yield df
-                    
-        except ImportError:
-            logger.error("datasets library not installed. Install with: pip install datasets")
-            raise
+            ds = load_dataset(dataset_source, streaming=True)
+            # Handle different split structures
+            if isinstance(ds, dict):
+                # If it's a dict of splits, iterate over the first available split
+                for split_name, split_ds in ds.items():
+                    for row in split_ds:
+                        yield row
+            else:
+                # If it's a single dataset
+                for row in ds:
+                    yield row
         except Exception as e:
-            logger.error(f"Error loading HuggingFace dataset {dataset_id}: {e}")
+            logger.error(f"Failed to load HuggingFace dataset {dataset_source}: {e}")
             raise
-            
-    elif source == 'openml':
+    elif dataset_type == "openml":
+        # For OpenML, we use chunked loading via utils
         try:
-            import openml
-            # Load dataset metadata
-            dataset = openml.datasets.get_dataset(dataset_id)
-            # Get data in chunks
-            X, y, categorical_indicator, attribute_names = dataset.get_data(
-                dataset_format='dataframe',
-                target=dataset.default_target_attribute
-            )
-            # For OpenML, we load in chunks if possible
-            # Since openml doesn't support native streaming, we use pandas chunked reading
-            # if the data is saved as CSV, otherwise we load the full dataset
-            # and iterate in chunks
-            chunk_size = 1000
-            for i in range(0, len(X), chunk_size):
-                chunk = X.iloc[i:i+chunk_size]
-                if y is not None:
-                    chunk = chunk.copy()
-                    chunk[dataset.default_target_attribute] = y.iloc[i:i+chunk_size]
-                yield chunk
-                
-        except ImportError:
-            logger.error("openml library not installed. Install with: pip install openml")
-            raise
+            # OpenML datasets are typically downloaded as CSV files
+            # We'll use the chunked loader from utils
+            raw_path = get_data_dir() / "raw" / f"{dataset_source}.csv"
+            if not raw_path.exists():
+                raise FileNotFoundError(f"OpenML dataset not found: {raw_path}")
+            
+            for chunk in load_dataset_chunked(str(raw_path)):
+                for _, row in chunk.iterrows():
+                    yield row.to_dict()
         except Exception as e:
-            logger.error(f"Error loading OpenML dataset {dataset_id}: {e}")
+            logger.error(f"Failed to load OpenML dataset {dataset_source}: {e}")
             raise
     else:
-        raise ValueError(f"Unknown source: {source}")
+        raise ValueError(f"Unknown dataset type: {dataset_type}")
 
 def is_sequential_stimuli(df: pd.DataFrame) -> bool:
     """Check if dataset contains sequential stimuli."""
-    return SEQUENCE_COLUMN in df.columns and df[SEQUENCE_COLUMN].notna().any()
+    required_cols = ['stimulus_sequence', 'sequence_length']
+    return all(col in df.columns for col in required_cols)
 
 def has_predictability_manipulation(df: pd.DataFrame) -> bool:
     """Check if dataset has predictability manipulation."""
-    # Check for relevant columns or conditions
-    relevant_cols = ['condition', 'predictability', 'surprisal', 'probability']
-    return any(col in df.columns for col in relevant_cols)
+    return 'duration_estimate' in df.columns or 'surprisal' in df.columns
 
 def filter_datasets(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter dataset to required columns and valid rows."""
+    """Filter dataset for required columns and valid rows."""
     required_cols = [
-        DURATION_COLUMN, SEQUENCE_COLUMN, PARTICIPANT_COLUMN,
-        LENGTH_COLUMN, MODALITY_COLUMN
+        'duration_estimate', 'stimulus_sequence', 'participant_id',
+        'sequence_length', 'stimulus_modality'
     ]
     
-    # Keep only rows with required columns present
-    mask = df[required_cols].notna().all(axis=1)
-    filtered = df[mask].copy()
+    # Check for required columns
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.warning(f"Missing required columns: {missing_cols}")
+        return pd.DataFrame()
     
-    # Ensure required columns exist
-    for col in required_cols:
-        if col not in filtered.columns:
-            logger.warning(f"Column {col} not found in dataset")
-            
-    return filtered
+    # Filter out rows with missing values in required columns
+    df = df.dropna(subset=required_cols)
+    
+    # Ensure sequence_length is numeric
+    if 'sequence_length' in df.columns:
+        df['sequence_length'] = pd.to_numeric(df['sequence_length'], errors='coerce')
+        df = df.dropna(subset=['sequence_length'])
+    
+    return df
 
-def save_exclusion_log(exclusions: List[Dict[str, Any]], output_path: Path):
+def save_exclusion_log(exclusion_log: List[Dict[str, Any]], output_path: Path) -> None:
     """Save exclusion log to JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(exclusions, f, indent=2)
-    logger.info(f"Exclusion log saved to {output_path}")
+        json.dump(exclusion_log, f, indent=2)
 
 def enforce_sampling_limit(df: pd.DataFrame, max_trials: int = MAX_TRIALS) -> pd.DataFrame:
     """Enforce sampling limit if dataset is too large."""
     if len(df) > max_trials:
-        logger.info(f"Dataset has {len(df)} rows, sampling to {max_trials} trials")
-        # Sample randomly with a fixed seed for reproducibility
-        sampled = df.sample(n=max_trials, random_state=42)
-        return sampled
+        logger.info(f"Dataset has {len(df)} rows, sampling to {max_trials}")
+        df = df.sample(n=max_trials, random_state=42)
+        logger.info(f"Sampling strategy: Random sample of N={max_trials}")
     return df
 
 def compute_markov_surprisal(
-    df: pd.DataFrame,
-    sequence_col: str = SEQUENCE_COLUMN,
-    alpha: float = LAPLACE_ALPHA
-) -> Tuple[pd.DataFrame, Dict[str, Any], Dict[str, Any]]:
+    rows: Iterator[Dict[str, Any]],
+    max_trials: int = MAX_TRIALS
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]], Dict[str, Any]]:
     """
-    Compute Markov transition matrix and surprisal values using streaming aggregation.
+    Compute Markov transition matrix and surprisal in a streaming fashion.
     
     Args:
-        df: DataFrame with stimulus sequences
-        sequence_col: Name of the sequence column
-        alpha: Laplace smoothing parameter
+        rows: Iterator of dataset rows
+        max_trials: Maximum number of trials to process
         
     Returns:
-        Tuple of (df_with_surprisal, transition_counts, alphabet_info)
+      - transition_matrix: Dict mapping (state, next_state) to counts
+      - processed_rows: List of processed rows with surprisal
+      - alphabet: List of unique symbols
     """
-    # Extract sequences
-    sequences = df[sequence_col].dropna().astype(str).tolist()
-    
-    if not sequences:
-        logger.warning("No valid sequences found")
-        df['surprisal'] = 0.0
-        return df, {}, {'alphabet': [], 'order': 1}
-    
-    # Build transition counts with online aggregation
-    # Use defaultdict for efficient counting
+    # Initialize count matrix for online aggregation
+    # Using defaultdict for sparse representation
     transition_counts = defaultdict(lambda: defaultdict(int))
+    symbol_counts = defaultdict(int)
+    processed_rows = []
+    trial_count = 0
     alphabet = set()
     
-    for seq in sequences:
-        # Handle different sequence formats (list, string, etc.)
-        if isinstance(seq, str):
-            # Try to parse as list
-            try:
-                items = eval(seq) if seq.startswith('[') and seq.endswith(']') else list(seq)
-            except:
-                items = list(seq)
-        elif isinstance(seq, (list, tuple)):
-            items = list(seq)
-        else:
-            items = [str(seq)]
+    for row in rows:
+        if trial_count >= max_trials:
+            logger.info(f"Reached max trials limit ({max_trials}), stopping streaming")
+            break
         
-        # Update alphabet
-        alphabet.update(str(item) for item in items)
+        trial_count += 1
         
-        # Build transitions (first-order Markov)
-        for i in range(len(items) - 1):
-            current = str(items[i])
-            next_item = str(items[i + 1])
-            transition_counts[current][next_item] += 1
+        # Extract sequence data
+        sequence = row.get('stimulus_sequence', '')
+        if not isinstance(sequence, str):
+            sequence = str(sequence)
+        
+        if not sequence:
+            continue
+        
+        # Convert sequence to list of symbols
+        symbols = list(sequence)
+        alphabet.update(symbols)
+        
+        # Build transition counts
+        for i in range(len(symbols) - 1):
+            current_symbol = symbols[i]
+            next_symbol = symbols[i + 1]
+            transition_counts[current_symbol][next_symbol] += 1
+            symbol_counts[current_symbol] += 1
+        
+        # Store row for later surprisal calculation
+        processed_rows.append({
+            'participant_id': row.get('participant_id'),
+            'stimulus_sequence': sequence,
+            'duration_estimate': row.get('duration_estimate'),
+            'sequence_length': row.get('sequence_length'),
+            'stimulus_modality': row.get('stimulus_modality'),
+            'symbols': symbols  # Keep for surprisal calculation
+        })
+        
+        # Log progress
+        if trial_count % 1000 == 0:
+            logger.info(f"Processed {trial_count} trials")
     
-    # Convert to regular dict for serialization
-    transition_counts_dict = {k: dict(v) for k, v in transition_counts.items()}
-    
-    # Compute probabilities with Laplace smoothing
-    alphabet_list = sorted(list(alphabet))
-    n_alphabet = len(alphabet_list)
-    
-    # Build transition matrix
+    # Convert to regular dict for JSON serialization
+    alphabet = sorted(list(alphabet))
     transition_matrix = {}
-    for current_state in transition_counts_dict:
-        total_transitions = sum(transition_counts_dict[current_state].values())
-        transition_matrix[current_state] = {}
-        for next_state in alphabet_list:
-            count = transition_counts_dict[current_state].get(next_state, 0)
-            # Apply Laplace smoothing
-            prob = (count + alpha) / (total_transitions + alpha * n_alphabet)
-            transition_matrix[current_state][next_state] = prob
+    for state, next_states in transition_counts.items():
+        transition_matrix[state] = dict(next_states)
     
-    # Compute surprisal for each trial
+    return transition_matrix, processed_rows, alphabet
+
+def apply_laplace_smoothing(
+    transition_matrix: Dict[str, Dict[str, int]],
+    alphabet: List[str],
+    alpha: float = LAPLACE_ALPHA
+) -> Dict[str, Dict[str, float]]:
+    """Apply Laplace smoothing to transition matrix."""
+    smoothed_matrix = {}
+    total_states = len(alphabet)
+    
+    for state in alphabet:
+        smoothed_matrix[state] = {}
+        state_counts = transition_matrix.get(state, {})
+        total_transitions = sum(state_counts.values())
+        
+        for next_state in alphabet:
+            count = state_counts.get(next_state, 0)
+            # Laplace smoothing: P(next|state) = (count + alpha) / (total + alpha * |alphabet|)
+            prob = (count + alpha) / (total_transitions + alpha * total_states)
+            smoothed_matrix[state][next_state] = prob
+    
+    return smoothed_matrix
+
+def compute_surprisal(
+    row: Dict[str, Any],
+    smoothed_matrix: Dict[str, Dict[str, float]]
+) -> float:
+    """Compute surprisal for a sequence using smoothed transition matrix."""
+    symbols = row.get('symbols', [])
+    if len(symbols) < 2:
+        return 0.0  # Cannot compute transitions for sequences < 2
+    
     surprisals = []
-    for seq in sequences:
-        if isinstance(seq, str):
-            try:
-                items = eval(seq) if seq.startswith('[') and seq.endswith(']') else list(seq)
-            except:
-                items = list(seq)
-        elif isinstance(seq, (list, tuple)):
-            items = list(seq)
+    for i in range(len(symbols) - 1):
+        current_symbol = symbols[i]
+        next_symbol = symbols[i + 1]
+        
+        if current_symbol in smoothed_matrix and next_symbol in smoothed_matrix[current_symbol]:
+            prob = smoothed_matrix[current_symbol][next_symbol]
+            if prob > 0:
+                surprisal = -np.log2(prob)
+                surprisals.append(surprisal)
+            else:
+                surprisals.append(0.0)  # Avoid log(0)
         else:
-            items = [str(seq)]
-        
-        items = [str(item) for item in items]
-        trial_surprisal = 0.0
-        for i in range(len(items) - 1):
-            current = items[i]
-            next_item = items[i + 1]
-            if current in transition_matrix and next_item in transition_matrix[current]:
-                prob = transition_matrix[current][next_item]
-                # Compute surprisal: -log2(prob)
-                if prob > 0:
-                    surprisal = -np.log2(prob)
-                    trial_surprisal += surprisal
-            else:
-                # Unseen transition, use smoothed probability
-                prob = alpha / (sum(transition_matrix.get(current, {}).values()) + alpha * n_alphabet)
-                if prob > 0:
-                    trial_surprisal -= np.log2(prob)
-        
-        surprisals.append(trial_surprisal)
+            surprisals.append(0.0)  # Unknown transition
     
-    # Map surprisals back to original dataframe
-    # Create a mapping from sequence to surprisal
-    seq_to_surprisal = {}
-    for seq, surprisal in zip(sequences, surprisals):
-        seq_str = str(seq)
-        seq_to_surprisal[seq_str] = surprisal
-    
-    # Add surprisal column to dataframe
-    df = df.copy()
-    df['surprisal'] = df[sequence_col].apply(lambda x: seq_to_surprisal.get(str(x), 0.0))
-    
-    alphabet_info = {
-        'alphabet': alphabet_list,
-        'order': 1,
-        'n_states': len(alphabet_list)
-    }
-    
-    return df, transition_counts_dict, alphabet_info
+    return np.mean(surprisals) if surprisals else 0.0
 
-def write_sampling_strategy(strategy: str, output_path: Path):
-    """Write sampling strategy to file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump({'sampling_strategy': strategy}, f, indent=2)
-    logger.info(f"Sampling strategy written to {output_path}")
+def write_sampling_strategy(output_path: Path, strategy: str) -> None:
+    """Write sampling strategy to README or log."""
+    with open(output_path, 'a') as f:
+        f.write(f"\n## Sampling Strategy\n")
+        f.write(f"{strategy}\n")
 
-def run_preprocessing_pipeline():
-    """Run the full preprocessing pipeline with streaming support."""
-    logger.info("Starting preprocessing pipeline with streaming support")
+def run_preprocessing_pipeline() -> bool:
+    """
+    Run the full preprocessing pipeline with streaming support.
     
-    data_dir = get_data_dir()
-    processed_dir = get_processed_dir()
-    
-    # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Read dataset IDs
-    ids_file = data_dir / 'dataset_ids.txt'
-    if not ids_file.exists():
-        logger.error(f"Dataset IDs file not found: {ids_file}")
-        return False
-    
-    with open(ids_file, 'r') as f:
-        dataset_ids = [line.strip() for line in f if line.strip()]
-    
-    if not dataset_ids:
-        logger.error("No dataset IDs found")
-        return False
-    
-    logger.info(f"Processing {len(dataset_ids)} datasets")
-    
-    all_data = []
-    exclusions = []
-    
-    for dataset_id in dataset_ids:
-        logger.info(f"Processing dataset: {dataset_id}")
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        logger.info("Starting preprocessing pipeline with streaming support")
         
-        try:
-            # Determine source (could be extended to detect from ID format)
-            source = 'huggingface' if 'hf' in dataset_id.lower() or 'huggingface' in dataset_id.lower() else 'openml'
+        # Ensure output directories exist
+        processed_dir = get_processed_dir()
+        processed_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Load dataset IDs
+        ids_file = get_data_dir() / "dataset_ids.txt"
+        if not ids_file.exists():
+            logger.error(f"Dataset IDs file not found: {ids_file}")
+            return False
+        
+        with open(ids_file, 'r') as f:
+            dataset_ids = [line.strip() for line in f if line.strip()]
+        
+        if not dataset_ids:
+            logger.error("No dataset IDs found in dataset_ids.txt")
+            return False
+        
+        logger.info(f"Found {len(dataset_ids)} dataset IDs to process")
+        
+        # Exclusion log
+        exclusion_log = []
+        all_processed_rows = []
+        global_transition_matrix = defaultdict(lambda: defaultdict(int))
+        global_symbol_counts = defaultdict(int)
+        global_alphabet = set()
+        total_trials_processed = 0
+        
+        # Process each dataset
+        for dataset_id in dataset_ids:
+            logger.info(f"Processing dataset: {dataset_id}")
             
-            # Load dataset in streaming mode
-            chunk_iterator = load_dataset_streaming(dataset_id, source)
+            # Determine dataset type (heuristic based on ID format)
+            dataset_type = "huggingface" if "/" in dataset_id else "openml"
             
-            # Process chunks and aggregate
-            chunk_data = []
-            for chunk in chunk_iterator:
-                if is_sequential_stimuli(chunk) and has_predictability_manipulation(chunk):
-                    filtered = filter_datasets(chunk)
-                    if len(filtered) > 0:
-                        chunk_data.append(filtered)
+            try:
+                # Load dataset in streaming mode
+                rows = load_dataset_streaming(dataset_id, dataset_type)
                 
-                # Apply sampling limit during processing if needed
-                if len(pd.concat(chunk_data, ignore_index=True)) > MAX_TRIALS:
-                    logger.info("Sampling limit reached during streaming")
-                    break
-            
-            if chunk_data:
-                full_chunk = pd.concat(chunk_data, ignore_index=True)
-                if len(full_chunk) > MAX_TRIALS:
-                    full_chunk = enforce_sampling_limit(full_chunk, MAX_TRIALS)
-                    write_sampling_strategy(f"Random sample of N={MAX_TRIALS} from streaming dataset {dataset_id}", processed_dir / 'sampling_strategy.json')
-                all_data.append(full_chunk)
-            else:
-                exclusions.append({
-                    'dataset_id': dataset_id,
-                    'reason': 'No valid sequential stimuli or predictability manipulation found',
-                    'status': 'excluded'
+                # Process in streaming fashion
+                transition_matrix, processed_rows, alphabet = compute_markov_surprisal(
+                    rows, max_trials=MAX_TRIALS
+                )
+                
+                if not processed_rows:
+                    exclusion_log.append({
+                        "dataset_id": dataset_id,
+                        "reason": "No valid rows after streaming",
+                        "status": "excluded"
+                    })
+                    logger.warning(f"Dataset {dataset_id} excluded: No valid rows")
+                    continue
+                
+                # Update global counts for online aggregation
+                for state, next_states in transition_matrix.items():
+                    for next_state, count in next_states.items():
+                        global_transition_matrix[state][next_state] += count
+                        global_symbol_counts[state] += count
+                        global_alphabet.add(state)
+                        global_alphabet.add(next_state)
+                
+                all_processed_rows.extend(processed_rows)
+                total_trials_processed += len(processed_rows)
+                
+                logger.info(f"Dataset {dataset_id}: processed {len(processed_rows)} rows")
+                
+            except Exception as e:
+                exclusion_log.append({
+                    "dataset_id": dataset_id,
+                    "reason": str(e),
+                    "status": "excluded"
                 })
-                
-        except Exception as e:
-            logger.error(f"Error processing dataset {dataset_id}: {e}")
-            exclusions.append({
-                'dataset_id': dataset_id,
-                'reason': str(e),
-                'status': 'error'
-            })
-    
-    if not all_data:
-        logger.error("No valid data found after filtering")
+                logger.error(f"Failed to process dataset {dataset_id}: {e}")
+                continue
+        
+        if not all_processed_rows:
+            logger.error("No data processed from any dataset")
+            # Write exclusion log even if empty
+            exclusion_log_path = processed_dir / "exclusion_log.json"
+            save_exclusion_log(exclusion_log, exclusion_log_path)
+            return False
+        
+        logger.info(f"Total trials processed: {total_trials_processed}")
+        
+        # Apply Laplace smoothing to global transition matrix
+        alphabet = sorted(list(global_alphabet))
+        smoothed_matrix = apply_laplace_smoothing(
+            dict(global_transition_matrix),
+            alphabet,
+            alpha=LAPLACE_ALPHA
+        )
+        
+        # Compute surprisal for each row
+        for row in all_processed_rows:
+            row['surprisal'] = compute_surprisal(row, smoothed_matrix)
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(all_processed_rows)
+        
+        # Drop temporary 'symbols' column
+        if 'symbols' in df.columns:
+            df = df.drop(columns=['symbols'])
+        
+        # Ensure required columns exist
+        required_cols = [
+            'duration_estimate', 'stimulus_sequence', 'participant_id',
+            'surprisal', 'sequence_length', 'stimulus_modality'
+        ]
+        for col in required_cols:
+            if col not in df.columns:
+                logger.warning(f"Column {col} missing in final output")
+        
         # Write exclusion log
-        save_exclusion_log(exclusions, processed_dir / 'exclusion_log.json')
+        exclusion_log_path = processed_dir / "exclusion_log.json"
+        save_exclusion_log(exclusion_log, exclusion_log_path)
+        logger.info(f"Exclusion log written to {exclusion_log_path}")
+        
+        # Write intermediate counts (for T041 verification)
+        counts_path = processed_dir / "markov_counts.json"
+        counts_data = {
+            "transition_counts": {k: dict(v) for k, v in global_transition_matrix.items()},
+            "symbol_counts": dict(global_symbol_counts),
+            "total_trials": total_trials_processed
+        }
+        with open(counts_path, 'w') as f:
+            json.dump(counts_data, f, indent=2)
+        logger.info(f"Markov counts written to {counts_path}")
+        
+        # Write final Markov state
+        markov_state_path = processed_dir / "markov_state.json"
+        markov_state_data = {
+            "transition_matrix": smoothed_matrix,
+            "alphabet": alphabet,
+            "order": 1,
+            "laplace_alpha": LAPLACE_ALPHA,
+            "total_states": len(alphabet)
+        }
+        with open(markov_state_path, 'w') as f:
+            json.dump(markov_state_data, f, indent=2)
+        logger.info(f"Markov state written to {markov_state_path}")
+        
+        # Write standardized CSV
+        standardized_path = processed_dir / "standardized.csv"
+        df.to_csv(standardized_path, index=False)
+        logger.info(f"Standardized CSV written to {standardized_path}")
+        
+        # Write sampling strategy
+        strategy = f"Streaming full dataset(s) with max_trials={MAX_TRIALS} cap. Total trials processed: {total_trials_processed}"
+        readme_path = get_data_dir() / "README.md"
+        write_sampling_strategy(readme_path, strategy)
+        
+        logger.info("Preprocessing pipeline completed successfully")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {e}", exc_info=True)
         return False
-    
-    # Combine all data
-    combined_df = pd.concat(all_data, ignore_index=True)
-    logger.info(f"Combined dataset size: {len(combined_df)} rows")
-    
-    # Compute Markov surprisal with streaming-friendly aggregation
-    logger.info("Computing Markov transition matrix and surprisal values")
-    start_time = time.time()
-    
-    df_with_surprisal, transition_counts, alphabet_info = compute_markov_surprisal(combined_df)
-    
-    elapsed = time.time() - start_time
-    logger.info(f"Markov computation completed in {elapsed:.2f} seconds")
-    
-    # Save incremental counts
-    counts_path = processed_dir / 'markov_counts.json'
-    with open(counts_path, 'w') as f:
-        json.dump(transition_counts, f, indent=2)
-    logger.info(f"Transition counts saved to {counts_path}")
-    
-    # Save final Markov state
-    markov_state = {
-        'transition_matrix': transition_counts,
-        'alphabet': alphabet_info['alphabet'],
-        'order': alphabet_info['order'],
-        'n_states': alphabet_info['n_states']
-    }
-    state_path = processed_dir / 'markov_state.json'
-    with open(state_path, 'w') as f:
-        json.dump(markov_state, f, indent=2)
-    logger.info(f"Markov state saved to {state_path}")
-    
-    # Write standardized CSV
-    standardized_path = processed_dir / 'standardized.csv'
-    df_with_surprisal.to_csv(standardized_path, index=False)
-    logger.info(f"Standardized CSV saved to {standardized_path}")
-    
-    # Write sampling strategy
-    write_sampling_strategy(f"Streaming full dataset with online aggregation (N={len(df_with_surprisal)} trials)", processed_dir / 'sampling_strategy.json')
-    
-    # Write exclusion log
-    save_exclusion_log(exclusions, processed_dir / 'exclusion_log.json')
-    
-    logger.info("Preprocessing pipeline completed successfully")
-    return True
 
 def main():
-    """Main entry point for preprocessing script."""
-    try:
-        success = run_preprocessing_pipeline()
-        if success:
-            logger.info("Preprocessing completed successfully")
-            sys.exit(0)
-        else:
-            logger.error("Preprocessing failed")
-            sys.exit(1)
-    except Exception as e:
-        logger.error(f"Preprocessing pipeline failed: {e}")
+    """Main entry point for preprocessing pipeline."""
+    success = run_preprocessing_pipeline()
+    if not success:
+        logger.error("Preprocessing pipeline failed")
         sys.exit(1)
+    else:
+        logger.info("Preprocessing pipeline completed successfully")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

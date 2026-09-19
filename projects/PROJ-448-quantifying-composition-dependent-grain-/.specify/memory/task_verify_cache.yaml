@@ -10,6 +10,12 @@ T010:
   r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
     so no unit test for the McLean isotherm calculation is present. The implementer
     must add this test file with appropriate test cases.
+T013:
+  c: false
+  h: 8d534252cb2540b65102cac7363f9675fe3c033b5f878bfd435b9c469021a447
+  r: "The required artifact `data/raw/dft_energies.json` is missing entirely, so the\
+    \ implementer cannot verify that it lacks `MISSING_SOURCE: true` nor demonstrate\
+    \ the abort behavior. The task\u2019s core requirement is therefore unmet."
 T013b:
   c: false
   h: 6aaef090a006442e35a76c1e19ddb47104f740b35239c5b38a1faaddba64e67b

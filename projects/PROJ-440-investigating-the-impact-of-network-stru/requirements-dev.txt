@@ -1,11 +1,15 @@
-pre-commit>=3.6.0
-ruff>=0.1.9
-black>=23.12.1
-pytest>=7.4.3
-networkx>=3.2.1
-scipy>=1.11.4
-numpy>=1.26.2
-pandas>=2.1.4
-matplotlib>=3.8.2
-scikit-learn>=1.3.2
-statsmodels>=0.14.1
+# Development and Tooling Dependencies
+# Install with: pip install -r requirements-dev.txt
+
+-r code/requirements.txt
+
+# Linting and Formatting
+ruff>=0.1.0
+black>=23.9.1
+
+# Pre-commit hooks
+pre-commit>=3.4.0
+
+# Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0

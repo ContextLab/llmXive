@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure with exact directory tree: src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/
-- [X] T002 Initialize Python project with requirements.txt at repository root (pymatgen==2023.9.1 [UNRESOLVED-CLAIM: c_2f78f30a — status=not_enough_info], pandas==2.2.2 [UNRESOLVED-CLAIM: c_fd762eba — status=not_enough_info], numpy==1.26.4 [UNRESOLVED-CLAIM: c_668708ca — status=not_enough_info], scikit-learn==1.5.0 [UNRESOLVED-CLAIM: c_049c6881 — status=not_enough_info], statsmodels==0.14.2 [UNRESOLVED-CLAIM: c_888778cd — status=not_enough_info], {{claim:c_18b3772d}} (pi, https://en.wikipedia.org/wiki/Pi), seaborn==0.13.2 [UNRESOLVED-CLAIM: c_06808731 — status=not_enough_info], requests==2.32.3 [UNRESOLVED-CLAIM: c_6008bf37 — status=not_enough_info], tqdm==4.66.5 [UNRESOLVED-CLAIM: c_ede4c8fc — status=not_enough_info], pytest)
+- [X] T002 Initialize Python project with requirements.txt at repository root (pymatgen==2023.9.1, pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, statsmodels==0.14.2, seaborn==0.13.2, requests==2.32.3, tqdm==4.66.5, pytest)
 - [X] T003 [P] Configure linting and formatting: create.flake8 (max-line-length=88, extend-ignore=E203) and pyproject.toml (black settings)
 
 ---
@@ -59,14 +59,17 @@
 - [ ] T005 [P] Create `contracts/merged_perovskite.schema.yaml` defining the CSV schema. Schema MUST include fields: `structure_id`, `thermal_conductivity`, `source_reference`, `chemistry_class`, `temperature`, `tilting_angle`, `bond_length_variance`, `tolerance_factor`, `unit_cell_volume`. (FR-002, FR-010)
 - [X] T006 [P] Setup SHA-256 checksum tracking for raw data files to `state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml` under the `artifact_hashes` map (Constitution III).
 - [X] T007 [P] Create base validation utilities at `src/utils/validation.py` with function signatures: `calculate_vif(df, predictors)`, `scan_causal_language(text)`, `setup_logger(name, level)`. Input/Output contracts MUST be defined in docstrings. (FR-007, FR-008)
-- [ ] T008 [P] Implement deterministic seed handling (--seed argument) in exact modules: src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/ with explicit random_state=42 [UNRESOLVED-CLAIM: c_5c6fdd64 — status=not_enough_info] in all random operations.
-- [X] T009 [P] [Foundational] Implement full `src/utils/validation.py` module including `calculate_vif` (VIF > 5 exclusion logic [UNRESOLVED-CLAIM: c_854fcb58 — status=not_enough_info]), `scan_causal_language` (prohibited keywords check), and `setup_logger`. MUST be self-contained and importable. (FR-007, FR-008)
+- [ ] T008a [P] Add `--seed` argument and `random_state=42` to `src/ingest/fetch_structures.py` and `src/ingest/fetch_thermal.py`. (FR-001, FR-010)
+- [ ] T008b [P] Add `--seed` argument and `random_state=42` to `src/cleaning/clean_merge.py` and `src/cleaning/temperature_normalize.py`. (FR-002, FR-013)
+- [ ] T008c [P] Add `--seed` argument and `random_state=42` to `src/descriptors/compute_descriptors.py`. (FR-003)
+- [ ] T008d [P] Add `--seed` argument and `random_state=42` to `src/analysis/correlation.py` and `src/analysis/stratify.py`. (FR-004, FR-014)
+- [ ] T008e [P] Add `--seed` argument and `random_state=42` to `src/analysis/regression.py` and `src/analysis/visualize.py`. (FR-005, FR-006)
+- [X] T009 [P] [Foundational] Implement full `src/utils/validation.py` module including `calculate_vif` (VIF > 5 calculation ONLY, no exclusion logic), `scan_causal_language` (prohibited keywords check), and `setup_logger`. MUST be self-contained and importable. (FR-007, FR-008)
 - [X] T010 [P] [US1] Implement schema validation for citation metadata in `src/utils/citation_schema.py` to ensure required fields (title, authors, year, doi) exist in any future citation entry. This is a PRE-VALIDATION step (Constitution II).
-- [X] T016b [P] [Foundational] Implement `src/cleaning/temperature_normalize.py` with the Slack (1979) formula: `k(T) = k_ref * (T_ref / T)^1.0`. MUST accept `--seed` and be callable as a utility function by T016. (FR-013)
-- [ ] T038 [P] Document Constitution VII vs FR-010 conflict in `research.md` and flag for spec amendment. Tags: `Constitution VII`, `Conflict`. (FR-010, Constitution VII)
-- [ ] T041 [P] [Foundational] **Verify** that Constitution VII has been amended (or alignment documented in research.md) to align with FR-010 (peer-reviewed literature only). Script MUST check for the presence of the amendment or documented resolution before T014b runs. If not found, exit with error "Constitution VII not aligned with FR-010". (FR-010, Constitution VII)
-- [ ] T024 [P] [US2] Implement `src/utils/sensitivity.py` for p-value threshold sensitivity analysis across varying significance levels. This utility MUST be importable by T023. (FR-009)
+- [X] T016b [P] [Foundational] Implement `src/cleaning/temperature_normalize.py` with the Slack (1979) formula: `k(T) = k_ref * (T_ref / T)^n, where n represents a dimensionless temperature scaling exponent.`. MUST accept `--seed` and be callable as a utility function by T016. (FR-013)
+- [ ] T038 [P] Document Constitution VII vs FR-010 conflict in `research.md` and explicitly document the FR-010 override (Literature/NIST only, excluding MP DFT). Tags: `Constitution VII`, `Conflict`, `Override`. (FR-010, Constitution VII)
 - [ ] T005b [P] [Foundational] Implement `src/utils/metadata.py` to generate `data/metadata.yaml` recording the exact dataset version (API query date, repository release tag) for thermal conductivity sources, satisfying Constitution VII. (FR-010, Constitution VII)
+- [ ] T024 [P] [US2] Implement `src/utils/sensitivity.py` for p-value threshold sensitivity analysis across varying significance levels. This utility MUST be importable by T023b. (FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,11 +90,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `src/ingest/fetch_structures.py` for Materials Project API download with ABX₃ filtering, exponential backoff (limited number of retries), error handling (FR-001), and explicit `--seed` argument handling (random_state=42 [UNRESOLVED-CLAIM: c_5c6fdd64 — status=not_enough_info]) for deterministic retries.
-- [ ] T014b [P] [US1] Implement `src/ingest/fetch_thermal.py` to load thermal conductivity values **exclusively** from NIST Materials Data Repository (via `huggingface_hub` or specific NIST URL) or verified peer-reviewed literature CSVs. MUST fail loudly (exit code 1) if source is unreachable or invalid; NO synthetic fallback allowed. **MUST depend on T041 (Constitution alignment check) and T005b (metadata generation).** Output to `data/raw/thermal_raw.csv`. (FR-010)
-- [ ] T014 [US1] Implement `src/cleaning/provenance_validator.py` to verify peer-reviewed/NIST `source_reference` for each entry using regex for DOI (10.\d{4}/.*/.), PMID (10.\d{4}/\d+), and NIST ID (NIST-[A-Z0-9]+). Output `data/cleaned/provenance_report.json` with pass/fail counts. Exit with code 1 if any entry lacks valid provenance. **MUST depend on T007 (base validation utilities).** (FR-010)
-- [ ] T016 [US1] Invoke `src/cleaning/temperature_normalize.py` (T016b) to normalize all thermal conductivity measurements to 300K ± 10K using Slack (1979) formula. **Explicitly identify entries with 'unknown' temperature and discard them before normalization.** Write normalized data to `data/cleaned/normalized_thermal.csv`. (FR-013)
-- [ ] T015 [US1] Implement `src/cleaning/clean_merge.py` to merge structures (T013) with thermal data (T014b, T014), validate provenance (T014), apply temperature normalization (T016), remove nulls, validate geometry, enforce minimum 50 compositions, and add error handling for insufficient samples with message 'Insufficient samples: N < 50'. **MUST depend on T005 (schema), T014b, T014, and T016 completion.** (FR-002, FR-010, SC-001)
+- [X] T013 [P] [US1] Implement `src/ingest/fetch_structures.py` for Materials Project API download with ABX₃ filtering, exponential backoff (limited number of retries), error handling (FR-001), and explicit `--seed` argument handling for deterministic retries.
+- [ ] T014b [P] [US1] Implement `src/ingest/fetch_thermal.py` to load thermal conductivity values **exclusively** from NIST Materials Data Repository (URL:) or verified peer-reviewed literature CSVs in `data/raw/`. MUST fail loudly (exit code 1) if source is unreachable or invalid; NO synthetic fallback allowed. **MUST depend on T038 (Conflict Documentation) and T005b (metadata generation).** Output to `data/raw/thermal_raw.csv`. (FR-010)
+- [ ] T014 [US1] Implement `src/cleaning/provenance_validator.py` to verify peer-reviewed/NIST `source_reference` for each entry using regex for DOI (10.\\d{4}/.*), PMID (10.\\d{4}/\\d+), and NIST ID (NIST-[A-Z0-9]+). Output `data/cleaned/provenance_report.json` with pass/fail counts. Exit with code 1 if any entry lacks valid provenance. **MUST depend on T007 (base validation utilities).** (FR-010)
+- [ ] T016 [US1] Invoke `src/cleaning/temperature_normalize.py` (T016b) to normalize all thermal conductivity measurements to 300K ± 10K using Slack (1979) formula. **Explicitly identify and discard entries with 'unknown' temperature (null, 'N/A', -1, or empty string) BEFORE normalization.** Write normalized data to `data/cleaned/normalized_thermal.csv`. **MUST depend on T014b and T014.** (FR-013)
+- [ ] T015 [US1] Implement `src/cleaning/clean_merge.py` to merge structures (T013) with thermal data (T014b, T014), validate provenance (T014), apply temperature normalization (T016), remove nulls, validate geometry, **count unique compositions and halt with error 'Insufficient samples: N < 50' if count < 50**, and add error handling for insufficient samples. **MUST depend on T005 (schema), T014b, T014, and T016 completion.** (FR-002, FR-010, SC-001)
 - [ ] T011 [US1] Contract test for `merged_perovskite.schema.yaml` in `tests/contract/test_schema.py`
 - [X] T012 [US1] Integration test for full data ingestion pipeline in `tests/integration/test_full_pipeline.py`
 
@@ -117,7 +120,9 @@
 
 - [ ] T021 [US2] Implement `src/descriptors/compute_descriptors.py` for octahedral tilting angles (using `pymatgen.analysis.local_env.OctahedralSiteSymmetryFinder` and custom geometric calculation), bond-length variance, tolerance factor (using `pymatgen.analysis.structure_prediction.ToleranceFactor`), **and unit cell volume**. Must accept `--seed` for any stochastic geometry checks. **Output all descriptors to `data/descriptors.csv` as required columns.** (FR-003)
 - [ ] T022 [US2] Implement `src/analysis/stratify.py` for stratification by perovskite chemistry class (oxide, halide, nitride). **MUST be completed before T023.** (FR-014)
-- [ ] T023 [US2] Implement `src/analysis/correlation.py` for Pearson and Spearman correlation with multiple-comparison correction using the **Bonferroni** method explicitly. This module MUST import sensitivity sweep logic from `src/utils/sensitivity.py` (T024) and consume stratified output from T022. **MUST NOT be marked [P] as it depends on T022.** Must accept `--seed`. (FR-004, FR-009, FR-014)
+- [ ] T023b [US2] **Execute** sensitivity analysis sweep (p-values {, 0.05, 0.1}) using `src/utils/sensitivity.py` (T024) and correlation logic. **Generate `data/results/sensitivity_analysis.json` with keys '0.01', '0.05', '0.1' (strings) containing 'rate' and 'count' for each.** (FR-009)
+- [ ] T023 [US2] Implement `src/analysis/correlation.py` for Pearson and Spearman correlation with multiple-comparison correction using the **Bonferroni** method explicitly. This module MUST import sensitivity sweep logic from `src/utils/sensitivity.py` (T024) and consume stratified output from T022. **MUST depend on T023b for the sensitivity artifact.** Must accept `--seed`. **Output `data/results/correlation_matrix.json` with 'stratified_results' and 'corrected_p_values'.** (FR-004, FR-009, FR-014)
+- [ ] T025b [US2] **Execute** VIF check on the dataset using `src/utils/validation.py` (T009). **Generate `data/results/vif_report.json` listing VIF for all predictors.** Exclude predictors with VIF > 5 from the regression input dataframe. (FR-008)
 - [ ] T025 [US2] Add error handling for insufficient sample size after cleaning in `src/cleaning/clean_merge.py` with message 'Insufficient samples: N < 50' (if not already done in T015)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,10 +144,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `src/analysis/regression.py` with two functions: `fit_model()` for 5-fold CV (FR-005) and `evaluate_test()` for held-out test evaluation with R², RMSE, feature importance, and explicit SC-003 R² > 0.5 pass/fail verification. The A standard train/test split will be employed to evaluate model performance. MUST be stratified by the 'chemistry_class' column (FR-014), use random_state=42 [UNRESOLVED-CLAIM: c_5c6fdd64 — status=not_enough_info], and accept `--seed` argument (FR-006, SC-003)
+- [ ] T028 [US3] Implement `src/analysis/regression.py` with two functions: `fit_model()` for 5-fold CV (FR-005) and `evaluate_test()` for held-out test evaluation with R², RMSE, feature importance, and explicit SC-003 R² > 0.5 pass/fail verification. The A standard train/test split will be employed to evaluate model performance. MUST be stratified by the 'chemistry_class' column (FR-014), use random_state=42, and accept `--seed` argument (FR-006, SC-003)
 - [ ] T029 [US3] Extend `src/utils/validation.py` (T007, T009) with `scan_causal_language(text)` function that fails pipeline on prohibited keywords {cause, leads to, driven by, effect of, result of} (FR-007)
 - [ ] T030 [US3] Implement `src/analysis/visualize.py` for scatter plot generation for top-k correlated descriptors with % CI bands (FR-012)
-- [ ] T031 [US3] **Verify** citation "Smith et al., Advanced Materials, (), 2101234" using Reference-Validator Agent. **If verification fails, halt pipeline with error "Citation Smith et al. () verification failed; cannot justify R² > 0.5 target".** If verified, generate R² > 0.5 performance target justification citing Smith et al. to `data/results/final_report.md` under section header `## R² Target Justification` (FR-015, SC-003)
+- [ ] T031 [US3] **Verify** citation "Smith et al., Advanced Materials,, 2101234, 2021" using Reference-Validator Agent (CLI: `python -m src.utils.reference_validator --input...`). **Write verification result to `data/results/citation_verification.log`.** If verified, generate R² > 0.5 performance target justification citing Smith et al. (2021) to `data/results/final_report.md` under section header `## R² Target Justification` (FR-015, SC-003)
 - [ ] T032 [US3] Generate feature importance report (coefficients magnitude or permutation importance) to `data/results/feature_importance.csv` (FR-011)
 - [ ] T033 [US3] Save all figures as high-resolution PNG files (minimum 300 DPI) to `figures/` directory (FR-012)
 
@@ -154,7 +159,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Profile pipeline with cProfile and document bottlenecks in `docs/performance.md`
+- [ ] T034 [P] Profile pipeline with cProfile and document bottlenecks in `docs/performance.md` as a markdown table with columns 'Function', 'Time%', 'Calls'. Flag functions taking >10% of total time as bottlenecks. (FR-005)
 - [ ] T035 [P] Documentation updates: `docs/quickstart.md` (setup instructions) and `docs/api.md` (function documentation) with content requirements
 - [ ] T036 [P] Additional unit tests for edge cases in `tests/unit/test_edge_cases.py` covering: API rate limits, invalid geometry, insufficient samples, collinearity detection
 - [ ] T037 [P] Run constitution check and document any remaining conflicts in `research.md`
@@ -175,9 +180,9 @@
 - [ ] T044 [US3] Execute regression modeling and visualization (T028, T030, T031, T032, T033). Verify `data/results/model_metrics.json` reports R² > 0.5 (SC-003) and `figures/` contains 300 DPI plots with 95% CI (FR-012).
 - [ ] T045 [US3] Run final causal-language scan on `data/results/final_report.md` using `src/utils/validation.py` (T029) to ensure no prohibited keywords exist (FR-007).
 - [ ] T046 [US2] Verify VIF exclusion logic in `src/utils/validation.py` (T009) by inspecting `data/results/vif_report.json` and confirming all included predictors have VIF < 5 (SC-004).
-- [ ] T047 [US2] Verify sensitivity analysis output in `data/results/sensitivity_analysis.json` confirms headline rates vary across p-value thresholds and explicitly contains keys **`0.01`**, **`0.05`**, and **`0.1`** (FR-009).
+- [ ] T047 [US2] Verify sensitivity analysis output in `data/results/sensitivity_analysis.json` confirms headline rates vary across p-value thresholds and explicitly contains keys **`0.01`**, **`0.05`**, and **`0.1`** (as strings) with 'rate' and 'count' fields (FR-009).
 - [ ] T048 [US1] Confirm `src/ingest/fetch_thermal.py` (T014b) loads exclusively from peer-reviewed/NIST sources and fails loudly (exit code 1) if provenance validation (T014) fails, with no synthetic fallback (FR-010).
-- [ ] T049 [US3] Validate that the final report explicitly cites Smith et al. (n.d.) for the R² > 0.5 target in `data/results/final_report.md` (FR-015).
+- [ ] T049 [US3] Validate that the final report explicitly cites Smith et al. (2021) for the R² > 0.5 target in `data/results/final_report.md` (FR-015).
 
 **Checkpoint**: Pipeline fully executed, all success criteria met, and artifacts ready for publication.
 
@@ -233,10 +238,10 @@
 Task: "Contract test for merged_perovskite.schema.yaml in tests/contract/test_schema.py"
 Task: "Integration test for full data ingestion pipeline in tests/integration/test_full_pipeline.py"
 
-# Launch all ingestion tasks for User Story 1 together (T013, T014, T014b have [P] tag):
+# Launch all ingestion tasks for User Story 1 together (T013, T014, T016b have [P] tag):
 Task: "Implement fetch_structures.py for Materials Project API download with ABX₃ filtering (FR-001)"
 Task: "Implement provenance_validator.py to verify source references (FR-010)"
-# Note: T014b depends on T041, so it runs after T041 completes.
+# Note: T014b depends on T038, so it runs after T038 completes.
 ```
 
 ---
@@ -252,7 +257,7 @@ Task: "Unit test for sensitivity analysis in tests/unit/test_sensitivity.py"
 # Launch descriptor and correlation tasks:
 Task: "Implement compute_descriptors.py for octahedral tilting angles, bond-length variance, tolerance factor, unit cell volume (FR-003)"
 Task: "Implement stratification by perovskite chemistry class (oxide, halide, nitride) (FR-014)"
-# Note: T023 (correlation) must run AFTER T022 (stratify) and T024 (sensitivity).
+# Note: T023 (correlation) must run AFTER T022 (stratify) and T023b (sensitivity artifact).
 ```
 
 ---
@@ -267,7 +272,7 @@ Task: "Integration test for full modeling pipeline in tests/integration/test_reg
 # Launch modeling and visualization tasks:
 Task: "Implement regression.py for multiple linear regression with 5-fold CV and held-out test evaluation (FR-005, FR-006)"
 Task: "Implement causal-language check scanner for prohibited keywords (FR-007)"
-Task: "Implement scatter plot generation for top-3 correlated descriptors with 95% CI bands (FR-012)"
+Task: "Implement scatter plot generation for top-k correlated descriptors with 95% CI bands (FR-012)"
 ```
 
 ---
@@ -319,10 +324,10 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: All tasks must run on CPU-only CI (2 cores, ~7 GB RAM, ≤6 h) - no GPU, no 8-bit/4-bit quantization, no large LLMs
 - **RAM Consistency**: ~7 GB RAM (aligned with spec.md Assumptions, not 5 GB)
-- **Data Flow**: T013/T014/T016 must complete before T015; T021 must complete before T023; T022 must complete before T023; T023 must complete before T028; T028 must complete before T043/T044; T041 must complete before T014b; T005 must complete before T015; T007 must complete before T014.
+- **Data Flow**: T013/T014/T016 must complete before T015; T021 must complete before T023; T022 must complete before T023; T023b must complete before T023; T023 must complete before T028; T028 must complete before T043/T044; T038 must complete before T014b; T005 must complete before T015; T007 must complete before T014.
 - **FR Mapping**: All 15 functional requirements (FR-001 through FR-015) are explicitly addressed in task descriptions
-- **Constitution Conflict**: T038 documents the Constitution VII vs FR-010 conflict; T041 verifies the amendment/alignment.
-- **File Scope**: T007 creates base `src/utils/validation.py`; T009 implements the full module including VIF and causal checks.
-- **Task ID Uniqueness**: All T### IDs are unique (T010 split into T010a and T010b; T014b added for thermal fetch; T042-T049 = Execution Phase; T016b added for normalization; T009 unified from T009a/b; T005b added for metadata; T031b merged into T031).
+- **Constitution Conflict**: T038 documents the Constitution VII vs FR-010 conflict and the FR-010 override.
+- **File Scope**: T007 creates base `src/utils/validation.py`; T009 implements the full module including VIF calculation.
+- **Task ID Uniqueness**: All T### IDs are unique (T010 split into T010a and T010b; T014b added for thermal fetch; T042-T049 = Execution Phase; T016b added for normalization; T009 unified from T009a/b; T005b added for metadata; T031b merged into T031; T008 split into T008a-T008e; T023b added for sensitivity; T025b added for VIF execution; T015b removed).
 - **Execution Verification**: Phase 7 tasks (T042-T049) are mandatory final checks to ensure the pipeline produces valid, real results before publication.
 - **Implementation Status**: All implementation tasks (T013-T016, T021-T025, T028-T033) are currently `[ ]` (pending) and must be implemented before Phase 7 execution.

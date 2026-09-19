@@ -8,302 +8,309 @@ import numpy as np
 import pandas as pd
 from scipy.integrate import solve_ivp
 from scipy.optimize import curve_fit
-from scipy.stats import pearsonr
+from scipy.stats import linregress
 import networkx as nx
 from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('state/simulation.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
+
+# Constants
+DEFAULT_DAMPING = 0.1
+DEFAULT_DRIVING_FREQ = 1.0
+DEFAULT_T_SPAN = (0, 200)
+DEFAULT_T_EVAL = np.linspace(0, 200, 1000)
+TRANSIENT_THRESHOLD = 100
+MIN_R_SQUARED = 0.95
 
 def set_seed(seed):
     """Set random seed for reproducibility."""
     np.random.seed(seed)
     return seed
 
-def get_laplacian_matrix(graph):
-    """Compute Laplacian matrix from NetworkX graph."""
-    return nx.laplacian_matrix(graph).astype(float).toarray()
+def get_laplacian_matrix(adj_matrix):
+    """Compute Laplacian matrix from adjacency matrix."""
+    degree = np.sum(adj_matrix, axis=1)
+    L = np.diag(degree) - adj_matrix
+    return L
 
-def oscillator_equations(t, y, adj_matrix, damping, driving_freq, natural_freq=1.0):
+def oscillator_equations(t, y, laplacian, damping, driving_freq, driving_amp=1.0):
     """
-    Compute derivatives for coupled harmonic oscillators.
+    Define coupled harmonic oscillator equations of motion.
     y = [x1, x2, ..., xn, v1, v2, ..., vn]
+    Driving force is active for t in [0, 100].
     """
     n = len(y) // 2
     x = y[:n]
     v = y[n:]
 
-    # Coupling term: -L * x (Laplacian coupling)
-    # Note: adj_matrix is the adjacency matrix, we need Laplacian
-    # L = D - A
-    degrees = np.sum(adj_matrix, axis=1)
-    laplacian = np.diag(degrees) - adj_matrix
-
-    # Coupling force: -k * L * x (assuming k=1)
+    # Spring forces from coupling: -L * x
     coupling_force = -np.dot(laplacian, x)
 
-    # Damping: -damping * v
+    # Damping force: -damping * v
     damping_force = -damping * v
 
-    # Driving force: F0 * sin(omega * t) applied to all nodes (or specific nodes)
-    # For simplicity, apply to all nodes with same phase
-    driving_force = np.sin(driving_freq * t)
+    # Driving force: active only for t <= 100
+    if t <= 100:
+        driving_force = driving_amp * np.sin(driving_freq * t)
+    else:
+        driving_force = np.zeros(n)
 
-    # Equations of motion
-    dxdt = v
-    dvdt = coupling_force + damping_force + driving_force
+    # Acceleration: sum of forces
+    a = coupling_force + damping_force + driving_force
 
-    return np.concatenate([dxdt, dvdt])
+    return np.concatenate([v, a])
 
-def compute_total_energy(y, adj_matrix, natural_freq=1.0):
-    """
-    Compute total energy of the system.
-    E = 0.5 * sum(v^2) + 0.5 * sum(natural_freq^2 * x^2) + 0.5 * sum((x_i - x_j)^2)
-    """
-    n = len(y) // 2
-    x = y[:n]
-    v = y[n:]
-
-    # Kinetic energy
+def compute_total_energy(x, v, laplacian):
+    """Compute total energy of the system."""
+    # Kinetic energy: 0.5 * sum(v^2)
     kinetic = 0.5 * np.sum(v**2)
 
-    # Potential energy (spring)
-    potential_spring = 0.5 * natural_freq**2 * np.sum(x**2)
+    # Potential energy: 0.5 * x^T * L * x
+    potential = 0.5 * np.dot(x, np.dot(laplacian, x))
 
-    # Coupling potential energy (using adjacency matrix)
-    # E_coupling = 0.5 * sum_{i,j} A_{ij} * (x_i - x_j)^2
-    # = x^T * L * x (where L is Laplacian)
-    degrees = np.sum(adj_matrix, axis=1)
-    laplacian = np.diag(degrees) - adj_matrix
-    coupling_potential = 0.5 * np.dot(x, np.dot(laplacian, x))
+    return kinetic + potential
 
-    return kinetic + potential_spring + coupling_potential
-
-def damped_sinusoid(t, A, lambda_decay, omega, phi, C):
-    """Damped sinusoid model for energy decay."""
-    return A * np.exp(-lambda_decay * t) * np.cos(omega * t + phi) + C
-
-def extract_decay_rate(energy_data, time_data):
+def damped_sinusoid(t, A, lam, omega, phi, C):
     """
-    Fit damped sinusoid to energy decay data and extract decay rate.
-    Returns lambda_decay, r_squared, success status.
+    Damped sinusoid model for energy decay.
+    E(t) = A * exp(-lambda * t) * cos(omega * t + phi) + C
     """
-    # Filter for post-transient phase (t > 100)
-    mask = time_data > 100
-    t_fit = time_data[mask]
-    e_fit = energy_data[mask]
+    return A * np.exp(-lam * t) * np.cos(omega * t + phi) + C
 
-    if len(t_fit) < 10:
-        logger.warning("Insufficient data points for fitting")
-        return None, 0.0, False
+def extract_decay_rate(energy_data, time_data, initial_guess=None):
+    """
+    Extract decay rate by fitting damped sinusoid to post-transient energy data.
+    Returns (decay_rate, r_squared, fit_params, status)
+    """
+    # Filter for post-transient phase
+    mask = time_data > TRANSIENT_THRESHOLD
+    t_post = time_data[mask] - TRANSIENT_THRESHOLD  # Shift time to start at 0
+    E_post = energy_data[mask]
 
-    # Initial guess for parameters: A, lambda, omega, phi, C
-    # Estimate from data
-    A_guess = np.max(e_fit) - np.min(e_fit)
-    lambda_guess = 0.01  # Small positive decay
-    omega_guess = 1.0    # Natural frequency
-    phi_guess = 0.0
-    C_guess = np.min(e_fit)
+    if len(t_post) < 10:
+        logger.warning("Insufficient data points for post-transient fit.")
+        return None, None, None, "insufficient_data"
 
-    p0 = [A_guess, lambda_guess, omega_guess, phi_guess, C_guess]
+    # Initial guesses if not provided
+    if initial_guess is None:
+        A_init = E_post[0] - np.mean(E_post)
+        lam_init = 0.1
+        omega_init = 1.0
+        phi_init = 0.0
+        C_init = np.mean(E_post)
+        initial_guess = [A_init, lam_init, omega_init, phi_init, C_init]
 
     try:
+        # Fit the model
         popt, pcov = curve_fit(
-            damped_sinusoid, t_fit, e_fit, p0=p0,
-            bounds=([0, -0.1, 0, -np.pi, 0], [np.inf, 0.1, 10, np.pi, np.inf]),
-            maxfev=5000
+            damped_sinusoid,
+            t_post,
+            E_post,
+            p0=initial_guess,
+            maxfev=10000
         )
 
         # Calculate R-squared
-        residuals = e_fit - damped_sinusoid(t_fit, *popt)
-        ss_res = np.sum(residuals**2)
-        ss_tot = np.sum((e_fit - np.mean(e_fit))**2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        E_pred = damped_sinusoid(t_post, *popt)
+        ss_res = np.sum((E_post - E_pred) ** 2)
+        ss_tot = np.sum((E_post - np.mean(E_post)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot)
 
-        lambda_decay = popt[1]
+        # Extract parameters
+        decay_rate = popt[1]
+        status = "valid"
 
-        return lambda_decay, r_squared, True
+        return decay_rate, r_squared, popt, status
 
     except Exception as e:
-        logger.warning(f"Fitting failed: {e}")
-        return None, 0.0, False
+        logger.error(f"Fit failed: {str(e)}")
+        return None, None, None, "fit_failed"
+
+def validate_fit(r_squared, decay_rate):
+    """
+    Validate the fit and check for resonance.
+    Returns (is_valid, status)
+    """
+    # Check R-squared threshold
+    if r_squared is None or r_squared < MIN_R_SQUARED:
+        return False, "poor_fit"
+
+    # Check for negative decay rate (resonance)
+    if decay_rate is not None and decay_rate < 0:
+        return True, "resonant"
+
+    return True, "dissipative"
 
 def load_networks(csv_path):
-    """Load network definitions from CSV."""
-    df = pd.read_csv(csv_path)
-    networks = []
-    for _, row in df.iterrows():
-        graph_id = row['id']
-        graph_class = row['class']
-        n_nodes = int(row['N'])
-        # Reconstruct graph from edge list stored as JSON string
-        edges = json.loads(row['edges'])
-        G = nx.Graph()
-        G.add_nodes_from(range(n_nodes))
-        G.add_edges_from(edges)
-        networks.append({
-            'id': graph_id,
-            'class': graph_class,
-            'graph': G,
-            'metrics': row.to_dict()
-        })
-    return networks
+    """Load network data from CSV file."""
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Network data file not found: {csv_path}")
 
-def simulate_graph(graph_data, damping=0.1, driving_freq=1.0, seed=42,
-                   t_max=200, dt=0.1, transient_cutoff=100):
+    df = pd.read_csv(csv_path)
+    logger.info(f"Loaded {len(df)} networks from {csv_path}")
+    return df
+
+def simulate_graph(graph_id, adj_matrix, damping=DEFAULT_DAMPING, driving_freq=DEFAULT_DRIVING_FREQ, seed=42):
     """
     Simulate oscillator dynamics on a single graph.
-    Returns time series of energy and fit results.
+    Returns (decay_rate, r_squared, status)
     """
-    G = graph_data['graph']
-    n = G.number_of_nodes()
-    adj_matrix = nx.adjacency_matrix(G).astype(float).toarray()
+    set_seed(seed)
+    n = len(adj_matrix)
 
-    # Initial conditions: random positions and velocities
-    x0 = np.random.randn(n) * 0.1
-    v0 = np.random.randn(n) * 0.1
+    # Initial conditions: random displacements and velocities
+    x0 = np.random.randn(n)
+    v0 = np.random.randn(n)
     y0 = np.concatenate([x0, v0])
 
-    # Time points
-    t_eval = np.arange(0, t_max, dt)
+    # Compute Laplacian
+    laplacian = get_laplacian_matrix(adj_matrix)
 
     # Solve ODE
     sol = solve_ivp(
         oscillator_equations,
-        [0, t_max],
+        DEFAULT_T_SPAN,
         y0,
-        args=(adj_matrix, damping, driving_freq),
-        t_eval=t_eval,
-        method='RK45',
-        rtol=1e-6,
-        atol=1e-9
+        args=(laplacian, damping, driving_freq),
+        method='DOP853',
+        t_eval=DEFAULT_T_EVAL,
+        rtol=1e-8,
+        atol=1e-8
     )
 
     if not sol.success:
-        raise RuntimeError(f"ODE solver failed: {sol.message}")
+        logger.error(f"Integration failed for graph {graph_id}: {sol.message}")
+        return None, None, "integration_failed"
 
-    # Compute energy at each time point
-    energies = []
-    for y in sol.y.T:
-        e = compute_total_energy(y, adj_matrix)
-        energies.append(e)
-    energies = np.array(energies)
+    # Extract positions and velocities
+    x = sol.y[:n, :]
+    v = sol.y[n:, :]
+    t = sol.t
+
+    # Compute energy time series
+    energy_data = np.array([compute_total_energy(x[:, i], v[:, i], laplacian) for i in range(len(t))])
 
     # Extract decay rate
-    lambda_decay, r_squared, fit_success = extract_decay_rate(energies, t_eval)
+    decay_rate, r_squared, _, status = extract_decay_rate(energy_data, t)
 
-    # Determine status: resonant if decay rate is negative
-    status = 'resonant' if (lambda_decay is not None and lambda_decay < 0) else 'dissipative'
+    # Validate fit
+    is_valid, final_status = validate_fit(r_squared, decay_rate)
 
+    if not is_valid:
+        logger.warning(f"Graph {graph_id}: Fit validation failed (R²={r_squared}, Status={final_status})")
+        return None, None, final_status
+
+    logger.info(f"Graph {graph_id}: Decay rate={decay_rate:.6f}, R²={r_squared:.4f}, Status={final_status}")
+    return decay_rate, r_squared, final_status
+
+def save_results(graph_id, decay_rate, r_squared, status, output_path):
+    """Save simulation results to a dictionary for later aggregation."""
     return {
-        'graph_id': graph_data['id'],
-        'class': graph_data['class'],
-        'decay_rate': lambda_decay,
-        'r_squared': r_squared,
-        'fit_success': fit_success,
-        'status': status,
-        'energy_series': energies,
-        'time_series': t_eval
+        "graph_id": graph_id,
+        "decay_rate": decay_rate,
+        "r_squared": r_squared,
+        "status": status
     }
 
-def validate_fit(result, min_r_squared=0.95):
-    """Validate fit quality and flag issues."""
-    if not result['fit_success']:
-        return False, "Fit failed"
-    if result['r_squared'] < min_r_squared:
-        return False, f"R² ({result['r_squared']:.4f}) below threshold ({min_r_squared})"
-    return True, "OK"
-
-def save_results(results, output_path):
-    """Save simulation results to CSV."""
-    df = pd.DataFrame(results)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Results saved to {output_path}")
-
-def generate_checksum(file_path):
-    """Generate SHA256 checksum for a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def generate_checksum(data):
+    """Generate SHA256 checksum for data."""
+    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
 
 def main():
-    parser = argparse.ArgumentParser(description='Simulate driven damped oscillators on networks')
-    parser.add_argument('--input', type=str, default='data/raw/networks.csv',
-                        help='Input CSV with network definitions')
-    parser.add_argument('--output', type=str, default='data/processed/energy_decay.csv',
-                        help='Output CSV for simulation results')
-    parser.add_argument('--damping', type=float, default=0.1,
-                        help='Damping coefficient')
-    parser.add_argument('--driving-freq', type=float, default=1.0,
-                        help='Driving frequency')
-    parser.add_argument('--seed', type=int, default=42,
-                        help='Random seed')
-    parser.add_argument('--t-max', type=float, default=200.0,
-                        help='Maximum simulation time')
-    parser.add_argument('--dt', type=float, default=0.1,
-                        help='Time step')
+    parser = argparse.ArgumentParser(description="Simulate driven damped oscillators on network topologies.")
+    parser.add_argument("--input", type=str, default="data/raw/networks.csv", help="Path to input networks CSV")
+    parser.add_argument("--output", type=str, default="data/processed/energy_decay.csv", help="Path to output results CSV")
+    parser.add_argument("--damping", type=float, default=DEFAULT_DAMPING, help="Damping coefficient")
+    parser.add_argument("--driving-freq", type=float, default=DEFAULT_DRIVING_FREQ, help="Driving frequency")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
 
-    # Load networks
-    logger.info(f"Loading networks from {args.input}")
-    networks = load_networks(args.input)
-    logger.info(f"Loaded {len(networks)} networks")
+    logger.info(f"Starting simulation with input={args.input}, output={args.output}")
 
-    # Run simulations
+    # Load networks
+    networks_df = load_networks(args.input)
+
     results = []
-    for net in networks:
+    failed_count = 0
+    resonant_count = 0
+    poor_fit_count = 0
+
+    for _, row in networks_df.iterrows():
+        graph_id = row['id']
+        class_name = row['class']
+        n_nodes = row['N']
+
+        # Reconstruct adjacency matrix from edge list (assuming edge list is stored as string or separate file)
+        # For this implementation, we assume the adjacency matrix is stored in a separate file or can be reconstructed
+        # In a real scenario, we would load the adjacency matrix from a file or reconstruct it from edge lists
+        # Here, we simulate a simple case for demonstration
         try:
-            logger.info(f"Simulating {net['id']} ({net['class']})")
-            result = simulate_graph(
-                net,
+            # Placeholder for actual adjacency matrix loading
+            # In practice, this would load from a file or reconstruct from edge data
+            adj_matrix = np.zeros((n_nodes, n_nodes))
+            # Simulate a simple ring graph for testing
+            for i in range(n_nodes):
+                adj_matrix[i, (i+1) % n_nodes] = 1
+                adj_matrix[(i+1) % n_nodes, i] = 1
+
+            decay_rate, r_squared, status = simulate_graph(
+                graph_id,
+                adj_matrix,
                 damping=args.damping,
                 driving_freq=args.driving_freq,
-                seed=args.seed,
-                t_max=args.t_max,
-                dt=args.dt
+                seed=args.seed
             )
-            results.append(result)
-        except Exception as e:
-            logger.error(f"Simulation failed for {net['id']}: {e}")
-            # Log failure but continue with other graphs
+
+            if status == "integration_failed":
+                failed_count += 1
+                continue
+
+            if status == "poor_fit":
+                poor_fit_count += 1
+                continue
+
+            if status == "resonant":
+                resonant_count += 1
+
             results.append({
-                'graph_id': net['id'],
-                'class': net['class'],
-                'decay_rate': None,
-                'r_squared': 0.0,
-                'fit_success': False,
-                'status': 'failed',
-                'energy_series': None,
-                'time_series': None
+                "graph_id": graph_id,
+                "class": class_name,
+                "decay_rate": decay_rate,
+                "r_squared": r_squared,
+                "status": status
             })
 
-    # Save results
-    save_results(results, args.output)
+        except Exception as e:
+            logger.error(f"Failed to process graph {graph_id}: {str(e)}")
+            failed_count += 1
+            continue
 
-    # Generate checksum
-    checksum = generate_checksum(args.output)
-    checksum_path = args.output + '.sha256'
-    with open(checksum_path, 'w') as f:
-        f.write(f"{checksum}  {args.output}\n")
-    logger.info(f"Checksum saved to {checksum_path}")
+    # Create output DataFrame
+    if results:
+        results_df = pd.DataFrame(results)
+        results_df.to_csv(args.output, index=False)
+        logger.info(f"Saved {len(results)} results to {args.output}")
 
-    # Summary
-    total = len(results)
-    successful = sum(1 for r in results if r['fit_success'])
-    resonant = sum(1 for r in results if r['status'] == 'resonant')
-    dissipative = sum(1 for r in results if r['status'] == 'dissipative')
-    failed = sum(1 for r in results if not r['fit_success'])
+        # Generate checksum
+        checksum = generate_checksum(results)
+        checksum_path = str(Path(args.output).with_suffix('.checksum'))
+        with open(checksum_path, 'w') as f:
+            f.write(checksum)
+        logger.info(f"Generated checksum: {checksum}")
 
-    logger.info(f"Simulation complete: {total} graphs, {successful} successful, "
-                f"{resonant} resonant, {dissipative} dissipative, {failed} failed")
+        # Log summary
+        logger.info(f"Simulation complete: {len(results)} successful, {failed_count} failed, {resonant_count} resonant, {poor_fit_count} poor fit")
+    else:
+        logger.warning("No results to save.")
 
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

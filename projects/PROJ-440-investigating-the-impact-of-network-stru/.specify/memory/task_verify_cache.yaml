@@ -1,24 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that the
-    required folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`,
-    `tests/`, `contracts/`, `state/`) actually exist; the claim is unsubstantiated.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided material only contains a feature specification for network generation
-    and simulation; there are no linting or formatting configuration files (e.g.,
-    `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or any evidence
-    that ruff/flake8 and black have been set up. Consequently, the task of configuring
-    those tools is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pre\u2011commit configuration files (e.g., `.pre-commit-config.yaml`), hook\
-    \ installation scripts, or documentation are present. The claim provides only\
-    \ a unrelated feature specification; it does not include the required artifact\
-    \ to configure linting/formatting hooks. The task remains undone."
 T011a:
   c: false
   h: 23bfe476c0120ac7cda67f7ff82ed34aa1fe7b9c5fb14045c399864d45b934cd
@@ -27,13 +6,6 @@ T011a:
     that checks for the existence or contents of `data/raw/networks.csv`. Moreover,
     the file `data/raw/networks.csv` is missing entirely. Hence the required integration
     test and the CSV artifact are not present.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided showing that generation failures\
-    \ are now caught, that the failing graph\u2019s ID is logged, and that such graphs\
-    \ are omitted from the final dataset. Without any artifact demonstrating this\
-    \ error\u2011handling logic, the task requirement is not satisfied."
 T021b:
   c: false
   h: de139e6bffb9e675d806a297340bbf0c6da9ace4e0462bd7e1dc4388bebca2fd

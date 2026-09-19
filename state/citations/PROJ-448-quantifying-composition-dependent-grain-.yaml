@@ -66,7 +66,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.actamat.2020.01.015
   verified_at: '2026-08-31T22:38:01.099922Z'
-- artifact_hash: 2f109518c2ffd411ebbedcf2b8004ad717439103abb0c676382635c82465cde6
+- artifact_hash: 77d64abb7bcda7819b087dcc6293c5f30dca161713fb8a33a96e69f484591761
   artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -76,10 +76,23 @@
   value: https://doi.org/
   verification_status: pending
   verified_against_url: https://www.doi.org/
-  verified_at: '2026-09-04T16:05:12.071474Z'
-- artifact_hash: 2f109518c2ffd411ebbedcf2b8004ad717439103abb0c676382635c82465cde6
+  verified_at: '2026-09-19T07:22:32.106991Z'
+- artifact_hash: 77d64abb7bcda7819b087dcc6293c5f30dca161713fb8a33a96e69f484591761
   artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-09-19T07:22:32.106991Z'
+- artifact_hash: 77d64abb7bcda7819b087dcc6293c5f30dca161713fb8a33a96e69f484591761
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: Interfacial energy as the driving force for diffusion bonding of
@@ -88,4 +101,4 @@
   value: 10.1016/j.actamat.2020.01.015
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.actamat.2020.01.015
-  verified_at: '2026-09-04T16:05:12.071474Z'
+  verified_at: '2026-09-19T07:22:32.106991Z'

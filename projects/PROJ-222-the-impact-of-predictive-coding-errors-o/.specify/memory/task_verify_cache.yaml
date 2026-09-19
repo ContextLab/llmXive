@@ -14,12 +14,6 @@ T012c:
     text rather than a populated status table. The implementation does not demonstrate
     that it actually writes the updated markdown to the README. Both the input data
     and the resulting updated README are absent.
-T017b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'The claim provides no evidence that a `markov_state.json` file exists, that
-    it contains `"order": 1`, nor that a confirmation entry was written to `analysis/verification_log.json`.
-    These required artifacts are missing.'
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -60,12 +54,3 @@ T026:
     rank test is present; the only artifacts described relate to data acquisition\
     \ and mixed\u2011effects modeling, not the required normality\u2011check functionality.\
     \ The task\u2019s core requirement is therefore unmet."
-T041:
-  c: false
-  h: 0404a57e4689c94b8866650dbd9a3c92180534e22a90bb650a85126493549f3e
-  r: "The repository contains a `code/preprocess.py` but the required output files\
-    \ `data/processed/markov_counts.json` and `data/processed/markov_state.json` are\
-    \ absent, indicating the script does not produce the incremental counts or final\
-    \ matrix as specified. Additionally, the OpenML streaming implementation and online\
-    \ aggregation logic are incomplete/truncated. The task\u2019s core output artifacts\
-    \ are missing."

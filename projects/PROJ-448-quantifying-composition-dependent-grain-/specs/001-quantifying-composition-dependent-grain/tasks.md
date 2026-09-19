@@ -127,7 +127,7 @@
 
 - [X] T047b [P] [FR-001] Implement `code/services/thermo_extrapolator.py` to linearly extrapolate missing CALPHAD parameters (500‑900 K) using `scipy.interpolate.interp1d`. **Constraint**: No sklearn regression. **Dependency**: After T050 and T045e-Fetch.
 
-- [ ] T047c [P] Execute and validate `code/services/thermo_extrapolator.py` on a sample set of missing parameters. **Dependency**: Must run after T047b.
+- [X] T047c [P] Execute and validate `code/services/thermo_extrapolator.py` on a sample set of missing parameters. **Dependency**: Must run after T047b.
 
 - [ ] T048-Script [Research] [FR-001] Create `code/services/thermo_extractor.py`. **Requirements**:
  1. Load `data/raw/calphad_params.json`.
@@ -160,7 +160,7 @@
  2. Raise informative `KeyError` if no match.
  **Dependency**: After T001c and T045f-Fetch/T045f-Gen.
 
-- [ ] T090-Config [Research] [FR-001] Create `research/synthetic_ground_truth.yaml` with `interaction_coefficients` (default `{Cr_Mo: 0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05, V_W: 0.05}`) and `random_seed: 42`. **Dependency**: None.
+- [ ] T090-Config [Research] [FR-001] Create `research/synthetic_ground_truth.yaml` with `interaction_coefficients` (default `{Cr_Mo: 0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05, V_W: 0.05}`) and `random_seed: 42 [UNRESOLVED-CLAIM: c_0d459c7c — status=not_enough_info]`. **Dependency**: None.
 
 - [ ] T090-CreateScript [Research] [FR-001] Create `data/generate_ground_truth.py`. **Requirements**:
  1. Load CALPHAD params from `data/raw/calphad_params.json`.
@@ -180,7 +180,7 @@
  2. Raise error on malformed file.
  **Dependency**: After T045f-Fetch/T045f-Gen.
 
-- [ ] T013 [Research] [FR-002‑Amend] Implement `code/services/load_dft_surrogate.py` to load pre‑computed DFT energies **only if** `T013-CheckPlaceholder` passed. **Dependency**: After T013b and T013-CheckPlaceholder.
+- [X] T013 [Research] [FR-002‑Amend] Implement `code/services/load_dft_surrogate.py` to load pre‑computed DFT energies **only if** `T013-CheckPlaceholder` passed. **Dependency**: After T013b and T013-CheckPlaceholder.
 
 - [ ] T013-Exec [Research] Execute `code/services/load_dft_surrogate.py` to generate `data/processed/surrogate_energies.json`. **Dependency**: After T013.
 

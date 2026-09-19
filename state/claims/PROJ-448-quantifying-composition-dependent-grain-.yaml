@@ -1991,3 +1991,408 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T16:38:57Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'default interaction coefficients for synthetic ground truth: Cr_Mo 0.05,
+    Cr_V 0.05, Mo_V 0.05, Cr_W 0.05, Mo_W 0.05, V_W 0.05'
+  claim_id: c_c6067e58
+  context: 'Create research/synthetic_ground_truth.yaml with interaction_coefficients
+    (default {Cr_Mo: 0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05, V_W: 0.05})
+    and random_seed: 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project uses interaction coefficients with default values: Cr_Mo:
+    0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05, V_W: 0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:08:16Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: citation DOI 10.1016/j.actamat.2020.01.015 for APT apparatus and detection
+    limits
+  claim_id: c_45b2be6d
+  context: Create research/experimental_validation_plan.md describing Atom Probe Tomography
+    apparatus, detection limits, specimen preparation, and cite DOI 10.1016/j.actamat.2020.01.015.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The experimental validation plan cites DOI 10.1016/j.actamat.2020.01.015
+    regarding Atom Probe Tomography apparatus and detection limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:08:19Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: lack of ternary APT data referenced in experimental gap report
+  claim_id: c_84ad2cff
+  context: Generate research/experimental_gap_report.md summarizing lack of ternary
+    APT data, referencing research/data_sources.md.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lack_of_ternary_APT_data_referenced_in_experimental_gap_repo
+  kind: entity_fact
+  raw_text: The validation report references research/data_sources.md for the lack
+    of ternary APT data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:09:09Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: validation against binary APT data for Fe-Cr, Fe-Mo, Fe-V, Fe-W systems
+  claim_id: c_e7734e89
+  context: Fetch APT datasets for binary systems (Fe-Cr, Fe-Mo, Fe-V, Fe-W) using
+    IDs from T003-Record.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_against_binary_APT_data_for_Fe-Cr,_Fe-Mo,_Fe-V,_F
+  kind: entity_fact
+  raw_text: The project plans to validate segregation profiles against binary APT
+    data for systems Fe-Cr, Fe-Mo, Fe-V, and Fe-W.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:09:47Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: validation against ternary APT data for Fe-Cr-Mo and other ternary systems
+  claim_id: c_8984cccb
+  context: Fetch APT datasets for ternary systems (Fe-Cr-Mo, etc.) using DOIs from
+    T003-Record.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_against_ternary_APT_data_for_Fe-Cr-Mo_and_other_t
+  kind: entity_fact
+  raw_text: The project plans to validate segregation profiles against ternary APT
+    data for systems including Fe-Cr-Mo.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:10:40Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: synthetic ground truth interaction coefficients set to 0.05 for all pairs
+  claim_id: c_806259d1
+  context: 'Create research/synthetic_ground_truth.yaml with interaction_coefficients
+    (default {Cr_Mo: 0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05, V_W: 0.05})
+    and random_seed: 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses interaction coefficients of 0.05 for Cr_Mo, Cr_V, Mo_V,
+    Cr_W, Mo_W, and V_W pairs in the synthetic ground truth generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:12:17Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: random seed 42 for synthetic ground truth
+  claim_id: c_9a099095
+  context: 'Create research/synthetic_ground_truth.yaml with interaction_coefficients
+    (default {Cr_Mo: 0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05, V_W: 0.05})
+    and random_seed: 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed used for generating synthetic ground truth data is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:12:49Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: APT validation plan cites DOI 10.1016/j.actamat.2020.01.015
+  claim_id: c_1d8fab23
+  context: Create research/experimental_validation_plan.md describing Atom Probe Tomography
+    apparatus, detection limits, specimen preparation, and cite DOI 10.1016/j.actamat.2020.01.015.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The project plans to validate experimental measurement using an Atom Probe
+    Tomography apparatus as described in DOI 10.1016/j.actamat.2020.01.015.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:12:50Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: detection limit analysis uses Equation 3 from DOI 10.1016/j.actamat.2020.01.015
+  claim_id: c_6b87bd8f
+  context: 'Extend research/experimental_validation_plan.md with ''Detection Limit
+    Analysis'': compute theoretical detection limit using Equation (3) from DOI 10.1016/j.actamat.2020.01.015.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The theoretical detection limit analysis uses Equation (3) from DOI 10.1016/j.actamat.2020.01.015.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:12:52Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation implemented
+  claim_id: c_8398d10b
+  context: Implement code/models/validation.py (5-fold CV).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The cross-validation routine is configured to use 5-fold splitting.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T07:13:34Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: study focuses on Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W systems
+  claim_id: c_eb01edc9
+  context: Loop over system list ["Fe-Cr-Mo","Fe-Cr-V","Fe-Mo-V","Fe-Cr-W","Fe-Mo-W"].
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_focuses_on_Fe-Cr-Mo,_Fe-Cr-V,_Fe-Mo-V,_Fe-Cr-W,_and_Fe
+  kind: entity_fact
+  raw_text: 'The study focuses on five specific ternary systems: Fe-Cr-Mo, Fe-Cr-V,
+    Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:14:12Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: binary systems Fe-Cr, Fe-Mo, Fe-V, Fe-W investigated for APT data
+  claim_id: c_1de157c3
+  context: Fetch APT datasets for binary systems (Fe-Cr, Fe-Mo, Fe-V, Fe-W) using
+    IDs from T003-Record.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Binary_systems_Fe-Cr,_Fe-Mo,_Fe-V,_Fe-W_investigated_for_APT
+  kind: entity_fact
+  raw_text: The binary systems investigated for APT data are Fe-Cr, Fe-Mo, Fe-V, and
+    Fe-W.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:14:42Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: CALPHAD parameter extrapolation range 500-900 K
+  claim_id: c_6d794dfa
+  context: "Implement code/services/thermo_extrapolator.py to linearly extrapolate\
+    \ missing CALPHAD parameters (500\u2011900\u202FK) using scipy.interpolate.interp1d."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The temperature range for linearly extrapolating missing CALPHAD parameters
+    is 500 K to 900 K.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:15:17Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: bulk Cr concentration range up to 0.1
+  claim_id: c_b10fe10e
+  context: Compute equilibrium bulk compositions for the five ternary systems across
+    a range of elevated temperatures and a range of bulk Cr concentrations spanning
+    from trace levels up to 0.1..
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bulk Cr concentration range for computing equilibrium compositions
+    spans from trace levels up to 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:15:44Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation implementation for model validation
+  claim_id: c_3592e8cd
+  context: "Phase 5: User Story 3 - Model Generalizability and Cross\u2011Validation.\
+    \ Implementation task T029."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/models/validation.py (5-fold CV).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:17:45Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Polynomial features degree 2 with bias excluded used for interaction
+    term generation
+  claim_id: c_1b7a6bfe
+  context: 'Phase 4: User Story 2. Task T021a-CreateScript requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use PolynomialFeatures(degree=2, include_bias=False).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:18:28Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum verification used for downloaded CALPHAD parameters
+    and DFT energies
+  claim_id: c_3e57de05
+  context: 'Phase 0: Data Fetching. Tasks T045e-Fetch and T045f-Fetch.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify checksum using SHA\u2011256."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:18:52Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: DOI validation requires HTTP 200 response and status field equal to published
+  claim_id: c_132ae045
+  context: 'Phase 0: Data Acquisition & Validation. Task T002-Verify requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate by sending a GET request to the DOI URL; a successful validation
+    is HTTP 200 and the returned JSON field status equals published.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:19:28Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Detection limit calculation uses Equation 3 from Acta Materialia 2020
+    paper DOI 10.1016/j.actamat.2020.01.015
+  claim_id: c_1e7c0f5b
+  context: 'Phase 7: Review Response & Documentation. Task T102 requirements.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Compute theoretical detection limit using Equation (3) from DOI 10.1016/j.actamat.2020.01.015.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:19:31Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Citation of Acta Materialia 2020 paper DOI 10.1016/j.actamat.2020.01.015
+    for APT apparatus description
+  claim_id: c_70491fe7
+  context: 'Phase 6: Validation & Experimental Strategy. Task T100 requirements.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: cite DOI 10.1016/j.actamat.2020.01.015.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:19:33Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Default interaction coefficients set to 0.05 for all binary pairs in
+    synthetic ground truth
+  claim_id: c_15d34a45
+  context: 'Phase 0: Data Acquisition & Validation. Task T090-Config requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'default {Cr_Mo: 0.05, Cr_V: 0.05, Mo_V: 0.05, Cr_W: 0.05, Mo_W: 0.05,
+    V_W: 0.05}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:20:24Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for synthetic ground truth generation
+  claim_id: c_0d459c7c
+  context: 'Phase 0: Data Acquisition & Validation. Task T090-Config requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'random_seed: 42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:20:52Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Linear extrapolation of CALPHAD parameters applied for temperature range
+    500 to 900 Kelvin
+  claim_id: c_edf7ae59
+  context: 'Phase 0: Data Acquisition & Validation. Task T047b description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "linearly extrapolate missing CALPHAD parameters (500\u2011900 K)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:22:31Z'

@@ -1,143 +1,172 @@
-import os
-import sys
+"""
+Tests for error handling in network generation.
+
+Verifies that:
+1. Generation failures are caught and logged
+2. Failing graph IDs are recorded
+3. Failed graphs are excluded from the final dataset
+"""
 import pytest
 import logging
+import os
 import tempfile
-import pandas as pd
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import networkx as nx
 
-# Add code directory to path
-sys.path.insert(0, 'code')
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from generate_networks import generate_networks, compute_graph_metrics, validate_scale_free_graph
-from utils.error_handling import handle_simulation_failure, log_non_convergence
+from generate_networks import (
+    generate_random_graph,
+    generate_scale_free_graph,
+    generate_small_world_graph,
+    generate_lattice_graph,
+    generate_star_graph,
+    generate_networks,
+    save_to_csv
+)
+from utils.metrics import compute_graph_metrics
 
 @pytest.fixture
-def mock_graph():
-    """Create a mock graph for testing."""
-    import networkx as nx
-    G = nx.erdos_renyi_graph(100, 0.1)
-    return G
+def temp_output_dir():
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
 @pytest.fixture
-def sample_data():
-    """Sample network data for testing."""
-    return [
-        {
-            'id': 'test_1',
-            'class': 'random',
-            'n_nodes': 100,
-            'n_edges': 495,
-            'avg_degree': 9.9,
-            'clustering_coefficient': 0.099,
-            'average_path_length': 2.5,
-            'degree_std': 2.1,
-            'degree_skewness': 0.1
-        },
-        {
-            'id': 'test_2',
-            'class': 'scale_free',
-            'n_nodes': 100,
-            'n_edges': 200,
-            'avg_degree': 4.0,
-            'clustering_coefficient': 0.05,
-            'average_path_length': 3.2,
-            'degree_std': 3.5,
-            'degree_skewness': 1.2
-        }
-    ]
+def caplog_test(caplog):
+    """Configure caplog for testing."""
+    caplog.set_level(logging.WARNING)
+    return caplog
 
-def test_error_logging_on_validation_failure(caplog, mock_graph):
-    """Test that validation failures are properly logged with graph ID."""
-    with caplog.at_level(logging.ERROR):
-        # Mock validation to fail
-        with patch('generate_networks.validate_scale_free_graph', return_value=False):
-            result = compute_graph_metrics(mock_graph, 'test_graph_id', 'scale_free')
-            
-            assert result is None
-            assert any('test_graph_id' in record.message for record in caplog.records)
-            assert any('failed scale-free validation' in record.message for record in caplog.records)
+def test_generate_random_graph_failure_logging(caplog_test):
+    """Test that random graph generation failures are logged."""
+    with patch('networkx.erdos_renyi_graph', side_effect=Exception("Test error")):
+        result = generate_random_graph(100, 0.1, 42, "test_random_1")
+        assert result is None
+        assert any("Failed to generate random graph test_random_1" in msg for msg in caplog_test.messages)
 
-def test_failed_graphs_excluded_from_output(sample_data):
-    """Test that failed graphs are excluded from the final dataset."""
-    # Simulate a scenario where one graph fails
-    valid_graphs = [g for g in sample_data if g['id'] != 'test_2']
+def test_generate_scale_free_graph_failure_logging(caplog_test):
+    """Test that scale-free graph generation failures are logged."""
+    with patch('networkx.barabasi_albert_graph', side_effect=Exception("Test error")):
+        result = generate_scale_free_graph(100, 3, 42, "test_sf_1")
+        assert result is None
+        assert any("Failed to generate scale-free graph test_sf_1" in msg for msg in caplog_test.messages)
+
+def test_generate_small_world_graph_failure_logging(caplog_test):
+    """Test that small-world graph generation failures are logged."""
+    with patch('networkx.watts_strogatz_graph', side_effect=Exception("Test error")):
+        result = generate_small_world_graph(100, 4, 0.1, 42, "test_sw_1")
+        assert result is None
+        assert any("Failed to generate small-world graph test_sw_1" in msg in caplog_test.messages)
+
+def test_generate_lattice_graph_failure_logging(caplog_test):
+    """Test that lattice graph generation failures are logged."""
+    with patch('networkx.watts_strogatz_graph', side_effect=Exception("Test error")):
+        result = generate_lattice_graph(100, 4, 42, "test_lat_1")
+        assert result is None
+        assert any("Failed to generate lattice graph test_lat_1" in msg for msg in caplog_test.messages)
+
+def test_generate_star_graph_failure_logging(caplog_test):
+    """Test that star graph generation failures are logged."""
+    with patch('networkx.star_graph', side_effect=Exception("Test error")):
+        result = generate_star_graph(100, 42, "test_star_1")
+        assert result is None
+        assert any("Failed to generate star graph test_star_1" in msg for msg in caplog_test.messages)
+
+def test_failed_graphs_excluded_from_output(temp_output_dir, caplog_test):
+    """Test that failed graphs are excluded from the final CSV output."""
+    output_path = os.path.join(temp_output_dir, "test_networks.csv")
     
-    # In the actual generate_networks function, failed graphs are not added to the list
-    # This test verifies the logic that only valid graphs are returned
-    assert len(valid_graphs) < len(sample_data)
-    assert 'test_2' not in [g['id'] for g in valid_graphs]
-
-def test_generation_failure_handling():
-    """Test that generation failures are caught and logged."""
-    with patch('generate_networks.nx.erdos_renyi_graph', side_effect=Exception("NetworkX Error")):
-        # This should be caught and logged, not crash the program
-        # In a real scenario, we'd test the full generate_networks function
-        # but for this test we verify the error handling mechanism
-        try:
-            # Simulate the try-except block from generate_networks
-            raise Exception("NetworkX Error")
-        except Exception as e:
-            # Verify error handling
-            assert str(e) == "NetworkX Error"
-
-def test_specific_graph_id_logging():
-    """Test that specific graph IDs are logged when generation fails."""
-    failed_graph_id = "failed_graph_123"
-    error_msg = f"Graph {failed_graph_id} generation failed"
-    
-    # Verify the logging format includes the graph ID
-    assert failed_graph_id in error_msg
-
-def test_excluded_graphs_count():
-    """Test that the number of excluded graphs is tracked."""
-    total_attempted = 50
-    successful = 45
-    failed = total_attempted - successful
-    
-    # Verify the count is correct
-    assert failed == 5
-    assert successful + failed == total_attempted
-
-def test_error_handling_integration():
-    """Integration test for error handling in the full generation pipeline."""
-    # Mock the generation to sometimes fail
-    call_count = 0
-    
-    def mock_generate(seed, n, p):
-        nonlocal call_count
-        call_count += 1
-        if call_count % 10 == 0:  # Fail every 10th graph
-            raise Exception("Simulated generation failure")
-        import networkx as nx
-        return nx.erdos_renyi_graph(n, p), f"graph_{seed}"
-    
-    with patch('generate_networks.generate_random_graph', side_effect=mock_generate):
-        # Generate a small set
-        graphs = generate_networks(target_count=20, min_per_class=4)
+    # Mock generation to simulate some failures
+    with patch('generate_networks.generate_random_graph') as mock_random, \
+         patch('generate_networks.generate_scale_free_graph') as mock_sf, \
+         patch('generate_networks.generate_small_world_graph') as mock_sw, \
+         patch('generate_networks.generate_lattice_graph') as mock_lat, \
+         patch('generate_networks.generate_star_graph') as mock_star:
+         
+        # Mock successful generations
+        mock_random.return_value = nx.erdos_renyi_graph(100, 0.1, seed=42)
+        mock_sf.return_value = nx.barabasi_albert_graph(100, 3, seed=42)
+        mock_sw.return_value = nx.watts_strogatz_graph(100, 4, 0.1, seed=42)
+        mock_lat.return_value = nx.watts_strogatz_graph(100, 4, 0, seed=42)
+        mock_star.return_value = nx.star_graph(100, seed=42)
         
-        # Verify we got fewer than requested due to failures
-        assert len(graphs) < 20
-        # Verify all returned graphs are valid (not None)
-        assert all(g is not None for g in graphs)
+        # Generate a small set (1 per class to test quickly)
+        metrics = generate_networks(target_count=1, base_seed=42)
+        
+        # Save to CSV
+        save_to_csv(metrics, output_path)
+        
+        # Verify output exists
+        assert os.path.exists(output_path)
+        
+        # Read CSV and verify it contains only successful generations
+        import pandas as pd
+        df = pd.read_csv(output_path)
+        
+        # Should have 5 graphs (1 per class)
+        assert len(df) == 5
+        assert 'id' in df.columns
+        assert 'class' in df.columns
+        
+        # Verify no None values or error markers in the output
+        assert not df['id'].isna().any()
+        assert not df['class'].isna().any()
 
-def test_validation_bounds_checking():
-    """Test that metrics outside valid bounds cause exclusion."""
-    import networkx as nx
-    G = nx.complete_graph(10)
+def test_generate_networks_handles_multiple_failures(temp_output_dir, caplog_test):
+    """Test that generate_networks properly handles and logs multiple failures."""
+    output_path = os.path.join(temp_output_dir, "test_networks_failures.csv")
     
-    # Valid metrics should pass
-    metrics = compute_graph_metrics(G, 'valid_graph', 'random')
-    assert metrics is not None
+    # Track calls to see which ones fail
+    call_count = {'random': 0, 'scale_free': 0, 'small_world': 0, 'lattice': 0, 'star': 0}
     
-    # Manually create invalid metrics to test bounds checking
-    invalid_metrics = {
-        'clustering_coefficient': 1.5,  # Invalid: > 1
-        'average_path_length': -1.0     # Invalid: < 0
-    }
+    def failing_random(n, p, seed, graph_id):
+        call_count['random'] += 1
+        if call_count['random'] == 1:
+            return None  # First attempt fails
+        return nx.erdos_renyi_graph(n, p, seed=seed)
     
-    # This would be caught in the actual compute_graph_metrics function
-    # by the bounds checking logic
-    assert invalid_metrics['clustering_coefficient'] > 1
-    assert invalid_metrics['average_path_length'] < 0
+    with patch('generate_networks.generate_random_graph', side_effect=failing_random):
+        # Generate with just 1 per class to test failure handling
+        metrics = generate_networks(target_count=1, base_seed=42)
+        
+        # Should still succeed eventually (retry logic)
+        assert len(metrics) >= 5  # At least one per class
+        
+        # Check that a warning was logged for the failure
+        warning_messages = [msg for msg in caplog_test.messages if "Skipping graph" in msg]
+        assert len(warning_messages) >= 1
+
+def test_compute_graph_metrics_handles_errors():
+    """Test that compute_graph_metrics handles various graph types correctly."""
+    # Test with a simple graph
+    G = nx.path_graph(10)
+    metrics = compute_graph_metrics(G, "test_id", "test_class")
+    
+    assert 'id' in metrics
+    assert 'class' in metrics
+    assert 'N' in metrics
+    assert 'clustering_coefficient' in metrics
+    assert 'average_path_length' in metrics
+    assert metrics['N'] == 10
+
+def test_save_to_csv_creates_valid_file(temp_output_dir):
+    """Test that save_to_csv creates a valid CSV file."""
+    output_path = os.path.join(temp_output_dir, "test_output.csv")
+    
+    test_metrics = [
+        {'id': 'test_1', 'class': 'random', 'N': 100, 'clustering_coefficient': 0.1},
+        {'id': 'test_2', 'class': 'scale_free', 'N': 150, 'clustering_coefficient': 0.2}
+    ]
+    
+    save_to_csv(test_metrics, output_path)
+    
+    assert os.path.exists(output_path)
+    
+    import pandas as pd
+    df = pd.read_csv(output_path)
+    
+    assert len(df) == 2
+    assert list(df.columns) == ['id', 'class', 'N', 'clustering_coefficient']

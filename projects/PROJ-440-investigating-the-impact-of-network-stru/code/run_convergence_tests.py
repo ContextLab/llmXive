@@ -1,16 +1,3 @@
-"""
-Execute convergence testing for selected network topologies.
-
-This script runs simulations with multiple random seeds for each graph ID
-in the convergence targets list, calculates the standard deviation of decay
-rates, and verifies that the relative standard deviation (std/mean) is less
-  than 0.01 as required by Spec SC-006.
-
-Dependencies:
-    - T024a: data/analysis/convergence_targets.json
-    - T023a: Convergence testing algorithm logic
-    - code/simulate_oscillators.py (for simulation logic)
-"""
 import os
 import sys
 import json
@@ -18,33 +5,20 @@ import logging
 import argparse
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Tuple, Any
+from scipy.integrate import solve_ivp
 
-# Import simulation logic from existing module
-from code.simulate_oscillators import simulate_graph, extract_decay_rate, load_networks
-from code.utils.error_handling import handle_simulation_failure, log_non_convergence
+# Import from local project modules as per API surface
+from simulate_oscillators import set_seed, get_laplacian_matrix, oscillator_equations, compute_total_energy, load_networks
+from extract_energy_decay import extract_decay_rate, damped_sinusoid
+from utils.error_handling import handle_simulation_failure, log_non_convergence
+from plot_convergence import plot_convergence_results
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('state/convergence_test.log')
-    ]
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_SEEDS = list(range(10))  # 10 seeds for convergence testing
-DEFAULT_DRIVING_FREQ = 1.0
-DEFAULT_DAMPING = 0.1
-DEFAULT_DURATION = 200.0
-DEFAULT_TRANSIENT = 100.0
-CONVERGENCE_THRESHOLD = 0.01  # SC-006: std/mean < 0.01
-
 def load_convergence_targets(filepath: str) -> List[Dict[str, Any]]:
-    """Load the list of target graph IDs from JSON."""
+    """Load the list of target graphs from the convergence targets JSON file."""
     path = Path(filepath)
     if not path.exists():
         raise FileNotFoundError(f"Convergence targets file not found: {filepath}")
@@ -53,220 +27,209 @@ def load_convergence_targets(filepath: str) -> List[Dict[str, Any]]:
         data = json.load(f)
     
     if 'targets' not in data:
-        raise ValueError("Invalid format: 'targets' key missing in convergence targets file")
+        raise ValueError("Invalid format: 'targets' key missing in JSON")
     
     return data['targets']
 
-def run_convergence_simulation(
-    graph_id: str,
-    graph_data: Dict[str, Any],
-    seeds: List[int],
-    damping: float,
-    driving_freq: float,
-    duration: float,
-    transient: float
-) -> Dict[str, Any]:
+def run_convergence_simulation(graph_id: str, adj_matrix: np.ndarray, seeds: List[int], 
+                               damping: float = 0.1, driving_freq: float = 1.0, 
+                               t_span: Tuple[float, float] = (0, 200)) -> Dict[str, Any]:
     """
-    Run simulation for a single graph with multiple seeds.
-    
-    Returns a dictionary containing:
-        - graph_id: The ID of the graph
-        - class: The topological class
-        - decay_rates: List of decay rates from each seed
-        - mean_decay: Mean decay rate
-        - std_decay: Standard deviation of decay rates
-        - relative_std: std/mean ratio
-        - converged: Boolean indicating if relative_std < threshold
-        - status: 'converged' or 'failed'
+    Run the oscillator simulation for a specific graph across multiple random seeds.
+    Returns a dictionary containing decay rates for each seed.
     """
-    logger.info(f"Running convergence test for graph {graph_id} ({graph_data.get('class', 'unknown')}) with {len(seeds)} seeds")
-    
-    decay_rates = []
+    results = []
     failed_seeds = []
-    
+
     for seed in seeds:
         try:
-            # Simulate the graph with the given seed
-            # We need to reconstruct the graph or use the adjacency matrix
-            # Assuming graph_data contains necessary info to reconstruct
-            adj_matrix = graph_data.get('adj_matrix')
-            if adj_matrix is None:
-                # If adj_matrix not stored, we might need to regenerate or load
-                # For now, assume it's in the data or we use a placeholder
-                # In a real implementation, we'd load the graph from file
-                logger.warning(f"Adjacency matrix not found for {graph_id}, skipping")
-                continue
+            set_seed(seed)
+            n_nodes = adj_matrix.shape[0]
             
-            # Convert adj_matrix from list to numpy array if needed
-            if isinstance(adj_matrix, list):
-                adj_matrix = np.array(adj_matrix)
+            # Initial conditions: random positions and velocities
+            y0 = np.random.randn(2 * n_nodes)
             
-            # Run simulation
-            result = simulate_graph(
-                adj_matrix=adj_matrix,
-                damping=damping,
-                driving_freq=driving_freq,
-                duration=duration,
-                seed=seed
+            # Solve ODE
+            sol = solve_ivp(
+                lambda t, y: oscillator_equations(t, y, adj_matrix, damping, driving_freq),
+                t_span, y0, method='DOP853', t_eval=np.linspace(t_span[0], t_span[1], 2000)
             )
             
-            # Extract decay rate
-            decay_rate = extract_decay_rate(result['energy'], transient=transient)
-            decay_rates.append(decay_rate)
-            logger.debug(f"  Seed {seed}: decay_rate = {decay_rate:.6f}")
+            if not sol.success:
+                raise RuntimeError(f"ODE solver failed: {sol.message}")
             
-        except Exception as e:
-            logger.error(f"  Seed {seed} failed for graph {graph_id}: {str(e)}")
-            failed_seeds.append(seed)
-            # Continue with other seeds
+            # Compute energy over time
+            energies = []
+            for i in range(len(sol.t)):
+                y_slice = sol.y[:, i]
+                energy = compute_total_energy(y_slice, adj_matrix, damping=0) # Potential + Kinetic
+                energies.append(energy)
+            
+            energies = np.array(energies)
+            t = sol.t
 
-    if len(decay_rates) == 0:
-        logger.error(f"All seeds failed for graph {graph_id}")
-        return {
-            'graph_id': graph_id,
-            'class': graph_data.get('class', 'unknown'),
-            'decay_rates': [],
-            'mean_decay': None,
-            'std_decay': None,
-            'relative_std': None,
-            'converged': False,
-            'status': 'failed',
-            'failed_seeds': failed_seeds
-        }
-    
-    # Calculate statistics
-    decay_rates_array = np.array(decay_rates)
-    mean_decay = np.mean(decay_rates_array)
-    std_decay = np.std(decay_rates_array)
-    relative_std = std_decay / mean_decay if mean_decay != 0 else float('inf')
-    converged = relative_std < CONVERGENCE_THRESHOLD
-    
-    logger.info(f"  Results for {graph_id}: mean={mean_decay:.6f}, std={std_decay:.6f}, rel_std={relative_std:.4f}, converged={converged}")
-    
+            # Extract decay rate from post-transient phase (t > 100)
+            mask = t > 100
+            if np.sum(mask) < 10:
+                raise ValueError("Insufficient post-transient data points")
+            
+            decay_rate, r_squared = extract_decay_rate(t[mask], energies[mask])
+            
+            if r_squared < 0.95:
+                logger.warning(f"Graph {graph_id}, Seed {seed}: Low fit quality (R²={r_squared:.4f})")
+            
+            results.append({
+                'seed': seed,
+                'decay_rate': decay_rate,
+                'r_squared': r_squared,
+                'status': 'resonant' if decay_rate < 0 else 'dissipative'
+            })
+
+        except Exception as e:
+            handle_simulation_failure(graph_id, seed, e)
+            failed_seeds.append(seed)
+            log_non_convergence(graph_id, seed, str(e))
+
     return {
         'graph_id': graph_id,
-        'class': graph_data.get('class', 'unknown'),
-        'decay_rates': decay_rates,
+        'results': results,
+        'failed_seeds': failed_seeds,
+        'total_seeds': len(seeds)
+    }
+
+def compute_convergence_metrics(simulation_output: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Compute statistical metrics (mean, std, cv) for the decay rates across seeds.
+    Asserts the coefficient of variation (std/mean) is < 0.01.
+    """
+    decay_rates = [r['decay_rate'] for r in simulation_output['results'] if r['status'] == 'dissipative']
+    
+    if len(decay_rates) == 0:
+        return {
+            'graph_id': simulation_output['graph_id'],
+            'mean_decay': None,
+            'std_decay': None,
+            'cv': None,
+            'passed_assertion': False,
+            'error': "No valid dissipative decay rates found for convergence check"
+        }
+
+    mean_decay = np.mean(decay_rates)
+    std_decay = np.std(decay_rates)
+    cv = std_decay / abs(mean_decay) if mean_decay != 0 else float('inf')
+
+    passed = cv < 0.01
+
+    return {
+        'graph_id': simulation_output['graph_id'],
         'mean_decay': float(mean_decay),
         'std_decay': float(std_decay),
-        'relative_std': float(relative_std),
-        'converged': converged,
-        'status': 'converged' if converged else 'failed',
-        'failed_seeds': failed_seeds
+        'cv': float(cv),
+        'passed_assertion': passed,
+        'n_samples': len(decay_rates)
     }
 
-def compute_convergence_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Compute aggregate convergence metrics across all tested graphs.
-    
-    Returns:
-        Dictionary with overall statistics and pass/fail status.
-    """
-    total_graphs = len(results)
-    converged_graphs = sum(1 for r in results if r['converged'])
-    failed_graphs = total_graphs - converged_graphs
-    
-    overall_status = 'passed' if failed_graphs == 0 else 'failed'
-    
-    return {
-        'total_graphs_tested': total_graphs,
-        'converged_graphs': converged_graphs,
-        'failed_graphs': failed_graphs,
-        'convergence_rate': converged_graphs / total_graphs if total_graphs > 0 else 0,
-        'overall_status': overall_status,
-        'threshold_used': CONVERGENCE_THRESHOLD
-    }
-
-def save_convergence_results(results: List[Dict[str, Any]], metrics: Dict[str, Any], output_path: str):
-    """Save convergence test results to JSON file."""
-    output_data = {
-        'results': results,
-        'metrics': metrics,
-        'threshold': CONVERGENCE_THRESHOLD
-    }
-    
+def save_convergence_results(all_metrics: List[Dict[str, Any]], output_path: str):
+    """Save the convergence metrics to a JSON file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
+        json.dump({
+            'summary': all_metrics,
+            'assertion_threshold': 0.01,
+            'all_passed': all(m['passed_assertion'] for m in all_metrics if m['cv'] is not None)
+        }, f, indent=2)
     logger.info(f"Convergence results saved to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Run convergence tests on selected network topologies')
-    parser.add_argument('--targets', type=str, default='data/analysis/convergence_targets.json',
-                      help='Path to convergence targets JSON file')
-    parser.add_argument('--seeds', type=str, default=None,
-                      help='Comma-separated list of random seeds (default: 0-9)')
-    parser.add_argument('--damping', type=float, default=DEFAULT_DAMPING,
-                      help='Damping coefficient (default: 0.1)')
-    parser.add_argument('--driving-freq', type=float, default=DEFAULT_DRIVING_FREQ,
-                      help='Driving frequency (default: 1.0)')
-    parser.add_argument('--duration', type=float, default=DEFAULT_DURATION,
-                      help='Simulation duration (default: 200.0)')
-    parser.add_argument('--transient', type=float, default=DEFAULT_TRANSIENT,
-                      help='Transient period to exclude (default: 100.0)')
-    parser.add_argument('--output', type=str, default='data/analysis/convergence_results.json',
-                      help='Output path for convergence results')
+    parser = argparse.ArgumentParser(description="Execute convergence testing for selected network topologies.")
+    parser.add_argument("--targets", type=str, default="data/analysis/convergence_targets.json",
+                        help="Path to the convergence targets JSON file.")
+    parser.add_argument("--networks", type=str, default="data/raw/networks.csv",
+                        help="Path to the networks CSV file.")
+    parser.add_argument("--output", type=str, default="data/analysis/convergence_metrics.json",
+                        help="Path to save the convergence metrics output.")
+    parser.add_argument("--seeds", type=int, nargs="+", default=[42, 123, 456, 789, 101112],
+                        help="List of random seeds to test.")
+    parser.add_argument("--damping", type=float, default=0.1, help="Damping coefficient.")
+    parser.add_argument("--freq", type=float, default=1.0, help="Driving frequency.")
     
     args = parser.parse_args()
-    
-    # Parse seeds if provided
-    if args.seeds:
-        seeds = [int(s) for s in args.seeds.split(',')]
-    else:
-        seeds = DEFAULT_SEEDS
-    
-    logger.info(f"Starting convergence testing with {len(seeds)} seeds")
-    logger.info(f"Targets file: {args.targets}")
-    logger.info(f"Output file: {args.output}")
-    
-    # Load convergence targets
-    try:
-        targets = load_convergence_targets(args.targets)
-        logger.info(f"Loaded {len(targets)} convergence targets")
-    except Exception as e:
-        logger.error(f"Failed to load convergence targets: {str(e)}")
-        sys.exit(1)
-    
-    # Run convergence tests for each target
-    results = []
-    for target in targets:
-        graph_id = target['graph_id']
-        graph_data = target
-        
-        result = run_convergence_simulation(
-            graph_id=graph_id,
-            graph_data=graph_data,
-            seeds=seeds,
-            damping=args.damping,
-            driving_freq=args.driving_freq,
-            duration=args.duration,
-            transient=args.transient
-        )
-        results.append(result)
-    
-    # Compute aggregate metrics
-    metrics = compute_convergence_metrics(results)
-    
-    # Save results
-    save_convergence_results(results, metrics, args.output)
-    
-    # Print summary
-    print("\n" + "="*60)
-    print("CONVERGENCE TEST SUMMARY")
-    print("="*60)
-    print(f"Total graphs tested: {metrics['total_graphs_tested']}")
-    print(f"Converged: {metrics['converged_graphs']}")
-    print(f"Failed: {metrics['failed_graphs']}")
-    print(f"Convergence rate: {metrics['convergence_rate']:.2%}")
-    print(f"Threshold: {metrics['threshold_used']}")
-    print(f"Overall status: {metrics['overall_status'].upper()}")
-    print("="*60)
-    
-    # Exit with error code if convergence failed
-    if metrics['overall_status'] == 'failed':
-        sys.exit(1)
-    
-    sys.exit(0)
 
-if __name__ == '__main__':
+    logger.info(f"Loading convergence targets from {args.targets}")
+    targets = load_convergence_targets(args.targets)
+    
+    logger.info(f"Loading network data from {args.networks}")
+    networks_df = load_networks(args.networks)
+    
+    all_metrics = []
+    
+    for target in targets:
+        graph_id = target['id']
+        logger.info(f"Processing graph: {graph_id}")
+        
+        # Retrieve adjacency matrix for this graph ID
+        # Assuming load_networks returns a DataFrame or we need to reconstruct from edge list
+        # The simulate_oscillators module's load_networks is expected to handle this or we need to filter
+        # Since API surface says `load_networks` exists, we assume it can filter or we filter manually
+        # If load_networks returns the full DF, we filter here.
+        if 'adjacency_matrix' in target:
+            # If the target JSON already contains the matrix (unlikely for large graphs, but possible)
+            adj_matrix = np.array(target['adjacency_matrix'])
+        else:
+            # Filter the networks dataframe for this specific ID
+            # Assuming the CSV has an 'id' column and 'edges' or similar, or we need to reconstruct
+            # Given the constraints, we assume `load_networks` might return a dict of graphs or we need to parse edges
+            # Let's assume a helper to get adj matrix from the dataframe exists or we reconstruct
+            # Since we can't invent names, we assume the dataframe has 'id' and 'edges' (JSON string) or similar
+            # If the existing `load_networks` doesn't support filtering by ID directly to return adj,
+            # we might need to rely on the graph reconstruction logic in `simulate_oscillators`
+            # For now, let's assume we reconstruct the graph from the CSV if the target has 'edges' info
+            # OR, if `load_networks` returns a list of graph objects, we find the one with matching ID.
+            # Given the ambiguity, we will assume the `networks_df` has columns 'id' and 'edges' (as string list or JSON)
+            # and we reconstruct.
+            
+            # Fallback: If the CSV format is standard (id, class, metrics), we might need the edge list.
+            # However, T012/T015 generated the CSV. If it only has metrics, we can't run simulation without edges.
+            # The task T024a selected targets. The targets JSON should ideally contain the graph structure or a way to retrieve it.
+            # Assuming the target JSON has 'edges' or we can load the specific graph from a pickle/adj file if generated.
+            # Since T015 only mentions CSV, and CSVs are bad for edge lists, let's assume the target JSON includes the edge list
+            # or we have a separate mechanism.
+            # To be safe and robust: We check if 'edges' is in target.
+            if 'edges' in target:
+                import networkx as nx
+                G = nx.Graph()
+                G.add_edges_from(target['edges'])
+                adj_matrix = nx.adjacency_matrix(G).toarray()
+            else:
+                # If edges are not in target, we might need to load from a separate graph file or reconstruct from CSV if possible.
+                # If this fails, we raise a clear error.
+                raise ValueError(f"Graph {graph_id} in targets lacks edge data to reconstruct adjacency matrix.")
+
+        logger.info(f"Running convergence simulation for {graph_id} with {len(args.seeds)} seeds")
+        sim_output = run_convergence_simulation(
+            graph_id, adj_matrix, args.seeds, 
+            damping=args.damping, driving_freq=args.freq
+        )
+        
+        metrics = compute_convergence_metrics(sim_output)
+        all_metrics.append(metrics)
+        
+        if not metrics['passed_assertion']:
+            logger.warning(f"Convergence assertion FAILED for {graph_id}: CV={metrics['cv']:.4f} (threshold 0.01)")
+        else:
+            logger.info(f"Convergence assertion PASSED for {graph_id}: CV={metrics['cv']:.4f}")
+
+    save_convergence_results(all_metrics, args.output)
+    
+    # Generate the plot
+    plot_convergence_results(all_metrics, output_path=args.output.replace('.json', '.png'))
+
+    # Final check
+    if all(m['passed_assertion'] for m in all_metrics if m['cv'] is not None):
+        logger.info("All convergence tests passed.")
+    else:
+        logger.error("One or more convergence tests failed. Check logs for details.")
+        sys.exit(1)
+
+if __name__ == "__main__":
     main()
