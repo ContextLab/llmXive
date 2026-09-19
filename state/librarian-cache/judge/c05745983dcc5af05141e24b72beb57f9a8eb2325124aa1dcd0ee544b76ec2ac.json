@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.10372",
+  "judged_at": "2026-09-19T16:08:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (scalable visual-language pretraining using contrastive learning) and domain (extending pretraining paradigms to new data types) as the user's question, even though it applies the methodology to medical imaging rather than the specific \"llmXive\" context. It provides the canonical prior work on the \"scalable visual pretraining\" approach mentioned in the user's query title.",
+  "relevant": true
+}

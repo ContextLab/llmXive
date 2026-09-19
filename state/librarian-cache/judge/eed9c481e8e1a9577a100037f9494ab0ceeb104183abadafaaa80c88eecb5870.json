@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23521",
+  "judged_at": "2026-09-19T16:08:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper satisfies criteria (b) and (e) as it provides a foundational dataset and empirical baseline for the \"multimodal pretraining\" mechanism and \"Indian languages\" domain, which are the core components of the user's question regarding extending scalable visual pretraining for language intelligence. While it does not explicitly mention \"llmXive,\" it addresses the specific gap (lack of Indian language data in VLMs) that a follow-up study on scalable pretraining would need to cite as the canon",
+  "relevant": true
+}

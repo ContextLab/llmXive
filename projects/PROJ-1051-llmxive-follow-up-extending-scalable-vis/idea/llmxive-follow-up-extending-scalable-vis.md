@@ -9,30 +9,31 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can structural and layout information captured by visual pretraining on document images be effectively distilled into a lightweight, text-only embedding module that improves scientific reasoning performance without requiring end-to-end visual backpropagation?
+To what extent does the linguistic content of scientific documents implicitly encode structural and layout information, and how much does explicitly modeling this latent structure improve scientific reasoning performance compared to standard text-only baselines?
 
 ## Motivation
 
-While recent work demonstrates that visual pretraining on raw document images outperforms text-only baselines, the approach relies on computationally expensive GPU-intensive visual encoders. A CPU-tractable method to distill this "visual intelligence" into a lightweight text-only module would democratize access to layout-aware reasoning for resource-constrained scientific agents, enabling broader adoption of these performance gains without the hardware barrier.
+Visual pretraining on document images captures layout cues (e.g., table boundaries, equation formatting) that plain text often obscures, yet this approach demands expensive GPU resources. If text-only models can implicitly recover or explicitly model these structural signals without visual inputs, it would democratize high-performance scientific reasoning for resource-constrained environments, removing the hardware barrier while retaining layout-aware capabilities.
 
 ## Related work
 
-- [Scalable Visual Pretraining for Language Intelligence](https://arxiv.org/abs/2607.09657) — Establishes the baseline finding that unsupervised visual pretraining on document images captures structural and semantic information lost in text extraction, outperforming text-only pretraining.
-- [SimVLM: Simple Visual Language Model Pretraining with Weak Supervision](https://arxiv.org/abs/2108.10904) — Provides a precedent for efficient visual-language pretraining using weak supervision, though it focuses on joint modeling rather than distilling visual latents into text-only modules.
-- [Hierarchical Pre-Training of Vision Encoders with Large Language Model](https://arxiv.org/abs/2604.00086) — Explores scaling vision encoders with LLMs, highlighting the current reliance on heavy vision backbones that this project aims to circumvent via distillation.
+- [Hierarchical Pre-Training of Vision Encoders with Large Language Model](https://arxiv.org/abs/2604.00086) — Establishes the current reliance on heavy, scalable vision encoders for multimodal pretraining, providing the baseline architecture this project aims to distill into a text-only proxy.
+- [Can Linguistic Knowledge Improve Multimodal Alignment in Vision-Language Pretraining?](https://arxiv.org/abs/2308.12898) — Investigates how linguistic priors can improve alignment in multimodal spaces, offering theoretical grounding for the feasibility of mapping text-only inputs to visual-semantic latents.
+- [UniMed-CLIP: Towards a Unified Image-Text Pretraining Paradigm for Diverse Medical Imaging Modalities](https://arxiv.org/abs/2412.10372) — Demonstrates the application of contrastive vision-language pretraining in a specialized domain (medical imaging), highlighting the gap in applying similar distillation techniques to general scientific document layout.
 
 ## Expected results
 
-We expect the distilled text-to-visual embedding module to improve scientific reasoning benchmark performance by 5-10% over a text-only baseline, demonstrating that layout-aware knowledge can be transferred via lightweight mapping. The magnitude of improvement will serve as the primary evidence, with statistical significance confirmed via paired t-tests across multiple reasoning tasks to ensure the gain is not due to random variation.
+We expect that explicitly modeling the latent structural information recoverable from text will yield a statistically significant improvement (5-10% gain) in scientific reasoning benchmarks over standard text-only baselines. The primary evidence will be the performance delta on held-out tasks involving layout-dependent reasoning (e.g., table extraction, equation parsing), confirmed via paired statistical testing to ensure the gain is not random.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the scientific document corpus subset (10,000 pages) from the original study's public repository; extract frozen visual latent vectors using the pre-trained VP encoder and pair with corresponding plain text and ground-truth scientific reasoning labels (e.g., equation derivation, table interpretation).
-- **Text-to-Visual Distillation**: Train a 50M-parameter text-only Transformer to predict the frozen visual latent vectors from plain text input using only CPU-based optimization (AdamW, learning rate 1e-4, batch size 32) for 10 epochs.
-- **Module Integration**: Freeze the trained text-to-visual module and concatenate its output embeddings with standard text embeddings (e.g., from a small frozen LLM like DistilBERT) to form augmented inputs.
-- **Evaluation Setup**: Perform zero-shot reasoning evaluation on held-out scientific reasoning benchmarks using the augmented input model versus a text-only baseline.
-- **Statistical Validation**: Apply paired t-tests across reasoning tasks to compare performance metrics (accuracy/F1) between the augmented and baseline models, ensuring the validation target (reasoning accuracy) is independent of the input embeddings' construction.
-- **Resource Constraints**: Ensure all steps (data download, distillation training, evaluation) complete within a 6-hour GitHub Actions job using only CPU resources and public datasets.
+- **Data Acquisition**: Download a subset of the scientific document corpus (e.g., from the original llmXive repository or HuggingFace) containing paired plain text and ground-truth layout annotations (e.g., bounding boxes, table structures) for ~10,000 pages.
+- **Latent Distillation Target**: Use a pre-trained, frozen visual encoder (available via public weights) to generate "visual layout latents" for each document image, serving as the ground-truth target for the text-only model.
+- **Text-Only Distillation**: Train a lightweight, CPU-tractable Transformer (e.g., ~50M parameters) to predict the frozen visual latents given only the plain text input, minimizing Mean Squared Error (MSE) loss.
+- **Augmented Baseline Construction**: Freeze the trained text-to-visual module and concatenate its output embeddings with standard text embeddings (e.g., from DistilBERT) to create an "augmented text" representation.
+- **Downstream Evaluation**: Fine-tune a small classifier head on the augmented representations for specific scientific reasoning tasks (e.g., table QA, equation derivation) using a held-out test set.
+- **Statistical Validation**: Compare the accuracy/F1 scores of the augmented model against a standard text-only baseline using paired t-tests across multiple random seeds and task subsets to ensure the improvement is independent of random initialization.
+- **Resource Management**: Execute all steps (data loading, distillation, evaluation) on a CPU-only environment with strict memory limits (≤7GB RAM), ensuring the entire pipeline fits within a 6-hour runtime.
 
 ## Duplicate-check
 
@@ -43,42 +44,20 @@ We expect the distilled text-to-visual embedding module to improve scientific re
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-11T10:13:25Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-19T16:09:36Z
+**Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence" computer science
-**Verified citation count**: 6
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence" computer science | 0 |
-| 1 | Scalable Visual Language Model Pretraining | 5 |
-| 2 | Multimodal pretraining for large language models | 0 |
-| 3 | Vision-language representation learning | 0 |
-| 4 | Large-scale visual-language foundation models | 0 |
-| 5 | Efficient visual pretraining for NLP | 0 |
-| 6 | Cross-modal pretraining for language intelligence | 0 |
-| 7 | Scaling laws for vision-language models | 0 |
-| 8 | Visual instruction tuning for LLMs | 0 |
-| 9 | Joint image-text pretraining at scale | 0 |
-| 10 | Multimodal foundation model architectures | 0 |
-| 11 | Visual understanding in large language models | 0 |
-| 12 | Scalable contrastive learning for vision and language | 0 |
-| 13 | Pretraining strategies for multimodal transformers | 0 |
-| 14 | Vision-enabled language intelligence | 0 |
-| 15 | Large-scale multimodal dataset pretraining | 0 |
-| 16 | Unified visual and textual pretraining | 0 |
-| 17 | Efficient multimodal representation learning | 0 |
-| 18 | Vision-language alignment in pretraining | 0 |
-| 19 | Scalable architecture for multimodal AI | 0 |
-| 20 | Next-generation visual-language pretraining frameworks | 0 |
+| 0 (initial) | llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence" computer science | 4 |
 
 ### Verified citations
 
-1. **Can Linguistic Knowledge Improve Multimodal Alignment in Vision-Language Pretraining?** (2023). Fei Wang, Liang Ding, Jun Rao, Ye Liu, Li Shen, et al.. arXiv. [2308.12898](https://arxiv.org/abs/2308.12898). PDF-sampled: No.
+1. **UniMed-CLIP: Towards a Unified Image-Text Pretraining Paradigm for Diverse Medical Imaging Modalities** (2024). Muhammad Uzair Khattak, Shahina Kunhimon, Muzammal Naseer, Salman Khan, Fahad Shahbaz Khan. arXiv. [2412.10372](https://arxiv.org/abs/2412.10372). PDF-sampled: No.
 2. **Hierarchical Pre-Training of Vision Encoders with Large Language Model** (2026). Eugene Lee, Ting-Yu Chang, Jui-Huang Tsai, Jiajie Diao, Chen-Yi Lee. arXiv. [2604.00086](https://arxiv.org/abs/2604.00086). PDF-sampled: No.
-3. **Scalable Visual Pretraining for Language Intelligence** (2026). Yiming Zhang, Zhonghan Zhao, Wenwei Zhang, Haiteng Zhao, Tianyang Lin, et al.. arXiv. [2607.09657](https://arxiv.org/abs/2607.09657). PDF-sampled: No.
-4. **Can You Tell Me How to Get Past Sesame Street? Sentence-Level Pretraining Beyond Language Modeling** (2018). Alex Wang, Jan Hula, Patrick Xia, Raghavendra Pappagari, R. Thomas McCoy, et al.. arXiv. [1812.10860](https://arxiv.org/abs/1812.10860). PDF-sampled: No.
-5. **Procedural Pretraining: Warming Up Language Models with Abstract Data** (2026). Liangze Jiang, Zachary Shinnick, Anton van den Hengel, Hemanth Saratchandran, Damien Teney. arXiv. [2601.21725](https://arxiv.org/abs/2601.21725). PDF-sampled: No.
-6. **SimVLM: Simple Visual Language Model Pretraining with Weak Supervision** (2021). Zirui Wang, Jiahui Yu, Adams Wei Yu, Zihang Dai, Yulia Tsvetkov, et al.. arXiv. [2108.10904](https://arxiv.org/abs/2108.10904). PDF-sampled: No.
+3. **Can Linguistic Knowledge Improve Multimodal Alignment in Vision-Language Pretraining?** (2023). Fei Wang, Liang Ding, Jun Rao, Ye Liu, Li Shen, et al.. arXiv. [2308.12898](https://arxiv.org/abs/2308.12898). PDF-sampled: No.
+4. **Chitrakshara: A Large Multilingual Multimodal Dataset for Indian languages** (2026). Shaharukh Khan, Ali Faraz, Abhinav Ravi, Mohd Nauman, Mohd Sarfraz, et al.. arXiv. [2603.23521](https://arxiv.org/abs/2603.23521). PDF-sampled: No.
