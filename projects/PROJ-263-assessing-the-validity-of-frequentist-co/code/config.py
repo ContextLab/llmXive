@@ -1,8 +1,11 @@
 """
 Configuration management for the Monte Carlo simulation pipeline.
 
-This module handles loading configuration from YAML files, managing random seeds
-for reproducibility (Principle I), and providing access to project directories.
+This module handles:
+- Loading configuration from YAML/JSON files
+- Random seed management (deterministic execution per Principle I)
+- Directory path resolution
+- Logging setup
 """
 import os
 import json
@@ -10,291 +13,277 @@ import random
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import yaml
+import numpy as np
 
 # Global configuration state
 _config: Dict[str, Any] = {}
 _random_seed: Optional[int] = None
-_logger = logging.getLogger(__name__)
+_np_random_generator: Optional[np.random.Generator] = None
+_python_random_state_initialized: bool = False
 
 # Default paths relative to project root
 DEFAULT_CONFIG_PATH = "config/simulation_config.yaml"
-DEFAULT_DATA_DIR = "data"
-DEFAULT_OUTPUT_DIR = "outputs"
-DEFAULT_LOG_LEVEL = "INFO"
-
-# Default random seed if not specified
-DEFAULT_SEED = 42
+PROJECT_ROOT = Path(__file__).parent.parent
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Load configuration from a YAML file.
+    Load configuration from a YAML or JSON file.
     
     Args:
-        config_path: Path to the configuration file. If None, uses default.
+        config_path: Path to config file. Defaults to DEFAULT_CONFIG_PATH.
         
     Returns:
         Dictionary containing configuration values.
-        
-    Raises:
-        FileNotFoundError: If the config file doesn't exist.
-        yaml.YAMLError: If the config file is malformed.
     """
     global _config
-    path = Path(config_path) if config_path else Path(DEFAULT_CONFIG_PATH)
     
-    if not path.exists():
-        # Create a default config file if it doesn't exist
-        _create_default_config(path)
+    if config_path is None:
+        config_path = DEFAULT_CONFIG_PATH
     
-    with open(path, 'r') as f:
-        _config = yaml.safe_load(f) or {}
+    config_file = PROJECT_ROOT / config_path
     
-    _logger.info(f"Configuration loaded from {path}")
+    if not config_file.exists():
+        logging.warning(f"Config file not found: {config_file}. Using defaults.")
+        _config = _get_default_config()
+        return _config
+    
+    try:
+        with open(config_file, 'r', encoding='utf-8') as f:
+            if config_file.suffix in ['.yaml', '.yml']:
+                # Try to load YAML if pyyaml is available, otherwise JSON
+                try:
+                    import yaml
+                    _config = yaml.safe_load(f)
+                except ImportError:
+                    logging.warning("PyYAML not installed. Attempting JSON load.")
+                    f.seek(0)
+                    _config = json.load(f)
+            elif config_file.suffix == '.json':
+                _config = json.load(f)
+            else:
+                raise ValueError(f"Unsupported config file format: {config_file.suffix}")
+    except Exception as e:
+        logging.error(f"Failed to load config from {config_file}: {e}")
+        _config = _get_default_config()
+    
     return _config
-
-def _create_default_config(path: Path) -> None:
-    """Create a default configuration file if one doesn't exist."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    default_config = {
-        "simulation": {
-            "random_seed": DEFAULT_SEED,
-            "confidence_levels": [0.90, 0.95, 0.99],
-            "sample_sizes": [10, 20, 30],
-            "n_replications": 1000,
-            "bootstrap_resamples": 1000
-        },
-        "datasets": {
-            "source_urls": {
-                "wine": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",
-                "wine_quality_red": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
-                "wine_quality_white": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv",
-                "ionosphere": "https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data",
-                "heart_cleveland": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
-            },
-            "variable_names": {
-                "wine": "class,alcohol,mallic_acid,ash,alcalinity_of_ash,magnesium,total_phenols,flavanoids,nonflavanoid_phenols,proanthocyanins,color_intensity,hue,OD280/OD315_of_diluted_wines,proline",
-                "wine_quality_red": "fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality",
-                "wine_quality_white": "fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality",
-                "ionosphere": "radar_returns",
-                "heart_cleveland": "age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal"
-            }
-        },
-        "paths": {
-            "data_dir": DEFAULT_DATA_DIR,
-            "output_dir": DEFAULT_OUTPUT_DIR,
-            "raw_data_dir": "data/raw",
-            "processed_data_dir": "data/processed",
-            "figures_dir": "figures"
-        },
-        "logging": {
-            "level": DEFAULT_LOG_LEVEL,
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        }
-    }
-    
-    with open(path, 'w') as f:
-        yaml.dump(default_config, f, default_flow_style=False)
-    _logger.info(f"Created default configuration at {path}")
 
 def save_config(config: Dict[str, Any], config_path: Optional[str] = None) -> None:
     """
-    Save configuration to a YAML file.
+    Save configuration to a YAML or JSON file.
     
     Args:
         config: Configuration dictionary to save.
-        config_path: Path to save the configuration file. If None, uses default.
+        config_path: Path to save to. Defaults to DEFAULT_CONFIG_PATH.
     """
-    path = Path(config_path) if config_path else Path(DEFAULT_CONFIG_PATH)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    if config_path is None:
+        config_path = DEFAULT_CONFIG_PATH
     
-    with open(path, 'w') as f:
-        yaml.dump(config, f, default_flow_style=False)
-    _logger.info(f"Configuration saved to {path}")
+    config_file = PROJECT_ROOT / config_path
+    config_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(config_file, 'w', encoding='utf-8') as f:
+        if config_path.endswith(('.yaml', '.yml')):
+            try:
+                import yaml
+                yaml.dump(config, f, default_flow_style=False)
+            except ImportError:
+                json.dump(config, f, indent=2)
+        else:
+            json.dump(config, f, indent=2)
+
+def _get_default_config() -> Dict[str, Any]:
+    """Return default configuration values."""
+    return {
+        "random_seed": 42,
+        "simulation": {
+            "n_replications": 10000,
+            "confidence_levels": [0.90, 0.95, 0.99],
+            "sample_sizes": [10, 20, 30],
+            "bootstrap_resamples": 1000
+        },
+        "datasets": [
+            "Wine",
+            "Wine Quality Red",
+            "Wine Quality White",
+            "Ionosphere",
+            "Heart Disease (Cleveland)"
+        ],
+        "paths": {
+            "raw_data": "data/raw",
+            "processed_data": "data/processed",
+            "figures": "figures",
+            "outputs": "outputs"
+        },
+        "logging": {
+            "level": "INFO",
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    }
 
 def get_random_seed() -> int:
     """
-    Get the current random seed for reproducibility.
+    Get the current random seed.
     
     Returns:
-        The current random seed value.
+        The configured random seed integer.
     """
     global _random_seed
     if _random_seed is None:
-        # Try to load from config first
-        if _config and 'simulation' in _config:
-            _random_seed = _config['simulation'].get('random_seed', DEFAULT_SEED)
-        else:
-            _random_seed = DEFAULT_SEED
+        # Load config if not already loaded
+        config = load_config()
+        _random_seed = config.get("random_seed", 42)
     return _random_seed
 
 def set_random_seed(seed: int) -> None:
     """
-    Set the random seed for all random number generators.
+    Set the random seed for reproducibility.
     
-    This ensures deterministic behavior across all modules that use
-    random number generation (numpy, random, etc.).
+    This updates the global seed and re-initializes random number generators.
     
     Args:
-        seed: The seed value to use.
+        seed: Integer seed value.
     """
-    global _random_seed
+    global _random_seed, _np_random_generator, _python_random_state_initialized
     _random_seed = seed
-    
-    # Set seed for Python's random module
-    random.seed(seed)
-    
-    # Set seed for numpy (if available)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-    
-    _logger.info(f"Random seed set to {seed}")
+    initialize_random_state()
 
-def initialize_random_state(seed: Optional[int] = None) -> int:
+def initialize_random_state() -> None:
     """
-    Initialize the random state for the entire pipeline.
+    Initialize all random number generators with the current seed.
     
-    This function should be called at the start of any script that
-    requires deterministic random behavior.
+    This ensures deterministic behavior across:
+    - Python's built-in random module
+    - NumPy's random number generator
+    """
+    global _np_random_generator, _python_random_state_initialized
     
-    Args:
-        seed: Optional seed value. If None, uses config or default.
-        
+    seed = get_random_seed()
+    
+    # Initialize Python's random module
+    random.seed(seed)
+    _python_random_state_initialized = True
+    
+    # Initialize NumPy's random generator
+    _np_random_generator = np.random.default_rng(seed)
+    
+    logging.info(f"Random state initialized with seed: {seed}")
+
+def get_random_generator() -> np.random.Generator:
+    """
+    Get the global NumPy random generator.
+    
     Returns:
-        The seed value that was used.
+        The initialized np.random.Generator instance.
+        
+    Raises:
+        RuntimeError: If random state has not been initialized.
     """
-    if seed is not None:
-        set_random_seed(seed)
-    else:
-        set_random_seed(get_random_seed())
+    global _np_random_generator
+    if _np_random_generator is None:
+        initialize_random_state()
+    return _np_random_generator
+
+def get_np_random_generator() -> np.random.Generator:
+    """
+    Alias for get_random_generator().
     
-    return get_random_seed()
+    Returns:
+        The initialized np.random.Generator instance.
+    """
+    return get_random_generator()
 
 def get_data_dir() -> Path:
-    """
-    Get the path to the data directory.
-    
-    Returns:
-        Path object pointing to the data directory.
-    """
-    if _config and 'paths' in _config:
-        data_dir = _config['paths'].get('data_dir', DEFAULT_DATA_DIR)
-    else:
-        data_dir = DEFAULT_DATA_DIR
-    return Path(data_dir)
-
-def get_output_dir() -> Path:
-    """
-    Get the path to the output directory.
-    
-    Returns:
-        Path object pointing to the output directory.
-    """
-    if _config and 'paths' in _config:
-        output_dir = _config['paths'].get('output_dir', DEFAULT_OUTPUT_DIR)
-    else:
-        output_dir = DEFAULT_OUTPUT_DIR
-    return Path(output_dir)
+    """Get the base data directory."""
+    config = load_config()
+    return PROJECT_ROOT / config.get("paths", {}).get("data", "data")
 
 def get_raw_data_dir() -> Path:
-    """
-    Get the path to the raw data directory.
-    
-    Returns:
-        Path object pointing to the raw data directory.
-    """
-    if _config and 'paths' in _config:
-        raw_dir = _config['paths'].get('raw_data_dir', "data/raw")
-    else:
-        raw_dir = "data/raw"
-    return Path(raw_dir)
+    """Get the raw data directory path."""
+    config = load_config()
+    base = config.get("paths", {}).get("raw_data", "data/raw")
+    path = PROJECT_ROOT / base
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 def get_processed_data_dir() -> Path:
-    """
-    Get the path to the processed data directory.
-    
-    Returns:
-        Path object pointing to the processed data directory.
-    """
-    if _config and 'paths' in _config:
-        processed_dir = _config['paths'].get('processed_data_dir', "data/processed")
-    else:
-        processed_dir = "data/processed"
-    return Path(processed_dir)
+    """Get the processed data directory path."""
+    config = load_config()
+    base = config.get("paths", {}).get("processed_data", "data/processed")
+    path = PROJECT_ROOT / base
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 def get_figures_dir() -> Path:
-    """
-    Get the path to the figures directory.
-    
-    Returns:
-        Path object pointing to the figures directory.
-    """
-    if _config and 'paths' in _config:
-        figures_dir = _config['paths'].get('figures_dir', "figures")
-    else:
-        figures_dir = "figures"
-    return Path(figures_dir)
+    """Get the figures directory path."""
+    config = load_config()
+    base = config.get("paths", {}).get("figures", "figures")
+    path = PROJECT_ROOT / base
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
-def get_log_level() -> str:
-    """
-    Get the logging level from configuration.
-    
-    Returns:
-        The logging level string (e.g., "INFO", "DEBUG").
-    """
-    if _config and 'logging' in _config:
-        return _config['logging'].get('level', DEFAULT_LOG_LEVEL)
-    return DEFAULT_LOG_LEVEL
+def get_output_dir() -> Path:
+    """Get the outputs directory path."""
+    config = load_config()
+    base = config.get("paths", {}).get("outputs", "outputs")
+    path = PROJECT_ROOT / base
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+def get_log_level() -> int:
+    """Get the logging level from config."""
+    config = load_config()
+    level_str = config.get("logging", {}).get("level", "INFO")
+    return getattr(logging, level_str.upper(), logging.INFO)
 
 def get_simulation_config() -> Dict[str, Any]:
-    """
-    Get the simulation-specific configuration.
+    """Get simulation-specific configuration."""
+    config = load_config()
+    return config.get("simulation", {})
+
+def setup_logging() -> None:
+    """Configure logging based on configuration."""
+    level = get_log_level()
+    config = load_config()
+    log_format = config.get("logging", {}).get("format", "%(asctime)s - %(levelname)s - %(message)s")
     
-    Returns:
-        Dictionary containing simulation parameters.
-    """
-    if _config and 'simulation' in _config:
-        return _config['simulation']
-    return {
-        "random_seed": DEFAULT_SEED,
-        "confidence_levels": [0.90, 0.95, 0.99],
-        "sample_sizes": [10, 20, 30],
-        "n_replications": 1000,
-        "bootstrap_resamples": 1000
-    }
+    logging.basicConfig(
+        level=level,
+        format=log_format,
+        handlers=[
+            logging.StreamHandler()
+        ]
+    )
 
 def main():
-    """
-    Command-line interface for configuration management.
-    """
-    import argparse
+    """Entry point for testing configuration."""
+    setup_logging()
+    logger = logging.getLogger(__name__)
     
-    parser = argparse.ArgumentParser(description="Configuration management for simulation pipeline")
-    parser.add_argument("--config", type=str, help="Path to configuration file")
-    parser.add_argument("--seed", type=int, help="Set random seed")
-    parser.add_argument("--show", action="store_true", help="Show current configuration")
+    logger.info("Testing configuration module...")
     
-    args = parser.parse_args()
+    # Test seed management
+    seed = get_random_seed()
+    logger.info(f"Current seed: {seed}")
     
-    # Load configuration
-    config = load_config(args.config)
+    set_random_seed(12345)
+    new_seed = get_random_seed()
+    logger.info(f"New seed: {new_seed}")
     
-    if args.seed is not None:
-        set_random_seed(args.seed)
+    # Test random generators
+    rng = get_random_generator()
+    sample = rng.random(5)
+    logger.info(f"Sample from numpy RNG: {sample}")
     
-    if args.show:
-        print("Current Configuration:")
-        print(json.dumps(config, indent=2))
-        print(f"\nRandom Seed: {get_random_seed()}")
-        print(f"Data Directory: {get_data_dir()}")
-        print(f"Output Directory: {get_output_dir()}")
-        print(f"Raw Data Directory: {get_raw_data_dir()}")
-        print(f"Processed Data Directory: {get_processed_data_dir()}")
-        print(f"Log Level: {get_log_level()}")
+    sample_py = [random.random() for _ in range(5)]
+    logger.info(f"Sample from python RNG: {sample_py}")
+    
+    # Test paths
+    logger.info(f"Raw data dir: {get_raw_data_dir()}")
+    logger.info(f"Processed data dir: {get_processed_data_dir()}")
+    logger.info(f"Output dir: {get_output_dir()}")
+    
+    logger.info("Configuration test complete.")
 
 if __name__ == "__main__":
     main()

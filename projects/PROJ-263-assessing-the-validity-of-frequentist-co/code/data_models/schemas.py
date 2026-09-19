@@ -1,255 +1,253 @@
-"""
-Data model schemas for the Monte Carlo simulation pipeline.
-
-Defines TypedDict and dataclass structures for:
-- SimulationRun: Metadata for a single simulation execution
-- CoverageRecord: Individual interval coverage results
-- AggregateReport: Summary statistics across multiple runs/datasets
-
-These schemas ensure data integrity and type safety across the pipeline.
-"""
-
 from typing import Dict, List, Any, Optional, TypedDict
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
 import json
 import logging
 
-# Configure logging
+# Configure logging for schema validation
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class SimulationRun(TypedDict, total=False):
+@dataclass
+class SimulationRun:
     """
-    Schema for a single simulation run metadata.
-    
-    Attributes:
-        run_id: Unique identifier for the simulation run
-        dataset_id: Identifier for the source dataset
-        sample_size: Number of samples drawn (n)
-        confidence_level: Nominal confidence level (e.g., 0.95)
-        interval_type: Type of interval calculated ('t' or 'bootstrap')
-        seed: Random seed used for reproducibility
-        start_time: ISO format timestamp of run start
-        end_time: ISO format timestamp of run end
-        status: Status of the run ('completed', 'failed', 'partial')
-        error_message: Optional error details if status is 'failed'
+    Schema for a single Monte Carlo simulation run configuration and metadata.
+    Corresponds to the operational parameters of one simulation execution.
     """
-    run_id: str
-    dataset_id: str
-    sample_size: int
-    confidence_level: float
-    interval_type: str
-    seed: int
-    start_time: str
-    end_time: str
-    status: str
-    error_message: Optional[str]
-
-class CoverageRecord(TypedDict, total=False):
-    """
-    Schema for a single coverage record (one interval check).
-    
-    Attributes:
-        record_id: Unique identifier for the record
-        run_id: Reference to the parent simulation run
-        dataset_id: Identifier for the source dataset
-        variable_name: Name of the variable being analyzed
-        sample_size: Sample size used for this interval
-        confidence_level: Nominal confidence level
-        interval_type: Type of interval ('t' or 'bootstrap')
-        interval_lower: Lower bound of the calculated interval
-        interval_upper: Upper bound of the calculated interval
-        population_mean: The true population mean (full dataset mean)
-        contains_mean: Boolean indicating if interval contains the mean
-        replication_id: Index of this replication within the run
-        timestamp: ISO format timestamp of record creation
-    """
-    record_id: str
     run_id: str
     dataset_id: str
     variable_name: str
     sample_size: int
     confidence_level: float
-    interval_type: str
+    n_replications: int
+    method: str  # 't_interval' or 'bootstrap_percentile'
+    seed: int
+    timestamp: str
+    start_time: float
+    end_time: float
+    status: str  # 'success', 'failed', 'skipped'
+    error_message: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'SimulationRun':
+        return cls(**data)
+
+    @classmethod
+    def validate(cls, data: Dict[str, Any]) -> bool:
+        """Basic validation of required fields."""
+        required_fields = ['run_id', 'dataset_id', 'variable_name', 'sample_size',
+                         'confidence_level', 'n_replications', 'method', 'seed',
+                         'timestamp', 'status']
+        for field_name in required_fields:
+            if field_name not in data:
+                logger.error(f"Missing required field: {field_name}")
+                return False
+        
+        # Type checks
+        if not isinstance(data['sample_size'], int) or data['sample_size'] <= 0:
+            logger.error(f"Invalid sample_size: {data['sample_size']}")
+            return False
+        
+        if not isinstance(data['confidence_level'], (int, float)) or not (0 < data['confidence_level'] < 1):
+            logger.error(f"Invalid confidence_level: {data['confidence_level']}")
+            return False
+        
+        if data['method'] not in ['t_interval', 'bootstrap_percentile']:
+            logger.error(f"Invalid method: {data['method']}")
+            return False
+        
+        return True
+
+@dataclass
+class CoverageRecord:
+    """
+    Schema for a single coverage record generated during simulation.
+    Stores the interval bounds and whether they contained the population mean.
+    """
+    dataset_id: str
+    variable_name: str
+    sample_size: int
+    confidence_level: float
+    method: str
+    iteration: int
     interval_lower: float
     interval_upper: float
     population_mean: float
     contains_mean: bool
-    replication_id: int
+    run_id: str
     timestamp: str
 
-class AggregateReport(TypedDict, total=False):
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'CoverageRecord':
+        return cls(**data)
+
+    @classmethod
+    def validate(cls, data: Dict[str, Any]) -> bool:
+        """Basic validation of required fields."""
+        required_fields = ['dataset_id', 'variable_name', 'sample_size', 'confidence_level',
+                         'method', 'iteration', 'interval_lower', 'interval_upper',
+                         'population_mean', 'contains_mean', 'run_id', 'timestamp']
+        for field_name in required_fields:
+            if field_name not in data:
+                logger.error(f"Missing required field in CoverageRecord: {field_name}")
+                return False
+        
+        # Type checks
+        if not isinstance(data['contains_mean'], bool):
+            logger.error(f"Invalid contains_mean type: {type(data['contains_mean'])}")
+            return False
+        
+        if not isinstance(data['iteration'], int) or data['iteration'] < 0:
+            logger.error(f"Invalid iteration: {data['iteration']}")
+            return False
+        
+        return True
+
+@dataclass
+class AggregateReport:
     """
-    Schema for an aggregated coverage report.
-    
-    Attributes:
-        report_id: Unique identifier for the report
-        generated_at: ISO format timestamp of report generation
-        total_runs: Total number of simulation runs included
-        total_records: Total number of coverage records included
-        datasets: List of dataset identifiers included
-        sample_sizes: List of sample sizes included
-        confidence_levels: List of confidence levels included
-        coverage_rates: Dictionary mapping (dataset, n, type) to coverage rate
-        deviation_rates: Dictionary mapping (dataset, n, type) to deviation from nominal
-        is_practically_significant: Dictionary indicating practical significance flags
-        bonferroni_corrected: Boolean indicating if Bonferroni correction was applied
-        p_values: Optional dictionary of p-values for significance tests
-        notes: Optional notes about the analysis
-        method: Description of the aggregation method used
+    Schema for the aggregated report containing summary statistics across
+    multiple datasets, sample sizes, and methods.
     """
     report_id: str
     generated_at: str
-    total_runs: int
-    total_records: int
-    datasets: List[str]
-    sample_sizes: List[int]
-    confidence_levels: List[float]
-    coverage_rates: Dict[str, float]
-    deviation_rates: Dict[str, float]
-    is_practically_significant: Dict[str, bool]
-    bonferroni_corrected: bool
-    p_values: Optional[Dict[str, float]]
-    notes: Optional[str]
-    method: str
+    nominal_coverage: float
+    datasets_analyzed: List[str]
+    sample_sizes_analyzed: List[int]
+    methods_analyzed: List[str]
+    results: List[Dict[str, Any]]  # List of aggregated results per configuration
+    statistical_tests: Dict[str, Any]  # Bonferroni corrected p-values, etc.
+    conclusion: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-def validate_coverage_record(record: Dict[str, Any]) -> bool:
-    """
-    Validate that a dictionary conforms to the CoverageRecord schema.
-    
-    Args:
-        record: Dictionary to validate
-        
-    Returns:
-        True if valid, raises ValueError otherwise
-    """
-    required_fields = [
-        'record_id', 'run_id', 'dataset_id', 'variable_name',
-        'sample_size', 'confidence_level', 'interval_type',
-        'interval_lower', 'interval_upper', 'population_mean',
-        'contains_mean', 'replication_id', 'timestamp'
-    ]
-    
-    for field in required_fields:
-        if field not in record:
-            raise ValueError(f"Missing required field: {field}")
-    
-    # Type checks
-    if not isinstance(record['sample_size'], int):
-        raise ValueError("sample_size must be an integer")
-    if not isinstance(record['confidence_level'], (int, float)):
-        raise ValueError("confidence_level must be a number")
-    if not isinstance(record['interval_lower'], (int, float)):
-        raise ValueError("interval_lower must be a number")
-    if not isinstance(record['interval_upper'], (int, float)):
-        raise ValueError("interval_upper must be a number")
-    if not isinstance(record['population_mean'], (int, float)):
-        raise ValueError("population_mean must be a number")
-    if not isinstance(record['contains_mean'], bool):
-        raise ValueError("contains_mean must be a boolean")
-    if not isinstance(record['replication_id'], int):
-        raise ValueError("replication_id must be an integer")
-    if record['interval_type'] not in ['t', 'bootstrap']:
-        raise ValueError("interval_type must be 't' or 'bootstrap'")
-        
-    return True
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
-def validate_aggregate_report(report: Dict[str, Any]) -> bool:
-    """
-    Validate that a dictionary conforms to the AggregateReport schema.
-    
-    Args:
-        report: Dictionary to validate
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'AggregateReport':
+        return cls(**data)
+
+    @classmethod
+    def validate(cls, data: Dict[str, Any]) -> bool:
+        """Basic validation of required fields."""
+        required_fields = ['report_id', 'generated_at', 'nominal_coverage',
+                         'datasets_analyzed', 'sample_sizes_analyzed',
+                         'methods_analyzed', 'results', 'statistical_tests', 'conclusion']
+        for field_name in required_fields:
+            if field_name not in data:
+                logger.error(f"Missing required field in AggregateReport: {field_name}")
+                return False
         
-    Returns:
-        True if valid, raises ValueError otherwise
-    """
-    required_fields = [
-        'report_id', 'generated_at', 'total_runs', 'total_records',
-        'datasets', 'sample_sizes', 'confidence_levels',
-        'coverage_rates', 'deviation_rates', 'is_practically_significant',
-        'bonferroni_corrected', 'method'
-    ]
-    
-    for field in required_fields:
-        if field not in report:
-            raise ValueError(f"Missing required field: {field}")
-    
-    # Type checks
-    if not isinstance(report['total_runs'], int):
-        raise ValueError("total_runs must be an integer")
-    if not isinstance(report['total_records'], int):
-        raise ValueError("total_records must be an integer")
-    if not isinstance(report['datasets'], list):
-        raise ValueError("datasets must be a list")
-    if not isinstance(report['sample_sizes'], list):
-        raise ValueError("sample_sizes must be a list")
-    if not isinstance(report['confidence_levels'], list):
-        raise ValueError("confidence_levels must be a list")
-    if not isinstance(report['coverage_rates'], dict):
-        raise ValueError("coverage_rates must be a dictionary")
-    if not isinstance(report['bonferroni_corrected'], bool):
-        raise ValueError("bonferroni_corrected must be a boolean")
+        # Type checks
+        if not isinstance(data['datasets_analyzed'], list):
+            logger.error("datasets_analyzed must be a list")
+            return False
         
-    return True
+        if not isinstance(data['results'], list):
+            logger.error("results must be a list")
+            return False
+        
+        return True
+
+def validate_coverage_record(data: Dict[str, Any]) -> bool:
+    """Convenience function to validate a CoverageRecord dictionary."""
+    return CoverageRecord.validate(data)
+
+def validate_aggregate_report(data: Dict[str, Any]) -> bool:
+    """Convenience function to validate an AggregateReport dictionary."""
+    return AggregateReport.validate(data)
 
 def main():
     """
     Main entry point for schema validation tests.
+    Runs basic validation on example data to ensure schemas work correctly.
     """
     logger.info("Testing schema definitions...")
-    
-    # Test CoverageRecord
-    test_record: CoverageRecord = {
-        'record_id': 'rec-001',
-        'run_id': 'run-001',
-        'dataset_id': 'wine',
-        'variable_name': 'alcohol',
-        'sample_size': 10,
-        'confidence_level': 0.95,
-        'interval_type': 't',
-        'interval_lower': 12.5,
-        'interval_upper': 13.2,
-        'population_mean': 12.8,
-        'contains_mean': True,
-        'replication_id': 42,
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    try:
-        validate_coverage_record(test_record)
-        logger.info("CoverageRecord validation: PASSED")
-    except ValueError as e:
-        logger.error(f"CoverageRecord validation: FAILED - {e}")
-        return False
-    
-    # Test AggregateReport
-    test_report: AggregateReport = {
-        'report_id': 'rep-001',
-        'generated_at': datetime.now().isoformat(),
-        'total_runs': 10,
-        'total_records': 1000,
-        'datasets': ['wine', 'ionosphere'],
-        'sample_sizes': [10, 20, 30],
-        'confidence_levels': [0.95],
-        'coverage_rates': {'wine-10-t': 0.94},
-        'deviation_rates': {'wine-10-t': 0.01},
-        'is_practically_significant': {'wine-10-t': False},
-        'bonferroni_corrected': False,
-        'method': 'simple_aggregation'
-    }
-    
-    try:
-        validate_aggregate_report(test_report)
-        logger.info("AggregateReport validation: PASSED")
-    except ValueError as e:
-        logger.error(f"AggregateReport validation: FAILED - {e}")
-        return False
-    
-    logger.info("All schema tests passed.")
-    return True
 
-if __name__ == '__main__':
-    success = main()
-    exit(0 if success else 1)
+    # Test SimulationRun
+    sim_run_data = {
+        "run_id": "test-001",
+        "dataset_id": "wine",
+        "variable_name": "alcohol",
+        "sample_size": 10,
+        "confidence_level": 0.95,
+        "n_replications": 1000,
+        "method": "t_interval",
+        "seed": 42,
+        "timestamp": datetime.now().isoformat(),
+        "start_time": 0.0,
+        "end_time": 1.5,
+        "status": "success"
+    }
+
+    if SimulationRun.validate(sim_run_data):
+        logger.info("SimulationRun validation passed")
+        run = SimulationRun.from_dict(sim_run_data)
+        logger.info(f"Created SimulationRun: {run.run_id}")
+    else:
+        logger.error("SimulationRun validation failed")
+
+    # Test CoverageRecord
+    coverage_data = {
+        "dataset_id": "wine",
+        "variable_name": "alcohol",
+        "sample_size": 10,
+        "confidence_level": 0.95,
+        "method": "t_interval",
+        "iteration": 1,
+        "interval_lower": 10.5,
+        "interval_upper": 13.2,
+        "population_mean": 12.8,
+        "contains_mean": True,
+        "run_id": "test-001",
+        "timestamp": datetime.now().isoformat()
+    }
+
+    if CoverageRecord.validate(coverage_data):
+        logger.info("CoverageRecord validation passed")
+        record = CoverageRecord.from_dict(coverage_data)
+        logger.info(f"Created CoverageRecord: {record.dataset_id} - {record.variable_name}")
+    else:
+        logger.error("CoverageRecord validation failed")
+
+    # Test AggregateReport
+    aggregate_data = {
+        "report_id": "report-001",
+        "generated_at": datetime.now().isoformat(),
+        "nominal_coverage": 0.95,
+        "datasets_analyzed": ["wine", "ionosphere"],
+        "sample_sizes_analyzed": [10, 20, 30],
+        "methods_analyzed": ["t_interval", "bootstrap_percentile"],
+        "results": [
+            {
+                "dataset_id": "wine",
+                "sample_size": 10,
+                "method": "t_interval",
+                "empirical_coverage": 0.94,
+                "deviation": -0.01
+            }
+        ],
+        "statistical_tests": {
+            "bonferroni_p_value": 0.05,
+            "significant": False
+        },
+        "conclusion": "T-intervals show acceptable coverage for n=30."
+    }
+
+    if AggregateReport.validate(aggregate_data):
+        logger.info("AggregateReport validation passed")
+        report = AggregateReport.from_dict(aggregate_data)
+        logger.info(f"Created AggregateReport: {report.report_id}")
+    else:
+        logger.error("AggregateReport validation failed")
+
+    logger.info("Schema tests completed.")
+
+if __name__ == "__main__":
+    main()

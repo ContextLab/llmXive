@@ -68,13 +68,13 @@
 - [ ] T016 [US1] Implement UCI dataset downloader: fetch REAL numeric datasets from UCI Machine Learning Repository via HTTP (FR-001) and save to `data/raw/`. **Specific datasets to fetch**: Wine, Wine Quality Red, Wine Quality White, Ionosphere, Heart Disease (Cleveland).
 - [ ] T017 [US1] Implement data loader: parse downloaded UCI datasets and identify continuous numeric variables (FR-002).
 - [ ] T017.5 [US1] Implement explicit variable type validation: verify selected variables are continuous numeric before simulation begins (FR-002).
-- [~] T018 [US1] Implement data cleaner: exclude rows with missing values and filter for continuous variables only (FR-002, Edge Cases).
-- [~] T019 [US1] Implement edge case handler: skip datasets with insufficient row counts, handle categorical variables, and log warnings (Edge Cases).
+- [ ] T018 [US1] Implement data cleaner: exclude rows with missing values and filter for continuous variables only (FR-002, Edge Cases).
+- [ ] T019 [US1] Implement edge case handler: skip datasets with insufficient row counts, handle categorical variables, and log warnings (Edge Cases).
 - [X] T020 [US1] Implement population mean calculator: compute the mean of the FULL UCI DATASET ARRAY for each variable to serve as operational ground truth (Constitution Principle VII, FR-010) and save to `data/processed/population_means.json`.
-- [~] T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30 *with replacement* from the cleaned UCI dataset array to approximate the super-population distribution for testing the t-interval's infinite population assumption (FR-010).
-- [~] T022 [US1] Implement t-interval calculation using `scipy.stats.t.ppf` for critical values (FR-005).
-- [~] T023 [US1] Implement bootstrap percentile interval calculation using A large number of bootstrap resamples and `numpy.random.choice` (FR-005).
-- [~] T024 [US1] Implement coverage check logic: compare interval bounds against the **mean of the full UCI dataset array** (operational ground truth) (FR-003, Constitution Principle VII).
+- [ ] T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30 *with replacement* from the cleaned UCI dataset array to approximate the super-population distribution for testing the t-interval's infinite population assumption (FR-010).
+- [ ] T022 [US1] Implement t-interval calculation using `scipy.stats.t.ppf` for critical values (FR-005).
+- [ ] T023 [US1] Implement bootstrap percentile interval calculation using A large number of bootstrap resamples and `numpy.random.choice` (FR-005).
+- [ ] T024 [US1] Implement coverage check logic: compare interval bounds against the **mean of the full UCI dataset array** (operational ground truth) (FR-003, Constitution Principle VII).
 - [~] T025 [US1] Implement the main Monte Carlo loop: A large number of replications per configuration (dataset, n, confidence level) to ensure stable estimation (FR-003).
 - [~] T026 [US1] Ensure all computations are CPU-only (no CUDA, no GPU libraries) (FR-004).
 - [~] T027 [US1] Add logging for simulation progress and warnings for skipped configurations (Edge Cases).
@@ -96,7 +96,7 @@
 - [~] T030 [US2] Implement Bonferroni correction for family-wise error rate when testing significance across datasets (FR-006).
 - [~] T031 [US2] Implement logic to flag "practically significant" deviations only if |deviation| > 1.0% (FR-011).
 - [~] T032 [US2] Implement report generation that explicitly states findings are **associational** (FR-007).
-- [ ] T033 [US2] Generate `outputs/aggregate_report.md` with summary tables and statistical tests, explicitly contrasting the scope of **multiple UCI datasets** against previous synthetic approaches to ensure clarity on generalization.
+- [ ] T033 [US2] Generate `outputs/aggregate_report.md` with summary tables and statistical tests, explicitly contrasting the scope of **multiple UCI datasets** against previous synthetic approaches to ensure clarity on generalization. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,8 +110,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement confidence level sweep logic for {%, [deferred], [deferred]} (FR-008).
-- [ ] T035 [US3] Integrate sweep into the simulation loop (reusing US1 engine).
+- [~] T034 [US3] Implement confidence level sweep logic for {%, [deferred], [deferred]} (FR-008).
+- [~] T035 [US3] Integrate sweep into the simulation loop (reusing US1 engine).
 - [ ] T036 [US3] Calculate and report non-coverage rate deviations for each confidence level, defining deviation as the difference between empirical non-coverage and nominal level, referencing FR-011's 1.0% deviation threshold for practical significance.
 - [ ] T037 [US3] Generate `outputs/sensitivity_confidence.md` showing variation across levels.
 
