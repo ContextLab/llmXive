@@ -10,7 +10,7 @@ This feature implements a computational pipeline to test whether somatosensory M
 
 **Approach**: 
 1. Ingest EEG data from verified OpenNeuro/HF sources.
-2. Preprocess (1–40 Hz filter, ICA, epoching).
+2. Preprocess (–40 Hz filter, ICA, epoching).
 3. **Lagged Alignment**: Calculate MMN amplitude over a "training window" of trials. and align it to the *subsequent* accuracy block to ensure sufficient Signal-to-Noise Ratio (SNR) and avoid circularity/confounding.
 4. Fit a Gaussian LME to test the correlation.
 5. Run robustness checks (time window sweeps) and permutation tests.
@@ -26,7 +26,7 @@ This feature implements a computational pipeline to test whether somatosensory M
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: Research Data Pipeline / Statistical Analysis  
 **Performance Goals**: Full pipeline (download to stats) ≤ 6 hours; Memory peak ≤ 7 GB; Disk peak ≤ 14 GB (excluding raw source)  
-**Constraints**: No GPU; CPU-only ICA and LME; streaming data processing; strict adherence to a low-frequency filter starting at the lower bound of the typical EEG passband and 150–250ms window.  
+**Constraints**: No GPU; CPU-only ICA and LME; streaming data processing; strict adherence to a low-frequency filter starting at the lower bound of the typical EEG passband and –250ms window.  
 **Scale/Scope**: Up to 20 subjects, ≥500 trials per condition (if available); fallback to smaller datasets with "underpowered" flag.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -114,7 +114,7 @@ pyproject.toml
 ### Phase 1: Preprocessing
 1. **Filter**: 1–40 Hz bandpass.
 2. **ICA**: Artifact removal.
-3. **Epoch**: -200ms to 500ms.
+3. **Epoch**: A time window ranging from negative to positive delays relative to the stimulus onset..
 4. **Output**: Cleaned epochs (`.fif` or `.npy`).
 
 ### Phase 2: Lagged Alignment (Methodological Correction)

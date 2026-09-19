@@ -7,4 +7,8 @@ pyyaml
 requests
 datasets
 joblib
-psutil
+pytest
+memory_profiler
+ruff
+black
+jsonschema

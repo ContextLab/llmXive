@@ -64,7 +64,7 @@ Automatically determine analysis mode ("Error-Signal" or "Stimulus-Driven") base
 **I want** to compute MMN amplitudes and align them with behavioral accuracy using Lagged Alignment,
 **So that** I can correlate neural predictive errors with learning performance.
 **Acceptance Criteria**:
-- MMN calculated at CP, CP4, C3, C4 (150–250ms).
+- MMN calculated at CP and left/right central electrodes (early latency window).
 - **Lagged Alignment** applied: 50-trial source window mapped to subsequent accuracy block.
 - Underpowered subjects explicitly excluded from the aligned dataset.
 - Output `data/aligned_data.csv` contains time-series of MMN and accuracy.

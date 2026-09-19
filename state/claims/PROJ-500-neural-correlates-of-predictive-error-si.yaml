@@ -138,3 +138,414 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T17:39:17Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Static exclusion thresholds are 20 subjects and 500 trials per condition
+  claim_id: c_9b3ae030
+  context: "T016 [US1] Implement artifact rejection logic (trial count loss \u2264\
+    \ 5%) and underpowered dataset flagging in src/data/preprocess.py. Logic: Apply\
+    \ static thresholds (\u226520 subjects, \u2265500 trials/condition) as the sole\
+    \ exclusion criteria."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply static thresholds (\u226520 subjects, \u2265500 trials/condition)\
+    \ as the sole exclusion criteria."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:34:46Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: MMN amplitude calculated at CP3, CP4, C3, C4 within 150-250ms window
+  claim_id: c_0cd78502
+  context: "T020 [P] [US2] Implement MMN amplitude calculator in src/data/align.py.\
+    \ Requirement: Calculate mean difference wave (Deviant - Standard) explicitly\
+    \ at electrodes CP3, CP4, C3, and C4 within the 150\u2013250ms window (FR-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate mean difference wave (Deviant - Standard) explicitly at electrodes\
+    \ CP3, CP4, C3, and C4 within the 150\u2013250ms window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:35:14Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Permutation test uses exactly 1000 shuffles
+  claim_id: c_2d1cc4d2
+  context: 'T029 [US3] Implement permutation test in src/analysis/model.py. Logic:
+    Run a fixed permutation test with exactly n=1000 shuffles. Requirement: Do NOT
+    implement dynamic pilot logic or variance adjustment. The spec mandates n=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a fixed permutation test with exactly n=1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:35:33Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps time window 140-240ms and 160-260ms
+  claim_id: c_a83a4bd2
+  context: "T030 [US3] Implement sensitivity analysis in src/analysis/robustness.py\
+    \ (sweep time window \xB110ms: 140\u2013240ms, 160\u2013260ms) (FR-010)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform sensitivity analysis sweep time window \xB110ms: 140\u2013240ms,\
+    \ 160\u2013260ms."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:20Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limited to 7 GB via streaming buffers
+  claim_id: c_d5291d46
+  context: "T033a [P] Refactor src/data/ingest.py to use streaming buffers ensuring\
+    \ peak RAM \u2264 7 GB. Verification: Run pipeline with memory profiling using\
+    \ memory_profiler (command: python -m memory_profiler src/main.py) and log peak\
+    \ usage < 7GB. (FR-009)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Refactor src/data/ingest.py to use streaming buffers ensuring peak RAM\
+    \ \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:20Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime is 6 hours or less on 2-core 7GB RAM hardware
+  claim_id: c_6cda701c
+  context: "T036 [P] Verify full pipeline runtime \u22646 hours on GitHub Actions\
+    \ free-tier runner (2-core, 7GB RAM). Verification: Run full pipeline on sample\
+    \ dataset, log runtime to analysis/runtime.log, and confirm \u22646 hours. (FR-009,\
+    \ SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify full pipeline runtime \u22646 hours on GitHub Actions free-tier\
+    \ runner (2-core, 7GB RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:20Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Bandpass filter range is 1 to 40 Hz
+  claim_id: c_32977fd8
+  context: "T015 [US1] Implement preprocessing module in src/data/preprocess.py (Bandpass\
+    \ filter 1\u201340 Hz as per Plan Phase 1, ICA artifact removal, bad channel interpolation)\
+    \ (FR-002, Constitution VI)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bandpass filter 1\u201340 Hz as per Plan Phase 1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:57Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Trial count loss limited to 5 percent during artifact rejection
+  claim_id: c_a368f87a
+  context: "T016 [US1] Implement artifact rejection logic (trial count loss \u2264\
+    \ 5%) and underpowered dataset flagging in src/data/preprocess.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure trial count loss \u2264 5% during artifact rejection."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:57Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Source window requires at least 10 valid trials
+  claim_id: c_bdfa74cf
+  context: 'T040 [P] [US2] Implement Lagged Window Sanity Check in src/data/align.py.
+    Logic: Before writing data/interim_lagged_mmns.csv, assert that the source window
+    (t-N to t-M) and target block (t to t+n) do not overlap and that the source window
+    contains at least 10 valid trials.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Source_window_requires_at_least_10_valid_trials
+  kind: magnitude
+  raw_text: Assert that the source window contains at least 10 valid trials.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:37:29Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Default epoch window is -200 to 500 milliseconds
+  claim_id: c_9d91f17a
+  context: T007 [P] Setup configuration management (src/utils/config.py) for paths,
+    seeds, and parameters (Low-frequency filter in the range of a few hertz to the
+    upper limit of the low-frequency band., EPOCH_WINDOW (default -200 to 500ms),
+    ACCURACY_BLOCK_SIZE)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default epoch window is -200 to 500ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:37:58Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: SHA-256 hashing algorithm is used for content hashes
+  claim_id: c_ba8e9d4c
+  context: 'T005d [US1] Generate initial state/projects/PROJ-500-neural-correlates-of-predictive-error-si.yaml
+    with content hashes for ./requirements.txt and ./pyproject.toml to satisfy Constitution
+    Principle V. Dependency: T005c (Git Init). Implementation Detail: Use SHA-256
+    hashing algorithm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SHA-256 hashing algorithm for content hashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:38:15Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: Source window and target block must not overlap
+  claim_id: c_8ab3b818
+  context: 'T040 [P] [US2] Implement Lagged Window Sanity Check in src/data/align.py.
+    Logic: Before writing data/interim_lagged_mmns.csv, assert that the source window
+    (t-N to t-M) and target block (t to t+n) do not overlap and that the source window
+    contains at least 10 valid trials.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_window_and_target_block_must_not_overlap
+  kind: entity_fact
+  raw_text: The source window (t-N to t-M) and target block (t to t+n) must not overlap.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:38:38Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: artifact rejection logic limits trial count loss to 5 percent
+  claim_id: c_d5b7a21b
+  context: "T016 [US1] Implement artifact rejection logic (trial count loss \u2264\
+    \ 5%) and underpowered dataset flagging in src/data/preprocess.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement artifact rejection logic (trial count loss \u2264 5%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:48:23Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: static thresholds for exclusion are at least 20 subjects and at least
+    500 trials per condition
+  claim_id: c_67fe3e45
+  context: "Logic: Apply static thresholds (\u226520 subjects, \u2265500 trials/condition)\
+    \ as the sole exclusion criteria. Explicitly filter aligned_data.csv generation\
+    \ (T024) to remove these subjects from the primary GLMM input (Constitution VII,\
+    \ Plan Phase 0.5)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Static_thresholds_for_exclusion_are_at_least_20_subjects_and
+  kind: magnitude
+  raw_text: "Apply static thresholds (\u226520 subjects, \u2265500 trials/condition)\
+    \ as the sole exclusion criteria."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:48:42Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: permutation test runs exactly 1000 shuffles
+  claim_id: c_1fa69eeb
+  context: 'Logic: Run a fixed permutation test with exactly n=1000 shuffles. Requirement:
+    Do NOT implement dynamic pilot logic or variance adjustment. The spec mandates
+    n=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a fixed permutation test with exactly n=1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:48:42Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime is less than or equal to 6 hours on 2-core 7GB
+    RAM hardware
+  claim_id: c_65e6dcc9
+  context: "Verify full pipeline runtime \u22646 hours on GitHub Actions free-tier\
+    \ runner (2-core, 7GB RAM). Verification: Run full pipeline on sample dataset,\
+    \ log runtime to analysis/runtime.log, and confirm \u22646 hours."
+  evidence:
+    candidates:
+    - - ''
+      - 6.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_2-
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime \u22646 hours on GitHub Actions free-tier\
+    \ runner (2-core, 7GB RAM)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-19T15:49:03Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: streaming buffers ensure peak RAM usage is less than or equal to 7 GB
+  claim_id: c_6d0745df
+  context: "Refactor src/data/ingest.py to use streaming buffers ensuring peak RAM\
+    \ \u2264 7 GB. Verification: Run pipeline with memory profiling using memory_profiler\
+    \ (command: python -m memory_profiler src/main.py) and log peak usage < 7GB."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_buffers_ensure_peak_RAM_usage_is_less_than_or_equa
+  kind: magnitude
+  raw_text: "Refactor src/data/ingest.py to use streaming buffers ensuring peak RAM\
+    \ \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:50:25Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: batch processing ensures peak RAM usage is less than or equal to 7 GB
+  claim_id: c_067e9b7e
+  context: "Refactor src/analysis/model.py to process subjects in batches ensuring\
+    \ peak RAM \u2264 7 GB. Verification: Run pipeline with memory profiling using\
+    \ memory_profiler (command: python -m memory_profiler src/main.py) and log peak\
+    \ usage < 7GB."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_ensures_peak_RAM_usage_is_less_than_or_equa
+  kind: magnitude
+  raw_text: "Refactor src/analysis/model.py to process subjects in batches ensuring\
+    \ peak RAM \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:50:45Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps time window by plus or minus 10ms covering
+    140 to 240ms and 160 to 260ms
+  claim_id: c_4b7ff647
+  context: "Implement sensitivity analysis in src/analysis/robustness.py (sweep time\
+    \ window \xB110ms: 140\u2013240ms, 160\u2013260ms) (FR-010)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis sweep time window \xB110ms: 140\u2013\
+    240ms, 160\u2013260ms."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:51:00Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: mean difference wave calculated at CP3 CP4 C3 and C4 within 150 to 250ms
+    window
+  claim_id: c_1772c62f
+  context: "Requirement: Calculate mean difference wave (Deviant - Standard) explicitly\
+    \ at electrodes CP3, CP4, C3, and C4 within the 150\u2013250ms window (FR-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate mean difference wave (Deviant - Standard) explicitly at electrodes\
+    \ CP3, CP4, C3, and C4 within the 150\u2013250ms window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:51:00Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: bandpass filter range is 1 to 40 Hz
+  claim_id: c_24d8c90a
+  context: "Implement preprocessing module in src/data/preprocess.py (Bandpass filter\
+    \ 1\u201340 Hz as per Plan Phase 1, ICA artifact removal, bad channel interpolation)\
+    \ (FR-002, Constitution VI)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bandpass filter 1\u201340 Hz as per Plan Phase 1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:51:18Z'
+- artifact_path: projects/PROJ-500-neural-correlates-of-predictive-error-si/specs/001-neural-correlates-of-predictive-error-si/tasks.md
+  attempts: 1
+  canonical: source window must contain at least 10 valid trials
+  claim_id: c_15bb13fb
+  context: 'Logic: Before writing data/interim_lagged_mmns.csv, assert that the source
+    window (t-N to t-M) and target block (t to t+n) do not overlap and that the source
+    window contains at least 10 valid trials.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Source_window_must_contain_at_least_10_valid_trials
+  kind: magnitude
+  raw_text: Assert that the source window contains at least 10 valid trials.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:51:20Z'
