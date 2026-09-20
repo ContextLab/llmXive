@@ -122,3 +122,275 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T13:25:16Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: data processing period 2011-2024
+  claim_id: c_928c8b0e
+  context: Implement code/data/fetch_ams02.py to download daily averaged, rigidity-binned
+    differential fluxes for protons, helium, and CNO/Fe from the public AMS repository
+    (2011-2024).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline processes data from 2011-2024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:51:15Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: correlation lag window -12 to +12 months
+  claim_id: c_120eac21
+  context: "Implement code/analysis/correlation.py function calculate_lagged_correlations\
+    \ supporting Pearson and Spearman methods with a lag window spanning a symmetric\
+    \ range of months (\xB112)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a lag window spanning a symmetric range of months from
+    -12 to +12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:51:29Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations
+  claim_id: c_e44309b9
+  context: Implement code/analysis/bootstrap.py function run_bootstrap_resampling
+    with n=1000 iterations to estimate confidence intervals for max correlation coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:51:59Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Moving Block Bootstrap 30-day block size
+  claim_id: c_49d2736a
+  context: 'Constraint: Use Moving Block Bootstrap (MBB) with a 30-day block size
+    to preserve temporal autocorrelation inherent in solar cycle data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Moving Block Bootstrap uses a 30-day block size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:52:29Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: data gaps greater than 30 days excluded
+  claim_id: c_0579977c
+  context: 2) Flag any gaps > 30 days as 'Data Gap'. 3) Segment the time series into
+    valid blocks, excluding the flagged gap periods entirely from the output dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_gaps_greater_than_30_days_excluded
+  kind: magnitude
+  raw_text: Data gaps greater than 30 days are flagged and excluded from the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:53:02Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: missing data points less than 5 days interpolated
+  claim_id: c_8de03ae9
+  context: 4) Handle missing data points < 5 days by interpolation, but log them.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Missing_data_points_less_than_5_days_interpolated
+  kind: magnitude
+  raw_text: Missing data points less than 5 days are handled by interpolation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:53:27Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis lag windows 9 12 15 months
+  claim_id: c_b7f371ac
+  context: "Add a sensitivity analysis task that sweeps lag windows in {9, 12, 15}\
+    \ months to ensure the robustness of the primary \xB112 month findings."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps lag windows of 9, 12, and 15 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:53:50Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Solar Cycle transition window sample size check 365 days
+  claim_id: c_84791079
+  context: Log a warning if the sample size (N) for this window is < 365 days, indicating
+    reduced statistical power.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Solar_Cycle_transition_window_sample_size_check_365_days
+  kind: magnitude
+  raw_text: The system checks for a sample size of less than 365 days in the Solar
+    Cycle transition window.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:54:46Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: default p-value threshold 0.01
+  claim_id: c_c23958bb
+  context: Flag a result as significant only if the p-value of the maximum correlation
+    coefficient found for that rigidity bin is < threshold (read from config.py, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default significance threshold for p-values is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:55:21Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: default F-test significance threshold 0.05
+  claim_id: c_d0c4c4df
+  context: Read the significance threshold from config.py (default 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default significance threshold for the F-test is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:55:41Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: power analysis 95% power
+  claim_id: c_aa3f8afe
+  context: Calculate the threshold based on statistical power analysis (95% power,
+    alpha=0.05) for the expected effect size (correlation > 0.3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis for the data coverage threshold assumes 95% power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:55:41Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: expected effect size correlation greater than 0.3
+  claim_id: c_a287ae5c
+  context: Calculate the threshold based on statistical power analysis (95% power,
+    alpha=0.05) for the expected effect size (correlation > 0.3).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Expected_effect_size_correlation_greater_than_0.3
+  kind: magnitude
+  raw_text: The expected effect size for the power analysis is a correlation greater
+    than 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:56:34Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: memory constraint 6GB
+  claim_id: c_355b618b
+  context: If memory usage approaches 6GB, implement a chunked bootstrap approach
+    where iterations are split into batches.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_6GB
+  kind: entity_fact
+  raw_text: The memory constraint for the pipeline is 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:56:50Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: streaming chunk size 10MB
+  claim_id: c_5014c7e2
+  context: Use requests to stream data from the canonical AMS-02 public repository
+    URLs in chunks of [deferred] rows or 10MB (whichever comes first).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_chunk_size_10MB
+  kind: entity_fact
+  raw_text: The streaming constraint limits chunks to 10MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:57:13Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_009225a7
+  context: 'Initialize Python 3.11 project with dependencies: pandas, numpy, scikit-learn,
+    scipy, matplotlib, requests, pyyaml, statsmodels, pytest.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:57:29Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: "lag analysis protocol \xB112 months"
+  claim_id: c_11714b09
+  context: "Create docs/protocol_lag_analysis.md documenting the lag analysis protocol\
+    \ (\xB112 months) and gap handling rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The lag analysis protocol includes a range of \xB112 months."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:57:47Z'

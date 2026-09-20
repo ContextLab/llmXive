@@ -1,22 +1,16 @@
+T015:
+  c: false
+  h: 5ce5722a655e39cf3e2e078e71b6f139458e92afe92f1875dca495353bdbf645
+  r: "The `code/main.py` file is present but truncated, lacks a proper `if __name__\
+    \ == \"__main__\":` entry point, and does not clearly generate or write `data/processed/unified_timeseries.csv`.\
+    \ Moreover, the required CSV file is missing from the repository. Consequently\
+    \ the task\u2019s core output is not produced."
 T020:
   c: false
-  h: 70ff4a7742b9ace959a430fe778f73901cd8f1fab41dd4d06f3a0b95061a5dc2
-  r: "The required result files `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv`\
-    \ are absent, and the provided `correlation.py` snippet only defines a generic\
-    \ lagged\u2011correlation helper; it does not demonstrate iterating over all rigidity\
-    \ bins, computing He/p and Fe/p ratios, performing the absolute\u2011flux control\
-    \ analysis, deriving a rigidity\u2011dependent modulation trend, or writing the\
-    \ results to the specified JSON/CSV files. These core pieces are missing, so the\
-    \ task is not genuinely completed."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, dataset, or analysis outputs (CSV files, correlation matrices, plots,\
-    \ or code) are present to demonstrate that daily rigidity\u2011binned fluxes for\
-    \ protons, helium, and heavy nuclei have been downloaded, aligned with sunspot\
-    \ numbers, and that composition\u2011ratio and control correlation analyses per\
-    \ rigidity bin have been performed. The required artifacts are missing, so the\
-    \ task is not satisfied."
+  h: 3f1de62e256d95fd99076a7db128225f6cccc3e5129f5e418af5c20ef985deba
+  r: "The required output artifacts `data/processed/correlation_results.json`, `data/processed/correlation_summary.csv`,\
+    \ and `data/processed/modulation_amplitudes_baseline.csv` are absent, so the implementation\
+    \ does not fulfill the task\u2019s saving requirements."
 T022:
   c: false
   h: 020bc3a48fbb729a5b48b0d97f1fcd25082ea022c80dbf6605cfeab05576816e
@@ -42,14 +36,6 @@ T026:
   r: The required artifact `tests/test_model_fitting.py` does not exist in the repository,
     so no unit test for diffusion model fitting convergence is present. The task cannot
     be considered fulfilled until the file is added with the appropriate test code.
-T028:
-  c: false
-  h: ca5651b0e7810a64696b37ee5eda9da6e93f76980de51db0b5abfffedea6ffd4
-  r: "The repository contains a partially shown `model_fitting.py` that stops at the\
-    \ start of `calculate_modulation_amplitude` and does not include any logic to\
-    \ compute peak\u2011to\u2011trough differences or write `data/processed/modulation_amplitudes.csv`.\
-    \ Moreover, the required CSV file is absent from the project. The task\u2019s\
-    \ core output is therefore missing."
 T029:
   c: false
   h: ca5651b0e7810a64696b37ee5eda9da6e93f76980de51db0b5abfffedea6ffd4
@@ -58,3 +44,11 @@ T029:
     series fit rather than the specified rigidity\u2011dependent diffusion model (`Amplitude\
     \ = A / (Rigidity + B)`) using `scipy.optimize.curve_fit`. Both the input artifact\
     \ and the expected fitting logic are missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `unified_timeseries.csv` file or its contents were provided; therefore we
+    cannot confirm that the required columns (date, rigidity bin, proton flux, helium
+    flux, heavy flux, sunspot number) exist nor that their data types match the specification.
+    The implementer must supply the actual CSV file (or a view of its header and sample
+    rows) for verification.

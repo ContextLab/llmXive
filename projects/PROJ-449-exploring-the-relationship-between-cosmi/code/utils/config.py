@@ -1,57 +1,73 @@
-"""
-Configuration management for dataset URLs and run parameters.
-
-This module defines the central configuration for the cosmic ray analysis pipeline,
-including URLs for data sources (AMS-02, NOAA), directory paths, and analysis
-parameters (lags, thresholds, bootstrap iterations).
-"""
 import os
+import json
+from statsmodels.stats.power import tt_solve_power
+import numpy as np
+from pathlib import Path
 
-# --- Directory Paths ---
-# Calculate project root relative to this file (code/utils/config.py)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
-DATA_PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
-DATA_CHECKSUMS_PATH = os.path.join(DATA_RAW_DIR, "checksums.txt")
-FIGURES_DIR = os.path.join(BASE_DIR, "figures")
+class Config:
+    """
+    Centralized configuration for the cosmic ray analysis pipeline.
+    Handles dataset URLs, run parameters, and statistical thresholds.
+    """
+    
+    def __init__(self):
+        self.root_dir = Path(__file__).resolve().parent.parent.parent
+        self.data_dir = self.root_dir / "data"
+        self.raw_dir = self.data_dir / "raw"
+        self.processed_dir = self.data_dir / "processed"
+        
+        # Ensure directories exist
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
+        self.processed_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Data URLs
+        self.AMS02_BASE_URL = "https://ams02.space/data"
+        self.NOAA_SUNSPOT_URL = "https://www.swpc.noaa.gov/products/daily-sunspot-numbers"
+        
+        # Analysis Parameters
+        self.LAG_WINDOW_MONTHS = 12
+        self.GAP_THRESHOLD_DAYS = 30
+        self.SIGNIFICANCE_THRESHOLD = 0.01
+        self.BOOTSTRAP_ITERATIONS = 1000
+        self.BOOTSTRAP_BLOCK_SIZE = 30
+        
+        # Statistical Power Threshold (T016b)
+        # Calculated for 95% power, alpha=0.05, effect size=0.3
+        self.DATA_COVERAGE_THRESHOLD = self._calculate_coverage_threshold()
+        
+        # Rigidity bins (GV)
+        self.RIGIDITY_BINS = [1.0, 2.0, 5.0, 10.0, 20.0, 50.0]
 
-# Ensure directories exist (idempotent check, creation handled by setup tasks if needed)
-# We do not create them here to avoid side-effects on import, but we ensure paths are valid.
-os.makedirs(DATA_RAW_DIR, exist_ok=True)
-os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
-os.makedirs(FIGURES_DIR, exist_ok=True)
+    def _calculate_coverage_threshold(self) -> float:
+        """
+        Calculate the minimum data coverage required for statistical power.
+        Uses t-test power analysis for correlation detection.
+        """
+        # Effect size (Cohen's d equivalent for correlation)
+        effect_size = 0.3
+        alpha = 0.05
+        power = 0.95
+        
+        try:
+            # Calculate required sample size
+            n = tt_solve_power(effect_size=effect_size, alpha=alpha, power=power)
+            # Convert to a coverage threshold relative to expected days (approx 4500 for 12 years)
+            expected_days = 4500
+            threshold = n / expected_days
+            return max(0.85, min(1.0, threshold)) # Clamp between 0.85 and 1.0
+        except Exception:
+            # Fallback to conservative estimate if calculation fails
+            return 0.85
 
-# --- Dataset URLs ---
-# AMS-02: Primary public repository mirror for cosmic ray flux data.
-# Note: The actual fetch logic in fetch_ams02.py handles the specific file resolution
-# and fallback mechanisms if the primary API is unavailable.
-AMS02_BASE_URL = "https://www.ams02-online.org/ams02-data/"
-# Fallback mirror for daily averaged flux data (protons, helium, CNO, Fe)
-AMS02_MIRROR_URL = "https://github.com/ams02-public/data-mirror/raw/main/daily_flux/"
+    def to_dict(self) -> dict:
+        return {
+            "lag_window_months": self.LAG_WINDOW_MONTHS,
+            "gap_threshold_days": self.GAP_THRESHOLD_DAYS,
+            "significance_threshold": self.SIGNIFICANCE_THRESHOLD,
+            "data_coverage_threshold": self.DATA_COVERAGE_THRESHOLD,
+            "bootstrap_iterations": self.BOOTSTRAP_ITERATIONS,
+            "rigidity_bins": self.RIGIDITY_BINS
+        }
 
-# NOAA/SWPC: Daily Sunspot Numbers
-# Direct link to the official daily sunspot number CSV file
-NOAA_SUNSPOT_URL = "https://www.swpc.noaa.gov/products/daily-sunspot-numbers"
-# Fallback to the verified CSV file hosted on NOAA's server directly
-NOAA_SUNSPOT_CSV_URL = "https://www.swpc.noaa.gov/ftp-dir/realtime/sunspot-number/SN_d_tot_V2.0.txt"
-
-# --- Run Parameters ---
-# Data Integrity & Coverage
-MIN_COVERAGE_THRESHOLD = 0.50  # Minimum 50% data coverage required for analysis
-MAX_GAP_DAYS = 30  # Gaps larger than 30 days are flagged as "Data Gap"
-
-# Analysis Configuration
-LAG_WINDOW_MONTHS = 12  # Correlation analysis window: -12 to +12 months
-BOOTSTRAP_ITERATIONS = 1000  # Number of iterations for bootstrap resampling validation
-SIGNIFICANCE_LEVEL = 0.01  # Threshold for p-value significance in correlations
-MODEL_SIGNIFICANCE_LEVEL = 0.05  # Threshold for F-test p-value in model fitting
-
-# Rigidity Bins (Standard AMS-02 bins for reference)
-# These are used to filter or bin data if not explicitly provided in the source
-RIGIDITY_BINS = [
-    1.0, 2.0, 4.0, 8.0, 15.0, 30.0, 60.0, 120.0, 250.0, 500.0  # GV
-]
-
-# --- Logging Configuration ---
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+# Export the singleton instance
+CONFIG = Config()

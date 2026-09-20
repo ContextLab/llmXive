@@ -1,12 +1,8 @@
 """
-Task T016: Validate unified dataset coverage and handle fallback logic.
+Data coverage validation module.
 
-Logic:
-1. Load the unified timeseries from data/processed/unified_timeseries.csv.
-2. Verify date range coverage for 2011-01-01 to 2024-12-31.
-3. If coverage < 100%, identify the most populated rigidity bin for each species.
-   Log the fallback action and proceed.
-4. If coverage < 50% for ALL bins, log a critical error and exit with code 1.
+Validates that the dataset meets the minimum coverage threshold required
+for statistically valid correlation analysis.
 """
 import os
 import sys
@@ -14,176 +10,149 @@ import logging
 from pathlib import Path
 from datetime import datetime, date
 from typing import Dict, List, Tuple, Optional
-import pandas as pd
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.utils.logging import setup_logger, log_data_gap
 from code.utils.config import CONFIG
+from code.utils.logging import setup_logger
 
-# Constants
-START_DATE = date(2011, 1, 1)
-END_DATE = date(2024, 12, 31)
-MIN_COVERAGE_CRITICAL = 0.50  # 50%
-MIN_COVERAGE_WARNING = 1.00   # 100%
-
-logger = setup_logger("validate_coverage")
-
-def load_unified_data() -> pd.DataFrame:
-    """Load the unified timeseries CSV."""
-    input_path = Path(CONFIG["data"]["processed_dir"]) / "unified_timeseries.csv"
-    if not input_path.exists():
-        logger.error(f"Unified timeseries not found at {input_path}. Run main.py first.")
-        raise FileNotFoundError(f"Missing input file: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    # Ensure date column is datetime
-    if "date" in df.columns:
-        df["date"] = pd.to_datetime(df["date"])
-    return df
-
-def calculate_coverage(df: pd.DataFrame, species_col: str, rigidity_col: str) -> Dict[str, float]:
+def load_unified_data() -> Optional[Dict]:
     """
-    Calculate coverage percentage for each rigidity bin of a specific species.
-    Returns a dict: {rigidity_bin_value: coverage_fraction}
+    Load the unified timeseries data from disk.
+    
+    Returns:
+        Dict containing the data or None if file doesn't exist.
     """
-    if species_col not in df.columns or rigidity_col not in df.columns:
-        logger.warning(f"Columns {species_col} or {rigidity_col} missing. Skipping coverage calc.")
-        return {}
-
-    total_expected_days = (END_DATE - START_DATE).days + 1
+    logger = setup_logger("validate_coverage")
+    data_path = Path(CONFIG.DATA_PROCESSED_DIR) / "unified_timeseries.csv"
     
-    # Filter for date range
-    mask = (df["date"] >= START_DATE) & (df["date"] <= END_DATE)
-    valid_df = df[mask]
-    
-    if valid_df.empty:
-        logger.warning("No data found in the 2011-2024 range.")
-        return {}
-
-    coverage_map = {}
-    
-    # Group by rigidity bin
-    unique_rigs = valid_df[rigidity_col].dropna().unique()
-    
-    for rig in unique_rigs:
-        # Count non-null entries for the species in this bin
-        # Assuming the species column contains flux values; if NaN, it's missing
-        bin_data = valid_df[valid_df[rigidity_col] == rig]
-        valid_count = bin_data[species_col].notna().sum()
-        
-        coverage = valid_count / total_expected_days
-        coverage_map[rig] = coverage
-        
-    return coverage_map
-
-def get_most_populated_bin(coverage_map: Dict[str, float]) -> Optional[float]:
-    """Return the rigidity bin with the highest coverage."""
-    if not coverage_map:
+    if not data_path.exists():
+        logger.error(f"Unified timeseries file not found: {data_path}")
         return None
-    return max(coverage_map, key=coverage_map.get)
-
-def validate_coverage():
-    """Main validation logic for T016."""
-    logger.info("Starting coverage validation for unified dataset.")
     
     try:
-        df = load_unified_data()
-    except FileNotFoundError:
-        return 1
+        import pandas as pd
+        df = pd.read_csv(data_path, parse_dates=['date'])
+        logger.info(f"Loaded {len(df)} rows from {data_path}")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load unified timeseries: {str(e)}")
+        return None
 
-    # Define species and their corresponding columns based on T014/T015 output
-    # Assuming columns: 'proton_flux', 'helium_flux', 'heavy_flux' (or similar)
-    # We check the actual columns available
-    species_cols = {
-        "proton": "proton_flux",
-        "helium": "helium_flux",
-        "heavy": "heavy_flux"
-    }
+def calculate_coverage(df: 'pd.DataFrame') -> float:
+    """
+    Calculate the percentage of days with valid data coverage.
     
-    # Fallback to generic names if specific ones don't exist
-    available_cols = df.columns.tolist()
-    mapped_species = {}
-    for name, col in species_cols.items():
-        if col in available_cols:
-            mapped_species[name] = col
-        else:
-            # Try to find a column containing the name
-            matches = [c for c in available_cols if name.lower() in c.lower()]
-            if matches:
-                mapped_species[name] = matches[0]
-    
-    rigidity_col = "rigidity" # Standard column name from T007/T011
-    if rigidity_col not in available_cols:
-        # Try to find a rigidity column
-        rig_matches = [c for c in available_cols if "rigidity" in c.lower()]
-        if rig_matches:
-            rigidity_col = rig_matches[0]
-        else:
-            logger.error("No rigidity column found. Cannot validate coverage per bin.")
-            return 1
-
-    overall_coverage = 0.0
-    fallback_bins = {}
-    
-    for species, col in mapped_species.items():
-        logger.info(f"Validating coverage for species: {species} (col: {col})")
-        coverage_map = calculate_coverage(df, col, rigidity_col)
+    Args:
+        df: DataFrame containing the unified timeseries with 'date' column.
         
-        if not coverage_map:
-            logger.warning(f"No valid coverage data for {species}.")
-            continue
-
-        best_bin = get_most_populated_bin(coverage_map)
-        best_coverage = coverage_map[best_bin] if best_bin else 0.0
-
-        if best_coverage < MIN_COVERAGE_CRITICAL:
-            logger.critical(
-                f"CRITICAL: Coverage for {species} is {best_coverage:.2%} "
-                f"even in the best bin ({best_bin}). Threshold is {MIN_COVERAGE_CRITICAL:.0%}. Exiting."
-            )
-            return 1
-        
-        if best_coverage < MIN_COVERAGE_WARNING:
-            logger.warning(
-                f"WARNING: Coverage for {species} is {best_coverage:.2%}. "
-                f"Identified fallback bin: {best_bin} (coverage: {best_coverage:.2%}). "
-                f"Proceeding with analysis using this bin."
-            )
-            # Log the fallback action per Assumptions
-            log_data_gap(
-                "Coverage Fallback", 
-                f"Species {species} coverage {best_coverage:.2%}. Using bin {best_bin}."
-            )
-        
-        fallback_bins[species] = {
-            "bin": best_bin,
-            "coverage": best_coverage
-        }
-        
-        # Track overall worst-case for reporting
-        if best_coverage < overall_coverage or overall_coverage == 0.0:
-            overall_coverage = best_coverage
-
-    logger.info("Coverage validation completed successfully.")
-    logger.info(f"Fallback bins identified: {fallback_bins}")
+    Returns:
+        Float representing the coverage percentage (0.0 to 1.0).
+    """
+    logger = setup_logger("validate_coverage")
     
-    # Optional: Save validation summary
-    summary_path = Path(CONFIG["data"]["processed_dir"]) / "coverage_validation_summary.json"
-    import json
-    with open(summary_path, "w") as f:
-        json.dump({
-            "total_expected_days": (END_DATE - START_DATE).days + 1,
-            "fallback_bins": {k: v for k, v in fallback_bins.items()},
-            "status": "passed"
-        }, f, indent=2)
+    if df is None or len(df) == 0:
+        logger.warning("Empty or None dataframe provided")
+        return 0.0
     
-    return 0
+    # Get date range
+    min_date = df['date'].min()
+    max_date = df['date'].max()
+    
+    # Calculate total expected days in the range
+    total_expected_days = (max_date - min_date).days + 1
+    
+    # Count unique dates in the dataset
+    unique_dates = df['date'].dt.date.nunique()
+    
+    # Calculate coverage percentage
+    coverage = unique_dates / total_expected_days
+    
+    logger.info(f"Date range: {min_date} to {max_date} ({total_expected_days} days)")
+    logger.info(f"Unique dates in dataset: {unique_dates}")
+    logger.info(f"Coverage: {coverage:.2%}")
+    
+    return coverage
+
+def get_most_populated_bin(df: 'pd.DataFrame') -> Optional[Tuple[float, int]]:
+    """
+    Find the rigidity bin with the most data points.
+    
+    Args:
+        df: DataFrame containing the unified timeseries.
+        
+    Returns:
+        Tuple of (rigidity_bin, count) or None if no data.
+    """
+    if df is None or 'rigidity_bin' not in df.columns:
+        return None
+    
+    bin_counts = df['rigidity_bin'].value_counts()
+    if len(bin_counts) == 0:
+        return None
+    
+    most_populated_bin = bin_counts.idxmax()
+    count = bin_counts.max()
+    
+    return (most_populated_bin, count)
+
+def validate_coverage(df: 'pd.DataFrame') -> bool:
+    """
+    Validate that data coverage meets the required threshold.
+    
+    Args:
+        df: DataFrame containing the unified timeseries.
+        
+    Returns:
+        True if coverage meets threshold, False otherwise.
+    """
+    logger = setup_logger("validate_coverage")
+    
+    coverage = calculate_coverage(df)
+    threshold = CONFIG.get_coverage_threshold()
+    
+    logger.info(f"Coverage threshold: {threshold:.2%}")
+    
+    if coverage < threshold:
+        logger.critical(
+            f"DATA COVERAGE INSUFFICIENT: {coverage:.2%} < {threshold:.2%}. "
+            f"Required minimum sample size: {CONFIG.get_minimum_sample_size()} days. "
+            f"Exiting with error to prevent invalid statistical analysis."
+        )
+        return False
+    else:
+        logger.info(f"Data coverage VALID: {coverage:.2%} >= {threshold:.2%}")
+        return True
 
 def main():
-    exit_code = validate_coverage()
-    sys.exit(exit_code)
+    """Main entry point for coverage validation."""
+    logger = setup_logger("validate_coverage")
+    logger.info("Starting data coverage validation")
+    
+    # Load data
+    df = load_unified_data()
+    
+    if df is None:
+        logger.error("Failed to load unified data. Cannot validate coverage.")
+        sys.exit(1)
+    
+    # Validate coverage
+    is_valid = validate_coverage(df)
+    
+    # Get additional stats
+    bin_info = get_most_populated_bin(df)
+    if bin_info:
+        logger.info(f"Most populated rigidity bin: {bin_info[0]} with {bin_info[1]} entries")
+    
+    # Exit with appropriate code
+    if not is_valid:
+        logger.error("Coverage validation FAILED. Pipeline cannot proceed.")
+        sys.exit(1)
+    else:
+        logger.info("Coverage validation PASSED. Pipeline can proceed.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,14 @@
+status: none
+intent: AMS-02 cosmic ray flux daily rigidity bins download CRDB python package SILSO
+  sunspot numbers
+required_fields:
+- date
+- rigidity_bin_lower
+- rigidity_bin_upper
+- proton_flux
+- helium_flux
+- heavy_flux_CNO_Fe
+- sunspot_number
+cache_key: 34dff19534e24dbbe54a93b800dbbe6a1ff3b69ecdc22bc2417d02e1fb26a9c8
+searched_at: '2026-09-20T05:45:08.763402+00:00'
+retry_count: 1

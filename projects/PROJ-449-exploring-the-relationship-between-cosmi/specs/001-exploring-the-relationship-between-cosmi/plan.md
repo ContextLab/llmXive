@@ -17,7 +17,7 @@ This project implements a computational pipeline to analyze the relationship bet
 **Project Type**: CLI/Data Analysis Pipeline  
 **Performance Goals**: Complete full pipeline (retrieval, alignment, correlation, bootstrap, fitting) within 6 hours  
 **Constraints**: CPU-only, ≤7 GB RAM, ≤14 GB disk, no GPU, no large model training  
-**Scale/Scope**: Daily/Weekly/Monthly data points from a multi-year period (depending on data availability), multiple rigidity bins, 1000 bootstrap iterations  
+**Scale/Scope**: Daily/Weekly/Monthly data points from a multi-year period (depending on data availability), multiple rigidity bins, A sufficient number of bootstrap iterations  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
