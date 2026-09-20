@@ -1,37 +1,55 @@
-# Predicting Avian Foraging Guilds from Public eBird Data and Land Cover Maps
+# Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps
 
-## Overview
-This project implements a machine learning pipeline to predict avian foraging guilds using eBird observation data and NLCD land cover maps. The pipeline extracts, merges, and analyzes data to train a Random Forest classifier.
-
-## Project Structure
-- `code/`: Source code for data processing, model training, and visualization
-- `data/`: Raw and processed data artifacts
-- `models/`: Trained models and metrics
-- `viz/`: Visualization scripts and outputs
-- `notebooks/`: Jupyter notebooks for analysis
-- `utils/`: Utility modules for configuration and provenance
-- `tests/`: Unit and integration tests
+## Project Overview
+This project implements a machine learning pipeline to predict avian foraging guilds using public eBird observation data merged with National Land Cover Database (NLCD) land cover maps.
 
 ## Prerequisites
 - Python 3.8+
-- Dependencies listed in `requirements.txt`
+- pip
+- Virtual environment (recommended)
 
 ## Installation
-```bash
-cd code
-pip install -r requirements.txt
-```
+1. Clone the repository
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+## Data Pipeline
+The pipeline consists of the following stages:
+1. **Data Download**: Fetch eBird EBD records and NLCD land cover data
+2. **Preprocessing**: Filter species, merge datasets, compute land cover proportions
+3. **Model Training**: Train a Random Forest classifier
+4. **Evaluation**: Assess model performance with stratified permutation tests
+5. **Visualization**: Generate confusion matrices, feature importance plots, and habitat maps
 
 ## Running the Pipeline
-Execute the full pipeline using the orchestration script:
+Execute the full pipeline:
 ```bash
-./run_pipeline.sh
+bash run_pipeline.sh
 ```
 
-## Data Sources
-- eBird Basic Dataset (EBD) from S3
-- NLCD 2019 Land Cover from USGS
-- Foraging Guild labels from verified static source
+Or run individual stages:
+```bash
+python code/data/download_ebd.py
+python code/data/download_nlcd.py
+python code/data/preprocess.py
+python code/models/train.py
+python code/models/evaluate.py
+python code/viz/plot_confusion.py
+```
+
+## Output Artifacts
+All generated artifacts are stored in the `data/` and `docs/` directories:
+- `data/raw/`: Raw downloaded datasets
+- `data/processed/`: Cleaned and merged datasets
+- `data/models/`: Trained models and metrics
+- `docs/results/`: Visualizations and reports
 
 ## License
-MIT License
+This project is for research purposes only.

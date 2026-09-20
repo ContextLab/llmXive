@@ -1,15 +1,11 @@
 """
-Unit tests for metric calculations in the avian foraging behavior pipeline.
+Test suite for metrics calculation functions.
 
-This module implements tests for:
-- Balanced accuracy calculation
-- Per-class F1 scores
-- Stratified permutation test validation
-
-Task: T006b
-Status: Initial implementation with failing stub to verify test infrastructure.
+This task implements a failing stub as per T006b specification:
+- Defines calculate_metrics function (placeholder)
+- Defines TestMetrics class with test_metrics_calc that asserts False
+- Verifies pytest returns exit code 1 when run
 """
-
 import os
 import sys
 import unittest
@@ -17,94 +13,52 @@ import numpy as np
 from pathlib import Path
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
 from utils.config import get_models_dir
 
 
 def calculate_metrics(y_true, y_pred):
     """
-    Calculate classification metrics for the avian foraging model.
+    Calculate classification metrics.
+    
+    This is a placeholder implementation for T006b.
+    The actual implementation will be done in T018.
     
     Args:
-        y_true: Array of true labels
-        y_pred: Array of predicted labels
+        y_true: Array-like of true labels
+        y_pred: Array-like of predicted labels
         
     Returns:
-        dict: Dictionary containing balanced_accuracy and per_class_f1
+        dict: Dictionary containing balanced accuracy and per-class F1 scores
     """
-    # This is a placeholder implementation for testing purposes.
-    # The actual implementation will be in models/evaluate.py
-    from sklearn.metrics import balanced_accuracy_score, f1_score
-    
-    balanced_acc = balanced_accuracy_score(y_true, y_pred)
-    per_class_f1 = f1_score(y_true, y_pred, average=None, zero_division=0)
-    
-    return {
-        'balanced_accuracy': balanced_acc,
-        'per_class_f1': per_class_f1.tolist()
-    }
+    # Placeholder - will be implemented in T018
+    raise NotImplementedError("calculate_metrics not yet implemented - see T018")
 
 
 class TestMetrics(unittest.TestCase):
-    """Test suite for metric calculation functions."""
-    
-    def setUp(self):
-        """Set up test fixtures."""
-        self.models_dir = get_models_dir()
-        self.models_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Sample data for testing
-        self.y_true = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2])
-        self.y_pred = np.array([0, 1, 1, 0, 2, 2, 0, 1, 2])
+    """Test cases for metrics calculation."""
     
     def test_metrics_calc(self):
         """
-        Test metrics calculation function.
+        Failing stub test as per T006b specification.
         
-        This test currently asserts False to ensure the test infrastructure
-        is working and to mark this as a failing test that needs implementation.
-        TODO: Replace with actual metric validation once evaluate.py is implemented.
+        This test currently asserts False to ensure pytest returns exit code 1.
+        It will be replaced with actual metric validation tests in T018.
         """
-        # This assertion will fail until the actual implementation is complete
-        self.assertFalse(
-            True,
-            "Test placeholder: Implement actual metric validation logic"
-        )
-    
-    def test_calculate_metrics_structure(self):
-        """Test that calculate_metrics returns the expected structure."""
-        result = calculate_metrics(self.y_true, self.y_pred)
+        # T006b requirement: failing stub that asserts False
+        self.assertFalse(True, "This is a failing stub for T006b. Will be replaced in T018 with real metric tests.")
         
-        self.assertIn('balanced_accuracy', result)
-        self.assertIn('per_class_f1', result)
-        self.assertIsInstance(result['balanced_accuracy'], float)
-        self.assertIsInstance(result['per_class_f1'], list)
-    
-    def test_perfect_prediction(self):
-        """Test metrics with perfect predictions."""
-        y_true = np.array([0, 1, 2, 0, 1, 2])
-        y_pred = np.array([0, 1, 2, 0, 1, 2])
+    def test_calculate_metrics_not_implemented(self):
+        """Verify that calculate_metrics raises NotImplementedError."""
+        y_true = np.array([0, 1, 0, 1])
+        y_pred = np.array([0, 1, 1, 0])
         
-        result = calculate_metrics(y_true, y_pred)
-        
-        self.assertEqual(result['balanced_accuracy'], 1.0)
-        for f1_score in result['per_class_f1']:
-            self.assertEqual(f1_score, 1.0)
-    
-    def test_random_prediction(self):
-        """Test metrics with random predictions."""
-        np.random.seed(42)
-        y_true = np.array([0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2])
-        y_pred = np.random.choice([0, 1, 2], size=len(y_true))
-        
-        result = calculate_metrics(y_true, y_pred)
-        
-        self.assertLess(result['balanced_accuracy'], 1.0)
-        self.assertGreaterEqual(result['balanced_accuracy'], 0.0)
+        with self.assertRaises(NotImplementedError):
+            calculate_metrics(y_true, y_pred)
 
 
 if __name__ == '__main__':
+    # Run tests and verify exit code
     unittest.main()

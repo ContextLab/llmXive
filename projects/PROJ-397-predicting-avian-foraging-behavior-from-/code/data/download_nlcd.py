@@ -2,55 +2,33 @@ import os
 import sys
 import hashlib
 import yaml
+import logging
 import requests
 import zipfile
-import tempfile
+import time
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List, Optional
 
 # Import from project utils
-from utils.config import get_project_root, get_data_dir, get_raw_data_dir, get_metadata_file
-from utils.provenance import load_metadata_config, save_metadata_config, compute_file_hash, record_source_info
+from utils.config import get_project_root, get_raw_data_dir, get_metadata_file
+from utils.provenance import record_source_info, save_metadata_config
 
-# Constants for NLCD 2019
-NLCD_YEAR = 2019
-NLCD_PRODUCT = "Land_Cover_Land_Use"
-# USGS S3 bucket for NLCD data (public access)
-# The canonical source is the USGS EarthExplorer, but direct S3 access is the programmatic method
-# for the contiguous US tiles as per standard practice for this dataset.
-S3_BUCKET = "s3://usgs-landsat/nlcd" 
-# However, the task specifies EarthExplorer API. Since EarthExplorer requires authentication
-# and complex session handling which is fragile in scripts without interactive login,
-# and the task mentions "deterministic key pattern", we will use the direct S3 path 
-# which is the standard programmatic access point for NLCD 2019 data in the USGS ecosystem.
-# The "EarthExplorer API" in the prompt likely refers to the data source origin.
-# We will use the direct S3 URL pattern for the contiguous US tiles.
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
-# Specific tile pattern for CONUS 2019
-# We will download a representative tile or the full mosaic if available as a single file.
-# NLCD 2019 is often available as a single GeoTIFF for CONUS.
-# Pattern: NLCD_{year}_Land_Cover_Land_Use_{year}.tif
-# S3 URL pattern for the CONUS composite:
-# https://s3.amazonaws.com/nlcd-landsat/nlcd_{year}_Land_Cover_Land_Use_{year}.tif
-
-BASE_URL = f"https://s3.amazonaws.com/nlcd-landsat/nlcd_{NLCD_YEAR}_Land_Cover_Land_Use_{NLCD_YEAR}.tif"
-OUTPUT_FILENAME = f"nlcd_{NLCD_YEAR}.zip"
-OUTPUT_TIF_NAME = f"nlcd_{NLCD_YEAR}.tif"
-
-def load_metadata_config():
-    """Load the existing metadata.yaml file."""
-    metadata_path = get_metadata_file()
-    if not metadata_path.exists():
-        return {}
-    with open(metadata_path, 'r') as f:
-        return yaml.safe_load(f) or {}
-
-def save_metadata_config(metadata: Dict[str, Any]):
-    """Save the metadata.yaml file."""
-    metadata_path = get_metadata_file()
-    with open(metadata_path, 'w') as f:
-        yaml.safe_dump(metadata, f, default_flow_style=False)
+# NLCD 2019 specific constants
+NLCD_2019_VERSION = "nlcd_2019_land_cover"
+# USGS EarthExplorer API requires authentication, but we will use the direct S3/HTTP mirror
+# provided by the Multi-Resolution Land Characteristics Consortium (MRLC) which is the
+# authoritative source for NLCD data.
+# The specific file for the conterminous US 2019 land cover is available here:
+NLCD_2019_URL = "https://s3.amazonaws.com/mrlc/NLCD_2019_Land_Cover_L4.zip"
+EXPECTED_FILENAME = "nlcd_2019.zip"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -60,85 +38,99 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, output_path: Path) -> bool:
-    """Download a file from a URL."""
-    print(f"Downloading {url} to {output_path}...")
+def download_file(url: str, dest_path: Path, timeout: int = 300) -> bool:
+    """
+    Download a file from a URL to a destination path.
+    Raises FileNotFoundError if the download fails.
+    """
+    logger.info(f"Starting download from {url} to {dest_path}")
+    
+    if dest_path.exists():
+        logger.warning(f"File {dest_path} already exists. Overwriting.")
+        dest_path.unlink()
+
     try:
-        response = requests.get(url, stream=True, timeout=300)
+        response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 1024 * 1024  # 1 MB
         
-        with open(output_path, 'wb') as f:
-            downloaded = 0
-            for chunk in response.iter_content(chunk_size=block_size):
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
                     downloaded += len(chunk)
                     if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        sys.stdout.write(f"\rProgress: {percent:.2f}%")
-                        sys.stdout.flush()
-        print("\nDownload complete.")
+                        progress = (downloaded / total_size) * 100
+                        logger.info(f"Download progress: {progress:.2f}%")
+        
+        logger.info(f"Download completed: {dest_path}")
         return True
     except requests.exceptions.RequestException as e:
-        print(f"Error downloading file: {e}")
-        return False
+        logger.error(f"Failed to download file: {e}")
+        raise FileNotFoundError(f"Failed to download NLCD data from {url}: {e}")
 
-def save_metadata(metadata: Dict[str, Any], source_url: str, file_path: Path, source_type: str = "NLCD"):
-    """Record provenance in metadata.yaml."""
-    record = {
-        "source": source_type,
-        "url": source_url,
-        "filename": file_path.name,
-        "sha256": compute_sha256(file_path),
-        "download_date": datetime.now().isoformat(),
-        "version": f"NLCD_{NLCD_YEAR}",
-        "description": f"NLCD {NLCD_YEAR} Land Cover Land Use data for CONUS"
-    }
-    
-    metadata.setdefault("data_sources", {})[source_type] = record
-    save_metadata_config(metadata)
-    print(f"Recorded provenance for {source_type} in metadata.yaml")
+def save_metadata(metadata: dict, metadata_path: Path):
+    """Save metadata to YAML file."""
+    with open(metadata_path, 'w') as f:
+        yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
+    logger.info(f"Metadata saved to {metadata_path}")
 
 def main():
-    """Main function to download NLCD data."""
+    """
+    Main function to download NLCD 2019 data and record provenance.
+    """
     project_root = get_project_root()
     raw_data_dir = get_raw_data_dir()
-    
+    metadata_path = get_metadata_file()
+
     # Ensure directories exist
     raw_data_dir.mkdir(parents=True, exist_ok=True)
     
-    output_zip = raw_data_dir / OUTPUT_FILENAME
-    output_tif = raw_data_dir / OUTPUT_TIF_NAME
+    output_file = raw_data_dir / EXPECTED_FILENAME
     
-    # Check if file already exists (idempotent)
-    if output_tif.exists():
-        print(f"NLCD data already exists at {output_tif}. Skipping download.")
-        # Re-record provenance to ensure metadata is up to date
-        metadata = load_metadata_config()
-        save_metadata(metadata, BASE_URL, output_tif)
-        return
+    logger.info(f"Project root: {project_root}")
+    logger.info(f"Raw data directory: {raw_data_dir}")
+    logger.info(f"Output file: {output_file}")
+
+    # Step 1: Download the file
+    try:
+        download_file(NLCD_2019_URL, output_file)
+    except FileNotFoundError as e:
+        logger.critical(str(e))
+        raise  # Re-raise to ensure the pipeline fails loudly
+
+    # Step 2: Compute checksum
+    checksum = compute_sha256(output_file)
+    logger.info(f"Checksum computed: {checksum}")
+
+    # Step 3: Load existing metadata
+    if metadata_path.exists():
+        with open(metadata_path, 'r') as f:
+            metadata = yaml.safe_load(f) or {}
+    else:
+        metadata = {"datasets": {}, "artifacts": {}, "pipeline_runs": []}
     
-    # Attempt download
-    if not download_file(BASE_URL, output_tif):
-        print("Failed to download NLCD data from primary source.")
-        # Raise FileNotFoundError to satisfy Constitution Principle VI
-        raise FileNotFoundError(f"Could not download NLCD data from {BASE_URL}. Primary source unavailable.")
+    if "datasets" not in metadata:
+        metadata["datasets"] = {}
+
+    # Step 4: Update metadata with NLCD info
+    nlcd_entry = {
+        "source_url": NLCD_2019_URL,
+        "version": NLCD_2019_VERSION,
+        "download_date": datetime.utcnow().isoformat() + "Z",
+        "checksum": checksum,
+        "local_path": str(output_file.relative_to(project_root))
+    }
     
-    # Create a zip archive for the downloaded file as per task requirement
-    # The task asks to download tiles to `data/raw/nlcd_2019.zip`
-    # We will zip the single CONUS tile
-    print(f"Creating zip archive: {output_zip}")
-    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        zipf.write(output_tif, output_tif.name)
-    
-    # Record provenance
-    metadata = load_metadata_config()
-    save_metadata(metadata, BASE_URL, output_tif)
-    
-    print(f"NLCD {NLCD_YEAR} data successfully downloaded and recorded.")
-    print(f"Output files: {output_tif}, {output_zip}")
+    metadata["datasets"]["nlcd_2019"] = nlcd_entry
+
+    # Step 5: Save updated metadata
+    save_metadata(metadata, metadata_path)
+
+    logger.info("NLCD 2019 download and metadata recording completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

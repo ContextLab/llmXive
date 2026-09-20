@@ -1,0 +1,14 @@
+pandas
+numpy
+scikit-learn
+geopandas
+rasterio
+requests
+matplotlib
+seaborn
+pyyaml
+jupyter
+s3fs
+fsspec
+botocore
+pyarrow

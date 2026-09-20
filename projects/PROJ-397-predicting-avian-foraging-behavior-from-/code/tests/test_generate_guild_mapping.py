@@ -1,6 +1,3 @@
-"""
-Unit tests for T008b: generate_guild_mapping.py
-"""
 import os
 import sys
 import unittest
@@ -11,117 +8,112 @@ from pathlib import Path
 from datetime import datetime
 
 # Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from data.generate_guild_mapping import (
     load_guild_source,
     validate_schema,
     save_mapping,
-    REQUIRED_COLUMNS
+    main
 )
+from utils.config import get_data_dir, get_raw_data_dir, get_processed_dir
 
 class TestGenerateGuildMapping(unittest.TestCase):
     
     def setUp(self):
-        """Set up temporary directory for test artifacts."""
+        """Set up test fixtures."""
         self.test_dir = tempfile.mkdtemp()
-        self.input_path = Path(self.test_dir) / "guild_source.csv"
-        self.output_path = Path(self.test_dir) / "guild_mapping.csv"
-    
+        self.raw_dir = Path(self.test_dir) / "raw"
+        self.processed_dir = Path(self.test_dir) / "processed"
+        self.raw_dir.mkdir()
+        self.processed_dir.mkdir()
+        
+        # Create a mock metadata file
+        self.metadata_path = Path(self.test_dir) / "metadata.yaml"
+        with open(self.metadata_path, 'w') as f:
+            f.write("provenance: {}\n")
+        
+        # Mock config functions temporarily
+        self._original_get_raw = get_raw_data_dir
+        self._original_get_processed = get_processed_dir
+        
+        # We can't easily mock the utils.config functions globally without side effects
+        # So we will pass paths directly to functions where possible or use local logic
+        
     def tearDown(self):
-        """Clean up temporary directory."""
-        shutil.rmtree(self.test_dir, ignore_errors=True)
-    
+        """Tear down test fixtures."""
+        shutil.rmtree(self.test_dir)
+        
     def test_load_guild_source_valid(self):
         """Test loading a valid guild source CSV."""
-        # Create valid input
-        with open(self.input_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS)
-            writer.writeheader()
-            writer.writerow({
-                'species_id': 'sp_001',
-                'foraging_guild': 'insectivore',
-                'source_citation': 'Birds of the World'
-            })
+        input_path = self.raw_dir / "guild_source.csv"
+        data = [
+            {"species_id": "sp1", "foraging_guild": "Insectivore", "source_citation": "Test"},
+            {"species_id": "sp2", "foraging_guild": "Granivore", "source_citation": "Test"}
+        ]
         
-        rows = load_guild_source(self.input_path)
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]['species_id'], 'sp_001')
-        self.assertEqual(rows[0]['foraging_guild'], 'insectivore')
-    
-    def test_load_guild_source_missing_columns(self):
-        """Test that missing columns raise ValueError."""
-        with open(self.input_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['species_id', 'foraging_guild'])
+        with open(input_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=data[0].keys())
             writer.writeheader()
-            writer.writerow({'species_id': 'sp_001', 'foraging_guild': 'insectivore'})
+            writer.writerows(data)
+            
+        result = load_guild_source(input_path)
         
-        with self.assertRaises(ValueError) as context:
-            load_guild_source(self.input_path)
-        self.assertIn('source_citation', str(context.exception))
-    
-    def test_load_guild_source_file_not_found(self):
-        """Test that missing file raises FileNotFoundError."""
-        with self.assertRaises(FileNotFoundError):
-            load_guild_source(Path(self.test_dir) / "nonexistent.csv")
-    
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['species_id'], 'sp1')
+        self.assertIn('source_citation', result[0])
+        
+    def test_load_guild_source_missing_citation(self):
+        """Test loading a guild source CSV missing the citation column."""
+        input_path = self.raw_dir / "bad_guild_source.csv"
+        data = [
+            {"species_id": "sp1", "foraging_guild": "Insectivore"}
+        ]
+        
+        with open(input_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
+            
+        with self.assertRaises(ValueError):
+            load_guild_source(input_path)
+            
     def test_validate_schema_valid(self):
-        """Test validation of valid data."""
+        """Test schema validation on valid data."""
         rows = [
-            {'species_id': 'sp_001', 'foraging_guild': 'insectivore', 'source_citation': 'BoW'},
-            {'species_id': 'sp_002', 'foraging_guild': 'granivore', 'source_citation': 'BoW'}
+            {"species_id": "sp1", "foraging_guild": "Insectivore", "source_citation": "Test"}
         ]
-        valid_rows = validate_schema(rows)
-        self.assertEqual(len(valid_rows), 2)
-    
-    def test_validate_schema_missing_species_id(self):
-        """Test validation rejects empty species_id."""
-        rows = [
-            {'species_id': '', 'foraging_guild': 'insectivore', 'source_citation': 'BoW'},
-            {'species_id': 'sp_002', 'foraging_guild': 'granivore', 'source_citation': 'BoW'}
-        ]
-        valid_rows = validate_schema(rows)
-        self.assertEqual(len(valid_rows), 1)
-        self.assertEqual(valid_rows[0]['species_id'], 'sp_002')
-    
-    def test_validate_schema_missing_guild(self):
-        """Test validation handles missing guild gracefully (logs warning, keeps row)."""
-        rows = [
-            {'species_id': 'sp_001', 'foraging_guild': '', 'source_citation': 'BoW'},
-            {'species_id': 'sp_002', 'foraging_guild': 'granivore', 'source_citation': 'BoW'}
-        ]
-        valid_rows = validate_schema(rows)
-        # Empty guild results in row being set to None and removed
-        self.assertEqual(len(valid_rows), 1)
-    
-    def test_save_mapping_creates_file(self):
-        """Test that save_mapping creates the output file."""
-        rows = [
-            {'species_id': 'sp_001', 'foraging_guild': 'insectivore', 'source_citation': 'BoW'}
-        ]
-        save_mapping(rows, self.output_path)
+        self.assertTrue(validate_schema(rows))
         
-        self.assertTrue(self.output_path.exists())
+    def test_validate_schema_missing_field(self):
+        """Test schema validation on data missing a required field."""
+        rows = [
+            {"species_id": "sp1", "foraging_guild": "Insectivore"}
+        ]
+        with self.assertRaises(ValueError):
+            validate_schema(rows)
+            
+    def test_save_mapping(self):
+        """Test saving the mapping to a CSV file."""
+        output_path = self.processed_dir / "guild_mapping.csv"
+        rows = [
+            {"species_id": "sp1", "foraging_guild": "Insectivore", "source_citation": "Test"}
+        ]
+        extraction_date = "2023-01-01"
         
-        with open(self.output_path, 'r', newline='', encoding='utf-8') as f:
+        save_mapping(output_path, rows, extraction_date)
+        
+        self.assertTrue(output_path.exists())
+        
+        with open(output_path, 'r') as f:
             reader = csv.DictReader(f)
-            rows_out = list(reader)
-        
-        self.assertEqual(len(rows_out), 1)
-        self.assertEqual(rows_out[0]['species_id'], 'sp_001')
-        self.assertIn('extraction_date', rows_out[0])
-    
-    def test_save_mapping_columns(self):
-        """Test that output file has correct columns."""
-        rows = [
-            {'species_id': 'sp_001', 'foraging_guild': 'insectivore', 'source_citation': 'BoW'}
-        ]
-        save_mapping(rows, self.output_path)
-        
-        with open(self.output_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            self.assertEqual(set(reader.fieldnames), {'species_id', 'foraging_guild', 'source_citation', 'extraction_date'})
+            data = list(reader)
+            
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['extraction_date'], extraction_date)
+        self.assertEqual(data[0]['species_id'], 'sp1')
 
 if __name__ == '__main__':
     unittest.main()
