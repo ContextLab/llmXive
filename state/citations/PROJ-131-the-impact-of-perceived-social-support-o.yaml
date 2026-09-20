@@ -1,4 +1,4 @@
-- artifact_hash: c16686d937b6d8eb19b11f95c894f152558ffb347c3f79cb9a3f094bf2234c5a
+- artifact_hash: 606af2ecc3a6278779594dc65db1b255d404769641618cdaf66bf5c8219e5560
   artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,26 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-09-14T08:29:02.018677Z'
+  verified_at: '2026-09-20T17:53:49.399725Z'
+- artifact_hash: 606af2ecc3a6278779594dc65db1b255d404769641618cdaf66bf5c8219e5560
+  artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: The CES-D Scale
+  kind: doi
+  value: 10.1177/014662167700100306
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1177/014662167700100306
+  verified_at: '2026-09-20T17:53:49.399725Z'
+- artifact_hash: 606af2ecc3a6278779594dc65db1b255d404769641618cdaf66bf5c8219e5560
+  artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1001/archpsyc.63.6.655
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1001/archpsyc.63.6.655
+  verified_at: '2026-09-20T17:53:49.399725Z'

@@ -9,7 +9,7 @@ This feature implements a computational pipeline to analyze the buffering effect
 
 **Critical Methodological Pivot**: The original specification (User Story 1, FR-001, FR-002) proposed merging two independent datasets (GSS 2022 and a Cyberbullying Survey) via Propensity Score Matching (PSM) to create a "synthetic cohort." This approach was identified as methodologically invalid for testing interaction effects because it confounds the "Harassment" variable with the "Dataset Source." 
 
-**Revised Approach**: The pipeline now ingests a **single, internally consistent dataset** (the Cyberbullying Survey) where both Harassment Exposure and Social Support vary naturally within the same population. This ensures the interaction term ($\beta_3$) estimates a genuine psychological buffering effect rather than an artifact of merging disparate sampling frames. The GSS 2022 dataset is excluded from the primary analysis due to the inability to validly estimate the interaction term across independent surveys and the lack of verified PCL-5 items in the 2022 module.
+**Revised Approach**: The pipeline now ingests a **single, internally consistent dataset** (the Cyberbullying Survey) where both Harassment Exposure and Social Support vary naturally within the same population. This ensures the interaction term ($\beta_3$) estimates a genuine psychological buffering effect rather than an artifact of merging disparate sampling frames. The GSS dataset is excluded from the primary analysis due to the inability to validly estimate the interaction term across independent surveys and the lack of verified PCL-5 items in the corresponding module.
 
 The analysis involves:
 1.  Ingesting and validating the Cyberbullying Survey data.
@@ -45,7 +45,7 @@ The analysis involves:
 | **III. Data Hygiene** | **Compliant** | Plan mandates checksumming of raw data, read-only raw data, and new filenames for all derivatives. |
 | **IV. Single Source of Truth** | **Compliant** | All results will be generated programmatically; no hand-typed statistics allowed in final reports. |
 | **V. Versioning Discipline** | **Compliant** | Artifact hashes will be tracked in the project state file; code changes trigger state updates. |
-| **VI. Psychological Measurement Integrity** | **Compliant** | **Critical**: Plan explicitly forbids ad-hoc scoring modifications. Scripts will implement standard CES-D, GAD-7, and PCL-5 algorithms exactly as defined in source documentation. |
+| **VI. Psychological Measurement Integrity** | **Compliant** | **Critical**: Plan explicitly forbids ad-hoc scoring modifications. Scripts will implement standard CES-D, GAD, and PCL algorithms exactly as defined in source documentation. |
 | **VII. Contextual Sensitivity to Online Dynamics** | **Compliant** | Interpretation logic in `research.md` will explicitly frame results as associational and account for platform affordances. |
 
 ## Project Structure

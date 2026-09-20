@@ -1,129 +1,101 @@
+"""
+Setup script for linting and formatting tools (ruff, black).
+Creates configuration files and installs tools if necessary.
+"""
 import os
 import subprocess
 import sys
 from pathlib import Path
-
 import tomlkit
 
 def check_tool_installed(tool_name: str) -> bool:
-    """Check if a tool is installed in the current environment."""
+    """Check if a tool is installed."""
     try:
-        subprocess.run(
-            [sys.executable, "-m", "pip", "show", tool_name],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        subprocess.run([tool_name, "--version"], check=True, capture_output=True)
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def install_tool(tool_name: str) -> bool:
-    """Install a tool if it is not already installed."""
-    if check_tool_installed(tool_name):
-        print(f"{tool_name} is already installed.")
-        return True
+def install_tool(tool_name: str) -> None:
+    """Install a tool using pip."""
     print(f"Installing {tool_name}...")
     try:
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", tool_name], check=True
-        )
-        return True
-    except subprocess.CalledProcessError:
-        print(f"Failed to install {tool_name}.")
-        return False
-
-def verify_config_files() -> bool:
-    """Verify that configuration files exist or can be created."""
-    return True  # We will create them if they don't exist
-
-def create_ruff_config() -> None:
-    """Create a default ruff configuration file."""
-    config_path = Path("ruff.toml")
-    if config_path.exists():
-        print(f"ruff.toml already exists at {config_path}")
-        return
-
-    config_content = """
-# Ruff configuration
-lint.select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-lint.ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults
-]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
-
-[lint.isort]
-known-first-party = ["data", "analysis", "logger"]
-"""
-    with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Created ruff.toml at {config_path}")
-
-def create_black_config() -> None:
-    """Create a default black configuration in pyproject.toml."""
-    config_path = Path("pyproject.toml")
-    if not config_path.exists():
-        # Create a minimal pyproject.toml if it doesn't exist
-        with open(config_path, "w") as f:
-            f.write("[build-system]\nrequires = [\"setuptools\"]\n")
-
-    # Parse existing content
-    with open(config_path, "r") as f:
-        content = f.read()
-
-    try:
-        doc = tomlkit.parse(content)
-    except Exception:
-        doc = tomlkit.document()
-        doc.add(tomlkit.table("build-system"))
-        doc["build-system"]["requires"] = ["setuptools"]
-
-    # Ensure tool.black section exists
-    if "tool" not in doc:
-        doc["tool"] = tomlkit.table()
-    if "black" not in doc["tool"]:
-        doc["tool"]["black"] = tomlkit.table()
-
-    doc["tool"]["black"]["line-length"] = 88
-    doc["tool"]["black"]["target-version"] = ["py311"]
-    doc["tool"]["black"]["skip-string-normalization"] = False
-
-    with open(config_path, "w") as f:
-        f.write(tomlkit.dumps(doc))
-    print(f"Updated pyproject.toml with Black configuration at {config_path}")
-
-def main() -> None:
-    """Main entry point for setting up linting and formatting tools."""
-    print("Setting up linting (ruff) and formatting (black) tools...")
-
-    # Install tools
-    ruff_installed = install_tool("ruff")
-    black_installed = install_tool("black")
-
-    if not ruff_installed or not black_installed:
-        print("Failed to install required tools. Exiting.")
+        subprocess.run([sys.executable, "-m", "pip", "install", tool_name], check=True)
+        print(f"{tool_name} installed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install {tool_name}: {e}")
         sys.exit(1)
 
-    # Create configuration files
-    create_ruff_config()
-    create_black_config()
+def verify_config_files() -> None:
+    """Verify that configuration files exist or create them."""
+    root = Path(__file__).parent.parent
+    ruff_config = root / "pyproject.toml"
+    black_config = root / "pyproject.toml" # Black uses pyproject.toml too
 
-    print("Linting and formatting tools configured successfully.")
-    print("You can now run:")
-    print("  ruff check .       # to lint")
-    print("  black .            # to format")
-    print("  ruff check . && black . --check  # to check both")
+    if not ruff_config.exists():
+        print("pyproject.toml not found. Creating with ruff config...")
+        create_ruff_config(root)
+    else:
+        print("pyproject.toml found. Checking for ruff config...")
+        # Simple check, could be more robust
+        with open(ruff_config, 'r') as f:
+            content = f.read()
+            if '[tool.ruff]' not in content:
+                print("Ruff config not found in pyproject.toml. Appending...")
+                with open(ruff_config, 'a') as f:
+                    f.write("\n[tool.ruff]\nline-length = 100\n")
+                    f.write("select = [\"E\", \"W\", \"F\", \"I\", \"B\", \"C4\"]\n")
+                    f.write("ignore = []\n")
+
+def create_ruff_config(project_root: Path) -> None:
+    """Create a pyproject.toml with ruff configuration."""
+    config_content = """[tool.ruff]
+line-length = 100
+select = ["E", "W", "F", "I", "B", "C4"]
+ignore = []
+target-version = "py39"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"""
+    config_path = project_root / "pyproject.toml"
+    with open(config_path, 'w') as f:
+        f.write(config_content)
+    print(f"Created ruff config at {config_path}")
+
+def create_black_config(project_root: Path) -> None:
+    """Ensure black config exists in pyproject.toml."""
+    config_path = project_root / "pyproject.toml"
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            content = f.read()
+        if '[tool.black]' not in content:
+            with open(config_path, 'a') as f:
+                f.write("\n[tool.black]\nline-length = 100\ntarget-version = ['py39']\n")
+            print("Added black config to pyproject.toml")
+        else:
+            print("Black config already exists in pyproject.toml")
+    else:
+        # If pyproject.toml doesn't exist, create it with both configs
+        create_ruff_config(project_root)
+        create_black_config(project_root)
+
+def main() -> None:
+    """Main entry point for setup_linting."""
+    print("Setting up linting and formatting tools...")
+
+    # Install ruff if not present
+    if not check_tool_installed("ruff"):
+        install_tool("ruff")
+
+    # Verify/create config files
+    project_root = Path(__file__).parent.parent
+    verify_config_files()
+    create_black_config(project_root)
+
+    print("Linting setup complete.")
+    print("Run 'ruff check .' to check for linting errors.")
+    print("Run 'ruff format .' to format code (if ruff format is available).")
 
 if __name__ == "__main__":
     main()
