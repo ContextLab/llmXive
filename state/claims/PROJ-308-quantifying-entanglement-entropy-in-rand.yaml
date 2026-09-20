@@ -2795,3 +2795,1059 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-12T16:37:35Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Refael and Moore predicted effective central charge ln 2 for random singlet
+    phase
+  claim_id: c_b82ed8f9
+  context: 'In the clean limit and weak disorder, the system is expected to exhibit
+    critical behavior governed by a Conformal Field Theory (CFT). The entanglement
+    entropy follows a logarithmic scaling law: $$S(L) \approx \frac{c_{\text{eff}}}{3}
+    \log L + \text{const}$$ where $c_{\text{eff}}$ is the effective central charge.
+    For the random singlet phase (RSP), Refael and Moore predicted $c_{\text{eff}}
+    = \ln 2$.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "the entanglement entropy in the Random Singlet Phase with an e\uFB00\
+        ective central charge \u02DCc = c \xD7 ln 2."
+      source_id: cond-mat/0504446
+      url: https://arxiv.org/abs/cond-mat/0504446
+      value: ln 2
+    filled: true
+  kind: numeric
+  raw_text: "For the random singlet phase (RSP), Refael and Moore predicted $c_{\t\
+    ext{eff}} = \\ln 2$."
+  resolved_value: ln 2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T04:37:09Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Slope of entanglement entropy vs log L approaches 0.231 in critical regime
+  claim_id: c_436d9449
+  context: Specifically, in the critical regime, the slope of $S(L)$ vs $\log L$ should
+    approach $\frac{\ln 2}{3} \approx 0.231$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Specifically, in the critical regime, the slope of $S(L)$ vs $\log L$
+    should approach $\frac{\ln 2}{3} \approx 0.231$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:38:45Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation in Phys Rev Lett 2004
+  claim_id: c_7684126c
+  context: Phase 0 research document requirements list scaling ansatz and citations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett. (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:40:56Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore Phys Rev Lett 93 207204 2004
+  claim_id: c_6bea7486
+  context: Task T014 requires updating research.md with specific scaling ansatz and
+    citation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Citing Refael-Moore (Phys. Rev. Lett. 93, 207204 (2004)) as per Geoffrey
+    West review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:41:05Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: double precision 64-bit arXiv 1304.4292
+  claim_id: c_9ebc1df8
+  context: Task T004 requires implementing ground state evolution with double-precision
+    enforcement.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: enforce double-precision (64-bit, see arXiv:1304.4292)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T04:41:08Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: adaptive bond dimension max chi 400
+  claim_id: c_5262ba8f
+  context: Task T004 specifies the maximum bond dimension for TEBD evolution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: adaptive bond dimension (max $\chi=400$)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:41:38Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: toy model short chain L 10 TEBD
+  claim_id: c_ec506995
+  context: Task T018 describes the implementation of a toy model verification step.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a short chain (L=10) with random couplings using TEBD only
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:41:55Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: toy model table S(L) values L 4 8 16
+  claim_id: c_d51c5abc
+  context: Task T019 requires generating a data table for specific chain lengths to
+    demonstrate slope.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate a table of $S(L)$ values for $L=4, 8, 16$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:43:32Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: execute workflow L 30 delta 0.2 N 100
+  claim_id: c_975829dd
+  context: Independent test for User Story 1 specifies parameters for execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute workflow with $L=30, \delta=0.2, N=100$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:43:54Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: verify artifacts generated within 6 hours
+  claim_id: c_a243c992
+  context: Independent test for User Story 1 sets a time limit for artifact generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify `entropy_data.csv`, `scaling_fit.txt` (exponent, CI, p-value,\
+    \ R\xB2), `entropy_vs_l.png`, and `bootstrap_summary.txt` are generated within\
+    \ 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:44:16Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: pilot variance threshold 0.05 adjust N real
+  claim_id: c_d77dca60
+  context: Task T026 describes the algorithm for dynamic adjustment of realizations
+    based on variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If `variance > 0.05`, set `N_real = min(200, current * 2)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:44:17Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: abort if N real greater than 200 or time greater than 6 hours
+  claim_id: c_73f0f30e
+  context: Task T026 specifies conflict resolution and abort conditions for the pilot
+    study.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_N_real_greater_than_200_or_time_greater_than_6_hour
+  kind: magnitude
+  raw_text: If pilot suggests `N_real > 200` or estimated time > 6h, **ABORT**
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:44:32Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: assert alpha in range 0.30 to 0.36 for delta 0
+  claim_id: c_9478109a
+  context: Task T030 defines a test assertion for the scaling exponent at zero disorder.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: raises AssertionError if fitted $\alpha \notin [0.30, 0.36]$ for $\delta=0$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:44:47Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: check CI width for delta less than or equal to 0.3
+  claim_id: c_6ecdbb7a
+  context: Task T037 specifies the threshold for validating confidence interval width.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_CI_width_for_delta_less_than_or_equal_to_0.3
+  kind: magnitude
+  raw_text: Implement logic to check CI width for all $\delta \le 0.3$
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:45:11Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: log warning if edge entropy std dev difference greater than 0.2
+  claim_id: c_8cc7164a
+  context: Task T048 defines a threshold for validating edge entropy continuity.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_edge_entropy_std_dev_difference_greater_than
+  kind: magnitude
+  raw_text: If the difference > 0.2, **LOG WARNING AND FLAG** the run
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:45:21Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: detect abrupt spikes if deviation greater than 3 times std dev
+  claim_id: c_392f74b0
+  context: Task T049 defines the quantitative threshold for detecting abrupt spikes
+    in edge entropy.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_abrupt_spikes_if_deviation_greater_than_3_times_std_d
+  kind: magnitude
+  raw_text: deviation > 3 * std_dev of the edge entropy
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:45:44Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: TEBD runtime limit 6 hours for L 30 N 100 on CPU
+  claim_id: c_4f73fa75
+  context: Task T052 sets a performance optimization target for the TEBD algorithm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:45:59Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation in Phys Rev Lett 2004
+  claim_id: c_5079063e
+  context: Phase 0 Research Document requirements include a citation to Refael-Moore
+    (Phys. Rev. Lett. (2004)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett. (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:47:32Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Hypothesis linking alpha to area-law and logarithmic scaling regimes
+  claim_id: c_9cc77323
+  context: The research document must include a hypothesis stating S(L) is proportional
+    to L to the power alpha, where alpha indicates the scaling regime.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_linking_alpha_to_area-law_and_logarithmic_scaling
+  kind: entity_fact
+  raw_text: 'Hypothesis: ''S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law
+    in the localized regime and $\alpha$ indicating logarithmic scaling in the critical
+    regime''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:08Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation volume 93 page 207204 year 2004
+  claim_id: c_a37208c4
+  context: Update research.md to cite Refael-Moore with specific volume and page number
+    as per Geoffrey West review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett. 93, 207204 (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:08Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Scaling ansatz S(L) equals c_eff over 3 log L for critical regime
+  claim_id: c_c27d1eaa
+  context: Research validation requires articulating the specific scaling ansatz for
+    the critical regime compared to the area law for the localized regime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Scaling ansatz: $S(L) \approx (c_{eff}/3) \log L$ (critical) vs Area
+    Law (localized).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:35Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Hypothesis alpha approximately 0 for area-law and logarithmic regimes
+  claim_id: c_9d1e4eb6
+  context: Research validation requires updating the hypothesis to specify alpha is
+    approximately 0 for both area-law and logarithmic contexts in the Refael-Moore
+    framework.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hypothesis: ''S(L) $\propto L^\alpha$ with $\alpha \approx 0$ (area-law)
+    in localized regime and $\alpha \approx 0$ (logarithmic) in critical regime''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:39Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Workflow execution for L=30 delta=0.2 N=100 within 6 hours
+  claim_id: c_4759444b
+  context: Independent test for User Story 1 requires executing the workflow with
+    specific parameters and verifying output generation within a 6-hour limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute workflow with $L=30, \delta=0.2, N=100$; verify artifacts generated
+    within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:42Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Assertion for alpha not in range 0.30 to 0.36 when delta is 0
+  claim_id: c_1fc4cae6
+  context: Integration test for User Story 1 includes an assertion that raises an
+    error if the fitted alpha is outside the range 0.30 to 0.36 for delta=0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert fitted $\alpha \notin [0.30, 0.36]$ for $\delta=0$ raises AssertionError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:53Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Flagging delta=0 as critical-regime agreement if alpha matches CFT value
+  claim_id: c_205b5225
+  context: User Story 2 implementation requires verifying that the delta=0 entry is
+    flagged if the alpha matches the theoretical CFT value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify $\delta=0$ entry is flagged 'critical-regime agreement' if $\alpha$
+    matches theoretical CFT value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:48:59Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: CI width validation for delta less than or equal to 0.3
+  claim_id: c_a0cf174c
+  context: User Story 2 implementation includes logic to validate confidence interval
+    width for disorder strengths up to 0.3.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_width_validation_for_delta_less_than_or_equal_to_0.3
+  kind: magnitude
+  raw_text: Check CI width for all $\delta \le 0.3$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:49:36Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Pilot variance algorithm sets N_real to min 200 or current times 2 if
+    variance exceeds 0.05
+  claim_id: c_9d66a380
+  context: Pilot variance estimation logic dynamically adjusts the number of realizations
+    if the variance of the fitted exponent is too high.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If variance > 0.05, set $N_{\text{real}} = \min(200, \text{current} \times
+    2)$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:49:37Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Abort condition if N_real exceeds 200 or time exceeds 6 hours
+  claim_id: c_767561d8
+  context: Conflict resolution for pilot variance estimation requires aborting the
+    run if the suggested number of realizations exceeds 200 or the time exceeds 6
+    hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if pilot suggests $N_{\text{real}} > 200$ or estimated time > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:49:37Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Statistical significance detection threshold at p-value 0.05
+  claim_id: c_542ac0bb
+  context: User Story 1 implementation includes logic to detect statistical significance
+    based on a p-value threshold of 0.05.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Statistical significance
+        url: https://en.wikipedia.org/wiki/Statistical_significance
+        value: 5%
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Detect statistical significance if p-value $\le 0.05$.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T04:49:47Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Wall-clock timeout check set to 6 hours
+  claim_id: c_facaf5e5
+  context: User Story 1 implementation requires a wall-clock timeout check set to
+    6 hours to abort the workflow if exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement wall-clock timeout check (6h) in `code/cli.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:49:49Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Boundary entropy CSV generation with specific columns
+  claim_id: c_5fa99af5
+  context: User Story 4 implementation requires generating a boundary entropy CSV
+    file with specific columns including realization ID, delta, and edge entropies.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Boundary_entropy_CSV_generation_with_specific_columns
+  kind: entity_fact
+  raw_text: Generate `boundary_entropy.csv` with `realization_id, delta, edge_left,
+    edge_right` columns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:49:58Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Edge entropy continuity check flags if standard deviation difference
+    exceeds 0.2
+  claim_id: c_8062e503
+  context: User Story 4 implementation includes a validation check for edge entropy
+    continuity that flags the run if the difference in standard deviation exceeds
+    0.2.
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If difference in standard deviation of edge entropies > 0.2, LOG WARNING
+    AND FLAG.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T04:49:58Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Abrupt spike check defined as deviation greater than 3 times standard
+    deviation
+  claim_id: c_6a6e7eef
+  context: User Story 4 implementation includes a check for abrupt spikes in edge
+    entropy defined by a deviation threshold of 3 times the standard deviation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abrupt_spike_check_defined_as_deviation_greater_than_3_times
+  kind: magnitude
+  raw_text: Check for 'abrupt spikes' defined as deviation > 3 * std_dev of the edge
+    entropy.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:50:04Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: TEBD performance optimization for L=30 N=100 within 6 hours on CPU
+  claim_id: c_b47f997e
+  context: Polish phase includes a performance optimization requirement to ensure
+    TEBD runs complete within 6 hours for specific parameters on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:50:05Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Research document must contain Observer's Frame definition
+  claim_id: c_8f99e8f8
+  context: Review Response phase requires verifying that the research document contains
+    a specific definition of the Observer's Frame.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_document_must_contain_Observer's_Frame_definition
+  kind: entity_fact
+  raw_text: Verify `research.md` contains the 'Observer's Frame' definition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:50:17Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Analysis code must include Local Measurement Protocol comment
+  claim_id: c_9599b0e4
+  context: Review Response phase requires verifying that the analysis code includes
+    a comment block describing the Local Measurement Protocol.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_code_must_include_Local_Measurement_Protocol_commen
+  kind: entity_fact
+  raw_text: Verify `code/analysis.py` includes a 'Local Measurement Protocol' comment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:50:29Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Toy model data CSV generation for L values 4, 8, and 16
+  claim_id: c_0035e1dd
+  context: Review Response phase requires generating a toy model data CSV file with
+    specific columns for chain lengths 4, 8, and 16.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate `toy_model_data.csv` with columns `L, S(L), log(L)` for $L=4,
+    8, 16$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:50:36Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Effective central charge for random singlet phase of XXZ chain is ln
+    2
+  claim_id: c_1e7b879f
+  context: 'In the presence of random couplings, the system is expected to flow to
+    a random singlet fixed point. The entanglement entropy scales logarithmically
+    with the block size: S(L) approx c_eff/3 log L where c_eff is the effective central
+    charge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the random singlet phase of an XXZ chain, theoretical predictions
+    suggest c_eff = ln 2, leading to S(L) approx (ln 2)/3 log L.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:51:50Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Slope of entanglement entropy vs log L for random singlet phase is approx
+    0.231
+  claim_id: c_a1166b83
+  context: Specifically, for the random singlet phase at delta=0 (or weak disorder),
+    we expect the slope of S(L) vs log L to be approximately (ln 2)/3 approx 0.231.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the random singlet phase at delta=0 (or weak disorder), we expect
+    the slope of S(L) vs log L to be approximately (ln 2)/3 approx 0.231.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T04:53:17Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation in Phys Rev Lett 2004
+  claim_id: c_6bcf5aef
+  context: Phase 0 research document generation requirements list the citation Refael-Moore.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett. (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:00:18Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Scaling ansatz S(L) approx c_eff log L for critical regime
+  claim_id: c_5bcc7d6b
+  context: Phase 0 research document requires population of the Scaling Ansatz section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaling_ansatz_S(L)_approx_c_eff_log_L_for_critical_regime
+  kind: entity_fact
+  raw_text: "Scaling ansatz: $S(L) \approx c_{eff} \\log L$ (critical) vs Area Law\
+    \ (localized)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:00:48Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Hypothesis S(L) proportional to L^alpha for area and log regimes
+  claim_id: c_56ef6c9e
+  context: Phase 0 research document requires population of the Hypothesis section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_S(L)_proportional_to_L%5Ealpha_for_area_and_log_reg
+  kind: entity_fact
+  raw_text: 'Hypothesis: "S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law
+    in the localized regime and $\alpha$ indicating logarithmic scaling in the critical
+    regime".'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:00:50Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: XXZ Heisenberg Hamiltonian couplings J_i uniform in [-delta, 1+delta]
+  claim_id: c_25a27a71
+  context: Phase 2 task T003 specifies the distribution for random couplings in the
+    Hamiltonian.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate XXZ Heisenberg Hamiltonian with random nearest-neighbour couplings
+    $J_i \sim \mathcal{U}[-\delta, 1+\delta]$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:01:07Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Ground state evolution uses double-precision 64-bit per arXiv:1304.4292
+  claim_id: c_ace117af
+  context: Phase 2 task T004 specifies precision requirements for TEBD evolution.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Enforce double-precision (64-bit, see arXiv:1304.4292) for ground state
+    evolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:01:09Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Adaptive bond dimension max chi equals 400
+  claim_id: c_dfa0841a
+  context: Phase 2 task T004 specifies the maximum bond dimension for ground state
+    calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adaptive bond dimension with max $\chi=400$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:01:38Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation Phys Rev Lett 93 207204 2004
+  claim_id: c_545fe39e
+  context: Phase 3 task T014 requires updating the research document with specific
+    volume and page numbers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett. 93, 207204 (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:01:38Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Scaling ansatz S(L) approx (c_eff/3) log L for critical regime
+  claim_id: c_4a38dc59
+  context: Phase 3 task T014 specifies the precise form of the scaling ansatz including
+    the factor 1/3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Update `research.md` to explicitly articulate scaling ansatz: $S(L) \approx
+    (c_{eff}/3) \log L$ (critical).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:07Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Hypothesis alpha approx 0 for area-law and logarithmic regimes
+  claim_id: c_3da21540
+  context: Phase 3 task T016 specifies the expected values for the exponent alpha
+    in the hypothesis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hypothesis: "S(L) $\propto L^\alpha$ with $\alpha \approx 0$ (area-law)
+    in localized regime and $\alpha \approx 0$ (logarithmic) in critical regime".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:08Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Toy model verification uses chain length L equals 10
+  claim_id: c_651486c8
+  context: Phase 3 task T018 describes the setup for the toy model verification step.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a short chain (L=10) with random couplings using TEBD only.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:08Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Toy model output table includes L values 4, 8, and 16
+  claim_id: c_ab40acb9
+  context: Phase 3 task T019 specifies the system sizes for the toy model data table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a table of $S(L)$ values for $L=4, 8, 16$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:09Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Independent test for US1 uses L=30, delta=0.2, N=100
+  claim_id: c_278a00a3
+  context: Phase 4 independent test description specifies the parameters for the single
+    parameter set workflow.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute workflow with $L=30, \delta=0.2, N=100$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:09Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Single parameter workflow outputs generated within 6 hours
+  claim_id: c_0b33a0bf
+  context: Phase 4 independent test sets a time limit for the workflow execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify outputs are generated within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:28Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Pilot variance estimation increases N_real if alpha variance exceeds
+    0.05
+  claim_id: c_6f3ecd2e
+  context: Phase 4 task T026 describes the algorithm for dynamic adjustment of realization
+    count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If variance of alpha > 0.05, set $N_{\text{real}} = \min(200, \text{current}
+    * 2)$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:28Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Pilot run aborts if N_real exceeds 200
+  claim_id: c_ecb991e2
+  context: Phase 4 task T026 specifies the conflict resolution constraint for the
+    realization count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if pilot suggests $N_{\text{real}} > 200$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:29Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Pilot run aborts if estimated time exceeds 6 hours
+  claim_id: c_b8890c1b
+  context: Phase 4 task T026 specifies the conflict resolution constraint for execution
+    time.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if estimated time > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:29Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Fitted alpha for delta=0 must be in range 0.30 to 0.36
+  claim_id: c_f783c2da
+  context: Phase 4 task T030 specifies the expected range for the scaling exponent
+    at zero disorder.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add assertion that fitted $\alpha \notin [0.30, 0.36]$ for $\delta=0$
+    raises AssertionError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:48Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: CI width validation applies to delta less than or equal to 0.3
+  claim_id: c_9653d2be
+  context: Phase 5 task T037 specifies the disorder strength threshold for confidence
+    interval width checks.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_width_validation_applies_to_delta_less_than_or_equal_to_0
+  kind: magnitude
+  raw_text: Check CI width for all $\delta \le 0.3$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:50Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Edge entropy continuity check triggers warning if std dev difference
+    exceeds 0.2
+  claim_id: c_917c3cd8
+  context: Phase 7 task T048 defines the threshold for detecting abrupt changes in
+    edge entropy profiles.
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If difference in standard deviation of edge entropies > 0.2, LOG WARNING.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T05:03:50Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Abrupt spike check uses deviation greater than 3 times standard deviation
+  claim_id: c_ac067883
+  context: Phase 7 task T049 defines the quantitative threshold for detecting spikes
+    in edge entropy.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abrupt_spike_check_uses_deviation_greater_than_3_times_stand
+  kind: magnitude
+  raw_text: Check for 'abrupt spikes' defined as deviation > 3 * std_dev of the edge
+    entropy.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:52Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: TEBD runtime limit is 6 hours for L=30 and N=100 on CPU
+  claim_id: c_57b3d9d6
+  context: Phase 9 task T052 specifies the performance optimization target for the
+    workflow.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T05:03:52Z'

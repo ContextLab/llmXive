@@ -89,7 +89,7 @@ projects/PROJ-308-quantifying-entanglement-entropy-in-rand/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Bootstrap Resampling (1000+)** | Required by FR-006 and SC-001/SC-002 for robust error estimation and CI width. | Simple analytic error bars are insufficient for non-Gaussian distributions in disordered systems. |
+| **Bootstrap Resampling (+)** | Required by FR-006 and SC-001/SC-002 for robust error estimation and CI width. | Simple analytic error bars are insufficient for non-Gaussian distributions in disordered systems. |
 | **TEBD with Double Precision** | Required by Constitution Principle VI for numerical stability. | Single precision often leads to convergence failure or spurious entropy values in long chains. |
 | **Grid Scan Support** | Required by US-2 and FR-010 to map the MBL-thermal crossover. | Single-parameter runs do not provide the phase diagram needed for the scientific objective. |
 | **Adaptive Bond Dimension** | Required to avoid systematic bias in the critical regime where chi > 200 may be needed. | Hard cap (chi=200) risks artificially suppressing entropy and mimicking an area law. |

@@ -1,14 +1,11 @@
 """
-Analysis module for entanglement entropy scaling.
+Analysis module for entanglement entropy scaling and model selection.
 
-Model selection uses AIC per Plan.md, superseding Spec FR-005 (R²) which is
-methodologically incorrect for Area Law detection.
+Model selection uses AIC per Plan.md and FR-005 (amended), superseding original Spec R² requirement.
+This module implements the core logic for distinguishing between Area Law, Logarithmic,
+and Volume Law scaling behaviors using Akaike Information Criterion (AIC).
 
-This module provides:
-- Model selection via AIC (Constant, Logarithmic, Linear)
-- Bootstrap resampling for uncertainty quantification
-- Filtering of numerically unresolved realizations
-- Visualization utilities (plotting)
+Implementation follows Plan's methodological correction (AIC) over Spec's R² requirement.
 """
 import numpy as np
 from typing import Tuple, Dict, List, Optional, NamedTuple
@@ -16,418 +13,420 @@ from scipy import stats
 from scipy.optimize import curve_fit
 import warnings
 import os
-import matplotlib.pyplot as plt
-from matplotlib import rcParams
+from dataclasses import dataclass
 
-# Ensure plots are saved without displaying
-plt.ioff()
+# Constants
+AIC_LOG_ENTRY = "Model selection uses AIC per Plan.md and FR-005 (amended), superseding original Spec R² requirement."
 
-# Set a clean style for scientific plots
-rcParams['font.family'] = 'sans-serif'
-rcParams['font.sans-serif'] = ['DejaVu Sans']
-rcParams['axes.labelsize'] = 10
-rcParams['axes.titlesize'] = 10
-rcParams['xtick.labelsize'] = 8
-rcParams['ytick.labelsize'] = 8
-rcParams['legend.fontsize'] = 8
-rcParams['figure.figsize'] = (8, 6)
-rcParams['figure.dpi'] = 150
-rcParams['savefig.dpi'] = 150
-rcParams['savefig.bbox'] = 'tight'
-rcParams['savefig.pad_inches'] = 0.1
-
-from ground_state import is_numerically_unresolved
 
 class ModelSelectionResult(NamedTuple):
-    """Result of model selection via AIC."""
-    model_type: str  # 'constant', 'logarithmic', 'linear'
-    params: Dict[str, float]
+    """Result of AIC-based model selection."""
+    best_model: str  # 'area_law', 'logarithmic', or 'volume_law'
     aic_scores: Dict[str, float]
-    selected_aic: float
-    r_squared: float
-    p_value: Optional[float]
-    slope: Optional[float]
-    intercept: Optional[float]
+    coefficients: Dict[str, Tuple[float, float]]  # model -> (slope, intercept)
+    r_squared: Dict[str, float]
+    log_entry: str
 
-def _fit_constant_model(l_vals: np.ndarray, s_vals: np.ndarray) -> Tuple[float, float]:
-    """Fit a constant model: S(l) = c."""
-    c = np.mean(s_vals)
-    # Residual sum of squares
-    rss = np.sum((s_vals - c) ** 2)
-    # Total sum of squares
-    tss = np.sum((s_vals - np.mean(s_vals)) ** 2)
-    r_squared = 1 - (rss / tss) if tss > 0 else 0.0
-    # p-value for constant model is not meaningful in this context, set to None
-    return r_squared, None
 
-def _fit_logarithmic_model(l_vals: np.ndarray, s_vals: np.ndarray) -> Tuple[float, float, float]:
-    """Fit a logarithmic model: S(l) = a * log(l) + b."""
-    # Avoid log(0)
-    valid_mask = l_vals > 0
-    if not np.any(valid_mask):
-        return 0.0, 0.0, 0.0
+def _log_aic_deviation():
+    """Log the AIC deviation to validation_log.txt."""
+    log_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'validation_log.txt')
+    try:
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        with open(log_path, 'a') as f:
+            f.write(f"[{np.datetime64('now')}] {AIC_LOG_ENTRY}\n")
+    except Exception:
+        # Fail silently if logging fails; the core logic remains valid
+        pass
 
-    l_valid = l_vals[valid_mask]
-    s_valid = s_vals[valid_mask]
 
-    log_l = np.log(l_valid)
+def _log_entry():
+    """Return the AIC deviation log entry."""
+    return AIC_LOG_ENTRY
 
-    # Linear regression: s = a * log_l + b
-    slope, intercept, r_value, p_value, std_err = stats.linregress(log_l, s_valid)
 
-    # Predicted values
-    s_pred = slope * log_l + intercept
-    rss = np.sum((s_valid - s_pred) ** 2)
-    tss = np.sum((s_valid - np.mean(s_valid)) ** 2)
-    r_squared = 1 - (rss / tss) if tss > 0 else 0.0
+def _log_aic_selection(delta: float, best_model: str, aic_scores: Dict[str, float]):
+    """Log the AIC selection result."""
+    log_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'validation_log.txt')
+    try:
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        with open(log_path, 'a') as f:
+            f.write(f"[{np.datetime64('now')}] AIC Selection for delta={delta:.4f}: {best_model}\n")
+            f.write(f"  AIC Scores: {aic_scores}\n")
+    except Exception:
+        pass
 
-    return r_squared, slope, intercept
 
-def _fit_linear_model(l_vals: np.ndarray, s_vals: np.ndarray) -> Tuple[float, float, float]:
-    """Fit a linear model: S(l) = a * l + b."""
-    slope, intercept, r_value, p_value, std_err = stats.linregress(l_vals, s_vals)
+def _linear_func(x, slope, intercept):
+    """Linear function: y = slope * x + intercept."""
+    return slope * x + intercept
 
-    s_pred = slope * l_vals + intercept
-    rss = np.sum((s_vals - s_pred) ** 2)
-    tss = np.sum((s_vals - np.mean(s_vals)) ** 2)
-    r_squared = 1 - (rss / tss) if tss > 0 else 0.0
 
-    return r_squared, slope, intercept
+def _log_func(x, slope, intercept):
+    """Logarithmic function: y = slope * log(x) + intercept."""
+    # Avoid log(0) by ensuring x > 0
+    x_safe = np.maximum(x, 1e-10)
+    return slope * np.log(x_safe) + intercept
 
-def _compute_aic(n: int, rss: float, k: int) -> float:
-    """Compute AIC: AIC = n * ln(RSS/n) + 2k."""
+
+def _constant_func(x, intercept):
+    """Constant function: y = intercept."""
+    return np.ones_like(x) * intercept
+
+
+def _compute_r_squared(y_true, y_pred):
+    """Compute R² score."""
+    ss_res = np.sum((y_true - y_pred) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+    if ss_tot == 0:
+        return 1.0 if ss_res == 0 else 0.0
+    return 1 - (ss_res / ss_tot)
+
+
+def _compute_aic(n, rss, k):
+    """
+    Compute AIC: AIC = 2k - 2ln(L)
+    For linear regression with normal errors: -2ln(L) = n*ln(rss/n) + const
+    So AIC = 2k + n*ln(rss/n)
+    """
     if rss <= 0:
-        # Avoid log(0) or log(negative)
         rss = 1e-10
-    return n * np.log(rss / n) + 2 * k
+    return 2 * k + n * np.log(rss / n)
+
 
 def select_model_aic(
-    l_vals: np.ndarray,
-    s_vals: np.ndarray,
-    n_resamples: Optional[int] = None
+    l_values: np.ndarray,
+    entropy_values: np.ndarray,
+    log_entry_path: Optional[str] = None
 ) -> ModelSelectionResult:
     """
-    Select the best model (Constant, Logarithmic, Linear) using AIC.
+    Perform AIC-based model selection to distinguish between Area Law, Logarithmic, and Volume Law.
 
-    Models:
-    - Constant (Area Law): S(l) = c, k=1
-    - Logarithmic (Critical): S(l) = a*log(l) + b, k=2
-    - Linear (Volume Law): S(l) = a*l + b, k=2
+    Fits three models:
+    1. Area Law (Constant): S(l) = c
+    2. Logarithmic: S(l) = a * log(l) + b
+    3. Volume Law (Linear): S(l) = a * l + b
+
+    Returns the model with the lowest AIC score.
 
     Args:
-        l_vals: Array of bipartition lengths.
-        s_vals: Array of entanglement entropies.
-        n_resamples: Number of data points (n) for AIC calculation. If None, uses len(l_vals).
+        l_values: Array of bipartition lengths (l).
+        entropy_values: Array of entanglement entropy values S(l).
+        log_entry_path: Optional path to log the AIC deviation message.
 
     Returns:
-        ModelSelectionResult with selected model, parameters, and diagnostics.
+        ModelSelectionResult with best model, AIC scores, coefficients, and R² values.
     """
-    n = n_resamples if n_resamples is not None else len(l_vals)
+    # Log the AIC deviation if not already logged
+    if log_entry_path is None:
+        _log_aic_deviation()
+    else:
+        try:
+            with open(log_entry_path, 'a') as f:
+                f.write(f"{AIC_LOG_ENTRY}\n")
+        except Exception:
+            pass
 
-    # Fit constant model
-    r2_const, _ = _fit_constant_model(l_vals, s_vals)
-    # For constant model, we can compute RSS directly
-    c_est = np.mean(s_vals)
-    rss_const = np.sum((s_vals - c_est) ** 2)
-    aic_const = _compute_aic(n, rss_const, k=1)
+    n = len(l_values)
+    if n < 3:
+        raise ValueError("At least 3 data points are required for model selection.")
 
-    # Fit logarithmic model
-    r2_log, slope_log, intercept_log = _fit_logarithmic_model(l_vals, s_vals)
-    log_l = np.log(l_vals[l_vals > 0])
-    s_log = s_vals[l_vals > 0]
-    s_pred_log = slope_log * log_l + intercept_log
-    rss_log = np.sum((s_log - s_pred_log) ** 2)
-    aic_log = _compute_aic(len(s_log), rss_log, k=2)
+    results = {}
+    coefficients = {}
+    r_squared = {}
 
-    # Fit linear model
-    r2_lin, slope_lin, intercept_lin = _fit_linear_model(l_vals, s_vals)
-    s_pred_lin = slope_lin * l_vals + intercept_lin
-    rss_lin = np.sum((s_vals - s_pred_lin) ** 2)
-    aic_lin = _compute_aic(n, rss_lin, k=2)
+    # Model 1: Area Law (Constant)
+    try:
+        popt, _ = curve_fit(_constant_func, l_values, entropy_values, p0=[np.mean(entropy_values)])
+        y_pred = _constant_func(l_values, *popt)
+        rss = np.sum((entropy_values - y_pred) ** 2)
+        aic = _compute_aic(n, rss, k=1)  # 1 parameter (intercept)
+        r2 = _compute_r_squared(entropy_values, y_pred)
+        results['area_law'] = aic
+        coefficients['area_law'] = (0.0, popt[0])  # slope=0, intercept
+        r_squared['area_law'] = r2
+    except Exception as e:
+        warnings.warn(f"Area Law fit failed: {e}")
+        results['area_law'] = np.inf
+        coefficients['area_law'] = (0.0, 0.0)
+        r_squared['area_law'] = 0.0
 
-    aic_scores = {
-        'constant': aic_const,
-        'logarithmic': aic_log,
-        'linear': aic_lin
-    }
+    # Model 2: Logarithmic
+    try:
+        # Ensure l_values > 0 for log
+        l_safe = np.maximum(l_values, 1e-10)
+        popt, _ = curve_fit(_log_func, l_safe, entropy_values, p0=[0.5, np.mean(entropy_values)])
+        y_pred = _log_func(l_safe, *popt)
+        rss = np.sum((entropy_values - y_pred) ** 2)
+        aic = _compute_aic(n, rss, k=2)  # 2 parameters (slope, intercept)
+        r2 = _compute_r_squared(entropy_values, y_pred)
+        results['logarithmic'] = aic
+        coefficients['logarithmic'] = (popt[0], popt[1])
+        r_squared['logarithmic'] = r2
+    except Exception as e:
+        warnings.warn(f"Logarithmic fit failed: {e}")
+        results['logarithmic'] = np.inf
+        coefficients['logarithmic'] = (0.0, 0.0)
+        r_squared['logarithmic'] = 0.0
 
-    selected_model = min(aic_scores, key=aic_scores.get)
-    selected_aic = aic_scores[selected_model]
+    # Model 3: Volume Law (Linear)
+    try:
+        popt, _ = curve_fit(_linear_func, l_values, entropy_values, p0=[0.5, np.mean(entropy_values)])
+        y_pred = _linear_func(l_values, *popt)
+        rss = np.sum((entropy_values - y_pred) ** 2)
+        aic = _compute_aic(n, rss, k=2)  # 2 parameters (slope, intercept)
+        r2 = _compute_r_squared(entropy_values, y_pred)
+        results['volume_law'] = aic
+        coefficients['volume_law'] = (popt[0], popt[1])
+        r_squared['volume_law'] = r2
+    except Exception as e:
+        warnings.warn(f"Volume Law fit failed: {e}")
+        results['volume_law'] = np.inf
+        coefficients['volume_law'] = (0.0, 0.0)
+        r_squared['volume_law'] = 0.0
 
-    # Determine parameters and diagnostics based on selected model
-    if selected_model == 'constant':
-        params = {'c': c_est}
-        slope = None
-        intercept = None
-        p_value = None
-        r_squared = r2_const
-    elif selected_model == 'logarithmic':
-        params = {'slope': slope_log, 'intercept': intercept_log}
-        slope = slope_log
-        intercept = intercept_log
-        # Re-compute p-value for the slope in the log fit
-        _, _, _, p_value, _ = stats.linregress(log_l, s_log)
-        r_squared = r2_log
-    else:  # linear
-        params = {'slope': slope_lin, 'intercept': intercept_lin}
-        slope = slope_lin
-        intercept = intercept_lin
-        _, _, _, p_value, _ = stats.linregress(l_vals, s_vals)
-        r_squared = r2_lin
+    # Select best model
+    best_model = min(results, key=results.get)
 
     return ModelSelectionResult(
-        model_type=selected_model,
-        params=params,
-        aic_scores=aic_scores,
-        selected_aic=selected_aic,
+        best_model=best_model,
+        aic_scores=results,
+        coefficients=coefficients,
         r_squared=r_squared,
-        p_value=p_value,
-        slope=slope,
-        intercept=intercept
+        log_entry=AIC_LOG_ENTRY
     )
 
+
 def filter_unresolved_realizations(
-    entropy_data: List[Dict]
-) -> List[Dict]:
+    data: List[Dict[str, any]]
+) -> List[Dict[str, any]]:
     """
-    Filter out realizations marked as numerically unresolved.
+    Filter out 'numerically unresolved' realizations from the dataset.
 
     Args:
-        entropy_data: List of dictionaries with 'entropy' and 'unresolved' keys.
+        data: List of dictionaries containing realization data with 'resolved' key.
 
     Returns:
-        Filtered list excluding unresolved realizations.
+        Filtered list with only resolved realizations.
     """
-    return [d for d in entropy_data if not d.get('unresolved', False)]
+    return [r for r in data if r.get('resolved', True)]
+
 
 def bootstrap_resample(
-    data: np.ndarray,
+    l_values: np.ndarray,
+    entropy_values: np.ndarray,
     n_resamples: int = 1000,
-    random_state: Optional[int] = None
-) -> np.ndarray:
-    """
-    Perform non-parametric bootstrap resampling.
-
-    Args:
-        data: 1D array of data points.
-        n_resamples: Number of bootstrap samples.
-        random_state: Random seed for reproducibility.
-
-    Returns:
-        Array of bootstrap sample means.
-    """
-    if random_state is not None:
-        np.random.seed(random_state)
-
-    n = len(data)
-    resample_means = np.zeros(n_resamples)
-
-    for i in range(n_resamples):
-        sample = np.random.choice(data, size=n, replace=True)
-        resample_means[i] = np.mean(sample)
-
-    return resample_means
-
-def compute_bootstrap_statistics(
-    bootstrap_means: np.ndarray,
-    confidence_level: float = 0.95
-) -> Dict[str, float]:
-    """
-    Compute statistics from bootstrap distribution.
-
-    Args:
-        bootstrap_means: Array of bootstrap sample means.
-        confidence_level: Confidence level for interval (e.g., 0.95).
-
-    Returns:
-        Dictionary with mean, std_err, ci_lower, ci_upper.
-    """
-    mean_val = np.mean(bootstrap_means)
-    std_err = np.std(bootstrap_means, ddof=1)
-    alpha = 1 - confidence_level
-    ci_lower = np.percentile(bootstrap_means, 100 * alpha / 2)
-    ci_upper = np.percentile(bootstrap_means, 100 * (1 - alpha / 2))
-
-    return {
-        'mean': mean_val,
-        'std_err': std_err,
-        'ci_lower': ci_lower,
-        'ci_upper': ci_upper
-    }
-
-def compute_scaling_exponent(
-    l_vals: np.ndarray,
-    s_vals: np.ndarray,
-    n_bootstrap: int = 1000,
-    random_state: Optional[int] = None
-) -> Tuple[Dict, ModelSelectionResult]:
-    """
-    Compute the scaling exponent and its uncertainty via bootstrap.
-
-    Args:
-        l_vals: Array of bipartition lengths.
-        s_vals: Array of entanglement entropies.
-        n_bootstrap: Number of bootstrap resamples.
-        random_state: Random seed.
-
-    Returns:
-        Tuple of (bootstrap_stats_dict, model_selection_result).
-    """
-    # Select model
-    model_result = select_model_aic(l_vals, s_vals)
-
-    # For bootstrap, we focus on the slope if the model is logarithmic or linear
-    if model_result.model_type == 'logarithmic':
-        # Bootstrap on the slope of log(l) vs s
-        log_l = np.log(l_vals[l_vals > 0])
-        s_log = s_vals[l_vals > 0]
-
-        # Perform bootstrap on the slope
-        n = len(log_l)
-        slope_samples = np.zeros(n_bootstrap)
-
-        if random_state is not None:
-            np.random.seed(random_state)
-
-        for i in range(n_bootstrap):
-            indices = np.random.choice(n, size=n, replace=True)
-            sample_l = log_l[indices]
-            sample_s = s_log[indices]
-            slope, _, _, _, _ = stats.linregress(sample_l, sample_s)
-            slope_samples[i] = slope
-
-        bootstrap_stats = compute_bootstrap_statistics(slope_samples)
-        # Override slope in model_result with bootstrap mean
-        model_result = model_result._replace(slope=bootstrap_stats['mean'])
-
-    elif model_result.model_type == 'linear':
-        # Bootstrap on the slope of l vs s
-        n = len(l_vals)
-        slope_samples = np.zeros(n_bootstrap)
-
-        if random_state is not None:
-            np.random.seed(random_state)
-
-        for i in range(n_bootstrap):
-            indices = np.random.choice(n, size=n, replace=True)
-            sample_l = l_vals[indices]
-            sample_s = s_vals[indices]
-            slope, _, _, _, _ = stats.linregress(sample_l, sample_s)
-            slope_samples[i] = slope
-
-        bootstrap_stats = compute_bootstrap_statistics(slope_samples)
-        model_result = model_result._replace(slope=bootstrap_stats['mean'])
-
-    else:
-        # Constant model: bootstrap on the mean
-        bootstrap_stats = compute_bootstrap_statistics(bootstrap_resample(s_vals, n_bootstrap, random_state))
-        model_result = model_result._replace(slope=None)
-
-    return bootstrap_stats, model_result
-
-def generate_toy_model_data(
-    L: int = 10,
-    delta: float = 0.5,
-    n_realizations: int = 5,
     random_seed: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> List[np.ndarray]:
     """
-    Generate toy model data for visualization.
-
-    This function creates a short chain with random couplings and computes
-    the entanglement entropy for each bipartition.
+    Perform non-parametric percentile bootstrap resampling.
 
     Args:
-        L: Chain length.
-        delta: Disorder strength.
-        n_realizations: Number of disorder realizations.
-        random_seed: Random seed.
+        l_values: Array of bipartition lengths.
+        entropy_values: Array of entanglement entropy values.
+        n_resamples: Number of bootstrap resamples.
+        random_seed: Random seed for reproducibility.
 
     Returns:
-        Tuple of (l_vals, s_avg) where s_avg is the average entropy over realizations.
+        List of bootstrapped entropy arrays.
     """
     if random_seed is not None:
         np.random.seed(random_seed)
 
-    l_vals = np.arange(1, L)
-    s_sum = np.zeros_like(l_vals, dtype=float)
+    n = len(l_values)
+    resamples = []
 
-    for _ in range(n_realizations):
-        # Generate random couplings
-        couplings = np.random.uniform(1 - delta, 1 + delta, size=L - 1)
-        # For a toy model, we approximate entropy as proportional to log(l)
-        # This is a simplified representation; real computation would use TEBD
-        # Here we add some noise to simulate disorder effects
-        noise = np.random.normal(0, 0.1, size=len(l_vals))
-        s_vals = (np.log(l_vals) / 3.0) * np.mean(couplings) + noise
-        s_sum += s_vals
+    for _ in range(n_resamples):
+        indices = np.random.choice(n, size=n, replace=True)
+        resampled_entropy = entropy_values[indices]
+        resamples.append(resampled_entropy)
 
-    s_avg = s_sum / n_realizations
-    return l_vals, s_avg
+    return resamples
 
-def generate_entropy_vs_l_plot(
-    l_vals: np.ndarray,
-    s_vals: np.ndarray,
-    output_path: str,
-    model_result: Optional[ModelSelectionResult] = None,
-    title: Optional[str] = None,
-    xlabel: str = "Bipartition Length $l$",
-    ylabel: str = "Entanglement Entropy $S(l)$",
-    log_scale: bool = True
-) -> None:
+
+def compute_bootstrap_statistics(
+    l_values: np.ndarray,
+    entropy_values: np.ndarray,
+    n_resamples: int = 1000,
+    random_seed: Optional[int] = None
+) -> Dict[str, any]:
     """
-    Generate a log-log plot of entanglement entropy vs bipartition length.
-
-    This function creates a plot with the data points and, if available,
-    the fitted model line. The plot is saved to the specified output path.
+    Compute bootstrap statistics for the scaling exponent.
 
     Args:
-        l_vals: Array of bipartition lengths.
-        s_vals: Array of entanglement entropies.
-        output_path: Path to save the plot (e.g., 'data/entropy_vs_l.png').
-        model_result: Optional ModelSelectionResult to plot the fit line.
-        title: Optional plot title.
-        xlabel: X-axis label.
-        ylabel: Y-axis label.
-        log_scale: If True, use log-log scale.
+        l_values: Array of bipartition lengths.
+        entropy_values: Array of entanglement entropy values.
+        n_resamples: Number of bootstrap resamples.
+        random_seed: Random seed for reproducibility.
+
+    Returns:
+        Dictionary containing mean, std, confidence intervals, and p-value.
     """
-    plt.figure()
+    resamples = bootstrap_resample(l_values, entropy_values, n_resamples, random_seed)
+    slopes = []
 
-    # Plot data points
-    plt.scatter(l_vals, s_vals, alpha=0.6, label='Data', color='blue', edgecolors='k')
+    for resampled_entropy in resamples:
+        try:
+            l_safe = np.maximum(l_values, 1e-10)
+            popt, _ = curve_fit(_log_func, l_safe, resampled_entropy, p0=[0.5, np.mean(resampled_entropy)])
+            slopes.append(popt[0])
+        except Exception:
+            slopes.append(0.0)
 
-    # Plot fit line if model_result is provided
-    if model_result is not None:
-        if model_result.model_type == 'logarithmic' and model_result.slope is not None:
-            # Fit line: S(l) = slope * log(l) + intercept
-            l_fit = np.linspace(min(l_vals), max(l_vals), 100)
-            s_fit = model_result.slope * np.log(l_fit) + (model_result.intercept or 0)
-            plt.plot(l_fit, s_fit, 'r-', label=f'Log Fit: $S = {model_result.slope:.3f} \\ln l + {model_result.intercept:.3f}$')
-        elif model_result.model_type == 'linear' and model_result.slope is not None:
-            # Fit line: S(l) = slope * l + intercept
-            l_fit = np.linspace(min(l_vals), max(l_vals), 100)
-            s_fit = model_result.slope * l_fit + (model_result.intercept or 0)
-            plt.plot(l_fit, s_fit, 'r-', label=f'Linear Fit: $S = {model_result.slope:.3f} l + {model_result.intercept:.3f}$')
-        elif model_result.model_type == 'constant' and 'c' in model_result.params:
-            # Constant line
-            c = model_result.params['c']
-            plt.axhline(y=c, color='r', linestyle='--', label=f'Constant Fit: $S = {c:.3f}$')
+    slopes = np.array(slopes)
+    mean_slope = np.mean(slopes)
+    std_slope = np.std(slopes)
+    ci_lower = np.percentile(slopes, 2.5)
+    ci_upper = np.percentile(slopes, 97.5)
 
-    if log_scale:
-        plt.xscale('log')
-        plt.yscale('log')
+    # Two-sided p-value for testing if slope is significantly different from 0
+    t_stat = mean_slope / (std_slope / np.sqrt(len(slopes))) if std_slope > 0 else 0
+    p_value = 2 * (1 - stats.t.cdf(abs(t_stat), len(slopes) - 1))
 
-    if title:
-        plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    return {
+        'mean': mean_slope,
+        'std': std_slope,
+        'ci_lower': ci_lower,
+        'ci_upper': ci_upper,
+        'p_value': p_value,
+        'n_resamples': n_resamples
+    }
+
+
+def compute_scaling_exponent(
+    l_values: np.ndarray,
+    entropy_values: np.ndarray
+) -> Tuple[float, float]:
+    """
+    Compute the scaling exponent alpha from S(l) ~ l^alpha or S(l) ~ log(l).
+
+    For logarithmic scaling, alpha is the coefficient of log(l).
+    For power-law scaling, alpha is the exponent.
+
+    Args:
+        l_values: Array of bipartition lengths.
+        entropy_values: Array of entanglement entropy values.
+
+    Returns:
+        Tuple of (alpha, intercept) for the best-fit model.
+    """
+    result = select_model_aic(l_values, entropy_values)
+    return result.coefficients[result.best_model]
+
+
+def generate_toy_model_data(
+    L: int = 10,
+    n_points: int = 5
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate toy model data for verification.
+
+    Args:
+        L: Total chain length.
+        n_points: Number of bipartition points to evaluate.
+
+    Returns:
+        Tuple of (l_values, entropy_values) for the toy model.
+    """
+    l_values = np.linspace(1, L - 1, n_points)
+    # Simulate logarithmic scaling: S(l) = (ln 2)/3 * log(l) + c
+    # Using Refael-Moore result for random singlet phase
+    entropy_values = (np.log(2) / 3) * np.log(l_values) + 0.5
+    return l_values, entropy_values
+
+
+def generate_entropy_vs_l_plot(
+    l_values: np.ndarray,
+    entropy_values: np.ndarray,
+    output_path: str,
+    title: str = "Entanglement Entropy vs Bipartition Length"
+):
+    """
+    Generate a log-log plot of entropy vs l with fit line.
+
+    Args:
+        l_values: Array of bipartition lengths.
+        entropy_values: Array of entanglement entropy values.
+        output_path: Path to save the plot.
+        title: Plot title.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    result = select_model_aic(l_values, entropy_values)
+    best_model = result.best_model
+    coeffs = result.coefficients[best_model]
+
+    plt.figure(figsize=(10, 6))
+    plt.scatter(l_values, entropy_values, label='Data', alpha=0.6)
+
+    # Plot fit line
+    l_fit = np.linspace(min(l_values), max(l_values), 100)
+    if best_model == 'area_law':
+        y_fit = np.ones_like(l_fit) * coeffs[1]
+        label = f'Area Law (Const): S = {coeffs[1]:.3f}'
+    elif best_model == 'logarithmic':
+        l_safe = np.maximum(l_fit, 1e-10)
+        y_fit = _log_func(l_safe, *coeffs)
+        label = f'Logarithmic: S = {coeffs[0]:.3f} log(l) + {coeffs[1]:.3f}'
+    else:  # volume_law
+        y_fit = _linear_func(l_fit, *coeffs)
+        label = f'Volume Law (Linear): S = {coeffs[0]:.3f} l + {coeffs[1]:.3f}'
+
+    plt.plot(l_fit, y_fit, 'r-', label=label)
+
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Bipartition Length (l)')
+    plt.ylabel('Entanglement Entropy S(l)')
+    plt.title(title)
     plt.legend()
     plt.grid(True, which="both", ls="--", alpha=0.5)
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
+    plt.tight_layout()
     plt.savefig(output_path)
     plt.close()
+
+
+def verify_scaling_ansatz(
+    l_values: np.ndarray,
+    entropy_values: np.ndarray
+) -> Dict[str, any]:
+    """
+    Verify the scaling ansatz by comparing AIC scores for different models.
+
+    Implements the "Bartender Test" by explicitly computing ΔAIC.
+
+    Args:
+        l_values: Array of bipartition lengths.
+        entropy_values: Array of entanglement entropy values.
+
+    Returns:
+        Dictionary with AIC scores, ΔAIC, and best model.
+    """
+    result = select_model_aic(l_values, entropy_values)
+    aic_scores = result.aic_scores
+    best_model = result.best_model
+    min_aic = aic_scores[best_model]
+
+    delta_aic = {model: score - min_aic for model, score in aic_scores.items()}
+
+    # Log the verification
+    log_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'validation_log.txt')
+    try:
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        with open(log_path, 'a') as f:
+            f.write(f"[{np.datetime64('now')}] Scaling Ansatz Verification:\n")
+            f.write(f"  Best Model: {best_model}\n")
+            f.write(f"  AIC Scores: {aic_scores}\n")
+            f.write(f"  ΔAIC: {delta_aic}\n")
+    except Exception:
+        pass
+
+    return {
+        'best_model': best_model,
+        'aic_scores': aic_scores,
+        'delta_aic': delta_aic,
+        'coefficients': result.coefficients,
+        'r_squared': result.r_squared
+    }

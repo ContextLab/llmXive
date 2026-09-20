@@ -8,10 +8,11 @@ Provides strict input validation for simulation parameters:
 - Random seed (non-negative integer)
 
 Raises ValueError with clear messages for out-of-bounds parameters.
+Supports dev_mode flag to bypass L-range checks for toy models.
 """
 
 import os
-from typing import Optional
+from typing import Optional, Dict, Any
 
 
 class ConfigError(ValueError):
@@ -107,16 +108,18 @@ def validate_config(
     L: int,
     delta: float,
     N_real: int,
-    random_seed: Optional[int] = None
-) -> dict:
+    random_seed: Optional[int] = None,
+    dev_mode: bool = False
+) -> Dict[str, Any]:
     """
     Validate all simulation parameters according to project constraints.
 
     Args:
-        L: System size (chain length). Must be in [20, 40].
+        L: System size (chain length). Must be in [20, 40] unless dev_mode is True.
         delta: Disorder strength. Must be in [0, 1].
         N_real: Number of disorder realizations. Must be in [50, 200].
         random_seed: Random seed for reproducibility. Must be non-negative or None.
+        dev_mode: If True, bypass L-range checks (allow 2 <= L < 20) for toy models.
 
     Returns:
         A dictionary containing the validated parameters.
@@ -124,8 +127,14 @@ def validate_config(
     Raises:
         ConfigError: If any parameter is out of bounds or invalid.
     """
-    # Validate L
-    L_validated = validate_int(L, min_val=20, max_val=40, param_name="L")
+    # Validate L with dev_mode support
+    if dev_mode:
+        # Allow smaller L for toy models (e.g., L=10 as per Feynman review)
+        L_min, L_max = 2, 100
+    else:
+        L_min, L_max = 20, 40
+
+    L_validated = validate_int(L, min_val=L_min, max_val=L_max, param_name="L")
 
     # Validate delta
     delta_validated = validate_float(delta, min_val=0.0, max_val=1.0, param_name="delta")
@@ -140,11 +149,12 @@ def validate_config(
         "L": L_validated,
         "delta": delta_validated,
         "N_real": N_real_validated,
-        "random_seed": seed_validated
+        "random_seed": seed_validated,
+        "dev_mode": dev_mode
     }
 
 
-def get_default_config() -> dict:
+def get_default_config() -> Dict[str, Any]:
     """
     Return a dictionary of default configuration values.
 
@@ -155,5 +165,6 @@ def get_default_config() -> dict:
         "L": 30,
         "delta": 0.2,
         "N_real": 100,
-        "random_seed": None  # Will generate a random seed if None
+        "random_seed": None,
+        "dev_mode": False
     }

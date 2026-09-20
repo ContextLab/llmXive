@@ -1,63 +1,87 @@
 """
-T001: Initialize Project Directory Structure
+Project Initialization Script for PROJ-308-quantifying-entanglement-entropy-in-rand.
 
-Creates the required directory structure for the PROJ-308-quantifying-entanglement-entropy-in-rand project.
-This script must be run from the project root.
+This script creates the required directory structure for the project as specified
+in task T001. It ensures all necessary folders for code, data, state, tests,
+and documentation are present.
 """
+
 import os
 import sys
 from pathlib import Path
 
+
 def main():
-    # Define the project root relative to where this script is run from.
-    # The task specifies creating directories in `projects/PROJ-308-quantifying-entanglement-entropy-in-rand/`.
-    # Assuming this script is run from the repository root or the project root.
-    # We will define the target base directory explicitly.
-    project_base = Path("projects/PROJ-308-quantifying-entanglement-entropy-in-rand")
-    
+    """
+    Initialize the project directory structure.
+
+    Creates the following directories relative to the project root:
+    - code/
+    - data/
+      - raw/
+      - processed/
+    - state/
+      - projects/
+    - tests/
+      - unit/
+      - integration/
+    - docs/
+    - tools/
+    """
+    # Determine the project root.
+    # We assume this script is located at <root>/code/setup_project.py
+    # So we go up one level to get the root.
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+
+    print(f"Initializing project structure at: {project_root}")
+
+    # Define the directory structure to create
     directories = [
         "code",
-        "data",
-        "state",
-        "tests",
-        "docs",
         "data/raw",
         "data/processed",
+        "state",
+        "state/projects",
         "tests/unit",
         "tests/integration",
-        "state/projects",
+        "docs",
+        "tools",
     ]
 
     created_count = 0
     existing_count = 0
 
-    print(f"Initializing project structure at: {project_base.absolute()}")
-
     for dir_path in directories:
-        full_path = project_base / dir_path
-        
+        full_path = project_root / dir_path
         if full_path.exists():
-            existing_count += 1
             print(f"  [SKIP] {dir_path} (already exists)")
+            existing_count += 1
         else:
             full_path.mkdir(parents=True, exist_ok=True)
+            print(f"  [CREATE] {dir_path}")
             created_count += 1
-            print(f"  [CREATED] {dir_path}")
 
-    print(f"\nSummary: {created_count} directories created, {existing_count} already existed.")
-    
-    # Verification step as requested in task description
-    print("\nVerifying structure with 'find' equivalent:")
-    for root, dirs, files in os.walk(project_base):
-        level = root.replace(str(project_base), '').count(os.sep)
-        indent = ' ' * 2 * level
-        print(f"{indent}{os.path.basename(root)}/")
-        subindent = ' ' * 2 * (level + 1)
-        # Only print directories to keep output clean, matching 'find -type d' logic
-        for d in dirs:
-            print(f"{subindent}{d}/")
+    print(f"\nInitialization complete.")
+    print(f"  Created: {created_count} directories")
+    print(f"  Skipped: {existing_count} directories (already existed)")
+
+    # Verify structure
+    print("\nVerifying directory structure...")
+    missing = []
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.is_dir():
+            missing.append(dir_path)
+
+    if missing:
+        print(f"  [ERROR] The following directories were not created: {missing}")
+        sys.exit(1)
+    else:
+        print("  [OK] All required directories verified.")
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
