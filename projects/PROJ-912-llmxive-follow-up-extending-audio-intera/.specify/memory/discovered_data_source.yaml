@@ -1,11 +1,13 @@
 status: none
-intent: download audio-language paired dataset with transcripts for distillation python
-  package dataset
+intent: HuggingFace datasets LibriSpeech Common Voice audio transcription python package
+  dataset
 required_fields:
-- audio_filepath
+- audio
 - transcript
-- language
+- speaker_id
 - duration
-cache_key: 0a6fc7f65c9ddd2b89ba87f2dac94d746c9062d1fa9daa22dff3c453a6c339da
-searched_at: '2026-08-09T12:49:42.313706+00:00'
+- language
+- sampling_rate
+cache_key: 5ca1e61fa7a43238ea77bd8f5194096062ff1276fc2f934439cd38ce776c0ff1
+searched_at: '2026-09-20T03:52:19.610155+00:00'
 retry_count: 1

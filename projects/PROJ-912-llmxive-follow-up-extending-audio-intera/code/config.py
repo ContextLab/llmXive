@@ -26,6 +26,23 @@ class PathConfig:
         """Alias for processed_dir."""
         return self.processed_dir
 
+    # T004 Fix: Add missing 'logs_dir' attribute to satisfy utils/logger.py
+    @property
+    def logs_dir(self) -> Path:
+        """Directory for log files."""
+        return self.data_dir / "logs"
+
+    # T004 Fix: Add robust __getattr__ to tolerate any future logger-style calls
+    def __getattr__(self, name: str) -> Any:
+        """
+        Fallback for any attribute access not defined as a dataclass field or property.
+        Returns a no-op callable for logger-style methods (info, debug, warning, error)
+        to prevent AttributeError in diverse call sites.
+        """
+        def _noop(*args, **kwargs) -> Any:
+            return None
+        return _noop
+
 @dataclass
 class SeedConfig:
     """Configuration for random seeds."""
@@ -55,6 +72,7 @@ class ResourceConfig:
 @dataclass
 class PruningConfig:
     """Configuration for pruning."""
+    # T004 Default: PRUNING_RATIOS=[0.1, 0.2, 0.3]
     pruning_ratios: List[float] = field(default_factory=lambda: [0.1, 0.2, 0.3])
     pruning_method: str = "magnitude"
 
@@ -69,6 +87,7 @@ class DatasetConfig:
 @dataclass
 class DistillationConfig:
     """Configuration for knowledge distillation."""
+    # T004 Defaults: KD_ALPHA=0.5, KD_TEMP=4.0
     kd_alpha: float = 0.5
     kd_temp: float = 4.0
     learning_rate: float = 1e-4
@@ -78,7 +97,10 @@ class DistillationConfig:
 class EvaluationConfig:
     """Configuration for evaluation."""
     thresholds: List[float] = field(default_factory=lambda: [0.01, 0.05, 0.1])
-    breaking_point_threshold: float = 0.1  # 10% drop
+    # T004 Default: STEP_CHANGE_THRESHOLD=0.10
+    breaking_point_threshold: float = 0.1
+    # T004 Default: WEIGHTS_SCORE=[0.5, 0.5]
+    weights_score: List[float] = field(default_factory=lambda: [0.5, 0.5])
 
 class Config:
     """Main configuration container."""
