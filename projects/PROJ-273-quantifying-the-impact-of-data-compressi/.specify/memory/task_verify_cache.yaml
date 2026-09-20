@@ -57,6 +57,13 @@ T017#2:
   r: No `data-model.md` file was presented in the `specs/001-compression-impact-gw-reconstruction/`
     directory, and no schema definitions for GWOSCEvent, CompressionArtifact, or ParameterPosterior
     were provided. The required documentation artifact is missing.
+T019:
+  c: false
+  h: f4b9666b2b82d92789b69679d1ff6f2a7379cf60b9eadff2fa0306414206efcb
+  r: "The required pipeline modules `src/data/fetch_logic.py` and `src/data/validation_logic.py`\
+    \ are absent, and the provided `src/data/fetch_loop.py` is only a partial, truncated\
+    \ implementation (ends mid\u2011function). The task\u2019s core deliverables are\
+    \ therefore not present."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

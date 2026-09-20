@@ -4787,3 +4787,339 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T08:11:16Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: generate at least 5 synthetic CBC injections using LALSimulation from
+    GWOSC noise
+  claim_id: c_f6a9d2f5
+  context: 'FR-001 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_5_synthetic_CBC_injections_using_LALSimula
+  kind: magnitude
+  raw_text: "The system MUST generate \u22655 synthetic CBC injections into real GW\
+    \ noise segments fetched from GWOSC, using LALSimulation with known ground truth\
+    \ parameters."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:49:45Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: iterate injection attempts up to 50 times to find 5 valid events
+  claim_id: c_41753418
+  context: 'FR-001 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST iterate fetching noise segments and generating injections\
+    \ until \u22655 valid events with complete spin metadata are found, or a maximum\
+    \ of 50 attempts is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:49:46Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: apply lossy compression at 16-bit, 8-bit, 4-bit quantization and JPEG2000
+    quality 50, 75, 90
+  claim_id: c_41a492ee
+  context: 'FR-003 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_lossy_compression_at_16-bit,_8-bit,_4-bit_quantization
+  kind: magnitude
+  raw_text: 'The system MUST apply at least 2 lossy compression methods: (1) Quantized
+    floating-point at 16-bit, 8-bit, 4-bit; (2) JPEG2000 at quality 50, 75, 90; (3)
+    Wavelet Thresholding.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:50:04Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: run Bilby/Dynesty parameter estimation on at least 5 events
+  claim_id: c_44600613
+  context: 'FR-005 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_Bilby/Dynesty_parameter_estimation_on_at_least_5_events
+  kind: magnitude
+  raw_text: "The system MUST run Parameter Estimation using Bilby with Dynesty (Fast\
+    \ PE) on both original and compressed datasets for \u22655 events."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:50:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fallback to paired t-tests with Benjamini-Hochberg correction if ESS
+    < 100 or N < 5
+  claim_id: c_f4942208
+  context: 'FR-007 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If convergence fails (ESS < 100) or sample size N < 5, the system MUST
+    fallback to Paired t-tests (alpha=0.05) with Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:51:15Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: final analysis set must contain at least 5 events with complete spin
+    metadata
+  claim_id: c_e0fe7f83
+  context: 'FR-009 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_analysis_set_must_contain_at_least_5_events_with_compl
+  kind: magnitude
+  raw_text: "The final analysis set must contain \u2265 5 events with complete spin\
+    \ metadata."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:51:56Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: posterior distributions generated within 2 hours per event on 2-core
+    7GB RAM
+  claim_id: c_b9212535
+  context: 'US-3 Acceptance Scenario 1 update in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Given original and 8-bit compressed waveform data, When Bilby/Dynesty\
+    \ (Fast PE) is run on a 2-core, 7GB RAM runner, Then posterior distributions are\
+    \ generated within \u2264 2 hours per event."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:52:19Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: LALSimulation generates ground truth with pinned seeds and real GWOSC
+    noise
+  claim_id: c_b63ce61d
+  context: Deviation justification for Synthetic Injections in T001.0
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LALSimulation_generates_ground_truth_with_pinned_seeds_and_r
+  kind: entity_fact
+  raw_text: LALSimulation generates ground truth with known parameters; seeds are
+    pinned; noise is real (GWOSC).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:52:37Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: exclude events lacking complete spin metadata including tilt angle posteriors
+  claim_id: c_9eab993f
+  context: 'FR-009 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_events_lacking_complete_spin_metadata_including_tilt
+  kind: entity_fact
+  raw_text: The system MUST exclude any event lacking complete spin metadata (specifically
+    tilt angle posteriors) from the analysis set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:52:57Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: external Bias_Original source must be verified by Reference-Validator
+    Agent
+  claim_id: c_ba8f4f27
+  context: 'FR-010 replacement text in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_Bias_Original_source_must_be_verified_by_Reference-
+  kind: entity_fact
+  raw_text: The external source for Bias_Original MUST be verified by the Reference-Validator
+    Agent.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:53:20Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: at least 5 of 15 synthetic injection attempts must have completeness
+    on required fields
+  claim_id: c_682ffe61
+  context: 'US-1 Acceptance Scenario 2 update in Step 2: Draft Spec Amendments (T002.0)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 436'
+      source_id: Q56244980
+      url: https://www.wikidata.org/wiki/Q56244980
+      value: '436'
+    filled: true
+  kind: magnitude
+  raw_text: "Given generated synthetic injections, When validation checks are run,\
+    \ Then \u2265 5 of 15 attempts must have completeness on required fields."
+  resolved_value: '436'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T00:53:33Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: pipeline loop runs until 5 valid events found or 50 attempts reached
+  claim_id: c_8b359c58
+  context: Implementation details for T019.1 in Phase 3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline loop runs until \u22655 valid events are found or max_attempts=50\
+    \ is reached."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:53:57Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: synthetic injections generate true_parameters not posteriors
+  claim_id: c_20ba51a6
+  context: Validation logic note in T019.1 in Phase 3
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_injections_generate_true_parameters_not_posteriors
+  kind: entity_fact
+  raw_text: Synthetic injections generate 'true_parameters', not 'posteriors'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:54:26Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: local high-iteration runs on CI are forbidden
+  claim_id: c_aab8c6f6
+  context: Note in T040.1a and T040.2b in Phase 4.5
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Local_high-iteration_runs_on_CI_are_forbidden
+  kind: entity_fact
+  raw_text: Local high-iteration runs on CI are forbidden.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:54:55Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: quantized floating-point uses 16-bit, 8-bit, 4-bit widths
+  claim_id: c_91164e63
+  context: Implementation details for T020.1 in Phase 5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Quantized floating-point implementation uses variable bit-widths: 16-bit,
+    8-bit, 4-bit.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:15Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: Bilby/Dynesty uses maxiter 5000 nlive 200 dlogz_init 0.5
+  claim_id: c_539122fb
+  context: Implementation details for T026 in Phase 6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bilby/Dynesty wrapper uses reduced iterations (maxiter=5000, nlive=200,
+    dlogz_init=0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:33Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: hierarchical Bayesian test fails if ESS < 100
+  claim_id: c_81d5c42a
+  context: Failure detection logic in T027.1 in Phase 6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hierarchical Bayesian test fails if ESS < 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:34Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: fallback to paired t-tests if ESS < 100 or N < 5
+  claim_id: c_a73d6f6e
+  context: Fallback logic in T027.3 in Phase 6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback to Paired t-tests is triggered if ESS < 100 or N < 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:34Z'
+- artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  attempts: 1
+  canonical: full pipeline execution must be under 6 hours
+  claim_id: c_e847e42d
+  context: Performance optimization task T033 in Phase 7
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Full pipeline execution must be \u2264 6 hours due to CI constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:35Z'

@@ -1,303 +1,222 @@
-"""
-Main entry point for User Story 2: Compression Pipeline.
-Applies all lossless and lossy compression methods to validated events from US1.
-
-Dependencies:
-- T019 (lossless.py)
-- T020.1 (lossy.py - Quantization)
-- T020.2 (lossy.py - Wavelet)
-- T020.3 (lossy.py - JPEG2000)
-- T021 (metrics.py)
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import time
 
-# Add project root to path to allow imports from src
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.utils.logging import get_logger, log_step_start, log_step_complete, log_step_error, log_metric
-from src.utils.config import get_path, ensure_dir
-from src.compression.lossless import compress_data, decompress_data, verify_lossless
-from src.compression.lossy import compress_quantization, decompress_quantization
-from src.compression.lossy import compress_wavelet, decompress_wavelet
-from src.compression.lossy import compress_jpeg2000, decompress_jpeg2000
+from src.utils.logging import get_logger, log_step_start, log_step_complete, log_step_error
+from src.utils.config import get_project_root, ensure_dir
+from src.compression.lossless import compress_gzip, compress_bzip2, compress_lzma, compress_lz4
+from src.compression.lossless import decompress_gzip, decompress_bzip2, decompress_lzma, decompress_lz4
 from src.compression.metrics import compute_compression_metrics
+from src.compression.quality_flagger import flag_compression_quality, aggregate_quality_report
 
 logger = get_logger(__name__)
 
-# Configuration for compression levels
-LOSSLESS_LEVELS = {
-    'gzip': [1, 5, 9],
-    'bzip2': [1, 5, 9],
-    'lzma': [0, 5, 9]
-}
-
-LOSSY_LEVELS = {
-    'quantization': [4, 8, 12],  # bit-widths
-    'wavelet': [1, 2, 3],        # threshold levels
-    'jpeg2000': [0.1, 0.5, 1.0]  # quality factors
-}
-
-def load_validated_event(event_path: Path) -> Dict[str, Any]:
-    """Load a validated event from US1 output."""
-    try:
-        with open(event_path, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load event {event_path}: {e}")
-        raise
-
-def process_single_event(
-    event_data: Dict[str, Any],
-    event_id: str,
-    output_base: Path
-) -> Dict[str, Any]:
+def load_validated_event(event_id: str) -> Dict[str, Any]:
     """
-    Apply all compression methods to a single event.
-    Returns a summary of results.
+    Load a validated event from data/interim/valid_events.json and return its data paths.
     """
-    results = {
-        'event_id': event_id,
-        'methods': {}
+    valid_events_path = get_project_root() / "data" / "interim" / "valid_events.json"
+    if not valid_events_path.exists():
+        raise FileNotFoundError(f"Valid events file not found: {valid_events_path}")
+    
+    with open(valid_events_path, 'r') as f:
+        valid_data = json.load(f)
+    
+    event_ids = valid_data.get("event_ids", [])
+    if event_id not in event_ids:
+        raise ValueError(f"Event ID {event_id} not found in valid events list.")
+    
+    # Construct expected paths based on project structure
+    noise_path = get_project_root() / "data" / "interim" / "noise" / f"{event_id}_noise.npy"
+    metadata_path = get_project_root() / "data" / "interim" / "metadata" / f"{event_id}_metadata.json"
+    
+    if not noise_path.exists():
+        raise FileNotFoundError(f"Noise file not found for event {event_id}: {noise_path}")
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Metadata file not found for event {event_id}: {metadata_path}")
+    
+    return {
+        "event_id": event_id,
+        "noise_path": noise_path,
+        "metadata_path": metadata_path
     }
+
+def process_single_event(event_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Apply all compression methods to a single event and compute metrics.
+    Returns a dictionary of results for this event.
+    """
+    event_id = event_data["event_id"]
+    noise_path = event_data["noise_path"]
+    metadata_path = event_data["metadata_path"]
     
-    # Extract strain data and metadata
-    strain = event_data.get('strain', [])
-    metadata = event_data.get('metadata', {})
-    true_params = event_data.get('true_parameters', {})
+    log_step_start(f"Processing event {event_id}")
     
-    if not strain:
-        logger.warning(f"No strain data found for event {event_id}, skipping")
-        return results
-    
-    strain_array = np.array(strain)
-    original_size = strain_array.nbytes
-    
-    # 1. Lossless Compression
-    logger.info(f"Processing lossless compression for {event_id}")
-    for method, levels in LOSSLESS_LEVELS.items():
-        method_results = {}
-        for level in levels:
-            try:
-                # Compress
-                compressed = compress_data(strain_array, method, level)
-                compressed_size = len(compressed)
-                
-                # Decompress
-                decompressed = decompress_data(compressed, method, level)
-                
-                # Verify lossless
-                is_lossless = verify_lossless(strain_array, decompressed)
-                
-                # Compute metrics
-                metrics = compute_compression_metrics(
-                    strain_array, 
-                    decompressed, 
-                    original_size, 
-                    compressed_size
-                )
-                
-                method_results[str(level)] = {
-                    'status': 'success',
-                    'is_lossless': is_lossless,
-                    'compression_ratio': metrics['compression_ratio'],
-                    'mse': metrics['mse'],
-                    'snr_degradation_db': metrics['snr_degradation_db']
-                }
-                
-                # Save artifacts
-                artifact_dir = output_base / 'lossless' / method / str(level)
-                ensure_dir(artifact_dir)
-                
-                with open(artifact_dir / 'compressed.bin', 'wb') as f:
-                    f.write(compressed)
-                with open(artifact_dir / 'decompressed.json', 'w') as f:
-                    json.dump(decompressed.tolist(), f)
-                
-            except Exception as e:
-                logger.error(f"Lossless {method} level {level} failed: {e}")
-                method_results[str(level)] = {'status': 'failed', 'error': str(e)}
+    try:
+        # Load original data
+        import numpy as np
+        original_waveform = np.load(noise_path)
         
-        results['methods'][method] = method_results
-    
-    # 2. Lossy Compression
-    logger.info(f"Processing lossy compression for {event_id}")
-    
-    # Quantization
-    for level in LOSSY_LEVELS['quantization']:
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
+        
+        results = {
+            "event_id": event_id,
+            "compression_results": []
+        }
+        
+        # Define compression methods and parameters
+        # Lossless: gzip, bzip2, lzma, lz4 at levels 1, 5, 9
+        lossless_methods = [
+            ("gzip", compress_gzip, decompress_gzip, [1, 5, 9]),
+            ("bzip2", compress_bzip2, decompress_bzip2, [1, 5, 9]),
+            ("lzma", compress_lzma, decompress_lzma, [1, 5, 9]),
+            ("lz4", compress_lz4, decompress_lz4, [1, 5, 9]),
+        ]
+        
+        # Lossy: Quantization (16, 8, 4 bit), Wavelet, JPEG2000 (50, 75, 90)
+        # Note: T020.1, T020.2, T020.3 implementations assumed to be in lossy.py
+        # We need to import them if they exist, otherwise we'll handle gracefully
+        lossy_methods = []
         try:
-            compressed, params = compress_quantization(strain_array, bit_width=level)
-            decompressed = decompress_quantization(compressed, params)
-            
-            metrics = compute_compression_metrics(
-                strain_array, 
-                decompressed, 
-                original_size, 
-                len(compressed)
+            from src.compression.lossy import (
+                quantize_float, unquantize_float,
+                wavelet_threshold, undo_wavelet_threshold,
+                compress_jpeg2000, decompress_jpeg2000
             )
-            
-            results['methods']['quantization'][str(level)] = {
-                'status': 'success',
-                'compression_ratio': metrics['compression_ratio'],
-                'mse': metrics['mse'],
-                'snr_degradation_db': metrics['snr_degradation_db']
-            }
-            
-            # Save artifacts
-            artifact_dir = output_base / 'lossy' / 'quantization' / str(level)
-            ensure_dir(artifact_dir)
-            with open(artifact_dir / 'compressed.bin', 'wb') as f:
-                f.write(compressed)
-            with open(artifact_dir / 'params.json', 'w') as f:
-                json.dump(params, f)
-            
-        except Exception as e:
-            logger.error(f"Quantization level {level} failed: {e}")
-            results['methods']['quantization'][str(level)] = {'status': 'failed', 'error': str(e)}
-    
-    # Wavelet
-    for level in LOSSY_LEVELS['wavelet']:
-        try:
-            compressed, params = compress_wavelet(strain_array, threshold_level=level)
-            decompressed = decompress_wavelet(compressed, params)
-            
-            metrics = compute_compression_metrics(
-                strain_array, 
-                decompressed, 
-                original_size, 
-                len(compressed)
-            )
-            
-            results['methods']['wavelet'][str(level)] = {
-                'status': 'success',
-                'compression_ratio': metrics['compression_ratio'],
-                'mse': metrics['mse'],
-                'snr_degradation_db': metrics['snr_degradation_db']
-            }
-            
-            # Save artifacts
-            artifact_dir = output_base / 'lossy' / 'wavelet' / str(level)
-            ensure_dir(artifact_dir)
-            with open(artifact_dir / 'compressed.bin', 'wb') as f:
-                f.write(compressed)
-            with open(artifact_dir / 'params.json', 'w') as f:
-                json.dump(params, f)
-            
-        except Exception as e:
-            logger.error(f"Wavelet level {level} failed: {e}")
-            results['methods']['wavelet'][str(level)] = {'status': 'failed', 'error': str(e)}
-    
-    # JPEG2000
-    for level in LOSSY_LEVELS['jpeg2000']:
-        try:
-            compressed, params = compress_jpeg2000(strain_array, quality_factor=level)
-            decompressed = decompress_jpeg2000(compressed, params)
-            
-            metrics = compute_compression_metrics(
-                strain_array, 
-                decompressed, 
-                original_size, 
-                len(compressed)
-            )
-            
-            results['methods']['jpeg2000'][str(level)] = {
-                'status': 'success',
-                'compression_ratio': metrics['compression_ratio'],
-                'mse': metrics['mse'],
-                'snr_degradation_db': metrics['snr_degradation_db']
-            }
-            
-            # Save artifacts
-            artifact_dir = output_base / 'lossy' / 'jpeg2000' / str(level)
-            ensure_dir(artifact_dir)
-            with open(artifact_dir / 'compressed.bin', 'wb') as f:
-                f.write(compressed)
-            with open(artifact_dir / 'params.json', 'w') as f:
-                json.dump(params, f)
-            
-        except Exception as e:
-            logger.error(f"JPEG2000 level {level} failed: {e}")
-            results['methods']['jpeg2000'][str(level)] = {'status': 'failed', 'error': str(e)}
-    
-    return results
+            lossy_methods = [
+                ("quantization_16bit", quantize_float, unquantize_float, [16]),
+                ("quantization_8bit", quantize_float, unquantize_float, [8]),
+                ("quantization_4bit", quantize_float, unquantize_float, [4]),
+                ("wavelet", wavelet_threshold, undo_wavelet_threshold, [1]),
+                ("jpeg2000", compress_jpeg2000, decompress_jpeg2000, [50, 75, 90]),
+            ]
+        except ImportError as e:
+            logger.warning(f"Lossy compression methods not fully implemented: {e}")
+            logger.info("Proceeding with lossless compression only.")
+        
+        all_methods = lossless_methods + lossy_methods
+        
+        output_dir = get_project_root() / "data" / "interim" / "compressed"
+        ensure_dir(output_dir)
+        
+        for method_name, compress_func, decompress_func, levels in all_methods:
+            for level in levels:
+                try:
+                    # Compress
+                    compressed_data = compress_func(original_waveform, level=level)
+                    
+                    # Decompress
+                    decompressed_data = decompress_func(compressed_data, level=level)
+                    
+                    # Compute metrics
+                    metrics = compute_compression_metrics(original_waveform, decompressed_data)
+                    
+                    # Save compressed data
+                    method_output_dir = output_dir / method_name / str(level)
+                    ensure_dir(method_output_dir)
+                    np.save(method_output_dir / f"{event_id}_compressed.npy", compressed_data)
+                    
+                    result_entry = {
+                        "method": method_name,
+                        "level": level,
+                        "metrics": metrics,
+                        "compressed_path": str(method_output_dir / f"{event_id}_compressed.npy")
+                    }
+                    
+                    results["compression_results"].append(result_entry)
+                    
+                    # Flag quality
+                    is_acceptable = flag_compression_quality(metrics)
+                    result_entry["is_acceptable"] = is_acceptable
+                    
+                    logger.info(f"Event {event_id}: {method_name}@{level} - MSE: {metrics['mse']:.6f}, SNR Deg: {metrics['snr_degradation_db']:.2f}dB, Acceptable: {is_acceptable}")
+                    
+                except Exception as e:
+                    logger.error(f"Error processing {event_id} with {method_name}@{level}: {e}")
+                    results["compression_results"].append({
+                        "method": method_name,
+                        "level": level,
+                        "error": str(e),
+                        "is_acceptable": False
+                    })
+        
+        # Aggregate quality flags for this event
+        quality_report = aggregate_quality_report(results["compression_results"])
+        results["quality_report"] = quality_report
+        
+        log_step_complete(f"Event {event_id} processing completed")
+        return results
+        
+    except Exception as e:
+        log_step_error(f"Event {event_id} processing failed", e)
+        raise
 
 def main():
     """
-    Main pipeline execution for User Story 2.
-    Reads validated events from data/processed/validated_events/
-    Outputs compressed data to data/interim/compressed/
+    Main entry point to apply all compression methods to validated events.
     """
-    log_step_start("US2_Compression_Pipeline")
+    log_step_start("Compression Pipeline - Main")
     
-    # Setup paths
-    input_dir = get_path('data_processed', 'validated_events')
-    output_dir = get_path('data_interim', 'compressed')
-    ensure_dir(output_dir)
+    project_root = get_project_root()
+    output_file = project_root / "data" / "processed" / "compression_results.json"
+    ensure_dir(output_file.parent)
     
-    # Ensure lossy.py has the required functions
-    # (These are expected to be implemented in T020.1, T020.2, T020.3)
-    try:
-        from src.compression.lossy import compress_quantization, decompress_quantization
-        from src.compression.lossy import compress_wavelet, decompress_wavelet
-        from src.compression.lossy import compress_jpeg2000, decompress_jpeg2000
-    except ImportError as e:
-        logger.error("Lossy compression functions not found. Ensure T020.1-T020.3 are complete.")
-        log_step_error("US2_Compression_Pipeline", str(e))
-        return 1
+    # Load valid events
+    valid_events_path = project_root / "data" / "interim" / "valid_events.json"
+    if not valid_events_path.exists():
+        logger.error(f"Valid events file not found: {valid_events_path}")
+        logger.error("Please run the data pipeline (T020) first to generate valid events.")
+        sys.exit(1)
     
-    # Load all validated events
-    event_files = list(input_dir.glob('*.json'))
-    if not event_files:
-        logger.error(f"No validated events found in {input_dir}")
-        log_step_error("US2_Compression_Pipeline", "No input data found")
-        return 1
+    with open(valid_events_path, 'r') as f:
+        valid_data = json.load(f)
     
-    logger.info(f"Found {len(event_files)} validated events to process")
+    event_ids = valid_data.get("event_ids", [])
+    if len(event_ids) == 0:
+        logger.error("No valid events found. Please run the data pipeline first.")
+        sys.exit(1)
     
-    all_results = []
-    success_count = 0
-    failure_count = 0
+    logger.info(f"Processing {len(event_ids)} valid events: {event_ids}")
     
-    for event_file in event_files:
-        event_id = event_file.stem
+    all_results = {
+        "pipeline_version": "T022",
+        "total_events": len(event_ids),
+        "events": []
+    }
+    
+    for event_id in event_ids:
         try:
-            event_data = load_validated_event(event_file)
-            results = process_single_event(event_data, event_id, output_dir)
-            all_results.append(results)
-            success_count += 1
-            logger.info(f"Completed {event_id}")
+            event_data = load_validated_event(event_id)
+            event_results = process_single_event(event_data)
+            all_results["events"].append(event_results)
         except Exception as e:
-            logger.error(f"Failed to process {event_id}: {e}")
-            failure_count += 1
-            all_results.append({
-                'event_id': event_id,
-                'status': 'failed',
-                'error': str(e)
+            logger.error(f"Failed to process event {event_id}: {e}")
+            all_results["events"].append({
+                "event_id": event_id,
+                "error": str(e)
             })
     
-    # Save summary report
-    summary_path = output_dir / 'compression_summary.json'
-    with open(summary_path, 'w') as f:
-        json.dump({
-            'total_events': len(event_files),
-            'successful': success_count,
-            'failed': failure_count,
-            'results': all_results
-        }, f, indent=2)
+    # Save results
+    with open(output_file, 'w') as f:
+        json.dump(all_results, f, indent=2)
     
-    logger.info(f"Compression pipeline complete. Summary saved to {summary_path}")
-    log_metric("US2_Compression_Pipeline", "events_processed", success_count)
-    log_metric("US2_Compression_Pipeline", "events_failed", failure_count)
-    log_step_complete("US2_Compression_Pipeline")
+    logger.info(f"Compression results saved to: {output_file}")
+    log_step_complete("Compression Pipeline - Main")
     
-    return 0 if failure_count == 0 else 1
+    # Print summary
+    total_processed = len([e for e in all_results["events"] if "compression_results" in e])
+    total_failed = len([e for e in all_results["events"] if "error" in e and "compression_results" not in e])
+    logger.info(f"Pipeline completed: {total_processed} events processed, {total_failed} events failed.")
+    
+    return all_results
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

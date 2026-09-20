@@ -1,3 +1,8 @@
+"""
+Main orchestration script for the Data Pipeline (US1).
+Orchestrates the download-inject-validate pipeline to produce the validated dataset.
+Target: >=5 valid events with complete spin metadata (tilt_angle).
+"""
 import os
 import sys
 import json
@@ -5,65 +10,83 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-from src.utils.logging import get_logger, log_step_start, log_step_complete, log_step_error
-from src.utils.config import get_project_root, ensure_dir
-from src.data.fetch_loop import run_fetch_loop
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parents[3]
+    sys.path.insert(0, str(project_root))
 
-logger = get_logger(__name__)
+from src.data.fetch_loop import run_fetch_loop
+from src.utils.logging import setup_logging, get_logger, log_step_start, log_step_complete, log_step_error
+from src.utils.config import get_project_root, ensure_dir
 
 def main():
     """
-    Main entry point for the download-inject-validate pipeline.
-    
-    Orchestrates the fetch -> inject -> validate loop to produce
-    a validated dataset of >= 5 events with complete spin metadata.
-    
-    Operates under Amended FR-001.
+    Orchestrate the download-inject-validate pipeline.
+    Runs until >=5 valid events are found or max_attempts (50) is reached.
+    Outputs: data/interim/valid_events.json
     """
-    log_step_start("Data Pipeline: Download-Inject-Validate")
-    
+    # Setup logging
+    logger = setup_logging(level="INFO")
+    log_step_start("Data Pipeline Orchestration", "T020")
+
     try:
-        project_root = get_project_root()
-        output_dir = project_root / "data" / "processed" / "validated_events"
-        ensure_dir(output_dir)
-        
-        logger.info(f"Output directory: {output_dir}")
-        
         # Configuration
-        target_events = 5
+        target_valid_count = 5
         max_attempts = 50
-        detector = "L1"
-        
-        logger.info(f"Running pipeline: target={target_events}, max_attempts={max_attempts}, detector={detector}")
-        
-        # Run the fetch loop
-        validated_events = run_fetch_loop(
-            target_events=target_events,
+
+        logger.info(f"Starting pipeline to acquire {target_valid_count} valid events.")
+        logger.info(f"Maximum attempts allowed: {max_attempts}")
+
+        # Run the fetch-inject-validate loop
+        # This calls T019.1 logic which handles:
+        # 1. Fetching noise from GWOSC
+        # 2. Injecting synthetic signal (T013)
+        # 3. Validating metadata (T014) including tilt_angle
+        valid_events, stats = run_fetch_loop(
+            target_count=target_valid_count,
             max_attempts=max_attempts,
-            detector=detector
+            logger=logger
         )
-        
-        # Save the validated dataset
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        dataset_file = output_dir / f"validated_events_{timestamp}.json"
-        
-        with open(dataset_file, 'w') as f:
-            json.dump(validated_events, f, indent=2, default=str)
-        
-        logger.info(f"Validated dataset saved to: {dataset_file}")
-        logger.info(f"Total events: {len(validated_events)}")
-        
-        log_step_complete("Data Pipeline: Download-Inject-Validate", {
-            "events_found": len(validated_events),
-            "output_file": str(dataset_file)
-        })
-        
-        return 0
-        
-    except Exception as e:
-        log_step_error("Data Pipeline: Download-Inject-Validate", str(e))
+
+        # Prepare output
+        output_data = {
+            "event_ids": valid_events,
+            "count": len(valid_events),
+            "stats": stats,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+        # Ensure output directory exists
+        project_root = get_project_root()
+        output_dir = project_root / "data" / "interim"
+        ensure_dir(output_dir)
+
+        output_path = output_dir / "valid_events.json"
+
+        # Write results
+        with open(output_path, "w") as f:
+            json.dump(output_data, f, indent=2)
+
+        logger.info(f"Pipeline complete. Found {len(valid_events)} valid events.")
+        logger.info(f"Results saved to: {output_path}")
+
+        # Check success criteria
+        if len(valid_events) < target_valid_count:
+            logger.error(f"Failed to generate {target_valid_count} valid events after {max_attempts} attempts.")
+            log_step_error("Data Pipeline Orchestration", "Failed to reach target event count")
+            sys.exit(1)
+        else:
+            log_step_complete("Data Pipeline Orchestration", f"Generated {len(valid_events)} valid events")
+            sys.exit(0)
+
+    except RuntimeError as e:
         logger.error(f"Pipeline failed: {str(e)}")
-        return 1
+        log_step_error("Data Pipeline Orchestration", str(e))
+        raise
+    except Exception as e:
+        logger.exception(f"Unexpected error during pipeline execution: {e}")
+        log_step_error("Data Pipeline Orchestration", str(e))
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,1 +1,11 @@
-[]
+- artifact_hash: b9931f1dd266a962a2b8db1e07229d692a3b504a0daf0c28eaa4c7bb541b89db
+  artifact_path: projects/PROJ-273-quantifying-the-impact-of-data-compressi/specs/001-quantifying-the-impact-of-data-compressi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Given - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q56244980
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q56244980
+  verified_at: '2026-09-20T00:55:35.776807Z'
