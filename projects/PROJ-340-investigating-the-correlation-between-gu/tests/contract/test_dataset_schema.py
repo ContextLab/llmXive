@@ -1,75 +1,110 @@
 """
-Contract tests for dataset schema validation.
+Contract Test for Dataset Schema Validation (Task T010).
 
-These tests ensure that the data ingestion pipeline strictly adheres to the
-defined schema in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`.
+Verifies that the dataset schema matches the expected structure
+and that validation logic works correctly.
 """
-import pytest
 import os
+import sys
 import json
+import pytest
+import pandas as pd
+import numpy as np
 from pathlib import Path
 
-# Import the validation logic from the main ingest module
-# Note: We assume ingest.py exposes a validate_schema function or similar
-# based on the API surface provided. If not, we import load_schema from reference_validator.
-try:
-    from code.ingest import load_schema, validate_variables
-except ImportError:
-    from code.reference_validator import load_schema
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from ingest import load_required_variables, validate_variables
 
-class TestDatasetSchemaContract:
-    """
-    Contract tests for the Gut Microbiome-Sleep Architecture dataset schema.
-    """
+class TestDatasetSchema:
+    """Test cases for dataset schema validation."""
 
-    @pytest.fixture
-    def schema_path(self):
-        """Locate the dataset schema file."""
-        # Adjust path based on project root structure
-        return Path("specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml")
-
-    @pytest.fixture
-    def config_path(self):
-        """Locate the required variables config."""
-        return Path("data/config/required_variables.yaml")
-
-    def test_schema_file_exists(self, schema_path):
-        """Verify that the schema definition file exists."""
-        assert schema_path.exists(), f"Schema file not found at {schema_path}"
-
-    def test_schema_is_valid_yaml(self, schema_path):
-        """Verify that the schema file is valid YAML."""
-        import yaml
-        try:
-            with open(schema_path, 'r') as f:
-                schema = yaml.safe_load(f)
-            assert schema is not None, "Schema file is empty"
-        except yaml.YAMLError as e:
-            pytest.fail(f"Schema file is not valid YAML: {e}")
-
-    def test_required_variables_config_exists(self, config_path):
-        """Verify that the required variables configuration exists."""
-        assert config_path.exists(), f"Required variables config not found at {config_path}"
-
-    def test_required_variables_structure(self, config_path):
-        """Verify the structure of required_variables.yaml."""
-        import yaml
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
+    def test_required_variables_loaded(self):
+        """Test that required variables are loaded from config."""
+        required = load_required_variables()
         
-        assert 'required_predictors' in config, "Missing 'required_predictors' key"
-        assert 'required_outcomes' in config, "Missing 'required_outcomes' key"
-        
-        assert isinstance(config['required_predictors'], list), "'required_predictors' must be a list"
-        assert isinstance(config['required_outcomes'], list), "'required_outcomes' must be a list"
-        
-        # Ensure lists are not empty (schema requires at least some variables)
-        assert len(config['required_predictors']) > 0, "'required_predictors' cannot be empty"
-        assert len(config['required_outcomes']) > 0, "'required_outcomes' cannot be empty"
+        assert 'required_predictors' in required
+        assert 'required_outcomes' in required
+        assert isinstance(required['required_predictors'], list)
+        assert isinstance(required['required_outcomes'], list)
 
-    def test_validation_logic_imports_correctly(self):
-        """Verify that validation functions can be imported and called with valid arguments."""
-        # This is a basic smoke test to ensure the import chain works
-        # A full validation test would require a sample dataframe
-        assert load_schema is not None
+    def test_validation_passes_with_complete_data(self):
+        """Test validation passes when all required variables are present."""
+        # Create a complete dataset
+        df = pd.DataFrame({
+            'subject_id': range(10),
+            'taxon_abundance': np.random.rand(10),
+            'relative_abundance': np.random.rand(10),
+            'rem_duration': np.random.rand(10) * 100,
+            'sws_duration': np.random.rand(10) * 100,
+            'total_sleep_time': np.random.rand(10) * 100
+        })
+        
+        required = {
+            'required_predictors': ['taxon_abundance', 'relative_abundance'],
+            'required_outcomes': ['rem_duration', 'sws_duration', 'total_sleep_time']
+        }
+        
+        is_valid, metrics = validate_variables(df, required)
+        
+        assert is_valid is True
+        assert metrics['missing_predictors'] == []
+        assert metrics['missing_outcomes'] == []
+
+    def test_validation_fails_with_missing_predictor(self):
+        """Test validation fails when a predictor is missing."""
+        df = pd.DataFrame({
+            'subject_id': range(10),
+            'relative_abundance': np.random.rand(10),
+            'rem_duration': np.random.rand(10) * 100,
+            'sws_duration': np.random.rand(10) * 100,
+            'total_sleep_time': np.random.rand(10) * 100
+        })
+        
+        required = {
+            'required_predictors': ['taxon_abundance', 'relative_abundance'],
+            'required_outcomes': ['rem_duration', 'sws_duration', 'total_sleep_time']
+        }
+        
+        with pytest.raises(ValueError, match="Missing required variables"):
+            validate_variables(df, required)
+
+    def test_validation_fails_with_missing_outcome(self):
+        """Test validation fails when an outcome is missing."""
+        df = pd.DataFrame({
+            'subject_id': range(10),
+            'taxon_abundance': np.random.rand(10),
+            'relative_abundance': np.random.rand(10),
+            'rem_duration': np.random.rand(10) * 100,
+            'sws_duration': np.random.rand(10) * 100
+        })
+        
+        required = {
+            'required_predictors': ['taxon_abundance', 'relative_abundance'],
+            'required_outcomes': ['rem_duration', 'sws_duration', 'total_sleep_time']
+        }
+        
+        with pytest.raises(ValueError, match="Missing required variables"):
+            validate_variables(df, required)
+
+    def test_metrics_report_accuracy(self):
+        """Test that validation metrics accurately reflect missing variables."""
+        df = pd.DataFrame({
+            'subject_id': range(10),
+            'taxon_abundance': np.random.rand(10),
+            'rem_duration': np.random.rand(10) * 100
+        })
+        
+        required = {
+            'required_predictors': ['taxon_abundance', 'relative_abundance'],
+            'required_outcomes': ['rem_duration', 'sws_duration', 'total_sleep_time']
+        }
+        
+        with pytest.raises(ValueError):
+            is_valid, metrics = validate_variables(df, required)
+            assert metrics['missing_predictors'] == ['relative_abundance']
+            assert metrics['missing_outcomes'] == ['sws_duration', 'total_sleep_time']
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

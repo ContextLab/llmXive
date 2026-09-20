@@ -1,12 +1,11 @@
 """
-Synthetic Data Generator for Pipeline Validation.
+Deterministic Synthetic Data Generator for Pipeline Validation.
 
-This module generates synthetic metagenomic count data and sleep architecture
-metrics for testing the pipeline's validation logic, specifically the handling
-of missing variables and zero-inflation.
+This module generates synthetic metagenomic count data and sleep architecture metrics
+for testing the pipeline's ingestion, validation, and analysis steps.
 
-CRITICAL: This data is for LOCAL VALIDATION ONLY. It must not be used in
-production runs or reported as real scientific results.
+CRITICAL: Synthetic data generator invoked in 'validation' or 'test' mode only.
+It is NOT authorized for production research results.
 """
 import os
 import sys
@@ -16,134 +15,198 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Set seeds for reproducibility
-def set_seeds(seed: int = 42):
-    np.random.seed(seed)
+def set_seeds(seed: int = 42) -> np.random.Generator:
+    """Initialize the global random number generator with a fixed seed."""
+    rng = np.random.default_rng(seed)
+    return rng
 
-def load_required_variables(config_path: str = "data/config/required_variables.yaml") -> tuple:
+def load_required_variables(config_path: str = "data/config/required_variables.yaml") -> dict:
     """
-    Load required predictor and outcome variables from the configuration file.
+    Load required variable names from the config file.
+    Returns a dict with 'required_predictors' and 'required_outcomes'.
     """
-    import yaml
     path = Path(config_path)
     if not path.exists():
-        # Fallback for testing if config is missing, though task requires it
-        return ["taxon_a", "taxon_b"], ["rem_duration", "sws_duration", "total_sleep_time"]
-
+        # Fallback to hardcoded defaults if config is missing, 
+        # but log a warning.
+        return {
+            "required_predictors": ["taxon_abundance", "relative_abundance"],
+            "required_outcomes": ["rem_duration", "sws_duration", "total_sleep_time"]
+        }
+    
+    import yaml
     with open(path, 'r') as f:
         config = yaml.safe_load(f)
+    
+    return {
+        "required_predictors": config.get("required_predictors", []),
+        "required_outcomes": config.get("required_outcomes", [])
+    }
 
-    predictors = config.get('required_predictors', [])
-    outcomes = config.get('required_outcomes', [])
-    return predictors, outcomes
-
-def generate_metagenomic_counts(predictors: list, n_samples: int, zero_inflation_ratio: float = 0.4) -> pd.DataFrame:
+def generate_metagenomic_counts(rng: np.random.Generator, n_samples: int, n_taxa: int) -> pd.DataFrame:
     """
-    Generate synthetic metagenomic count data using Zero-Inflated Negative Binomial distribution.
+    Generate synthetic metagenomic count data.
+    
+    Uses a Zero-Inflated Negative Binomial distribution to mimic 
+    realistic microbiome sparsity and over-dispersion.
     """
+    # Generate taxon names
+    taxa_names = [f"Taxon_{i}" for i in range(n_taxa)]
+    
+    # Generate counts with zero-inflation
+    # Approximate ZINB: mix of zeros and NB-distributed counts
     data = {}
-    for taxon in predictors:
-        # Parameters for Negative Binomial
-        mu = np.random.uniform(10, 100)
-        alpha = np.random.uniform(0.1, 0.5)
-
-        # Generate counts
-        counts = np.random.negative_binomial(alpha, alpha / (alpha + mu), n_samples)
-
-        # Apply zero-inflation
-        zero_mask = np.random.random(n_samples) < zero_inflation_ratio
-        counts[zero_mask] = 0
-
+    for taxon in taxa_names:
+        # Probability of zero inflation
+        pi = 0.3 
+        # Generate uniform randoms to decide zero vs count
+        u = rng.uniform(0, 1, n_samples)
+        # Generate NB counts for non-zeros
+        # mu (mean) and alpha (dispersion)
+        mu = rng.uniform(10, 100, n_samples)
+        alpha = rng.uniform(0.1, 1.0)
+        # NB generation: use Gamma-Poisson mixture
+        # Lambda ~ Gamma(alpha, mu/alpha)
+        # Count ~ Poisson(Lambda)
+        # Simplified: use numpy's negative_binomial if available, 
+        # or approximate with Gamma + Poisson
+        try:
+            # n is number of failures, p is success probability
+            # np.random.negative_binomial(n, p, size)
+            # Mean = n(1-p)/p
+            # We want mean ~ mu, var ~ mu + alpha*mu^2
+            # This is tricky to map directly. 
+            # Let's use a simpler approximation: 
+            # Count = Poisson(Gamma(mu, scale=alpha))
+            lambdas = rng.gamma(shape=mu/alpha, scale=alpha, size=n_samples)
+            counts = rng.poisson(lambdas)
+        except Exception:
+            # Fallback to simple Poisson if Gamma/Poisson fails
+            counts = rng.poisson(mu, size=n_samples)
+        
+        # Apply zero inflation
+        counts[u < pi] = 0
         data[taxon] = counts
+    
+    df = pd.DataFrame(data)
+    return df
 
-    return pd.DataFrame(data)
-
-def generate_sleep_metrics(outcomes: list, n_samples: int, missing_variable: str = None) -> pd.DataFrame:
+def generate_sleep_metrics(rng: np.random.Generator, n_samples: int) -> pd.DataFrame:
     """
-    Generate synthetic sleep architecture metrics using Normal distribution.
+    Generate synthetic sleep architecture metrics.
+    
+    Distributions:
+    - REM duration: Normal (approx 90-120 mins)
+    - SWS duration: Normal (approx 60-100 mins)
+    - Total sleep time: Normal (approx 420-500 mins)
     """
     data = {}
-    for outcome in outcomes:
-        if outcome == missing_variable:
-            # Inject missing variable by not adding it to the dataframe
-            continue
+    
+    # REM duration
+    rem_mean = 105
+    rem_std = 20
+    data["rem_duration"] = rng.normal(rem_mean, rem_std, n_samples)
+    
+    # SWS duration
+    sws_mean = 80
+    sws_std = 15
+    data["sws_duration"] = rng.normal(sws_mean, sws_std, n_samples)
+    
+    # Total sleep time
+    tst_mean = 450
+    tst_std = 45
+    data["total_sleep_time"] = rng.normal(tst_mean, tst_std, n_samples)
+    
+    # Ensure non-negative
+    for k in data:
+        data[k] = np.maximum(data[k], 0)
+    
+    df = pd.DataFrame(data)
+    return df
 
-        # Generate based on typical sleep metrics (minutes)
-        if 'rem' in outcome.lower():
-            mean, std = 100, 20
-        elif 'sws' in outcome.lower() or 'deep' in outcome.lower():
-            mean, std = 120, 30
-        elif 'total' in outcome.lower():
-            mean, std = 450, 45
-        else:
-            mean, std = 60, 15
-
-        values = np.random.normal(mean, std, n_samples)
-        # Ensure non-negative
-        values = np.maximum(0, values)
-        data[outcome] = values
-
-    return pd.DataFrame(data)
-
-def generate_synthetic_dataset(n_samples: int = 100, missing_variable: str = None, seed: int = 42) -> pd.DataFrame:
+def generate_synthetic_dataset(
+    n_samples: int = 100,
+    n_taxa: int = 50,
+    seed: int = 42,
+    inject_missing: str = None
+) -> pd.DataFrame:
     """
-    Generate a complete synthetic dataset combining metagenomic and sleep data.
+    Generate a complete synthetic dataset with metagenomic counts and sleep metrics.
+    
+    Args:
+        n_samples: Number of subjects
+        n_taxa: Number of taxa
+        seed: Random seed
+        inject_missing: If set, a column name from required_outcomes to omit
+                       (for testing missing variable detection)
+    
+    Returns:
+        pd.DataFrame: Combined dataset
     """
-    set_seeds(seed)
-    predictors, outcomes = load_required_variables()
-
-    # Generate data
-    meta_df = generate_metagenomic_counts(predictors, n_samples)
-    sleep_df = generate_sleep_metrics(outcomes, n_samples, missing_variable)
-
-    # Combine
-    df = pd.concat([meta_df, sleep_df], axis=1)
-
+    rng = set_seeds(seed)
+    
+    # Load required variables to know column names
+    required = load_required_variables()
+    
+    # Generate components
+    meta_df = generate_metagenomic_counts(rng, n_samples, n_taxa)
+    sleep_df = generate_sleep_metrics(rng, n_samples)
+    
     # Add subject IDs
-    df.insert(0, 'subject_id', [f'SUBJ_{i:04d}' for i in range(n_samples)])
-
+    meta_df["subject_id"] = [f"SUBJ_{i:04d}" for i in range(n_samples)]
+    sleep_df["subject_id"] = [f"SUBJ_{i:04d}" for i in range(n_samples)]
+    
+    # Merge
+    df = pd.merge(meta_df, sleep_df, on="subject_id")
+    
+    # Inject missing variable if requested
+    if inject_missing and inject_missing in required["required_outcomes"]:
+        if inject_missing in df.columns:
+            df.drop(columns=[inject_missing], inplace=True)
+            print(f"Injected missing variable: {inject_missing}")
+    
     return df
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate synthetic data for pipeline validation.')
-    parser.add_argument('--output', type=str, default='data/raw/synthetic_test_data.csv',
-                        help='Path to save the output CSV file.')
-    parser.add_argument('--n-samples', type=int, default=100,
-                        help='Number of samples to generate.')
-    parser.add_argument('--missing-var', type=str, default=None,
-                        help='Name of a variable to intentionally omit (for testing T011).')
-    parser.add_argument('--seed', type=int, default=42,
-                        help='Random seed for reproducibility.')
-
+    parser = argparse.ArgumentParser(description="Generate synthetic dataset for pipeline validation.")
+    parser.add_argument("--n-samples", type=int, default=100, help="Number of samples")
+    parser.add_argument("--n-taxa", type=int, default=50, help="Number of taxa")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/raw/synthetic_test_data.csv", help="Output file path")
+    parser.add_argument("--inject-missing", type=str, default=None, help="Column name to omit for testing")
+    
     args = parser.parse_args()
-
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Generate data
-    print(f"Generating synthetic dataset with {args.n_samples} samples...")
-    if args.missing_var:
-        print(f"Injecting missing variable: {args.missing_var}")
+    
+    print(f"Generating synthetic dataset with {args.n_samples} samples and {args.n_taxa} taxa...")
     
     df = generate_synthetic_dataset(
         n_samples=args.n_samples,
-        missing_variable=args.missing_var,
-        seed=args.seed
+        n_taxa=args.n_taxa,
+        seed=args.seed,
+        inject_missing=args.inject_missing
     )
-
-    # Save to CSV
+    
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write to CSV
     df.to_csv(output_path, index=False)
-    print(f"Synthetic data saved to: {output_path}")
-    print(f"Shape: {df.shape}")
-    print(f"Columns: {list(df.columns)}")
+    print(f"Synthetic dataset written to {output_path}")
+    
+    # Write manifest
+    manifest = {
+        "type": "synthetic",
+        "n_samples": args.n_samples,
+        "n_taxa": args.n_taxa,
+        "seed": args.seed,
+        "inject_missing": args.inject_missing,
+        "generated_at": str(pd.Timestamp.now())
+    }
+    manifest_path = output_path.parent / f"{output_path.stem}_manifest.json"
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    print(f"Manifest written to {manifest_path}")
 
-    # Verify missing variable logic if requested
-    if args.missing_var and args.missing_var in df.columns:
-        print(f"ERROR: Variable {args.missing_var} was supposed to be missing but is present!")
-        sys.exit(1)
-    elif args.missing_var:
-        print(f"SUCCESS: Variable {args.missing_var} correctly omitted.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

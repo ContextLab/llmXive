@@ -21,13 +21,6 @@ T107:
     \ writing the result to `data/raw/synthetic_test_data.csv`. Moreover, the required\
     \ output file `data/raw/synthetic_test_data.csv` is absent. The task\u2019s core\
     \ deliverable (a generated CSV with the specified properties) is missing."
-T110:
-  c: false
-  h: fad36958c375c097c728865876708cb0ebad0f17699043b0a8d4488e23bccf5a
-  r: The required output artifacts (`data/processed/filtered_data.parquet`, `data/results/correlation_results.csv`,
-    and `data/results/power_analysis_report.json`) are not present on disk, so the
-    integration test has not been verified as successful. The pipeline execution evidence
-    is therefore insufficient.
 T112:
   c: false
   h: 8bc048c007ef975a6ec13fc131327a50465708d6e8e9c517e0ff08c5b29894eb
@@ -42,3 +35,27 @@ T133:
     the response contains only the task description and specifications, with no actual
     markdown content or evidence of changes. The required documentation artifacts
     are missing, so the task is not satisfied.
+T201:
+  c: false
+  h: fbf050a43c9a3300c5e337f596637b4b8cbaaa16b112aad4e17ea51c6c7c75d3
+  r: "The provided `code/ingest.py` does not contain any implementation of a formal\
+    \ power analysis (r\u202F\u2265\u202F0.3, power\u202F\u2265\u202F0.80) nor does\
+    \ it write a warning to `data/results/data_quality_report.json`. Moreover, the\
+    \ `data_quality_report.json` file is absent from the repository. Both the required\
+    \ logic and the output artifact are missing."
+T202:
+  c: false
+  h: a631dd81b83c080d896d56841211ec82c0f7a830866d5b948cc2ec119114d54d
+  r: The repository contains `code/transform.py` with a CLR transformation function,
+    but the required output file `data/processed/clr_transformed_data.parquet` and
+    the documentation file `data/metadata/method_selection_log.json` are absent, and
+    there is no visible logic handling a fallback when SparCC/SpiecEasi fails. These
+    missing artifacts prevent the task from being considered complete.
+T300:
+  c: false
+  h: 2d936f68cd392d5334403a344c2a8ff62ac046fde737ffc01733ad610213517f
+  r: "The required output file `data/results/correlation_results.csv` does not exist,\
+    \ and the required input `data/candidates/verified_sources.yaml` is also missing.\
+    \ No evidence is provided that `code/main.py` was actually executed or that the\
+    \ pipeline honored the verification\u2011mode constraints. The task therefore\
+    \ remains unfinished."

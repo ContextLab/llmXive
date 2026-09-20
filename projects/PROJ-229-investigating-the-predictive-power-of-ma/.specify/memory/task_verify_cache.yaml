@@ -1,10 +1,3 @@
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.flake8` file is present in the provided evidence, and thus the required\
-    \ configuration (max\u2011line\u2011length=88 and appropriate ignore settings)\
-    \ is missing. The implementer must add a non\u2011empty `.flake8` file containing\
-    \ the specified settings."
 T005a:
   c: false
   h: 6e0da258d5eca93390e96048c450f8309d6900e7b38cc13d669d19a0f55cae4c
@@ -33,15 +26,6 @@ T006a:
   r: "The required artifact `data/results/target_decision.json` does not exist on\
     \ disk, so the deliverable is missing. The task\u2019s core requirement\u2014\
     to verify and provide that file\u2014has not been satisfied."
-T008b:
-  c: false
-  h: b9ff03bbd7597fb242f8968bb64ccc4e8c1039aebcfda8ea7d5a0d5d4269bba9
-  r: "The required output file `data/checksums.txt` does not exist, and the provided\
-    \ `code/utils/checksum.py` snippet is incomplete (truncated) with no evidence\
-    \ that it implements or has been run with the `--stage processed` mode to generate\
-    \ checksums for the processed data files. The task\u2019s core requirement\u2014\
-    recording processed\u2011file SHA256 checksums in `data/checksums.txt`\u2014is\
-    \ therefore unmet."
 T013:
   c: false
   h: a3a41ee3fde4810bac7cd34693abab87447506f5e44d8d1de75bfe7075923bd3

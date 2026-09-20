@@ -1,5 +1,15 @@
 T002b: 1
 T005a: 1
 T021: 1
+? 'T021f_download [P] **DOWNLOAD NCBI TAXONOMY DUMP**: Download the specific NCBI
+  taxonomy dump file (URL: `, version 2024-01-01) to `data/raw/ncbi_taxonomy_static.tsv`.
+  **Constraint**: Must verify MD5 checksum and commit the file to the repository.
+  **Verification**: {{claim:c_47f66bcc}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604)
+  **DEPENDS ON**: T001c.'
+: 1
 T025: 1
 T133: 2
+T201: 1
+T202: 1
+T300: 1
+T301: 1

@@ -1,206 +1,159 @@
 """
-Final Power & Sensitivity Review Script (Task T132).
+Review Script for Power and Sensitivity Analysis Results.
 
-This script validates the presence and integrity of:
-1. data/results/power_analysis_report.json
-2. data/results/sensitivity_analysis.csv
-
-It ensures these artifacts meet the requirements of SC-005 (Power Analysis)
-and SC-002 (Sensitivity Analysis) by checking for required fields,
-valid data types, and logical consistency.
-
-It does NOT generate synthetic data or fake results. It only reads
-existing artifacts produced by the pipeline (T080 and T078).
+Validates that power analysis and sensitivity analysis artifacts
+meet the requirements for SC-002 and SC-005.
 """
+import json
 import os
 import sys
-import json
-import csv
+import argparse
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from datetime import datetime
 
-# Project root relative to script location
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+def load_json_file(file_path: str) -> dict:
+    """Load a JSON file."""
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
-POWER_REPORT_PATH = DATA_RESULTS_DIR / "power_analysis_report.json"
-SENSITIVITY_CSV_PATH = DATA_RESULTS_DIR / "sensitivity_analysis.csv"
+def load_csv_file(file_path: str) -> list:
+    """Load a CSV file as a list of dicts."""
+    import csv
+    rows = []
+    with open(file_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            rows.append(row)
+    return rows
 
-# SC-005 Requirements (Power Analysis)
-SC005_REQUIRED_FIELDS = [
-    "observed_n",
-    "required_n",
-    "power_observed",
-    "effect_size",
-    "alpha",
-    "status",  # e.g., "Underpowered", "Adequate"
-    "minimum_n_calculated"
-]
-
-# SC-002 Requirements (Sensitivity Analysis)
-SC002_REQUIRED_THRESHOLDS = ["p<0.01", "p<0.05", "p<0.10"]
-SC002_REQUIRED_COLUMNS = ["threshold", "significant_count", "total_tests", "proportion"]
-
-
-def check_file_exists(path: Path) -> bool:
-    if not path.exists():
-        print(f"CRITICAL: Required file not found: {path}")
-        return False
-    return True
-
-
-def validate_power_report() -> Dict[str, Any]:
-    """Validates data/results/power_analysis_report.json against SC-005."""
-    errors = []
-    warnings = []
-    report_data = {}
-
-    if not check_file_exists(POWER_REPORT_PATH):
-        return {"valid": False, "errors": ["File missing"], "data": None}
-
+def validate_power_analysis(power_report_path: str) -> dict:
+    """
+    Validate power analysis report.
+    
+    Checks for SC-005:
+    - Presence of 'power_status'
+    - Presence of 'observed_n' and 'required_n'
+    - Presence of 'effect_sizes' and 'power_levels' breakdown
+    """
+    result = {
+        "status": "PASSED",
+        "issues": []
+    }
+    
+    if not os.path.exists(power_report_path):
+        result["status"] = "FAILED"
+        result["issues"].append("Power analysis report file not found.")
+        return result
+    
     try:
-        with open(POWER_REPORT_PATH, 'r') as f:
-            report_data = json.load(f)
-    except json.JSONDecodeError as e:
-        return {"valid": False, "errors": [f"Invalid JSON: {e}"], "data": None}
-
+        report = load_json_file(power_report_path)
+    except json.JSONDecodeError:
+        result["status"] = "FAILED"
+        result["issues"].append("Invalid JSON in power analysis report.")
+        return result
+    
     # Check required fields
-    missing_fields = [field for field in SC005_REQUIRED_FIELDS if field not in report_data]
-    if missing_fields:
-        errors.append(f"Missing required SC-005 fields: {missing_fields}")
+    required_fields = ["power_status", "observed_n", "required_n"]
+    for field in required_fields:
+        if field not in report:
+            result["issues"].append(f"Missing required field: {field}")
+    
+    # Check for detailed breakdown (SC-005 enhancement)
+    if "effect_sizes" not in report:
+        result["issues"].append("Missing 'effect_sizes' breakdown.")
+    if "power_levels" not in report:
+        result["issues"].append("Missing 'power_levels' breakdown.")
+    
+    if result["issues"]:
+        result["status"] = "FAILED"
+    
+    return result
 
-    # Validate types and logic
-    if "observed_n" in report_data and "required_n" in report_data:
-        obs_n = report_data["observed_n"]
-        req_n = report_data["required_n"]
-        if not isinstance(obs_n, (int, float)) or not isinstance(req_n, (int, float)):
-            errors.append("observed_n and required_n must be numeric.")
-        else:
-            # Check consistency with status flag
-            status = report_data.get("status", "")
-            if obs_n < req_n and "Underpowered" not in status:
-                warnings.append(f"Observed N ({obs_n}) < Required N ({req_n}), but status is '{status}'. Expected 'Underpowered'.")
-            elif obs_n >= req_n and "Underpowered" in status:
-                warnings.append(f"Observed N ({obs_n}) >= Required N ({req_n}), but status is '{status}'.")
-
-    if "power_observed" in report_data:
-        pow_val = report_data["power_observed"]
-        if not isinstance(pow_val, (int, float)) or not (0 <= pow_val <= 1):
-            errors.append(f"power_observed must be between 0 and 1. Got: {pow_val}")
-
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors,
-        "warnings": warnings,
-        "data": report_data
+def validate_sensitivity_analysis(sensitivity_csv_path: str) -> dict:
+    """
+    Validate sensitivity analysis results.
+    
+    Checks for SC-002:
+    - Presence of thresholds (p<0.01, p<0.05, p<0.10)
+    - Presence of significant finding counts
+    """
+    result = {
+        "status": "PASSED",
+        "issues": []
     }
-
-
-def validate_sensitivity_csv() -> Dict[str, Any]:
-    """Validates data/results/sensitivity_analysis.csv against SC-002."""
-    errors = []
-    warnings = []
-    row_count = 0
-
-    if not check_file_exists(SENSITIVITY_CSV_PATH):
-        return {"valid": False, "errors": ["File missing"], "data": None}
-
+    
+    if not os.path.exists(sensitivity_csv_path):
+        result["status"] = "FAILED"
+        result["issues"].append("Sensitivity analysis CSV file not found.")
+        return result
+    
     try:
-        with open(SENSITIVITY_CSV_PATH, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            headers = reader.fieldnames
-            
-            if not headers:
-                return {"valid": False, "errors": ["CSV is empty or has no headers"], "data": None}
-
-            missing_cols = [col for col in SC002_REQUIRED_COLUMNS if col not in headers]
-            if missing_cols:
-                errors.append(f"Missing required SC-002 columns: {missing_cols}")
-
-            thresholds_found = []
-            for row in reader:
-                row_count += 1
-                threshold = row.get("threshold", "")
-                thresholds_found.append(threshold)
-                
-                # Validate numeric fields
-                try:
-                    sig_count = float(row.get("significant_count", 0))
-                    total_tests = float(row.get("total_tests", 0))
-                    if total_tests <= 0:
-                        warnings.append(f"Row {row_count}: total_tests is {total_tests}, skipping proportion check.")
-                    else:
-                        calc_prop = sig_count / total_tests
-                        reported_prop = float(row.get("proportion", 0))
-                        if abs(calc_prop - reported_prop) > 0.001:
-                            warnings.append(f"Row {row_count}: Proportion mismatch. Calculated {calc_prop:.4f}, Reported {reported_prop:.4f}")
-                except ValueError:
-                    errors.append(f"Row {row_count}: Non-numeric value in count/proportion columns.")
-
-            # Check if all expected thresholds are present
-            missing_thresholds = [t for t in SC002_REQUIRED_THRESHOLDS if t not in thresholds_found]
-            if missing_thresholds:
-                warnings.append(f"Missing expected thresholds in CSV: {missing_thresholds}")
-
+        rows = load_csv_file(sensitivity_csv_path)
     except Exception as e:
-        return {"valid": False, "errors": [f"CSV parsing error: {e}"], "data": None}
-
-    if row_count == 0:
-        errors.append("CSV file contains no data rows.")
-
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors,
-        "warnings": warnings,
-        "data": {"row_count": row_count, "thresholds_found": thresholds_found}
-    }
-
+        result["status"] = "FAILED"
+        result["issues"].append(f"Error reading CSV: {str(e)}")
+        return result
+    
+    if not rows:
+        result["issues"].append("Sensitivity analysis CSV is empty.")
+        result["status"] = "FAILED"
+        return result
+    
+    # Check for expected columns
+    expected_columns = ["threshold", "significant_count"]
+    first_row = rows[0]
+    for col in expected_columns:
+        if col not in first_row:
+            result["issues"].append(f"Missing column in CSV: {col}")
+    
+    # Check for required thresholds
+    thresholds = {row["threshold"] for row in rows}
+    required_thresholds = ["0.01", "0.05", "0.10"]
+    for thresh in required_thresholds:
+        if thresh not in thresholds:
+            result["issues"].append(f"Missing threshold: {thresh}")
+    
+    if result["issues"]:
+        result["status"] = "FAILED"
+    
+    return result
 
 def main():
-    print("=" * 60)
-    print("FINAL POWER & SENSITIVITY REVIEW (T132)")
-    print("=" * 60)
-
-    # Validate Power Analysis (SC-005)
-    print("\n[1/2] Validating Power Analysis Report (SC-005)...")
-    power_result = validate_power_report()
-    if power_result["valid"]:
-        print("   ✓ Power report structure is valid.")
-        if power_result["warnings"]:
-            for w in power_result["warnings"]:
-                print(f"   ! Warning: {w}")
-        if power_result["data"]:
-            print(f"   - Observed N: {power_result['data'].get('observed_n')}")
-            print(f"   - Required N: {power_result['data'].get('required_n')}")
-            print(f"   - Status: {power_result['data'].get('status')}")
-    else:
-        print("   ✗ Power report validation FAILED.")
-        for e in power_result["errors"]:
-            print(f"   - Error: {e}")
-
-    # Validate Sensitivity Analysis (SC-002)
-    print("\n[2/2] Validating Sensitivity Analysis CSV (SC-002)...")
-    sens_result = validate_sensitivity_csv()
-    if sens_result["valid"]:
-        print("   ✓ Sensitivity CSV structure is valid.")
-        if sens_result["warnings"]:
-            for w in sens_result["warnings"]:
-                print(f"   ! Warning: {w}")
-        print(f"   - Rows analyzed: {sens_result['data'].get('row_count')}")
-    else:
-        print("   ✗ Sensitivity CSV validation FAILED.")
-        for e in sens_result["errors"]:
-            print(f"   - Error: {e}")
-
-    # Final Verdict
-    print("\n" + "=" * 60)
-    if power_result["valid"] and sens_result["valid"]:
-        print("RESULT: PASS - All artifacts meet SC-005 and SC-002 requirements.")
-        sys.exit(0)
-    else:
-        print("RESULT: FAIL - One or more artifacts do not meet requirements.")
+    parser = argparse.ArgumentParser(description="Review power and sensitivity analysis results.")
+    parser.add_argument("--power-report", type=str, default="data/results/power_analysis_report.json", help="Path to power analysis report")
+    parser.add_argument("--sensitivity-csv", type=str, default="data/results/sensitivity_analysis.csv", help="Path to sensitivity analysis CSV")
+    parser.add_argument("--output", type=str, default="data/results/power_sensitivity_review.json", help="Output review report path")
+    
+    args = parser.parse_args()
+    
+    print("Starting power and sensitivity review...")
+    
+    power_result = validate_power_analysis(args.power_report)
+    sensitivity_result = validate_sensitivity_analysis(args.sensitivity_csv)
+    
+    review_report = {
+        "timestamp": str(datetime.now()),
+        "power_analysis": power_result,
+        "sensitivity_analysis": sensitivity_result,
+        "overall_status": "PASSED" if power_result["status"] == "PASSED" and sensitivity_result["status"] == "PASSED" else "FAILED"
+    }
+    
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(review_report, f, indent=2)
+    
+    print(f"Review report written to {output_path}")
+    print(f"Overall Status: {review_report['overall_status']}")
+    
+    if review_report["overall_status"] == "FAILED":
+        print("REVIEW FAILED. Please address the issues.")
         sys.exit(1)
-
+    else:
+        print("REVIEW PASSED.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

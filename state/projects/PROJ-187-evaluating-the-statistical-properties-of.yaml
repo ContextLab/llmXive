@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T08:42:44.948824Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-187-evaluating-the-statistical-properties-of
-last_run_id: 2f187c09-1f22-4c33-b904-5fd3460d430a
+last_run_id: 102bc7d0-f9cc-41b5-965b-739dbb1e0ea5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-187-evaluating-the-statistical-properties-of/specs/001-evaluating-the-statistical-properties-of
 title: Evaluating the Statistical Properties of Synthetic Data Generation Techniques
-updated_at: '2026-09-15T19:18:03.577132Z'
+updated_at: '2026-09-20T01:02:47.093244Z'
