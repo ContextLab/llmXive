@@ -2997,27 +2997,6 @@
   updated_at: '2026-08-15T18:54:23Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
-  canonical: Pipeline supports Within-Subjects and Between-Subjects designs using
-    ds000208
-  claim_id: c_e1607318
-  context: 'Checkpoint: At this point, User Story 1 should be fully functional and
-    testable independently. The pipeline must support both Within-Subjects and Between-Subjects
-    designs using ds000208.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Pipeline_supports_Within-Subjects_and_Between-Subjects_desig
-  kind: entity_fact
-  raw_text: The pipeline supports both Within-Subjects and Between-Subjects designs
-    using ds000208.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-15T18:54:42Z'
-- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
-  attempts: 1
   canonical: Outliers flagged using IQR method per Condition group
   claim_id: c_16b47151
   context: MUST normalize reaction times AND flag outliers using the Interquartile
@@ -3422,3 +3401,471 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T04:07:31Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: ds000208 must contain Rejection and Control conditions for Within-Subjects
+    design
+  claim_id: c_22b695e7
+  context: The system MUST verify that ds000208 contains both the 'Rejection' (Cyberball)
+    and 'Control' conditions required for a Within-Subjects (Repeated Measures) design.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000208_must_contain_Rejection_and_Control_conditions_for_W
+  kind: entity_fact
+  raw_text: The system MUST verify that ds000208 contains both the 'Rejection' (Cyberball)
+    and 'Control' conditions required for a Within-Subjects (Repeated Measures) design.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:27:04Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Composite Dataset and Separate-Streams strategies involving ds003392
+    removed as scientifically invalid
+  claim_id: c_bb63efd8
+  context: The previous 'Composite Dataset' and 'Separate-Streams' strategies involving
+    ds003392 have been removed as scientifically invalid per the plan.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Composite_Dataset_and_Separate-Streams_strategies_involving
+  kind: entity_fact
+  raw_text: The previous 'Composite Dataset' and 'Separate-Streams' strategies involving
+    ds003392 have been removed as scientifically invalid per the plan.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:32:11Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Research question concerns social exclusion effects in virtual environments
+  claim_id: c_3aecf925
+  context: The research question concerns social exclusion effects in virtual environments.
+    The method involves functional magnetic resonance imaging (fMRI) with a Cyberball
+    paradigm.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_concerns_social_exclusion_effects_in_virtu
+  kind: entity_fact
+  raw_text: The research question concerns social exclusion effects in virtual environments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:32:22Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Method involves fMRI with Cyberball paradigm
+  claim_id: c_d2ba7b85
+  context: The research question concerns social exclusion effects in virtual environments.
+    The method involves functional magnetic resonance imaging (fMRI) with a Cyberball
+    paradigm.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_Cyberball_paradigm
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a Cyberball paradigm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:32:33Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Halt execution if estimated size exceeds 7 GB
+  claim_id: c_fe885b17
+  context: If API returns valid JSON, sum files[].size. Halt execution with exit code
+    1 only if the estimated size > 7 GB (referencing config.MAX_RAM_GB=7 and config
+    module).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Halt execution with exit code 1 only if the estimated size > 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:32:44Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Use verified OpenNeuro URL for Cyberball dataset
+  claim_id: c_1d812fad
+  context: Use a verified URL from the OpenNeuro repository for the Cyberball dataset.
+    The research question concerns social exclusion effects in virtual environments.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_verified_OpenNeuro_URL_for_Cyberball_dataset
+  kind: entity_fact
+  raw_text: The system must use a verified URL from the OpenNeuro repository for the
+    Cyberball dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:32:55Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Halt if downloaded file size exceeds storage threshold
+  claim_id: c_d6447013
+  context: MUST verify the downloaded file size does not exceed a predetermined storage
+    threshold. Halt with exit code 1 if exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Halt with exit code 1 if the downloaded file size exceeds a predetermined
+    storage threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:33:05Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Exit code 1 for missing required variables
+  claim_id: c_246bfc41
+  context: Implement validate_schema(df) in code/ingest.py to check for Condition
+    (Cyberball), Reaction Time, Mood. Exit code 1 if required variables are missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit code 1 if required variables are missing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:37:00Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 2
+  canonical: Pipeline supports Within-Subjects and Between-Subjects designs using
+    ds000208
+  claim_id: c_e1607318
+  context: 'Checkpoint: At this point, User Story 1 should be fully functional and
+    testable independently. The pipeline must support both Within-Subjects and Between-Subjects
+    designs using ds000208.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_supports_Within-Subjects_and_Between-Subjects_desig
+  kind: entity_fact
+  raw_text: The pipeline supports both Within-Subjects and Between-Subjects designs
+    using ds000208.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:37:10Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Flag outliers using IQR method per Condition group
+  claim_id: c_7185c68a
+  context: MUST normalize reaction times AND flag outliers using the Interquartile
+    Range (IQR) method calculated per Condition group (FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_outliers_using_IQR_method_per_Condition_group
+  kind: entity_fact
+  raw_text: Flag outliers using the Interquartile Range (IQR) method calculated per
+    Condition group.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:37:23Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Verify memory usage is less than or equal to 7 GB
+  claim_id: c_c160fd16
+  context: "Run preprocessing on sample subset; verify output CSV structure, memory\
+    \ logs \u2264 7 GB, and correct IQR outlier flagging."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_memory_usage_is_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "Verify memory stays \u2264 7 GB during preprocessing."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:37:31Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Select Repeated Measures ANOVA for Within-Subjects design
+  claim_id: c_e7070942
+  context: Implement code/analysis.py with run_anova(df, design_type) to select Repeated
+    Measures ANOVA (statsmodels.stats.anova.AnovaRM) if design_type='Within-Subjects'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_Repeated_Measures_ANOVA_for_Within-Subjects_design
+  kind: entity_fact
+  raw_text: Select Repeated Measures ANOVA if design_type is Within-Subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:37:45Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Select One-Way ANOVA for Between-Subjects design
+  claim_id: c_6547d42d
+  context: OR One-Way ANOVA (scipy.stats.f_oneway) if design_type='Between-Subjects'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_One-Way_ANOVA_for_Between-Subjects_design
+  kind: entity_fact
+  raw_text: Select One-Way ANOVA if design_type is Between-Subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:37:58Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Apply FDR correction using Benjamini-Hochberg method
+  claim_id: c_0f16bfe8
+  context: Implement apply_fdr(p_values) in code/analysis.py using Benjamini-Hochberg
+    method (FR-004)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Benjamini\u2013Hochberg procedure"
+      source_id: Q136366870
+      url: https://www.wikidata.org/wiki/Q136366870
+      value: "Benjamini\u2013Hochberg procedure"
+    filled: true
+  kind: entity_fact
+  raw_text: Apply FDR correction using the Benjamini-Hochberg method.
+  resolved_value: "Benjamini\u2013Hochberg procedure"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T03:38:07Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep over alpha values 0.01, 0.05, 0.1
+  claim_id: c_b8dc989c
+  context: "Implement sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1}) in code/analysis.py\
+    \ (FR-006) to sweep \u03B1 and report result consistency."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity sweep over alpha values {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:41:32Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Output effect size confidence intervals for N less than 30 on convergence
+    errors
+  claim_id: c_6422ac09
+  context: Add try/except block to catch convergence errors when N < 30 and output
+    effect size confidence intervals.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_effect_size_confidence_intervals_for_N_less_than_30_o
+  kind: magnitude
+  raw_text: Output effect size confidence intervals when N < 30 and convergence errors
+    occur.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:41:47Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Report includes alpha table with results for each alpha value
+  claim_id: c_d7bfb8de
+  context: Assert that reports/final_report.md includes a Markdown table with header
+    'alpha' and contains valid result rows for EACH of the alpha values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_alpha_table_with_results_for_each_alpha_valu
+  kind: entity_fact
+  raw_text: The report must include a Markdown table with header 'alpha' containing
+    valid result rows for each alpha value in the sweep.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:41:55Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Include phrase associational in Limitations section
+  claim_id: c_987bc0b9
+  context: 'Inject the phrase ''associational'' into the Limitations section. Output
+    Artifact: Generate reports/final_report.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_phrase_associational_in_Limitations_section
+  kind: entity_fact
+  raw_text: Inject the phrase 'associational' into the Limitations section of the
+    report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:42:09Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Exclude word causal from Results section
+  claim_id: c_d9da19ed
+  context: "Verification: Assert report contains 'associational', excludes 'causal',\
+    \ and includes sensitivity table for \u03B1 \u2208 {low, moderate, high significance\
+    \ levels}."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_word_causal_from_Results_section
+  kind: entity_fact
+  raw_text: The report must exclude the word 'causal' in the Results section.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:42:24Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: p_fdr column in final_results.json must be less than or equal to p_raw
+  claim_id: c_8652ec03
+  context: Asserts that data/processed/final_results.json contains a p_fdr column
+    and that for every row, p_fdr <= p_raw.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P_fdr_column_in_final_results.json_must_be_less_than_or_equa
+  kind: magnitude
+  raw_text: The final_results.json must contain a p_fdr column where p_fdr <= p_raw
+    for every row.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:42:28Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Sensitivity report contains entries for three required alpha values
+  claim_id: c_8d34860d
+  context: Asserts that the sensitivity report in reports/final_report.md contains
+    entries for all three required alpha values across the standard significance spectrum.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_contains_entries_for_three_required_alpha
+  kind: entity_fact
+  raw_text: The sensitivity report must contain entries for all three required alpha
+    values across the standard significance spectrum.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:43:52Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: System halts for large datasets; no streaming logic for N less than or
+    equal to 500
+  claim_id: c_b239d3cd
+  context: "CRITICAL: For large datasets, the system halts with exit code 1; no streaming\
+    \ logic is required for N \u2264 500."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_halts_for_large_datasets;_no_streaming_logic_for_N_le
+  kind: magnitude
+  raw_text: "For large datasets, the system halts with exit code 1; no streaming logic\
+    \ is required for N \u2264 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:44:05Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: All data sources must be real and cited; synthetic data forbidden
+  claim_id: c_be70a62e
+  context: 'CRITICAL: All data sources must be real, verified, and explicitly cited.
+    Synthetic data is forbidden for research results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_data_sources_must_be_real_and_cited;_synthetic_data_forb
+  kind: entity_fact
+  raw_text: All data sources must be real, verified, and explicitly cited. Synthetic
+    data is forbidden for research results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:44:20Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: CI execution time must be less than 6 hours
+  claim_id: c_2653f353
+  context: Runs the full pipeline on the target GitHub Actions runner (simulated via
+    a dedicated CI job) and asserts that total execution time is < 6 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_execution_time_must_be_less_than_6_hours
+  kind: magnitude
+  raw_text: The CI execution time must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:44:39Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: Generate performance log for N equal to 500
+  claim_id: c_54277e21
+  context: Implement code/benchmark.py to generate data/processed/performance_log.json
+    with runtime metrics for N=500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate performance_log.json with runtime metrics for N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:44:44Z'

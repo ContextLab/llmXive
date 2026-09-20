@@ -20,6 +20,14 @@ T037:
     \ statistical methods, or the associational framing of results as required by\
     \ task T037. The implementer\u2019s claim cannot be verified without the actual\
     \ documentation artifacts."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifacts, type\u2011hinted files, updated docstrings, or ruff check\
+    \ reports are present; therefore we cannot confirm that the required cleanup,\
+    \ type\u2011hinting, and docstring completion (and fixing of all ANN errors) were\
+    \ actually performed. The implementer must provide the modified source files and\
+    \ evidence (e.g., ruff output showing zero ANN errors)."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

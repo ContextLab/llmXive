@@ -42,3 +42,17 @@ T015:
     \ Social Validation cannot be satisfied. The implementer must add a non\u2011\
     empty `processor.py` that imports the PSV weights from `code/utils/constants.py`\
     \ and computes the PSV metric from likes, comments, shares, and sentiment as specified."
+T019:
+  c: false
+  h: 57bedebfdaf9e2e90b3260e126fd383264f9a29d2faa6cb9178aa3b08b0acecc
+  r: "The `data/processed/model_results.json` file does not exist, and the `calculate_vif`\
+    \ function in `code/analysis/regression.py` is truncated and never writes VIF\
+    \ values, the threshold, or a PASS/FAIL status to that JSON file. The required\
+    \ output artifact and complete VIF\u2011writing logic are missing."
+T021:
+  c: false
+  h: 09da2d1033e5a684e15f35a65f316de4f4e244e2d0122ba99a0d155ad7cb6880
+  r: "The repository lacks the required `data/processed/model_results.json` file,\
+    \ and the provided `code/main.py` excerpt shows no code that writes regression\
+    \ coefficients, p\u2011values, confidence intervals, or VIF scores to such a JSON\
+    \ file. Consequently, the integration task is not fulfilled."

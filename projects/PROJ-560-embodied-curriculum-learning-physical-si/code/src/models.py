@@ -1,10 +1,3 @@
-"""
-Data Models for the Embodied Curriculum Learning Analysis Pipeline.
-
-This module defines the core data structures used throughout the pipeline,
-including DatasetRecord for input data, AnalysisResult for statistical findings,
-and SensitivitySweep for robustness checks.
-"""
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List
 import json
@@ -14,115 +7,97 @@ import json
 class DatasetRecord:
     """
     Represents a single record in the dataset.
-
+    
     Attributes:
-        id: Unique identifier for the record.
-        pre_test_score: Score before intervention (float).
-        post_test_score: Score after intervention (float).
-        instruction_type: Type of instruction (e.g., 'embodied', 'static').
-        covariates: Additional covariates as a dictionary.
-        gain_score: Calculated gain (post - pre), computed during processing.
+        pre_test_score: Score before instruction.
+        post_test_score: Score after instruction.
+        instruction_type: Type of instruction received (e.g., 'embodied', 'static').
+        covariates: Additional static data structure for covariates.
     """
-    id: str
-    pre_test_score: Optional[float] = None
-    post_test_score: Optional[float] = None
-    instruction_type: Optional[str] = None
+    pre_test_score: float
+    post_test_score: float
+    instruction_type: str
     covariates: Dict[str, Any] = field(default_factory=dict)
-    gain_score: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the record to a dictionary.
-
-        Returns:
-            Dictionary representation of the record.
-        """
+        """Convert the record to a dictionary."""
         return {
-            "id": self.id,
             "pre_test_score": self.pre_test_score,
             "post_test_score": self.post_test_score,
             "instruction_type": self.instruction_type,
-            "covariates": self.covariates,
-            "gain_score": self.gain_score
+            "covariates": self.covariates
         }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'DatasetRecord':
+        """Create a record from a dictionary."""
+        return cls(
+            pre_test_score=data["pre_test_score"],
+            post_test_score=data["post_test_score"],
+            instruction_type=data["instruction_type"],
+            covariates=data.get("covariates", {})
+        )
+
 
 @dataclass
 class AnalysisResult:
     """
     Represents the result of a statistical analysis.
-
+    
     Attributes:
-        concept_name: Name of the concept being analyzed.
         t_statistic: The calculated t-statistic.
         p_value: The calculated p-value.
-        effect_size: Cohen's d effect size.
-        confidence_interval: Tuple of (lower, upper) for the confidence interval.
-        bonferroni_adjusted_p: Bonferroni-corrected p-value.
-        is_significant: Boolean indicating significance after correction.
-        power: Achieved statistical power.
-        underpowered: Boolean indicating if power < 0.80.
-        collinearity_detected: Boolean indicating if collinearity was detected.
-        associational_framing: String framing the results as associational.
+        effect_size: The calculated effect size (e.g., Cohen's d).
+        confidence_interval: The confidence interval for the effect size.
+        method: The statistical method used.
+        associational_framing: Flag indicating if results are framed as associational.
+        power: The achieved statistical power.
+        collinearity_diagnostic: Diagnostic info regarding collinearity.
+        robustness_warning: Flag indicating if robustness warnings exist.
     """
-    concept_name: str
     t_statistic: float
     p_value: float
     effect_size: float
-    confidence_interval: tuple
-    bonferroni_adjusted_p: float
-    is_significant: bool
-    power: float
-    underpowered: bool
-    collinearity_detected: bool
-    associational_framing: str
+    confidence_interval: List[float]
+    method: str
+    associational_framing: bool = True
+    power: Optional[float] = None
+    collinearity_diagnostic: Optional[Dict[str, Any]] = None
+    robustness_warning: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the result to a dictionary.
-
-        Returns:
-            Dictionary representation of the result.
-        """
+        """Convert the result to a dictionary."""
         return {
-            "concept_name": self.concept_name,
             "t_statistic": self.t_statistic,
             "p_value": self.p_value,
             "effect_size": self.effect_size,
-            "confidence_interval": list(self.confidence_interval),
-            "bonferroni_adjusted_p": self.bonferroni_adjusted_p,
-            "is_significant": self.is_significant,
+            "confidence_interval": self.confidence_interval,
+            "method": self.method,
+            "associational_framing": self.associational_framing,
             "power": self.power,
-            "underpowered": self.underpowered,
-            "collinearity_detected": self.collinearity_detected,
-            "associational_framing": self.associational_framing
+            "collinearity_diagnostic": self.collinearity_diagnostic,
+            "robustness_warning": self.robustness_warning
         }
+
 
 @dataclass
 class SensitivitySweep:
     """
-    Represents the result of a sensitivity analysis sweep.
-
+    Represents a single entry in a sensitivity sweep analysis.
+    
     Attributes:
-        threshold: The threshold value used for this sweep.
-        effect_size: Effect size calculated at this threshold.
-        is_significant: Boolean indicating significance at this threshold.
-        sample_size: Number of samples used in this sweep.
+        threshold: The significance threshold used.
+        effect_size: The effect size calculated at this threshold.
+        significant: Whether the result was significant at this threshold.
     """
     threshold: float
     effect_size: float
-    is_significant: bool
-    sample_size: int
+    significant: bool
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the sweep result to a dictionary.
-
-        Returns:
-            Dictionary representation of the sweep result.
-        """
+        """Convert the sweep entry to a dictionary."""
         return {
             "threshold": self.threshold,
             "effect_size": self.effect_size,
-            "is_significant": self.is_significant,
-            "sample_size": self.sample_size
+            "significant": self.significant
         }

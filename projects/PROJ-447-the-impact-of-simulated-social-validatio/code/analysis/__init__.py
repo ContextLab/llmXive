@@ -1,3 +1,1 @@
-"""
-Statistical analysis and modeling modules.
-"""
+# Analysis package

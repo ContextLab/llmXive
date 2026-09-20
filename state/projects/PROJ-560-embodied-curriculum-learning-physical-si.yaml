@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-13T11:54:37.025884Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-560-embodied-curriculum-learning-physical-si
-last_run_id: fafc32ef-7241-45f3-8f2c-c59be894bf23
+last_run_id: f81ca96b-a4e0-416f-ad39-516ce0bcdcee
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si
 title: 'Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching'
-updated_at: '2026-07-18T20:18:24.003215Z'
+updated_at: '2026-09-20T04:09:55.977862Z'

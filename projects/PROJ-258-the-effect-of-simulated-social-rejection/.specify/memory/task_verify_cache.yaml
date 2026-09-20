@@ -30,11 +30,12 @@ T030:
     \ fixed for the task to be considered complete."
 T033:
   c: false
-  h: 2057f2824f07e6496d8b33f86ef48177314d627540f57fac30fc5e20f71683a9
-  r: "The `save_final_results` function is incomplete (truncated with a stray \u201C\
-    e\u201D and never writes the `final_results` dict to `data/processed/final_results.json`).\
-    \ Consequently the required JSON file does not exist, so the task\u2019s requirements\
-    \ are not met."
+  h: 242ccad1455158b36370b145fc2d1ceed066fc2d118753db7fa465c79049da27
+  r: The repository lacks a `save_final_results` implementation in `code/report.py`
+    (the file only defines other helper functions and is truncated before any such
+    function) and the required output file `data/processed/final_results.json` does
+    not exist. Consequently the task of writing the final results with a `p_fdr` column
+    and recording `design_type` is not fulfilled.
 T034:
   c: false
   h: 88874721cf2decbe26d820b2f9db68733ded8558dfb6f43a7ba29594bc636a20

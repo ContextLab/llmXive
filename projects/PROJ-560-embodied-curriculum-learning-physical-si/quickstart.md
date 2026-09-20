@@ -77,6 +77,12 @@ The system is designed to handle public datasets that lack the `instruction_type
 - **Purpose**: This fallback is strictly for **pipeline validation**. It generates a labeled dataset with configurable statistical properties to ensure the analysis pipeline functions correctly when real-world data is incomplete or unavailable.
 - **Warning**: Synthetic data is not a substitute for real experimental data in final research conclusions. If the synthetic generation fails, the system will exit with an error code and log the failure.
 
+### Running with Synthetic Data (Fallback Scenario)
+If you do not have a public dataset with the required `instruction_type` column, or if you wish to validate the pipeline's statistical engine without external data dependencies, use the synthetic generation mode.
+- **Command**: `python code/src/cli.py --mode=synthetic --sample-size=1000 --seed=42`
+- **Output**: This creates a deterministic dataset at `data/synthetic/dataset.csv` and a `mapping_log.json` that documents the derivation parameters.
+- **Note**: The results generated in this mode are for verifying that the t-tests, effect size calculations, and sensitivity sweeps are executing correctly. They do not represent empirical findings.
+
 ## Key Concepts
 
 - **Gain Score**: `post_test_score - pre_test_score`

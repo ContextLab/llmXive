@@ -1,52 +1,49 @@
-"""
-Script to create the required state directories for the project.
-
-This script creates the directory structure under:
-projects/PROJ-560-embodied-curriculum-learning-physical-si/state/projects/PROJ-560-embodied-curriculum-learning-physical-si/
-
-It ensures the path exists and creates any missing parent directories.
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_directory(path: Path) -> None:
-    """Create a directory if it does not exist."""
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-    else:
-        print(f"Directory already exists: {path}")
+def create_directory(path: str) -> bool:
+    """
+    Creates a directory and all its parent directories if they do not exist.
+    Returns True if the directory was created or already exists, False otherwise.
+    """
+    try:
+        dir_path = Path(path)
+        dir_path.mkdir(parents=True, exist_ok=True)
+        return True
+    except Exception as e:
+        print(f"Error creating directory {path}: {e}", file=sys.stderr)
+        return False
 
-def main() -> int:
-    """Main entry point for creating state directories."""
-    # Define the base project root relative to where this script is run
-    # Assuming the script is run from the project root or code/ directory
-    # We need to construct the path relative to the project root.
+def main():
+    """
+    Main function to create the state directories for the project.
+    """
+    # Define the base state directory path as per the task requirement
     # The task specifies: projects/PROJ-560-embodied-curriculum-learning-physical-si/state/projects/PROJ-560-embodied-curriculum-learning-physical-si/
+    # We assume the script is run from the project root or we construct the path relative to a standard root.
+    # To ensure robustness, we will create the directory relative to the current working directory 
+    # but structured exactly as requested in the task description.
     
-    # Determine the project root. If running from code/, go up one level.
-    # If running from root, use current dir.
-    current_dir = Path.cwd()
-    project_root = current_dir
+    # The task path is absolute relative to the project root structure defined in T001a/T001b context.
+    # We will construct the full path string.
+    project_root = Path.cwd()
+    state_dir_path = project_root / "state" / "projects" / "PROJ-560-embodied-curriculum-learning-physical-si"
     
-    # Check if we are inside the project directory
-    # The path structure suggests the project is named PROJ-560-embodied-curriculum-learning-physical-si
-    # and resides under a `projects` folder.
+    print(f"Creating state directory: {state_dir_path}")
     
-    # Let's assume the script is run from the root of the repository.
-    # The target path is relative to the repository root.
-    target_path_str = "projects/PROJ-560-embodied-curriculum-learning-physical-si/state/projects/PROJ-560-embodied-curriculum-learning-physical-si"
-    target_path = project_root / target_path_str
-    
-    print(f"Creating state directory at: {target_path}")
-    create_directory(target_path)
-    
-    # Also create a subdirectory for project state if needed, 
-    # though the task path seems to be the leaf itself.
-    # To be safe, let's ensure the leaf is a directory.
-    
-    return 0
+    if create_directory(str(state_dir_path)):
+        print(f"Successfully created or verified existence of: {state_dir_path}")
+        # Verify the directory exists and is a directory
+        if state_dir_path.is_dir():
+            print("Verification: Directory exists and is valid.")
+            return 0
+        else:
+            print("Verification failed: Path exists but is not a directory.", file=sys.stderr)
+            return 1
+    else:
+        print("Failed to create directory.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

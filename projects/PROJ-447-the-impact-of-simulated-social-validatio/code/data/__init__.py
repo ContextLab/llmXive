@@ -1,3 +1,1 @@
-"""
-Data loading, generation, and processing modules.
-"""
+# Data sub-package

@@ -1,12 +1,9 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "embodied-curriculum-learning"
+name = "embodied-curriculum-learning-physical-si"
 version = "0.1.0"
-description = "Statistical analysis pipeline for embodied curriculum learning research"
-requires-python = ">=3.10"
+description = "Statistical validation pipeline for embodied curriculum learning"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "pandas",
     "scipy",
@@ -15,27 +12,52 @@ dependencies = [
     "pyyaml",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["code/src"]
+
 [tool.black]
-line-length = 88
-target-version = ['py310']
+line-length = 100
+target-version = ["py39", "py310", "py311"]
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.nox
+  | \.pants.d
+  | \.pytype
+  | \.ruff_cache
+  | \.svn
+  | \.tox
+  | \.venv
+  | \.vscode
+  | __pypackages__
+  | _build
+  | buck-out
+  | build
+  | dist
+  | node_modules
+  | venv
+  | data
+  | state
+  | tests
+)/
+'''
 
 [tool.ruff]
-# Inherits configuration from ruff.toml for linting rules
-# This file primarily handles Black configuration and project metadata
-line-length = 88
-target-version = "py310"
+# Inherit lint settings from ruff.toml or define inline if preferred
+# For this project, we use ruff.toml for lint rules and pyproject.toml for formatting metadata
+line-length = 100
+target-version = "py39"
 
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests"
-]
-
-[tool.setuptools.packages.find]
-where = ["code"]
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

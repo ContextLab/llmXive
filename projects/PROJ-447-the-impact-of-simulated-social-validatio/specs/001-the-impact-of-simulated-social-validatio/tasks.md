@@ -86,7 +86,7 @@
 - [X] T011 [US1] Implement `code/data/generator.py` to create synthetic data using a Structural Equation Model (SEM) via `semopy` that explicitly models measurement error and reverse causality, ensuring `device="cpu"` compatibility
 - [X] T011b [US1] Implement verification logic in `code/data/generator.py` to confirm the synthetic data recovers the *observed* association parameters (as defined in the Plan's 'Key Methodological Correction') rather than just the latent causal beta, and log this verification
 - [X] T015a [P] [US1] Define the mathematical formula, weights, and logic for the 'Perceived Social Validation' measurement model in `code/utils/constants.py` (referenced by FR-008)
-- [ ] T015 [US1] Implement `code/data/processor.py` to apply FR-008: Derive 'Perceived Social Validation' from engagement metrics and comment sentiment using the mathematical formula defined in `code/utils/constants.py` (T015a)
+- [X] T015 [US1] Implement `code/data/processor.py` to apply FR-008: Derive 'Perceived Social Validation' from engagement metrics and comment sentiment using the mathematical formula defined in `code/utils/constants.py` (T015a)
 - [X] T012 [US1] Implement `code/data/loader.py` to attempt fetching real datasets. **CRITICAL**: Must raise a custom `DataLoadError` with a standardized message format (e.g., "DataLoadError: Failed to fetch real dataset from [URL]") on failure; NO synthetic fallback in the loader itself (fallback handled by orchestration)
 - [X] T013 [US1] Implement `code/data/validator.py` to check for: (1) Presence of engagement metrics, sentiment scores, and psychometric scales; (2) Distinct handling: If N=0, raise `DataGapError` (specific to zero rows); If 0<N<100, raise `InsufficientSampleError`; (3) Longitudinal ordering (engagement timestamp < self-report timestamp)
 - [X] T014 [US1] Implement `code/main.py` orchestration logic:
@@ -114,9 +114,9 @@
 ### Implementation for User Story 2
 
 - [X] T018 [P] [US2] Implement `code/analysis/regression.py` to fit a multiple linear regression model (Outcome: Self-Perception; Predictors: Engagement, Age, Gender, Offline Relationships, Intrinsic Traits) using `statsmodels`
-- [~] T019 [US2] Implement VIF calculation in `code/analysis/regression.py` to detect multicollinearity for all predictors, **write the calculated VIF values, the threshold value from `constants.py`, and the comparison status (e.g., "PASS"/"FAIL") to `data/processed/model_results.json` with keys `vif_value`, `threshold_value`, `status`**, and flag if exceeding threshold
+- [ ] T019 [US2] Implement VIF calculation in `code/analysis/regression.py` to detect multicollinearity for all predictors, **write the calculated VIF values, the threshold value from `constants.py`, and the comparison status (e.g., "PASS"/"FAIL") to `data/processed/model_results.json` with keys `vif_value`, `threshold_value`, `status`**, and flag if exceeding threshold
 - [X] T020 [US2] Implement output formatting in `code/analysis/regression.py` to ensure all findings are labeled "associational". **First, generate a draft report buffer in memory**, then run the causal language scanner on this buffer; **if any trigger word is found, raise `CausalLanguageViolationError` (imported from `code/utils/exceptions.py`) to halt the pipeline (integrated with T028)**.
-- [~] T021 [US2] Integrate regression results into `code/main.py` to save model coefficients, p-values, confidence intervals, and VIF scores to `data/processed/model_results.json`
+- [ ] T021 [US2] Integrate regression results into `code/main.py` to save model coefficients, p-values, confidence intervals, and VIF scores to `data/processed/model_results.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,13 +131,13 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T022 [P] [US3] Integration test for sensitivity analysis verifying that coefficient variation is calculated correctly across strategies in `tests/integration/test_sensitivity.py`
-- [ ] T023 [P] [US3] Unit test for `code/viz/plots.py` verifying that scatter and residual plots are generated and saved to disk in `tests/unit/test_plots.py`
+- [X] T023 [P] [US3] Unit test for `code/viz/plots.py` verifying that scatter and residual plots are generated and saved to disk in `tests/unit/test_plots.py`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `code/analysis/sensitivity.py` to re-run the regression with **three outlier strategies (none, IQR removal, winsorization) AND with critical confounders included/excluded (creating a 3x2 matrix of runs)**, reporting the variation in the primary coefficient for each strategy
-- [ ] T025a [P] [US3] Implement `code/utils/exceptions.py` (if not already done) to define `StabilityThresholdViolationError` class inheriting from `Exception`
-- [ ] T025 [US3] Implement logic in `code/analysis/sensitivity.py` to calculate the variation in the primary coefficient, **read the stability threshold from `code/utils/constants.py`**, and **if the variation exceeds the threshold, raise `StabilityThresholdViolationError` (imported from `code/utils/exceptions.py`) to halt the pipeline**.
+- [X] T024 [P] [US3] Implement `code/analysis/sensitivity.py` to re-run the regression with **three outlier strategies (none, IQR removal, winsorization) AND with critical confounders included/excluded (creating a 3x2 matrix of runs)**, reporting the variation in the primary coefficient for each strategy
+- [X] T025a [P] [US3] Implement `code/utils/exceptions.py` (if not already done) to define `StabilityThresholdViolationError` class inheriting from `Exception`
+- [X] T025 [US3] Implement logic in `code/analysis/sensitivity.py` to calculate the variation in the primary coefficient, **read the stability threshold from `code/utils/constants.py`**, and **if the variation exceeds the threshold, raise `StabilityThresholdViolationError` (imported from `code/utils/exceptions.py`) to halt the pipeline**.
 - [ ] T026 [P] [US3] Implement `code/analysis/nonlinearity.py` to fit a quadratic term for the primary predictor and report its significance
 - [ ] T027 [US3] Implement `code/viz/plots.py` to generate: (1) Scatter plot with regression line; (2) Residual diagnostic plot; (3) Save as PNG files in `data/processed/` with exact filenames: `scatter_plot.png`, `residuals.png`
 - [ ] T027a [US3] Implement logic to count the number of generated visualization files in `data/processed/` and validate the count against the minimum set requirement (SC-005), raising an error if the count is insufficient

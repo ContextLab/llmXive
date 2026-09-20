@@ -1,181 +1,71 @@
-# Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching
+# Methodological Documentation: Embodied Curriculum Learning Analysis
 
 ## Overview
 
-This project implements a statistical analysis pipeline to evaluate the efficacy of embodied curriculum learning methods compared to static instruction for teaching abstract concepts. The system processes educational data, calculates learning gains, performs statistical inference, and conducts sensitivity analysis.
+This document provides a detailed explanation of the statistical methods, data handling procedures, and philosophical constraints implemented in the `PROJ-560` pipeline. It is intended for researchers, auditors, and developers who require a deep understanding of the system's analytical capabilities and limitations.
 
-**Important**: All statistical findings in this project are framed as **associational** in nature. No causal claims are made regarding the "teaching" effect. The analysis identifies correlations between instruction types and learning outcomes.
+## Statistical Framework
 
-## Project Structure
+### Gain Score Analysis
+The primary metric of interest is the **Gain Score**, calculated as the difference between post-intervention and pre-intervention scores:
+$$ \text{Gain} = \text{Post} - \text{Pre} $$
+This metric isolates the change attributable to the intervention period, controlling for baseline ability.
 
-```
-code/
-├── requirements.txt # Python dependencies
-├── src/
-│ ├── __init__.py
-│ ├── cli.py # Command-line interface
-│ ├── data_loader.py # Data loading and validation
-│ ├── logging_config.py # Logging setup
-│ ├── models.py # Data structures (DatasetRecord, AnalysisResult, SensitivitySweep)
-│ ├── results_aggregator.py # Result aggregation and JSON output
-│ ├── sensitivity.py # Sensitivity analysis and robustness checks
-│ ├── stats_engine.py # Statistical tests (t-test, effect size, power)
-│ ├── synthetic_gen.py # Synthetic data generation for validation
-│ └── utils.py # Utilities (seed management)
-└── tests/
- ├── test_data_loader.py
- ├── test_models.py
- ├── test_sensitivity.py
- ├── test_stats_engine.py
- ├── test_synthetic_gen.py
- └──...
+### Hypothesis Testing
+The system employs **Independent Samples t-tests** to compare the mean gain scores between two groups (e.g., "embodied" vs. "static" instruction).
+- **Variance Assumption**: The system automatically performs Levene's Test for equality of variances. If variances are unequal (p < 0.05), Welch's t-test is used; otherwise, Student's t-test is applied.
+- **Effect Size**: Cohen's d is calculated to quantify the magnitude of the difference, independent of sample size.
+- **Confidence Intervals**: 95% confidence intervals are provided for the mean difference.
 
-data/
-├── raw/ # Raw input data (CSV/JSON)
-├── processed/ # Processed data and analysis results
-├── synthetic/ # Synthetic datasets and mapping logs
-└── derivation_logs/ # Logs of skipped records and processing details
-
-state/
-└── projects/PROJ-560-embodied-curriculum-learning-physical-si/
-```
-
-## Installation
-
-1. Ensure Python 3.11+ is installed.
-2. Navigate to the `code/` directory.
-3. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-**Dependencies**:
-- `pandas`: Data manipulation
-- `scipy`: Statistical functions (t-tests, etc.)
-- `statsmodels`: Additional statistical tools
-- `numpy`: Numerical operations
-- `pyyaml`: Configuration handling
-- `ruff`: Linting
-- `black`: Code formatting
-- `pytest`: Testing
-
-## Usage
-
-### Running the Analysis
-
-The CLI supports two primary modes: `secondary_analysis` (real data) and `synthetic` (generated data).
-
-**Secondary Analysis Mode**:
-```bash
-python code/src/cli.py --mode=secondary_analysis --input=data/raw/my_dataset.csv
-```
-
-**Synthetic Generation Mode**:
-```bash
-python code/src/cli.py --mode=synthetic --sample-size=1000 --seed=42
-```
-
-**Sensitivity Sweep**:
-```bash
-python code/src/cli.py --mode=secondary_analysis --input=data/raw/my_dataset.csv --sweep_thresholds=0.05,0.01,0.001
-```
-
-### Command-Line Arguments
-
-- `--mode`: Analysis mode (`secondary_analysis` or `synthetic`)
-- `--input`: Path to input CSV/JSON file (required for `secondary_analysis`)
-- `--sweep_thresholds`: Comma-separated list of significance thresholds for sensitivity analysis
-- `--seed`: Random seed for reproducibility (default: 42)
-- `--sample-size`: Number of samples to generate (for `synthetic` mode)
-
-## Data Processing
-
-### Input Data Requirements
-
-The system expects input data (CSV or JSON) with the following columns:
-- `pre_test_score`: Pre-intervention score
-- `post_test_score`: Post-intervention score
-- `instruction_type`: Type of instruction (e.g., "embodied", "static")
-- `covariates`: Optional dictionary or JSON string of covariates
-
-**Automatic Fallback**:
-If `instruction_type` is missing in the public dataset, the system automatically invokes the `SyntheticDataGenerator` to create a labeled dataset, ensuring deterministic processing without manual intervention (FR-008).
-
-### Gain Score Calculation
-
-Learning gain is calculated as:
-```
-gain = post_test_score - pre_test_score
-```
-
-Rows with missing values in `pre_test_score` or `post_test_score` are excluded and logged to `data/derivation_logs/skipped_records.log`.
-
-## Statistical Methods
-
-### T-Tests
-
-The system performs independent samples t-tests to compare mean gain scores between instruction groups.
-- **Levene's Test**: Used to determine if variances are equal.
-- **Student's t-test**: Used if variances are equal.
-- **Welch's t-test**: Used if variances are unequal.
-
-### Effect Size
-
-Cohen's d is calculated to measure the magnitude of the difference:
-```
-d = (mean_group1 - mean_group2) / pooled_std
-```
-
-### Bonferroni Correction
-
-When testing multiple concepts, the significance threshold is adjusted to control the family-wise error rate:
-```
-alpha_corrected = alpha / number_of_tests
-```
+### Multiple Comparison Correction
+When testing multiple concepts or hypotheses simultaneously, the **Bonferroni correction** is applied to control the Family-Wise Error Rate (FWER). The significance threshold ($\alpha$) is divided by the number of tests performed.
 
 ### Power Analysis
+The system calculates the achieved statistical power for the observed effect size. Results with power < 0.80 are flagged as "underpowered," indicating a high risk of Type II errors (false negatives).
 
-Achieved power is calculated to assess the probability of detecting an effect if it exists. Results with power < 0.80 are flagged as "underpowered".
+## Data Integrity and Sourcing
 
-### Collinearity Check
+### Real Data Requirement
+The pipeline is designed to operate on **real, empirical data**. Users must provide datasets that meet the following criteria:
+- **Format**: CSV or JSON.
+- **Required Columns**: `pre_test_score`, `post_test_score`, `instruction_type`.
+- **Source**: Public repositories (e.g., OpenML) or internal experimental logs.
 
-The system checks for multicollinearity among predictors (|r| > 0.8) and reports diagnostics.
+### Synthetic Data Fallback
+If a provided public dataset lacks the `instruction_type` column, the system invokes a **Synthetic Data Generator**.
+- **Purpose**: This is strictly a **validation mode** to ensure the statistical engine functions correctly.
+- **Mechanism**: The generator creates a dataset with known statistical properties (mean differences, standard deviations) based on user-defined parameters.
+- **Mapping Log**: A `mapping_log.json` is produced to document the derivation of synthetic parameters, satisfying Constitution Principle VI (Simulation-Pedagogy Alignment).
+- **Limitation**: Synthetic data cannot be used to draw conclusions about the efficacy of embodied learning in the real world.
+
+## Philosophical and Pedagogical Scope
+
+### Associational Framing
+In accordance with FR-003, all statistical findings are explicitly framed as **associational**. The system does not make causal claims (e.g., "teaching causes learning"). Instead, it reports on the correlation between instructional method and gain scores.
+
+### Training vs. Teaching
+The system distinguishes between **training** (habituation through repetition) and **teaching** (intellectual engagement). However, the current MVP treats these as categorical labels within the `instruction_type` field. The philosophical implications of this distinction are out of scope for the statistical engine but are noted in the results output.
+
+### Abstract Concepts
+The term "abstract concept" is used to describe the target of the learning intervention. The system does not define or validate the nature of these concepts (e.g., mathematics, justice). It assumes the input data correctly reflects the experimental design regarding these concepts.
 
 ## Sensitivity Analysis
 
-A sensitivity sweep iterates over multiple significance thresholds (e.g., 0.05, 0.01, 0.001) to demonstrate the robustness of the headline effect size.
-- If the number of samples (N) is less than 30, the sweep is skipped, and a warning is issued.
-- If the effect size drops below a substantively meaningful threshold at any point, a `robustness_warning` is set to `true`.
+To ensure the robustness of the headline effect size, the system supports a **Sensitivity Sweep**.
+- **Process**: The analysis is re-run across a range of significance thresholds (e.g., 0.01, 0.05, 0.10).
+- **Robustness Warning**: If the effect size drops below a negligible threshold at any point in the sweep, a `robustness_warning: true` flag is set in the output.
+- **Sample Size Constraint**: Sensitivity analysis requires a minimum sample size of N=30. If N < 30, the sweep is skipped, and a warning is issued.
 
-## Associational Framing
+## Collinearity Diagnostics
 
-**Critical Note**: All statistical findings are explicitly labeled as **associational**. The analysis identifies correlations between instruction types and learning outcomes but does not claim causation. The system output includes methodological caveats to prevent misinterpretation of results as causal effects (FR-003).
+The system checks for multicollinearity between predictors (if applicable) using Pearson correlation. If $|r| > 0.8$, a diagnostic is reported to alert the user to potential instability in the estimates.
 
-## Logging
+## Reproducibility
 
-The system uses Python's `logging` module to record:
-- Data loading events
-- Skipped records (missing values)
-- Synthetic generation parameters
-- Statistical test results
+All analyses are deterministic when a random seed is provided. The system logs all parameters, including the seed, to ensure that results can be exactly reproduced.
+- **Seed Management**: Controlled via the `--seed` CLI argument.
+- **Logging**: Detailed logs are written to `data/derivation_logs/`.
 
-Logs are written to `data/derivation_logs/`.
+## Conclusion
 
-## Testing
-
-Run the test suite with:
-```bash
-cd code
-pytest
-```
-
-Tests cover:
-- Data validation
-- Statistical engine logic (t-tests, effect size, power)
-- Sensitivity sweep logic
-- Synthetic data generation schema
-
-## License
-
-This project is part of the llmXive automated science pipeline.
+This tool provides a rigorous, statistically sound framework for analyzing educational intervention data. By enforcing strict data requirements, automatic fallbacks for validation, and transparent associational framing, it ensures that research conclusions are both robust and methodologically sound.

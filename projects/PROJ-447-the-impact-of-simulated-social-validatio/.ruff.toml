@@ -1,0 +1,57 @@
+# Ruff Configuration for PROJ-447
+# Enforces strict code quality and style consistency
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data/raw", # Exclude raw data files
+    "data/processed", # Exclude generated data files
+]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables starting with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["utils", "data", "analysis", "viz", "main"]
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow asserts in tests
+"code/utils/constants.py" = ["E501"] # Allow long lines in config
+"data/processed/*" = ["INP001"] # Ignore implicit namespace in data folders

@@ -34,18 +34,13 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
+cover
 .hypothesis/
 .pytest_cache/
 
 # Translations
-*.mo
 *.pot
 
 # Environments
@@ -57,21 +52,37 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Data artifacts (generated)
+data/processed/*
+!data/processed/.gitkeep
+figures/*
+!figures/.gitkeep
+
 # OS
 .DS_Store
 Thumbs.db
 
 # Project specific
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.csv
-data/processed/*.json
-data/processed/*.png
-figures/*.png
+logs/
+*.log

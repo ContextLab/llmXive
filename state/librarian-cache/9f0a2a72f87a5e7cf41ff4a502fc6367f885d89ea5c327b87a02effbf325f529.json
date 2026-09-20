@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-05T21:40:42Z",
+  "fetched_at": "2026-09-20T03:56:19Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Visual Agents\"",
       "target_n": 5
     },
-    "duration_seconds": 50.483,
-    "ended_at": "2026-09-05T21:40:42Z",
+    "duration_seconds": 52.752,
+    "ended_at": "2026-09-20T03:56:19Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,94 +19,94 @@
         ],
         [
           2,
-          "general-purpose visual agents with language models"
+          "skill learning for embodied AI agents"
         ],
         [
           3,
-          "multimodal skill acquisition for embodied AI"
+          "generalist vision-language agents"
         ],
         [
           4,
-          "large language models for visual reasoning agents"
+          "multimodal reasoning for visual agents"
         ],
         [
           5,
-          "cross-modal skill transfer in visual agents"
+          "hierarchical skill acquisition in visual agents"
         ],
         [
           6,
-          "generalist agents for multimodal tasks"
+          "vision-language pretraining for agent control"
         ],
         [
           7,
-          "vision-language agents with diverse skill sets"
+          "zero-shot visual task generalization"
         ],
         [
           8,
-          "modular skill learning for visual agents"
+          "multimodal instruction following for robots"
         ],
         [
           9,
-          "multimodal foundation models for agent control"
+          "foundation models for general visual interaction"
         ],
         [
           10,
-          "language-guided visual skill learning"
+          "cross-modal skill transfer in agents"
         ],
         [
           11,
-          "general visual perception and action agents"
+          "autonomous visual agents with multimodal capabilities"
         ],
         [
           12,
-          "multimodal instruction following for agents"
+          "learning reusable visual skills from language"
         ],
         [
           13,
-          "hierarchical skill learning in visual agents"
+          "multimodal world models for agent planning"
         ],
         [
           14,
-          "zero-shot multimodal skill generalization"
+          "general purpose visual perception and action"
         ],
         [
           15,
-          "unified multimodal agent architectures"
+          "modular skill composition for visual agents"
         ],
         [
           16,
-          "language model driven visual planning"
+          "large language models for visual agent planning"
         ],
         [
           17,
-          "multimodal task decomposition for agents"
+          "embodied AI multimodal skill datasets"
         ],
         [
           18,
-          "adaptive visual agents using LLMs"
+          "visual grounding for general task execution"
         ],
         [
           19,
-          "cross-domain skill transfer for visual systems"
+          "multi-task learning for vision-language agents"
         ],
         [
           20,
-          "next-generation multimodal agent frameworks"
+          "scalable multimodal architectures for general agents"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Visual Agents\" computer science": 0,
-        "multimodal general visual agents": 4
+        "multimodal general visual agents": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "general visual agent multimodal skill acquisition",
-      "MMSkills benchmark visual reasoning embodied AI",
-      "vision-language action tokenization policy learning",
-      "downstream task performance generalization multimodal",
-      "data contamination training distribution shift evaluation"
+      "visual reasoning embodied multimodal",
+      "MMSkills benchmark generalist agent",
+      "cross-modal alignment visual-language",
+      "skill acquisition visual manipulation",
+      "zero-shot generalization multimodal foundation"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,21 +115,21 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2605.13527"
+        "2112.03763"
       ]
     },
     "per_query_hit_count": {
-      "MMSkills benchmark visual reasoning embodied AI": 3,
-      "data contamination training distribution shift evaluation": 3,
-      "downstream task performance generalization multimodal": 3,
-      "general visual agent multimodal skill acquisition": 3,
+      "MMSkills benchmark generalist agent": 3,
+      "cross-modal alignment visual-language": 3,
       "llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Visual Agents\" computer science": 3,
-      "vision-language action tokenization policy learning": 3
+      "skill acquisition visual manipulation": 3,
+      "visual reasoning embodied multimodal": 3,
+      "zero-shot generalization multimodal foundation": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -144,7 +144,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-09-05T21:39:51Z",
+    "started_at": "2026-09-20T03:55:26Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"mmskills: towards multimodal skills for general visual agents\" computer science",
       "raw": "llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Visual Agents\" computer science"
@@ -163,7 +163,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-09-05T21:40:20Z",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +182,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-09-05T21:40:20Z",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,40 +200,51 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-09-05T21:40:20Z",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Users often interpret and select agent skills through their SKILL markdown specifications. To protect users, existing audits mainly focus on malicious or unsafe skills. We study the complementary question of whether specifications help users form bounded expectations about what a skill consumes, produces, and covers. Across 878 cybersecurity skills, we used rule-based coding to measure textual cues for four comprehension anchors, namely operational basis, output contract, boundary disclosure, and example capability demonstration. Cues for operational basis were common, but only 19.0% of specifications exhibited cues for an example task, sample, or expected outcome, and only 2.3% exhibited cues for all four anchors. We further examined a small DNS/C2 telemetry subset (n$=$6) to illustrate why missing examples may matter. Examples appeared to make first local checks easier to construct, while no-example skills typically required helper code inspection to recover command arguments or output fields. We argue that agent-skill evaluation should treat specifications as user-facing capability disclosures, not merely as containers for executable instructions.",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
           "claimed_authors": [
-            "Zikai Alex Wen"
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
           ],
-          "claimed_title": "Toward User Comprehension Supports for LLM Agent Skill Specifications",
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.19362"
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Toward User Comprehension Supports for LLM Agent Skill Specifications')",
-        "failed_at": "2026-09-05T21:40:20Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The transition from monolithic language models to modular, skill-equipped agents marks a defining shift in how large language models (LLMs) are deployed in practice. Rather than encoding all procedural knowledge within model weights, agent skills -- composable packages of instructions, code, and resources that agents load on demand -- enable dynamic capability extension without retraining. It is formalized in a paradigm of progressive disclosure, portable skill definitions, and integration with the Model Context Protocol (MCP). This survey provides a comprehensive treatment of the agent skills landscape, as it has rapidly evolved during the last few months. We organize the field along four axes: (i) architectural foundations, examining the SKILL$.$md specification, progressive context loading, and the complementary roles of skills and MCP; (ii) skill acquisition, covering reinforcement learning with skill libraries, autonomous skill discovery (SEAgent), and compositional skill synthesis; (iii) deployment at scale, including the computer-use agent (CUA) stack, GUI grounding advances, and benchmark progress on OSWorld and SWE-bench; and (iv) security, where recent empirical analyses reveal that 26.1% of community-contributed skills contain vulnerabilities, motivating our proposed Skill Trust and Lifecycle Governance Framework -- a four-tier, gate-based permission model that maps skill provenance to graduated deployment capabilities. We identify seven open challenges -- from cross-platform skill portability to capability-based permission models -- and propose a research agenda for realizing trustworthy, self-improving skill ecosystems. Unlike prior surveys that broadly cover LLM agents or tool use, this work focuses specifically on the emerging skill abstraction layer and its implications for the next generation of agentic systems. Project repo: https://github.com/scienceaix/agentskills",
+          "claimed_abstract": "Humans construct internal world models and reason by manipulating the concepts within these models. Recent advances in AI, particularly chain-of-thought (CoT) reasoning, approximate such human cognitive abilities, where world models are believed to be embedded within large language models. Expert-level performance in formal and abstract domains such as mathematics and programming has been achieved in current systems by relying predominantly on verbal reasoning. However, they still lag far behind humans in domains like physical and spatial intelligence, which require richer representations and prior knowledge. The emergence of unified multimodal models (UMMs) capable of both verbal and visual generation has therefore sparked interest in more human-like reasoning grounded in complementary multimodal pathways, though their benefits remain unclear. From a world-model perspective, this paper presents the first principled study of when and how visual generation benefits reasoning. Our key position is the visual superiority hypothesis: for certain tasks--particularly those grounded in the physical world--visual generation more naturally serves as world models, whereas purely verbal world models encounter bottlenecks arising from representational limitations or insufficient prior knowledge. Theoretically, we formalize internal world modeling as a core component of CoT reasoning and analyze distinctions among different forms of world models. Empirically, we identify tasks that necessitate interleaved visual-verbal CoT reasoning, constructing a new evaluation suite, VisWorld-Eval. Controlled experiments on a state-of-the-art UMM show that interleaved CoT significantly outperforms purely verbal CoT on tasks that favor visual world modeling, but offers no clear advantage otherwise. Together, this work clarifies the potential of multimodal world modeling for more powerful, human-like multimodal AI.",
           "claimed_authors": [
-            "Renjun Xu",
-            "Yang Yan"
+            "Jialong Wu",
+            "Xiaoying Zhang",
+            "Hongyi Yuan",
+            "Xiangcheng Zhang",
+            "Tianhao Huang",
+            "Changjing He",
+            "Chaoyi Deng",
+            "Renrui Zhang",
+            "Youbin Wu",
+            "Mingsheng Long"
           ],
-          "claimed_title": "Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward",
+          "claimed_title": "Visual Generation Unlocks Human-Like Reasoning through Multimodal World Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.12430"
+          "primary_pointer": "2601.19834"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Visual Generation Unlocks Human-Like Reasoning through Multimodal World Models')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -250,238 +261,230 @@
           "primary_pointer": "2504.16021"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "AI-augmented systems are traditionally designed to streamline human decision-making by minimizing cognitive load, clarifying arguments, and optimizing efficiency. However, in a world where algorithmic certainty risks becoming an Orwellian tool of epistemic control, true intellectual growth demands not passive acceptance but active struggle. Drawing on the dystopian visions of George Orwell and Philip K. Dick - where reality is unstable, perception malleable, and truth contested - this paper introduces Cognitive Dissonance AI (CD-AI): a novel framework that deliberately sustains uncertainty rather than resolving it. CD-AI does not offer closure, but compels users to navigate contradictions, challenge biases, and wrestle with competing truths. By delaying resolution and promoting dialectical engagement, CD-AI enhances reflective reasoning, epistemic humility, critical thinking, and adaptability in complex decision-making. This paper examines the theoretical foundations of the approach, presents an implementation model, explores its application in domains such as ethics, law, politics, and science, and addresses key ethical concerns - including decision paralysis, erosion of user autonomy, cognitive manipulation, and bias in AI reasoning. In reimagining AI as an engine of doubt rather than a deliverer of certainty, CD-AI challenges dominant paradigms of AI-augmented reasoning and offers a new vision - one in which AI sharpens the mind not by resolving conflict, but by sustaining it. Rather than reinforcing Huxleyan complacency or pacifying the user into intellectual conformity, CD-AI echoes Nietzsche's vision of the Uebermensch - urging users to transcend passive cognition through active epistemic struggle.",
+          "claimed_abstract": "We read twelve well-known LLM agent benchmark papers and recorded, dimension by dimension, what each paper actually says about how its evaluation was run. The motivation came from a familiar frustration: two papers will report results on the same benchmark with the same model name and disagree, and you cannot tell why -- the scaffold, the sampling settings, the subset, or the evaluator version. In many cases the published artifact does not let you answer. This paper is an implementation report on the attempt. We designed a small audit schema (five fields: benchmark identity, harness specification, inference settings, cost reporting, failure breakdown), wrote a scoring codebook with the boundary cases we hit during pilot scoring, applied it to twelve canonical papers (eight agent, four classical static), and recorded what we saw. We score the disclosure of an agent run, not its correctness, and make no claim that disclosure implies a trustworthy result. The mean audit score across the eight agent-benchmark papers is 0.38 (out of 1.0), and across the four classical static benchmarks 0.66; the largest gap is on cost (none of the eight agent benchmark papers disclose inference cost in any form) and on harness specification (none fully disclose a content-addressed container image of the evaluation environment). We release the schema as a JSON Schema file, the codebook as a Markdown document, and the raw scoring sheet as a CSV. The scoring was performed by a single auditor in one pass; a multi-rater audit is the natural next step, and we discuss what we think it would change.",
           "claimed_authors": [
-            "Delia Deliu"
+            "Mahdi Naser Moghadasi",
+            "Faezeh Ghaderi"
           ],
-          "claimed_title": "Cognitive Dissonance Artificial Intelligence (CD-AI): The Mind at War with Itself. Harnessing Discomfort to Sharpen Critical Thinking",
+          "claimed_title": "What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.21404"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema')",
+        "failed_at": "2026-09-20T03:56:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language-model agents are increasingly deployed under standing instructions: a system prompt, a policy file, or a skills document is placed in context, and the agent is trusted to let that document govern every action that follows. Existing benchmarks rarely test this deployment pattern directly; they measure whether an agent can complete a task, not whether a long, binding policy document constrains its behavior over an extended tool-use horizon. We present HANDBOOK_md, a benchmark of 65 agentic tasks modeled on how employees follow company handbooks. Each task places an agent in a self-contained company environment (a file workspace with mock email, chat, calendar, issue-tracking, and commerce services exposed over the Model Context Protocol) and instructs it to carry out routine professional work governed by an expert-written standard operating procedure of 20-124 pages. Tasks span five domains (finance, medical billing, insurance, logistics, and HR) and 10 fictional companies. To resist memorization, every task modifies one of 10 base handbooks, altering the specific rules and thresholds on which grading depends, so no two tasks share the same set of policies. Grading is fully deterministic: each task carries a rubric of programmatic criteria (824 in total) that check both that required actions occurred and that prohibited actions did not. Under strict grading, where a trial passes only if every criterion is satisfied, the strongest evaluated model passes 36.2% of trials, and most frontier models remain below 25%. Failures follow consistent patterns: agents let a plausible but unauthorized in-environment request override the standing policy, perform a required check and then act against its result, lose rule details over long horizons, and report compliance they did not achieve. We release the tasks, environments, and evaluation harness.",
+          "claimed_authors": [
+            "Liudas Panavas",
+            "Sebastian Minus",
+            "Bradley Monton",
+            "Derek Ray",
+            "Suhaas Garre",
+            "Sushant Mehta",
+            "Edwin Chen"
+          ],
+          "claimed_title": "HANDBOOK.md: A Benchmark for Long-Context Agentic Instruction Following",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.25398"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='HANDBOOK.md: A Benchmark for Long-Context Agentic Instruction Following')",
+        "failed_at": "2026-09-20T03:56:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent large vision-language models (LVLMs) have advanced capabilities in visual question answering (VQA). However, interpreting where LVLMs direct their visual attention remains a significant challenge, yet is essential for understanding model behavior. We introduce GLIMPSE (Gradient-Layer Importance Mapping for Prompted Visual Saliency Explanation), a lightweight, model-agnostic framework that jointly attributes LVLM outputs to the most relevant visual evidence and textual signals that support open-ended generation. GLIMPSE fuses gradient-weighted attention, adaptive layer propagation, and relevance-weighted token aggregation to produce holistic response-level heat maps for interpreting cross-modal reasoning, outperforming prior methods in faithfulness and pushing the state-of-the-art in human-attention alignment. We demonstrate an analytic approach to uncover fine-grained insights into LVLM cross-modal attribution, trace reasoning dynamics, analyze systematic misalignment, diagnose hallucination and bias, and ensure transparency.",
+          "claimed_authors": [
+            "Guanxi Shen"
+          ],
+          "claimed_title": "GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2507.08804"
+          "primary_pointer": "2506.18985"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Cognitive Dissonance Artificial Intelligence (CD-AI): The Mind at War with Itself. Harnessing Discomfort to Sharpen Critical Thinking')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper investigates the impact of artificial intelligence integration on remote operations, emphasising its influence on both distributed and team cognition. As remote operations increasingly rely on digital interfaces, sensors, and networked communication, AI-driven systems transform decision-making processes across domains such as air traffic control, industrial automation, and intelligent ports. However, the integration of AI introduces significant challenges, including the reconfiguration of human-AI team cognition, the need for adaptive AI memory that aligns with human distributed cognition, and the design of AI fallback operators to maintain continuity during communication disruptions. Drawing on theories of distributed and team cognition, we analyse how cognitive overload, loss of situational awareness, and impaired team coordination may arise in AI-supported environments. Based on real-world intelligent port scenarios, we propose research directions that aim to safeguard human reasoning and enhance collaborative decision-making in AI-augmented remote operations.",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
           "claimed_authors": [
-            "Rune Møberg Jacobsen",
-            "Joel Wester",
-            "Helena Bøjer Djernæs",
-            "Niels van Berkel"
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
           ],
-          "claimed_title": "Distributed Cognition for AI-supported Remote Operations: Challenges and Research Directions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.14996"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Distributed Cognition for AI-supported Remote Operations: Challenges and Research Directions')",
-        "failed_at": "2026-09-05T21:40:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Vision-language-action (VLA) driving models couple a reasoning stage with a diffusion-based trajectory decoder, but do not give a direct way to redirect attention toward safety-critical actors at inference time without retraining. We studied a bounded additive pre-softmax attention bias on the visual tokens of detector localized traffic actors on Alpamayo-R1's Qwen3-VL backbone. It is applied as a fail open forward pre-hook with no weight changes. On 50 lane-change scenarios from the Physical AI World Model Synthetic dataset. The trajectory decoder shows a monotonic dose response in the bias magnitude, separate from a paired zero bias control at every tested magnitude. It reaches $\\approx 17$\\,cm mean displacement with lateral shifts up to $\\sim 140$\\ cm at the clamp. A layer ablation places the action-relevant signal in late layers, where the effect increases with the number of hooked layers (2.0cm for the first 8 layers; 67.6cm for all 36). A per call injection audit explains why the Chain-of-Causation text never changes. The mask based bias never reaches the reasoning pathway in this serving stack, so the invariance is verified exposure, not robustness. Steered trajectories tend to shift toward the attended actor, suggesting the bias governs where the model looks rather than encoding a target behavior.",
-          "claimed_authors": [
-            "Darshan Nagendra Prasad",
-            "Lars Ullrich",
-            "Knut Graichen"
-          ],
-          "claimed_title": "Inference-Time Attention Steering for Vision-Language-Action Driving Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2608.17095"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Inference-Time Attention Steering for Vision-Language-Action Driving Models')",
-        "failed_at": "2026-09-05T21:40:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Assembly action understanding is a key enabler for effective human-robot collaborative assembly, yet it remains challenging due to subtle motions and fine-grained hand-object interactions. We adapt vision-language models (VLMs) to this challenging domain with Compositional Context Fine-Tuning (CCFT), a method that decomposes assembly actions into semantic elements (Verb, Object, Tool) and fine-tunes VLMs to recognize each action element using templated question-answering pairs. This approach ensures near-deterministic outputs. To enable efficient and effective multi-task learning under limited data, a Layer-Partitioned Alternating Training (LP-AT) method is presented, which assigns distinct model layers to recognize specific action elements through element-specific low-rank adapters. LP-AT alternates weight updates across element-specific adapters, reducing cross-task interference while enabling per-adapter hyperparameter optimization. Furthermore, we create HA-ViD-VQA and IKEA-ASM-VQA datasets from existing assembly video datasets. Extensive experiments on these datasets demonstrate that our method consistently outperforms strong action recognition baselines while providing interpretable element-level predictions that can support diverse downstream applications.",
-          "claimed_authors": [
-            "Hao Zheng",
-            "Jinyi Huang",
-            "Tiantian Zheng",
-            "Xun Xu",
-            "Tuka Alhanai"
-          ],
-          "claimed_title": "Compositional Context Fine-Tuning Vision-Language Model for Complex Assembly Action Understanding from Videos",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2607.10797"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Compositional Context Fine-Tuning Vision-Language Model for Complex Assembly Action Understanding from Videos')",
-        "failed_at": "2026-09-05T21:40:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Why do pretrained diffusion or flow-matching policies fail when the same task is performed near an obstacle, on a shifted support surface, or amid mild clutter? Such failures rarely reflect missing motor skills; instead, they expose a limitation of imitation learning under train-test shifts, where action generation is tightly coupled to training-specific spatial configurations and task specifications. Retraining or fine-tuning to address these failures is costly and conceptually misaligned, as the required behaviors already exist but cannot be selectively adapted at test time. We propose Vision-Language Steering (VLS), a training-free framework for inference-time adaptation of frozen generative robot policies. VLS treats adaptation as an inference-time control problem, steering the sampling process of a pretrained diffusion or flow-matching policy in response to out-of-distribution observation-language inputs without modifying policy parameters. By leveraging vision-language models to synthesize trajectory-differentiable reward functions, VLS guides denoising toward action trajectories that satisfy test-time spatial and task requirements. Across simulation and real-world evaluations, VLS consistently outperforms prior steering methods, achieving a 31% improvement on CALVIN and a 13% gain on LIBERO-PRO. Real-world deployment on a Franka robot further demonstrates robust inference-time adaptation under test-time spatial and semantic shifts. Project page: https://vision-language-steering.github.io/webpage/",
-          "claimed_authors": [
-            "Shuo Liu",
-            "Ishneet Sukhvinder Singh",
-            "Yiqing Xu",
-            "Jiafei Duan",
-            "Ranjay Krishna"
-          ],
-          "claimed_title": "VLS: Steering Pretrained Robot Policies via Vision-Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.03973"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='VLS: Steering Pretrained Robot Policies via Vision-Language Models')",
-        "failed_at": "2026-09-05T21:40:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
-          "claimed_authors": [
-            "Berivan Isik",
-            "Natalia Ponomareva",
-            "Hussein Hazimeh",
-            "Dimitris Paparas",
-            "Sergei Vassilvitskii",
-            "Sanmi Koyejo"
-          ],
-          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2402.04177"
+          "primary_pointer": "2410.12595"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_abstract": "Current cross-modal retrieval systems are evaluated using R@K measure which does not leverage semantic relationships rather strictly follows the manually marked image text query pairs. Therefore, current systems do not generalize well for the unseen data in the wild. To handle this, we propose a new measure, SemanticMap, to evaluate the performance of cross-modal systems. Our proposed measure evaluates the semantic similarity between the image and text representations in the latent embedding space. We also propose a novel cross-modal retrieval system using a single stream network for bidirectional retrieval. The proposed system is based on a deep neural network trained using extended center loss, minimizing the distance of image and text descriptions in the latent space from the class centers. In our system, the text descriptions are also encoded as images which enabled us to use a single stream network for both text and images. To the best of our knowledge, our work is the first of its kind in terms of employing a single stream network for cross-modal retrieval systems. The proposed system is evaluated on two publicly available datasets including MSCOCO and Flickr30K and has shown comparable results to the current state-of-the-art methods.",
           "claimed_authors": [
-            "Dorsaf Sebai",
-            "Abderrazak Jemai",
-            "Imed Bennour"
+            "Shah Nawaz",
+            "Muhammad Kamran Janjua",
+            "Ignazio Gallo",
+            "Arif Mahmood",
+            "Alessandro Calefati",
+            "Faisal Shafait"
           ],
-          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.1154"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
-        "failed_at": "2026-09-05T21:40:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Graph neural networks have emerged as a powerful tool for graph representation learning, but their performance heavily relies on abundant task-specific supervision. To reduce labeling requirement, the \"pre-train, prompt\" paradigms have become increasingly common. However, existing study of prompting on graphs is limited, lacking a universal treatment to appeal to different downstream tasks. In this paper, we propose GraphPrompt, a novel pre-training and prompting framework on graphs. GraphPrompt not only unifies pre-training and downstream tasks into a common task template but also employs a learnable prompt to assist a downstream task in locating the most relevant knowledge from the pre-trained model in a task-specific manner. To further enhance GraphPrompt in these two stages, we extend it into GraphPrompt+ with two major enhancements. First, we generalize several popular graph pre-training tasks beyond simple link prediction to broaden the compatibility with our task template. Second, we propose a more generalized prompt design that incorporates a series of prompt vectors within every layer of the pre-trained graph encoder, in order to capitalize on the hierarchical information across different layers beyond just the readout layer. Finally, we conduct extensive experiments on five public datasets to evaluate and analyze GraphPrompt and GraphPrompt+.",
-          "claimed_authors": [
-            "Xingtong Yu",
-            "Zhenghao Liu",
-            "Yuan Fang",
-            "Zemin Liu",
-            "Sihong Chen",
-            "Xinming Zhang"
-          ],
-          "claimed_title": "Generalized Graph Prompt: Toward a Unification of Pre-Training and Downstream Tasks on Graphs",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.15317"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Generalized Graph Prompt: Toward a Unification of Pre-Training and Downstream Tasks on Graphs')",
-        "failed_at": "2026-09-05T21:40:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
-          "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
-          ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_title": "Do Cross Modal Systems Leverage Semantic Relationships?",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
+          "primary_pointer": "1909.01976"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Do Cross Modal Systems Leverage Semantic Relationships?')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_abstract": "Planning long-horizon manipulation motions using a set of predefined skills is a central challenge in robotics; solving it efficiently could enable general-purpose robots to tackle novel tasks by flexibly composing generic skills. Solutions to this problem lie in an infinitely vast space of parameterized skill sequences -- a space where common incremental methods struggle to find sequences that have non-obvious intermediate steps. Some approaches reason over lower-dimensional, symbolic spaces, which are more tractable to explore but may be brittle and are laborious to construct. In this work, we introduce MOSAIC, a skill-centric, multi-directional planning approach that targets these challenges by reasoning about which skills to employ and where they are most likely to succeed, by utilizing physics simulation to estimate skill execution outcomes. Specifically, MOSAIC employs two complementary skill families: Generators, which identify ``islands of competence'' where skills are demonstrably effective, and Connectors, which link these skill-trajectories by solving boundary value problems. By focusing planning efforts on regions of high competence, MOSAIC efficiently discovers physically-grounded solutions. We demonstrate its efficacy on complex long-horizon problems in both simulation and the real world, using a diverse set of skills including generative diffusion models, motion planning algorithms, and manipulation-specific models. Visit skill-mosaic.github.io for demonstrations and examples.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Suhas Diggavi"
+            "Itamar Mishani",
+            "Yorai Shaoul",
+            "Maxim Likhachev"
           ],
-          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_title": "MOSAIC: Skill-Centric Manipulation Planning with Physics Simulation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.07866"
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16738"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='MOSAIC: Skill-Centric Manipulation Planning with Physics Simulation')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The 1st Workshop on Data Contamination (CONDA 2024) focuses on all relevant aspects of data contamination in natural language processing, where data contamination is understood as situations where evaluation data is included in pre-training corpora used to train large scale models, compromising evaluation results. The workshop fostered a shared task to collect evidence on data contamination in current available datasets and models. The goal of the shared task and associated database is to assist the community in understanding the extent of the problem and to assist researchers in avoiding reporting evaluation results on known contaminated resources. The shared task provides a structured, centralized public database for the collection of contamination evidence, open to contributions from the community via GitHub pool requests. This first compilation paper is based on 566 reported entries over 91 contaminated sources from a total of 23 contributors. The details of the individual contamination events are available in the platform. The platform continues to be online, open to contributions from the community.",
+          "claimed_abstract": "Current robots struggle with long-horizon manipulation tasks requiring sequences of prehensile and non-prehensile skills, contact-rich interactions, and long-term reasoning. We present $\\texttt{SPIN}$ ($\\textbf{S}$kill $\\textbf{P}$lanning to $\\textbf{IN}$ference), a framework that distills a computationally intensive planning algorithm into a policy via imitation learning. We propose $\\texttt{Skill-RRT}$, an extension of RRT that incorporates skill applicability checks and intermediate object pose sampling for solving such long-horizon problems. To chain independently trained skills, we introduce $\\textit{connectors}$, goal-conditioned policies trained to minimize object disturbance during transitions. High-quality demonstrations are generated with $\\texttt{Skill-RRT}$ and distilled through noise-based replay in order to reduce online computation time. The resulting policy, trained entirely in simulation, transfers zero-shot to the real world and achieves over 80% success across three challenging long-horizon manipulation tasks and outperforms state-of-the-art hierarchical RL and planning methods.",
           "claimed_authors": [
-            "Oscar Sainz",
-            "Iker García-Ferrero",
-            "Alon Jacovi",
-            "Jon Ander Campos",
-            "Yanai Elazar",
-            "Eneko Agirre",
-            "Yoav Goldberg",
-            "Wei-Lin Chen",
-            "Jenny Chim",
-            "Leshem Choshen",
-            "Luca D'Amico-Wong",
-            "Melissa Dell",
-            "Run-Ze Fan",
-            "Shahriar Golchin",
-            "Yucheng Li",
-            "Pengfei Liu",
-            "Bhavish Pahwa",
-            "Ameya Prabhu",
-            "Suryansh Sharma",
-            "Emily Silcock",
-            "Kateryna Solonko",
-            "David Stap",
-            "Mihai Surdeanu",
-            "Yu-Min Tseng",
-            "Vishaal Udandarao",
-            "Zengzhi Wang",
-            "Ruijie Xu",
-            "Jinglin Yang"
+            "Haewon Jung",
+            "Donguk Lee",
+            "Haecheol Park",
+            "JunHyeop Kim",
+            "Beomjoon Kim"
           ],
-          "claimed_title": "Data Contamination Report from the 2024 CONDA Shared Task",
+          "claimed_title": "$\\texttt{SPIN}$: distilling $\\texttt{Skill-RRT}$ for long-horizon prehensile and non-prehensile manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.18015"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='$\\\\texttt{SPIN}$: distilling $\\\\texttt{Skill-RRT}$ for long-horizon prehensile and non-prehensile manipulation')",
+        "failed_at": "2026-09-20T03:56:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The analysis of spatiotemporal data is essential in domains such as epidemiology and environmental monitoring, where understanding the interplay between spatially distributed phenomena and their temporal evolution is critical. Dense pixel visualizations offer a compact, effective overview of spatiotemporal dynamics. However, the necessary linearization of 2D geographic space into a 1D ordering inevitably introduces structural distortions that manifest as visual artifacts. We propose a measure-driven visual analytics approach that captures visual artifacts through neighborhood preservation measures for 1D orderings and renders them using visual boosting techniques such as glyphs, halos, and hatching. We demonstrate our approach through a usage scenario analyzing COVID-19 incidence data across German districts, showing that interactive, measure-driven boosting enables analysts to reliably distinguish genuine spatial patterns from linearization artifacts.",
+          "claimed_authors": [
+            "Julius Rauscher",
+            "Frederik L. Dennig",
+            "Udo Schlegel",
+            "Daniel A. Keim",
+            "Tobias Schreck"
+          ],
+          "claimed_title": "Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25298"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations')",
+        "failed_at": "2026-09-20T03:56:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.21530"
+          "primary_pointer": "2404.14700"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Data Contamination Report from the 2024 CONDA Shared Task')",
-        "failed_at": "2026-09-05T21:40:21Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-09-20T03:56:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-09-20T03:56:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In real-world scenarios, achieving domain adaptation and generalization poses significant challenges, as models must adapt to or generalize across unknown target distributions. Extending these capabilities to unseen multimodal distributions, i.e., multimodal domain adaptation and generalization, is even more challenging due to the distinct characteristics of different modalities. Significant progress has been made over the years, with applications ranging from action recognition to semantic segmentation. Besides, the recent advent of large-scale pre-trained multimodal foundation models, such as CLIP, has inspired works leveraging these models to enhance adaptation and generalization performances or adapting them to downstream tasks. This survey provides the first comprehensive review of recent advances from traditional approaches to foundation models, covering: (1) Multimodal domain adaptation; (2) Multimodal test-time adaptation; (3) Multimodal domain generalization; (4) Domain adaptation and generalization with the help of multimodal foundation models; and (5) Adaptation of multimodal foundation models. For each topic, we formally define the problem and thoroughly review existing methods. Additionally, we analyze relevant datasets and applications, highlighting open challenges and potential future research directions. We maintain an active repository that contains up-to-date literature at https://github.com/donghao51/Awesome-Multimodal-Adaptation.",
+          "claimed_authors": [
+            "Hao Dong",
+            "Moru Liu",
+            "Kaiyang Zhou",
+            "Eleni Chatzi",
+            "Juho Kannala",
+            "Cyrill Stachniss",
+            "Olga Fink"
+          ],
+          "claimed_title": "Advances in Multimodal Adaptation and Generalization: From Traditional Approaches to Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.18592"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"MMSkills: Towards Multimodal Skills for General Vi', candidate_title='Advances in Multimodal Adaptation and Generalization: From Traditional Approaches to Foundation Models')",
+        "failed_at": "2026-09-20T03:56:09Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -512,13 +515,39 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.13527",
           "http_status": 200,
-          "pdf_sample_score": 0.3544,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5833,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-05T21:40:20Z"
+          "verified_at": "2026-09-20T03:56:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Srishti Palani",
+            "Vidya Setlur"
+          ],
+          "title": "Lexara-RF: Reference-Free Metrics for Evaluating Conversational Visual Analytics Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2609.17842",
+        "summary": "Conversational visual analytics (CVA) agents powered by large language models generate visualizations and natural-language explanations from open-ended queries. Evaluating these multimodal outputs is challenging: curated reference benchmarks are costly to author, cannot comprehensively capture the space of valid responses, and are unavailable in production. Building on the Lexara evaluation framework, we introduce Lexara-RF, a reference-free set of metrics that scores CVA outputs using only the prompt, data, and model response. We reformulate evaluation as verification: 13 metrics operationalize visualization design theory and Gricean cooperative principles as computable consistency, intent-alignment, and design validity checks. On a human-rated corpus of CVA test-cases, Lexara-RF achieves alignment comparable to reference-based formulations, outperforms surface-similarity NLG baselines, and localizes structurally grounded failures with high accuracy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2609.17842",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-20T03:56:13Z"
         }
       },
       {
@@ -546,7 +575,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-05T21:40:26Z"
+          "verified_at": "2026-09-20T03:56:13Z"
         }
       },
       {
@@ -589,13 +618,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2112.03763",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2296,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-05T21:40:26Z"
+          "verified_at": "2026-09-20T03:56:14Z"
         }
       },
       {
@@ -623,7 +652,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-05T21:40:26Z"
+          "verified_at": "2026-09-20T03:56:15Z"
         }
       }
     ]

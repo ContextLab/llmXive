@@ -106,11 +106,11 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `run_t_test` in `code/src/stats_engine.py` to perform Student's or Welch's t-test on gain scores based on Levene's test result (FR-002).
-- [ ] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
-- [ ] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
-- [ ] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
-- [ ] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
-- [ ] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
+- [X] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
+- [X] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
+- [X] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
+- [X] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
+- [X] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
 - [ ] T026 [US2] Aggregate all statistical results into an `AnalysisResult` object and write to JSON output in `data/processed/results.json`.
 
 ---
@@ -123,12 +123,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
+- [X] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to: (1) check total N; (2) if N < 30, return early with `insufficient_data` flag; (3) if N >= 30, iterate over a range of significance thresholds, calculate effect sizes, aggregate results into `SensitivitySweep` objects, and append to the main JSON report (FR-005).
-- [ ] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` in the output if the effect size drops below a negligible threshold at any point in the sweep (SC-003). **Dependency**: Must consume `SensitivitySweep` objects produced by T028.
+- [X] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to: (1) check total N; (2) if N < 30, return early with `insufficient_data` flag; (3) if N >= 30, iterate over a range of significance thresholds, calculate effect sizes, aggregate results into `SensitivitySweep` objects, and append to the main JSON report (FR-005).
+- [X] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` in the output if the effect size drops below a negligible threshold at any point in the sweep (SC-003). **Dependency**: Must consume `SensitivitySweep` objects produced by T028.
 
 ---
 
@@ -138,7 +138,7 @@
 
 ### Implementation for Scope Clarification
 
-- [ ] T037 [P] Documentation updates in `code/../quickstart.md` and `docs/`. Specifically update the "Running the Analysis" section to include an example of running with synthetic data (the fallback scenario) and the "Data Sources" section to explain the `instruction_type` requirement and fallback behavior. The documentation must clarify that if public data lacks `instruction_type`, synthetic data is used for pipeline validation only.
+- [X] T037 [P] Documentation updates in `code/../quickstart.md` and `docs/`. Specifically update the "Running the Analysis" section to include an example of running with synthetic data (the fallback scenario) and the "Data Sources" section to explain the `instruction_type` requirement and fallback behavior. The documentation must clarify that if public data lacks `instruction_type`, synthetic data is used for pipeline validation only.
 - [ ] T038 [P] Code cleanup and refactoring to ensure type hinting and docstrings are complete. Run `ruff check --select=ANN` using the configuration from T003 and fix all errors.
 - [ ] T039 [P] Performance verification: Run `code/src/cli.py` with N=10,000 synthetic records and verify exit time < 600s (10 minutes) **wall-clock time on a 2-core CPU, 7GB RAM** (SC-001). Write the timing result to `data/processed/perf_log.json`.
 - [ ] T040a [P] Add unit test `test_t_test_underpowered` in `code/tests/test_stats_engine.py` for N < 30 case.
