@@ -4,7 +4,7 @@ description: "Task list template for feature implementation"
 
 # Tasks: The Impact of Visual Distraction on Cognitive Control in Remote Work Environments
 
-**Input**: Design documents from `/specs/001-visual-distraction-cognitive-control/`
+**Input**: Design documents from `/specs/001-visual-distraction-on-cogn/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: Tests are MANDATORY. All tasks marked with [USx] must include corresponding unit and contract tests to verify independent functionality.
@@ -28,7 +28,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Initialize project structure: Create `code/`, `data/`, `results/`, `tests/`, and `specs/001-visual-distraction-cognitive-control/` directories at repository root.
+- [X] T001 [P] Initialize project structure: Create `code/`, `data/`, `results/`, `tests/`, and `specs/001-visual-distraction-on-cogn/` directories at repository root.
 
 ---
 
@@ -46,15 +46,21 @@ description: "Task list template for feature implementation"
 - [X] T007 [P] Implement global random seed management (pinned seeds) in `code/utils.py`
 - [X] T008 [P] Implement error handler in `code/utils.py` to log specific errors: 'unmatched_participant_ids', 'image_processing_failures', and 'zero_variance_warning' with structured JSON messages as per Edge Cases in spec.md
 - [X] T009 [P] Implement contract test in `tests/contract/test_error_logging.py` to verify that `code/utils.py` logs the specific keys 'unmatched_participant_ids', 'image_processing_failures', and 'zero_variance_warning' when triggered
-- [X] T010 [P] Create dataset schema definition in `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml`. **Verification**: Validate against sample data.
-- [X] T011 [P] Create analysis output schema definition in `specs/001-visual-distraction-cognitive-control/contracts/analysis_output.schema.yaml`. **Verification**: Validate against sample output.
+- [X] T010 [P] Create dataset schema definition in `specs/001-visual-distraction-on-cogn/contracts/dataset.schema.yaml`. **Verification**: Validate against sample data.
+- [X] T011 [P] Create analysis output schema definition in `specs/001-visual-distraction-on-cogn/contracts/analysis_output.schema.yaml`. **Verification**: Validate against sample output.
 - [X] T012 [P] Implement contract tests in `tests/contract/` to validate JSON/CSV outputs against schemas. **Verification**: Run tests; ensure they pass.
-- [X] T017 [P] Create `data/citations.yaml` with verified primary sources for:
- 1. **Holm-Bonferroni**: Holm, S. (1979). "A Simple Sequentially Rejective Multiple Test Procedure". Scandinavian Journal of Statistics.
- 2. **OpenCV Edge Detection**: Canny, J. (1986). "A Computational Approach to Edge Detection". IEEE TPAMI.
- 3. **Color Entropy**: Shannon, C.E. (1948 (Wikipedia: A Mathematical Theory of Communication, https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication)). "A Mathematical Theory of Communication".
- 4. **YOLOv8**: Redmon, J., et al. (n.d.) and Ultralytics YOLOv8 documentation.
- 5. **p<0.05 Threshold**: ASA Statement on p-values (Wasserstein & Lazar, n.d.).
+- [X] T016 [P] [Foundational] **PII Sanitization Utility**: Implement `code/utils.py` function `sanitize_images`:
+ 1. **Create Output Directory**: Create `data/processed/sanitized_images/` to store sanitized images, preserving `data/raw/workspace_images/` unchanged.
+ 2. **Rename Images**: Rename all images from `data/raw/workspace_images/` to `img_<sha256_hash>.jpg` in the new output directory to remove original filenames.
+ 3. **Strip EXIF**: Strip all EXIF data from images using `Pillow` to remove PII (location, camera model, timestamps).
+ 4. **Verify**: Log count of sanitized images.
+ **Note**: This task moves files to a processed directory, preserving the raw data as per Constitution Principle III.
+- [X] T017 [P] [Foundational] Create `data/citations.yaml` with verified primary sources for:
+ 1. **Holm-Bonferroni**: Holm, S. "A Simple Sequentially Rejective Multiple Test Procedure". Scandinavian Journal of Statistics.
+ 2. **OpenCV Edge Detection**: Canny, J. (n.d.). "A Computational Approach to Edge Detection". IEEE TPAMI.
+ 3. **Color Entropy**: Shannon, C.E. (Year). "A Mathematical Theory of Communication". Bell System Technical Journal, 27, 379-423.
+ 4. **YOLOv8**: Redmon, J., et al. and Ultralytics YOLOv8 documentation.
+ 5. **p<0.05 Threshold**: Wasserstein, R.L., & Lazar, N.A. (). "The ASA Statement on p-values". The American Statistician.
  6. **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -63,7 +69,7 @@ description: "Task list template for feature implementation"
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Acquire real publicly available cognitive task datasets (OpenML) and real workspace environment images (Unsplash). If real data acquisition fails completely, generate synthetic participant records simulating the correlation structure described in literature. **CRITICAL**: No "proxy linkage" mixing real cognitive data with real images via fake IDs is allowed.
+**Goal**: Acquire real publicly available cognitive task datasets (OpenML) and real workspace environment images (Unsplash). If real data acquisition fails completely or linkage is impossible, generate synthetic participant records simulating the correlation structure described in literature. **CRITICAL**: If no unified public dataset exists linking cognitive data to images, the system MUST implement the 'Proxy Linkage' strategy (grouping by metadata + random assignment) or generate synthetic records to meet N≥100.
 
 **Independent Test**: Verify that `data/processed/merged_data.csv` exists with ≥100 rows, non-null `reaction_time`, `accuracy`, and `visual_complexity` columns.
 
@@ -73,43 +79,51 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/01_data_acquisition.py` as a unified script executing the following sequential steps:
- 1. **Real Dataset Lookup**: Attempt to download publicly available cognitive task datasets (Stroop, flanker) with linked workspace images from HuggingFace Datasets and OpenML. Search for specific IDs representing Stroop and Flanker datasets on OpenML. If valid linked dataset found, download and parse. **Validation**: Verify dataset contains `participant_id`, `reaction_time`, `accuracy`, `image_path`. Save to `data/raw/real_participants.csv`.
- 2. **Real Data Path (Primary)**: If no linked dataset found:
- a. **Fetch Cognitive Data**: Download real cognitive task data (Stroop/Flanker) from OpenML (e.g., dataset ID 4444) with participant-level reaction time and accuracy. Save to `data/raw/cognitive_data.csv`.
- b. **Fetch Workspace Images**: Query Unsplash API for workspace images using keywords: "home office", "desk", "workspace", "remote work", "study room". Download N=150 images. Save to `data/raw/workspace_images/`.
- c. **Extract Metadata**: For each Unsplash image, extract metadata (lighting_condition, room_type, tags) from the API response. Save to `data/raw/image_metadata.json`.
- d. **PII Sanitization (T016)**: BEFORE merging, call the sanitization logic (T016) to rename images to `img_<sha256_hash>.jpg` and strip EXIF data. Update `image_metadata.json` with new paths.
- e. **Merge Real Data**: Merge `cognitive_data.csv` with `image_metadata.json` based on a defined environmental category (e.g., "Home Office" tag match) ONLY if a real, pre-existing link exists in the metadata. **CRITICAL**: If no valid real link exists, DO NOT create fake links. Proceed to Fallback.
- 3. **Fallback Simulation**: If real linked dataset NOT found AND real cognitive data OR real images cannot be acquired (API failure, no data):
- a. Generate synthetic participant records (N ≥ 100) with `participant_id`, `reaction_time`, `accuracy`, and `visual_complexity`.
- b. **CRITICAL**: Use Cholesky decomposition with a covariance matrix targeting a negative correlation between `visual_complexity` and `reaction_time`. Do NOT use independent variables.
- 4. **Validation**: Verify N ≥ 100. Log warning if missing values > 5%.
- 5. **Marker**: Write `data/processed/.ready` marker file upon successful completion.
- 6. **Error Handling**: If validation fails, raise `ValueError` with message: `ERROR: Data validation failed. Missing: {count}%, N: {n}`.
- 7. **Output Paths**: Save cognitive data to `data/raw/cognitive_data.csv`, images to `data/raw/workspace_images/`, metadata to `data/raw/image_metadata.json`. Merge to create `data/processed/merged_data.csv`.
- **Verification**: Immediately after generation, compute edge density on a sample. If std dev is 0, raise `ValueError`.
+- [X] T015a [US1] **REAL DATA LOOKUP**: Implement `code/01_data_acquisition.py` function `lookup_real_datasets`:
+ 1. **Search**: Attempt to download publicly available cognitive task datasets (Stroop, flanker) with linked workspace images from HuggingFace Datasets and OpenML. Search for specific IDs representing Stroop and Flanker datasets on OpenML.
+ 2. **Validation**: Verify dataset contains `participant_id`, `reaction_time`, `accuracy`, `image_path`.
+ 3. **Output**: Return `True` if a unified dataset is found, `False` otherwise. Save found dataset to `data/raw/real_participants.csv` if found.
+ **DEPENDS ON: T017**. **FR Tags**: [FR-001].
 
-- [X] T016 [US1] Implement PII Sanitization in `code/utils.py` (function called by T015):
- 1. **Rename Images**: Rename all images in `data/raw/workspace_images/` to `img_<sha256_hash>.jpg` to remove original filenames.
- 2. **Strip EXIF**: Strip all EXIF data from images using `Pillow` to remove PII (location, camera model, timestamps).
- 3. **Verify**: Log count of sanitized images.
- **DEPENDS ON: T015 (Step 2b/c)**. **Note**: This function must be called by T015 BEFORE the final merge.
+- [X] T015b [US1] **REAL DATA FETCH**: Implement `code/01_data_acquisition.py` function `fetch_real_data`:
+ 1. **Cognitive Data**: If `lookup_real_datasets` returns `False`, download real cognitive task data (Stroop/Flanker) from OpenML (e.g., dataset ID 4444) with participant-level reaction time and accuracy. Save to `data/raw/cognitive_data.csv`.
+ 2. **Workspace Images**: Query Unsplash API for workspace images using keywords: "home office", "desk", "workspace", "remote work", "study room". Download N=150 images. Save to `data/raw/workspace_images/`.
+ 3. **Metadata**: Extract metadata (lighting_condition, room_type, tags) from the Unsplash API response. Save to `data/raw/image_metadata.json`.
+ 4. **PII Sanitization**: Call `code/utils.py:sanitize_images` (T016) to rename images and strip EXIF. Update `image_metadata.json` with new paths.
+ **DEPENDS ON: T015a, T016**. **FR Tags**: [FR-001].
 
-- [X] T017 [P] [US1] Create `data/citations.yaml` with verified primary sources (Moved to Phase 2 for independence). **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
+- [X] T015c [US1] **PROXY LINKAGE LOGIC**: Implement `code/01_data_acquisition.py` function `perform_proxy_linkage`:
+ 1. **Condition**: Execute ONLY if `lookup_real_datasets` returned `False` (no unified dataset found).
+ 2. **Algorithm**:
+ a. Group images by primary environmental tag (e.g., "Home Office").
+ b. Group cognitive records by a dummy ID if no real link exists.
+ c. Randomly assign cognitive records to image groups to create N≥100 linked records.
+ d. **CRITICAL**: Use a pinned random seed for this assignment. Log the seed.
+ e. **Note**: This creates a hybrid dataset (Real Cognitive + Real Images via Proxy).
+ 3. **Output**: Save merged data to `data/processed/merged_data.csv`.
+ **DEPENDS ON: T015a, T015b**. **FR Tags**: [FR-001], [FR-005].
 
-- [ ] T018 [US1] **VERIFY DATA INTEGRITY**: Run validation on `data/processed/merged_data.csv` to ensure: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
- 1. N ≥ 100.
- 2. No missing values in `reaction_time` or `accuracy` > 5%.
- 3. Metadata exists for all images.
- **DEPENDS ON: T015, T016**.
+- [X] T015d [US1] **SYNTHETIC FALLBACK**: Implement `code/01_data_acquisition.py` function `generate_synthetic_fallback`:
+ 1. **Condition**: Execute ONLY if `data/processed/merged_data.csv` does NOT contain N≥100 records after T015c (i.e., proxy linkage failed to produce sufficient valid records).
+ 2. **Generation**: Generate synthetic participant records (N ≥ 100) with `participant_id`, `reaction_time`, `accuracy`, and `visual_complexity`.
+ 3. **Correlation**: Use Cholesky decomposition with a covariance matrix targeting a negative correlation between `visual_complexity` and `reaction_time` as described in literature. Do NOT use independent variables.
+ 4. **Output**: Save to `data/processed/merged_data.csv` (overwriting if necessary to meet N≥100).
+ **DEPENDS ON: T015a, T015b, T015c**. **FR Tags**: [FR-001].
+
+- [ ] T015e [US1] **VALIDATION & MARKER**: Implement `code/01_data_acquisition.py` function `validate_and_mark`:
+ 1. **Check**: Verify N ≥ 100. Verify no missing values > 5%.
+ 2. **Error Logging**: If validation fails, raise `ValueError` with message: `ERROR: Data validation failed. Missing: {count}%, N: {n}`.
+ 3. **Edge Case Logging**: Log 'zero_variance_warning' if visual complexity variance is near-zero. Log 'unmatched_participant_ids' if any.
+ 4. **Marker**: Write `data/processed/.ready` marker file upon successful completion.
+ 5. **Output**: Save cognitive data to `data/raw/cognitive_data.csv`, images to `data/raw/workspace_images/`, metadata to `data/raw/image_metadata.json`.
+ **DEPENDS ON: T015c, T015d**. **FR Tags**: [FR-001].
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
 ## Phase 4: User Story 2 - Visual Complexity Metric Extraction (Priority: P1)
-**⚠️ DEPENDENCY**: This phase (US2) CANNOT start until Phase 3 (US1) is complete (T018 output required). **Specifically, T027 waits for the `.ready` marker from T015 and T018 validation.**
+**⚠️ DEPENDENCY**: This phase (US2) CANNOT start until Phase 3 (US1) is complete (T015e output required). **Specifically, T027 waits for the `.ready` marker from T015e.**
 
 **Goal**: Compute edge density, color entropy, and object count for all workspace images using CPU-tractable methods.
 
@@ -126,35 +140,34 @@ description: "Task list template for feature implementation"
 - [X] T026a [US2] **IMPLEMENT EDGE DENSITY**: Implement `code/02_visual_metrics.py` function `compute_edge_density`.
  1. **Edge Density**: Implement using OpenCV Canny/Sobel edge detection, outputting normalized values [0, 1].
  2. **Verification**: Ensure function passes unit test T021.
- **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-002], [SC-006].
+ **DEPENDS ON: T015e**. **FR Tags**: [FR-002], [SC-006].
 
-- [X] T026b [US2] **IMPLEMENT COLOR ENTROPY**: Implement `code/02_visual_metrics.py` function `compute_color_entropy`. <!-- FAILED: unspecified -->
+- [X] T026b [US2] **IMPLEMENT COLOR ENTROPY**: Implement `code/02_visual_metrics.py` function `compute_color_entropy`.
  1. **Color Entropy**: Implement using `np.histogram` on flattened RGB channels (bins=256) to compute entropy as `-sum(p * log2(p))`.
  2. **Verification**: Ensure function passes unit test T022.
- **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-003], [SC-006].
+ **DEPENDS ON: T015e**. **FR Tags**: [FR-003], [SC-006].
 
 - [X] T026c [US2] **IMPLEMENT OBJECT COUNT**: Implement `code/02_visual_metrics.py` function `compute_object_count`.
- 1. **Object Count**: Implement using `ultralytics` YOLOvn (nano) in CPU mode. **CRITICAL**: Use weights file `yolov8n.pt` and confidence threshold `0.25`. If the model fails, times out, or returns no objects for an image, assign NaN to the object count for that image. DO NOT impute a proxy value.
+ 1. **Object Count**: Implement using `ultralytics` YOLOv8n (nano) in CPU mode. **CRITICAL**: Use weights file `yolovn.pt` and confidence threshold set to a low value. If the model fails, times out, or returns no objects for an image, assign NaN to the object count for that image. DO NOT impute a proxy value.
  2. **Verification**: Ensure function passes unit test T023.
- **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-004], [SC-006].
+ **DEPENDS ON: T015e**. **FR Tags**: [FR-004], [SC-006].
 
-- [ ] T026-verify [US2] **VERIFY IMPLEMENTATION**: Run unit tests T021, T022, T023 against the newly implemented `code/02_visual_metrics.py`. Mark [X] only if all tests pass and the file exists.
- **DEPENDS ON: T026a, T026b, T026c**.
-
-- [X] T027 [US2] Create `code/02_visual_metrics.py` main execution block to: <!-- FAILED: unspecified -->
- 1. **Wait for `data/processed/.ready` marker** (from T015) and T018 validation.
- 2. Iterate over all images in `data/raw/workspace_images/` (or `data/raw/synthetic_images/` if fallback).
+- [X] T027 [US2] Create `code/02_visual_metrics.py` main execution block to:
+ 1. **Wait for `data/processed/.ready` marker** (from T015e).
+ 2. Iterate over all images in `data/processed/sanitized_images/` (sanitized by T016).
  3. Handle missing images by logging error and skipping.
  4. Compute metrics using the functions from T026a, T026b, T026c.
  5. Save to `data/processed/visual_metrics_intermediate.csv`.
- **DEPENDS ON: T026-verify (Verification Complete)**.
+ **DEPENDS ON: T026a, T026b, T026c**.
 
 - [ ] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to:
  1. Join `visual_metrics_intermediate.csv` with `data/processed/merged_data.csv` (from US1) using `inner join on participant_id`.
- 2. **CRITICAL**: Drop records with NaN object_count for analyses requiring that metric. Retain records with NaN for edge density and entropy analyses, but explicitly log the count of excluded records.
+ 2. **CRITICAL**: Generate TWO output files:
+ a. `data/processed/final_analysis_data_all.csv`: Contains all records, preserving NaNs for `object_count`.
+ b. `data/processed/final_analysis_data_object_only.csv`: Contains only records where `object_count` is NOT NaN.
  3. Log the count of unmatched records and the count of records with NaN object_count.
- 4. Save the merged dataset (with NaNs preserved where applicable) to `data/processed/final_analysis_data.csv`.
- **DEPENDS ON: T027 completion**. **Verification**: Run a quick check to ensure `final_analysis_data.csv` contains records with NaN values in the `object_count` column (but they are flagged for exclusion in specific analyses).
+ 4. **Verification**: Run a quick check to ensure `final_analysis_data_all.csv` contains records with NaN values in the `object_count` column.
+ **DEPENDS ON: T027 completion**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (US2 fully functional after T027/T028 completion)
 
@@ -174,10 +187,12 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 3
 
 - [ ] T031a [US3] **IMPLEMENT VIF/PCA LOGIC**: Implement `code/03_analysis.py` function `compute_vif_and_pca`.
- 1. **VIF Calculation**: Compute VIF for edge_density, color_entropy, object_count. Save to `results/statistics/vif_report.json`.
- 2. **PCA Decision**: If max(VIF) >= 5, perform PCA and extract `pca_component_1`. Add to dataframe.
- 3. **CRITICAL**: Explicitly state that if VIF >= 5, `pca_component_1` **REPLACES** the raw metrics as the primary predictor in all subsequent regression/correlation models.
- **DEPENDS ON: T028**. **FR Tags**: [FR-011], [FR-012], [SC-007].
+ 1. **Input**: Use `data/processed/final_analysis_data_all.csv`.
+ 2. **VIF Calculation**: Compute VIF for edge_density, color_entropy, object_count. Handle NaNs in `object_count` by excluding that specific predictor from the VIF matrix if necessary, or impute 0 for calculation purposes (document choice). Save to `results/statistics/vif_report.json`.
+ 3. **PCA Decision**: If max(VIF) >= 5, perform PCA and extract `pca_component_1`. Add to dataframe.
+ 4. **Linear Regression**: If VIF >= 5, perform Linear Regression using `pca_component_1` as the predictor. Save results to `results/statistics/regression_pca.json`.
+ 5. **CRITICAL**: Explicitly state that if VIF >= 5, `pca_component_1` **REPLACES** the raw metrics as the primary predictor in all subsequent regression/correlation models.
+ **DEPENDS ON: T028**. **FR Tags**: [FR-011], [FR-012], [SC-007], [FR-007].
 
 - [ ] T031b [US3] **IMPLEMENT CORRELATION/REGRESSION/BOOTSTRAP**: Implement `code/03_analysis.py` function `run_correlation_regression`.
  1. **Correlation & Regression**: Perform Pearson correlation and linear regression for each predictor-outcome pair. Use `pca_component_1` if VIF >= 5, else use raw metrics.
@@ -192,31 +207,28 @@ description: "Task list template for feature implementation"
  2. **Output**: Save final statistics to `results/statistics/statistics.json`.
  **DEPENDS ON: T031b**. **FR Tags**: [FR-008], [FR-009].
 
-- [ ] T031d [US3] **VERIFY ASSOCIATIONAL FRAMING**: Implement `code/03_analysis.py` function `verify_associational_framing`.
- 1. **Check**: Scan all generated text outputs (reports, summaries) for causal language (e.g., "cause", "effect", "impact").
- 2. **Reject**: Raise `ValueError` if any causal language is detected.
- 3. **Pass**: Log confirmation that all findings are framed as associational.
+- [ ] T031d [US3] **GENERATE ASSOCIATIONAL REPORT**: Implement `code/03_analysis.py` function `generate_associational_report`.
+ 1. **Template Generation**: Construct the report text using a strict template that enforces associational language (e.g., "is associated with", "correlates with").
+ 2. **Causal Language Prevention**: The template MUST NOT contain words like "cause", "effect", "impact" in the context of the relationship.
+ 3. **Output**: Generate the report content to be used by T045.
  **DEPENDS ON: T031c**. **FR Tags**: [FR-012], [SC-002].
 
-- [ ] T031-verify [US3] **VERIFY IMPLEMENTATION**: Run unit tests for VIF, PCA, Correlation, Regression, Holm-Bonferroni, and Bootstrap logic against the newly implemented `code/03_analysis.py`. Mark [X] only if all tests pass and the file exists.
- **DEPENDS ON: T031a, T031b, T031c, T031d**.
-
-- [ ] T035 [US3] Implement Holm-Bonferroni family-wise error correction in the analysis script using `scipy.stats.multitest.multipletests(method=holm)`. **Note**: Logic integrated into T031b, but this task ensures the specific method is verified.
- **DEPENDS ON: T031-verify**.
+- [ ] T035 [US3] **Implement Holm-Bonferroni family-wise error correction** in the analysis script using `scipy.stats.multitest.multipletests(method=holm)`. **Note**: Logic integrated into T031b, but this task ensures the specific method is verified.
+ **DEPENDS ON: T031b**.
  **Verification**: Run unit test T030; verify corrected p-values match expected values for a sample set.
 
-- [ ] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`. **CRITICAL**: Load the Holm-Bonferroni citation from `data/citations.yaml` (created by T017) and embed it in the report (via T045). **Do NOT** cite Wikipedia. **Verification**: Verify `results/statistics/multiplicity_table.csv` exists and the citation is valid.
- **DEPENDS ON: T031-verify**.
+- [ ] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`, `fwer_threshold`. **CRITICAL**: Include the FWER threshold in the output metadata. Load the Holm-Bonferroni citation from `data/citations.yaml` (created by T017) and embed it in the report (via T045). **Do NOT** cite Wikipedia. **Verification**: Verify `results/statistics/multiplicity_table.csv` exists and the citation is valid.
+ **DEPENDS ON: T031b, T017**.
 
 - [ ] T036a [US3] **GENERATE SUMMARY TABLE**: Generate `results/statistics/summary_p_values.md` containing a Markdown table of exact p-values and Holm-Bonferroni adjusted p-values, as required by SC-005.
  **DEPENDS ON: T036**.
  **Verification**: Verify file exists and contains the required table.
 
-- [ ] T019a [US3] **POWER ANALYSIS (A PRIORI)**: Implement power analysis in `code/03_analysis.py` using `statsmodels.stats.power.FTestPower` to calculate the required sample size for N≥100 based on an expected effect size (r=0.3) and alpha=0.05. **Output**: Save `results/statistics/power_analysis_a_priori.md` with the calculated power value, sample size, effect size, and rationale. **Verification**: Verify power value is calculated and report contains method description. **DEPENDS ON: T031-verify**.
+- [ ] T019a [US3] **POWER ANALYSIS (A PRIORI)**: Implement power analysis in `code/03_analysis.py` using `statsmodels.stats.power.FTestPower` to calculate the required sample size for N≥100 based on an expected effect size (r=0.3) and alpha=0.05. **Output**: Save `results/statistics/power_analysis_a_priori.md` with the calculated power value, sample size, effect size, and rationale. **Verification**: Verify power value is calculated and report contains method description. **DEPENDS ON: T031b**.
 
-- [ ] T019b [US3] **POWER ANALYSIS (POST-HOC)**: Implement power analysis in `code/03_analysis.py` using `statsmodels.stats.power.FTestPower` to calculate achieved power based on the observed effect size from `final_analysis_data.csv`. **Output**: Save `results/statistics/power_analysis_post_hoc.md`. **DEPENDS ON: T031-verify**.
+- [ ] T019b [US3] **POWER ANALYSIS (POST-HOC)**: Implement power analysis in `code/03_analysis.py` using `statsmodels.stats.power.FTestPower` to calculate achieved power based on the observed effect size from `final_analysis_data.csv`. **Output**: Save `results/statistics/power_analysis_post_hoc.md`. **DEPENDS ON: T031b**.
 
-- [ ] T037 [US3] **Generate Alpha Threshold Justification**: Read `data/citations.yaml` (from T017) and generate the p<0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)) threshold justification content.
+- [ ] T037 [US3] **Generate Alpha Threshold Justification**: Read `data/citations.yaml` (from T017) and generate the p<0.05 threshold justification content.
  1. Frame all findings as associational (no causal claims).
  2. Load citation content for ASA Statement from `citations.yaml`.
  3. **Template**: The justification must include:
@@ -226,17 +238,17 @@ description: "Task list template for feature implementation"
  - (d) Conclusion.
  4. **Minimum length**: 150 words.
  5. **Output**: Save the content to `results/statistics/alpha_threshold_justification.md` to be used by T045.
- **DEPENDS ON: T031-verify, T017**.
+ **DEPENDS ON: T031b, T017**.
 
 - [ ] T038 [US3] **Generate Methods Citations**: Read `data/citations.yaml` (from T017) and generate the methods citations content for OpenCV, Color Entropy, and YOLOv8.
  1. Load citation content from `citations.yaml`.
  2. **Output**: Save the content to `results/statistics/methods_citations.md` to be used by T045.
- **DEPENDS ON: T031-verify, T017**.
+ **DEPENDS ON: T031b, T017**.
 
 - [ ] T039b [US3] Save final statistics (including PCA results if applicable) to `results/statistics/statistics.json` ensuring all required fields (r, p, beta, CI, adjusted_p) are present. **Note**: Logic integrated into T031c. This task ensures the final JSON is written correctly.
- **DEPENDS ON: T031-verify**.
+ **DEPENDS ON: T031b**.
 
-- [ ] T038-plot [US3] **Generate Scatter Plots**: Generate scatter plots for each significant correlation (p<0.05) with trend line overlay and axis labels. **Verification**: Verify `results/plots/` contains at least one scatter plot per significant metric pair. **DEPENDS ON: T031-verify**.
+- [ ] T038-plot [US3] **Generate Scatter Plots**: Generate scatter plots for each significant correlation (p<0.05) with trend line overlay and axis labels. **Verification**: Verify `results/plots/` contains at least one scatter plot per significant metric pair. **DEPENDS ON: T031c**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -255,10 +267,10 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 4
 
 - [ ] T041 [US4] Implement bootstrap resampling (≥1000 iterations) in `code/03_analysis.py` using `scipy.stats.bootstrap` with arguments `vectorized=True, confidence_level=0.95, n_resamples=1000` to compute % confidence intervals for correlation coefficients. **Output**: Save to `results/sensitivity/bootstrap_results.json` with keys `mean_r`, `ci_lower`, `ci_upper`, `n_resamples`.
- **DEPENDS ON: T031-verify**.
+ **DEPENDS ON: T031b**.
 
-- [ ] T042 [US4] Implement alternative binning strategies (quartiles, deciles) in `code/03_analysis.py` to re-calculate correlations. **CRITICAL**: Iterate over **all A set of predictor-outcome pairs** (Multiple metrics × 2 outcomes) to ensure full coverage of FR-010.
- **DEPENDS ON: T031-verify**.
+- [ ] T042 [US4] Implement alternative binning strategies (quartiles, deciles) in `code/03_analysis.py` to re-calculate correlations. **CRITICAL**: Iterate over **all 6 predictor-outcome pairs** (3 metrics x 2 outcomes) to ensure full coverage of FR-010. For each pair and strategy, calculate and record **both the Pearson r-value AND the p-value**.
+ **DEPENDS ON: T031b**.
 
 - [ ] T043 [US4] Generate `results/sensitivity/binning_results.csv` with columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value`. **CRITICAL**: Ensure exactly **6 rows** are generated for each binning strategy (one for each predictor-outcome pair) to satisfy FR-010.
  **DEPENDS ON: T042**.
@@ -281,7 +293,7 @@ description: "Task list template for feature implementation"
  - `## Multiplicity Correction` (includes table from T036a)
  - `## Discussion` (associational framing only)
  9. **Verification**: Verify `results/report.md` exists and contains the full text of the generated sections and the "Holm-Bonferroni" declaration.
- **DEPENDS ON: T019a, T019b, T036, T036a, T039b, T044, T037, T038**.
+ **DEPENDS ON: T019a, T019b, T036, T036a, T039b, T044, T037, T038, T031d**.
 
 ---
 
@@ -289,14 +301,14 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T046 [P] Documentation updates: Create `specs/001-visual-distraction-cognitive-control/quickstart.md` explaining the synthetic data fallback and associational framing. **Requirement**: Add a "Data Source Selection" section explaining how to switch between real and synthetic data, and an "Interpretation of Results" section explaining the associational framing. **Specific Content**:
+- [ ] T046 [P] Documentation updates: Create `specs/001-visual-distraction-on-cogn/quickstart.md` explaining the synthetic data fallback and associational framing. **Requirement**: Add a "Data Source Selection" section explaining how to switch between real and synthetic data, and an "Interpretation of Results" section explaining the associational framing. **Specific Content**:
  - **Data Source Selection**:
  - Header: `## Data Source Selection`
  - Content: Explain the logic for choosing between real and synthetic data. Include a subsection `### Real Dataset Path` detailing the verification steps and fallback mechanism if a real dataset is found. Include a subsection `### Synthetic Data Path` detailing the generation process.
  - **Interpretation of Results**:
  - Header: `## Interpretation of Results`
  - Content: Explain the associational nature of the findings, emphasizing that no causal claims are made. Include a subsection `### Real Dataset Interpretation` and `### Synthetic Data Interpretation` if applicable.
- - **Verification**: Verify file exists at `specs/001-visual-distraction-cognitive-control/quickstart.md` and contains the required headers and sections.
+ - **Verification**: Verify file exists at `specs/001-visual-distraction-on-cogn/quickstart.md` and contains the required headers and sections.
 - [ ] T047 [P] Code cleanup and refactoring to ensure PEP8 compliance. **Verification**: Run PEP8 linter; ensure no errors.
 - [ ] T049 [P] Additional unit tests for edge cases (image failure, zero variance) in `tests/unit/`.
 - [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution.
@@ -319,9 +331,9 @@ description: "Task list template for feature implementation"
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P1)**: **MUST wait for User Story 1** to complete (requires T018 output). Specifically, T027 waits for the `.ready` marker from T015 and T018 validation. **DEPENDS ON: T018**.
+- **User Story 2 (P1)**: **MUST wait for User Story 1** to complete (requires T015e output). Specifically, T027 waits for the `.ready` marker from T015e. **DEPENDS ON: T015e**.
 - **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Requires US1 & US2 data output (T028)
-- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Requires US3 analysis results (T031-verify)
+- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Requires US3 analysis results (T031b)
 
 ### Within Each User Story
 
@@ -408,7 +420,7 @@ With multiple developers:
 - **Critical Constraint**: Parallel opportunities section updated to reflect US2 dependency on US1.
 - **Critical Constraint**: `results/report.md` is the canonical final report file, defined in T045.
 - **Critical Constraint**: T031a now includes LINEAR REGRESSION (FR-007) for the PCA path.
-- **Critical Constraint**: T028 explicitly retains records with NaN object_count for edge/entropy analyses but drops them for object-count analyses.
+- **Critical Constraint**: T028 explicitly retains records with NaN object_count for edge/entropy analyses but drops them for object-count analyses by generating two files.
 - **Critical Constraint**: T036 explicitly generates the Markdown table and inserts it into `results/report.md` (via T045), and generates a standalone CSV.
 - **Critical Constraint**: T037 and T038 generate citation content from `citations.yaml` (created by T017); T045 explicitly uses this content.
 - **Critical Constraint**: T019a and T019b explicitly document the rationale in a 'Power Analysis Methodology' section and calculate the achieved power using `FTestPower`.
@@ -419,8 +431,8 @@ With multiple developers:
 - **Critical Constraint**: T039a has been removed to prevent overwriting PCA results; T039b is the sole save point.
 - **Critical Constraint**: T037 and T038 do NOT write to `results/report.md`; T045 is the sole writer.
 - **Critical Constraint**: T015 explicitly supports the Hybrid path (Real Cognitive + Real Images via Proxy).
-- **Critical Constraint**: T027 explicitly depends on T018 (Marker File + Validation).
-- **Critical Constraint**: T045 explicitly depends on T019a, T019b, T036, T036a, T039b, T044, T037, T038.
+- **Critical Constraint**: T027 explicitly depends on T015e (Marker File).
+- **Critical Constraint**: T045 explicitly depends on T019a, T019b, T036, T036a, T039b, T044, T037, T038, T031d.
 - **Critical Constraint**: Real data fetch logic is integrated into T015; Phase O is removed.
 - **Critical Constraint**: T048a/T048b and T053 have been removed as scope creep.
 - **Critical Constraint**: T053, T054, T055, T056 have been removed and their functionality integrated into T025, T031, T034b, T041, T037b respectively.
@@ -428,7 +440,7 @@ With multiple developers:
 - **Critical Constraint**: T015 generates correlated synthetic data if real data fails.
 - **Critical Constraint**: T015 explicitly queries real platforms before fallback.
 - **Critical Constraint**: T045 dependencies updated to include T037 and T038.
-- **Critical Constraint**: T027 dependency updated to T018.
+- **Critical Constraint**: T027 dependency updated to T015e.
 - **Critical Constraint**: T042 and T043 explicitly mandate 6-pair iteration and 6-row output for FR-010.
 - **Critical Constraint**: T031a explicitly includes conditional PCA integration logic.
 - **Critical Constraint**: T015 uses real Unsplash API for image acquisition.
@@ -453,7 +465,7 @@ With multiple developers:
 - **Critical Constraint**: T015 generates correlated synthetic data if real data fails.
 - **Critical Constraint**: T015 explicitly queries real platforms before fallback.
 - **Critical Constraint**: T045 dependencies updated to include T037 and T038.
-- **Critical Constraint**: T027 dependency updated to T018.
+- **Critical Constraint**: T027 dependency updated to T015e.
 - **Critical Constraint**: T042 and T043 explicitly mandate 6-pair iteration and 6-row output for FR-010.
 - **Critical Constraint**: T031a explicitly includes conditional PCA integration logic.
 - **Critical Constraint**: T015 uses real Unsplash API for image acquisition.

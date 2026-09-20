@@ -5,16 +5,11 @@ import hashlib
 import json
 from datetime import datetime
 from PIL import Image
-from io import BytesIO
+import random
+import numpy as np
 
-# Global seed state
-_seed_config = {
-    "seed": 42,
-    "initialized": False
-}
-
-def get_logger(name: str) -> logging.Logger:
-    """Get a configured logger instance."""
+# --- Logging Setup ---
+def get_logger(name=__name__):
     logger = logging.getLogger(name)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
@@ -27,85 +22,81 @@ def get_logger(name: str) -> logging.Logger:
         logger.setLevel(logging.INFO)
     return logger
 
-def log_structured_error(error_type: str, message: str, details: dict = None):
+logger = get_logger(__name__)
+
+# --- Structured Error Logging ---
+def log_structured_error(error_type: str, details: str):
     """Log specific errors as structured JSON."""
-    logger = get_logger(__name__)
-    log_entry = {
+    error_log = {
         "timestamp": datetime.now().isoformat(),
         "error_type": error_type,
-        "message": message,
-        "details": details or {}
+        "details": details
     }
-    logger.error(json.dumps(log_entry))
+    logger.error(json.dumps(error_log))
 
+# --- Checksumming ---
 def compute_file_checksum(file_path: str) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        return None
 
-def init_seed_config(seed: int = 42):
+# --- Random Seed Management ---
+SEED = 42
+
+def init_seed_config():
     """Initialize global random seed."""
-    _seed_config["seed"] = seed
-    _seed_config["initialized"] = True
+    random.seed(SEED)
+    np.random.seed(SEED)
+    logger.info(f"Random seed initialized to {SEED}")
 
-def set_random_seed(seed: int = None):
-    """Set random seed for reproducibility."""
-    import random
-    import numpy as np
-    if seed is None:
-        seed = _seed_config["seed"]
+def set_random_seed(seed: int):
+    """Set global random seed."""
+    global SEED
+    SEED = seed
     random.seed(seed)
     np.random.seed(seed)
+    logger.info(f"Random seed set to {seed}")
 
 def get_global_seed() -> int:
-    """Get the current global seed."""
-    return _seed_config["seed"]
+    """Get current global random seed."""
+    return SEED
 
-def sanitize_image_pii(image_path: str, output_path: str = None) -> str:
+# --- PII Sanitization ---
+def sanitize_image_pii(image_path: str) -> str:
     """
-    Sanitize image PII by stripping EXIF data and renaming.
-    Returns the new sanitized file path.
+    Sanitize image by renaming with SHA256 hash and stripping EXIF.
+    Returns the new path.
     """
-    logger = get_logger(__name__)
-    
     if not os.path.exists(image_path):
         logger.error(f"Image not found: {image_path}")
         return None
-        
+
+    # Compute hash
+    checksum = compute_file_checksum(image_path)
+    if not checksum:
+        return None
+
+    # New filename
+    new_filename = f"img_{checksum}.jpg"
+    new_path = os.path.join("data/processed/sanitized_images", new_filename)
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(new_path), exist_ok=True)
+
     try:
-        with Image.open(image_path) as img:
-            # Extract basic info
-            info = img.info
-            mode = img.mode
-            size = img.size
-            
-            # Create new image without EXIF
-            new_img = Image.new(mode, size)
-            new_img.putdata(list(img.getdata()))
-            
-            # Generate sanitized name
-            base_name = os.path.basename(image_path)
-            file_ext = os.path.splitext(base_name)[1]
-            file_hash = hashlib.sha256(base_name.encode()).hexdigest()[:16]
-            sanitized_name = f"img_{file_hash}{file_ext}"
-            
-            if output_path is None:
-                output_dir = os.path.dirname(image_path)
-                output_path = os.path.join(output_dir, sanitized_name)
-            else:
-                # Ensure output path has correct extension if needed
-                if not output_path.endswith(file_ext):
-                    output_path += file_ext
-                
-            # Save without EXIF
-            new_img.save(output_path, format=img.format)
-            
-            logger.info(f"Sanitized image: {image_path} -> {output_path}")
-            return output_path
-            
+        # Open image and strip EXIF
+        img = Image.open(image_path)
+        # Save without EXIF
+        img.save(new_path, exif=None)
+        logger.info(f"Sanitized image: {image_path} -> {new_path}")
+        return new_path
     except Exception as e:
         logger.error(f"Failed to sanitize image {image_path}: {e}")
         return None

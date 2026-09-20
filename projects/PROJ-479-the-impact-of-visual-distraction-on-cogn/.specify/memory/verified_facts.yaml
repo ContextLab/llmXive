@@ -1,6 +1,5 @@
-'|bootstrap confidence interval level use':
-  quote: a first sample can take any value between 0 and 0.95. The exact value depends
-    on the two
-  source_id: '1710.08708'
-  url: https://arxiv.org/abs/1710.08708
-  value: '0.95'
+'|bootstrap coefficient compute confidence correlation implement interval iteration least resampling':
+  quote: 1000 independent time series of length n = 500 and 1000. Construction of
+  source_id: '0804.4361'
+  url: https://arxiv.org/abs/0804.4361
+  value: '1000'
