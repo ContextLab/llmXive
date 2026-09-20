@@ -4,6 +4,7 @@ import sys
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+from datetime import timezone
 
 import numpy as np
 import pandas as pd
@@ -127,6 +128,9 @@ def save_results(results: Dict[str, Any], output_path: Path):
     
     # Add biological context
     results["biological_context"] = "This result is a behavioral association. It does not confirm or deny the involvement of specific molecular pathways (e.g., CREB, PKA) or synaptic mechanisms in the visual cortex/hippocampus. Future neuroimaging or invasive studies are required to map this behavioral effect to the 'ladder of explanation'."
+    
+    # Add hypothesis gap disclaimer
+    results["hypothesis_gap"] = "This study does not establish a cellular or molecular mechanism for the observed effect. The 'visual detail' variable is a psychophysical stimulus. The 'ladder of explanation' (behavior → cells → synapses → molecules) has not been walked down to the synaptic rung. Future research is required to identify the specific synaptic changes (e.,g., via CREB activation) that may mediate this effect."
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:

@@ -2810,24 +2810,6 @@
   updated_at: '2026-07-28T21:17:12Z'
 - artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
   attempts: 1
-  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
-  claim_id: c_1b00c81b
-  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
-    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
-    Effect''.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
-    (1974) ''The Misinformation Effect''.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T21:18:51Z'
-- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
-  attempts: 1
   canonical: 20 valid PNG files generated in data/assets/minor_objects
   claim_id: c_9b653ce5
   context: 'Run code/stimuli/asset_generator.py to generate the assets in data/assets/minor_objects/.
@@ -2985,24 +2967,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T19:43:22Z'
-- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
-  attempts: 1
-  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
-  claim_id: c_7cc6f99a
-  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
-    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
-    Effect''.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
-    (1974) ''The Misinformation Effect''.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T19:43:42Z'
 - artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
   attempts: 1
   canonical: 20 valid PNG files generated in data/assets/minor_objects/
@@ -4001,3 +3965,567 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T23:00:30Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
+  claim_id: c_9593c2a5
+  context: Task T012.0 documents the effect size source for power analysis, citing
+    Loftus et al. (1974).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:39:29Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_abd407bd
+  context: Section 2.1 of research.md documents the effect size assumption used for
+    power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:40:14Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Kandel 1983 Science paper on molecular biology of memory storage
+  claim_id: c_2f961fad
+  context: Cited in Section 4.2 of research.md regarding the ladder of explanation
+    and biological mechanisms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kandel, E. R. (n.d.). The molecular biology of memory storage: a dialogue
+    between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:41:04Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 'Aplysia presynaptic facilitation pathway: serotonin cAMP PKA CREB'
+  claim_id: c_c6c11839
+  context: Described in the theoretical gap analysis regarding the lack of mapped
+    biological correlates in humans.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aplysia_presynaptic_facilitation_pathway:_serotonin_cAMP_PKA
+  kind: entity_fact
+  raw_text: "In Aplysia, presynaptic facilitation involves serotonin \u2192 cAMP \u2192\
+    \ PKA \u2192 CREB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:41:31Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Study measures behavioral false memory rates without inferring molecular
+    mechanisms
+  claim_id: c_c957120b
+  context: Scope boundary documentation explicitly limits the study to behavioral
+    observations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_measures_behavioral_false_memory_rates_without_inferri
+  kind: entity_fact
+  raw_text: The study measures behavioral false memory rates and does not measure
+    or infer specific molecular/cellular mechanisms in humans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:42:16Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power analysis requires minimum 50 subjects
+  claim_id: c_12d0b9af
+  context: T012-Design task specifies the constraint for sample size sufficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If calculated n_total_subjects < 50, the power analysis is deemed insufficient
+    and the pipeline halts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:42:16Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
+  claim_id: c_e01191fa
+  context: Section 2.1 of research.md documents the effect size assumption for the
+    power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:42:41Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Study measures behavioral false memory rates without inferring molecular/cellular
+    mechanisms
+  claim_id: c_42da9cc1
+  context: Scope Boundary Documentation (T060) explicitly defines the study's boundaries
+    regarding behavioral vs. biological mechanisms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_measures_behavioral_false_memory_rates_without_inferri
+  kind: entity_fact
+  raw_text: The study measures behavioral false memory rates and does not measure
+    or infer specific molecular/cellular mechanisms (e.g., CREB activation, synaptic
+    weight changes) in humans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:42:43Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 'Aplysia presynaptic facilitation pathway: serotonin to cAMP to PKA to
+    CREB'
+  claim_id: c_25be0cc5
+  context: Theoretical Gap section maps the review's critique to biological pathways
+    in Aplysia.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aplysia_presynaptic_facilitation_pathway:_serotonin_to_cAMP
+  kind: entity_fact
+  raw_text: "In Aplysia, presynaptic facilitation corresponds to serotonin \u2192\
+    \ cAMP \u2192 PKA \u2192 CREB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:43:06Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Kandel ER Science 5544 1030-1038 molecular biology of memory storage
+  claim_id: c_9f838b04
+  context: Citation added to the Research Plan to address the 'Ladder of Explanation'
+    critique.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kandel, E. R. (n.d.). The molecular biology of memory storage: a dialogue
+    between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:43:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Minimum 50 subjects required for power analysis gate
+  claim_id: c_e86ea72b
+  context: T012-Runtime validation logic enforces a minimum sample size of 50 to proceed
+    with data collection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study requires a minimum of 50 subjects (n_total_subjects >= 50) for
+    the power analysis to pass the runtime gate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:43:44Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Study uses Repeated-Measures ANOVA design
+  claim_id: c_29fddc2d
+  context: Task T012-Design and T035 implement the Spec-compliant Repeated-Measures
+    design, overriding the initial Between-Subjects plan.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q98507663
+        url: https://www.wikidata.org/wiki/Q98507663
+        value: Repeated Measures ANOVA with Latent Variables to Analyze Interindividual
+          Differences in Contrasts
+      quote: 'Repeated measures ANOVA: some new results on comparing trimmed means
+        and means'
+      source_id: Q41747434
+      url: https://www.wikidata.org/wiki/Q41747434
+      value: Repeated measures ANOVA
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses a Repeated-Measures ANOVA design (within-subjects) for
+    statistical analysis.
+  resolved_value: Repeated measures ANOVA
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T07:43:56Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 20 semantic minor object assets generated
+  claim_id: c_edb49fb4
+  context: T015.1-GenAssets specifies a loop to generate exactly 20 PNG assets for
+    compositing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 20 semantic minor object assets are generated for image manipulation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:45:00Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Minimum 5 true and 5 false objects required for complete recognition
+    questions
+  claim_id: c_e30b36e7
+  context: T027.2 logic flags sessions as incomplete if the number of available true/false
+    objects is less than 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The recognition question generation requires a minimum of 5 true and 5
+    false objects (k >= 5) to be considered complete.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:46:27Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration is 2 minutes plus or minus 10 seconds
+  claim_id: c_558e99c9
+  context: T026 defines the duration and content of the distractor task administered
+    to participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The distractor task consists of arithmetic questions administered for\
+    \ 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:46:44Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
+  claim_id: c_76d26092
+  context: 'Update research.md by appending Section 2.1 with the text: Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) ''The Misinformation
+    Effect''. Verification: Assert research.md contains the string ''Cohen''s f=0.25''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:48:53Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power gate raises SystemExit if N less than 50
+  claim_id: c_c064ae29
+  context: 'Constraint: If any check fails, raise SystemExit with message ''Power
+    Analysis Failed: Insufficient sample size (N < 50) or power criteria not met.''
+    This logic blocks ALL subsequent data collection phases (US1, US2, US3) until
+    it passes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_gate_raises_SystemExit_if_N_less_than_50
+  kind: magnitude
+  raw_text: 'If any check fails, raise SystemExit with message ''Power Analysis Failed:
+    Insufficient sample size (N < 50) or power criteria not met.'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:49:50Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate 20 minor object assets
+  claim_id: c_e5b04187
+  context: 'Set Seed: random.seed(config.SEED). Loop 20 times (i=0 to 19): Select
+    a random object from the semantic list. Generate a random shape representation...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Loop 20 times (i=0 to 19) to generate assets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:50:17Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power gate success creates specific file and log entry
+  claim_id: c_0e05c424
+  context: 'Output: If successful, create data/analysis/power_gate_passed.txt and
+    log success to data/logs/power_gate.log.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_gate_success_creates_specific_file_and_log_entry
+  kind: entity_fact
+  raw_text: Verify that data/analysis/power_gate_passed.txt exists and log success
+    to data/logs/power_gate.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:50:47Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image complexity Q1-Q3 range must be at least 0.3
+  claim_id: c_76c2bd9c
+  context: "Algorithm: Filter the fetched image set to ensure the Q1\u2011Q3 range\
+    \ is \u2265 0.3 (target mean=0.5, std=0.15). Constraint: Complexity is derived\
+    \ from existing image annotations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_complexity_Q1-Q3_range_must_be_at_least_0.3
+  kind: magnitude
+  raw_text: "Filter the fetched image set to ensure the Q1\u2011Q3 range is \u2265\
+    \ 0.3 (target mean=0.5, std=0.15)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:51:18Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Sample selection retry limit is 3 attempts
+  claim_id: c_ab698b8c
+  context: 'Algorithm: 1. If T006.3-Select fails to meet Q1-Q3 range, fetch a larger
+    batch (next images) and re-run T006.3-Select. 2. Retry up to 3 times total.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manual verification exactly one of 113 production configurations
+      source_id: '2608.25403'
+      url: https://arxiv.org/abs/2608.25403
+      value: '3'
+    filled: true
+  kind: numeric
+  raw_text: Retry up to 3 times total.
+  resolved_value: '3'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T07:51:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: SystemExit raised after 3 failed attempts to meet Q1-Q3 range
+  claim_id: c_4be2e99f
+  context: "3. Terminal Failure: If all 3 attempts fail to meet the Q1\u2011Q3 range,\
+    \ raise SystemExit with error: 'Visual Genome subset is homogeneous; Q1-Q3 range\
+    \ < 0.3 after 3 attempts.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If all 3 attempts fail to meet the Q1\u2011Q3 range, raise SystemExit\
+    \ with error: 'Visual Genome subset is homogeneous; Q1-Q3 range < 0.3 after 3\
+    \ attempts.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:52:12Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Baseline image display duration is 10 seconds
+  claim_id: c_51de74fb
+  context: "Implement View: Image Display: Implement code/participants/interface.py\
+    \ to display baseline images for 10 seconds (\xB10.5s). Logic: Timer\u2011based\
+    \ display."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Display baseline images for 10 seconds (\xB10.5s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:52:38Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration is 2 minutes
+  claim_id: c_5649d0b1
+  context: "Implement View: Distractor Task: Implement code/participants/interface.py\
+    \ to administer arithmetic questions for 2 minutes (\xB110s). Constraint: If duration\
+    \ is outside the acceptable range, Flag session as Incomplete in the response\
+    \ log."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Administer arithmetic questions for 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:53:00Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Recognition question generation fails if fewer than 5 true/false pairs
+  claim_id: c_eac4ac20
+  context: 'Sample: Determine the number of questions k = min(len(true_pool), len(false_pool)).
+    If k < 5, flag session as incomplete. Otherwise, select k items from true_pool
+    and k items from false_pool.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recognition_question_generation_fails_if_fewer_than_5_true/f
+  kind: magnitude
+  raw_text: If k < 5, flag session as incomplete.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:54:24Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Kandel 1985 Science paper citation on molecular biology of memory
+  claim_id: c_963e99ba
+  context: "Content: The reviewer (Kandel) correctly identifies that our behavioral\
+    \ finding (visual detail modulates false memory) lacks a mapped biological correlate.\
+    \ In Aplysia, this would correspond to presynaptic facilitation via serotonin\
+    \ \u2192 cAMP \u2192 PKA \u2192 CREB. Citation: Append 'Kandel, E. R. (n.d.).\
+    \ The molecular biology of memory storage: a dialogue between genes and synapses.\
+    \ Science, (5544), 1030-1038.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Cite ''Kandel, E. R. (n.d.). The molecular biology of memory storage:
+    a dialogue between genes and synapses. Science, (5544), 1030-1038.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:55:09Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 2
+  canonical: Cohen's f=0.25 effect size assumption based on Loftus et al. 1974
+  claim_id: c_1b00c81b
+  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
+    Effect''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:56:02Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2608.25403 cited in retry logic
+  claim_id: c_cf71de93
+  context: 'Implement retry logic in code/stimuli/filter.py to fetch a larger batch
+    if T006.3-Select fails. Algorithm: 1. If T006.3-Select fails to meet Q1-Q3 range,
+    fetch a larger batch (next images) and re-run T006.3-Select. 2. {{claim:c_ab698b8c}}
+    (2608.25403, https://arxiv.org/abs/2608.25403) 3. Terminal Failure...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2608.25403'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:56:13Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Kandel ER citation on molecular biology of memory storage in Science
+    1030-1038
+  claim_id: c_7461f448
+  context: 'Document ''Ladder of Explanation'' Gap in Research Plan. Content: Explicitly
+    map the review''s critique... Citation: Append ''Kandel, E. R. (n.d.). The molecular
+    biology of memory storage: a dialogue between genes and synapses. Science, (5544),
+    1030-1038.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kandel, E. R. (n.d.). The molecular biology of memory storage: a dialogue
+    between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:56:13Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 2
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_7cc6f99a
+  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
+    Effect''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T07:56:44Z'

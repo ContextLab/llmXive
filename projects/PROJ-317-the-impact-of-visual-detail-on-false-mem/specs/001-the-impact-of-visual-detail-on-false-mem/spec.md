@@ -29,7 +29,7 @@ Participant views a BASELINE image for a brief period, completes a short arithme
 
 **Why this priority**: This is the core data collection mechanism. Without valid participant responses, no statistical analysis can occur. However, the interface can be tested independently of the manipulation pipeline.
 
-**Independent Test**: Can be fully tested by simulating a single participant session end-to-end (image display → distractor → questions → response capture) and verifying all 20 responses are recorded correctly.
+**Independent Test**: Can be fully tested by simulating a single participant session end-to-end (image display → distractor → questions → response capture) and verifying all A set of responses is recorded correctly..
 
 **Acceptance Scenarios**:
 
