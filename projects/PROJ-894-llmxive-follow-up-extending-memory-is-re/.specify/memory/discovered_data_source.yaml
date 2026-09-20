@@ -1,10 +1,11 @@
 status: none
-intent: LoCoMo benchmark dataset HuggingFace datasets library python package dataset
+intent: download LoCoMo multi-hop reasoning benchmark dataset python package
 required_fields:
 - task_id
-- accuracy
-- latency_seconds
-- node_visitation_count
-cache_key: a940d3cf6071940e05c82244172c7f040d9d0bfe069c86894e92dda0bea4d86c
-searched_at: '2026-09-18T00:31:51.394382+00:00'
+- question
+- context
+- ground_truth_answer
+- graph_structure
+cache_key: 1e9d6762ef5b204d8cc71f5a7e90f5cc87afe4d97db1a61f762fa2a8b17efc41
+searched_at: '2026-09-20T17:48:45.864460+00:00'
 retry_count: 1

@@ -1,11 +1,3 @@
-T011c:
-  c: false
-  h: 58c4bec7f8b385ae0197b196248d2db7083251ab52806ebc00f2679d7d8fe605
-  r: "The repository contains `code/scripts/generate_noisy_graphs.py`, but the shown\
-    \ code is truncated before any call to `inject_noise` and before writing the noisy\
-    \ graphs to `data/processed/graphs/graph_noise_42.json`. Moreover, the required\
-    \ output file `graph_noise_42.json` does not exist. The task\u2019s core requirement\u2014\
-    generating and saving a noisy graph dataset\u2014is therefore not fulfilled."
 T013b:
   c: true
   h: be5ab0cf280f827e980f2b24b6b48da6269a4c41022dfc2e2d91d5ddacb99c73
