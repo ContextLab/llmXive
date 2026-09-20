@@ -1,7 +1,15 @@
-T016:
+T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or modified CSV file was presented showing the added logic to
-    count samples per class, log warnings for classes with fewer than 1,000 rows,
-    and physically remove those rows from the output. The required artifact is missing,
-    so the task is not satisfied.
+  h: f3e4c77af941478e800591f6e374ff7e40e93d52e9081e1a6c81f08ac6b7e7c3
+  r: The provided `src/modeling/config.yaml` does not define a `USPTO_URL` key, violating
+    the required configuration check. Additionally, the expected output file `data/raw/uspto_subset.parquet`
+    is missing, indicating the ingestion script has not completed the download, checksum
+    verification, and parsing steps.
+T013b:
+  c: false
+  h: f7b8af83be7f2813d50634cfd13435abc902d8e8039f71dea6559c924f88a618
+  r: "The `src/utils/chemistry.py` file is only partially shown and ends abruptly\
+    \ inside `_match_reaction`; no complete reaction\u2011matching or classification\
+    \ function is present. Moreover, the required `config.yaml` containing the SMARTS\
+    \ patterns is missing, so the code cannot load the templates it is supposed to\
+    \ use. Both the essential artifact and its functionality are absent."

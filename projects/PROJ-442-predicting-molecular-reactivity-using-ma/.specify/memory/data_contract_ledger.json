@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/results/cv_results.csv",
+    "required": []
+  }
+]

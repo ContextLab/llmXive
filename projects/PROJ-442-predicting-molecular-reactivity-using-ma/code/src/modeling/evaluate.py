@@ -1,311 +1,235 @@
-"""
-Evaluation module for molecular reactivity prediction.
-Implements Spearman correlation, permutation testing, and report generation.
-"""
-import os
+"""Model evaluation module."""
+from __future__ import annotations
+
 import json
 import logging
+import os
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-import pandas as pd
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
+import pandas as pd
 from scipy.stats import spearmanr
 
-from src.utils.logging import setup_logger, get_logger
-from src.utils.state_manager import update_stage_status, register_artifact
 from src.modeling.config import load_config
+from src.utils.logging import setup_logger, get_logger, log_operation
+from src.utils.state_manager import register_artifact
 
-# Constants
-DEFAULT_PERMUTATION_ITERATIONS = 1000
-SIGNIFICANCE_THRESHOLD = 0.01
-MIN_SAMPLE_SIZE = 1000
+_logger: Optional[Any] = None
+
+
+def _ensure_logger() -> Any:
+    global _logger
+    if _logger is None:
+        _logger = setup_logger("evaluation")
+    return _logger
 
 
 def load_cv_results(input_path: str) -> pd.DataFrame:
+    """Load cross-validation results from CSV.
+
+    Expected columns:
+      - fold: fold number
+      - reaction_type: reaction class
+      - target: observed value
+      - prediction: predicted value
     """
-    Load cross-validation results from a CSV file.
-
-    Args:
-        input_path: Path to the CSV file containing CV results.
-
-    Returns:
-        DataFrame with columns: reaction_type, predicted, observed, fold (optional).
-    """
-    logger = get_logger(__name__)
-    logger.info(f"Loading CV results from {input_path}")
-
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"CV results file not found: {input_path}")
 
     df = pd.read_csv(input_path)
-
-    # Validate required columns
-    required_cols = ['reaction_type', 'predicted', 'observed']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in CV results: {missing_cols}")
-
-    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
     return df
 
 
-def compute_spearman_correlation(df: pd.DataFrame, reaction_type: str) -> Optional[float]:
-    """
-    Compute Spearman rank correlation (ρ) for a specific reaction type.
-
-    Args:
-        df: DataFrame with 'reaction_type', 'predicted', and 'observed' columns.
-        reaction_type: The specific reaction type to filter and compute correlation for.
-
-    Returns:
-        Spearman correlation coefficient, or None if insufficient data.
-    """
-    logger = get_logger(__name__)
-    subset = df[df['reaction_type'] == reaction_type]
-
-    if len(subset) < 3:
-        logger.warning(f"Insufficient data for {reaction_type} (n={len(subset)}). Skipping correlation.")
-        return None
-
-    try:
-        rho, p_value = spearmanr(subset['predicted'], subset['observed'])
-        logger.info(f"Spearman ρ for {reaction_type}: {rho:.4f} (p={p_value:.4f}, n={len(subset)})")
-        return rho
-    except Exception as e:
-        logger.error(f"Error computing Spearman correlation for {reaction_type}: {e}")
-        return None
+def compute_spearman_correlation(
+    df: pd.DataFrame,
+    target_col: str = "target",
+    pred_col: str = "prediction",
+) -> float:
+    """Compute Spearman rank correlation between target and prediction."""
+    rho, _ = spearmanr(df[target_col], df[pred_col])
+    return float(rho)
 
 
 def run_permutation_test(
     df: pd.DataFrame,
-    reaction_type: str,
-    n_iterations: int = DEFAULT_PERMUTATION_ITERATIONS,
-    seed: int = 42
-) -> Tuple[float, float]:
+    target_col: str = "target",
+    pred_col: str = "prediction",
+    n_iterations: int = 1000,
+    seed: int = 42,
+) -> float:
+    """Run permutation test to compute p-value for Spearman correlation.
+
+    Shuffles targets within each class to maintain class balance.
     """
-    Run a permutation test to assess the significance of the Spearman correlation.
-
-    Null hypothesis: The correlation between predicted and observed is zero.
-    We shuffle the 'observed' values within the class and recompute ρ.
-
-    Args:
-        df: DataFrame with 'reaction_type', 'predicted', and 'observed'.
-        reaction_type: The class to test.
-        n_iterations: Number of permutation iterations.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Tuple of (observed_rho, p_value).
-    """
-    logger = get_logger(__name__)
-    logger.info(f"Running permutation test for {reaction_type} with {n_iterations} iterations...")
-
-    subset = df[df['reaction_type'] == reaction_type]
-    if len(subset) < 3:
-        raise ValueError(f"Insufficient data for permutation test in {reaction_type} (n={len(subset)})")
-
-    observed_pred = subset['predicted'].values
-    observed_obs = subset['observed'].values
+    _logger = _ensure_logger()
+    np.random.seed(seed)
 
     # Compute observed correlation
-    observed_rho, _ = spearmanr(observed_pred, observed_obs)
+    observed_rho, _ = spearmanr(df[target_col], df[pred_col])
 
-    np.random.seed(seed)
+    # Get unique classes
+    if "reaction_type" in df.columns:
+        classes = df["reaction_type"].unique()
+    else:
+        classes = [None]
+
+    # Permutation loop
     count_extreme = 0
-
     for i in range(n_iterations):
-        # Shuffle observed values within the class
-        shuffled_obs = observed_obs.copy()
-        np.random.shuffle(shuffled_obs)
+        df_shuffled = df.copy()
+        for cls in classes:
+            if cls is not None:
+                mask = df_shuffled["reaction_type"] == cls
+                shuffled_targets = df_shuffled.loc[mask, target_col].values.copy()
+                np.random.shuffle(shuffled_targets)
+                df_shuffled.loc[mask, target_col] = shuffled_targets
+            else:
+                shuffled_targets = df_shuffled[target_col].values.copy()
+                np.random.shuffle(shuffled_targets)
+                df_shuffled[target_col] = shuffled_targets
 
-        # Compute correlation on shuffled data
-        try:
-            rho_shuffled, _ = spearmanr(observed_pred, shuffled_obs)
-            # Two-tailed test: count if absolute value is >= observed absolute value
-            if abs(rho_shuffled) >= abs(observed_rho):
-                count_extreme += 1
-        except Exception:
-            # If correlation fails (e.g., constant values), treat as non-extreme
-            continue
+        perm_rho, _ = spearmanr(df_shuffled[target_col], df_shuffled[pred_col])
+        if abs(perm_rho) >= abs(observed_rho):
+            count_extreme += 1
 
-    p_value = (count_extreme + 1) / (n_iterations + 1)
-    logger.info(f"Permutation test for {reaction_type}: p-value = {p_value:.4f}")
+    p_value = count_extreme / n_iterations
+    _logger.log(
+        "permutation_test_complete",
+        observed_rho=observed_rho,
+        p_value=p_value,
+        n_iterations=n_iterations,
+    )
 
-    return observed_rho, p_value
+    return p_value
 
 
-def load_exclusion_metadata(metadata_path: str) -> List[str]:
-    """
-    Load the list of excluded classes from the metadata file.
-
-    Args:
-        metadata_path: Path to class_exclusion_metadata.json.
-
-    Returns:
-        List of excluded class names.
-    """
-    logger = get_logger(__name__)
+def load_exclusion_metadata(metadata_path: str) -> Dict[str, Any]:
+    """Load class exclusion metadata."""
     if not os.path.exists(metadata_path):
-        logger.warning(f"Exclusion metadata not found at {metadata_path}. Assuming no exclusions.")
-        return []
+        return {"excluded_classes": []}
 
-    try:
-        with open(metadata_path, 'r') as f:
-            data = json.load(f)
-        excluded = data.get('excluded_classes', [])
-        logger.info(f"Loaded {len(excluded)} excluded classes from metadata.")
-        return excluded
-    except Exception as e:
-        logger.error(f"Error loading exclusion metadata: {e}")
-        return []
+    with open(metadata_path, "r") as f:
+        return json.load(f)
 
 
 def generate_summary_report(
     df: pd.DataFrame,
+    p_value: float,
     output_path: str,
-    exclusion_metadata_path: Optional[str] = None,
-    n_permutations: int = DEFAULT_PERMUTATION_ITERATIONS
-) -> Dict[str, Any]:
-    """
-    Generate the final analysis report ranking reaction types by Spearman ρ with p-values.
+    min_samples: int = 1000,
+) -> None:
+    """Generate summary report with class rankings and significance.
 
     Args:
-        df: DataFrame with CV results.
-        output_path: Path to save the JSON report.
-        exclusion_metadata_path: Path to class_exclusion_metadata.json (from T016).
-        n_permutations: Number of permutation iterations.
-
-    Returns:
-        The generated report dictionary.
+        df: CV results DataFrame
+        p_value: Permutation test p-value
+        output_path: Output report path
+        min_samples: Minimum samples required for a class to be included
     """
-    logger = get_logger(__name__)
-    start_time = time.time()
+    _logger = _ensure_logger()
 
-    # Load excluded classes
-    excluded_classes = []
-    if exclusion_metadata_path:
-        excluded_classes = load_exclusion_metadata(exclusion_metadata_path)
+    # Load exclusion metadata if available
+    exclusion_path = str(Path(output_path).parent / "class_exclusion_metadata.json")
+    exclusion_metadata = load_exclusion_metadata(exclusion_path)
+    excluded_classes = [item["class"] for item in exclusion_metadata.get("excluded_classes", [])]
 
-    # Identify unique reaction types in the data
-    all_types = df['reaction_type'].unique().tolist()
-    logger.info(f"Found reaction types in data: {all_types}")
+    # Compute per-class Spearman correlations
+    class_rankings = []
+    if "reaction_type" in df.columns:
+        for cls in df["reaction_type"].unique():
+            if cls in excluded_classes:
+                continue
 
-    results = []
+            class_df = df[df["reaction_type"] == cls]
+            if len(class_df) < min_samples:
+                continue
 
-    for rtype in all_types:
-        if rtype in excluded_classes:
-            logger.info(f"Skipping excluded class: {rtype}")
-            continue
+            rho, _ = spearmanr(class_df["target"], class_df["prediction"])
+            class_rankings.append({
+                "class": cls,
+                "spearman_rho": float(rho),
+                "n_samples": len(class_df),
+            })
 
-        logger.info(f"Processing {rtype}...")
+    # Sort by Spearman rho
+    class_rankings.sort(key=lambda x: x["spearman_rho"], reverse=True)
 
-        # Compute Spearman correlation
-        rho = compute_spearman_correlation(df, rtype)
-        if rho is None:
-            continue
+    # Determine significance
+    is_significant = p_value < 0.01
+    significance_label = "Significant" if is_significant else "Not Significant"
 
-        # Run permutation test
-        try:
-            _, p_value = run_permutation_test(df, rtype, n_iterations=n_permutations)
-        except ValueError as e:
-            logger.warning(f"Skipping permutation test for {rtype}: {e}")
-            p_value = None
-
-        # Determine significance
-        is_significant = False
-        if p_value is not None and p_value < SIGNIFICANCE_THRESHOLD:
-            is_significant = True
-
-        results.append({
-            "reaction_type": rtype,
-            "spearman_rho": rho,
-            "p_value": p_value,
-            "is_significant": is_significant,
-            "sample_size": len(df[df['reaction_type'] == rtype])
-        })
-
-    # Sort by Spearman rho (descending)
-    results.sort(key=lambda x: x['spearman_rho'] if x['spearman_rho'] is not None else 0, reverse=True)
-
+    # Build report
     report = {
-        "report_type": "molecular_reactivity_analysis",
-        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "threshold_significance": SIGNIFICANCE_THRESHOLD,
-        "permutation_iterations": n_permutations,
+        "timestamp": pd.Timestamp.utcnow().isoformat(),
+        "overall_p_value": p_value,
+        "significance": significance_label,
+        "class_rankings": class_rankings,
         "excluded_classes": excluded_classes,
-        "results": results,
-        "summary": {
-            "total_classes_analyzed": len(results),
-            "significant_classes": sum(1 for r in results if r['is_significant']),
-            "top_performing_class": results[0]['reaction_type'] if results else None,
-            "top_rho": results[0]['spearman_rho'] if results else None
-        }
     }
 
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    # Save report
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write report
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
 
-    elapsed = time.time() - start_time
-    logger.info(f"Report generated in {elapsed:.2f}s and saved to {output_path}")
+    register_artifact(output_path, "placeholder_checksum")
 
-    return report
+    _logger.log(
+        "report_generated",
+        output_path=output_path,
+        n_classes=len(class_rankings),
+        significance=significance_label,
+    )
 
 
-def main():
-    """
-    Main entry point for the evaluation script.
-    Expects --input (CV results CSV) and --output (report JSON) arguments.
-    """
+def main() -> None:
+    """Main entry point for evaluation script."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Generate molecular reactivity analysis report.")
-    parser.add_argument("--input", required=True, help="Path to CV results CSV (e.g., data/results/cv_results.csv)")
-    parser.add_argument("--output", required=True, help="Path to output report JSON (e.g., data/processed/analysis_report.json)")
-    parser.add_argument("--config", default="code/src/modeling/config.yaml", help="Path to config file")
-    parser.add_argument("--exclusion-metadata", default="code/data/processed/class_exclusion_metadata.json",
-                        help="Path to class exclusion metadata JSON")
-    parser.add_argument("--n-permutations", type=int, default=DEFAULT_PERMUTATION_ITERATIONS,
-                        help="Number of permutation iterations")
+    parser = argparse.ArgumentParser(description="Evaluate model performance")
+    parser.add_argument(
+        "--input",
+        required=True,
+        help="Input CV results CSV path",
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Output analysis report JSON path",
+    )
+    parser.add_argument(
+        "--n-permutations",
+        type=int,
+        default=1000,
+        help="Number of permutation test iterations",
+    )
 
     args = parser.parse_args()
 
-    # Setup logging
-    setup_logger(__name__)
-    logger = get_logger(__name__)
+    # Initialize logger
+    setup_logger("evaluation")
 
     try:
-        # Load config if needed (for potential overrides)
-        config = load_config(args.config)
-
         # Load CV results
         df = load_cv_results(args.input)
 
+        # Compute overall Spearman correlation
+        overall_rho = compute_spearman_correlation(df)
+        _logger.log("overall_spearman", rho=overall_rho)
+
+        # Run permutation test
+        p_value = run_permutation_test(df, n_iterations=args.n_permutations)
+
         # Generate report
-        report = generate_summary_report(
-            df=df,
-            output_path=args.output,
-            exclusion_metadata_path=args.exclusion_metadata,
-            n_permutations=args.n_permutations
-        )
+        generate_summary_report(df, p_value, args.output)
 
-        # Update state
-        update_stage_status("US3", "completed")
-        register_artifact(args.output, "analysis_report")
-
-        logger.info("Evaluation completed successfully.")
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        raise
     except Exception as e:
-        logger.error(f"Error during evaluation: {e}")
+        _logger = _ensure_logger()
+        _logger.log("evaluation_failed", error=str(e))
         raise
 
 

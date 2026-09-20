@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a machine learning pipeline to predict molecular reactivity rankings for SN1, SN2, and Diels-Alder reactions using the USPTO-MIT reaction dataset. The approach involves ingesting raw reaction data, filtering by reaction templates, extracting structural features via RDKit, applying rigorous two-stage dimensionality reduction (Variance Thresholding + SelectKBest) to prevent overfitting on high-dimensional fingerprints, training a CPU-based XGBoost model with 5-fold cross-validation and Leave-One-Scaffold-Out validation, and performing a permutation test with a sufficient number of iterations to establish statistical significance. The entire pipeline is constrained to run within 30 minutes on a 2-core, 7GB RAM GitHub Actions free-tier runner through optimized batching and parameter tuning.
+This feature implements a machine learning pipeline to predict molecular reactivity rankings for SN1, SN2, and Diels-Alder reactions using the USPTO-MIT reaction dataset. The approach involves ingesting raw reaction data, filtering by reaction templates, extracting structural features via RDKit, applying rigorous two-stage dimensionality reduction (Variance Thresholding + SelectKBest) to prevent overfitting on high-dimensional fingerprints, training a CPU-based XGBoost model with multiple-fold cross-validation and Leave-One-Scaffold-Out validation, and performing a permutation test with a sufficient number of iterations to establish statistical significance. The entire pipeline is constrained to run within 30 minutes on a 2-core, 7GB RAM GitHub Actions free-tier runner through optimized batching and parameter tuning.
 
 ## Technical Context
 

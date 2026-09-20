@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/USPTO-MIT/USPTO-MIT/resolve/main/data/train-00000-of-00001.parquet
   verified_at: '2026-07-03T10:56:05.382947Z'
-- artifact_hash: 4308dfa2875b358b0898f51fa937daae69e91cba0fb6f07031a18152e851e639
+- artifact_hash: 57c9732b0bd21ee24d6aceee610cbdca9ed87da3fd9b5ad6a56af4097f7dd15b
   artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://www.wikidata.org/wiki/Q18615098
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-09-17T15:45:21.485147Z'
+  verified_at: '2026-09-20T08:55:21.527427Z'

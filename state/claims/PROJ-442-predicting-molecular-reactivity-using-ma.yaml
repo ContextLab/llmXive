@@ -581,3 +581,1002 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T03:37:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Data ingestion row count retention >= 90%
+  claim_id: c_5d1eb122
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying that the output CSV contains a single reaction_type column\
+    \ containing exactly three distinct values (\"SN1\", \"SN2\", \"Diels-Alder\"\
+    ) where present, and that the total row count is \u2265 90% of the input file\
+    \ row count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total row count is \u2265 90% of the input file row count."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:20:25Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Low-sample class threshold < 1000 samples
+  claim_id: c_c0495df6
+  context: Implement sample size check and logging in src/data/ingestion.py. Check
+    count per class. Log a warning for low-sample classes (<1,000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classes with <1,000 samples are flagged as low-sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:20:25Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Final report excludes classes with < 1000 samples
+  claim_id: c_4e5c4c37
+  context: Implement logic to skip classes in the final report if sample size < 1,000
+    (reusing logic from T016a/T016b and class_exclusion_metadata.json) to satisfy
+    FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classes with <1,000 samples are excluded from the final report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:20:26Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Primary validation method is 5-fold Cross-Validation
+  claim_id: c_bf21266f
+  context: Implement 5-fold Cross-Validation loop in src/modeling/train.py using sklearn.model_selection.KFold(n_splits=5,
+    shuffle=True, random_state=42). This is the primary validation method per FR-003.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The primary validation method is 5-fold Cross-Validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:21:15Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Dimensionality reduction selects k=100 features
+  claim_id: c_58932939
+  context: Implement dimensionality reduction pipeline (Variance Threshold + SelectKBest,
+    k=100) in src/data/preprocessing.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dimensionality reduction pipeline selects k=100 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:22:56Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: LOSO fallback parameters max_depth=3 and n_estimators=50
+  claim_id: c_5b5121e8
+  context: 'Fallback Strategy: If the primary LOSO run exceeds 25 minutes, load fallback_config
+    from src/modeling/config.yaml (specifically max_depth=3, n_estimators=50) and
+    re-run with these fixed parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LOSO validation fallback uses max_depth=3 and n_estimators=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:23:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test significance threshold p < 0.01
+  claim_id: c_9a265c92
+  context: "Goal: Compare performance across classes, compute Spearman \u03C1, and\
+    \ run permutation test for significance (p < 0.01)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test p-value threshold is < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:23:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Not significant flag if p-value >= 0.01
+  claim_id: c_f707ab8c
+  context: "Implement logic to flag \"Not Significant\" if p-value \u2265 0.01, ensuring\
+    \ FR-005 and SC-002 thresholds are explicitly reported/enforced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Classes are flagged as Not Significant if p-value \u2265 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:23:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test shuffle seed=42
+  claim_id: c_7e46dbf6
+  context: Shuffle targets within each class using numpy.random.shuffle with seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test shuffles targets with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:24:30Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Total row count is at least 90% of input file row count
+  claim_id: c_a5f17d9c
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying that the output file contains a single reaction_type column\
+    \ containing exactly three distinct values (SN1, SN2, Diels-Alder) where present\
+    \ in the raw data, and that the total row count is \u2265 90% of the input file\
+    \ row count."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_row_count_is_at_least_90%25_of_input_file_row_count
+  kind: magnitude
+  raw_text: "The total row count is \u2265 90% of the input file row count."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:46:14Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model outputs Spearman correlation coefficient greater than 0.5
+  claim_id: c_dd44953a
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a sample of reaction records and verifying that the model outputs a prediction
+    file with a Spearman correlation coefficient > 0.5 and that the total runtime
+    is < 30 minutes on a standard CPU.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_outputs_Spearman_correlation_coefficient_greater_than
+  kind: magnitude
+  raw_text: The model outputs a prediction file with a Spearman correlation coefficient
+    > 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:47:28Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Total runtime is less than 30 minutes on a standard CPU
+  claim_id: c_3e21b9b6
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a sample of reaction records and verifying that the model outputs a prediction
+    file with a Spearman correlation coefficient > 0.5 and that the total runtime
+    is < 30 minutes on a standard CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_is_less_than_30_minutes_on_a_standard_CPU
+  kind: magnitude
+  raw_text: The total runtime is < 30 minutes on a standard CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:47:53Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value is less than 0.01
+  claim_id: c_93ac8cb2
+  context: "Independent Test: Can be fully tested by running the analysis script on\
+    \ the cross-validation results and verifying that the output report contains a\
+    \ ranked list of reaction classes by Spearman \u03C1, with SN1/SN2/Diels-Alder\
+    \ labels clearly distinguished, and a p-value < 0.01 for the permutation test."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_p-value_is_less_than_0.01
+  kind: magnitude
+  raw_text: The output report contains a p-value < 0.01 for the permutation test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:48:41Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test shuffles targets with seed 42
+  claim_id: c_fe485ffc
+  context: Shuffle targets within each class using numpy.random.shuffle with seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test shuffles targets with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:48:42Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Low-sample classes defined as having fewer than 1000 samples
+  claim_id: c_5b7c5c7e
+  context: Log a warning for low-sample classes (<1,000). ... Implement logic to skip
+    classes in the final report if sample size < 1,000 (reusing logic from T016a and
+    class_exclusion_metadata.json) to satisfy FR-006.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-sample_classes_defined_as_having_fewer_than_1000_samples
+  kind: magnitude
+  raw_text: Low-sample classes are those with <1,000 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:49:08Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Dimensionality reduction pipeline uses 100 features
+  claim_id: c_08f89d63
+  context: Implement dimensionality reduction pipeline (Variance Threshold + SelectKBest,
+    k=100, scoring_function=f_classif) in src/data/preprocessing.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dimensionality reduction pipeline uses k=100 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:49:35Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: 5-fold Cross-Validation loop uses random state 42
+  claim_id: c_64c1fb10
+  context: Implement 5-fold Cross-Validation loop in src/modeling/train.py using sklearn.model_selection.KFold(n_splits=5,
+    shuffle=True, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 5-fold Cross-Validation loop uses random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:50:05Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 iterations
+  claim_id: c_cd3d5fac
+  context: T032 ensures the permutation test shuffles targets within each class to
+    maintain class balance, and logs the iteration count (1000) to ensure statistical
+    power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:50:25Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Power analysis warning triggered if power is less than 0.8
+  claim_id: c_4c74752f
+  context: 'Requirement: If the power is deemed insufficient (e.g., < 0.8), log a
+    warning but proceed with the test as per FR-005, clearly marking the result as
+    Low Power in the final report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_warning_triggered_if_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: The power analysis warning is triggered if power is < 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:51:03Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Data ingestion row count retention >= 90%
+  claim_id: c_f890c935
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying that the output file contains a single reaction_type column\
+    \ containing exactly three distinct values... and that the total row count is\
+    \ \u2265 90% of the input file row count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total row count is \u2265 90% of the input file row count."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:52:45Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 2
+  canonical: Model Spearman correlation coefficient > 0.5
+  claim_id: c_f4612e10
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a sample of reaction records and verifying that the model outputs a prediction
+    file with a Spearman correlation coefficient > 0.5 and that the total runtime
+    is < 30 minutes on a standard CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model outputs a prediction file with a Spearman correlation coefficient
+    > 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:52:45Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 2
+  canonical: Model training runtime < 30 minutes on standard CPU
+  claim_id: c_dc52a71e
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a sample of reaction records and verifying that the model outputs a prediction
+    file with a Spearman correlation coefficient > 0.5 and that the total runtime
+    is < 30 minutes on a standard CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total runtime is < 30 minutes on a standard CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:52:45Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value < 0.01 for molecular reactivity prediction
+  claim_id: c_0a00254d
+  context: "Independent Test: Can be fully tested by running the analysis script on\
+    \ the cross-validation results and verifying that the output report contains a\
+    \ ranked list of reaction classes by Spearman \u03C1... and a p-value < 0.01 for\
+    \ the permutation test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The output report contains a ranked list of reaction classes by Spearman\
+    \ \u03C1, with SN1/SN2/Diels-Alder labels clearly distinguished, and a p-value\
+    \ < 0.01 for the permutation test."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:53:09Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test iteration count set to 1000
+  claim_id: c_a082fd14
+  context: "T032: Implement permutation test (sufficient iterations) in src/modeling/evaluate.py\
+    \ to calculate p-values against the null hypothesis of \u03C1 = 0. Shuffle targets\
+    \ within each class using numpy.random.shuffle with seed=42. Requirement: The\
+    \ iteration count MUST be set to the value in Ta. Log the rationale for the chosen\
+    \ iteration count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The iteration count MUST be set to the value in Ta [1000].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:53:40Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Minimum detectable p-value resolution calculated based on iteration count
+  claim_id: c_77002a49
+  context: 'T032b: Implement Power Analysis in src/modeling/evaluate.py. Calculate
+    the minimum detectable p-value resolution based on a sufficient number of iterations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_detectable_p-value_resolution_calculated_based_on_it
+  kind: entity_fact
+  raw_text: The minimum detectable p-value resolution is calculated based on a sufficient
+    number of iterations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:14Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Reaction classes with sample size < 1000 skipped in final report
+  claim_id: c_acc69cab
+  context: 'T035: Implement logic to skip classes in the final report if sample size
+    < 1,000 (reusing logic from T016a and class_exclusion_metadata.json) to satisfy
+    FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classes with sample size < 1,000 are skipped in the final report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:14Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Low-sample classes defined as having < 1000 samples
+  claim_id: c_943db3f1
+  context: 'T016a: Implement sample size check and logging in src/data/ingestion.py.
+    Check count per class. Log a warning for low-sample classes (<1,000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Low-sample classes are defined as those with <1,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:14Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Dimensionality reduction selects k=100 features
+  claim_id: c_32740611
+  context: 'T021b: Implement dimensionality reduction pipeline (Variance Threshold
+    + SelectKBest, k=100, scoring_function=f_classif) in src/data/preprocessing.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dimensionality reduction pipeline uses k=100 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:15Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: 5-fold Cross-Validation uses random_state=42
+  claim_id: c_04253431
+  context: 'T026a: Implement 5-fold Cross-Validation loop in src/modeling/train.py
+    using sklearn.model_selection.KFold(n_splits=5, shuffle=True, random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 5-fold Cross-Validation loop uses random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:15Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test uses random seed 42
+  claim_id: c_82317a1c
+  context: "T032: Implement permutation test (sufficient iterations) in src/modeling/evaluate.py\
+    \ to calculate p-values against the null hypothesis of \u03C1 = 0. Shuffle targets\
+    \ within each class using numpy.random.shuffle with seed=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:37Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Target derivation failure rate > 5% triggers abort
+  claim_id: c_726a8146
+  context: 'T014b: Implement validation logic in src/data/ingestion.py to verify target
+    variable derivation... Requirement: If >5% of rows fail target derivation, raise
+    ValueError and abort.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If >5% of rows fail target derivation, the process raises a ValueError
+    and aborts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:37Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Significance p-value threshold < 0.01
+  claim_id: c_5c4a42d9
+  context: "Goal: Compare performance across classes, compute Spearman \u03C1, and\
+    \ run permutation test for significance (p < 0.01)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value threshold for significance is < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:38Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: System flags results as Not Significant if p-value >= 0.01
+  claim_id: c_ac35ae86
+  context: "T034: Implement logic to flag 'Not Significant' if p-value \u2265 0.01,\
+    \ ensuring FR-005 and SC-002 thresholds are explicitly reported/enforced."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system flags 'Not Significant' if p-value \u2265 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:38Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Total row count >= 90% of input file row count
+  claim_id: c_3568ee53
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying that the output file contains a single reaction_type column\
+    \ containing exactly three distinct values... and that the total row count is\
+    \ \u2265 90% of the input file row count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total row count is \u2265 90% of the input file row count."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:55:50Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model Spearman correlation coefficient > 0.5
+  claim_id: c_098eb9d0
+  context: 'Independent Test: Can be fully tested by running the training script on
+    a sample of reaction records and verifying that the model outputs a prediction
+    file with a Spearman correlation coefficient > 0.5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model outputs a prediction file with a Spearman correlation coefficient
+    > 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:55:50Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Total runtime < 30 minutes on standard CPU
+  claim_id: c_559016a4
+  context: '...and that the total runtime is < 30 minutes on a standard CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total runtime is < 30 minutes on a standard CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:55:50Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value < 0.01
+  claim_id: c_8906787e
+  context: "Independent Test: Can be fully tested by running the analysis script on\
+    \ the cross-validation results and verifying that the output report contains a\
+    \ ranked list of reaction classes by Spearman \u03C1... and a p-value < 0.01 for\
+    \ the permutation test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output report contains a p-value < 0.01 for the permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:55:51Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test shuffle seed is 42
+  claim_id: c_914efcb7
+  context: Shuffle targets within each class using numpy.random.shuffle with seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test shuffles targets within each class using numpy.random.shuffle
+    with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:56:22Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Permutation test iteration count is 1000
+  claim_id: c_2696e011
+  context: Logs the rationale for the chosen iteration count. ... Explicitly defines
+    the iteration count (1000) to satisfy FR-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test iteration count is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:56:58Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Power analysis calculates minimum detectable p-value resolution
+  claim_id: c_10819da2
+  context: Calculate the minimum detectable p-value resolution based on a sufficient
+    number of iterations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_calculates_minimum_detectable_p-value_resolut
+  kind: entity_fact
+  raw_text: The permutation test calculates the minimum detectable p-value resolution
+    based on a sufficient number of iterations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:57:24Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Classes with sample size < 1000 skipped in report
+  claim_id: c_306acc4d
+  context: Implement logic to skip classes in the final report if sample size < 1,000...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classes with sample size < 1,000 are skipped in the final report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:57:25Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Classes with < 1000 samples excluded from clean dataset
+  claim_id: c_440a3885
+  context: Generate data/processed/filtered_reactions_clean.csv by filtering... to
+    exclude low-sample classes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classes with < 1,000 samples are excluded from the clean dataset artifact.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:57:25Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Excluded classes listed in class_exclusion_metadata.json
+  claim_id: c_b9c1f7a3
+  context: 'Output: data/processed/class_exclusion_metadata.json listing excluded
+    classes (those with <1,000 samples).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Excluded_classes_listed_in_class_exclusion_metadata.json
+  kind: entity_fact
+  raw_text: The file data/processed/class_exclusion_metadata.json lists excluded classes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:57:57Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Target validation log contains entry per reaction class
+  claim_id: c_b70eeb5b
+  context: 'Pass/Fail: Log must contain at least one entry per reaction class.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_validation_log_contains_entry_per_reaction_class
+  kind: magnitude
+  raw_text: The file data/processed/target_validation.log contains at least one entry
+    per reaction class.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:58:16Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Ingestion aborts if >5% rows fail target derivation
+  claim_id: c_a0d31dec
+  context: 'Requirement: If >5% of rows fail target derivation, raise ValueError and
+    abort.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If >5% of rows fail target derivation, the ingestion process raises a
+    ValueError and aborts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:58:16Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Ingestion aborts if >5% rows missing target variables
+  claim_id: c_124dc1bc
+  context: 'Failure Condition: If yield_pct or success_flag are missing for >5% of
+    rows, abort.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If yield_pct or success_flag are missing for >5% of rows, the ingestion
+    process aborts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:58:17Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Dimensionality reduction uses SelectKBest k=100
+  claim_id: c_7b76dd02
+  context: Implement dimensionality reduction pipeline (Variance Threshold + SelectKBest,
+    k=100...)
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dimensionality reduction pipeline uses SelectKBest with k=100.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:58:17Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: 5-fold CV uses n_splits=5 and random_state=42
+  claim_id: c_037cc75c
+  context: Implement 5-fold Cross-Validation loop in src/modeling/train.py using sklearn.model_selection.KFold(n_splits=5,
+    shuffle=True, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 5-fold Cross-Validation loop uses n_splits=5 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:59:03Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: 5-fold CV uses random_state=42
+  claim_id: c_84a9d75e
+  context: Implement 5-fold Cross-Validation loop in src/modeling/train.py using sklearn.model_selection.KFold(n_splits=5,
+    shuffle=True, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 5-fold Cross-Validation loop uses random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:59:04Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Analysis report contains spearman_rho, p_value, class_rankings keys
+  claim_id: c_b7797bd8
+  context: 'Verify file exists at data/processed/analysis_report.json with keys: spearman_rho,
+    p_value, class_rankings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_report_contains_spearman_rho,_p_value,_class_rankin
+  kind: entity_fact
+  raw_text: The file data/processed/analysis_report.json contains keys spearman_rho,
+    p_value, and class_rankings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:59:23Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Low Power warning if statistical power < 0.8
+  claim_id: c_68fa1483
+  context: If the power is deemed insufficient (e.g., < 0.8), log a warning but proceed
+    with the test...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test flags the result as 'Low Power' if statistical power
+    is < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:59:23Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: USPTO subset saved to uspto_subset.parquet
+  claim_id: c_feec3664
+  context: Verify checksum, parse raw data into data/raw/uspto_subset.parquet, and
+    log any fetch errors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/USPTO_subset_saved_to_uspto_subset.parquet
+  kind: entity_fact
+  raw_text: The file data/raw/uspto_subset.parquet is created from the USPTO subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:00:17Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Filtered reactions full file contains all valid matching reactions
+  claim_id: c_55f0ff0f
+  context: This file contains ALL valid reactions matching templates, including low-sample
+    classes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filtered_reactions_full_file_contains_all_valid_matching_rea
+  kind: entity_fact
+  raw_text: The file data/processed/filtered_reactions_full.csv contains all valid
+    reactions matching templates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:00:41Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Filtered reactions clean file consumed by US2
+  claim_id: c_1bbae3c6
+  context: This is the artifact consumed by US2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file data/processed/filtered_reactions_clean.csv is the artifact consumed
+    by User Story 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:01:04Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: XGBoost model saved to xgboost_model.json
+  claim_id: c_58783150
+  context: Save trained model artifact (LOSO/Scaffold-Binned) to data/models/xgboost_model.json...
+  evidence:
+    entailment_evidence: XGBoost model saved to xgboost model.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/XGBoost_model_saved_to_xgboost_model.json
+  kind: entity_fact
+  raw_text: The file data/models/xgboost_model.json stores the trained model artifact.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T09:01:28Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Training logs saved to training_log.json
+  claim_id: c_f2920c06
+  context: '...and training logs to data/processed/training_log.json.'
+  evidence:
+    entailment_evidence: Training logs saved to training log.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Training_logs_saved_to_training_log.json
+  kind: entity_fact
+  raw_text: The file data/processed/training_log.json stores training logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T09:01:55Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Feature matrix saved to feature_matrix.parquet
+  claim_id: c_ed41edd2
+  context: Save feature matrix to data/processed/feature_matrix.parquet with checksum.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Feature_matrix_saved_to_feature_matrix.parquet
+  kind: entity_fact
+  raw_text: The file data/processed/feature_matrix.parquet stores the feature matrix.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:02:24Z'
