@@ -7,7 +7,12 @@ measurement suitable for search agent trajectory analysis.
 """
 
 import math
+import logging
 from typing import Union
+
+# Configure logging for zero-density events as per Edge Case requirements
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 
 def calculate_shannon_entropy(text: Union[str, bytes]) -> float:
@@ -43,6 +48,7 @@ def calculate_shannon_entropy(text: Union[str, bytes]) -> float:
     
     # Handle empty input
     if len(byte_data) == 0:
+        logger.warning("Zero density event: Empty input provided to entropy calculation.")
         return 0.0
     
     # Calculate byte frequency distribution
@@ -61,6 +67,10 @@ def calculate_shannon_entropy(text: Union[str, bytes]) -> float:
             # Avoid log(0) which is undefined
             if probability > 0:
                 entropy -= probability * math.log2(probability)
+    
+    # Edge Case: Log zero density events (entropy == 0.0 but input not empty implies 1 unique byte)
+    if entropy == 0.0 and len(byte_data) > 0:
+        logger.warning(f"Zero density event: Input has only one unique byte value. Entropy: {entropy}")
     
     return entropy
 
@@ -89,7 +99,7 @@ def entropy_per_token(text: Union[str, bytes], token_length: int = 1) -> float:
     """
     Calculate entropy per token where a token is defined as a sequence of bytes.
     
-    For byte-level analysis, token_length=1 is the standard. This function
+    For byte-level analyses, token_length=1 is the standard. This function
     provides flexibility for potential future tokenization schemes.
     
     Args:
@@ -109,10 +119,13 @@ def entropy_per_token(text: Union[str, bytes], token_length: int = 1) -> float:
         byte_data = text
     
     if len(byte_data) < token_length:
+        logger.warning(f"Zero density event: Input length ({len(byte_data)}) less than token length ({token_length}).")
         return 0.0
     
     # Calculate total entropy
     total_entropy = calculate_shannon_entropy(byte_data)
     
     # Return per-token entropy (normalized)
+    # For byte-level, this is effectively the same as total entropy since we sum over bytes
+    # but returned as a float to match interface expectations.
     return total_entropy

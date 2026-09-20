@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of a `data/raw/` directory inside `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/` is provided; the implementer did not supply any artifact confirming the directory was created. The required folder is missing.
+- `T012` (rejected 1x): No `simulate_agent.py` file or code snippet was provided showing a heuristic solver that uses the logistic function `P(retrieval) = sigmoid(α * (density - threshold))`. Likewise, there is no evidence that `α` and `threshold` are defined as configurable constants with defaults. The required implementation and configuration are missing.
+- `T013` (rejected 1x): No code changes to `simulate_agent.py` are present, and there is no implementation that samples from the logistic function to set `agent_heuristic_success` nor logic handling the edge case where critical evidence occurs on the final turn. The required artifact (updated script with the specified success logic) is missing.
+- `T015` (rejected 1x): No evidence of a modified `simulate_agent.py` that streams results to `data/processed/` after each batch is provided; the required artifact is missing, so the task is not satisfied.
 
 ## Required change
 

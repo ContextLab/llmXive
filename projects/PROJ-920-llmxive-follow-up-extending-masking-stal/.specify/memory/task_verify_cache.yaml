@@ -1,56 +1,11 @@
-T002:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `data/processed/` directory being created in the specified
-    project path is provided; the response contains only the task description and
-    no filesystem artifact. The required directory is missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the directory `output/plots/` was created\
-    \ inside the specified project path; the response contains no file\u2011system\
-    \ listing or confirmation of the folder\u2019s existence."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/` directory inside `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`
-    is provided; the implementer did not supply any artifact confirming the directory
-    was created.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that a `code/utils/` directory exists within
-    `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`; the claim is unsubstantiated.
-    The required directory must be created and its presence verified.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the directories `tests/unit/`, `tests/integration/`,\
-    \ and `tests/contract/` actually exist in `projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`.\
-    \ The implementer\u2019s claim lacks any file\u2011system listing, screenshots,\
-    \ or other artifacts confirming the creation of these folders. The required directories\
-    \ are therefore missing."
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `simulate_agent.py` file or code snippet was provided showing a heuristic\
-    \ solver that uses the logistic function\u202F`P(retrieval) = sigmoid(\u03B1 *\
-    \ (density - threshold))`. Likewise, there is no evidence that `\u03B1` and `threshold`\
-    \ are defined as configurable constants with defaults. The required implementation\
-    \ and configuration are missing."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code changes to `simulate_agent.py` are present, and there is no implementation
-    that samples from the logistic function to set `agent_heuristic_success` nor logic
-    handling the edge case where critical evidence occurs on the final turn. The required
-    artifact (updated script with the specified success logic) is missing.
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a modified `simulate_agent.py` that streams results to `data/processed/`
-    after each batch is provided; the required artifact is missing, so the task is
-    not satisfied.
+  r: No directory listings or proof of existence/writability for `data/raw/`, `data/processed/`,
+    `output/plots/`, `code/`, `code/utils/`, `tests/unit/`, `tests/integration/`,
+    or `tests/contract/` under the specified project path were provided. The implementer
+    must supply evidence (e.g., a file tree snapshot or commands confirming the directories
+    exist and are writable).
 T017:
   c: false
   h: 972f2f370fcf9478489a7eaeead7fdc92ce354ef6bc605b1d09440b5ede86570

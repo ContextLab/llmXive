@@ -1,110 +1,136 @@
 """
-Unit tests for code/utils/entropy.py
-Verifies Shannon entropy calculation, clamping for zero density, and edge cases.
+Unit tests for the entropy utility module.
+
+Verifies:
+1. Correct Shannon entropy calculation on known inputs.
+2. Clamping behavior for out-of-range values.
+3. Edge case handling for zero density (empty input, single unique byte).
+4. Logging of zero-density events (FR-008).
 """
-import pytest
 import math
+import logging
+import io
 import sys
+import pytest
 from pathlib import Path
 
 # Add project root to path to allow imports
-project_root = Path(__file__).resolve().parents[2]
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from code.utils.entropy import calculate_shannon_entropy, clamp_entropy, entropy_per_token
 
 
 class TestCalculateShannonEntropy:
-    """Tests for the core Shannon entropy calculation."""
+    """Tests for the core entropy calculation function."""
 
-    def test_empty_string_returns_zero(self):
-        """Empty input should return 0 entropy."""
+    def test_empty_input_returns_zero(self):
+        """Empty string should return 0.0 entropy."""
         assert calculate_shannon_entropy("") == 0.0
+        assert calculate_shannon_entropy(b"") == 0.0
 
-    def test_single_character_returns_zero(self):
-        """A single unique character has 0 entropy (probability 1)."""
-        assert calculate_shannon_entropy("a") == 0.0
+    def test_single_character(self):
+        """String with one unique character has 0 entropy."""
+        text = "aaaaa"
+        entropy = calculate_shannon_entropy(text)
+        assert entropy == 0.0
 
-    def test_uniform_distribution(self):
-        """Uniform distribution of characters should have max entropy for that alphabet size."""
-        # "ab" -> p(a)=0.5, p(b)=0.5 -> H = - (0.5*log2(0.5) + 0.5*log2(0.5)) = 1.0
-        assert calculate_shannon_entropy("ab") == 1.0
-        # "aabb" -> same probabilities
-        assert calculate_shannon_entropy("aabb") == 1.0
+    def test_two_character_equal_probability(self):
+        """String with two characters of equal frequency has 1.0 bit entropy."""
+        # "ab" repeated -> 50% 'a', 50% 'b'
+        text = "ab" * 10
+        entropy = calculate_shannon_entropy(text)
+        # H = - (0.5 * log2(0.5) + 0.5 * log2(0.5)) = 1.0
+        assert math.isclose(entropy, 1.0, rel_tol=1e-9)
 
     def test_known_distribution(self):
-        """Test with a known distribution: 'a' (75%), 'b' (25%)."""
-        # H = - (0.75 * log2(0.75) + 0.25 * log2(0.25))
-        # H ≈ - (0.75 * -0.415 + 0.25 * -2.0) ≈ 0.811278
+        """Test with a known distribution to verify calculation."""
+        # 3 'a's, 1 'b' -> total 4
+        # p(a) = 0.75, p(b) = 0.25
         text = "aaab"
+        entropy = calculate_shannon_entropy(text)
+        # H = - (0.75 * log2(0.75) + 0.25 * log2(0.25))
         expected = - (0.75 * math.log2(0.75) + 0.25 * math.log2(0.25))
-        result = calculate_shannon_entropy(text)
-        assert math.isclose(result, expected, rel_tol=1e-4)
+        assert math.isclose(entropy, expected, rel_tol=1e-9)
 
-    def test_utf8_bytes(self):
-        """Ensure UTF-8 multi-byte characters are handled correctly."""
-        # "café" -> bytes: 99, 97, 102, 195, 169 (assuming UTF-8)
-        # We treat the byte stream as the token set.
-        text = "café"
-        result = calculate_shannon_entropy(text)
-        assert result > 0.0
-        assert not math.isinf(result)
+    def test_bytes_input(self):
+        """Should handle raw bytes input correctly."""
+        byte_data = b"\x00\x00\xff\xff\xff"
+        # 2 zeros, 3 fives -> p(0)=0.4, p(255)=0.6
+        entropy = calculate_shannon_entropy(byte_data)
+        expected = - (0.4 * math.log2(0.4) + 0.6 * math.log2(0.6))
+        assert math.isclose(entropy, expected, rel_tol=1e-9)
+
+    def test_invalid_type_raises(self):
+        """Should raise TypeError for non-str/non-bytes input."""
+        with pytest.raises(TypeError):
+            calculate_shannon_entropy(123)
+        
+        with pytest.raises(TypeError):
+            calculate_shannon_entropy(None)
+
+    def test_logging_zero_density_empty(self, caplog):
+        """Verify that zero density on empty input triggers a warning log."""
+        # Capture logs
+        with caplog.at_level(logging.WARNING):
+            calculate_shannon_entropy("")
+        
+        assert any("Zero density event" in record.message for record in caplog.records)
+
+    def test_logging_zero_density_single_byte(self, caplog):
+        """Verify that zero density on single-unique-byte input triggers a warning log."""
+        with caplog.at_level(logging.WARNING):
+            calculate_shannon_entropy("zzzzz")
+        
+        assert any("Zero density event" in record.message for record in caplog.records)
 
 
 class TestClampEntropy:
-    """Tests for the entropy clamping logic (Edge Case: Zero Density)."""
+    """Tests for the clamping utility."""
 
-    def test_positive_value_unchanged(self):
-        """Positive entropy values should remain unchanged."""
-        assert clamp_entropy(1.5) == 1.5
-        assert clamp_entropy(0.001) == 0.001
+    def test_value_within_range_unchanged(self):
+        """Values within [min, max] should remain unchanged."""
+        assert clamp_entropy(4.5, 0.0, 8.0) == 4.5
+        assert clamp_entropy(0.0, 0.0, 8.0) == 0.0
+        assert clamp_entropy(8.0, 0.0, 8.0) == 8.0
 
-    def test_zero_value_clamped(self):
-        """Zero entropy should be clamped to a small epsilon to avoid division by zero later."""
-        epsilon = 1e-9
-        result = clamp_entropy(0.0)
-        assert result == epsilon
+    def test_value_below_min_clamped(self):
+        """Values below min should be clamped to min."""
+        assert clamp_entropy(-1.0, 0.0, 8.0) == 0.0
+        assert clamp_entropy(-5.5, 2.0, 10.0) == 2.0
 
-    def test_negative_value_clamped(self):
-        """Negative entropy (theoretical error) should be clamped to epsilon."""
-        epsilon = 1e-9
-        result = clamp_entropy(-0.5)
-        assert result == epsilon
+    def test_value_above_max_clamped(self):
+        """Values above max should be clamped to max."""
+        assert clamp_entropy(9.0, 0.0, 8.0) == 8.0
+        assert clamp_entropy(15.0, 0.0, 8.0) == 8.0
 
 
 class TestEntropyPerToken:
-    """Tests for entropy normalized by token (byte) count."""
+    """Tests for the per-token entropy function."""
 
-    def test_empty_string(self):
-        """Empty string should return 0."""
-        assert entropy_per_token("") == 0.0
+    def test_default_token_length(self):
+        """Default token length (1) should return total entropy."""
+        text = "abab"
+        total = calculate_shannon_entropy(text)
+        per_token = entropy_per_token(text)
+        assert math.isclose(total, per_token, rel_tol=1e-9)
 
-    def test_single_char(self):
-        """Single char: entropy 0, length 1 -> 0."""
-        assert entropy_per_token("a") == 0.0
+    def test_invalid_token_length_raises(self):
+        """Token length < 1 should raise ValueError."""
+        with pytest.raises(ValueError):
+            entropy_per_token("test", token_length=0)
+        
+        with pytest.raises(ValueError):
+            entropy_per_token("test", token_length=-1)
 
-    def test_uniform_ab(self):
-        """'ab' -> H=1.0, len=2 -> 0.5."""
-        # H("ab") = 1.0
-        # Tokens = 2
-        # Result = 0.5
-        result = entropy_per_token("ab")
-        assert math.isclose(result, 0.5, rel_tol=1e-4)
+    def test_short_text_returns_zero(self):
+        """Text shorter than token_length should return 0.0."""
+        # Token length 5, text length 3
+        assert entropy_per_token("abc", token_length=5) == 0.0
 
-    def test_large_uniform(self):
-        """Large string with uniform distribution."""
-        # 100 'a's and 100 'b's
-        text = "a" * 100 + "b" * 100
-        # H = 1.0
-        # Length = 200
-        # Result = 0.005
-        result = entropy_per_token(text)
-        assert math.isclose(result, 1.0 / 200.0, rel_tol=1e-4)
-
-    def test_clamping_applied(self):
-        """Verify that clamping is applied before division if entropy is 0."""
-        # If entropy is 0, clamp_entropy returns 1e-9.
-        # 1e-9 / 1 = 1e-9.
-        result = entropy_per_token("aaaa")
-        # H("aaaa") = 0. Clamped to 1e-9.
-        assert result == 1e-9
+    def test_logging_short_text(self, caplog):
+        """Verify warning log when text is shorter than token length."""
+        with caplog.at_level(logging.WARNING):
+            entropy_per_token("abc", token_length=5)
+        
+        assert any("Zero density event" in record.message for record in caplog.records)

@@ -498,3 +498,203 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-14T04:48:09Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "Entropy per token for injected evidence blocks matches requested density\
+    \ levels within \xB10.01 bits/token"
+  claim_id: c_dacf7717
+  context: "Independent Test: The system can be tested by running the generator with\
+    \ fixed seeds and verifying that the output JSON file contains a sufficient number\
+    \ of trajectories where the calculated entropy per token for injected evidence\
+    \ blocks matches the requested density levels (low, medium, high) within a tolerance\
+    \ of \xB10.01 bits/token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by running the generator with fixed seeds and\
+    \ verifying that the output JSON file contains a sufficient number of trajectories\
+    \ where the calculated entropy per token for injected evidence blocks matches\
+    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
+    0.01 bits/token."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:37:31Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "System reports failure for retention horizon < 5 turns and success for\
+    \ \u2265 5 turns on high-density evidence"
+  claim_id: c_40a853b0
+  context: "Independent Test: The system can be tested by running the simulation on\
+    \ a small subset of trajectories with a known 'ground truth' retention horizon.\
+    \ The system must correctly report 'failure' when the retention horizon is set\
+    \ to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:37:31Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "System reports failure for horizon < 5 and success for horizon \u2265\
+    \ 5"
+  claim_id: c_1c64c9f1
+  context: "Verification: Ensure the system correctly reports 'failure' for horizon\
+    \ < 5 and 'success' for horizon \u2265 5 given ground truth (US-2 Acceptance 1\
+    \ & 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the system correctly reports 'failure' for horizon < 5 and\
+    \ 'success' for horizon \u2265 5 given ground truth."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:37:32Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage remains < 7 GB during 500 trajectory run
+  claim_id: c_cb9c8197
+  context: 'Verification: Confirm peak RAM usage remains < 7 GB during full 500 trajectory
+    run using memory_profiler or psutil.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm peak RAM usage remains < 7 GB during full 500 trajectory run using
+    memory_profiler or psutil.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:37:32Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "Generate 3D surface plot as PNG \u2264 5 MB with axes Masking Horizon,\
+    \ Semantic Density, Success Rate"
+  claim_id: c_508ea611
+  context: "Implement visualize_results.py in projects/PROJ-920-llmxive-follow-up-extending-masking-stal/code/visualize_results.py\
+    \ to generate a 3D surface plot (PNG \u2264 5 MB) with axes: Masking Horizon (X),\
+    \ Semantic Density (Y), Success Rate (Z) (FR-004, SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a 3D surface plot (PNG \u2264 5 MB) with axes: Masking Horizon\
+    \ (X), Semantic Density (Y), Success Rate (Z)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:37:48Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Runtime < 6 hours and RAM < 7 GB for simulate_agent.py
+  claim_id: c_ec0706b3
+  context: 'Performance optimization: Optimize loops in simulate_agent.py to ensure
+    runtime < 6h and RAM < 7 GB (FR-005, SC-003, SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize loops in simulate_agent.py to ensure runtime < 6h and RAM < 7
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:37:48Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "Trajectory entropy matches density levels within \xB10.01 bits/token\
+    \ tolerance"
+  claim_id: c_55f2f614
+  context: "Independent Test: The system can be tested by running the generator with\
+    \ fixed seeds and verifying that the output JSON file contains a sufficient number\
+    \ of trajectories where the calculated entropy per token for injected evidence\
+    \ blocks matches the requested density levels (low, medium, high) within a tolerance\
+    \ of \xB10.01 bits/token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by running the generator with fixed seeds and\
+    \ verifying that the output JSON file contains a sufficient number of trajectories\
+    \ where the calculated entropy per token for injected evidence blocks matches\
+    \ the requested density levels (low, medium, high) within a tolerance of \xB1\
+    0.01 bits/token."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:45:41Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: System reports failure for retention horizon < 5 turns on high-density
+    evidence
+  claim_id: c_e4c69c61
+  context: "Independent Test: The system can be tested by running the simulation on\
+    \ a small subset of trajectories with a known 'ground truth' retention horizon.\
+    \ The system must correctly report 'failure' when the retention horizon is set\
+    \ to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns for high-density evidence, and 'success' when \u2265 5 turns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:45:42Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage remains below 7 GB during 500 trajectory run
+  claim_id: c_61e0413d
+  context: 'T015 [US2] Implement streaming approach in simulate_agent.py to write
+    simulation results to data/processed/ immediately after each batch to manage RAM
+    (Edge Case, FR-005). Verification: Confirm peak RAM usage remains < 7 GB during
+    full 500 trajectory run using memory_profiler or psutil.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm peak RAM usage remains < 7 GB during full 500 trajectory run using
+    memory_profiler or psutil.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:45:42Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Assert maximum memory usage is less than 7 GB
+  claim_id: c_1b69f2bf
+  context: 'T034 Performance optimization: Optimize loops in simulate_agent.py to
+    ensure runtime < 6h and RAM < 7 GB (FR-005, SC-003, SC-004). Requirement: Use
+    vectorization (NumPy/Pandas) and profile memory usage using memory-profiler and
+    assert max < 7GB to verify constraints.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_maximum_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Profile memory usage using memory-profiler and assert max < 7GB to verify
+    constraints.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:51:07Z'

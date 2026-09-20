@@ -1,9 +1,3 @@
-"""
-Analysis module for llmXive follow-up study.
-Performs logistic regression with natural splines to quantify the interaction
-between semantic density and retention horizon on agent success.
-"""
-
 import argparse
 import json
 import sys
@@ -11,270 +5,258 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-
-# Third-party dependencies required for analysis
 import pandas as pd
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 from patsy import dmatrix
 
-# Constants
-DEFAULT_DATA_PATH = "data/processed/simulation_results.jsonl"
-DEFAULT_OUTPUT_DIR = "output"
-DEFAULT_DF = 3  # Degrees of freedom for natural splines
-
-
-def load_simulation_data(file_path: str) -> pd.DataFrame:
+# -----------------------------------------------------------------------------
+# Data Loading
+# -----------------------------------------------------------------------------
+def load_simulation_data(input_path: str) -> pd.DataFrame:
     """
-    Load simulation results from a JSONL file.
-
-    Args:
-        file_path: Path to the JSONL file containing simulation logs.
-
-    Returns:
-        pandas DataFrame with columns: 'horizon', 'density', 'success'.
+    Load simulation results from a JSONL or JSON file.
+    Expected columns: 'horizon', 'density', 'success' (0 or 1).
     """
-    path = Path(file_path)
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Simulation data file not found: {file_path}")
+        raise FileNotFoundError(f"Simulation data not found at {input_path}")
 
-    records = []
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                data = json.loads(line)
-                # Expecting specific keys based on simulate_agent.py output
-                records.append({
-                    'horizon': data.get('horizon'),
-                    'density': data.get('density'),
-                    'success': data.get('success', 0)
-                })
-            except json.JSONDecodeError:
-                continue
+    if path.suffix == '.jsonl':
+        df = pd.read_json(path, lines=True)
+    elif path.suffix == '.json':
+        with open(path, 'r') as f:
+            data = json.load(f)
+            # Handle if it's a list of records or a dict with a key
+            if isinstance(data, list):
+                df = pd.DataFrame(data)
+            elif isinstance(data, dict) and 'results' in data:
+                df = pd.DataFrame(data['results'])
+            else:
+                df = pd.DataFrame([data])
+    else:
+        raise ValueError(f"Unsupported file format: {path.suffix}")
 
-    if not records:
-        raise ValueError("No valid records found in simulation data file.")
+    required_cols = {'horizon', 'density', 'success'}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Missing required columns in simulation data: {missing}")
 
-    df = pd.DataFrame(records)
     return df
 
-
-def validate_sample_size(df: pd.DataFrame, min_samples: int = 50) -> bool:
+# -----------------------------------------------------------------------------
+# Statistical Validation
+# -----------------------------------------------------------------------------
+def validate_sample_size(df: pd.DataFrame, min_rows: int = 50) -> bool:
     """
-    Validate that the dataset has sufficient sample size for statistical power.
-
-    Args:
-        df: DataFrame containing the data.
-        min_samples: Minimum number of samples required.
-
-    Returns:
-        True if sample size is sufficient, False otherwise.
+    Check if the dataset has enough rows for statistical power.
     """
-    total_samples = len(df)
-    if total_samples < min_samples:
-        raise ValueError(
-            f"Insufficient sample size: {total_samples} < {min_samples}. "
-            "Cannot perform reliable logistic regression."
-        )
+    if len(df) < min_rows:
+        raise ValueError(f"Sample size ({len(df)}) is too small for reliable regression. Minimum required: {min_rows}")
     return True
 
-
-def build_formula_with_splines(df: pd.DataFrame, df_horizon: int = DEFAULT_DF) -> str:
+# -----------------------------------------------------------------------------
+# Model Building
+# -----------------------------------------------------------------------------
+def build_formula_with_splines(density_col: str = 'density',
+                               horizon_col: str = 'horizon',
+                               df_spline: int = 3) -> str:
     """
-    Construct the Patsy formula for logistic regression with natural splines.
-
-    The formula models:
-        logit(P(success)) = f(horizon) + density + f(horizon)*density
-
-    where f(horizon) is a natural spline with specified degrees of freedom.
-
-    Args:
-        df: DataFrame (used to infer column names).
-        df_horizon: Degrees of freedom for the natural spline on 'horizon'.
-
-    Returns:
-        String formula ready for statsmodels.
+    Construct the Patsy formula with natural splines for the horizon variable
+    and an interaction term between density and the spline basis.
     """
-    # Natural spline term for horizon
-    ns_horizon = f"ns(horizon, df={df_horizon})"
-
-    # Main effects and interaction
-    # Note: We treat density as linear for simplicity, but it could also be splined.
-    # The interaction term allows the effect of density to vary non-linearly with horizon.
-    formula = f"success ~ {ns_horizon} + density + {ns_horizon}:density"
-
+    # Natural splines using patsy's bs (B-spline) with constraints for natural
+    # boundary conditions. 'df' determines the number of basis functions.
+    spline_basis = f"bs({horizon_col}, df={df_spline}, degree=3, include_intercept=False)"
+    # Interaction: density * spline_basis
+    formula = f"success ~ {density_col} * {spline_basis}"
     return formula
 
-
-def run_logistic_regression(df: pd.DataFrame, formula: str) -> smGLMResultsWrapper:
+def run_logistic_regression(df: pd.DataFrame,
+                            formula: str,
+                            df_spline: int = 3) -> Dict[str, Any]:
     """
-    Fit a logistic regression model using statsmodels.
-
-    Args:
-        df: DataFrame with the data.
-        formula: Patsy formula string.
-
-    Returns:
-        Fitted GLM results object.
+    Fit a logistic regression model with splines and interaction.
+    Returns coefficients, p-values, and model summary stats.
     """
-    y = df['success']
-    X = dmatrix(formula, df, return_type="dataframe")
+    # Ensure numeric types
+    df = df.copy()
+    df['success'] = df['success'].astype(int)
+    df['density'] = pd.to_numeric(df['density'], errors='coerce')
+    df['horizon'] = pd.to_numeric(df['horizon'], errors='coerce')
+    df = df.dropna(subset=['density', 'horizon', 'success'])
 
-    # Add constant if not automatically added by formula (dmatrix usually does for intercept)
-    # statsmodels GLM requires explicit constant if not in formula, but dmatrix adds intercept by default.
-    # However, to be safe and explicit:
-    if 'Intercept' not in X.columns:
-        X = sm.add_constant(X)
+    if len(df) == 0:
+        raise ValueError("Dataset empty after dropping NaNs.")
 
-    model = sm.GLM(y, X, family=sm.families.Binomial())
-    results = model.fit()
+    # Fit model
+    try:
+        model = smf.glm(formula=formula, data=df, family=sm.families.Binomial()).fit()
+    except Exception as e:
+        raise RuntimeError(f"Logistic regression failed: {e}")
+
+    # Extract results
+    results = {
+        "coefficients": model.params.to_dict(),
+        "pvalues": model.pvalues.to_dict(),
+        "log_likelihood": model.llf,
+        "aic": model.aic,
+        "bic": model.bic,
+        "nobs": model.nobs
+    }
 
     return results
 
-
-def write_summary(results: smGLMResultsWrapper, output_path: str) -> None:
+# -----------------------------------------------------------------------------
+# Output Writers
+# -----------------------------------------------------------------------------
+def write_summary(summary_data: Dict[str, Any], output_path: str) -> None:
     """
-    Write regression summary statistics to a JSON file.
-
-    Args:
-        results: Fitted GLM results object.
-        output_path: Path to the output JSON file.
+    Write regression summary to a JSON file.
     """
-    summary_dict = {
-        "log_likelihood": float(results.llf),
-        "aic": float(results.aic),
-        "bic": float(results.bic),
-        "params": results.params.astype(float).to_dict(),
-        "pvalues": results.pvalues.astype(float).to_dict(),
-        "converged": bool(results.converged)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(summary_data, f, indent=2)
+
+def write_hypothesis_summary(regression_results: Dict[str, Any],
+                             output_path: str) -> None:
+    """
+    Generate the hypothesis summary markdown file.
+    Logic:
+    - The hypothesis is: "positive correlation between density and optimal horizon".
+    - In the model: success ~ density * bs(horizon).
+    - We look for the interaction term(s) between density and the spline basis.
+    - If the interaction coefficients are positive and significant (p < 0.05),
+      it suggests that as density increases, the effect of horizon on success changes
+      in a way that supports the hypothesis (typically shifting the optimal horizon).
+    - We check if ANY interaction term involving 'density' is positive and significant.
+      If so, hypothesis_supported = True.
+    """
+    pvalues = regression_results.get("pvalues", {})
+    coeffs = regression_results.get("coefficients", {})
+
+    # Identify interaction terms: they contain 'density' and 'bs' (or the horizon variable name)
+    # The formula was: success ~ density * bs(horizon, ...)
+    # Terms will look like: density, bs(horizon, ...)[I.bs(...)], density:bs(horizon, ...)[I.bs(...)]
+    interaction_terms = [k for k in pvalues.keys() if 'density' in k and 'bs' in k]
+
+    hypothesis_supported = False
+    significant_positive_interactions = []
+
+    for term in interaction_terms:
+        p_val = pvalues.get(term, 1.0)
+        coef = coeffs.get(term, 0.0)
+        if p_val < 0.05 and coef > 0:
+            hypothesis_supported = True
+            significant_positive_interactions.append({
+                "term": term,
+                "coefficient": float(coef),
+                "p_value": float(p_val)
+            })
+
+    # If no specific interaction terms found or none are significant, check main effect logic?
+    # Strictly, the hypothesis is about the INTERACTION. If no significant positive interaction,
+    # we cannot support the hypothesis based on this model structure.
+    if not significant_positive_interactions:
+        hypothesis_supported = False
+
+    summary_content = {
+        "hypothesis": "Positive correlation between density and optimal horizon",
+        "hypothesis_supported": hypothesis_supported,
+        "methodology": "Logistic regression with natural splines for horizon and density interaction",
+        "interaction_terms_analyzed": interaction_terms,
+        "significant_positive_interactions": significant_positive_interactions,
+        "regression_details": {
+            "log_likelihood": regression_results.get("log_likelihood"),
+            "aic": regression_results.get("aic"),
+            "bic": regression_results.get("bic"),
+            "n_obs": regression_results.get("nobs")
+        }
     }
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Format as Markdown
+    md_lines = [
+        "# Hypothesis Summary",
+        "",
+        f"**Hypothesis**: {summary_content['hypothesis']}",
+        f"**Supported**: {summary_content['hypothesis_supported']}",
+        "",
+        "## Methodology",
+        f"{summary_content['methodology']}",
+        "",
+        "## Regression Details",
+        f"- Log-Likelihood: {summary_content['regression_details']['log_likelihood']:.4f}",
+        f"- AIC: {summary_content['regression_details']['aic']:.4f}",
+        f"- BIC: {summary_content['regression_details']['bic']:.4f}",
+        f"- Observations: {summary_content['regression_details']['n_obs']}",
+        "",
+        "## Interaction Analysis"
+    ]
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(summary_dict, f, indent=2)
+    if significant_positive_interactions:
+        md_lines.append("The following interaction terms were **positive and significant** (p < 0.05):")
+        md_lines.append("")
+        md_lines.append("| Term | Coefficient | P-Value |")
+        md_lines.append("|------|-------------|---------|")
+        for item in significant_positive_interactions:
+            md_lines.append(f"| {item['term']} | {item['coefficient']:.4f} | {item['p_value']:.4f} |")
+    else:
+        md_lines.append("No interaction terms between density and horizon splines were found to be both positive and statistically significant (p < 0.05).")
+        if interaction_terms:
+            md_lines.append("Analyzed interaction terms:")
+            for t in interaction_terms:
+                md_lines.append(f"- {t}: coeff={coeffs.get(t, 0):.4f}, p={pvalues.get(t, 1.0):.4f}")
 
+    md_lines.append("")
+    md_lines.append("---")
+    md_lines.append("*Generated automatically by analyze_results.py*")
 
-def write_hypothesis_summary(results: smGLMResultsWrapper, output_path: str) -> None:
-    """
-    Generate a human-readable text summary of the hypothesis test.
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        f.write("\n".join(md_lines))
 
-    Checks if the interaction term (density * horizon spline) is statistically significant.
-
-    Args:
-        results: Fitted GLM results object.
-        output_path: Path to the output text file.
-    """
-    pvalues = results.pvalues
-    params = results.params
-
-    # Identify interaction terms (they contain ':')
-    interaction_terms = [term for term in pvalues.index if ':' in term]
-
-    significant_interactions = []
-    for term in interaction_terms:
-        if pvalues[term] < 0.05:
-            significant_interactions.append((term, pvalues[term], params[term]))
-
-    hypothesis_supported = len(significant_interactions) > 0
-
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write("Hypothesis Summary: Masking Stale Observations & Semantic Density\n")
-        f.write("=" * 70 + "\n\n")
-        f.write("Hypothesis: There is a positive correlation between semantic density\n")
-        f.write("and the optimal retention horizon (i.e., an interaction effect).\n\n")
-
-        if hypothesis_supported:
-            f.write("RESULT: SUPPORTED\n\n")
-            f.write("The analysis found statistically significant (p < 0.05) interaction\n")
-            f.write("terms between semantic density and the retention horizon spline:\n\n")
-            for term, p_val, coef in significant_interactions:
-                f.write(f"  - {term}: p={p_val:.4f}, coefficient={coef:.4f}\n")
-        else:
-            f.write("RESULT: NOT SUPPORTED\n\n")
-            f.write("No statistically significant interaction terms were found.\n")
-            f.write("This suggests that the effect of semantic density on success does not\n")
-            f.write("significantly vary with the retention horizon in this dataset.\n")
-
-        f.write("\n--- Full Model Statistics ---\n")
-        f.write(f"Log-Likelihood: {results.llf:.4f}\n")
-        f.write(f"AIC: {results.aic:.4f}\n")
-        f.write(f"BIC: {results.bic:.4f}\n")
-        f.write(f"Converged: {results.converged}\n")
-
-
+# -----------------------------------------------------------------------------
+# Main Entry Point
+# -----------------------------------------------------------------------------
 def main():
-    """Main entry point for the analysis pipeline."""
-    parser = argparse.ArgumentParser(
-        description="Analyze simulation results with logistic regression and natural splines."
-    )
-    parser.add_argument(
-        "--input", "-i",
-        type=str,
-        default=DEFAULT_DATA_PATH,
-        help="Path to the simulation results JSONL file."
-    )
-    parser.add_argument(
-        "--output-dir", "-o",
-        type=str,
-        default=DEFAULT_OUTPUT_DIR,
-        help="Directory to write analysis outputs."
-    )
-    parser.add_argument(
-        "--df",
-        type=int,
-        default=DEFAULT_DF,
-        help="Degrees of freedom for the natural spline on horizon."
-    )
+    parser = argparse.ArgumentParser(description="Analyze simulation results and test hypothesis.")
+    parser.add_argument("--input", type=str, required=True, help="Path to simulation results (JSON/JSONL)")
+    parser.add_argument("--output-summary", type=str, default="output/regression_summary.json",
+                        help="Path for JSON regression summary")
+    parser.add_argument("--output-hypothesis", type=str, default="output/hypothesis_summary.md",
+                        help="Path for hypothesis summary markdown")
+    parser.add_argument("--df", type=int, default=3, help="Degrees of freedom for spline basis")
+    parser.add_argument("--min-sample", type=int, default=50, help="Minimum sample size for validation")
 
     args = parser.parse_args()
 
     try:
         # 1. Load Data
-        print(f"Loading data from {args.input}...")
         df = load_simulation_data(args.input)
-        print(f"Loaded {len(df)} records.")
 
         # 2. Validate Sample Size
-        print("Validating sample size...")
-        validate_sample_size(df)
+        validate_sample_size(df, min_rows=args.min_sample)
 
         # 3. Build Formula
-        formula = build_formula_with_splines(df, df_horizon=args.df)
-        print(f"Using formula: {formula}")
+        formula = build_formula_with_splines(df_spline=args.df)
 
         # 4. Run Regression
-        print("Running logistic regression...")
-        results = run_logistic_regression(df, formula)
+        results = run_logistic_regression(df, formula, df_spline=args.df)
 
-        # 5. Write Outputs
-        summary_path = Path(args.output_dir) / "regression_summary.json"
-        hypothesis_path = Path(args.output_dir) / "hypothesis_summary.txt"
+        # 5. Write JSON Summary
+        write_summary(results, args.output_summary)
 
-        print(f"Writing regression summary to {summary_path}...")
-        write_summary(results, str(summary_path))
+        # 6. Write Hypothesis Summary (Markdown)
+        write_hypothesis_summary(results, args.output_hypothesis)
 
-        print(f"Writing hypothesis summary to {hypothesis_path}...")
-        write_hypothesis_summary(results, str(hypothesis_path))
+        print(f"Analysis complete. Summary written to {args.output_summary}")
+        print(f"Hypothesis summary written to {args.output_hypothesis}")
 
-        print("Analysis complete.")
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Data Error: {e}", file=sys.stderr)
-        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        print(f"Error during analysis: {e}", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

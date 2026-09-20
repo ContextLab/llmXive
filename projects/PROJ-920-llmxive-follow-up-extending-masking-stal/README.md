@@ -1,32 +1,31 @@
 # llmXive Follow-up: Extending "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
 
-This project implements a research pipeline to investigate the interaction between **semantic density** of search trajectories and the **retention horizon** (masking staleness) of search agents.
+This project implements an automated science pipeline to investigate the relationship between **semantic density** of search trajectories and the optimal **retention horizon** for search agents.
 
-The core hypothesis is that while masking stale observations generally helps agents focus, the optimal retention horizon shifts positively as the semantic density of the critical evidence increases. We validate this using synthetic trajectory generation, a rule-based heuristic agent simulation, and statistical analysis (logistic regression with natural splines).
+The core hypothesis is that while masking stale observations generally improves agent performance, the optimal retention window depends heavily on the density of critical evidence within the context. This project simulates search agents, generates synthetic trajectories with controlled density, and performs statistical analysis to map the "regime" where masking helps versus where it hurts.
 
 ## Project Structure
 
 ```text
 .
-├── code/ # Main implementation scripts
+├── code/ # Core implementation scripts
 │ ├── utils/ # Utility modules (entropy, heuristics)
-│ │ ├── entropy.py
-│ │ └── heuristics.py
-│ ├── generate_trajectories.py # Synthetic data generation (US1)
-│ ├── simulate_agent.py # Agent simulation loop (US2)
-│ ├── analyze_results.py # Statistical analysis (US3)
-│ └── visualize_results.py # 3D surface plotting (US3)
+│ │ ├── entropy.py # Shannon entropy calculations
+│ │ └── heuristics.py # Composite density formulas
+│ ├── generate_trajectories.py # Synthetic data generation
+│ ├── simulate_agent.py # Agent simulation with variable horizons
+│ ├── analyze_results.py # Statistical analysis (GLM, splines)
+│ └── visualize_results.py # 3D surface plotting
 ├── data/
-│ ├── raw/ # Generated trajectories (JSON)
-│ └── processed/ # Simulation logs (JSON/CSV)
+│ ├── raw/ # Generated trajectory JSON files
+│ └── processed/ # Simulation results (CSV/JSON)
 ├── output/
 │ ├── plots/ # Generated figures (PNG)
-│ ├── regression_summary.json # Regression coefficients
-│ └── hypothesis_summary.txt # Final hypothesis conclusion
-├── tests/
-│ ├── unit/ # Unit tests
-│ ├── integration/ # Integration tests
-│ └── contract/ # Schema contract tests
+│ └── regression_summary.json
+├── tests/ # Unit, integration, and contract tests
+│ ├── unit/
+│ ├── integration/
+│ └── contract/
 ├── README.md
 └── requirements.txt
 ```
@@ -35,88 +34,106 @@ The core hypothesis is that while masking stale observations generally helps age
 
 - Python 3.9+
 - pip
+- Virtual environment (recommended)
 
 ## Installation
 
-1. Clone the repository and navigate to the project root:
+1. **Clone the repository** (or navigate to the project root):
  ```bash
  cd projects/PROJ-920-llmxive-follow-up-extending-masking-stal
  ```
 
-2. Create a virtual environment (recommended):
+2. **Create and activate a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
 ## Usage
 
-The pipeline consists of three main stages. Run them sequentially to reproduce the full study.
+The pipeline consists of three main stages: Generation, Simulation, and Analysis.
 
 ### Step 1: Generate Synthetic Trajectories
 
-Generates 500 synthetic search trajectories with controlled semantic density (low, medium, high) and injected critical evidence.
+Generates 500 search trajectories with controlled semantic density (low, medium, high) and injected critical evidence.
 
 ```bash
-python code/generate_trajectories.py
+python code/generate_trajectories.py --output data/raw/trajectories.json --count 500 --seed 42
 ```
 
-**Output**: `data/raw/trajectories.json`
+**Output**: `data/raw/trajectories.json` containing metadata, density values, and evidence turn indices.
 
-### Step 2: Simulate Agent with Variable Horizons
+### Step 2: Simulate Agent Behavior
 
-Runs the heuristic agent simulation across varying retention horizons (1 to T) on the generated trajectories.
+Runs the rule-based agent simulation across varying retention horizons (1 to T) using the generated trajectories.
 
 ```bash
-python code/simulate_agent.py
+python code/simulate_agent.py \
+ --input data/raw/trajectories.json \
+ --output data/processed/simulation_results.csv \
+ --alpha 2.5 \
+ --threshold 0.5 \
+ --batch-size 50
 ```
 
-**Output**: `data/processed/simulation_results.json`
+**Parameters**:
+- `--alpha`: Scaling factor for the logistic retrieval probability.
+- `--threshold`: Critical density threshold for the logistic function.
+- `--batch-size`: Number of trajectories to process before writing to disk (streaming).
 
-### Step 3: Analyze and Visualize
+**Output**: `data/processed/simulation_results.csv` with success/failure logs per horizon.
 
-Performs logistic regression with natural splines to quantify the interaction effect and generates a 3D surface plot.
+### Step 3: Analyze Results & Visualize
+
+Performs logistic regression with natural splines to identify the interaction effect and generates a 3D surface plot.
 
 ```bash
-python code/analyze_results.py
-python code/visualize_results.py
+python code/analyze_results.py \
+ --input data/processed/simulation_results.csv \
+ --output output/ \
+ --df 3
+```
+
+```bash
+python code/visualize_results.py \
+ --summary output/regression_summary.json \
+ --output output/plots/regime_map.png
 ```
 
 **Outputs**:
-- `output/regression_summary.json` (Coefficients and p-values)
-- `output/hypothesis_summary.txt` (Hypothesis validation)
-- `output/plots/surface_plot.png` (3D interaction surface)
-
-## Configuration
-
-- **Density Levels**: Controlled in `generate_trajectories.py` (default: low, medium, high).
-- **Retention Horizons**: Configurable in `simulate_agent.py` (default: 1 to T).
-- **Regression Degrees of Freedom**: Pass `--df <int>` to `analyze_results.py` to adjust spline flexibility.
-- **Heuristic Parameters**: `alpha` (scaling) and `threshold` (critical density) are defined in `simulate_agent.py`.
+- `output/regression_summary.json`: Regression coefficients, p-values, and hypothesis test results.
+- `output/hypothesis_summary.md`: Human-readable summary of findings.
+- `output/plots/regime_map.png`: 3D surface plot (Masking Horizon vs. Density vs. Success Rate).
 
 ## Testing
 
 Run the full test suite:
 
 ```bash
-pytest tests/
+pytest tests/ -v
 ```
 
-Specific test groups:
-- Unit tests: `pytest tests/unit/`
-- Integration tests: `pytest tests/integration/`
-- Contract tests: `pytest tests/contract/`
+Run specific test categories:
+- **Unit Tests**: `pytest tests/unit/ -v`
+- **Integration Tests**: `pytest tests/integration/ -v`
+- **Contract Tests**: `pytest tests/contract/ -v`
+
+## Configuration & Reproducibility
+
+To ensure reproducibility and avoid bias:
+- All random seeds are explicitly set via CLI arguments.
+- Logistic function parameters (`alpha`, `threshold`) are **not** hardcoded defaults; they must be provided or set via environment variables.
+- The streaming implementation in `simulate_agent.py` ensures memory usage stays below 7GB even for large trajectory sets.
 
 ## License
 
-Research project for academic use.
+This project is part of the llmXive research initiative.
 
-## References
+## Contributing
 
-- Original Study: "Masking Stale Observations Helps Search Agents -- Until It Doesn't"
-- Project ID: PROJ-920-llmxive-follow-up-extending-masking-stal
+Please refer to the `specs/` directory for detailed design documents and user stories.

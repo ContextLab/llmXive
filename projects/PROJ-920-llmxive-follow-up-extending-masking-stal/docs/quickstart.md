@@ -1,164 +1,130 @@
 # Quickstart Guide: llmXive Follow-up Study
 
-This guide walks you through running the full pipeline for the study:
-**"Masking Stale Observations Helps Search Agents -- Until It Doesn't"**
+This guide provides a step-by-step procedure to run the full pipeline for the study
+"Masking Stale Observations Helps Search Agents -- Until It Doesn't".
 
-**Prerequisites**:
-- Python 3.9+
+## Prerequisites
+
+- Python 3.9 or higher
 - pip (Python package manager)
-- ~7 GB RAM available for processing
-- ~14 GB disk space for data and outputs
+- A Unix-like environment (Linux/macOS) or WSL on Windows
 
----
+## 1. Environment Setup
 
-## 1. Installation
-
-Clone the repository and install dependencies:
+Navigate to the project root directory:
 
 ```bash
-# Navigate to project root
 cd projects/PROJ-920-llmxive-follow-up-extending-masking-stal
+```
 
-# Install required packages
+Create a virtual environment and activate it:
+
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+
+Install the required dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-> **Note**: If `requirements.txt` does not exist yet, create it with the following:
-> ```text
-> numpy>=1.24.0
-> scipy>=1.10.0
-> statsmodels>=0.13.0
-> matplotlib>=3.7.0
-> seaborn>=0.12.0
-> ```
+## 2. Directory Structure Initialization
 
----
-
-## 2. Directory Structure Setup
-
-Ensure the required directories exist. If not, create them:
-
-```bash
-mkdir -p data/raw data/processed output/plots output/regression
-mkdir -p code utils tests
-```
-
-Alternatively, run the setup scripts (if available):
+Ensure all necessary directories exist. Run the setup script:
 
 ```bash
 python code/setup_directories.py
 python code/setup_utils_directory.py
+python code/setup_processed_directory.py
 python code/setup_plots_directory.py
+python code/setup_test_directories.py
 ```
 
----
+*Expected Output*: Confirmation that directories `data/raw/`, `data/processed/`, `output/plots/`, `code/`, `code/utils/`, `tests/`, etc., are created.
 
-## 3. Step-by-Step Pipeline Execution
+## 3. Phase 1: Generate Synthetic Trajectories
 
-### Step 1: Generate Synthetic Trajectories
-
-This step creates 500 synthetic search trajectories with controlled semantic density and injected critical evidence.
+Generate 500 synthetic search trajectories with controlled semantic density and injected critical evidence.
 
 ```bash
-python code/generate_trajectories.py --output data/raw/trajectories.json
+python code/generate_trajectories.py --output data/raw/trajectories.json --count 500 --seed 42
 ```
 
-**Output**: `data/raw/trajectories.json` (≤ 100 MB)
+*Verification*:
+- Check that `data/raw/trajectories.json` exists.
+- Ensure the file contains 500 entries with metadata fields `density` and `critical_evidence_turn_index`.
 
-**Verification**:
-- Check file exists and is valid JSON.
-- Ensure it contains ~500 trajectory entries.
-- Verify metadata includes `evidence_turn_index` and `density_value`.
+## 4. Phase 2: Agent Simulation
 
----
-
-### Step 2: Simulate Agent with Variable Horizons
-
-Run the heuristic agent simulation across retention horizons (1 to T) to measure success rates.
+Run the rule-based agent simulation with varying retention horizons to observe success rates.
 
 ```bash
 python code/simulate_agent.py \
  --input data/raw/trajectories.json \
- --output data/processed/simulation_results.csv
+ --output data/processed/simulation_results.jsonl \
+ --horizons 1 2 3 4 5 6 7 8 9 10 \
+ --alpha 2.0 \
+ --threshold 0.5 \
+ --seed 42
 ```
 
-**Output**: `data/processed/simulation_results.csv`
+*Parameters*:
+- `--horizons`: Space-separated list of retention horizons to test.
+- `--alpha`: Scaling factor for the logistic function (default: 2.0).
+- `--threshold`: Critical density threshold for the logistic function (default: 0.5).
 
-**Verification**:
-- Confirm CSV has columns: `trajectory_id`, `horizon`, `density`, `success`.
-- Check that horizons < 5 show lower success rates for high-density evidence.
-- Ensure horizons ≥ 5 show higher success rates (ground truth behavior).
+*Verification*:
+- Check that `data/processed/simulation_results.jsonl` exists.
+- The file should contain one JSON object per line with fields `trajectory_id`, `horizon`, `success`, and `density`.
 
----
+## 5. Phase 3: Statistical Analysis
 
-### Step 3: Statistical Analysis (Logistic Regression)
-
-Perform logistic regression with natural splines to model the interaction between density and horizon.
+Perform logistic regression with natural splines to quantify the interaction effect between density and horizon.
 
 ```bash
 python code/analyze_results.py \
- --input data/processed/simulation_results.csv \
- --output output/regression/ \
- --df 3
+ --input data/processed/simulation_results.jsonl \
+ --output output/regression_summary.json \
+ --hypothesis-output output/hypothesis_summary.md \
+ --splines-df 3
 ```
 
-**Outputs**:
-- `output/regression/regression_summary.json` — Coefficients, p-values, and model stats.
-- `output/regression/hypothesis_summary.txt` — Automatic conclusion on hypothesis support.
+*Verification*:
+- Check that `output/regression_summary.json` exists and contains regression coefficients and p-values.
+- Check that `output/hypothesis_summary.md` exists and states whether the hypothesis was supported.
 
-**Verification**:
-- Open `regression_summary.json` and check for interaction term `density * horizon` with p < 0.05.
-- Read `hypothesis_summary.txt` to confirm whether the hypothesis was supported.
+## 6. Phase 4: Visualization
 
----
-
-### Step 4: Visualize Results (3D Surface Plot)
-
-Generate a 3D surface plot showing Success Rate as a function of Masking Horizon and Semantic Density.
+Generate a 3D surface plot visualizing the relationship between Masking Horizon, Semantic Density, and Success Rate.
 
 ```bash
 python code/visualize_results.py \
- --input output/regression/regression_summary.json \
+ --input output/regression_summary.json \
  --output output/plots/surface_plot.png
 ```
 
-**Output**: `output/plots/surface_plot.png` (≤ 5 MB)
+*Verification*:
+- Check that `output/plots/surface_plot.png` exists and is under 5 MB.
+- The plot should display a 3D surface with axes: Horizon (X), Density (Y), and Success Rate (Z).
 
-**Verification**:
-- Open the PNG and confirm axes: X=Horizon, Y=Density, Z=Success Rate.
-- Ensure the surface shows a clear interaction effect (peak shifts with density).
+## 7. Validation (Optional)
 
----
-
-## 4. Full Pipeline (One-Liner)
-
-To run the entire pipeline sequentially (ensure dependencies are met first):
+Run the validation script to ensure all steps completed successfully.
 
 ```bash
-python code/generate_trajectories.py && \
-python code/simulate_agent.py && \
-python code/analyze_results.py && \
-python code/visualize_results.py
+python code/validate_quickstart.py
 ```
 
-> **Warning**: This assumes default input/output paths. For custom paths, use the individual commands above.
+## Troubleshooting
 
----
+- **Memory Issues**: If the simulation step fails due to memory constraints, ensure you are using the streaming version of the script (default) and that your system has at least 7 GB of RAM available.
+- **Missing Dependencies**: If import errors occur, re-run `pip install -r requirements.txt`.
+- **Path Errors**: Ensure you are running commands from the project root directory.
 
-## 5. Troubleshooting
+## Next Steps
 
-- **Missing dependencies**: Run `pip install -r requirements.txt` again.
-- **File not found errors**: Ensure you are running commands from the project root (`projects/PROJ-920-llmxive-follow-up-extending-masking-stal/`).
-- **Memory errors**: The simulation step may require ~7 GB RAM. Close other applications or use a machine with more memory.
-- **Plot not rendering**: Ensure `matplotlib` and `seaborn` are installed and your backend supports GUI (or use a headless backend like `Agg`).
-
----
-
-## 6. Next Steps
-
-- Review `docs/api.md` for detailed function documentation.
-- Run unit tests: `python -m pytest tests/unit/`
-- Run integration tests: `python -m pytest tests/integration/`
-- Run contract tests: `python -m pytest tests/contract/`
-
-For further details, refer to the main `README.md`.
+- Review the generated hypothesis summary in `output/hypothesis_summary.md`.
+- Analyze the 3D surface plot for regime shifts.
+- Proceed to code cleanup tasks (T028-T033) if needed.

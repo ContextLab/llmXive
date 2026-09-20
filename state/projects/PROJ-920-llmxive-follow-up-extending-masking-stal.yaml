@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-920-llmxive-follow-up-extending-masking-stal
-last_run_id: 63c3f058-11ad-435e-8f87-e95e875eb073
+last_run_id: 52a28eb5-7f32-42f2-a274-c33871b8f91d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal
 title: 'llmXive follow-up: extending "Masking Stale Observations Helps Search Agents
   -- Until It Doesn''t: A "'
-updated_at: '2026-09-14T04:48:18.124609Z'
+updated_at: '2026-09-20T16:51:07.724918Z'

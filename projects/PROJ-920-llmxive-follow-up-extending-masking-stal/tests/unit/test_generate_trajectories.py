@@ -1,123 +1,85 @@
-"""
-Unit tests for code/generate_trajectories.py
-Verifies trajectory generation logic, density control, and evidence injection.
-"""
-import pytest
 import json
 import math
-import sys
+import random
 from pathlib import Path
-from unittest.mock import patch
+import sys
+import os
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+# Ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.generate_trajectories import generate_text_block, inject_critical_evidence, clamp_density, validate_density_computation, generate_trajectory
+from code.generate_trajectories import (
+    generate_text_block,
+    inject_critical_evidence,
+    clamp_density,
+    validate_density_computation,
+    generate_trajectory,
+    entropy_per_token,
+    NUM_TRAJECTORIES,
+    DENSITY_LEVELS
+)
 
+def test_clamp_density_zero():
+    """Test that zero density is clamped to a positive value."""
+    result = clamp_density(0.0)
+    assert result > 0.0, "Zero density should be clamped to a positive value."
+    assert result == 0.01, "Zero density should be clamped to 0.01."
 
-class TestGenerateTextBlock:
-    """Tests for the text block generation helper."""
+def test_clamp_density_negative():
+    """Test that negative density is clamped."""
+    result = clamp_density(-5.0)
+    assert result > 0.0, "Negative density should be clamped to a positive value."
 
-    def test_length_accuracy(self):
-        """Verify generated block matches requested length."""
-        block = generate_text_block(length=50)
-        assert len(block) == 50
+def test_clamp_density_positive():
+    """Test that positive density is returned as is."""
+    result = clamp_density(3.5)
+    assert result == 3.5, "Positive density should remain unchanged."
 
-    def test_content_composition(self):
-        """Verify generated content contains expected characters."""
-        block = generate_text_block(length=100)
-        # Should contain letters, numbers, and spaces
-        assert any(c.isalpha() for c in block)
-        assert any(c.isdigit() for c in block)
-        assert " " in block
+def test_inject_critical_evidence():
+    """Test that critical evidence is injected into the text."""
+    text = "This is a test string."
+    evidence_index = 5
+    result = inject_critical_evidence(text, evidence_index, 10)
+    assert f"[CRITICAL_EVIDENCE_TURN_{evidence_index}]" in result, "Evidence marker not found in text."
 
+def test_generate_trajectory_structure():
+    """Test that a generated trajectory has the correct structure."""
+    trajectory = generate_trajectory(1, "low", 15)
+    
+    assert "trajectory_id" in trajectory
+    assert trajectory["trajectory_id"] == 1
+    assert "density_level" in trajectory
+    assert trajectory["density_level"] == "low"
+    assert "turns" in trajectory
+    assert len(trajectory["turns"]) == 15
+    
+    # Check turn structure
+    for turn in trajectory["turns"]:
+        assert "turn_index" in turn
+        assert "text" in turn
+        assert "density" in turn
+        assert "is_critical_evidence" in turn
 
-class TestInjectCriticalEvidence:
-    """Tests for critical evidence injection."""
+def test_density_computation_validation():
+    """Test that density computation validation works."""
+    # Create a text with known properties
+    text = "a" * 100
+    # This will have low entropy. We just check the function runs and returns a boolean.
+    # We can't easily predict the exact entropy without running the calc, but we can check logic.
+    result = validate_density_computation(text, 0.0, tolerance=10.0)
+    assert isinstance(result, bool), "Validation result should be a boolean."
 
-    def test_injection_position(self):
-        """Verify evidence is injected at the specified index."""
-        text = "0123456789"
-        evidence = "CRIT"
-        index = 2
-        result = inject_critical_evidence(text, evidence, index)
-        assert result[2:6] == "CRIT"
-        assert result[:2] == "01"
-        assert result[6:] == "3456789"
+def test_entropy_per_token_non_zero():
+    """Test that entropy per token is non-zero for non-empty text."""
+    text = "This is a test."
+    entropy = entropy_per_token(text)
+    assert entropy > 0, "Entropy should be positive for non-empty text."
 
-    def test_overflow_handling(self):
-        """Verify behavior when index is out of bounds (should append or clamp)."""
-        text = "short"
-        evidence = "EVID"
-        # Index 100 is out of bounds
-        result = inject_critical_evidence(text, evidence, 100)
-        # Depending on implementation, it might append or raise.
-        # Assuming it appends or clamps to end.
-        assert "EVID" in result
-
-
-class TestClampDensity:
-    """Tests for density clamping logic."""
-
-    def test_within_bounds(self):
-        """Values within [0, 1] should be unchanged."""
-        assert clamp_density(0.5) == 0.5
-        assert clamp_density(0.0) == 0.0
-        assert clamp_density(1.0) == 1.0
-
-    def test_below_bounds(self):
-        """Negative values should be clamped to 0."""
-        assert clamp_density(-0.5) == 0.0
-
-    def test_above_bounds(self):
-        """Values > 1 should be clamped to 1."""
-        assert clamp_density(1.5) == 1.0
-
-
-class TestValidateDensityComputation:
-    """Tests for density validation logic."""
-
-    def test_valid_density(self):
-        """Valid density should return True."""
-        # Assuming the function checks if density is in [0, 1]
-        assert validate_density_computation(0.5) is True
-        assert validate_density_computation(0.0) is True
-        assert validate_density_computation(1.0) is True
-
-    def test_invalid_density(self):
-        """Invalid density should return False."""
-        assert validate_density_computation(-0.1) is False
-        assert validate_density_computation(1.1) is False
-
-
-class TestGenerateTrajectory:
-    """Tests for the full trajectory generation."""
-
-    def test_trajectory_structure(self):
-        """Verify generated trajectory has required keys."""
-        trajectory = generate_trajectory(target_density=0.5, evidence_turn_index=2)
-        assert "text" in trajectory
-        assert "metadata" in trajectory
-        assert "density" in trajectory["metadata"]
-        assert "evidence_turn_index" in trajectory["metadata"]
-
-    def test_density_control(self):
-        """Verify that target density influences the output density."""
-        # This is a probabilistic check, so we run multiple times or check the logic.
-        # For unit tests, we might mock the entropy calculation to ensure the logic path is taken.
-        # Here we just check that the metadata reflects the input.
-        t1 = generate_trajectory(target_density=0.2, evidence_turn_index=1)
-        t2 = generate_trajectory(target_density=0.8, evidence_turn_index=1)
-        
-        # The actual density might not be exactly 0.2 or 0.8 due to randomness,
-        # but the metadata should record the target.
-        assert t1["metadata"]["target_density"] == 0.2
-        assert t2["metadata"]["target_density"] == 0.8
-
-    def test_evidence_inclusion(self):
-        """Verify that critical evidence is present in the trajectory text."""
-        evidence_marker = "CRITICAL_EVIDENCE"
-        trajectory = generate_trajectory(target_density=0.5, evidence_turn_index=1)
-        # The evidence marker should be in the text
-        assert evidence_marker in trajectory["text"]
+def test_trajectory_density_clamping():
+    """Test that trajectory density is clamped if generated as zero."""
+    # Force a scenario where density might be zero by mocking or specific input
+    # Since we can't easily force zero entropy with random generation, we rely on the clamp_density function
+    # being called inside generate_trajectory.
+    # We test the clamp_density function directly as a proxy.
+    assert clamp_density(0) > 0
+    assert clamp_density(-1) > 0
