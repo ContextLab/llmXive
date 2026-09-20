@@ -1,250 +1,200 @@
-"""
-Data Collection Interface for User Story 1 & 2.
-
-Handles:
-1. Collection of baseline covariates (INCOM, Usage) BEFORE stimulus presentation.
-2. Randomized presentation of AI/Human stimuli.
-3. Immediate BISS score capture.
-4. Session logging and data persistence.
-"""
 import os
 import json
 import random
 import uuid
+import argparse
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import sys
 
-# Import from project modules
-from models import Participant, StimulusOrigin, Response
-import stimulus_loader
+# Constants
+RANDOM_SEED = 42
 
-# Configure logger
-from logging_config import setup_logger
-logger = setup_logger(__name__)
+# Import from sibling modules
+try:
+    from stimulus_loader import get_stimuli_paths, load_metadata
+    from models import StimulusOrigin
+except ImportError:
+    # Fallback for direct execution if imports fail (though task assumes they exist)
+    get_stimuli_paths = None
+    load_metadata = None
+    StimulusOrigin = None
 
-def get_input(prompt: str, validator=None) -> str:
+def get_random_seed():
+    return RANDOM_SEED
+
+def set_random_seed(seed):
+    global RANDOM_SEED
+    RANDOM_SEED = seed
+    random.seed(seed)
+
+def get_input(prompt):
+    """Helper to get input from user."""
+    return input(prompt)
+
+def collect_covariates():
     """
-    Helper to get input with optional validation.
+    Collect INCOM score and usage frequency before stimulus presentation.
+    Returns a dictionary with the covariates.
     """
+    print("\n--- Intake Survey ---")
     while True:
         try:
-            value = input(prompt)
-            if validator and not validator(value):
-                print("Invalid input. Please try again.")
-                continue
-            return value
-        except EOFError:
-            raise KeyboardInterrupt("Input stream closed.")
-
-def collect_covariates(participant_id: str) -> Dict[str, Any]:
-    """
-    Collects baseline covariates BEFORE any stimulus presentation.
-    Implements the 'covariate locking' requirement: user cannot proceed
-    to stimuli until these are captured.
-    
-    Returns:
-        Dict containing INCOM_score and usage_frequency.
-    """
-    logger.info(f"Starting covariate collection for participant {participant_id}")
-    
-    # INCOM Score Collection
-    def is_non_negative_int(val: str) -> bool:
-        try:
-            return int(val) >= 0
+            incom = int(get_input("Enter INCOM score (0-60): "))
+            if 0 <= incom <= 60:
+                break
+            else:
+                print("Score must be between 0 and 60.")
         except ValueError:
-            return False
+            print("Please enter a valid integer.")
 
-    incom_str = get_input(
-        "Enter INCOM score (non-negative integer): ",
-        validator=is_non_negative_int
-    )
-    incom_score = int(incom_str)
-
-    # Usage Frequency Collection
-    def is_positive_float(val: str) -> bool:
+    while True:
         try:
-            return float(val) > 0
+            usage = float(get_input("Enter weekly usage hours: "))
+            if usage >= 0:
+                break
+            else:
+                print("Usage must be non-negative.")
         except ValueError:
-            return False
+            print("Please enter a valid number.")
 
-    usage_str = get_input(
-        "Enter weekly usage hours (positive number): ",
-        validator=is_positive_float
-    )
-    usage_frequency = float(usage_str)
-
-    covariates = {
-        "INCOM_score": incom_score,
-        "usage_frequency": usage_frequency,
-        "collected_at": datetime.now().isoformat()
+    return {
+        "INCOM_score": incom,
+        "usage_frequency": usage
     }
-    
-    logger.info(f"Covariates collected: INCOM={incom_score}, Usage={usage_frequency}")
-    return covariates
 
-def present_stimuli(
-    stimuli: List[Dict[str, Any]], 
-    covariates: Dict[str, Any], 
-    participant_id: str
-) -> List[Dict[str, Any]]:
+def present_stimuli(stimuli_list):
     """
-    Presents stimuli one-by-one in a randomized order.
-    Ensures distinct consecutive images (no repeats immediately).
-    Captures BISS score immediately after each image.
-    
-    Args:
-        stimuli: List of stimulus dicts.
-        covariates: Pre-collected covariate data.
-        participant_id: Current participant ID.
-        
-    Returns:
-        List of response records.
+    Present stimuli one by one and collect BISS scores.
+    Returns a list of response dictionaries.
     """
-    logger.info("Starting stimulus presentation")
-    
-    # Create a copy to shuffle
-    shuffled_stimuli = stimuli.copy()
-    random.shuffle(shuffled_stimuli)
-    
-    # Ensure no immediate repeats (though shuffle usually handles this, 
-    # we enforce distinct consecutive if the list is small)
-    if len(shuffled_stimuli) > 1:
-        # Simple check: if first two are same (unlikely with distinct IDs), swap
-        if shuffled_stimuli[0]['id'] == shuffled_stimuli[1]['id']:
-            shuffled_stimuli[0], shuffled_stimuli[1] = shuffled_stimuli[1], shuffled_stimuli[0]
-    
     responses = []
-    
-    for i, stimulus in enumerate(shuffled_stimuli):
-        # Display image (simulated by printing ID for CLI)
-        # In a real GUI, this would show the image.
-        print(f"\n--- Stimulus {i+1}/{len(shuffled_stimuli)} ---")
-        print(f"Stimulus ID: {stimulus['id']}")
-        print(f"Origin: {stimulus['origin']}")
-        print("Please view the image.")
-        input("Press Enter when ready to rate...")
+    for i, stimulus_path in enumerate(stimuli_list):
+        print(f"\n--- Stimulus {i+1}/{len(stimuli_list)} ---")
+        print(f"Image: {stimulus_path}")
         
-        # Prompt for BISS score (1-7)
-        def is_valid_biss(val: str) -> bool:
+        # In a real GUI, this would display the image.
+        # Here we prompt for the score.
+        while True:
             try:
-                v = int(val)
-                return 1 <= v <= 7
+                score = int(get_input("Enter BISS score (low to high, e.g., 1-7): "))
+                # Assuming BISS is typically 1-7, but allowing flexibility if needed
+                # if 1 <= score <= 7: break 
+                # For now, just require an integer
+                break
             except ValueError:
-                return False
+                print("Please enter a valid integer.")
+        
+        # Determine origin from path or metadata if available
+        origin = "unknown"
+        if "ai" in str(stimulus_path).lower():
+            origin = "AI"
+        elif "human" in str(stimulus_path).lower():
+            origin = "Human"
 
-        biss_str = get_input(
-            "Enter BISS score (1-7): ",
-            validator=is_valid_biss
-        )
-        biss_score = int(biss_str)
-        
-        # Create response record
-        # T013 Schema: flat keys including covariates in every record or separate?
-        # Spec T013: "Output ... with flat keys: stimulus_id, origin, timestamp, BISS_score, participant_id, INCOM_score, usage_frequency"
-        # This implies each line in the JSONL contains the covariates repeated, or we write a header.
-        # We will write a full record per stimulus including covariates as per spec.
-        
-        response = {
-            "participant_id": participant_id,
-            "stimulus_id": stimulus['id'],
-            "origin": stimulus['origin'],
+        responses.append({
+            "stimulus_id": str(stimulus_path),
+            "origin": origin,
             "timestamp": datetime.now().isoformat(),
-            "BISS_score": biss_score,
-            "INCOM_score": covariates['INCOM_score'],
-            "usage_frequency": covariates['usage_frequency']
-        }
-        
-        responses.append(response)
-        logger.info(f"Recorded BISS={biss_score} for {stimulus['id']}")
+            "BISS_score": score
+        })
     
     return responses
 
-def write_session_file(
-    participant_id: str,
-    session_id: str,
-    responses: List[Dict[str, Any]],
-    output_dir: str
-) -> Path:
+def write_session_file(session_data, output_path):
     """
-    Writes the session data to a JSONL file.
+    Write session data to a JSONL file.
     """
-    output_path = Path(output_dir) / f"session_{session_id}.jsonl"
-    
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        for record in responses:
-            f.write(json.dumps(record) + '\n')
-    
-    logger.info(f"Session file written to {output_path}")
-    return output_path
+        json.dump(session_data, f)
+    print(f"Session saved to {output_path}")
 
-def run_session(
-    participant_id: str,
-    output_dir: str,
-    session_id: Optional[str] = None
-) -> bool:
+def run_session(stimuli_dir, output_dir):
     """
-    Orchestrates the full session flow:
+    Run a full session:
     1. Load stimuli.
-    2. Collect covariates (LOCK).
-    3. Present stimuli.
-    4. Write output.
-    
-    Returns:
-        True if successful, False otherwise.
+    2. Collect covariates.
+    3. Present stimuli and collect scores.
+    4. Save results.
     """
-    try:
-        if session_id is None:
-            session_id = str(uuid.uuid4())[:8]
-        
-        # 1. Load Stimuli
-        # We assume the data directories exist as per T007
-        ai_paths, human_paths = stimulus_loader.get_stimuli_paths()
-        stimuli = stimulus_loader.load_stimuli(ai_paths, human_paths)
-        
-        if not stimuli:
-            logger.error("No stimuli found. Aborting session.")
-            return False
-        
-        # 2. Collect Covariates (LOCK BEFORE STIMULI)
-        # This is the critical integration point for T019
-        covariates = collect_covariates(participant_id)
-        
-        # 3. Present Stimuli
-        responses = present_stimuli(stimuli, covariates, participant_id)
-        
-        # 4. Write Output
-        write_session_file(participant_id, session_id, responses, output_dir)
-        
-        return True
-        
-    except KeyboardInterrupt:
-        logger.warning("Session interrupted by user.")
-        # Per T014: Partial sessions are excluded. We do not write partial data.
-        return False
-    except Exception as e:
-        logger.error(f"Session failed: {e}")
-        return False
+    # Set seed for randomization
+    set_random_seed(RANDOM_SEED)
+
+    # 1. Load Stimuli
+    if get_stimuli_paths is None:
+        # Fallback for testing if module not found
+        ai_paths = list(Path(stimuli_dir).glob("ai/*.jpg"))
+        human_paths = list(Path(stimuli_dir).glob("human/*.jpg"))
+        stimuli_paths = ai_paths + human_paths
+    else:
+        stimuli_paths = get_stimuli_paths(stimuli_dir)
+
+    if not stimuli_paths:
+        raise FileNotFoundError(f"No stimuli found in {stimuli_dir}")
+
+    # Shuffle stimuli
+    random.shuffle(stimuli_paths)
+
+    # 2. Collect Covariates
+    covariates = collect_covariates()
+
+    # 3. Present Stimuli
+    responses = present_stimuli(stimuli_paths)
+
+    # 4. Compile Session Data
+    session_id = str(uuid.uuid4())
+    participant_id = session_id # In a real app, this would be a registered ID
+
+    session_record = {
+        "session_id": session_id,
+        "participant_id": participant_id,
+        "timestamp": datetime.now().isoformat(),
+        "INCOM_score": covariates["INCOM_score"],
+        "usage_frequency": covariates["usage_frequency"],
+        "is_complete": True,
+        "responses": responses
+    }
+
+    # Flatten for JSONL if needed, or keep nested. 
+    # Task T013 spec says: "Output data/raw/session_{id}.jsonl with flat keys"
+    # We will flatten the responses into the main record or write multiple lines.
+    # Given the spec "flat keys", we will write one line per response? 
+    # Or one line per session with flattened response list? 
+    # Spec: "stimulus_id, origin, timestamp, BISS_score, participant_id, INCOM_score, usage_frequency, is_complete"
+    # This implies one line per stimulus response.
+
+    output_file = Path(output_dir) / f"session_{session_id}.jsonl"
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, 'w') as f:
+        for resp in responses:
+            flat_record = {
+                "stimulus_id": resp["stimulus_id"],
+                "origin": resp["origin"],
+                "timestamp": resp["timestamp"],
+                "BISS_score": resp["BISS_score"],
+                "participant_id": participant_id,
+                "INCOM_score": covariates["INCOM_score"],
+                "usage_frequency": covariates["usage_frequency"],
+                "is_complete": True
+            }
+            f.write(json.dumps(flat_record) + "\n")
+
+    print(f"Session complete. Output: {output_file}")
+    return output_file
 
 def main():
-    """
-    Entry point for running the data collection interface directly.
-    """
-    # Use current directory or specified output
-    output_dir = os.environ.get('OUTPUT_DIR', 'data/raw')
-    os.makedirs(output_dir, exist_ok=True)
-    
-    pid = input("Enter Participant ID: ").strip()
-    if not pid:
-        pid = str(uuid.uuid4())[:8]
-    
-    success = run_session(participant_id=pid, output_dir=output_dir)
-    
-    if success:
-        print(f"Session completed successfully. Data saved to {output_dir}.")
-    else:
-        print("Session failed or was interrupted. No data saved.")
+    parser = argparse.ArgumentParser(description="Run a participant session for data collection.")
+    parser.add_argument("--stimuli-dir", default="data/stimuli", help="Directory containing stimulus images")
+    parser.add_argument("--output-dir", default="data/raw", help="Directory to save session output")
+    args = parser.parse_args()
+
+    try:
+        run_session(args.stimuli_dir, args.output_dir)
+    except Exception as e:
+        print(f"Session failed: {e}")
+        import sys
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

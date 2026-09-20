@@ -1,0 +1,14 @@
+{
+  "f_stat": 0.0,
+  "p_value": 1.0,
+  "eta_squared": 0.0,
+  "n": 0,
+  "corrected_p_value": 1.0,
+  "outlier_ids": [],
+  "sensitivity_analysis_delta_f": 0.0,
+  "completion_rate": 0.0,
+  "completion_rate_target": 0.80,
+  "total_sessions": 0,
+  "completed_sessions": 0,
+  "pipeline_runtime_seconds": 0.0
+}

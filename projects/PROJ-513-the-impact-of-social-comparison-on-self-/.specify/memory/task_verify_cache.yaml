@@ -13,6 +13,18 @@ T015:
     empty, so the required logging implementation cannot be verified. The implementer
     must supply the updated source files (e.g., middleware, logger setup) and example
     log output demonstrating the three event types.
+T033:
+  c: false
+  h: 6cd83be947a31b819c5eba30b391205752d7302e23b7b7d7281b0f1f8255c057
+  r: "The required output file `data/analysis_results.json` does not exist, so the\
+    \ completion rate and target are not recorded as specified. The task\u2019s primary\
+    \ artifact is missing."
+T034:
+  c: false
+  h: 6cd83be947a31b819c5eba30b391205752d7302e23b7b7d7281b0f1f8255c057
+  r: The required `data/analysis_results.json` file does not exist, so the runtime
+    metric cannot be logged or reported as specified. The missing artifact must be
+    created and contain the `pipeline_runtime_seconds` key.
 T036:
   c: false
   h: cf31d5a06765856c2971e2fdac32687a5802db76046bddbbbc163f8a154dffb2

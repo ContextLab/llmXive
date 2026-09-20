@@ -1,64 +1,86 @@
+#!/usr/bin/env python3
 """
-Gate Launch Script (T037).
+Gate Launch Script for T037.
 
-Executes validation checks (FR-008, FR-009) before allowing the study to launch.
-Raises SystemExit(1) if any validation fails.
+This script acts as the final validation gate before the study can proceed to
+data collection. It invokes validation functions from `code/data_validation.py`
+to ensure:
+1. FR-008: Metadata matching (pose, lighting) between AI and Human sets.
+2. FR-009: Visual indistinguishability (p > 0.05) based on pre-test results.
+
+If any validation fails, the script raises SystemExit(1) with a descriptive
+error message, preventing the study launch.
 """
+
 import sys
-from pathlib import Path
 import os
+import logging
+from pathlib import Path
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add project root to path to allow imports from code/
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-from data_validation import (
+from code.data_validation import (
     check_metadata_matching,
     check_visual_indistinguishability,
-    run_all_validations
+    DataValidationError
 )
+from code.logging_config import setup_logger
+
+# Configure logging
+logger = setup_logger("gate_launch", level=logging.INFO)
 
 def main():
-    """
-    Run all validation gates.
-    """
-    print("Running Pre-Launch Validation Gates...")
-    
+    logger.info("=" * 60)
+    logger.info("Starting Gate Launch Validation (T037)")
+    logger.info("=" * 60)
+
     try:
-        # Run all validations defined in data_validation.py
-        results = run_all_validations()
-        
-        # Check results
-        # run_all_validations returns a dict of {check_name: bool} or raises on failure
-        # Assuming it returns a status or we check specific flags
-        
-        # Re-implementing the check logic here for clarity if run_all_validations is a wrapper
-        # But based on T036/T037 spec, we call the specific functions.
-        
-        # FR-008: Metadata Matching
-        print("Checking FR-008: Metadata Matching...")
+        # 1. Check FR-008: Metadata Matching
+        logger.info("Checking FR-008: Metadata matching between AI and Human sets...")
         try:
-            check_metadata_matching()
-            print("  [PASS] Metadata matching verified.")
-        except Exception as e:
-            print(f"  [FAIL] Metadata matching failed: {e}")
-            sys.exit(1)
-        
-        # FR-009: Visual Indistinguishability
-        print("Checking FR-009: Visual Indistinguishability...")
+            is_matched = check_metadata_matching()
+            if not is_matched:
+                raise DataValidationError(
+                    "FR-008 Failed: Metadata matching check failed. "
+                    "AI and Human stimulus sets do not have matching metadata (pose, lighting)."
+                )
+            logger.info("FR-008 PASSED: Metadata matching verified.")
+        except DataValidationError as e:
+            logger.error(f"FR-008 FAILED: {e}")
+            raise
+
+        # 2. Check FR-009: Visual Indistinguishability
+        logger.info("Checking FR-009: Visual indistinguishability (pre-test results)...")
         try:
-            check_visual_indistinguishability()
-            print("  [PASS] Visual indistinguishability verified (p > 0.05).")
-        except Exception as e:
-            print(f"  [FAIL] Visual indistinguishability failed: {e}")
-            sys.exit(1)
-        
-        print("\nAll validation gates passed. Study launch authorized.")
+            is_indistinguishable = check_visual_indistinguishability()
+            if not is_indistinguishable:
+                raise DataValidationError(
+                    "FR-009 Failed: Visual indistinguishability check failed. "
+                    "Pre-test p-value <= 0.05 indicates AI and Human images are distinguishable."
+                )
+            logger.info("FR-009 PASSED: Visual indistinguishability verified.")
+        except DataValidationError as e:
+            logger.error(f"FR-009 FAILED: {e}")
+            raise
+
+        logger.info("=" * 60)
+        logger.info("ALL VALIDATION GATES PASSED. Study launch permitted.")
+        logger.info("=" * 60)
         sys.exit(0)
-        
-    except SystemExit:
-        raise
+
+    except DataValidationError as e:
+        logger.error("=" * 60)
+        logger.error("VALIDATION GATE FAILED. Study launch BLOCKED.")
+        logger.error(f"Reason: {e}")
+        logger.error("=" * 60)
+        sys.exit(1)
     except Exception as e:
-        print(f"Critical error during validation: {e}")
+        logger.error("=" * 60)
+        logger.error("UNEXPECTED ERROR during gate validation.")
+        logger.error(f"Error: {e}")
+        logger.error("=" * 60)
         sys.exit(1)
 
 if __name__ == "__main__":

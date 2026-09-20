@@ -123,3 +123,302 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-13T03:41:17Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: blind pre-test uses seed 42 and n=30 mock participants
+  claim_id: c_597347cf
+  context: 'T001 Run blind pre-test against actual data/stimuli/ assets using code/simulate_pretest.py
+    to rate AI vs Human images for visual indistinguishability. Input: Seed=42, N=30,
+    Mock participants rate specific image files in data/stimuli/ai/ and data/stimuli/human/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mock participants rate specific image files in data/stimuli/ai/ and data/stimuli/human/
+    with Seed=42 and N=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:22:51Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: pre-test p-value for visual quality difference must be greater than 0.05
+  claim_id: c_2e53ef93
+  context: 'Output: data/pretest/results.json containing the p-value for visual quality
+    difference (must be > 0.05) with schema: {"p_value": float, "n": int, "method":
+    "t-test"}.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pre-test_p-value_for_visual_quality_difference_must_be_great
+  kind: magnitude
+  raw_text: The pre-test output must contain a p-value for visual quality difference
+    greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:24:04Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: INCOM score is an integer from 0 to 60
+  claim_id: c_6e2f57cd
+  context: 'Implement code/data_collection_interface.py schema definition for covariates:
+    Define Pydantic model IntakeSchema with fields INCOM_score (int, 0-60) and usage_frequency
+    (float) in code/data_collection_interface.py.'
+  evidence:
+    entailment_evidence: INCOM score is an integer from 0 to 60
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/INCOM_score_is_an_integer_from_0_to_60
+  kind: entity_fact
+  raw_text: The INCOM score field is an integer ranging from 0 to 60.
+  resolved_value: INCOM score is an integer from 0 to 60
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:24:06Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: sessions with less than 40 images are filtered out
+  claim_id: c_49b881c7
+  context: Implement unit test for filter_partial_sessions() to verify that sessions
+    with < 40 images are correctly filtered out and excluded from analysis input.
+  evidence:
+    entailment_evidence: Sessions with less than 40 images are filtered out
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sessions_with_less_than_40_images_are_filtered_out
+  kind: magnitude
+  raw_text: Sessions with fewer than 40 images are filtered out and excluded from
+    analysis input.
+  resolved_value: sessions with less than 40 images are filtered out
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:24:08Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: analysis validates row completeness greater than or equal to 95 percent
+  claim_id: c_67f1829b
+  context: "Implement code/analysis.py to load data/processed/ and validate \u2265\
+    95% completeness per-row AND participant count >= 150 (FR-007)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_validates_row_completeness_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: The analysis pipeline validates that row completeness is greater than
+    or equal to 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:25:02Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: analysis requires minimum participant count of 150
+  claim_id: c_6805aa66
+  context: "Implement code/analysis.py to load data/processed/ and validate \u2265\
+    95% completeness per-row AND participant count >= 150 (FR-007)."
+  evidence:
+    asserted: '150.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The analysis pipeline requires a minimum participant count of 150.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:25:03Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: outlier detection uses z-score threshold absolute value greater than
+    3.0
+  claim_id: c_c530df92
+  context: Implement Z-score based outlier detection (|Z| > 3.0) using scipy.stats.zscore
+    for extreme INCOM scores as per Spec Edge Cases; flag outliers for sensitivity
+    analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outlier_detection_uses_z-score_threshold_absolute_value_grea
+  kind: magnitude
+  raw_text: Outlier detection for extreme INCOM scores uses a Z-score threshold of
+    |Z| > 3.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:25:40Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: analysis pipeline benchmarked with n=150 to complete within 3600 seconds
+  claim_id: c_f74f8a6c
+  context: "Performance optimization to ensure analysis completes within \u22643600\
+    \ seconds. Benchmark with N=150 using vectorization."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis pipeline performance is benchmarked with N=150 to ensure
+    completion within 3600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:26:29Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Mock participants rate AI and human images with sample size 30
+  claim_id: c_cdec2a73
+  context: 'Input: Seed=42, N=30, Mock participants rate specific image files in data/stimuli/ai/
+    and data/stimuli/human/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mock participants rate specific image files in data/stimuli/ai/ and data/stimuli/human/
+    with N=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:32:27Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Pre-test p-value for visual quality difference must be greater than 0.05
+  claim_id: c_74fa6357
+  context: 'Output: data/pretest/results.json containing the p-value for visual quality
+    difference (must be > 0.05) with schema: {"p_value": float, "n": int, "method":
+    "t-test"}.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pre-test_p-value_for_visual_quality_difference_must_be_great
+  kind: magnitude
+  raw_text: The pre-test output must contain a p-value for visual quality difference
+    greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:32:28Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: INCOM score is an integer ranging from 0 to 60
+  claim_id: c_1a82e1e1
+  context: Define Pydantic model IntakeSchema with fields INCOM_score (int, 0-60)
+    and usage_frequency (float) in code/data_collection_interface.py.
+  evidence:
+    entailment_evidence: INCOM score is an integer ranging from 0 to 60
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/INCOM_score_is_an_integer_ranging_from_0_to_60
+  kind: entity_fact
+  raw_text: The INCOM score field is defined as an integer with a range of 0 to 60.
+  resolved_value: INCOM score is an integer ranging from 0 to 60
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:32:30Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: LME model includes random slopes for Image Type per participant
+  claim_id: c_cab4dd11
+  context: 'Implement LME model fitting using statsmodels with the exact formula:
+    BISS_score ~ Image_Type + INCOM + Usage_Frequency + (1 + Image_Type | Participant_ID).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LME_model_includes_random_slopes_for_Image_Type_per_particip
+  kind: entity_fact
+  raw_text: The LME model formula includes random slopes for Image Type per participant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:33:13Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Outlier detection uses Z-score threshold of 3.0
+  claim_id: c_91646d12
+  context: Implement Z-score based outlier detection (|Z| > 3.0) using scipy.stats.zscore
+    for extreme INCOM scores as per Spec Edge Cases.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Outlier detection uses a Z-score threshold of |Z| > 3.0 for extreme INCOM
+    scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:33:13Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Analysis requires minimum participant count of 150
+  claim_id: c_43887d5b
+  context: "Implement code/analysis.py to load data/processed/ and validate \u2265\
+    95% completeness per-row AND participant count >= 150 (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Analysis requires a minimum participant count of 150.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:33:53Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Data completeness per row must be at least 95%
+  claim_id: c_99acb96f
+  context: "Implement code/analysis.py to load data/processed/ and validate \u2265\
+    95% completeness per-row AND participant count >= 150 (FR-007)."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_per_row_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: Data completeness per row must be at least 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T12:34:27Z'
+- artifact_path: projects/PROJ-513-the-impact-of-social-comparison-on-self-/specs/001-the-impact-of-social-comparison-on-self/tasks.md
+  attempts: 1
+  canonical: Analysis pipeline runtime benchmark is 3600 seconds for 150 participants
+  claim_id: c_39e404cd
+  context: "Performance optimization to ensure analysis completes within \u22643600\
+    \ seconds. Benchmark with N=150 using vectorization."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis pipeline runtime benchmark is 3600 seconds for N=150.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:34:49Z'

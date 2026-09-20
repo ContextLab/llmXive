@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-513-the-impact-of-social-comparison-on-self-",
+  "ok": false,
+  "reason": "8 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulate_participant.py: metric `score` assigned from an RNG draw (line 68); code/simulate_participant.py: metric `score` assigned from an RNG draw (line 70); code/simulate_participant.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026evelopment.  This script generates synthetic participant responses ba\u2026\u201d; 2 command(s) failed: python code/simulate_participant.py --n-participants 150 --output data/raw/mock_responses/ (rc=2); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/analysis_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/simulate_participant.py --n-participants 150 --output data/raw/mock_responses/ -> rc=2\n    usage: simulate_participant.py [-h] [--n N] [--output OUTPUT] [--seed SEED]\n                               [--stimuli-dir STIMULI_DIR]\nsimulate_participant.py: error: unrecognized arguments: --n-participants 150",
+    "python code/analysis.py -> rc=1\n    Starting Data Validation for Analysis (T024)...\nERROR: Processed data directory not found: data/processed"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-20T12:37:13Z"
+}

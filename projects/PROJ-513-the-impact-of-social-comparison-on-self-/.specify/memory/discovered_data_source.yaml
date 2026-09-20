@@ -1,0 +1,18 @@
+status: none
+intent: idealized body image dataset human AI generated stable diffusion validated
+  stimuli python package dataset
+required_fields:
+- image_id
+- image_file
+- image_type
+- pose
+- lighting
+- body_type
+- gender
+- age_estimate
+- source
+- validation_status
+- metadata_timestamp
+cache_key: 39cf9979ff3b9e5f4e523a18c318081ed01b4365eee329e767bde8d543a34422
+searched_at: '2026-09-20T12:38:10.348800+00:00'
+retry_count: 1

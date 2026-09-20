@@ -89,7 +89,7 @@ As a researcher, I want to run a Linear Mixed Effects (LME) model on the collect
 
 - **SC-001**: The difference in mean BISS scores between AI and Human image conditions is measured against the null hypothesis of no difference (p < 0.05) to determine statistical significance. (See US-3)
 - **SC-002**: The effect size (Cohen's d or partial eta-squared equivalent) of the "Image Type" factor is measured against the LME output to quantify the magnitude of the synthetic perfection effect. (See US-3)
-- **SC-003**: The family-wise error rate is measured against the alpha level of 0.05 after applying the Bonferroni correction to ensure valid inference across multiple tests. (See US-3)
+- **SC-003**: The family-wise error rate is measured against a conventional alpha level after applying the Bonferroni correction to ensure valid inference across multiple tests. (See US-3)
 - **SC-004**: The completion rate of the full image sequence is measured against the target of [deferred] of enrolled participants to ensure sufficient power for the within-subjects design. (See US-1)
 - **SC-005**: The runtime of the full analysis pipeline (from data ingestion to result generation) is measured against the specific threshold of ≤ 3600 seconds on the `ubuntu-latest` runner configuration to confirm CPU feasibility. (See Assumptions)
 

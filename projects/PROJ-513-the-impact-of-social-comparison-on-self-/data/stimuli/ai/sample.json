@@ -1,0 +1,8 @@
+{
+  "stimulus_id": "ai_001",
+  "pose": "standing_front",
+  "lighting": "soft_frontal",
+  "background": "neutral_gray",
+  "generation_prompt": "A young woman standing front view, soft frontal lighting, neutral gray background",
+  "created_at": "2024-01-01T00:00:00Z"
+}
