@@ -121,5 +121,5 @@ This project investigates the extent to which bulk chromatin accessibility profi
 ## 7. References
 
 - ENCODE Consortium: https://www.encodeproject.org/
-- Elastic Net: Zou, H., & Hastie, T. (2005). Regularization and variable selection via the elastic net.
-- Bonferroni Correction: Bonferroni, C. E. (1936). Teoria statistica delle classi e calcolo delle probabilità.
+- Elastic Net: Zou, H., & Hastie, T. Regularization and variable selection via the elastic net.
+- Bonferroni Correction: Bonferroni, C. E. (Teoria statistica delle classi e calcolo delle probabilità).

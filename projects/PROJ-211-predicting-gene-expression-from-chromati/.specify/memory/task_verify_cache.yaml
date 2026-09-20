@@ -1,3 +1,25 @@
+T005a:
+  c: false
+  h: ba4dd9c01e5b00feba8dbbb1b1e14539318b3c91bc1d922679cba7cd82f5004a
+  r: "The repository contains a partially\u2011implemented `code/generate_data.py`\
+    \ (the file is truncated and never writes any output files). The required output\
+    \ artifacts `data/raw/synthetic_counts.csv` and `data/raw/synthetic_peaks.bed`\
+    \ are absent, so the generator does not actually produce the deterministic synthetic\
+    \ data as specified."
+T005b:
+  c: false
+  h: 5944e96220596daa2134249aa3f5df2047627a6ef78f844252e527bb6770b1fb
+  r: "The provided `code/generate_data.py` contains only data\u2011generation utilities\
+    \ and does not implement any schema\u2011validation logic against a YAML schema.\
+    \ Moreover, the required `dataset_schema.schema.yaml` (or any `schema.yaml`) is\
+    \ missing from the repository. Both the validation code and the schema file are\
+    \ needed to satisfy the task."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of `generate_data.py` being run, nor any resulting paired RNA\u2011\
+    seq/DNase\u2011seq count files for the five specified cell lines, is present.\
+    \ The required data artifacts are missing, so the task is not satisfied."
 T014:
   c: false
   h: ecba064319030e6b3e94caebd7d6bd08f606039c4ff23d60c94e1dfd7761c763
@@ -7,6 +29,13 @@ T014:
     \ writes `data/processed/imputed_expression.csv`. Moreover, the required output\
     \ file `data/processed/imputed_expression.csv` is absent. The task\u2019s deliverable\
     \ is therefore not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a merged matrix file, script, or notebook) was provided that
+    demonstrates the aggregation of peak features and gene expression counts into
+    a joint dataset. Without a concrete output showing the combined matrix, the requirement
+    cannot be confirmed as met.
 T016b:
   c: false
   h: b967c973b462d2fce256aa7495ab31a8259bfbd8d79239f0ebc2c638e80be457
@@ -18,12 +47,11 @@ T016b:
     \ so the task is not completed."
 T016c:
   c: false
-  h: 6008192622c6d778c02b8d8bac44995864c4b32074520ee002136ca782d43924
-  r: The repository lacks the required input files (`imputed_expression.csv` and `housekeeping_genes.csv`)
-    and the expected output file (`housekeeping_matrix.csv`). Moreover, the provided
-    `code/preprocess.py` does not contain any implementation that filters the matrix
-    to housekeeping genes or writes the `housekeeping_matrix.csv`. The task therefore
-    remains unfinished.
+  h: 328a2700f40f0b505c17f8ffd8846beab86db300f857aec6247179932e53a3be
+  r: "The required artifact `data/processed/tss_binned_features.csv` does not exist,\
+    \ so the implementer could not filter it to housekeeping genes. A present, non\u2011\
+    empty CSV (and the corresponding filtered target vector) is needed to satisfy\
+    \ the task."
 T021:
   c: false
   h: 527eb2238b9afeb42a6faec4d4772204a9a062c531ba04e8b4d4e452e3aaae88
@@ -35,17 +63,12 @@ T021:
     \ unfinished."
 T023:
   c: false
-  h: da3c3f618a19c9d4e1a67497ced1ee1168259a284e43f1023820cb66caa0ecde
+  h: 275c562b68468e41d2f6310b1a2225c3d4bbbf1e15eedfe9d65b72777931acab
   r: "The required output file `data/processed/correlations.csv` does not exist, and\
-    \ the provided `code/evaluate.py` is incomplete (the correlation function is truncated\
-    \ and there is no code that writes a CSV). Consequently the task\u2019s deliverable\
-    \ is missing."
-T024:
-  c: false
-  h: 7cdfdf8b7c27e4ae903f8c3c3233664654905c82641fd8988dc86a7553165494
-  r: "The required output file `data/processed/pvalues_corrected.csv` is missing from\
-    \ the repository, so the deliverable of corrected p\u2011values is not present.\
-    \ No other artifact substitutes for this CSV."
+    \ the provided `code/evaluate.py` is incomplete (truncated) with no evidence that\
+    \ it computes Pearson correlations, applies Bonferroni correction, or writes the\
+    \ corrected p\u2011values to the specified CSV. The task\u2019s deliverable is\
+    \ therefore missing."
 T025:
   c: false
   h: 3771e838619cd3a6085f36ba9a6ec579a886886e9f5d2672be8bd44ec76c860b
@@ -54,13 +77,12 @@ T025:
     \ Without the gene list and the resulting R\xB2 report, the task is not fulfilled."
 T026:
   c: false
-  h: fc848e0b4c9163f353a9ff2a7dea435efff297361fbf3f61dc3fd40029c4814b
-  r: "The required gene list files (`data/processed/housekeeping_genes.csv`, `data/processed/cell_type_specific_genes.csv`)\
-    \ are absent, and the expected output file (`data/processed/external_validation_r2.csv`)\
-    \ does not exist. Moreover, the provided `code/evaluate.py` snippet shows only\
-    \ loading and correlation utilities and does not contain any implementation of\
-    \ external validation or code that writes the R\xB2 result. These missing artifacts\
-    \ mean the task\u2019s deliverables are not satisfied."
+  h: 2bf7300e5b1718d961ddb7c807db0e464e0c7a46bb41090bde6a30d849506b69
+  r: "The repository lacks the required `data/processed/external_validation_r2.csv`\
+    \ file, and the provided `code/evaluate.py` is truncated and does not contain\
+    \ any logic that trains on multiple cell lines, evaluates a held\u2011out line,\
+    \ or writes the R\xB2 result. Both the output artifact and the corresponding implementation\
+    \ are missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

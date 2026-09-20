@@ -3,96 +3,127 @@ import pandas as pd
 import numpy as np
 import os
 import tempfile
+import json
 from preprocess import (
-    calculate_coefficient_of_variation,
-    define_housekeeping_genes,
-    define_cell_type_specific_genes,
+    DependencyError,
     load_data,
-    save_data
+    save_data,
+    filter_genes_zero_expression,
+    impute_missing_values,
+    identify_housekeeping_genes,
+    identify_cell_type_specific_genes
 )
 
-def test_calculate_coefficient_of_variation():
-    """Test CV calculation logic."""
-    data = {
-        'gene_id': ['g1', 'g2', 'g3'],
-        'cell_line_1': [10.0, 100.0, 5.0],
-        'cell_line_2': [10.0, 150.0, 5.0],
-        'cell_line_3': [10.0, 50.0, 5.0]
-    }
-    df = pd.DataFrame(data)
-    cv_df = calculate_coefficient_of_variation(df)
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-    assert 'cv' in cv_df.columns
-    assert 'mean' in cv_df.columns
-    assert 'std' in cv_df.columns
+def create_test_csv(path, data, columns):
+    df = pd.DataFrame(data, columns=columns)
+    df.to_csv(path, index=False)
+    return path
 
-    # g1: mean=10, std=0 -> cv=0
-    # g2: mean=100, std=50 -> cv=0.5
-    # g3: mean=5, std=0 -> cv=0
-    
-    g1_cv = cv_df[cv_df['gene_id'] == 'g1']['cv'].values[0]
-    g2_cv = cv_df[cv_df['gene_id'] == 'g2']['cv'].values[0]
-    g3_cv = cv_df[cv_df['gene_id'] == 'g3']['cv'].values[0]
+def test_filter_genes_zero_expression():
+    """Test that genes with zero expression in all samples are filtered out."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "output.csv")
+        
+        # Create data: Gene A has expression, Gene B is all zeros
+        data = [
+            {"Gene": "Gene_A", "Sample1": 10, "Sample2": 20},
+            {"Gene": "Gene_B", "Sample1": 0, "Sample2": 0},
+            {"Gene": "Gene_C", "Sample1": 5, "Sample2": 0}
+        ]
+        create_test_csv(input_path, data, ["Gene", "Sample1", "Sample2"])
+        
+        filter_genes_zero_expression(input_path, output_path)
+        
+        result = pd.read_csv(output_path)
+        
+        assert len(result) == 2, "Expected 2 genes (A and C)"
+        assert "Gene_B" not in result["Gene"].values
 
-    assert np.isclose(g1_cv, 0.0)
-    assert np.isclose(g2_cv, 0.5)
-    assert np.isclose(g3_cv, 0.0)
+def test_impute_missing_values():
+    """Test that missing values are imputed with column median."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "output.csv")
+        
+        # Create data with NaN
+        data = [
+            {"Gene": "Gene_A", "Sample1": 10.0, "Sample2": np.nan},
+            {"Gene": "Gene_B", "Sample1": 20.0, "Sample2": 30.0},
+            {"Gene": "Gene_C", "Sample1": 30.0, "Sample2": 40.0}
+        ]
+        create_test_csv(input_path, data, ["Gene", "Sample1", "Sample2"])
+        
+        impute_missing_values(input_path, output_path)
+        
+        result = pd.read_csv(output_path)
+        
+        # Median of Sample1 (10, 20, 30) is 20. Median of Sample2 (30, 40) is 35.
+        # Gene_A Sample2 should be 35.0
+        gene_a_row = result[result["Gene"] == "Gene_A"]
+        assert np.isclose(gene_a_row["Sample2"].values[0], 35.0), "Imputation failed"
 
-def test_define_housekeeping_genes():
-    """Test housekeeping gene selection."""
-    data = {
-        'gene_id': ['g1', 'g2', 'g3'],
-        'cell_line_1': [10.0, 100.0, 5.0],
-        'cell_line_2': [10.0, 150.0, 5.0],
-        'cell_line_3': [10.0, 50.0, 5.0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Threshold 0.2: g1 and g3 should be selected (CV=0)
-    housekeeping_df = define_housekeeping_genes(df, cv_threshold=0.2)
-    
-    assert len(housekeeping_df) == 2
-    assert 'g2' not in housekeeping_df['gene_id'].values
-    assert 'g1' in housekeeping_df['gene_id'].values
-    assert 'g3' in housekeeping_df['gene_id'].values
+def test_identify_housekeeping_genes():
+    """Test housekeeping gene identification based on CV < 0.2."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "output.csv")
+        
+        # Gene A: Low variation (Mean=100, Std~10 -> CV=0.1)
+        # Gene B: High variation (Mean=50, Std~40 -> CV=0.8)
+        # Gene C: Moderate variation (Mean=100, Std~30 -> CV=0.3)
+        data = [
+            {"Gene": "Gene_A", "S1": 90, "S2": 100, "S3": 110}, # CV ~ 0.1
+            {"Gene": "Gene_B", "S1": 10, "S2": 50, "S3": 90},   # CV ~ 0.8
+            {"Gene": "Gene_C", "S1": 70, "S2": 100, "S3": 130}  # CV ~ 0.3
+        ]
+        create_test_csv(input_path, data, ["Gene", "S1", "S2", "S3"])
+        
+        identify_housekeeping_genes(input_path, output_path, cv_threshold=0.2)
+        
+        result = pd.read_csv(output_path)
+        
+        assert len(result) == 1, f"Expected 1 housekeeping gene, got {len(result)}"
+        assert result["Gene"].iloc[0] == "Gene_A"
 
-def test_define_cell_type_specific_genes():
-    """Test cell-type-specific gene selection."""
-    data = {
-        'gene_id': ['g1', 'g2', 'g3'],
-        'cell_line_1': [10.0, 100.0, 5.0],
-        'cell_line_2': [10.0, 150.0, 5.0],
-        'cell_line_3': [10.0, 50.0, 5.0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Threshold 0.5: g2 should be selected (CV=0.5, strictly > 0.5? Task says > 0.5)
-    # Let's adjust data to ensure g2 > 0.5
-    data['cell_line_1'] = [10.0, 10.0, 5.0]
-    data['cell_line_2'] = [10.0, 200.0, 5.0]
-    data['cell_line_3'] = [10.0, 0.0, 5.0] # Mean 66.6, Std ~100 -> CV > 1
-    df = pd.DataFrame(data)
-    
-    specific_df = define_cell_type_specific_genes(df, cv_threshold=0.5)
-    
-    assert len(specific_df) == 1
-    assert specific_df['gene_id'].values[0] == 'g2'
+def test_identify_cell_type_specific_genes():
+    """Test cell-type-specific gene identification based on CV > 0.5."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "output.csv")
+        
+        # Gene A: Low CV (0.1)
+        # Gene B: High CV (0.8)
+        data = [
+            {"Gene": "Gene_A", "S1": 100, "S2": 100, "S3": 100},
+            {"Gene": "Gene_B", "S1": 10, "S2": 50, "S3": 90}
+        ]
+        create_test_csv(input_path, data, ["Gene", "S1", "S2", "S3"])
+        
+        identify_cell_type_specific_genes(input_path, output_path, cv_threshold=0.5)
+        
+        result = pd.read_csv(output_path)
+        
+        assert len(result) == 1, f"Expected 1 cell-type-specific gene, got {len(result)}"
+        assert result["Gene"].iloc[0] == "Gene_B"
 
-def test_save_and_load_data(tmp_path):
-    """Test saving and loading data roundtrip."""
-    data = {
-        'gene_id': ['g1', 'g2'],
-        'val1': [1.0, 2.0],
-        'val2': [3.0, 4.0]
-    }
-    df = pd.DataFrame(data)
-    
-    output_path = os.path.join(tmp_path, "test.csv")
-    save_data(df, output_path)
-    
-    loaded_df = load_data(output_path)
-    
-    assert loaded_df.shape == df.shape
-    assert list(loaded_df.columns) == list(df.columns)
-    assert np.allclose(loaded_df['val1'], df['val1'])
-    assert np.allclose(loaded_df['val2'], df['val2'])
+def test_dependency_error_on_blocked_input():
+    """Test that DependencyError is raised when input is blocked."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        blocked_path = f"{input_path}.blocked"
+        output_path = os.path.join(tmpdir, "output.csv")
+        
+        # Create blocked marker
+        with open(blocked_path, 'w') as f:
+            json.dump({"status": "blocked", "reason": "Test reason"}, f)
+        
+        with pytest.raises(DependencyError) as excinfo:
+            identify_housekeeping_genes(input_path, output_path)
+        
+        assert "blocked" in str(excinfo.value).lower()

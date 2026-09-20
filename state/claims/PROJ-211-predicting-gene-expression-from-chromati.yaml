@@ -1985,24 +1985,6 @@
   status: not_enough_info
   updated_at: '2026-08-04T17:35:54Z'
 - artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
-  attempts: 2
-  canonical: Gene matrices fit within 7GB RAM
-  claim_id: c_b168d632
-  context: 'Independent Test: Verify pipeline produces matching gene matrices (accessibility
-    features and expression values) that fit within 7GB RAM.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Gene_matrices_fit_within_7GB_RAM
-  kind: entity_fact
-  raw_text: pipeline produces matching gene matrices that fit within 7GB RAM
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T17:36:18Z'
-- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
   attempts: 1
   canonical: Produce paired RNA-seq and DNase-seq counts for 5 cell lines with seed
     42
@@ -2431,3 +2413,683 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T19:15:17Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Download RNA-seq and DNase-seq/ATAC-seq data for at least 5 human cell
+    lines
+  claim_id: c_85001593
+  context: "Phase 3: User Story 1 - Download and preprocess paired multiomic data\
+    \ (Priority: P1) \U0001F3AF MVP. Goal: Download paired RNA-seq and DNase-seq/ATAC-seq\
+    \ count data for \u22655 human cell lines."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_RNA-seq_and_DNase-seq/ATAC-seq_data_for_at_least_5
+  kind: magnitude
+  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:34:28Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Process accessibility signal within plus or minus 50kb windows
+  claim_id: c_c0a32905
+  context: "Phase 3: User Story 1 - Download and preprocess paired multiomic data\
+    \ (Priority: P1) \U0001F3AF MVP. Goal: ... Process accessibility signal within\
+    \ \xB150kb windows."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_accessibility_signal_within_plus_or_minus_50kb_windo
+  kind: entity_fact
+  raw_text: "Process accessibility signal within \xB150kb windows."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:34:56Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 3
+  canonical: Gene matrices fit within 7GB RAM
+  claim_id: c_b168d632
+  context: 'Independent Test: Verify pipeline produces matching gene matrices (accessibility
+    features and expression values) that fit within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gene_matrices_fit_within_7GB_RAM
+  kind: entity_fact
+  raw_text: pipeline produces matching gene matrices that fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:35:18Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Generate synthetic RNA-seq and DNase-seq counts for 5 cell lines with
+    seed 42
+  claim_id: c_3bdf3f6a
+  context: 'T011 [US1] Conditional Fallback: Execute generate_data.py to produce paired
+    RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90,
+    and HepG2 with Seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:36:13Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Aggregate accessibility signal in 200 fixed-width bins within plus or
+    minus 50kb of TSS
+  claim_id: c_39658566
+  context: "T012.0 [US1] Implement Python windowing logic in code/preprocess.py to\
+    \ aggregate accessibility signal within \xB150kb of TSS into 200 fixed-width bins."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Aggregate accessibility signal within \xB150kb of TSS into 200 fixed-width\
+    \ bins."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:36:48Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Exclude 2kb around TSS from features
+  claim_id: c_c3f6bff4
+  context: "T012.0 [US1] ... Bin the \xB150kb window into exactly 200 fixed-width\
+    \ bins per gene. Aggregate signal (sum/mean) into these bins. Exclude TSS \xB1\
+    \ 2kb from features."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_2kb_around_TSS_from_features
+  kind: entity_fact
+  raw_text: "Exclude TSS \xB1 2kb from features."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:37:23Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Define housekeeping genes as those with coefficient of variation less
+    than 0.2
+  claim_id: c_a065a89c
+  context: 'T016 [US1] Staged Acceptance: Define housekeeping genes in code/preprocess.py.
+    ... Logic: Calculate coefficient of variation (CV < 0.2).'
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Calculate coefficient of variation (CV < 0.2) to define housekeeping genes.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T10:37:24Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Define cell-type-specific genes as those with coefficient of variation
+    greater than 0.5
+  claim_id: c_593bc5f9
+  context: 'T016b [US1] Define cell-type-specific genes in code/preprocess.py. ...
+    Logic: Select genes with high CV (CV > 0.5).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_cell-type-specific_genes_as_those_with_coefficient_of
+  kind: magnitude
+  raw_text: Select genes with high CV (CV > 0.5) to define cell-type-specific genes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:37:55Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Train Elastic Net models with alpha 0.5 using Leave-One-Out Cross-Validation
+  claim_id: c_0fb52166
+  context: "T021 [US2] Implement Elastic Net training in code/train.py (\u03B1=0.5,\
+    \ \u03BB via Leave-One-Out Cross-Validation (LOOCV)) for each cell line. ... Logic:\
+    \ Train one model per gene using LOOCV."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train one model per gene using Leave-One-Out Cross-Validation (LOOCV)\
+    \ with \u03B1=0.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:38:41Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Runtime per cell line must be less than or equal to 2 hours and RAM less
+    than or equal to 7GB
+  claim_id: c_3ea785ba
+  context: "T027 [US2] Log memory usage and runtime to logs/ to verify CPU/RAM constraints\
+    \ (SC-005). ... Success Criterion: Verify runtime \u2264 2 hours per cell line\
+    \ and RAM \u2264 7GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_per_cell_line_must_be_less_than_or_equal_to_2_hours
+  kind: magnitude
+  raw_text: "Verify runtime \u2264 2 hours per cell line and RAM \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:38:59Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate percentage of top 100 features within plus or minus 10kb of
+    TSS
+  claim_id: c_30d36d60
+  context: "T032 [US3] Calculate percentage of top-100 features within \xB110kb of\
+    \ TSS in code/interpret.py (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate percentage of top-100 features within \xB110kb of TSS."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:39:46Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate difference in R-squared between housekeeping and cell-type-specific
+    genes
+  claim_id: c_fee52520
+  context: "T033 [US3] Calculate and report performance gap (\u0394R\xB2) between\
+    \ housekeeping and cell-type-specific genes in code/interpret.py (FR-010, SC-004)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_difference_in_R-squared_between_housekeeping_and_c
+  kind: entity_fact
+  raw_text: "Calculate performance gap (\u0394R\xB2) between housekeeping and cell-type-specific\
+    \ genes."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:40:07Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Download paired RNA-seq and DNase-seq/ATAC-seq count data for at least
+    5 human cell lines
+  claim_id: c_4228d012
+  context: "Phase 3: User Story 1 - Download and preprocess paired multiomic data\
+    \ (Priority: P1) \U0001F3AF MVP. Goal: Download paired RNA-seq and DNase-seq/ATAC-seq\
+    \ count data for \u22655 human cell lines."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_paired_RNA-seq_and_DNase-seq/ATAC-seq_count_data_fo
+  kind: magnitude
+  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:41:10Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Process accessibility signal within plus or minus 50kb windows
+  claim_id: c_676c890e
+  context: "Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines., Process accessibility signal within \xB150kb windows., and\
+    \ filter genes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_accessibility_signal_within_plus_or_minus_50kb_windo
+  kind: entity_fact
+  raw_text: "Process accessibility signal within \xB150kb windows."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:41:12Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Verify pipeline produces matching gene matrices that fit within 7GB RAM
+  claim_id: c_eb020a75
+  context: 'Independent Test: Verify pipeline produces matching gene matrices (accessibility
+    features and expression values) that fit within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_pipeline_produces_matching_gene_matrices_that_fit_wit
+  kind: entity_fact
+  raw_text: Verify pipeline produces matching gene matrices that fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:41:33Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Generate paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC,
+    IMR90, and HepG2 with Seed 42
+  claim_id: c_b4aaaa6f
+  context: 'T011 [US1] Conditional Fallback: Execute generate_data.py to produce paired
+    RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute generate_data.py to produce paired RNA-seq and DNase-seq counts
+    for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:42:27Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Bin the plus or minus 50kb window into exactly 200 fixed-width bins per
+    gene
+  claim_id: c_49cbfa5f
+  context: "T012.0 [US1] Implement Python windowing logic in code/preprocess.py to\
+    \ aggregate accessibility signal within \xB150kb of TSS into 200 fixed-width bins.\
+    \ Logic: Bin the \xB150kb window into exactly 200 fixed-width bins per gene."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bin the \xB150kb window into exactly 200 fixed-width bins per gene."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:42:51Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Exclude TSS plus or minus 2kb from features
+  claim_id: c_51cbf4a9
+  context: "Logic: Bin the \xB150kb window into exactly 200 fixed-width bins per gene.\
+    \ Aggregate signal (sum/mean) into these bins. Exclude TSS \xB1 2kb from features."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_TSS_plus_or_minus_2kb_from_features
+  kind: entity_fact
+  raw_text: "Exclude TSS \xB1 2kb from features."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:42:53Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Train one model per gene using Leave-One-Out Cross-Validation
+  claim_id: c_14e74dff
+  context: "T021 [US2] Implement Elastic Net training in code/train.py (\u03B1=0.5,\
+    \ \u03BB via Leave-One-Out Cross-Validation (LOOCV)) for each cell line. Logic:\
+    \ Train one model per gene using LOOCV (N samples for training, a single sample\
+    \ for testing)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_one_model_per_gene_using_Leave-One-Out_Cross-Validatio
+  kind: entity_fact
+  raw_text: Train one model per gene using Leave-One-Out Cross-Validation (LOOCV).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:42:56Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Verify runtime less than or equal to 2 hours per cell line and RAM less
+    than or equal to 7GB
+  claim_id: c_35d37c05
+  context: "T027 [US2] Log memory usage and runtime to logs/ to verify CPU/RAM constraints\
+    \ (SC-005). Success Criterion: Verify runtime \u2264 2 hours per cell line and\
+    \ RAM \u2264 7GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_2_hours_per_cell_line_a
+  kind: magnitude
+  raw_text: "Verify runtime \u2264 2 hours per cell line and RAM \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:42:58Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate percentage of top 100 features within plus or minus 10kb of
+    TSS
+  claim_id: c_b2bf6b91
+  context: "T032 [US3] Calculate percentage of top-100 features within \xB110kb of\
+    \ TSS in code/interpret.py (SC-003). Logic: Calculate percentage. DO NOT exit\
+    \ non-zero if percentage < 80%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate percentage of top-100 features within \xB110kb of TSS."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:42:59Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Do not exit non-zero if percentage of top 100 features within plus or
+    minus 10kb of TSS is less than 80 percent
+  claim_id: c_20a4a54b
+  context: 'Logic: Calculate percentage. DO NOT exit non-zero if percentage < 80%.
+    Instead, write data/processed/tss_proximity_stats.json with content {"percentage":
+    <value>, "threshold_met": <bool>}.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Do_not_exit_non-zero_if_percentage_of_top_100_features_withi
+  kind: magnitude
+  raw_text: "Do not exit non-zero if percentage of top-100 features within \xB110kb\
+    \ of TSS is less than 80%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:43:22Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 0
+  canonical: Calculate coefficient of variation less than 0.2 to define housekeeping
+    genes
+  claim_id: c_9aced2d4
+  context: 'T016 [US1] Logic: Calculate coefficient of variation (CV < 0.2).'
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Calculate coefficient of variation (CV < 0.2) to define housekeeping genes.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T10:50:25Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Download paired RNA-seq and DNase-seq/ATAC-seq count data for at least
+    5 human cell lines
+  claim_id: c_0c717eed
+  context: "Phase 3: User Story 1 - Download and preprocess paired multiomic data\
+    \ (Priority: P1) Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data\
+    \ for \u22655 human cell lines., Process accessibility signal within \xB150kb\
+    \ windows., and filter genes."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_paired_RNA-seq_and_DNase-seq/ATAC-seq_count_data_fo
+  kind: magnitude
+  raw_text: "Download paired RNA-seq and DNase-seq/ATAC-seq count data for \u2265\
+    5 human cell lines."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:31Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Process accessibility signal within plus or minus 50 kilobase windows
+  claim_id: c_1d65c37d
+  context: "Phase 3: User Story 1 - Download and preprocess paired multiomic data\
+    \ (Priority: P1) Goal: Download paired RNA-seq and DNase-seq/ATAC-seq count data\
+    \ for \u22655 human cell lines., Process accessibility signal within \xB150kb\
+    \ windows., and filter genes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process accessibility signal within \xB150kb windows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:32Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Verify pipeline produces matching gene matrices that fit within 7 gigabytes
+    of RAM
+  claim_id: c_67d5ee1f
+  context: 'Independent Test: Verify pipeline produces matching gene matrices (accessibility
+    features and expression values) that fit within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline produces matching gene matrices (accessibility features
+    and expression values) that fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:32Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC,
+    IMR90, and HepG2 with seed 42
+  claim_id: c_8f51e68d
+  context: 'T011 [US1] Conditional Fallback: Execute generate_data.py to produce paired
+    RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute generate_data.py to produce paired RNA-seq and DNase-seq counts
+    for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:33Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Bin the plus or minus 50 kilobase window into exactly 200 fixed-width
+    bins per gene
+  claim_id: c_f945ca6e
+  context: "T012.0 [US1] Implement Python windowing logic in code/preprocess.py to\
+    \ aggregate accessibility signal within \xB150kb of TSS into 200 fixed-width bins.\
+    \ Logic: Bin the \xB150kb window into exactly 200 fixed-width bins per gene."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bin the \xB150kb window into exactly 200 fixed-width bins per gene."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:34Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Exclude TSS plus or minus 2 kilobase from features
+  claim_id: c_70b015c0
+  context: "T012.0 [US1] Logic: Bin the \xB150kb window into exactly 200 fixed-width\
+    \ bins per gene. Aggregate signal (sum/mean) into these bins. Exclude TSS \xB1\
+    \ 2kb from features."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Exclude TSS \xB1 2kb from features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:34Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Select genes with coefficient of variation greater than 0.5 to define
+    cell-type-specific genes
+  claim_id: c_8a44bd3e
+  context: 'T016b [US1] Logic: Select genes with high CV (CV > 0.5).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_genes_with_coefficient_of_variation_greater_than_0.5
+  kind: magnitude
+  raw_text: Select genes with high CV (CV > 0.5) to define cell-type-specific genes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:37Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Train Elastic Net models with alpha 0.5
+  claim_id: c_967414fa
+  context: "T021 [US2] Implement Elastic Net training in code/train.py (\u03B1=0.5,\
+    \ \u03BB via Leave-One-Out Cross-Validation (LOOCV)) for each cell line."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train Elastic Net models with \u03B1=0.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:50:56Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Train one model per gene using Leave-One-Out Cross-Validation with N
+    samples for training and a single sample for testing
+  claim_id: c_654213ce
+  context: 'T021 [US2] Logic: Train one model per gene using LOOCV (N samples for
+    training, a single sample for testing).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_one_model_per_gene_using_Leave-One-Out_Cross-Validatio
+  kind: entity_fact
+  raw_text: Train one model per gene using LOOCV (N samples for training, a single
+    sample for testing).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:51:47Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Verify runtime less than or equal to 2 hours per cell line and RAM less
+    than or equal to 7 gigabytes
+  claim_id: c_933b0833
+  context: "T027 [US2] Success Criterion: Verify runtime \u2264 2 hours per cell line\
+    \ and RAM \u2264 7GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_2_hours_per_cell_line_a
+  kind: magnitude
+  raw_text: "Verify runtime \u2264 2 hours per cell line and RAM \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:51:49Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate percentage of top 100 features within plus or minus 10 kilobase
+    of TSS
+  claim_id: c_9e6b50db
+  context: "T032 [US3] Calculate percentage of top-100 features within \xB110kb of\
+    \ TSS in code/interpret.py (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate percentage of top-100 features within \xB110kb of TSS."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:51:49Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate percentage of top 100 features within plus or minus 10 kilobase
+    of TSS
+  claim_id: c_3e60a804
+  context: 'T032 [US3] Logic: Calculate percentage. DO NOT exit non-zero if percentage
+    < 80%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate percentage of top-100 features within \xB110kb of TSS."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:51:50Z'
+- artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  attempts: 1
+  canonical: Calculate delta R squared equals R squared housekeeping minus R squared
+    cell-type-specific
+  claim_id: c_b8f271b8
+  context: "T033 [US3] Logic: Calculate \u0394R\xB2 = R\xB2(housekeeping) - R\xB2\
+    (cell-type-specific)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_delta_R_squared_equals_R_squared_housekeeping_minu
+  kind: entity_fact
+  raw_text: "Calculate \u0394R\xB2 = R\xB2(housekeeping) - R\xB2(cell-type-specific)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T10:53:06Z'

@@ -17,7 +17,7 @@ This project implements a reproducible pipeline to predict gene expression level
 **Project Type**: Data science pipeline / Research tool  
 **Performance Goals**: <7GB RAM peak, <6h total runtime, LOOCV per cell line  
 **Constraints**: CPU-only execution; no GPU; strict memory limits; reproducible random seeds ()  
-**Scale/Scope**: 5 cell lines (subject to N>=4 gate); thousands of genes per line; **A fixed number of binned features per gene**; A set of binned features (200 bins * 20 genes sampled) for CI; real data uses streaming.
+**Scale/Scope**: 5 cell lines (subject to N>=4 gate); thousands of genes per line; **A fixed number of binned features per gene**; A set of binned features (multiple bins * 20 genes sampled) for CI; real data uses streaming.
 
 > Note: The feature space is reduced from ~1M raw peaks to **200 bins per gene window** to ensure P (features) is manageable relative to N (samples). The "10k total features" figure in prior drafts was ambiguous; the correct metric is **200 features per gene model**.
 
