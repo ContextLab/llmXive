@@ -1,201 +1,322 @@
 """
-Contract tests for research pipeline output schemas.
-Validates that generated artifacts conform to defined YAML/JSON schemas.
+Contract tests for project schemas.
+Validates that output artifacts conform to defined schema structures.
 """
 import json
 import os
-import sys
-import unittest
+import yaml
+import pytest
 from pathlib import Path
-from typing import Dict, Any
 
-# Add project root to path for imports
+# Add project root to path for imports if necessary
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
-try:
-    import yaml
-except ImportError:
-    # Fallback for environments without PyYAML installed but schema is YAML
-    yaml = None
-
-from config import get_config
+contracts_dir = project_root / "contracts"
+artifacts_dir = project_root / "artifacts"
 
 
-def load_yaml_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
-    if yaml is None:
-        raise ImportError("PyYAML is required to load YAML schemas. Install with: pip install pyyaml")
-    with open(schema_path, "r", encoding="utf-8") as f:
+def load_schema(schema_filename: str) -> dict:
+    """Load a YAML schema definition from the contracts directory."""
+    schema_path = contracts_dir / schema_filename
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
 
-def validate_json_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> list:
+def load_json_artifact(artifact_path: Path) -> dict:
+    """Load a JSON artifact file."""
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact file not found: {artifact_path}")
+    with open(artifact_path, "r") as f:
+        return json.load(f)
+
+
+def validate_structure(data: dict, schema: dict, path_prefix: str = "") -> list:
     """
-    A simplified JSON Schema validator for the specific structures required.
-    Checks 'type', 'required', and basic 'properties' constraints.
+    Recursively validate a dictionary against a schema definition.
     Returns a list of error messages.
     """
     errors = []
+    schema_type = schema.get("type")
+    schema_required = schema.get("required", [])
+    schema_properties = schema.get("properties", {})
 
-    def _validate(obj: Any, expected_type: str, path: str, required_fields: list = None, properties: dict = None):
-        # Type check
-        type_map = {
-            "string": str,
-            "number": (int, float),
-            "integer": int,
-            "boolean": bool,
-            "array": list,
-            "object": dict,
-            "null": type(None)
-        }
+    if schema_type == "object":
+        if not isinstance(data, dict):
+            errors.append(f"{path_prefix}: Expected object, got {type(data).__name__}")
+            return errors
 
-        if expected_type in type_map:
-            if not isinstance(obj, type_map[expected_type]):
-                # Special case for number accepting int
-                if expected_type == "number" and isinstance(obj, int):
-                    pass
-                else:
-                    errors.append(f"{path}: Expected {expected_type}, got {type(obj).__name__}")
-                    return
+        # Check required fields
+        for field in schema_required:
+            if field not in data:
+                errors.append(f"{path_prefix}: Missing required field '{field}'")
 
-        # Required fields check (only for objects)
-        if expected_type == "object" and required_fields:
-            for field in required_fields:
-                if field not in obj:
-                    errors.append(f"{path}: Missing required field '{field}'")
+        # Validate properties
+        for key, value in data.items():
+            if key in schema_properties:
+                sub_schema = schema_properties[key]
+                sub_path = f"{path_prefix}.{key}" if path_prefix else key
+                errors.extend(validate_structure(value, sub_schema, sub_path))
+            else:
+                # Optional: warn on extra fields if strict mode is desired
+                pass
 
-        # Recursive property check
-        if expected_type == "object" and properties:
-            for key, value_schema in properties.items():
-                if key in obj:
-                    _validate(
-                        obj[key],
-                        value_schema.get("type", "any"),
-                        f"{path}.{key}",
-                        value_schema.get("required"),
-                        value_schema.get("properties")
-                    )
-        elif expected_type == "array" and properties and "items" in properties:
-            # Handle simple array item validation if 'items' has a type
-            item_schema = properties.get("items", {})
-            if isinstance(item_schema, dict) and "type" in item_schema:
-                for i, item in enumerate(obj):
-                    _validate(
-                        item,
-                        item_schema["type"],
-                        f"{path}[{i}]"
-                    )
+    elif schema_type == "array":
+        if not isinstance(data, list):
+            errors.append(f"{path_prefix}: Expected array, got {type(data).__name__}")
+            return errors
+        items_schema = schema.get("items", {})
+        for i, item in enumerate(data):
+            sub_path = f"{path_prefix}[{i}]"
+            errors.extend(validate_structure(item, items_schema, sub_path))
 
-    _validate(data, schema.get("type", "any"), "root", schema.get("required"), schema.get("properties"))
+    elif schema_type == "string":
+        if not isinstance(data, str):
+            errors.append(f"{path_prefix}: Expected string, got {type(data).__name__}")
+
+    elif schema_type == "integer":
+        if not isinstance(data, int):
+            errors.append(f"{path_prefix}: Expected integer, got {type(data).__name__}")
+
+    elif schema_type == "number":
+        if not isinstance(data, (int, float)):
+            errors.append(f"{path_prefix}: Expected number, got {type(data).__name__}")
+
+    elif schema_type == "boolean":
+        if not isinstance(data, bool):
+            errors.append(f"{path_prefix}: Expected boolean, got {type(data).__name__}")
+
     return errors
 
 
-class TestFinalReportSchema(unittest.TestCase):
-    """Contract test for the final research report schema."""
+class TestFinalReportSchema:
+    """Contract tests for the final report structure."""
 
-    def setUp(self):
-        """Load the schema from the contracts directory."""
-        self.schema_path = project_root / "contracts" / "output.schema.yaml"
-        self.report_path = project_root / "artifacts" / "reports" / "final_report.json"
-        self.assertTrue(self.schema_path.exists(), f"Schema file not found: {self.schema_path}")
-        self.schema = load_yaml_schema(self.schema_path)
+    @pytest.fixture
+    def report_schema(self):
+        """Load the output schema definition."""
+        return load_schema("output.schema.yaml")
 
-    def test_final_report_schema_validates_structure(self):
+    @pytest.fixture
+    def final_report_path(self):
+        """Path to the final report artifact."""
+        # The reporting task (T034) generates a Markdown report, but often
+        # includes a JSON summary or the report itself is validated against a schema.
+        # Assuming the final report is saved as a JSON summary or the Markdown
+        # structure is validated by checking the existence of required sections.
+        # Per task description: Validates `contracts/output.schema.yaml` structure.
+        # We will look for a JSON summary if it exists, or the Markdown file itself.
+        json_path = artifacts_dir / "reports" / "final_report_summary.json"
+        md_path = artifacts_dir / "reports" / "final_report.md"
+        
+        if json_path.exists():
+            return json_path, "json"
+        elif md_path.exists():
+            # For markdown, we might just check file existence and basic structure
+            # or load a companion JSON. Here we assume the schema expects a JSON structure
+            # representing the report content.
+            return md_path, "markdown"
+        else:
+            # If neither exists, the test will fail with FileNotFoundError in load_json_artifact
+            # or we can return a dummy path to trigger the error in the test.
+            return json_path, "json"
+
+    def test_final_report_schema_validates_structure(self, report_schema, final_report_path):
         """
         Validates `contracts/output.schema.yaml` structure (tables, metrics, deviations).
-        Ensures that if a final report exists, it matches the schema.
-        If the report doesn't exist yet, this test verifies the schema is valid
-        and would accept a correctly formed report.
+        Ensures the final report artifact conforms to the defined schema.
         """
-        # 1. Verify schema structure itself (basic sanity check)
-        self.assertIn("required", self.schema, "Schema must have 'required' fields")
-        self.assertIn("properties", self.schema, "Schema must have 'properties'")
+        report_path, report_type = final_report_path
 
-        required_top_level = self.schema["required"]
-        expected_keys = [
-            "report_metadata", "executive_summary", "methodology",
-            "model_results", "biological_plausibility", "spec_deviations",
-            "success_criteria_metrics", "appendices"
+        if report_type == "json":
+            try:
+                report_data = load_json_artifact(report_path)
+            except FileNotFoundError as e:
+                pytest.fail(f"Final report artifact not found: {e}")
+            
+            errors = validate_structure(report_data, report_schema)
+            
+            assert not errors, f"Report schema validation failed:\n" + "\n".join(errors)
+
+        elif report_type == "markdown":
+            # If the report is Markdown, we validate that the file exists and contains
+            # sections corresponding to the schema's top-level keys (e.g., 'metrics', 'deviations').
+            # This is a heuristic validation for Markdown artifacts.
+            assert report_path.exists(), f"Markdown report not found: {report_path}"
+            
+            with open(report_path, "r") as f:
+                content = f.read().lower()
+            
+            # Check for presence of key sections defined in schema (e.g., 'metrics', 'deviations')
+            # This is a simplified check for Markdown files.
+            required_sections = ["metrics", "deviations", "tables"]
+            found_sections = []
+            missing_sections = []
+            
+            for section in required_sections:
+                if section in content:
+                    found_sections.append(section)
+                else:
+                    missing_sections.append(section)
+            
+            # We expect at least 'metrics' and 'deviations' to be present
+            assert "metrics" in found_sections, "Missing 'metrics' section in Markdown report"
+            assert "deviations" in found_sections, "Missing 'deviations' section in Markdown report"
+            
+            # If strict JSON schema validation is required for Markdown, it would need a parser.
+            # For now, we assume the schema defines the logical structure which we verify via keywords.
+            if missing_sections:
+                pytest.fail(f"Missing sections in Markdown report: {missing_sections}")
+
+
+class TestMergedDatasetSchema:
+    """Contract tests for the merged dataset schema."""
+
+    @pytest.fixture
+    def dataset_schema(self):
+        """Load the dataset schema definition."""
+        return load_schema("dataset.schema.yaml")
+
+    def test_merged_dataset_schema_validates_columns(self, dataset_schema):
+        """
+        Validates `contracts/dataset.schema.yaml` columns (species, root_length, 
+        branching_density, surface_area, phosphorus, nitrogen).
+        """
+        # This test ensures the schema file itself is valid and defines the expected columns.
+        # It does not validate a data file, but the schema definition.
+        
+        assert "properties" in dataset_schema, "Schema must define properties"
+        properties = dataset_schema["properties"]
+        
+        expected_columns = [
+            "species", "root_length", "branching_density", 
+            "surface_area", "phosphorus", "nitrogen"
         ]
-        for key in expected_keys:
-            self.assertIn(key, required_top_level, f"Schema must require '{key}'")
+        
+        missing_columns = []
+        for col in expected_columns:
+            if col not in properties:
+                missing_columns.append(col)
+        
+        assert not missing_columns, f"Dataset schema missing required columns: {missing_columns}"
 
-        # 2. If the report artifact exists, validate it against the schema
-        if self.report_path.exists():
-            with open(self.report_path, "r", encoding="utf-8") as f:
-                report_data = json.load(f)
+        # Validate types if specified
+        if "species" in properties:
+            assert properties["species"].get("type") == "string", "Species column must be string"
+        
+        numeric_cols = ["root_length", "branching_density", "surface_area", "phosphorus", "nitrogen"]
+        for col in numeric_cols:
+            if col in properties:
+                col_type = properties[col].get("type")
+                assert col_type in ["number", "integer"], f"Column {col} must be numeric, got {col_type}"
 
-            errors = validate_json_against_schema(report_data, self.schema)
-            if errors:
-                self.fail(f"Final report validation failed:\n" + "\n".join(errors))
-        else:
-            # If report doesn't exist, we assert that the schema is at least well-formed
-            # and would theoretically accept the expected structure.
-            # This prevents the test from failing simply because T034 hasn't run yet.
-            self.skipTest("Final report artifact not found at {}. Skipping validation.".format(self.report_path))
+class TestModelResultsSchema:
+    """Contract tests for model results schema."""
 
+    @pytest.fixture
+    def model_schema(self):
+        """Load the model results schema definition."""
+        return load_schema("model_results.schema.yaml")
 
-class TestModelMetricsSchema(unittest.TestCase):
-    """Contract test for model metrics schema (consumed by T034)."""
-
-    def test_model_metrics_schema_validates_fields(self):
+    def test_model_results_schema_validates_fields(self, model_schema):
         """
-        Validates `artifacts/reports/model_metrics.json` structure.
-        Ensures it contains LMM and RF metrics as defined in T029.
+        Validates `contracts/model_results.schema.yaml` fields 
+        (lmm.adjusted_r_squared, lmm.p_values, etc.).
         """
-        metrics_path = project_root / "artifacts" / "reports" / "model_metrics.json"
+        assert "properties" in model_schema, "Schema must define properties"
+        properties = model_schema["properties"]
+        
+        # Check for top-level model results sections
+        required_sections = ["lmm", "random_forest"]
+        missing_sections = [s for s in required_sections if s not in properties]
+        
+        assert not missing_sections, f"Model schema missing required sections: {missing_sections}"
+        
+        # Validate LMM structure
+        lmm_props = properties.get("lmm", {}).get("properties", {})
+        lmm_required = properties.get("lmm", {}).get("required", [])
+        
+        assert "adjusted_r_squared" in lmm_props, "LMM schema missing adjusted_r_squared"
+        assert "p_values" in lmm_props, "LMM schema missing p_values"
+        
+        # Validate Random Forest structure
+        rf_props = properties.get("random_forest", {}).get("properties", {})
+        assert "r_squared" in rf_props, "RF schema missing r_squared"
+        assert "rmse" in rf_props, "RF schema missing rmse"
 
-        if not metrics_path.exists():
-            self.skipTest(f"Model metrics file not found at {metrics_path}. Skipping validation.")
+class TestSensitivityAnalysisSchema:
+    """Contract tests for sensitivity analysis schema."""
 
-        with open(metrics_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    @pytest.fixture
+    def sensitivity_schema(self):
+        """Load the sensitivity analysis schema definition."""
+        return load_schema("sensitivity_analysis.schema.yaml")
 
-        # Basic structural checks based on T029 requirements
-        self.assertIn("lmm_metrics", data, "Missing lmm_metrics")
-        self.assertIn("random_forest_metrics", data, "Missing random_forest_metrics")
-        self.assertIn("comparison", data, "Missing comparison")
-
-        lmm = data["lmm_metrics"]
-        rf = data["random_forest_metrics"]
-        comp = data["comparison"]
-
-        # Check LMM fields
-        self.assertIn("adjusted_r_squared", lmm, "LMM missing adjusted_r_squared")
-        self.assertIn("rmse", lmm, "LMM missing rmse")
-        self.assertIn("p_values", lmm, "LMM missing p_values")
-
-        # Check RF fields
-        self.assertIn("r_squared", rf, "RF missing r_squared")
-        self.assertIn("rmse", rf, "RF missing rmse")
-
-        # Check comparison fields
-        self.assertIn("r_squared_delta", comp, "Comparison missing r_squared_delta")
-
-
-class TestMetricsSchema(unittest.TestCase):
-    """Contract test for success criteria metrics (T035a/b)."""
-
-    def test_metrics_schema_validates_redefined_criteria(self):
+    def test_sensitivity_analysis_schema_validates_fields(self, sensitivity_schema):
         """
-        Validates `artifacts/reports/metrics.json` contains redefined SC-001 and SC-005.
+        Validates `contracts/sensitivity_analysis.schema.yaml` fields
+        (percent_deviation, literature_mean, etc.).
         """
-        metrics_path = project_root / "artifacts" / "reports" / "metrics.json"
+        assert "properties" in sensitivity_schema, "Schema must define properties"
+        properties = sensitivity_schema["properties"]
+        
+        required_fields = [
+            "percent_deviation", "literature_mean", "observed_coefficient",
+            "confidence_interval", "literature_overlap"
+        ]
+        
+        missing_fields = [f for f in required_fields if f not in properties]
+        
+        assert not missing_fields, f"Sensitivity schema missing required fields: {missing_fields}"
 
-        if not metrics_path.exists():
-            self.skipTest(f"Metrics file not found at {metrics_path}. Skipping validation.")
+class TestSpeciesCountsSchema:
+    """Contract tests for species counts schema."""
 
-        with open(metrics_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    @pytest.fixture
+    def counts_schema(self):
+        """Load the species counts schema definition."""
+        return load_schema("species_counts.schema.yaml")
 
-        # T035a: P/N Availability Rate
-        self.assertIn("pn_availability_rate", data, "Missing pn_availability_rate (SC-001 redefinition)")
-        self.assertIn("original_sc001_metric", data, "Missing note on original SC-001 metric")
+    def test_species_counts_schema_validates_fields(self, counts_schema):
+        """
+        Validates `contracts/species_counts.schema.yaml` fields
+        (total_species_input, excluded_species_count, etc.).
+        """
+        assert "properties" in counts_schema, "Schema must define properties"
+        properties = counts_schema["properties"]
+        
+        required_fields = [
+            "total_species_input", "excluded_species_count", 
+            "excluded_species_list", "rows_excluded_by_source",
+            "rows_excluded_by_missing_nutrients", "rows_excluded_by_sample_size"
+        ]
+        
+        missing_fields = [f for f in required_fields if f not in properties]
+        
+        assert not missing_fields, f"Species counts schema missing required fields: {missing_fields}"
 
-        # T035b: Species Exclusion Ratio
-        self.assertIn("species_exclusion_ratio", data, "Missing species_exclusion_ratio (SC-005)")
+class TestMetricsSchema:
+    """Contract tests for metrics schema."""
 
+    @pytest.fixture
+    def metrics_schema(self):
+        """Load the metrics schema definition."""
+        return load_schema("metrics.schema.yaml")
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_metrics_schema_validates_fields(self, metrics_schema):
+        """
+        Validates `contracts/metrics.schema.yaml` fields
+        (pn_availability_rate, species_exclusion_ratio, etc.).
+        """
+        assert "properties" in metrics_schema, "Schema must define properties"
+        properties = metrics_schema["properties"]
+        
+        # Check for key metrics defined in tasks
+        expected_metrics = [
+            "pn_availability_rate", "species_exclusion_ratio", 
+            "sc001_original_merge_rate"
+        ]
+        
+        missing_metrics = [m for m in expected_metrics if m not in properties]
+        
+        assert not missing_metrics, f"Metrics schema missing required fields: {missing_metrics}"

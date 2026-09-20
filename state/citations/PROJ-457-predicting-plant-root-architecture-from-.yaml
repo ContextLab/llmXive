@@ -31,14 +31,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/envedabio/plant-phenotype/e4af5aa73a611ae99a544bede1ccce3b998d362e/PPR_test_corpus.txt?%2Fdatasets%2Fenvedabio%2Fplant-phenotype%2Fresolve%2Fmain%2FPPR_test_corpus.txt=&etag=%224f54d762f5228fca6e4f6e9e336c1573063fa3ff%22
   verified_at: '2026-07-16T16:39:37.802984Z'
-- artifact_hash: 7781f34e997d98678339c5411f6bdfc8919eaf627f7217bdf88b3109d15ccee1
-  artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Critical Reviews in Toxicology - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q3562267
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q3562267
-  verified_at: '2026-09-14T17:11:27.323547Z'

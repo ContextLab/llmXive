@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Availability"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "pandas",
     "scikit-learn",
@@ -19,7 +19,7 @@ dependencies = [
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -32,13 +32,19 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | data
-  | artifacts
-  | logs
+  | \.eggs
+  | \.egg-info
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["config", "data_ingestion", "logging_integration", "modeling", "models", "preprocessing", "reporting", "sensitivity_analysis", "setup_project", "spec_deviation_handler", "visualization"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = "-v --tb=short"

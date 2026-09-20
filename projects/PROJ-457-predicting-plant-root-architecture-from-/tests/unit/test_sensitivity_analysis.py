@@ -1,193 +1,229 @@
-"""
-Unit tests for sensitivity analysis module (Task T028)
-"""
-
-import os
+import pytest
 import json
-import tempfile
-import unittest
+import os
+from pathlib import Path
 from unittest.mock import patch, MagicMock
-
 import numpy as np
 
-# Import the module under test
+# Add project root to path for imports
+sys_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if sys_path not in __import__('sys').path:
+    __import__('sys').path.insert(0, sys_path)
+
 from sensitivity_analysis import (
+    load_json_file,
+    save_json_file,
+    load_model_coefficients,
     extract_lmm_coefficients,
     compare_against_literature,
     calculate_sensitivity_metrics,
-    run_sensitivity_analysis,
-    LITERATURE_RANGES
+    run_sensitivity_analysis
 )
 
+@pytest.fixture
+def temp_dir(tmp_path):
+    """Create a temporary directory for test artifacts."""
+    return tmp_path
 
-class TestExtractLmmCoefficients(unittest.TestCase):
-    """Tests for coefficient extraction from LMM results."""
+@pytest.fixture
+def mock_model_metrics():
+    """Mock model metrics data."""
+    return {
+        'lmm': {
+            'coefficients': {
+                'phosphorus': 0.25,
+                'nitrogen': 0.18,
+                'intercept': 1.2
+            },
+            'adjusted_r_squared': 0.72,
+            'p_values': {
+                'phosphorus': 0.001,
+                'nitrogen': 0.003
+            }
+        },
+        'random_forest': {
+            'r_squared': 0.68,
+            'rmse': 0.15
+        }
+    }
+
+@pytest.fixture
+def mock_literature_ranges():
+    """Mock literature ranges data."""
+    return {
+        'phosphorus': {
+            'min': 0.15,
+            'max': 0.35,
+            'mean': 0.25
+        },
+        'nitrogen': {
+            'min': 0.10,
+            'max': 0.25,
+            'mean': 0.175
+        }
+    }
+
+def test_load_json_file(tmp_path):
+    """Test loading a JSON file."""
+    test_data = {'key': 'value', 'number': 42}
+    file_path = tmp_path / 'test.json'
     
-    def test_extract_valid_coefficients(self):
-        """Test extraction of valid nutrient coefficients."""
-        mock_results = {
-            "lmm_results": {
-                "fixed_effects": {
-                    "phosphorus": -0.25,
-                    "nitrogen": -0.18,
-                    "potassium": -0.12,
-                    "intercept": 1.5
-                }
+    with open(file_path, 'w') as f:
+        json.dump(test_data, f)
+    
+    loaded = load_json_file(file_path)
+    assert loaded == test_data
+
+def test_load_json_file_not_found():
+    """Test that load_json_file raises FileNotFoundError for missing file."""
+    with pytest.raises(FileNotFoundError):
+        load_json_file(Path('/nonexistent/file.json'))
+
+def test_save_json_file(tmp_path):
+    """Test saving a JSON file."""
+    test_data = {'key': 'value', 'number': 42}
+    file_path = tmp_path / 'output.json'
+    
+    save_json_file(file_path, test_data)
+    
+    assert file_path.exists()
+    with open(file_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded == test_data
+
+def test_extract_lmm_coefficients(mock_model_metrics):
+    """Test extracting LMM coefficients from model metrics."""
+    coeffs = extract_lmm_coefficients(mock_model_metrics)
+    
+    assert 'phosphorus' in coeffs
+    assert 'nitrogen' in coeffs
+    assert abs(coeffs['phosphorus'] - 0.25) < 1e-6
+    assert abs(coeffs['nitrogen'] - 0.18) < 1e-6
+
+def test_extract_lmm_coefficients_missing_data():
+    """Test that extract_lmm_coefficients raises error for missing data."""
+    incomplete_metrics = {'lmm': {}}
+    
+    with pytest.raises(ValueError):
+        extract_lmm_coefficients(incomplete_metrics)
+
+def test_compare_against_literature(mock_model_metrics, mock_literature_ranges):
+    """Test comparing coefficients against literature ranges."""
+    coeffs = extract_lmm_coefficients(mock_model_metrics)
+    comparison = compare_against_literature(coeffs, mock_literature_ranges)
+    
+    assert 'phosphorus' in comparison
+    assert 'nitrogen' in comparison
+    
+    # Check phosphorus
+    assert abs(comparison['phosphorus']['observed'] - 0.25) < 1e-6
+    assert abs(comparison['phosphorus']['literature_mean'] - 0.25) < 1e-6
+    assert comparison['phosphorus']['literature_overlap'] is True  # 0.25 is within [0.15, 0.35]
+    
+    # Check nitrogen
+    assert abs(comparison['nitrogen']['observed'] - 0.18) < 1e-6
+    assert abs(comparison['nitrogen']['literature_mean'] - 0.175) < 1e-6
+    assert comparison['nitrogen']['literature_overlap'] is True  # 0.18 is within [0.10, 0.25]
+
+def test_compare_against_literature_no_overlap(mock_model_metrics, mock_literature_ranges):
+    """Test comparison when coefficient is outside literature range."""
+    # Create mock with coefficient outside range
+    mock_metrics_outside = {
+        'lmm': {
+            'coefficients': {
+                'phosphorus': 0.50,  # Outside [0.15, 0.35]
+                'nitrogen': 0.18
             }
         }
-        
-        coefficients = extract_lmm_coefficients(mock_results)
-        
-        self.assertIn("phosphorus", coefficients)
-        self.assertIn("nitrogen", coefficients)
-        self.assertIn("potassium", coefficients)
-        self.assertNotIn("intercept", coefficients)
-        self.assertAlmostEqual(coefficients["phosphorus"], -0.25)
+    }
     
-    def test_empty_results(self):
-        """Test handling of empty results."""
-        coefficients = extract_lmm_coefficients({})
-        self.assertEqual(coefficients, {})
+    coeffs = extract_lmm_coefficients(mock_metrics_outside)
+    comparison = compare_against_literature(coeffs, mock_literature_ranges)
     
-    def test_missing_fixed_effects(self):
-        """Test handling of missing fixed_effects key."""
-        mock_results = {"lmm_results": {}}
-        coefficients = extract_lmm_coefficients(mock_results)
-        self.assertEqual(coefficients, {})
+    assert comparison['phosphorus']['literature_overlap'] is False
+    assert comparison['nitrogen']['literature_overlap'] is True
 
-class TestCompareAgainstLiterature(unittest.TestCase):
-    """Tests for comparison against literature ranges."""
+def test_calculate_sensitivity_metrics(mock_model_metrics, mock_literature_ranges):
+    """Test calculating sensitivity metrics."""
+    coeffs = extract_lmm_coefficients(mock_model_metrics)
+    sensitivity = calculate_sensitivity_metrics(coeffs, mock_literature_ranges)
     
-    def test_within_range_coefficient(self):
-        """Test coefficient within literature range."""
-        coefficients = {"phosphorus": -0.2}
-        comparisons = compare_against_literature(coefficients, LITERATURE_RANGES)
-        
-        self.assertEqual(len(comparisons), 1)
-        self.assertEqual(comparisons[0]["status"], "within_range")
-        self.assertAlmostEqual(comparisons[0]["fitted_coefficient"], -0.2)
+    assert 'phosphorus' in sensitivity
+    assert 'nitrogen' in sensitivity
     
-    def test_outside_range_coefficient(self):
-        """Test coefficient outside literature range."""
-        coefficients = {"phosphorus": 2.0}  # Well outside max of 0.5
-        comparisons = compare_against_literature(coefficients, LITERATURE_RANGES)
+    # Check required keys
+    for nutrient, metrics in sensitivity.items():
+        assert 'percent_deviation' in metrics
+        assert 'literature_mean' in metrics
+        assert 'observed_coefficient' in metrics
+        assert 'confidence_interval' in metrics
+        assert 'literature_overlap' in metrics
         
-        self.assertEqual(len(comparisons), 1)
-        self.assertEqual(comparisons[0]["status"], "critical")
-    
-    def test_warning_threshold(self):
-        """Test coefficient triggering warning status."""
-        # Typical for phosphorus is -0.2, warning threshold is 30%
-        # -0.2 * 1.3 = -0.26, so -0.26 should be warning
-        coefficients = {"phosphorus": -0.26}
-        comparisons = compare_against_literature(coefficients, LITERATURE_RANGES)
-        
-        self.assertEqual(len(comparisons), 1)
-        self.assertEqual(comparisons[0]["status"], "warning")
-    
-    def test_multiple_nutrients(self):
-        """Test comparison for multiple nutrients."""
-        coefficients = {
-            "phosphorus": -0.2,
-            "nitrogen": -0.15,
-            "potassium": -0.1
-        }
-        comparisons = compare_against_literature(coefficients, LITERATURE_RANGES)
-        
-        self.assertEqual(len(comparisons), 3)
-        for comp in comparisons:
-            self.assertEqual(comp["status"], "within_range")
+        # Check confidence interval is a list of 2 floats
+        assert isinstance(metrics['confidence_interval'], list)
+        assert len(metrics['confidence_interval']) == 2
+        assert all(isinstance(x, float) for x in metrics['confidence_interval'])
 
-class TestCalculateSensitivityMetrics(unittest.TestCase):
-    """Tests for aggregate metric calculation."""
+def test_calculate_sensitivity_metrics_with_perturbation(mock_model_metrics, mock_literature_ranges):
+    """Test sensitivity calculation with different perturbation percentages."""
+    coeffs = extract_lmm_coefficients(mock_model_metrics)
     
-    def test_all_within_range(self):
-        """Test metrics when all coefficients are within range."""
-        comparisons = [
-            {"nutrient": "phosphorus", "status": "within_range"},
-            {"nutrient": "nitrogen", "status": "within_range"}
-        ]
-        metrics = calculate_sensitivity_metrics(comparisons)
-        
-        self.assertEqual(metrics["total_coefficients_tested"], 2)
-        self.assertEqual(metrics["within_range_count"], 2)
-        self.assertEqual(metrics["critical_count"], 0)
-        self.assertEqual(metrics["overall_plausibility"], "plausible")
+    # Default 10% perturbation
+    sensitivity_10 = calculate_sensitivity_metrics(coeffs, mock_literature_ranges, perturbation_percent=10.0)
     
-    def test_with_critical(self):
-        """Test metrics when some coefficients are critical."""
-        comparisons = [
-            {"nutrient": "phosphorus", "status": "within_range"},
-            {"nutrient": "nitrogen", "status": "critical"}
-        ]
-        metrics = calculate_sensitivity_metrics(comparisons)
-        
-        self.assertEqual(metrics["critical_count"], 1)
-        self.assertEqual(metrics["overall_plausibility"], "questionable")
+    # 5% perturbation
+    sensitivity_5 = calculate_sensitivity_metrics(coeffs, mock_literature_ranges, perturbation_percent=5.0)
     
-    def test_empty_comparisons(self):
-        """Test metrics with empty comparisons."""
-        metrics = calculate_sensitivity_metrics([])
-        
-        self.assertEqual(metrics["total_coefficients_tested"], 0)
-        self.assertEqual(metrics["overall_plausibility"], "unknown")
+    # Confidence interval should be narrower with 5% perturbation
+    p_ci_10 = sensitivity_10['phosphorus']['confidence_interval']
+    p_ci_5 = sensitivity_5['phosphorus']['confidence_interval']
+    
+    range_10 = p_ci_10[1] - p_ci_10[0]
+    range_5 = p_ci_5[1] - p_ci_5[0]
+    
+    assert range_5 < range_10  # 5% perturbation should give narrower CI
 
-class TestRunSensitivityAnalysis(unittest.TestCase):
-    """Tests for the main analysis function."""
+def test_run_sensitivity_analysis_integration(tmp_path, mock_model_metrics, mock_literature_ranges):
+    """Test the full sensitivity analysis pipeline."""
+    # Create necessary directories and files
+    artifacts_dir = tmp_path / 'artifacts'
+    reports_dir = artifacts_dir / 'reports'
+    sensitivity_dir = artifacts_dir / 'sensitivity'
     
-    def setUp(self):
-        """Set up temporary files for testing."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.model_path = os.path.join(self.temp_dir, "model_results.json")
-        self.output_path = os.path.join(self.temp_dir, "sensitivity_results.json")
-        
-        # Create mock model results
-        mock_model_data = {
-            "lmm_results": {
-                "fixed_effects": {
-                    "phosphorus": -0.22,
-                    "nitrogen": -0.16,
-                    "potassium": -0.09
-                }
-            }
-        }
-        
-        with open(self.model_path, 'w') as f:
-            json.dump(mock_model_data, f)
+    reports_dir.mkdir(parents=True)
+    sensitivity_dir.mkdir(parents=True)
     
-    def test_successful_analysis(self):
-        """Test successful sensitivity analysis run."""
-        results = run_sensitivity_analysis(self.model_path, self.output_path)
-        
-        self.assertEqual(results["status"], "success")
-        self.assertIn("comparisons", results)
-        self.assertIn("metrics", results)
-        self.assertEqual(len(results["comparisons"]), 3)
-        
-        # Verify output file was created
-        self.assertTrue(os.path.exists(self.output_path))
-        
-        # Verify output file content matches results
-        with open(self.output_path, 'r') as f:
-            saved_results = json.load(f)
-        
-        self.assertEqual(saved_results["status"], results["status"])
+    # Write mock model metrics
+    metrics_path = reports_dir / 'model_metrics.json'
+    with open(metrics_path, 'w') as f:
+        json.dump(mock_model_metrics, f)
     
-    def test_file_not_found(self):
-        """Test handling of missing model results file."""
-        with self.assertRaises(FileNotFoundError):
-            run_sensitivity_analysis("nonexistent.json", self.output_path)
+    # Write mock literature ranges
+    lit_path = artifacts_dir / 'literature_ranges.json'
+    with open(lit_path, 'w') as f:
+        json.dump(mock_literature_ranges, f)
     
-    def test_no_coefficients(self):
-        """Test handling of model with no coefficients."""
-        empty_model_path = os.path.join(self.temp_dir, "empty_model.json")
-        with open(empty_model_path, 'w') as f:
-            json.dump({}, f)
-        
-        results = run_sensitivity_analysis(empty_model_path, self.output_path)
-        
-        self.assertEqual(results["status"], "no_coefficients")
-        self.assertEqual(len(results["comparisons"]), 0)
-
-if __name__ == "__main__":
-    unittest.main()
+    # Mock config
+    config = {
+        'ARTIFACTS_DIR': str(artifacts_dir)
+    }
+    
+    # Run sensitivity analysis
+    results = run_sensitivity_analysis(config)
+    
+    # Verify output file was created
+    output_path = sensitivity_dir / 'sensitivity_analysis.json'
+    assert output_path.exists()
+    
+    # Verify results structure
+    assert 'results' in results
+    assert 'phosphorus' in results['results']
+    assert 'nitrogen' in results['results']
+    
+    # Verify required keys in output
+    for nutrient, metrics in results['results'].items():
+        assert 'percent_deviation' in metrics
+        assert 'literature_mean' in metrics
+        assert 'observed_coefficient' in metrics
+        assert 'confidence_interval' in metrics
+        assert 'literature_overlap' in metrics

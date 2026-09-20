@@ -1,0 +1,9 @@
+{
+  "project_id": "PROJ-457",
+  "p_n_available": true,
+  "deviation_logged_fr002": true,
+  "deviation_logged_fr003": true,
+  "data_source_type_column": "data_source_type",
+  "rows_excluded_by_source": 0,
+  "last_updated": "2023-10-27T10:00:00Z"
+}

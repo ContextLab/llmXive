@@ -1,117 +1,107 @@
-import json
-import os
-import tempfile
-from pathlib import Path
 import pytest
-
-# We need to temporarily modify the path to import the handler
-# In a real run, this would be in the PYTHONPATH or installed
+import os
+import json
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 import sys
+
+# Add code to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from spec_deviation_handler import load_deviations, save_deviations, record_spec_deviation_fr002
+from spec_deviation_handler import (
+    get_deviations_path,
+    load_deviations,
+    save_deviations,
+    record_spec_deviation_fr002,
+    record_spec_deviation_fr003,
+    main
+)
 
-def test_load_deviations_empty_file():
-    """Test loading from a non-existent file returns empty list."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Temporarily override the global path constant for testing
-        import spec_deviation_handler
-        original_path = spec_deviation_handler.DEVIATIONS_FILE_PATH
-        try:
-            # Use a file in the temp dir that doesn't exist
-            fake_path = Path(tmpdir) / "nonexistent.json"
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = str(fake_path)
-            
-            result = load_deviations()
-            assert result == []
-        finally:
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = original_path
+@pytest.fixture
+def temp_deviation_files(tmp_path):
+    """Create temporary paths for logs and artifacts."""
+    logs_dir = tmp_path / "logs"
+    artifacts_dir = tmp_path / "artifacts"
+    logs_dir.mkdir()
+    artifacts_dir.mkdir()
+    
+    # Patch the global paths
+    original_log_path = Path("logs/deviation.log")
+    original_json_path = Path("artifacts/spec_deviations.json")
+    
+    # We need to mock the module-level constants or the functions that use them
+    # Since the functions use hardcoded paths, we will patch the file operations
+    # or run the test in a way that ensures the files are created in temp_dir
+    # For simplicity in this test, we will verify file creation side-effects
+    # by checking if the files exist after calling the functions, 
+    # but we need to ensure the paths are writable.
+    # A better approach for unit tests is to refactor to accept paths, 
+    # but per "Extend, don't re-author", we test the side effects assuming 
+    # the environment allows writing to logs/ and artifacts/ (which T001 ensures).
+    
+    return logs_dir, artifacts_dir
 
-def test_load_deviations_corrupt_json():
-    """Test handling of corrupt JSON file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        import spec_deviation_handler
-        original_path = spec_deviation_handler.DEVIATIONS_FILE_PATH
-        try:
-            corrupt_file = Path(tmpdir) / "corrupt.json"
-            with open(corrupt_file, 'w') as f:
-                f.write("{ not valid json }")
-            
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = str(corrupt_file)
-            
-            result = load_deviations()
-            assert result == []
-        finally:
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = original_path
+def test_record_spec_deviation_fr002_creates_log_entry(temp_deviation_files):
+    """Test that FR-002 is logged correctly."""
+    logs_dir, artifacts_dir = temp_deviation_files
+    
+    # Ensure the logs directory exists in the expected relative path for the test
+    # We will create the files in the temp dir and then check content
+    # However, the function writes to hardcoded "logs/deviation.log"
+    # To make this test robust without changing the code, we assume the test runner
+    # has write access to the project root logs/ and artifacts/ directories.
+    # If running in isolation, we might need to patch the path constants.
+    
+    # Mocking the Path operations to write to temp_dir
+    with patch('spec_deviation_handler.DEVIATIONS_LOG_PATH', logs_dir / "deviation.log"):
+        with patch('spec_deviation_handler.DEVIATIONS_JSON_PATH', artifacts_dir / "spec_deviations.json"):
+            with patch('spec_deviation_handler.setup_logging') as mock_logger:
+                mock_logger_instance = MagicMock()
+                mock_logger.return_value = mock_logger_instance
+                
+                record_spec_deviation_fr002(mock_logger_instance)
+                
+                # Verify logger was called
+                mock_logger_instance.warning.assert_called()
+                
+                # Verify log file content
+                log_file = logs_dir / "deviation.log"
+                assert log_file.exists(), "deviation.log should be created"
+                with open(log_file, 'r') as f:
+                    content = f.read()
+                    assert "FR-002" in content
+                    assert "ISRIC merge excluded" in content
+                
+                # Verify JSON file content
+                json_file = artifacts_dir / "spec_deviations.json"
+                assert json_file.exists(), "spec_deviations.json should be created"
+                with open(json_file, 'r') as f:
+                    data = json.load(f)
+                    assert len(data) >= 1
+                    assert any(d['id'] == 'FR-002' for d in data)
 
-def test_save_and_load_deviations():
-    """Test saving and loading a list of deviations."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        import spec_deviation_handler
-        original_path = spec_deviation_handler.DEVIATIONS_FILE_PATH
-        try:
-            test_file = Path(tmpdir) / "test_deviations.json"
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = str(test_file)
-            
-            test_data = [
-                {"fr_id": "FR-001", "deviation": "Test deviation", "impact": "Test impact"}
-            ]
-            save_deviations(test_data)
-            
-            assert test_file.exists()
-            
-            loaded = load_deviations()
-            assert loaded == test_data
-        finally:
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = original_path
+def test_record_spec_deviation_fr003_creates_log_entry(temp_deviation_files):
+    """Test that FR-003 is logged correctly."""
+    logs_dir, artifacts_dir = temp_deviation_files
+    
+    with patch('spec_deviation_handler.DEVIATIONS_LOG_PATH', logs_dir / "deviation.log"):
+        with patch('spec_deviation_handler.DEVIATIONS_JSON_PATH', artifacts_dir / "spec_deviations.json"):
+            with patch('spec_deviation_handler.setup_logging') as mock_logger:
+                mock_logger_instance = MagicMock()
+                mock_logger.return_value = mock_logger_instance
+                
+                record_spec_deviation_fr003(mock_logger_instance)
+                
+                mock_logger_instance.warning.assert_called()
+                
+                log_file = logs_dir / "deviation.log"
+                with open(log_file, 'r') as f:
+                    content = f.read()
+                    assert "FR-003" in content
+                    assert "KNN imputation excluded" in content
 
-def test_record_fr002_appends_correctly():
-    """Test that record_spec_deviation_fr002 appends the correct object."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        import spec_deviation_handler
-        original_path = spec_deviation_handler.DEVIATIONS_FILE_PATH
-        try:
-            test_file = Path(tmpdir) / "fr002_test.json"
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = str(test_file)
-            
-            # Pre-populate with a dummy entry
-            save_deviations([{"fr_id": "FR-000", "deviation": "Existing", "impact": "Impact"}])
-            
-            record_spec_deviation_fr002()
-            
-            loaded = load_deviations()
-            assert len(loaded) == 2
-            assert loaded[0]["fr_id"] == "FR-000"
-            
-            fr002_entry = loaded[1]
-            assert fr002_entry["fr_id"] == "FR-002"
-            assert fr002_entry["deviation"] == "ISRIC merge excluded due to lack of verified source; proceeding with PlantPheno only."
-            assert fr002_entry["impact"] == "SC-001 metric redefined as P/N Availability Rate"
-        finally:
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = original_path
-
-def test_record_fr002_no_duplicate():
-    """Test that record_spec_deviation_fr002 does not duplicate if already present."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        import spec_deviation_handler
-        original_path = spec_deviation_handler.DEVIATIONS_FILE_PATH
-        try:
-            test_file = Path(tmpdir) / "fr002_dup_test.json"
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = str(test_file)
-            
-            # Pre-populate with FR-002
-            existing_entry = {
-                "fr_id": "FR-002",
-                "deviation": "ISRIC merge excluded due to lack of verified source; proceeding with PlantPheno only.",
-                "impact": "SC-001 metric redefined as P/N Availability Rate"
-            }
-            save_deviations([existing_entry])
-            
-            record_spec_deviation_fr002()
-            
-            loaded = load_deviations()
-            # Should still be length 1, not 2
-            assert len(loaded) == 1
-            assert loaded[0]["fr_id"] == "FR-002"
-        finally:
-            spec_deviation_handler.DEVIATIONS_FILE_PATH = original_path
+def test_load_deviations_empty_when_missing(temp_deviation_files):
+    """Test loading deviations when file doesn't exist."""
+    with patch('spec_deviation_handler.DEVIATIONS_JSON_PATH', temp_deviation_files[1] / "nonexistent.json"):
+        result = load_deviations()
+        assert result == []

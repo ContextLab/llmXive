@@ -8,226 +8,233 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 
 from config import get_config, setup_logging
-from logging_integration import get_pipeline_logger, log_exclusion_counts
 
-# Constants for data source type detection
-SOURCE_TYPE_ALIASES = [
-    'data_source_type',
-    'source_type',
-    'experiment_type',
-    'data_origin',
-    'study_type',
-    'experimental_type'
-]
 
-EXCLUDED_SOURCE_VALUES = [
-    'manipulated',
-    'controlled',
-    'nutrient_manipulation',
-    'treatment',
-    'manipulated_nutrients',
-    'controlled_environment'
-]
+def get_config() -> Dict[str, Any]:
+    """Load configuration from config.yaml."""
+    config_path = Path(__file__).parent.parent / "code" / "config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
 
-# Global state flag set by T014
-p_n_available: bool = False
 
-def set_p_n_available(status: bool) -> None:
-    """Set the global flag indicating if P/N columns are available."""
-    global p_n_available
-    p_n_available = status
-
-def fetch_plantpheno() -> pd.DataFrame:
+def get_data_source_type_column(df: pd.DataFrame) -> str:
     """
-    Fetch PlantPheno dataset.
-    In a real implementation, this would use datasets.load_dataset or a direct URL.
-    For this task, we assume the data is available via a verified source or T013 handles it.
+    Detect the data source type column.
+    Checks for 'data_source_type' or known aliases.
+    Raises ValueError if not found.
     """
-    config = get_config()
-    # Placeholder for actual fetch logic from T013
-    # This function is expected to be implemented fully in T013
-    # We raise an error if not implemented to ensure T013 runs first
-    raise NotImplementedError("fetch_plantpheno must be implemented in T013")
-
-def fetch_rootreader() -> pd.DataFrame:
-    """
-    Fetch RootReader dataset.
-    Placeholder for T013 implementation.
-    """
-    raise NotImplementedError("fetch_rootreader must be implemented in T013")
-
-def parse_rootreader(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Parse RootReader DataFrame into standard schema.
-    Placeholder for T013 implementation.
-    """
-    raise NotImplementedError("parse_rootreader must be implemented in T013")
-
-def check_p_n_columns(df: pd.DataFrame) -> bool:
-    """
-    Check if Phosphorus and Nitrogen columns exist.
-    Sets global p_n_available flag.
-    """
-    global p_n_available
-    # Check for standard names or aliases
-    p_cols = [c for c in df.columns if 'phosphorus' in c.lower() or 'p_' in c.lower()]
-    n_cols = [c for c in df.columns if 'nitrogen' in c.lower() or 'n_' in c.lower()]
-    
-    p_n_available = len(p_cols) > 0 and len(n_cols) > 0
-    return p_n_available
-
-def detect_source_type_column(df: pd.DataFrame) -> str:
-    """
-    Detect the column representing data source type.
-    Raises ValueError if no matching column is found.
-    """
-    for alias in SOURCE_TYPE_ALIASES:
-        if alias in df.columns:
-            return alias
-    
-    # Try case-insensitive match
-    cols_lower = {c.lower(): c for c in df.columns}
-    for alias in SOURCE_TYPE_ALIASES:
-        if alias.lower() in cols_lower:
-            return cols_lower[alias.lower()]
-    
+    aliases = ["data_source_type", "source_type", "experiment_type", "data_origin"]
+    for col in aliases:
+        if col in df.columns:
+            return col
     raise ValueError(
-        f"Could not detect 'data_source_type' column. "
-        f"Checked aliases: {SOURCE_TYPE_ALIASES}. "
+        f"Could not detect data source type column. "
+        f"Expected one of: {aliases}. "
         f"Available columns: {list(df.columns)}"
     )
 
-def apply_filters(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Apply filtering logic as per T015:
-    1. Exclude rows where data_source_type indicates manipulation/controlled conditions.
-    2. Exclude rows where Phosphorus or Nitrogen are missing (if p_n_available).
-    3. Exclude species with n < 20.
-    
-    Returns:
-        Tuple of (filtered_df, exclusion_stats)
-    """
-    global p_n_available
-    logger = get_pipeline_logger("data_ingestion")
-    
-    stats = {
-        "total_rows_input": len(df),
-        "excluded_source_type": 0,
-        "excluded_missing_nutrients": 0,
-        "excluded_low_sample_size": 0,
-        "total_rows_output": 0
-    }
-    
-    # 1. Filter by data_source_type
-    source_col = detect_source_type_column(df)
-    initial_len = len(df)
-    
-    # Normalize values to lowercase for comparison
-    df[source_col] = df[source_col].astype(str).str.lower().str.strip()
-    
-    mask_source = ~df[source_col].isin(EXCLUDED_SOURCE_VALUES)
-    df_filtered = df[mask_source].copy()
-    stats["excluded_source_type"] = initial_len - len(df_filtered)
-    
-    logger.info(f"Excluded {stats['excluded_source_type']} rows due to data_source_type in {EXCLUDED_SOURCE_VALUES}")
-    
-    # 2. Filter by missing nutrients (if p_n_available)
-    if p_n_available:
-        # Identify P and N columns
-        p_col = next((c for c in df_filtered.columns if 'phosphorus' in c.lower() or 'p_' in c.lower()), None)
-        n_col = next((c for c in df_filtered.columns if 'nitrogen' in c.lower() or 'n_' in c.lower()), None)
-        
-        if p_col and n_col:
-            initial_len = len(df_filtered)
-            mask_nutrients = df_filtered[p_col].notna() & df_filtered[n_col].notna()
-            df_filtered = df_filtered[mask_nutrients].copy()
-            stats["excluded_missing_nutrients"] = initial_len - len(df_filtered)
-            logger.info(f"Excluded {stats['excluded_missing_nutrients']} rows due to missing P/N values")
-        else:
-            logger.warning("P/N columns not found despite p_n_available=True")
-    
-    # 3. Filter by species sample size (n < 20)
-    initial_len = len(df_filtered)
-    species_counts = df_filtered['species'].value_counts()
-    valid_species = species_counts[species_counts >= 20].index.tolist()
-    excluded_species = species_counts[species_counts < 20].index.tolist()
-    
-    mask_species = df_filtered['species'].isin(valid_species)
-    df_filtered = df_filtered[mask_species].copy()
-    stats["excluded_low_sample_size"] = initial_len - len(df_filtered)
-    stats["excluded_species_list"] = excluded_species
-    stats["total_species_input"] = len(species_counts)
-    stats["excluded_species_count"] = len(excluded_species)
-    
-    logger.info(f"Excluded {stats['excluded_low_sample_size']} rows due to species sample size < 20")
-    logger.info(f"Excluded species (n<20): {excluded_species}")
-    
-    stats["total_rows_output"] = len(df_filtered)
-    
-    return df_filtered, stats
 
-def write_species_counts_report(stats: Dict[str, Any]) -> Path:
+def filter_by_data_source_type(
+    df: pd.DataFrame, logger: logging.Logger
+) -> Tuple[pd.DataFrame, int]:
     """
-    Write the species counts report to artifacts/reports/species_counts.json.
+    Filter out rows where data_source_type indicates 'manipulated' or 'controlled'.
+    Returns filtered dataframe and count of excluded rows.
     """
-    config = get_config()
-    output_path = Path(config.get("OUTPUT_PATH", "artifacts/reports")) / "species_counts.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Ensure keys match spec exactly
-    report = {
-        "total_species_input": stats.get("total_species_input", 0),
-        "excluded_species_count": stats.get("excluded_species_count", 0),
-        "excluded_species_list": stats.get("excluded_species_list", [])
+    if df.empty:
+        return df, 0
+
+    source_col = get_data_source_type_column(df)
+    exclude_values = [
+        "manipulated",
+        "controlled",
+        "nutrient_manipulation",
+        "treatment",
+    ]
+
+    mask = ~df[source_col].isin(exclude_values)
+    excluded_count = (~mask).sum()
+
+    filtered_df = df[mask].reset_index(drop=True)
+    logger.info(
+        f"Filtered by data_source_type: excluded {excluded_count} rows "
+        f"(values: {exclude_values})"
+    )
+    return filtered_df, excluded_count
+
+
+def filter_by_missing_nutrients(
+    df: pd.DataFrame,
+    p_n_available: bool,
+    logger: logging.Logger,
+) -> Tuple[pd.DataFrame, int]:
+    """
+    If p_n_available is True, exclude rows where Phosphorus or Nitrogen values are missing (NaN).
+    Do NOT impute.
+    Returns filtered dataframe and count of excluded rows.
+    """
+    if not p_n_available:
+        logger.info("p_n_available is False. Skipping missing nutrient filter.")
+        return df, 0
+
+    if df.empty:
+        return df, 0
+
+    nutrient_cols = ["phosphorus", "nitrogen"]
+    missing_cols = [c for c in nutrient_cols if c in df.columns]
+
+    if not missing_cols:
+        logger.warning(
+            f"Expected nutrient columns {nutrient_cols} not found in dataframe. "
+            f"Skipping missing nutrient filter."
+        )
+        return df, 0
+
+    initial_count = len(df)
+    mask = df[missing_cols].notna().all(axis=1)
+    excluded_count = (~mask).sum()
+
+    filtered_df = df[mask].reset_index(drop=True)
+    logger.info(
+        f"Filtered by missing nutrients: excluded {excluded_count} rows "
+        f"(columns checked: {missing_cols})"
+    )
+    return filtered_df, excluded_count
+
+
+def filter_by_sample_size(
+    df: pd.DataFrame,
+    min_samples: int = 20,
+    logger: logging.Logger = None,
+) -> Tuple[pd.DataFrame, int, List[str]]:
+    """
+    Exclude species with n < min_samples.
+    Returns filtered dataframe, count of excluded species, and list of excluded species names.
+    """
+    if df.empty:
+        return df, 0, []
+
+    if "species" not in df.columns:
+        logger.warning("No 'species' column found. Cannot filter by sample size.")
+        return df, 0, []
+
+    species_counts = df["species"].value_counts()
+    excluded_species = species_counts[species_counts < min_samples].index.tolist()
+    excluded_count = len(excluded_species)
+
+    mask = df["species"].isin(species_counts[species_counts >= min_samples].index)
+    filtered_df = df[mask].reset_index(drop=True)
+
+    if logger:
+        logger.info(
+            f"Filtered by sample size (n<{min_samples}): excluded {excluded_count} species, "
+            f"{len(df) - len(filtered_df)} rows"
+        )
+        logger.debug(f"Excluded species: {excluded_species}")
+
+    return filtered_df, excluded_count, excluded_species
+
+
+def write_species_counts_report(
+    total_species_input: int,
+    excluded_species_count: int,
+    excluded_species_list: List[str],
+    rows_excluded_by_source: int,
+    rows_excluded_by_missing_nutrients: int,
+    rows_excluded_by_sample_size: int,
+    config: Dict[str, Any],
+    logger: logging.Logger,
+) -> Path:
+    """
+    Write a JSON file containing species counts and exclusion metrics.
+    """
+    report_path = Path(config["ARTIFACTS_PATH"]) / "reports" / "species_counts.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report_data = {
+        "total_species_input": int(total_species_input),
+        "excluded_species_count": int(excluded_species_count),
+        "excluded_species_list": excluded_species_list,
+        "rows_excluded_by_source": int(rows_excluded_by_source),
+        "rows_excluded_by_missing_nutrients": int(rows_excluded_by_missing_nutrients),
+        "rows_excluded_by_sample_size": int(rows_excluded_by_sample_size),
     }
-    
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger = get_pipeline_logger("data_ingestion")
-    logger.info(f"Species counts report written to {output_path}")
-    return output_path
+
+    with open(report_path, "w") as f:
+        json.dump(report_data, f, indent=2)
+
+    logger.info(f"Species counts report written to {report_path}")
+    return report_path
+
+
+def load_processed_data(config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Load the processed dataset from disk.
+    """
+    data_path = Path(config["DATA_PATH"]) / "processed" / "merged_dataset.csv"
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed data not found: {data_path}")
+    return pd.read_csv(data_path)
+
 
 def main():
     """
-    Main entry point for T015 filtering logic.
-    Assumes T013 (fetching) and T014 (P/N check) have been executed.
+    Main entry point for T015c: Filter by Missing Nutrients.
+    This function assumes T014b has set p_n_available in state.json.
     """
-    logger = setup_logging()
-    logger.info("Starting T015: Filtering logic implementation")
-    
-    # In a real pipeline, data would be fetched here or passed from previous step
-    # For this task, we assume the data is available in a processed state or fetched by T013
-    # Since T013 is marked as completed, we assume fetch_plantpheno works
-    # However, to make this script runnable for verification, we need to handle the case
-    # where T013 might not have fully populated the data yet.
-    
-    # NOTE: This script is designed to be run after T013 and T014.
-    # If T013 hasn't been run, fetch_plantpheno will raise NotImplementedError.
-    # If T014 hasn't been run, p_n_available will be False.
-    
-    try:
-        # Attempt to fetch data (T013 responsibility)
-        df = fetch_plantpheno()
-    except NotImplementedError as e:
-        logger.error(f"Data fetching not implemented: {e}")
-        print(f"Error: {e}. Please ensure T013 is completed.")
+    config = get_config()
+    logger = setup_logging(config)
+
+    logger.info("Starting T015c: Filter by Missing Nutrients")
+
+    # Load state to check p_n_available
+    state_path = Path(config["ARTIFACTS_PATH"]) / "state.json"
+    if not state_path.exists():
+        logger.error("State file not found. Run T014a first.")
         sys.exit(1)
-    
-    # Ensure P/N check was done (T014 responsibility)
-    # If not, we check here as a fallback
-    if not p_n_available:
-        logger.warning("p_n_available is False. Checking columns now.")
-        check_p_n_columns(df)
-    
-    # Apply filters
-    filtered_df, stats = apply_filters(df)
-    
-    # Write report
-    write_species_counts_report(stats)
-    
-    logger.info("T015 completed successfully")
-    return filtered_df, stats
+
+    with open(state_path, "r") as f:
+        state = json.load(f)
+
+    p_n_available = state.get("p_n_available", False)
+    logger.info(f"p_n_available flag from state: {p_n_available}")
+
+    # Load processed data (output of T013/T015b)
+    try:
+        df = load_processed_data(config)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    initial_rows = len(df)
+    logger.info(f"Loaded dataset with {initial_rows} rows")
+
+    # Apply missing nutrient filter
+    df_filtered, excluded_count = filter_by_missing_nutrients(
+        df, p_n_available, logger
+    )
+
+    final_rows = len(df_filtered)
+    logger.info(
+        f"T015c complete. Excluded {excluded_count} rows due to missing nutrients. "
+        f"Remaining rows: {final_rows}"
+    )
+
+    # Save filtered data (optional, but good practice for pipeline)
+    output_path = Path(config["DATA_PATH"]) / "processed" / "filtered_nutrients.csv"
+    df_filtered.to_csv(output_path, index=False)
+    logger.info(f"Filtered data saved to {output_path}")
+
+    # Note: The actual writing of species_counts.json is handled by T015e,
+    # which aggregates counts from all filter steps. T015c returns the count.
+    # We return the count via stdout for potential chaining, though in a real
+    # pipeline this would be managed by a workflow engine.
+    print(json.dumps({"rows_excluded_by_missing_nutrients": excluded_count}))
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

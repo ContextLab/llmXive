@@ -1,65 +1,71 @@
-"""
-Script to verify linting configuration is correct and code passes checks.
-This script attempts to run black and flake8 checks.
-It is designed to be run as: python code/linting_check.py
-"""
 import subprocess
 import sys
 import os
 from pathlib import Path
+import logging
 
-def run_command(cmd: list[str]) -> tuple[int, str, str]:
-    """Run a shell command and return (returncode, stdout, stderr)."""
+from config import get_config, setup_logging
+
+def run_command(cmd: list, cwd: Path = None) -> tuple:
+    """
+    Run a shell command and return (return_code, stdout, stderr).
+    """
     try:
         result = subprocess.run(
             cmd,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            check=False,
-            cwd=Path(__file__).parent.parent
+            check=False
         )
         return result.returncode, result.stdout, result.stderr
-    except FileNotFoundError:
-        return -1, "", f"Command not found: {cmd[0]}"
+    except FileNotFoundError as e:
+        logging.error(f"Command not found: {cmd[0]}")
+        return 127, "", str(e)
 
-def main() -> int:
-    """Execute linting checks."""
-    project_root = Path(__file__).parent.parent
+def main():
+    config = get_config()
+    logger = setup_logging()
+    project_root = Path(config.get("PROJECT_ROOT", "."))
     code_dir = project_root / "code"
 
-    if not code_dir.exists():
-        print(f"Error: Code directory not found at {code_dir}")
-        return 1
+    logger.info("Starting linting checks...")
+    errors_found = False
 
-    print("Running Black check...")
-    black_code, black_out, black_err = run_command(["black", "--check", "--diff", str(code_dir)])
-    if black_code == 0:
-        print("✓ Black check passed.")
+    # 1. Black check
+    logger.info("Running black --check code/ ...")
+    black_cmd = [sys.executable, "-m", "black", "--check", str(code_dir)]
+    rc, stdout, stderr = run_command(black_cmd, cwd=project_root)
+
+    if rc == 0:
+        logger.info("Black check passed: code is formatted correctly.")
     else:
-        print("✗ Black check failed.")
-        if black_out:
-            print(black_out)
-        if black_err:
-            print(black_err)
+        errors_found = True
+        logger.error("Black check failed:")
+        logger.error(stdout)
+        if stderr:
+            logger.error(stderr)
 
-    print("\nRunning Flake8 check...")
-    flake8_code, flake8_out, flake8_err = run_command(["flake8", str(code_dir)])
-    if flake8_code == 0:
-        print("✓ Flake8 check passed.")
+    # 2. Flake8 check
+    logger.info("Running flake8 code/ ...")
+    flake8_cmd = [sys.executable, "-m", "flake8", str(code_dir)]
+    rc, stdout, stderr = run_command(flake8_cmd, cwd=project_root)
+
+    if rc == 0:
+        logger.info("Flake8 check passed: no style/lint errors found.")
     else:
-        print("✗ Flake8 check failed.")
-        if flake8_out:
-            print(flake8_out)
-        if flake8_err:
-            print(flake8_err)
+        errors_found = True
+        logger.error("Flake8 check failed:")
+        logger.error(stdout)
+        if stderr:
+            logger.error(stderr)
 
-    # Return non-zero if any check failed
-    if black_code != 0 or flake8_code != 0:
-        print("\nLinting failed. Please fix the issues above.")
-        return 1
-
-    print("\nAll linting checks passed successfully.")
-    return 0
+    if errors_found:
+        logger.error("Linting checks completed with errors.")
+        sys.exit(1)
+    else:
+        logger.info("All linting checks passed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

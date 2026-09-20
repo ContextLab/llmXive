@@ -1,3 +1,9 @@
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting output or report files are provided; there is no evidence that `black
+    --check code/` and `flake8 code/` were run or that they produced zero errors.
+    The required artifact (a linting verification result) is missing.
 T004:
   c: false
   h: 279b47b8e5a8d8775611d97d9571dca9b03f6496d315db7bf32d89db3e6a9412
@@ -6,74 +12,66 @@ T004:
     The task explicitly calls for loading these values from `config.yaml`, which is
     absent. The implementation also contains a minor bug (uses `sys` without importing
     it), further indicating the artifact is not a complete, functional solution.
-T009:
-  c: false
-  h: c34e25651957f3dd04c4965f2df66ea458ebee99fa74765fb52262892f4601df
-  r: The repository contains `tests/contract/test_schemas.py`, but the required schema
-    file `contracts/dataset.schema.yaml` is absent, so the test cannot validate the
-    specified columns. Additionally, the provided snippet does not show the required
-    `test_merged_dataset_schema_validates_columns` function. Both the schema artifact
-    and the specific test are missing, so the task is not genuinely completed.
-T014:
+T014a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration file was provided that actually inspects the\
-    \ PlantPheno dataset for `phosphorus` and `nitrogen` columns, raises the required\
-    \ `ValueError` when they are absent, or sets a global `p_n_available=True` flag\
-    \ when present. Without such artifacts, the task\u2019s acceptance criteria cannot\
-    \ be verified."
-T015:
-  c: false
-  h: 0d887ca4138aba13e76b166a957ab809bbcd0305f5350decc966212f3aa40899
-  r: "The `code/data_ingestion.py` file is incomplete (truncated and contains many\
-    \ placeholder `NotImplementedError` stubs, with no actual filtering, logging,\
-    \ or JSON\u2011writing logic). Additionally, the required output file `artifacts/reports/species_counts.json`\
-    \ does not exist. Both the functional implementation and the required artifact\
-    \ are missing."
-T015b:
+  r: No `artifacts/state.json` file was presented or described, and there is no evidence
+    that such a file exists or contains valid JSON. The required artifact is missing,
+    so the task is not satisfied.
+T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of an `artifacts/deviations.json` file was provided, nor any content\
-    \ showing that the required JSON object for FR\u2011002 was appended. Without\
-    \ the file or its contents, the task\u2019s requirement cannot be confirmed as\
-    \ satisfied."
-T015c:
+  r: No `artifacts/state.json` file was presented, and there is no evidence that the
+    `p_n_available` flag was written to it. The required artifact is missing, so the
+    task is not satisfied.
+T014c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/deviations.json` file or its contents were presented, so we cannot
-    confirm that the required JSON object was appended. The implementer must provide
-    the actual file with the specified entry.
-T019:
+  r: "No evidence of a `logs/deviation.log` entry recording \u201CHypothesis Unverifiable\u201D\
+    \ nor a `artifacts/state.json` file with the required flag is provided; the required\
+    \ artifacts are missing."
+T015d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log file, or documentation showing that exclusion\u2011count\
-    \ logging has been added to T015 and T016 is present. The claim provides only\
-    \ a textual note, without any concrete artifact to verify the logging behavior.\
-    \ Consequently the required implementation evidence is missing."
+  r: "No artifact (e.g., script output, log file, or filtered dataset) was provided\
+    \ showing the count of species and rows excluded when applying the n\u202F\u2265\
+    \u202F20 filter, so the requirement cannot be verified. The implementer must supply\
+    \ the actual filtering code/run results and the corresponding log entries."
+T015h:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No `logs/deviation.log` file or its contents were provided, so we cannot verify
+    that the required log entry `"FR-003: KNN imputation excluded to preserve statistical
+    validity; missing nutrients are excluded"` exists. The implementer must supply
+    the log file with the exact entry.'
+T015i:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `logs/deviation.log` file was provided, nor any excerpt showing
+    entries for FR-002 and FR-003. Without the actual log file contents, we cannot
+    confirm that the required deviations have been recorded. The implementer must
+    supply the log file with the appropriate entries.
 T020:
   c: false
-  h: c34e25651957f3dd04c4965f2df66ea458ebee99fa74765fb52262892f4601df
-  r: The repository contains `tests/contract/test_schemas.py`, but the file is truncated
-    and does not show the required `test_model_metrics_schema_validates_fields` function,
-    and the referenced schema `contracts/model_results.schema.yaml` is absent. Without
-    the schema file and a visible test that validates the `lmm.adjusted_r_squared`
-    and `lmm.p_values` fields, the task is not satisfied.
-T028:
+  h: f014b33297aa3a428997240458ae73bfb9b4b8aed19a6b5d1c7762e012655924
+  r: The repository lacks the required `contracts/model_results.schema.yaml` file,
+    and the provided `tests/contract/test_schemas.py` snippet does not show the specific
+    `test_model_metrics_schema_validates_fields` function that validates that schema.
+    Both the schema definition and the concrete test are missing, so the task is not
+    satisfied.
+T026b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, results, or documentation for a sensitivity analysis of nutrient coefficients\
-    \ against literature ranges is present; the provided artifacts only cover data\
-    \ ingestion, modeling, and visualization, not the required FR\u2011011 analysis.\
-    \ The task\u2019s specific output (e.g., a script or report showing how coefficient\
-    \ values vary within literature\u2011reported nutrient ranges) is missing."
-T029:
+  r: "No code, log file, or other artifact was provided that reads F\u2011test p\u2011\
+    values, checks they lie in [0,\u202F1], and writes the required \u201CF-test verification\
+    \ passed/failed\u201D message. Without such evidence the task\u2019s requirement\
+    \ is not demonstrated."
+T028a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No JSON output was provided; the implementer did not supply a file containing\
-    \ adjusted\u202FR\xB2, RMSE, p\u2011values, cross\u2011validation mean\u202FR\xB2\
-    \ for both the LMM and RF models, nor the logic to compare the R\xB2 values and\
-    \ set `success_criterion_met`. Without this artifact, the task requirements are\
-    \ not met."
+  r: No `artifacts/literature_ranges.json` file or verification script is present,
+    and there are no cited literature sources. The required output and evidence are
+    missing, so the task is not satisfied.
 T030:
   c: false
   h: c34e25651957f3dd04c4965f2df66ea458ebee99fa74765fb52262892f4601df
