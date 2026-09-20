@@ -12,7 +12,7 @@ This feature implements a computational study to empirically assess how standard
 **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`  
 **Storage**: Local filesystem (`data/` for synthetic artifacts, `code/` for scripts). No external database.  
 **Testing**: `pytest` (unit tests for data generation logic, integration tests for simulation pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: vCPU, ~7 GB RAM).  
 **Project Type**: Computational research / Simulation library.  
 **Performance Goals**: Complete full simulation sweep (1000 iterations per setting) within 6 hours on CPU. Memory usage < 6 GB.  
 **Constraints**: No GPU/CUDA; no large-LLM inference; strict adherence to `scipy`/`numpy` CPU-only methods; regularization required for singular covariance matrices.  

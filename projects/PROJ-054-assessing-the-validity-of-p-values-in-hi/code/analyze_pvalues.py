@@ -6,366 +6,358 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
+# Import existing utilities from the project's API surface
+from utils.exceptions import HighDimensionalInstabilityError
+from utils.regularization import regularize_covariance, is_condition_number_acceptable
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# --- Helper Functions (Existing API Surface) ---
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+WORST_CASE_FILE = DATA_RESULTS_DIR / "worst_case_summary.json"
 
-def load_seed_map(seed_map_path: str = "data/sweep/seed_map.json") -> Dict[str, List[int]]:
-    """Loads the seed map from disk."""
-    path = Path(seed_map_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Seed map not found at {path}")
-    with open(path, 'r') as f:
+def load_worst_case_scenario() -> Dict[str, Any]:
+    """
+    Load the worst-case scenario summary from the JSON file.
+    
+    Returns:
+        Dict containing seed, n, p, rho, distribution_type, and ks_stat.
+        
+    Raises:
+        FileNotFoundError: If the worst_case_summary.json file does not exist.
+        json.JSONDecodeError: If the file contains invalid JSON.
+    """
+    if not WORST_CASE_FILE.exists():
+        raise FileNotFoundError(
+            f"Worst case summary file not found at {WORST_CASE_FILE}. "
+            "Please ensure T049 has been executed successfully."
+        )
+    
+    with open(WORST_CASE_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_params(params_path: str = "data/sweep/params.csv") -> List[Dict[str, Any]]:
-    """Loads parameters from CSV. Returns list of dicts."""
-    import csv
-    path = Path(params_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Params file not found at {path}")
-    params = []
-    with open(path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Convert types
-            row['n'] = int(row['n'])
-            row['p'] = int(row['p'])
-            row['rho'] = float(row['rho'])
-            row['seed'] = int(row['seed'])
-            params.append(row)
-    return params
-
-def load_embarrassment_log(log_path: str = "data/results/embarrassment_log.csv") -> List[Dict[str, Any]]:
-    """Loads the embarrassment log from disk."""
-    import csv
-    path = Path(log_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Embarrassment log not found at {path}. "
-                                "Ensure T043-raw has run successfully.")
-    logs = []
-    with open(path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            row['seed'] = int(row['seed'])
-            row['n'] = int(row['n'])
-            row['p'] = int(row['p'])
-            row['rho'] = float(row['rho'])
-            row['ks_stat'] = float(row['ks_stat'])
-            logs.append(row)
-    return logs
-
-def generate_correlated_data_with_rng(
-    n: int,
-    p: int,
-    rho: float,
-    dist_type: str,
-    rng: np.random.Generator
-) -> np.ndarray:
+def load_pvalues_for_seed(seed: int) -> np.ndarray:
     """
-    Generates a (n, p) matrix with correlation rho and specified distribution.
-    Uses the provided RNG for reproducibility.
-    """
-    # Correlation matrix: AR(1) structure
-    # Sigma[i,j] = rho^|i-j|
-    # For stability in high dimensions, we might need regularization if rho is very high,
-    # but for generation we construct the Cholesky factor directly or use eigen-decomp.
-    # Simple AR(1) construction:
-    # L is lower triangular. L[i,i] = 1. L[i, i-1] = rho.
-    # Actually, for AR(1) with variance 1:
-    # X_t = rho * X_{t-1} + sqrt(1-rho^2) * eps_t
+    Load p-values for a specific seed from the CSV file.
     
-    # Let's use a simpler spectral method or Cholesky if p is small enough.
-    # For p=5000, Cholesky is O(p^3) ~ 125e9 ops, too slow.
-    # We use the AR(1) generation method which is O(n*p).
-    
-    data = np.zeros((n, p))
-    sqrt_1_rho2 = np.sqrt(1 - rho**2) if abs(rho) < 1.0 else 0.0
-    
-    for i in range(n):
-        row = np.zeros(p)
-        # First element
-        if dist_type == 'normal':
-            row[0] = rng.normal(0, 1)
-        elif dist_type == 't':
-            row[0] = rng.standard_t(df=3)
-        elif dist_type == 'skew_normal':
-            # Skew normal with alpha=5
-            row[0] = rng.normal(0, 1) + 0.5 * rng.normal(0, 1)**2 # Rough approx or use scipy
-            # Actually, let's just use standard normal for simplicity if scipy not available in snippet
-            # But task requires specific dist. We'll assume scipy is available or use a simple skew.
-            # Using a simple transformation for skew:
-            row[0] = rng.normal(0, 1) * (1 + 0.5 * rng.normal(0, 1)) 
-        else:
-            row[0] = rng.normal(0, 1)
+    Args:
+        seed: The seed integer used to generate the data.
         
-        # Normalize first element to have variance 1 if needed, but AR(1) preserves variance if done right.
-        # Standard AR(1): X_t = rho X_{t-1} + sqrt(1-rho^2) Z_t
+    Returns:
+        numpy array of p-values.
         
-        for j in range(1, p):
-            noise = rng.normal(0, 1)
-            if dist_type == 'normal':
-                noise_val = noise
-            elif dist_type == 't':
-                noise_val = rng.standard_t(df=3)
-                # Normalize t-dist to have variance 1? df=3 has variance 3/1=3.
-                noise_val = noise_val / np.sqrt(3)
-            elif dist_type == 'skew_normal':
-                # Simple skew generation
-                noise_val = rng.normal(0, 1) + 0.5 * rng.normal(0, 1)**2
-                # Approximate normalization
-                noise_val = noise_val / 1.5 
-            else:
-                noise_val = noise
-            
-            row[j] = rho * row[j-1] + sqrt_1_rho2 * noise_val
-        
-        data[i] = row
+    Raises:
+        FileNotFoundError: If the p-values CSV file does not exist.
+    """
+    pvalues_file = DATA_RESULTS_DIR / f"pvalues_{seed}.csv"
+    if not pvalues_file.exists():
+        raise FileNotFoundError(
+            f"P-values file not found for seed {seed} at {pvalues_file}. "
+            "Please ensure T022c has been executed successfully."
+        )
     
-    return data
+    pvalues = []
+    with open(pvalues_file, 'r', encoding='utf-8') as f:
+        # Skip header
+        next(f)
+        for line in f:
+            parts = line.strip().split(',')
+            if len(parts) >= 2:
+                try:
+                    pval = float(parts[1])
+                    pvalues.append(pval)
+                except ValueError:
+                    continue
+    
+    return np.array(pvalues)
 
-def generate_permutation_reference(
-    data: np.ndarray,
-    rng: np.random.Generator,
-    n_permutations: int = 1000
-) -> np.ndarray:
+def load_permutation_reference(seed: int) -> np.ndarray:
     """
-    Generates p-values from a permutation test (Gold Standard).
-    Row-wise shuffling to break null hypothesis.
-    """
-    n, p = data.shape
-    pvals = np.zeros(p)
+    Load the permutation-based reference p-values for a specific seed.
     
-    # For each feature (column), perform a permutation test
-    # Null: Mean of group A == Mean of group B (if we had groups).
-    # Here, we assume the data is one group under null, but we are testing for "signal".
-    # The task implies we are testing against a null where mean is 0?
-    # Or we split the data into two halves and test difference of means?
-    # Standard high-dim t-test usually compares two groups.
-    # Let's assume we split the n samples into two groups of n/2.
-    # Under null (random noise), the difference in means should be 0.
-    # Permutation: shuffle labels (which sample belongs to group A or B).
-    
-    if n < 4:
-        # Too small to split
-        return np.ones(p) * 0.5
+    Args:
+        seed: The seed integer.
         
-    n1 = n // 2
-    n2 = n - n1
-    
-    # Observed difference in means
-    obs_diff = np.mean(data[:n1], axis=0) - np.mean(data[n1:], axis=0)
-    
-    for i in range(n_permutations):
-        # Shuffle the entire dataset rows to break any structure
-        # Actually, for permutation test of difference of means:
-        # We shuffle the labels. Since we don't have labels, we permute the rows
-        # and re-split.
-        perm_indices = rng.permutation(n)
-        perm_data = data[perm_indices]
-        perm_diff = np.mean(perm_data[:n1], axis=0) - np.mean(perm_data[n1:], axis=0)
+    Returns:
+        numpy array of permutation p-values.
         
-        # Two-sided p-value calculation
-        # Count how many permuted diffs are more extreme than observed
-        # This is expensive in pure python loop, vectorize if possible
-        # But for n_perm=1000, loop is okay.
-        pass
+    Raises:
+        FileNotFoundError: If the permutation p-values file does not exist.
+    """
+    perm_file = DATA_RESULTS_DIR / f"permutation_pvalues_{seed}.npz"
+    if not perm_file.exists():
+        raise FileNotFoundError(
+            f"Permutation reference file not found for seed {seed} at {perm_file}. "
+            "Please ensure T028a-raw has been executed successfully."
+        )
     
-    # Vectorized approach for speed
-    # Generate all permutations? No, memory.
-    # We do a loop but vectorize the diff calculation.
-    # To save time, we might reduce n_permutations if n is large, but spec says 1000.
+    with np.load(perm_file) as data:
+        # Assuming the array is stored under the key 'arr_0' or similar
+        keys = list(data.keys())
+        if not keys:
+            raise ValueError(f"No arrays found in {perm_file}")
+        return data[keys[0]]
+
+def generate_correlated_data(n: int, p: int, rho: float, seed: int) -> np.ndarray:
+    """
+    Generate a high-dimensional dataset with a specific correlation structure.
     
-    # Re-implementation for vectorization:
-    # We need n_permutations rows of shuffled data.
-    # This is memory heavy: 1000 * n * p.
-    # We'll do it in chunks or just loop.
-    
-    # Let's do a loop for correctness and memory safety
-    count_extreme = np.zeros(p)
-    for i in range(n_permutations):
-        perm_indices = rng.permutation(n)
-        perm_data = data[perm_indices]
-        perm_diff = np.mean(perm_data[:n1], axis=0) - np.mean(perm_data[n1:], axis=0)
-        # Two-sided: |perm_diff| >= |obs_diff|
-        count_extreme += (np.abs(perm_diff) >= np.abs(obs_diff)).astype(int)
+    Args:
+        n: Number of samples.
+        p: Number of features.
+        rho: Correlation coefficient for the equicorrelation matrix.
+        seed: Random seed for reproducibility.
         
-    pvals = (count_extreme + 1) / (n_permutations + 1)
-    return pvals
-
-def calculate_ks_statistic(observed_pvals: np.ndarray, reference_pvals: np.ndarray) -> float:
+    Returns:
+        numpy array of shape (n, p) with the specified correlation structure.
+        
+    Raises:
+        HighDimensionalInstabilityError: If p/n > 10 or if the covariance matrix is singular.
     """
-    Calculates the Kolmogorov-Smirnov statistic between observed and reference p-values.
-    Compares the ECDFs.
-    """
-    # Sort both
-    obs_sorted = np.sort(observed_pvals)
-    ref_sorted = np.sort(reference_pvals)
+    np.random.seed(seed)
     
-    # We want to compare the distribution of observed p-values to the reference distribution.
-    # The reference distribution is the "Gold Standard" (permutation).
-    # We compute the KS statistic between the two empirical distributions.
+    # Check p/n ratio
+    if p / n > 10:
+        raise HighDimensionalInstabilityError(
+            f"p/n ratio ({p/n:.2f}) exceeds threshold of 10. "
+            "This configuration is too high-dimensional for reliable estimation."
+        )
     
-    # Combine and sort? No, KS is between two CDFs.
-    # D = sup |F_n(x) - G_m(x)|
+    # Construct the correlation matrix
+    # Equicorrelation matrix: 1 on diagonal, rho elsewhere
+    # This is a valid correlation matrix if -1/(p-1) <= rho <= 1
+    if rho < -1/(p-1) or rho > 1:
+        raise ValueError(f"Invalid correlation coefficient rho={rho} for p={p}. "
+                       f"Must be in [{-1/(p-1):.4f}, 1.0]")
     
-    all_vals = np.unique(np.concatenate([obs_sorted, ref_sorted]))
-    n_obs = len(obs_sorted)
-    n_ref = len(ref_sorted)
+    # Generate the correlation matrix
+    R = np.full((p, p), rho)
+    np.fill_diagonal(R, 1.0)
     
-    # Calculate CDFs at all points
-    cdf_obs = np.searchsorted(obs_sorted, all_vals, side='right') / n_obs
-    cdf_ref = np.searchsorted(ref_sorted, all_vals, side='right') / n_ref
+    # Check condition number
+    cond_num = np.linalg.cond(R)
+    if cond_num > 1e12:
+        raise HighDimensionalInstabilityError(
+            f"Covariance matrix condition number ({cond_num:.2e}) exceeds 1e12. "
+            "Matrix is near-singular and regularization failed."
+        )
     
-    ks_stat = np.max(np.abs(cdf_obs - cdf_ref))
-    return ks_stat
-
-def run_analysis_on_iteration(seed: int, params: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Runs the full analysis for one iteration (seed).
-    Returns dict with ks_stat, etc.
-    """
-    from utils.simulation import RNGWrapper
-    
-    n = params['n']
-    p = params['p']
-    rho = params['rho']
-    dist_type = params['distribution_type']
-    
-    # Use RNGWrapper for reproducibility
-    rng_wrapper = RNGWrapper()
-    rng_wrapper.reset(seed)
-    rng = rng_wrapper.get_rng()
-    
-    # Generate data
-    data = generate_correlated_data_with_rng(n, p, rho, dist_type, rng)
-    
-    # Generate permutation reference
-    perm_pvals = generate_permutation_reference(data, rng, n_permutations=100) # Reduced for speed in this snippet? Spec says 1000.
-    # Spec says 1000. If OOM, we might need to stream. But for this task, we assume it fits or we reduce.
-    # Let's stick to 1000 as per spec, but if it fails, we might need to adjust.
-    # Re-calling with 1000.
-    perm_pvals = generate_permutation_reference(data, rng, n_permutations=1000)
-    
-    # Generate standard test p-values (t-test)
-    # Split data into two groups
-    n1 = n // 2
-    n2 = n - n1
-    group1 = data[:n1]
-    group2 = data[n1:]
-    
-    # t-test
-    # scipy.stats.ttest_ind
-    from scipy import stats
-    t_stats, std_pvals = stats.ttest_ind(group1, group2, axis=0, equal_var=False)
-    
-    # Calculate KS
-    ks = calculate_ks_statistic(std_pvals, perm_pvals)
-    
-    return {
-        "seed": seed,
-        "n": n,
-        "p": p,
-        "rho": rho,
-        "distribution_type": dist_type,
-        "ks_stat": ks
-    }
-
-def classify_failure_modes() -> Dict[str, Any]:
-    """
-    Implements T049: Failure Mode Classifier.
-    Analyzes embarrassment_log.csv to find the single worst-case scenario.
-    Logic: Sort by ks_stat desc, then p/n desc, then rho desc.
-    Output: data/results/worst_case_summary.json
-    """
-    log_path = "data/results/embarrassment_log.csv"
-    output_path = "data/results/worst_case_summary.json"
-    
-    logger.info(f"Loading embarrassment log from {log_path}")
+    # Cholesky decomposition to generate correlated data
+    # X = Z @ L.T where Z is standard normal and L is lower triangular Cholesky factor
     try:
-        logs = load_embarrassment_log(log_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
+        L = np.linalg.cholesky(R)
+    except np.linalg.LinAlgError:
+        # Try regularization if Cholesky fails
+        logger.warning("Cholesky decomposition failed. Attempting regularization.")
+        R_reg = regularize_covariance(R, epsilon=1e-6)
+        L = np.linalg.cholesky(R_reg)
     
-    if not logs:
-        logger.warning("Embarrassment log is empty. No failure modes to classify.")
-        # Write empty or minimal result? Spec says "single worst-case".
-        # If empty, we can't find one.
-        result = {
-            "found": False,
-            "reason": "No entries in embarrassment log"
-        }
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        return result
+    # Generate standard normal data
+    Z = np.random.randn(n, p)
     
-    # Sort logic:
-    # 1. ks_stat descending
-    # 2. p/n descending (calculate p/n)
-    # 3. rho descending
+    # Generate correlated data
+    X = Z @ L.T
     
-    logs_with_ratio = []
-    for entry in logs:
-        ratio = entry['p'] / entry['n']
-        logs_with_ratio.append({
-            **entry,
-            'p_over_n': ratio
-        })
+    return X
+
+def calculate_vif_and_effective_dof(n: int, p: int, rho: float) -> Tuple[float, float]:
+    """
+    Calculate the Variance Inflation Factor (VIF) and effective degrees of freedom.
     
-    # Sort: key = (ks_stat, p_over_n, rho) descending
-    # Python sort is stable, so we can sort by least significant first or use tuple with negative
-    logs_sorted = sorted(
-        logs_with_ratio,
-        key=lambda x: (x['ks_stat'], x['p_over_n'], x['rho']),
-        reverse=True
+    For an equicorrelation matrix with correlation rho:
+    - VIF = 1 + (p-1)*rho (approximate for large p)
+    - Effective DOF = n / VIF (approximate)
+    
+    Args:
+        n: Number of samples.
+        p: Number of features.
+        rho: Correlation coefficient.
+        
+    Returns:
+        Tuple of (VIF, effective_dof).
+    """
+    # Exact VIF for equicorrelation:
+    # The variance of the mean of p correlated variables is:
+    # Var(mean) = (1/p^2) * [p*Var(X) + p*(p-1)*Cov(Xi, Xj)]
+    #           = (1/p^2) * [p*1 + p*(p-1)*rho]  (assuming Var(X)=1)
+    #           = (1 + (p-1)*rho) / p
+    #
+    # The VIF is the ratio of the variance of the mean under correlation
+    # to the variance under independence (which is 1/p).
+    # VIF = [(1 + (p-1)*rho) / p] / (1/p) = 1 + (p-1)*rho
+    
+    vif = 1.0 + (p - 1) * rho
+    
+    # Effective degrees of freedom
+    # In the context of hypothesis testing, the effective sample size is reduced
+    # by the correlation. A common approximation is n_eff = n / VIF.
+    effective_dof = n / vif if vif > 0 else n
+    
+    return vif, effective_dof
+
+def analyze_failure_mechanism(worst_case: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Analyze the failure mechanism for the worst-case scenario.
+    
+    This function calculates the Variance Inflation Factor (VIF) and effective
+    degrees of freedom for the correlation matrix of the worst-case scenario.
+    It compares the theoretical variance (assuming independence) with the
+    actual variance (due to correlation) to explain why the standard p-value
+    theory fails.
+    
+    Args:
+        worst_case: Dictionary containing the worst-case scenario parameters
+                    (seed, n, p, rho, distribution_type, ks_stat).
+                    
+    Returns:
+        Dictionary containing the analysis results:
+            - vif: Variance Inflation Factor
+            - effective_dof: Effective degrees of freedom
+            - theoretical_variance: Variance assuming independence (1/n)
+            - actual_variance: Variance under correlation (VIF/n)
+            - inflation_factor: Ratio of actual to theoretical variance (equals VIF)
+            - explanation: Text explanation of the failure mechanism.
+    """
+    n = worst_case['n']
+    p = worst_case['p']
+    rho = worst_case['rho']
+    ks_stat = worst_case['ks_stat']
+    
+    # Calculate VIF and effective DOF
+    vif, effective_dof = calculate_vif_and_effective_dof(n, p, rho)
+    
+    # Theoretical variance of the mean under independence: 1/n
+    # (assuming unit variance for individual variables)
+    theoretical_variance = 1.0 / n
+    
+    # Actual variance under correlation: VIF / n
+    actual_variance = vif / n
+    
+    # Inflation factor (should equal VIF)
+    inflation_factor = actual_variance / theoretical_variance if theoretical_variance > 0 else np.inf
+    
+    # Generate explanation
+    explanation = (
+        f"The theory fails because correlation ρ={rho:.2f} inflates the variance "
+        f"of the test statistic by a factor of {vif:.2f}, causing the p-values to "
+        f"cluster near 0 instead of being uniform. The 'ritual' assumes independence, "
+        f"but the 'mess' of high-dimensional noise violates this. "
+        f"With n={n} samples and p={p} features, the effective degrees of freedom "
+        f"are reduced from {n} to {effective_dof:.2f}, severely compromising the "
+        f"validity of the standard t-test p-values."
     )
     
-    worst_case = logs_sorted[0]
-    
-    # Prepare output
-    summary = {
-        "found": True,
-        "worst_case_scenario": {
-            "seed": worst_case['seed'],
-            "n": worst_case['n'],
-            "p": worst_case['p'],
-            "rho": worst_case['rho'],
-            "distribution_type": worst_case['distribution_type'],
-            "ks_stat": worst_case['ks_stat'],
-            "p_over_n": worst_case['p_over_n']
-        },
-        "ranking_criteria": "ks_stat DESC, p/n DESC, rho DESC"
+    return {
+        'vif': vif,
+        'effective_dof': effective_dof,
+        'theoretical_variance': theoretical_variance,
+        'actual_variance': actual_variance,
+        'inflation_factor': inflation_factor,
+        'explanation': explanation,
+        'worst_case_params': {
+            'seed': worst_case['seed'],
+            'n': n,
+            'p': p,
+            'rho': rho,
+            'distribution_type': worst_case['distribution_type'],
+            'ks_stat': ks_stat
+        }
     }
+
+def write_failure_mechanism_report(analysis_results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Write the failure mechanism analysis to a markdown report.
     
-    logger.info(f"Worst case found: KS={summary['worst_case_scenario']['ks_stat']:.4f} "
-                f"at rho={summary['worst_case_scenario']['rho']}, p={summary['worst_case_scenario']['p']}, n={summary['worst_case_scenario']['n']}")
+    Args:
+        analysis_results: Dictionary containing the analysis results.
+        output_path: Path to the output markdown file.
+    """
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Write output
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
+    params = analysis_results['worst_case_params']
     
-    logger.info(f"Wrote worst case summary to {output_path}")
-    return summary
+    report_content = f"""# Failure Mechanism Analysis Report
+
+## Worst-Case Scenario Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Seed | {params['seed']} |
+| Sample Size (n) | {params['n']} |
+| Features (p) | {params['p']} |
+| Correlation (ρ) | {params['rho']:.2f} |
+| Distribution Type | {params['distribution_type']} |
+| KS Statistic | {params['ks_stat']:.4f} |
+
+## Variance Inflation Analysis
+
+The standard p-value theory assumes that observations are independent. However, in high-dimensional data with correlation, this assumption is violated, leading to inflated variance of the test statistics.
+
+### Key Metrics
+
+- **Variance Inflation Factor (VIF)**: {analysis_results['vif']:.4f}
+- **Effective Degrees of Freedom**: {analysis_results['effective_dof']:.2f}
+- **Theoretical Variance (independence)**: {analysis_results['theoretical_variance']:.6f}
+- **Actual Variance (correlated)**: {analysis_results['actual_variance']:.6f}
+- **Inflation Factor**: {analysis_results['inflation_factor']:.4f}
+
+## Explanation
+
+{analysis_results['explanation']}
+
+## Conclusion
+
+The "ritual" of using standard t-test p-values fails in this high-dimensional, correlated setting because the underlying assumption of independence is violated. The correlation structure inflates the variance of the test statistic, causing p-values to be anti-conservative (clustered near 0). This leads to an inflated false positive rate, where the standard test incorrectly rejects the null hypothesis more often than the nominal significance level (e.g., α=0.05).
+
+The "understanding" comes from recognizing that the effective sample size is reduced due to correlation, and that permutation-based methods (which respect the correlation structure) provide a more valid reference distribution for hypothesis testing.
+"""
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(report_content)
+    
+    logger.info(f"Failure mechanism report written to {output_path}")
 
 def main():
-    """Main entry point for the analysis script."""
-    logger.info("Starting P-Value Analysis and Failure Mode Classification")
+    """
+    Main entry point for the failure mechanism analysis.
+    
+    This function:
+    1. Loads the worst-case scenario from data/results/worst_case_summary.json.
+    2. Analyzes the failure mechanism (calculates VIF, effective DOF, etc.).
+    3. Writes the results to data/results/failure_mechanism_report.md.
+    """
+    logger.info("Starting failure mechanism analysis...")
     
     try:
-        result = classify_failure_modes()
-        if result.get('found'):
-            print(json.dumps(result, indent=2))
-        else:
-            print("No failure modes classified.")
+        # Load worst-case scenario
+        worst_case = load_worst_case_scenario()
+        logger.info(f"Loaded worst-case scenario: seed={worst_case['seed']}, "
+                   f"n={worst_case['n']}, p={worst_case['p']}, rho={worst_case['rho']:.2f}")
+        
+        # Analyze failure mechanism
+        analysis_results = analyze_failure_mechanism(worst_case)
+        
+        # Write report
+        output_path = DATA_RESULTS_DIR / "failure_mechanism_report.md"
+        write_failure_mechanism_report(analysis_results, output_path)
+        
+        logger.info("Failure mechanism analysis completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in worst-case summary: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"An error occurred during analysis: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

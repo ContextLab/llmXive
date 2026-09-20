@@ -540,3 +540,604 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T14:48:24Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 288 unique parameter sets generated from Cartesian product of n, p, rho,
+    and distribution_type
+  claim_id: c_916a777e
+  context: "Implement parameter sweep logic in `code/generate_data.py` for **n** \u2208\
+    \ {50, 100, 200, 500}, **p** \u2208 {500, 1000, 2000, 5000}, **\u03C1** \u2208\
+    \ {0, 0.1, 0.3, 0.5, 0.7, 0.9}, **AND distribution_type** \u2208 {Normal, t-dist(df=3),\
+    \ Skewed Normal(skew=2.0)}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST iterate over the full Cartesian product of these four
+    parameter sets to generate every combination (4 x 4 x 6 x 3 = 288 unique parameter
+    sets).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:30:18Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Iteration count derived from power analysis utility T011a
+  claim_id: c_ae9ef2e8
+  context: 'Create `docs/power_analysis_justification.md` explicitly documenting why
+    the iteration count is sufficient for SC-005. **Content**: Must cite the Plan''s
+    design parameter, reference the power analysis utility from T011a, and state that
+    the **output of T011a** (stored in `data/sweep/power_analysis_result.json`) confirms
+    the required count.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Iteration_count_derived_from_power_analysis_utility_T011a
+  kind: entity_fact
+  raw_text: The iteration count is derived from T011a, not assumed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:30:44Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Minimum iteration count calculated for statistical power >= 0.8 and KS
+    deviation > 0.05
+  claim_id: c_945c3415
+  context: "Implement power analysis utility function in `code/utils/simulation.py`\
+    \ to calculate the minimum simulation iteration count required to achieve statistical\
+    \ power \u2265 0.8 for detecting a KS statistic deviation > 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST calculate the minimum simulation iteration count required\
+    \ to achieve statistical power \u2265 0.8 for detecting a KS statistic deviation\
+    \ > 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:30:44Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Condition number threshold for ERR_HIGH_DIMENSIONAL_INSTABILITY is 10^12
+  claim_id: c_13fdb81e
+  context: Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py`
+    specifically for condition number > 10^12 (required by T010b)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The condition number threshold for high-dimensional instability is > 10^12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:30:44Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Regularization epsilon value is 10^-6
+  claim_id: c_236c57c5
+  context: "Implement covariance regularization utility in `code/utils/regularization.py`\
+    \ (FR\u2011009: handle singular matrices, condition number > 10^12, apply \u03B5\
+    \ = 10\u207B\u2076 regularization OR raise `ERR_HIGH_DIMENSIONAL_INSTABILITY`...)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regularization epsilon is 10^-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:31:09Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Error raised if p/n ratio exceeds 10
+  claim_id: c_15f32cb4
+  context: '...also detect p/n > 10 and raise the same error'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must raise an error if the ratio of p/n > 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:31:09Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Default master seed value is 42
+  claim_id: c_28f2d154
+  context: read master seed from `data/sweep/master_seed.txt` (create if missing,
+    default = 42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default master seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:31:30Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: KS distance threshold for t-dist(df=3) validation is 0.01
+  claim_id: c_bca50e11
+  context: "Unit test for distribution shape validation (t\u2011distribution, skewed\
+    \ normal) in `tests/unit/test_data_gen.py` (Verify `test_t_dist_df3` passes with\
+    \ KS distance < 0.01)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The t-distribution validation test requires a KS distance < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:31:30Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap resamples: 10000 for worst-case, 100 for others'
+  claim_id: c_75cab803
+  context: "Perform **10,000 bootstrap resamples** ONLY for the **worst-case scenario**\
+    \ identified in T029, and **100 resamples** for all other seeds to satisfy SC-004\
+    \ (\u22646h runtime)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resamples:_10000_for_worst-case,_100_for_others
+  kind: magnitude
+  raw_text: The bootstrap confidence interval calculation uses 10,000 resamples for
+    the worst-case scenario and 100 resamples for all other seeds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:32:00Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Runtime abort threshold is 5.5 hours
+  claim_id: c_66714f7e
+  context: If estimated runtime > 5.5 hours, automatically reduce resamples for non-worst-case
+    seeds to 50 or abort with a clear error message.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime guard estimates total runtime and aborts if estimated runtime
+    > 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:32:00Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Jagged line histogram uses at least 100 bins
+  claim_id: c_f5648162
+  context: Generate a histogram with **at least 100 bins** (default 20) to reveal
+    the 'jagged' noise and deviations, not a smoothed curve.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Jagged_line_histogram_uses_at_least_100_bins
+  kind: magnitude
+  raw_text: The jagged line generator uses a histogram with at least 100 bins.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:32:50Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: False Positive Rate calculated at alpha 0.05
+  claim_id: c_78350f5b
+  context: Explicitly calculate and report the **False Positive Rate (FPR)** for the
+    standard test vs the permutation test at alpha=0.05 for the worst-case scenario
+    in `data/results/bias_magnitude.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias magnitude calculation is performed at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:33:06Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 288 unique parameter sets generated from Cartesian product of n, p, rho,
+    and distribution_type
+  claim_id: c_1eb230bf
+  context: "T017 [US1] Implement parameter sweep logic in `code/generate_data.py`\
+    \ for **n** \u2208 {50, 100, 200, 500}, **p** \u2208 {500, 1000, 2000, 5000},\
+    \ **\u03C1** \u2208 {0, 0.1, 0.3, 0.5, 0.7, 0.9}, **AND distribution_type** \u2208\
+    \ {Normal, t-dist(df=3), Skewed Normal(skew=2.0)}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST iterate over the full Cartesian product of these four
+    parameter sets to generate every combination (4 x 4 x 6 x 3 = 288 unique parameter
+    sets).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:35:53Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Jagged line plot uses at least 100 bins
+  claim_id: c_aacc5d33
+  context: 'T052 [US4] [Review: Feynman] **Jagged Line Generator**: Implement `plot_jagged_line_worst_case`
+    in `code/analyze_pvalues.py`. **Input**: `data/results/worst_case_summary.json`
+    (from T049) and `data/results/pvalues_{seed}.csv` (from T022c). **Logic**: Load
+    the p-values for the specific worst-case seed. Generate a histogram with **at
+    least 100 bins** (default 20) to reveal the ''jagged'' noise and deviations, not
+    a smoothed curve.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Jagged_line_plot_uses_at_least_100_bins
+  kind: magnitude
+  raw_text: Generate a histogram with at least 100 bins (default 20) to reveal the
+    'jagged' noise and deviations, not a smoothed curve.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:36:35Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: ERR_HIGH_DIMENSIONAL_INSTABILITY defined for condition number > 10^12
+  claim_id: c_a77a8c88
+  context: T006 [P] Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py`
+    specifically for condition number > 10^12 (required by T010b)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py`
+    specifically for condition number > 10^12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:36:36Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Apply epsilon 10^-6 regularization for condition number > 10^12
+  claim_id: c_faa46a1b
+  context: "T007 [P] Implement covariance regularization utility in `code/utils/regularization.py`\
+    \ (FR\u2011009: handle singular matrices, condition number > 10^12, apply \u03B5\
+    \ = 10\u207B\u2076 regularization OR raise `ERR_HIGH_DIMENSIONAL_INSTABILITY`)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply \u03B5 = 10\u207B\u2076 regularization OR raise `ERR_HIGH_DIMENSIONAL_INSTABILITY`\
+    \ if condition number > 10^12."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:37:04Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Simulation aborts if RSS > 6 GB
+  claim_id: c_d27e10ea
+  context: 'T010a [P] Implement a memory monitor in `code/utils/simulation.py` that
+    checks RSS usage. **Constraint**: This task MUST raise a hard error and abort
+    the simulation if RSS > 6 GB to satisfy SC-004 (Computational feasibility) as
+    a hard constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation must explicitly call `sys.exit(1)` or raise a custom
+    exception that halts the process if RSS > 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:37:17Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: KS distance < 0.01 for t-dist(df=3) test
+  claim_id: c_5c366386
+  context: "T013 [P] [US1] Unit test for distribution shape validation (t\u2011distribution,\
+    \ skewed normal) in `tests/unit/test_data_gen.py` (Verify `test_t_dist_df3` passes\
+    \ with KS distance < 0.01)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that `test_t_dist_df3` passes with KS distance < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:37:50Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Minimum iteration count for power >= 0.8 and KS deviation > 0.05
+  claim_id: c_1191c835
+  context: "T011a [P] Implement power analysis utility function in `code/utils/simulation.py`\
+    \ to calculate the minimum simulation iteration count required to achieve statistical\
+    \ power \u2265 0.8 for detecting a KS statistic deviation > 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate the minimum simulation iteration count required to achieve\
+    \ statistical power \u2265 0.8 for detecting a KS statistic deviation > 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:37:50Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 288 unique parameter sets generated from Cartesian product of n, p, rho,
+    and distribution_type
+  claim_id: c_57922932
+  context: "Task T017 requires implementing parameter sweep logic for n \u2208 {50,\
+    \ 100, 200, 500}, p \u2208 {500, 1000, 2000, 5000}, \u03C1 \u2208 {0, 0.1, 0.3,\
+    \ 0.5, 0.7, 0.9}, AND distribution_type \u2208 {Normal, t-dist(df=3), Skewed Normal(skew=2.0)}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST iterate over the full Cartesian product of these four
+    parameter sets to generate every combination (4 x 4 x 6 x 3 = 288 unique parameter
+    sets).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:39:52Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Simulation aborts if RSS exceeds 6 GB
+  claim_id: c_99ded36c
+  context: Task T010a requires a memory monitor that checks RSS usage and raises a
+    hard error if RSS > 6 GB to satisfy SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation must explicitly call sys.exit(1) or raise a custom
+    exception that halts the process if RSS > 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:39:53Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Error raised for condition number greater than 10^12
+  claim_id: c_d26ea075
+  context: Task T006 defines error code ERR_HIGH_DIMENSIONAL_INSTABILITY specifically
+    for condition number > 10^12.
+  evidence:
+    candidates:
+    - - ''
+      - 5000000000000.0
+    - - ''
+      - 12.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Error_raised_for_condition_number_greater_than_10%5E12
+  kind: magnitude
+  raw_text: The system must raise ERR_HIGH_DIMENSIONAL_INSTABILITY if the condition
+    number is greater than 10^12.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T11:40:35Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Error raised for p/n ratio greater than 10
+  claim_id: c_ae87cb83
+  context: Task T007 specifies detecting p/n > 10 and raising ERR_HIGH_DIMENSIONAL_INSTABILITY.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Error_raised_for_p/n_ratio_greater_than_10
+  kind: magnitude
+  raw_text: The system must raise ERR_HIGH_DIMENSIONAL_INSTABILITY if p/n is greater
+    than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:40:59Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Regularization epsilon value is 10^-6
+  claim_id: c_8db8fbc7
+  context: "Task T007 specifies applying \u03B5 = 10\u207B\u2076 regularization or\
+    \ raising an error."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Regularization epsilon is 10^-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:40:59Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Minimum iterations for statistical power 0.8 at KS deviation 0.05
+  claim_id: c_c1efbbe4
+  context: Task T011a implements a power analysis utility function to calculate minimum
+    iteration count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis utility calculates the minimum simulation iteration\
+    \ count required to achieve statistical power \u2265 0.8 for detecting a KS statistic\
+    \ deviation > 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:40:59Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Default master seed value is 42
+  claim_id: c_8d204e02
+  context: Task T019d specifies reading master seed from data/sweep/master_seed.txt
+    with default = 42 if missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default master seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:40:59Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: t-distribution degrees of freedom is 3
+  claim_id: c_f3b1477b
+  context: Task T013 mentions verifying test_t_dist_df3 passes, and T017 lists t-dist(df=3)
+    as a distribution type.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The t-distribution test uses degrees of freedom (df) equal to 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:41:28Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Skewed normal distribution skew parameter is 2.0
+  claim_id: c_f9f5d5f9
+  context: Task T017 lists Skewed Normal(skew=2.0) as a distribution type.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The skewed normal distribution uses a skew parameter of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:42:18Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: KS distance threshold for distribution shape validation is 0.01
+  claim_id: c_6f9c9fe3
+  context: Task T013 specifies verifying test_t_dist_df3 passes with KS distance <
+    0.01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_distance_threshold_for_distribution_shape_validation_is_0
+  kind: magnitude
+  raw_text: The unit test for distribution shape validation requires a KS distance
+    less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:43:08Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 10000 bootstrap resamples for worst-case scenario
+  claim_id: c_8311f1d2
+  context: Task T030 specifies performing 10,000 bootstrap resamples ONLY for the
+    worst-case scenario.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10000_bootstrap_resamples_for_worst-case_scenario
+  kind: magnitude
+  raw_text: The bootstrap confidence interval calculation performs 10,000 bootstrap
+    resamples for the worst-case scenario.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:43:32Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: 100 bootstrap resamples for non-worst-case seeds
+  claim_id: c_b60bbba7
+  context: Task T030 specifies performing 100 resamples for all other seeds to satisfy
+    SC-004.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/100_bootstrap_resamples_for_non-worst-case_seeds
+  kind: magnitude
+  raw_text: The bootstrap confidence interval calculation performs 100 bootstrap resamples
+    for all other seeds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:43:50Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Runtime guard threshold is 5.5 hours
+  claim_id: c_d3bce278
+  context: 'Task T030 states: If estimated runtime > 5.5 hours, automatically reduce
+    resamples for non-worst-case seeds to 50 or abort.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimated runtime guard aborts or reduces resamples if the estimated
+    runtime exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:44:04Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi/tasks.md
+  attempts: 1
+  canonical: Jagged line plot uses minimum 100 bins
+  claim_id: c_bfef13a7
+  context: Task T052 requires generating a histogram with at least 100 bins to reveal
+    jagged noise.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Jagged_line_plot_uses_minimum_100_bins
+  kind: magnitude
+  raw_text: The jagged line generator uses at least 100 bins.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T11:44:25Z'
