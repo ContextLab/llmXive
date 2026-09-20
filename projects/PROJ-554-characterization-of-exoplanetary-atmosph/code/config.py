@@ -1,7 +1,3 @@
-"""
-Configuration management for the exoplanetary atmosphere characterization pipeline.
-Handles environment variables, random seeds, and path configuration.
-"""
 import os
 import random
 import logging
@@ -9,77 +5,73 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 import numpy as np
 
-logger = logging.getLogger(__name__)
-
 class ConfigurationError(Exception):
-    """Custom exception for configuration errors."""
+    """Error in configuration loading."""
     pass
 
 def load_env_vars() -> Dict[str, str]:
-    """Load environment variables relevant to the pipeline."""
-    # Example: Load API keys or specific paths from env
-    env_vars = {
-        'DATA_DIR': os.getenv('DATA_DIR', 'data'),
-        'RESULTS_DIR': os.getenv('RESULTS_DIR', 'results'),
-        'LOG_LEVEL': os.getenv('LOG_LEVEL', 'INFO'),
-    }
+    """Load environment variables for configuration."""
+    env_vars = {}
+    
+    # Load API keys if present
+    if 'NASA_EXOPLANET_API_KEY' in os.environ:
+        env_vars['api_key'] = os.environ['NASA_EXOPLANET_API_KEY']
+    
     return env_vars
 
 def set_random_seed(seed: int = 42) -> None:
-    """Set random seeds for reproducibility across libraries."""
+    """Set random seed for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    logger.info(f"Random seed set to {seed}")
+    logging.info(f"Random seed set to {seed}")
 
 def get_config() -> Dict[str, Any]:
-    """
-    Get the full configuration dictionary.
-    Merges environment variables with defaults.
-    """
-    env = load_env_vars()
-    set_random_seed(42)
-
+    """Get pipeline configuration."""
     config = {
-        'paths': {
-            'data_raw': Path(env['DATA_DIR']) / 'raw',
-            'data_processed': Path(env['DATA_DIR']) / 'processed',
-            'results': Path(env['RESULTS_DIR']),
-            'figures': Path(env['RESULTS_DIR']) / 'plots',
+        "random_seed": 42,
+        "cpu_threads": 1,
+        "max_memory_gb": 6,
+        "data_dirs": {
+            "raw": "data/raw",
+            "processed": "data/processed",
+            "results": "results"
         },
-        'analysis': {
-            'bootstrap_iterations': 1000,
-            'snr_threshold': 5.0,
-            'random_seed': 42,
-        },
-        'logging': {
-            'level': env['LOG_LEVEL'],
+        "logging": {
+            "level": logging.INFO,
+            "file": "logs/pipeline.log"
         }
     }
-
-    # Ensure directories exist
-    for path in config['paths'].values():
-        path.mkdir(parents=True, exist_ok=True)
-
+    
+    # Load environment variables
+    env_vars = load_env_vars()
+    config.update(env_vars)
+    
     return config
 
 def validate_config(config: Dict[str, Any]) -> bool:
-    """Validate that the configuration is complete and paths are valid."""
-    required_keys = ['paths', 'analysis']
+    """Validate configuration."""
+    required_keys = ["random_seed", "cpu_threads", "max_memory_gb"]
+    
     for key in required_keys:
         if key not in config:
             raise ConfigurationError(f"Missing required config key: {key}")
-
-    # Check path existence (for read paths)
-    # (Write paths are created in get_config)
+    
+    if not isinstance(config["random_seed"], int):
+        raise ConfigurationError("random_seed must be an integer")
+    
+    if config["cpu_threads"] < 1:
+        raise ConfigurationError("cpu_threads must be at least 1")
+    
     return True
 
 def main():
-    """Main entry point for config testing."""
+    """Main entry point for config module."""
     config = get_config()
-    print(f"Configuration loaded: {config}")
     validate_config(config)
-    print("Configuration validated successfully.")
+    set_random_seed(config["random_seed"])
+    
+    logging.info("Configuration loaded successfully")
+    return config
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

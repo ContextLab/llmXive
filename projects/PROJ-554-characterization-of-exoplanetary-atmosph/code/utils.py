@@ -23,163 +23,110 @@ class RetrievalError(PipelineError):
     pass
 
 class CensoredDataError(PipelineError):
-    """Error related to censored data handling."""
+    """Error handling censored data."""
     pass
 
 class ConfigurationError(PipelineError):
-    """Error related to configuration."""
+    """Error in configuration."""
     pass
 
 def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
-    """
-    Configure logging for the pipeline.
-
-    Args:
-        log_file: Path to log file. If None, logs to console only.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-
-    Returns:
-        Configured logger instance.
-    """
-    logger = logging.getLogger("exoplanet_pipeline")
+    """Configure logging for the pipeline."""
+    logger = logging.getLogger("llmXive")
     logger.setLevel(level)
 
-    # Avoid duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
 
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File handler if specified
-    if log_file:
-        fh = logging.FileHandler(log_file)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
 
     return logger
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0, backoff: float = 2.0):
-    """
-    Decorator to retry a function on failure.
-
-    Args:
-        max_retries: Maximum number of retry attempts.
-        delay: Initial delay between retries in seconds.
-        backoff: Multiplier for delay after each retry.
-
-    Returns:
-        Decorator function.
-    """
+    """Decorator to retry a function on failure."""
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
             current_delay = delay
+            last_exception = None
+
             for attempt in range(max_retries):
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
-                    if attempt == max_retries - 1:
-                        raise
-                    logging.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {current_delay}s...")
-                    time.sleep(current_delay)
-                    current_delay *= backoff
-            return None
+                    last_exception = e
+                    logging.warning(f"Attempt {attempt + 1}/{max_retries} failed: {e}")
+                    if attempt < max_retries - 1:
+                        time.sleep(current_delay)
+                        current_delay *= backoff
+
+            raise last_exception
         return wrapper
     return decorator
 
-def safe_execute(func: Callable, default: Any = None, log_error: bool = True) -> Any:
-    """
-    Safely execute a function and return a default value on failure.
-
-    Args:
-        func: Function to execute.
-        default: Default value to return on failure.
-        log_error: Whether to log the error.
-
-    Returns:
-        Function result or default value.
-    """
-    try:
-        return func()
-    except Exception as e:
-        if log_error:
-            logging.error(f"Error executing {func.__name__}: {e}")
-        return default
-
-def is_censored_value(value: Optional[float], threshold: float = -999.0) -> bool:
-    """
-    Check if a value represents a censored measurement (upper limit).
-
-    Args:
-        value: The value to check.
-        threshold: Sentinel value indicating censorship (default -999.0).
-
-    Returns:
-        True if the value is censored, False otherwise.
-    """
-    if value is None:
-        return True
-    return np.isclose(value, threshold)
+def is_censored_value(value: Optional[float]) -> bool:
+    """Check if a value is a censored upper limit."""
+    return value is None or (isinstance(value, float) and np.isnan(value))
 
 def create_censored_series(data: List[Optional[float]], is_censored: List[bool]) -> pd.Series:
-    """
-    Create a pandas Series representing censored data.
+    """Create a pandas Series with censored data markers.
 
     Args:
-        data: List of values (None or sentinel for censored).
-        is_censored: List of booleans indicating if each value is censored.
+        data: List of values, where None represents a censored upper limit.
+        is_censored: List of booleans indicating if the corresponding value is censored.
 
     Returns:
-        Pandas Series with values, replacing censored entries with np.nan.
+        A pandas Series where censored values are marked with a specific sentinel (e.g., -999).
     """
     if len(data) != len(is_censored):
-        raise ValueError("data and is_censored must have the same length")
+        raise ValueError("Data and is_censored lists must have the same length.")
 
     processed_data = []
-    for val, censored in zip(data, is_censored):
-        if censored or val is None:
+    for val, cens in zip(data, is_censored):
+        if cens or is_censored_value(val):
             processed_data.append(np.nan)
         else:
             processed_data.append(val)
 
     return pd.Series(processed_data)
 
-def calculate_censored_mean(data: List[Optional[float]], is_censored: List[bool]) -> Optional[float]:
-    """
-    Calculate the mean of non-censored values.
+def calculate_censored_mean(values: List[Optional[float]], is_censored: List[bool]) -> float:
+    """Calculate the mean of non-censored values.
 
     Args:
-        data: List of values.
-        is_censored: List of booleans indicating censorship.
+        values: List of values.
+        is_censored: List of booleans indicating censored status.
 
     Returns:
-        Mean of non-censored values, or None if all are censored.
+        Mean of non-censored values.
     """
-    valid_values = [v for v, c in zip(data, is_censored) if not c and v is not None]
-    if not valid_values:
-        return None
-    return float(np.mean(valid_values))
+    non_censored = [v for v, c in zip(values, is_censored) if v is not None and not c]
+    if not non_censored:
+        return np.nan
+    return np.mean(non_censored)
 
-def handle_non_convergent_retrieval(planet_name: str, error: Exception, logger: Optional[logging.Logger] = None) -> Dict[str, Any]:
-    """
-    Handle non-convergent retrieval results by creating a fallback record.
+def handle_non_convergent_retrieval(planet_name: str, error: Exception, logger: logging.Logger) -> dict:
+    """Handle a non-convergent retrieval by returning an upper limit placeholder.
 
     Args:
         planet_name: Name of the planet.
         error: The exception that occurred.
-        logger: Logger instance (optional).
+        logger: Logger instance.
 
     Returns:
-        Dictionary representing a fallback retrieval result (upper limit).
+        A dictionary representing an upper limit result.
     """
-    result = {
+    logger.error(f"Retrieval failed for {planet_name}: {error}")
+    return {
         "planet_name": planet_name,
         "water_mixing_ratio": np.nan,
         "uncertainty": np.nan,
@@ -188,10 +135,21 @@ def handle_non_convergent_retrieval(planet_name: str, error: Exception, logger: 
         "error_message": str(error)
     }
 
-    log_msg = f"Retrieval failed for {planet_name}: {error}. Marking as upper limit."
-    if logger:
-        logger.warning(log_msg)
-    else:
-        logging.warning(log_msg)
+def safe_execute(func: Callable, *args, default: Any = None, logger: Optional[logging.Logger] = None) -> Any:
+    """Safely execute a function and return a default value on failure.
 
-    return result
+    Args:
+        func: Function to execute.
+        *args: Arguments to pass to the function.
+        default: Default value to return on failure.
+        logger: Optional logger to log the error.
+
+    Returns:
+        Result of func or default.
+    """
+    try:
+        return func(*args)
+    except Exception as e:
+        if logger:
+            logger.warning(f"Function {func.__name__} failed: {e}")
+        return default

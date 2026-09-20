@@ -1,56 +1,72 @@
-# Quickstart Guide
+# Quickstart Guide: Exoplanetary Atmosphere Characterization Pipeline
 
-This guide describes how to run the full pipeline for the Characterization of Exoplanetary Atmospheres project.
+This guide provides instructions for running the complete pipeline to characterize exoplanetary atmospheres.
 
 ## Prerequisites
 
 - Python 3.9+
-- Virtual environment activated
+- pip
+- Required packages (see `requirements.txt`)
 
 ## Installation
 
 ```bash
+# Create virtual environment
+python -m venv code/.venv
+source code/.venv/bin/activate # On Windows: code\.venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Execution
+## Running the Pipeline
 
-Run the following commands in order to execute the full pipeline:
+The pipeline can be run in stages or all at once using `code/main.py`:
 
-1. **Setup Directories**:
- ```bash
- python code/setup_directories.py
- ```
+```bash
+# Run all stages
+python code/main.py --stage all
 
-2. **Download Data**:
- ```bash
- python code/download.py --output data/raw
- ```
+# Run individual stages
+python code/main.py --stage download
+python code/main.py --stage retrieval
+python code/main.py --stage analysis
+```
 
-3. **Run Retrieval**:
- ```bash
- python code/retrieval.py --input data/raw --output data/processed
- ```
+## Manual Stage Execution
 
-4. **Run Analysis**:
- ```bash
- python code/analysis.py --input data/processed/analysis_dataset.csv --output results
- ```
+Alternatively, you can run each stage manually:
 
-5. **Generate Detection Limit Analysis (Task T051)**:
- ```bash
- python code/detection_limit_analysis.py
- ```
+```bash
+# Stage 1: Download data
+python code/download.py --output data/raw
 
-6. **Aggregate Results**:
- ```bash
- python code/aggregate_results.py
- ```
+# Stage 2: Run retrieval
+python code/retrieval.py --input data/raw --output data/processed
 
-## Outputs
+# Stage 3: Analysis
+python code/analysis.py --input data/processed/analysis_dataset.csv --output results
+```
 
-- `data/processed/metadata.csv`: Downloaded and processed metadata.
-- `data/processed/retrieval_results.csv`: Retrieval results including water abundance and MDC.
-- `data/processed/analysis_results.json`: Aggregated analysis results.
-- `results/detection_limit_separation.md`: Statistical report for T051.
-- `results/plots/detection_limit_scatter.png`: Scatter plot for T051.
+## Output Files
+
+The pipeline produces the following outputs:
+
+- `data/raw/metadata.csv`: Raw metadata from NASA Exoplanet Archive
+- `data/processed/retrieval_results.csv`: Water abundance retrievals
+- `data/processed/analysis_results.json`: Statistical analysis results
+- `results/plots/*.png`: Diagnostic plots
+- `results/*.md`: Reports and summaries
+
+## Troubleshooting
+
+If you encounter errors:
+
+1. Check that all dependencies are installed: `pip check`
+2. Verify data directories exist: `ls data/raw data/processed results`
+3. Check log files: `cat logs/*.log`
+4. Ensure network connectivity for NASA Exoplanet Archive API
+
+## Data Integrity
+
+All data is fetched programmatically from the NASA Exoplanet Archive. No static data files are included in the repository.

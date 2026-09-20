@@ -6,89 +6,92 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 
-def fetch_raw_metadata(api_url: str) -> List[Dict[str, Any]]:
-    """
-    Placeholder for fetching raw metadata from the API.
-    In a real implementation, this would make an API call.
-    """
-    # Replace with actual API call
-    # This is just sample data for demonstration
-    return [
-        {"planet_name": "HD 209458 b", "temperature": 1200, "metallicity": 1.0, "snr": 20, "resolution": 50000, "instrument": "HST"},
-        {"planet_name": "WASP-12 b", "temperature": 1600, "metallicity": 2.0, "snr": 15, "resolution": 40000, "instrument": "Spitzer"},
-        {"planet_name": "GJ 1214 b", "temperature": 500, "metallicity": 0.5, "snr": 10, "resolution": 30000, "instrument": "HST"},
-    ]
+from utils import setup_logging, retry_on_failure, DataFetchError
+from config import get_config
+import api_config
 
-def classify_planet(temperature: float, radius: float) -> str:
-    """
-    Classifies a planet as "Hot Jupiter" or "Temperate Super-Earth".
-    """
-    if temperature > 1000 and radius > 1.0:
-        return "Hot Jupiter"
-    elif radius < 1.6 and temperature < 1000:
-        return "Temperate Super-Earth"
-    else:
-        return "Unknown"
+# Ensure logger is configured
+logger = setup_logging("download")
 
-def process_metadata(raw_metadata: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def count_unique_planets(metadata_path: str = None) -> int:
     """
-    Processes raw metadata and adds the planet_category.
+    Count unique planets from the saved metadata.csv.
+    
+    Args:
+        metadata_path: Path to the metadata CSV file. Defaults to 
+                       data/processed/metadata.csv from config.
+    
+    Returns:
+        int: The count of unique planets.
+    
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
+        ValueError: If the file is empty or lacks the 'planet_name' column.
     """
-    processed_metadata = []
-    for item in raw_metadata:
-        planet_category = classify_planet(item["temperature"], item["metallicity"])
-        item["planet_category"] = planet_category
-        processed_metadata.append(item)
-    return processed_metadata
+    config = get_config()
+    if metadata_path is None:
+        metadata_path = str(config.data_dir / "processed" / "metadata.csv")
+    
+    path = Path(metadata_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Metadata file not found at {metadata_path}")
+    
+    logger.info(f"Loading metadata from {metadata_path} to count unique planets")
+    df = pd.read_csv(metadata_path)
+    
+    if 'planet_name' not in df.columns:
+        raise ValueError("Metadata file missing required 'planet_name' column")
+    
+    unique_count = df['planet_name'].nunique()
+    logger.info(f"Found {unique_count} unique planets in {metadata_path}")
+    
+    return unique_count
 
-def save_metadata_csv(metadata: List[Dict[str, Any]], output_path: str) -> None:
+def save_count_report(count: int, output_path: str = None) -> None:
     """
-    Saves the metadata to a CSV file.
+    Save the unique planet count to a JSON report file.
+    
+    Args:
+        count: The integer count of unique planets.
+        output_path: Path to the output JSON file. Defaults to 
+                     data/processed/count_report.json.
     """
-    df = pd.DataFrame(metadata)
-    df.to_csv(output_path, index=False)
-
-def count_unique_planets(metadata: List[Dict[str, Any]]) -> int:
-    """
-    Counts the number of unique planets in the metadata.
-    """
-    return len(set([item["planet_name"] for item in metadata]))
-
-def report_sample_size(count: int, output_path: str) -> None:
-    """
-    Reports the sample size and logs a warning if it's outside the target range.
-    """
-    with open(output_path, "w") as f:
-        if 30 <= count <= 45:
-            f.write(json.dumps({"count": count, "note": "Sample size reported; pipeline proceeds regardless of count."}))
-        else:
-            f.write(json.dumps({"count": count, "note": "Sample size reported; pipeline proceeds regardless of count."}))
-            logging.warning(f"Sample size {count} is outside target range [30-45].")
-
-def download_all_spectra(api_url: str) -> List[Dict[str, Any]]:
-    """
-    Downloads all available spectra matching the criteria.
-    """
-    raw_metadata = fetch_raw_metadata(api_url)
-    return raw_metadata
+    config = get_config()
+    if output_path is None:
+        output_path = str(config.data_dir / "processed" / "count_report.json")
+    
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    report = {
+        "count": count
+    }
+    
+    with open(path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Saved count report to {output_path}: {report}")
 
 def main():
     """
-    Main function to download spectra and save metadata.
+    Main entry point for T013a: Count unique planets and save report.
+    This function is called by the pipeline orchestrator.
     """
-    api_url = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync"
-    output_path = "data/processed/metadata.csv"
-    sample_size_report_path = "data/processed/sample_size_report.json"
-
-    raw_metadata = download_all_spectra(api_url)
-    processed_metadata = process_metadata(raw_metadata)
-    save_metadata_csv(processed_metadata, output_path)
-    count = count_unique_planets(processed_metadata)
-    report_sample_size(count, sample_size_report_path)
-
-    logging.info(f"Metadata saved to {output_path}")
-    logging.info(f"Sample size report saved to {sample_size_report_path}")
+    logger.info("Starting T013a: Count unique planets")
+    
+    try:
+        # 1. Count unique planets from metadata.csv
+        count = count_unique_planets()
+        
+        # 2. Save the report to data/processed/count_report.json
+        save_count_report(count)
+        
+        logger.info("T013a completed successfully")
+        return 0
+    except Exception as e:
+        logger.error(f"T013a failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+    import sys
+    sys.exit(main())

@@ -643,3 +643,713 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T00:40:45Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Target sample size range of several tens of unique planets
+  claim_id: c_268f780d
+  context: The total count of unique planets is a target range of several tens.; if
+    the actual count is outside this range, the pipeline logs a warning but proceeds,
+    as per FR-001's requirement to download ALL available spectra.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_sample_size_range_of_several_tens_of_unique_planets
+  kind: entity_fact
+  raw_text: The total count of unique planets is a target range of several tens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:23:23Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Hot Jupiter classification threshold T_eq > 1000K
+  claim_id: c_5911358f
+  context: 'Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6 R_E
+    (and T_eq < 1000K) for Super-Earths.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Finc \u22732\xD710 8 erg s\u22121 cm\u22122, orT eq \u22731000 K for\
+        \ zero"
+      source_id: '2608.16988'
+      url: https://arxiv.org/abs/2608.16988
+      value: '1000'
+    filled: true
+  kind: entity_fact
+  raw_text: The classification logic uses a threshold of T_eq > 1000K for Hot Jupiters.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T16:24:02Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Super-Earth classification temperature threshold T_eq < 1000K
+  claim_id: c_b6fb463a
+  context: 'Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6 R_E
+    (and T_eq < 1000K) for Super-Earths.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Super-Earth_classification_temperature_threshold_T_eq_%3C_1000
+  kind: entity_fact
+  raw_text: The classification logic uses a temperature threshold of T_eq < 1000K
+    for Super-Earths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:24:35Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Classification threshold citation Fortney et al. 2008
+  claim_id: c_3ea911f2
+  context: 'Log the specific threshold and citation (e.g., ''Fortney et al.'') in
+    logs/classification.log as part of this task execution. Format: Log entry must
+    be JSON: {''threshold'': ''T_eq > 1000K'', ''citation'': ''Fortney et al. 2008'',
+    ''timestamp'': ''ISO8601''}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation for the classification thresholds is 'Fortney et al. 2008'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:24:50Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Sample size boolean check range 30 to 45
+  claim_id: c_d123f2c9
+  context: 'Logic for boolean: count_within_range = (30 <= count <= 45).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size range for the boolean check is 30 to 45 planets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:25:30Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling iterations count 1000
+  claim_id: c_a8cf8fec
+  context: Run exactly 1000 iterations with random seed SEED=42. For each iteration,
+    resample the raw water abundance data (from T020) with replacement and recompute
+    ATS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling for the Akritas-Theil-Sen estimator runs exactly
+    1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:25:51Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling random seed 42
+  claim_id: c_c492d3b1
+  context: Run exactly 1000 iterations with random seed SEED=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for bootstrap resampling is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:26:18Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Instrument variance flag threshold CV > 20%
+  claim_id: c_113d6ac0
+  context: Flag any instrument with high variance (>20%) as a potential confounding
+    factor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The coefficient of variation (CV) threshold for flagging high instrument
+    variance is 20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:26:18Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Power analysis threshold |tau| >= 0.3
+  claim_id: c_be9e7f4f
+  context: Estimate power = (count of bootstrap samples with |tau| >= 0.3) / 1000.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3'
+    relation: tau
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_threshold_tau_%3E=_0.3
+    source_value: https://en.wikipedia.org/wiki/Power_analysis_threshold_tau_>=_0.3
+    subject: Power analysis threshold
+  kind: relational
+  raw_text: The power analysis estimates power as the count of bootstrap samples with
+    |tau| >= 0.3 divided by 1000.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:27:10Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Power sufficient threshold 0.8
+  claim_id: c_47e5131d
+  context: Report power_sufficient (boolean) if power >= 0.8.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.8'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis reports power_sufficient as true if power >= 0.8.
+  resolved_value: '0.8'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T16:27:20Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Tobit regression VIF fallback threshold 5
+  claim_id: c_9172feda
+  context: Check VIF > 5. If VIF > 5, automatically switch to Tobit Regression with
+    Ridge Regularization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold for switching to Ridge Regularization in Tobit regression
+    is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:27:56Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Detection significance threshold 3-sigma above MDC
+  claim_id: c_116fb6eb
+  context: Explicitly count how many detections are >3-sigma above the MDC and how
+    many are consistent with noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The detection limit analysis counts detections that are >3-sigma above
+    the MDC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:27:56Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Detector stability flag threshold 2x median variance
+  claim_id: c_146137be
+  context: Flag any instrument/date combination with residual variance > 2x the median.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detector_stability_flag_threshold_2x_median_variance
+  kind: entity_fact
+  raw_text: The detector stability analysis flags instrument/date combinations with
+    residual variance > 2x the median.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:28:34Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: target range of unique planets several tens
+  claim_id: c_ee885d11
+  context: The total count of unique planets is a target range of several tens.; if
+    the actual count is outside this range, the pipeline logs a warning but proceeds,
+    as per FR-001's requirement to download ALL available spectra.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_range_of_unique_planets_several_tens
+  kind: entity_fact
+  raw_text: The total count of unique planets is a target range of several tens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:29:45Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Fortney et al. 2008 citation for Hot Jupiter threshold
+  claim_id: c_58c5dbea
+  context: Log the specific threshold and citation (e.g., 'Fortney et al.') in logs/classification.log
+    as part of this task execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The classification logic cites Fortney et al. 2008 for the Hot Jupiter
+    threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:30:20Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: sample size range check 30 to 45
+  claim_id: c_9b0c844e
+  context: 'Logic for boolean: count_within_range = (30 <= count <= 45).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_size_range_check_30_to_45
+  kind: entity_fact
+  raw_text: The sample size range check for the boolean count_within_range is defined
+    as 30 <= count <= 45.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:31:22Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: petitRADTRANS threads set to 1
+  claim_id: c_f674196c
+  context: Config object with threads=1, max_memory_gb=6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The petitRADTRANS configuration sets threads to 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:31:46Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: petitRADTRANS max_memory_gb set to 6
+  claim_id: c_ad0a321d
+  context: Config object with threads=1, max_memory_gb=6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The petitRADTRANS configuration sets max_memory_gb to 6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:32:08Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42
+  claim_id: c_0ce36713
+  context: Run exactly 1000 iterations with random seed SEED=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling runs exactly 1000 iterations with random seed
+    SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:32:33Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: power analysis 1000 bootstrap samples seed 42
+  claim_id: c_7676d725
+  context: Generate 1000 bootstrap samples of the censored data (using SEED=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis generates 1000 bootstrap samples of the censored data
+    using SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:32:57Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: power sufficient threshold 0.8
+  claim_id: c_25b06d7a
+  context: Report power_sufficient (boolean) if power >= 0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power sufficient boolean is true if power >= 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:33:29Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Akritas-Theil-Sen estimator for censored correlation
+  claim_id: c_b53e84e1
+  context: Explicitly map ATS to FR-003's 'Kendall's tau' requirement as the valid
+    statistical method for censored data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Akritas-Theil-Sen_estimator_for_censored_correlation
+  kind: entity_fact
+  raw_text: The Akritas-Theil-Sen estimator is used for censored correlation analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:33:51Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5 for Ridge fallback
+  claim_id: c_762dc1cd
+  context: Check VIF > 5. If VIF > 5, automatically switch to Tobit Regression with
+    Ridge Regularization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold for switching to Ridge Regularization is > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:33:51Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: water mixing ratio CI width threshold 0.2 dex
+  claim_id: c_d956f9aa
+  context: Explicitly verify if the water mixing ratio CI width <= 0.2 (dex) for SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness check verifies if the water mixing ratio CI width <= 0.2
+    dex.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:34:12Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: SNR variance threshold 20% for noise stability flag
+  claim_id: c_8ec862fd
+  context: Flag any instrument with high variance (>20%) as a potential confounding
+    factor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The noise stability analysis flags instruments with SNR variance > 20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:34:12Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: detection limit threshold 3-sigma above MDC
+  claim_id: c_4ca95c4d
+  context: Explicitly count how many detections are >3-sigma above the MDC and how
+    many are consistent with noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The detection limit separation analysis counts detections >3-sigma above
+    the MDC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:34:12Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: detector stability variance threshold 2x median
+  claim_id: c_d757258f
+  context: Flag any instrument/date combination with residual variance > 2x the median.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detector_stability_variance_threshold_2x_median
+  kind: entity_fact
+  raw_text: The detector stability analysis flags variance > 2x the median.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:35:11Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: target unique planet count is several tens
+  claim_id: c_364804e1
+  context: The total count of unique planets is a target range of several tens.; if
+    the actual count is outside this range, the pipeline logs a warning but proceeds,
+    as per FR-001's requirement to download ALL available spectra.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_unique_planet_count_is_several_tens
+  kind: entity_fact
+  raw_text: The total count of unique planets is a target range of several tens.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:38:22Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 3
+  canonical: Super-Earth classification threshold R < 1.6 R_E
+  claim_id: c_76ac18ef
+  context: 'Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6 R_E
+    (and T_eq < 1000K) for Super-Earths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The classification logic uses a radius threshold of R < 1.6 R_E for Super-Earths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:38:22Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42
+  claim_id: c_5f148531
+  context: Run exactly 1000 iterations with random seed SEED=42. For each iteration,
+    resample the raw water abundance data (from T020) with replacement and recompute
+    ATS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling runs exactly 1000 iterations with random seed SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:38:22Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: power analysis 1000 bootstrap samples seed 42
+  claim_id: c_329e6328
+  context: Generate 1000 bootstrap samples of the censored data (using SEED=42). Compute
+    ATS for each sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap power estimator generates 1000 bootstrap samples using SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:39:07Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: sample size range 30 to 45
+  claim_id: c_d084d8ce
+  context: 'Logic for boolean: count_within_range = (30 <= count <= 45).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size count_within_range boolean is true if 30 <= count <= 45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:39:46Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: VIF > 5 triggers Ridge Regression fallback
+  claim_id: c_217f3812
+  context: Check VIF > 5. If VIF > 5, automatically switch to Tobit Regression with
+    Ridge Regularization using statsmodels GLM with family=Gaussian() and penalty.L2
+    or lifelines with penalizer parameter on the full dataset including upper limits.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_%3E_5_triggers_Ridge_Regression_fallback
+  kind: magnitude
+  raw_text: A VIF greater than 5 triggers a fallback to Tobit Regression with Ridge
+    Regularization.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:40:40Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: instrument variance > 20% flagged
+  claim_id: c_20fcbeea
+  context: Compute the coefficient of variation (CV) for the SNR across all spectra.
+    Flag any instrument with high variance (>20%) as a potential confounding factor.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/instrument_variance_%3E_20%25_flagged
+  kind: magnitude
+  raw_text: Instrument variance greater than 20% is flagged as a potential confounding
+    factor.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:41:19Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: residual variance > 2x median flagged
+  claim_id: c_9cd46e91
+  context: Flag any instrument/date combination with residual variance > 2x the median.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/residual_variance_%3E_2x_median_flagged
+  kind: entity_fact
+  raw_text: Detector stability flags are raised if residual variance exceeds 2x the
+    median.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:41:41Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: statistical power sufficient threshold 0.8
+  claim_id: c_e17f9419
+  context: Report power_sufficient (boolean) if power >= 0.8.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power estimate is considered sufficient if power >= 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T16:41:52Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: power calculation |tau| >= 0.3 threshold
+  claim_id: c_88a26058
+  context: Estimate power = (count of bootstrap samples with |tau| >= 0.3) / 1000.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3 threshold'
+    relation: tau
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/power_calculation_tau_%3E=_0.3_threshold
+    source_value: https://en.wikipedia.org/wiki/power_calculation_tau_>=_0.3_threshold
+    subject: power calculation
+  kind: relational
+  raw_text: The power analysis estimates power as the count of bootstrap samples with
+    |tau| >= 0.3 divided by 1000.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:41:52Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: '>3-sigma detection threshold'
+  claim_id: c_48d31457
+  context: Explicitly count how many detections are >3-sigma above the MDC and how
+    many are consistent with noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Detections are counted as >3-sigma above the MDC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:41:52Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: CI width threshold 0.2 dex
+  claim_id: c_4675bcf5
+  context: Explicitly verify if the water mixing ratio CI width <= 0.2 (dex) for SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness check verifies if the water mixing ratio CI width is <=
+    0.2 dex.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T16:41:52Z'

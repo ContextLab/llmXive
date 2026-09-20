@@ -1,54 +1,57 @@
 import pytest
 import pandas as pd
-from pathlib import Path
-import sys
+import json
 import os
+from pathlib import Path
+from code.download import count_unique_planets, save_metadata_csv, METADATA_COLUMNS
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+def test_count_unique_planets_empty_file(tmp_path):
+    """Test counting unique planets from an empty metadata file."""
+    metadata_path = tmp_path / "metadata.csv"
+    df = pd.DataFrame(columns=METADATA_COLUMNS)
+    df.to_csv(metadata_path, index=False)
 
-from download import classify_planet_category, process_metadata, count_unique_planets
+    count = count_unique_planets(str(metadata_path))
+    assert count == 0
 
-class TestClassifyPlanetCategory:
-    def test_hot_jupiter(self):
-        # Hot Jupiter: T > 1000K, R > 0.8 Rj
-        row = pd.Series({'temperature': 1500, 'radius': 1.2})
-        assert classify_planet_category(row) == "Hot Jupiter"
+def test_count_unique_planets_with_data(tmp_path):
+    """Test counting unique planets from a metadata file with data."""
+    metadata_path = tmp_path / "metadata.csv"
+    data = {
+        "planet_name": ["Kepler-1b", "Kepler-2b", "Kepler-1b", "WASP-1b"],
+        "temperature": [1000, 1200, 1000, 1500],
+        "metallicity": [0.1, 0.2, 0.1, 0.3],
+        "snr": [10, 15, 10, 20],
+        "resolution": [50, 60, 50, 70],
+        "planet_category": ["Hot Jupiter", "Hot Jupiter", "Hot Jupiter", "Hot Jupiter"],
+        "instrument": ["HST", "HST", "HST", "Spitzer"],
+        "wavelength_range": ["0.5-1.5", "0.5-1.5", "0.5-1.5", "1.0-2.0"]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(metadata_path, index=False)
 
-    def test_temperate_super_earth(self):
-        # Temperate Super-Earth: T <= 1000K, 0.1 < R < 0.14 Rj (approx 1-1.6 Re)
-        row = pd.Series({'temperature': 800, 'radius': 0.12})
-        assert classify_planet_category(row) == "Temperate Super-Earth"
+    count = count_unique_planets(str(metadata_path))
+    assert count == 3  # Kepler-1b, Kepler-2b, WASP-1b
 
-    def test_unclassified(self):
-        # Does not fit criteria
-        row = pd.Series({'temperature': 1200, 'radius': 0.5})
-        assert classify_planet_category(row) == "Unclassified"
-
-class TestProcessMetadata:
-    def test_process_metadata_columns(self):
-        # Mock raw data
-        raw_data = {
-            'pl_name': ['Planet A', 'Planet B'],
-            'pl_radj': [1.2, 0.12],
-            'pl_eqt': [1500, 800],
-            'st_met': [0.1, -0.2]
+def test_save_metadata_csv_creates_file(tmp_path):
+    """Test that save_metadata_csv creates the file with correct columns."""
+    output_path = tmp_path / "metadata.csv"
+    data = [
+        {
+            "planet_name": "Kepler-1b",
+            "temperature": 1000,
+            "metallicity": 0.1,
+            "snr": 10,
+            "resolution": 50,
+            "planet_category": "Hot Jupiter",
+            "instrument": "HST",
+            "wavelength_range": "0.5-1.5"
         }
-        df = pd.DataFrame(raw_data)
-        result = process_metadata(df)
-        
-        assert 'planet_name' in result.columns
-        assert 'planet_category' in result.columns
-        assert 'temperature' in result.columns
-        assert 'radius' in result.columns
+    ]
 
-class TestCountUniquePlanets:
-    def test_count_unique(self):
-        df = pd.DataFrame({
-            'planet_name': ['A', 'B', 'A', 'C']
-        })
-        assert count_unique_planets(df) == 3
-    
-    def test_count_empty(self):
-        df = pd.DataFrame()
-        assert count_unique_planets(df) == 0
+    save_metadata_csv(data, str(output_path))
+
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert list(df.columns) == METADATA_COLUMNS
+    assert len(df) == 1

@@ -1,3 +1,10 @@
+T013a:
+  c: false
+  h: 1248f6f8aa489a7984e214a68ef480164025346d26bde168d65d57e44b3df9ed
+  r: "The repository contains the implemented `count_unique_planets` function and\
+    \ supporting code, but the required output file `data/processed/count_report.json`\
+    \ is absent, so the deliverable is not present. The task\u2019s primary deliverable\
+    \ has not been produced."
 T013b:
   c: false
   h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
@@ -12,21 +19,13 @@ T017:
   r: "The required artifact `tests/integration/test_retrieval.py` does not exist in\
     \ the repository, so the integration test for retrieval on a sample spectrum is\
     \ missing. Without this file, the task\u2019s deliverable is not provided."
-T020:
+T025c:
   c: false
-  h: 06b133d22cc89ee1b636144f580c5079e9f62e9b728721ac76a6beb78294452e
-  r: The repository lacks the required `data/processed/retrieval_results.csv` file,
-    and the provided `code/retrieval.py` excerpt does not show an implementation of
-    `save_retrieval_results`. Consequently the function is not confirmed to exist
-    or to produce the specified CSV with the required columns. The task therefore
-    remains unfinished.
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were presented that show error handling\
-    \ for non\u2011convergent retrievals (logging the failure, attempting an upper\u2011\
-    limit derivation, and allowing the pipeline to continue). Without such artifacts,\
-    \ the requirement cannot be verified as met."
+  h: 910e05b58cabbc37eea761835b3588d89c5040858730cef9274f314d34b2b0cf
+  r: "The required output files `data/processed/bootstrap_ci.json` and `data/processed/water_mixing_ratio_samples.npy`\
+    \ are absent, and the provided `code/analysis.py` excerpt does not show an implementation\
+    \ of `bootstrap_ats` that performs the 1000\u2011iteration bootstrap and writes\
+    \ those files. The deliverables are therefore not present."
 T030a:
   c: false
   h: d3c396ee0d9f2682a01c5393d811b7264f119dd15c24c0516f8c22d819fed56b
