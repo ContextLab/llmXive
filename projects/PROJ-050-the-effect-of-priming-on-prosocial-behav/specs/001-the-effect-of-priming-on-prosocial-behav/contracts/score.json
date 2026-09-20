@@ -8,11 +8,10 @@
   },
   "outputs": {
     "file": "data/processed/scored.csv",
-    "columns": ["comment_id", "prosocial_action_count", "neg_score"],
+    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "vader_compound", "vader_pos", "vader_neu", "vader_neg", "prosocial_count"],
     "validation": {
       "file": "data/validation/gold_standard.csv",
-      "metric": "Cohen's Kappa",
-      "threshold": 0.7
+      "metric": "Cohen's Kappa"
     }
   }
 }

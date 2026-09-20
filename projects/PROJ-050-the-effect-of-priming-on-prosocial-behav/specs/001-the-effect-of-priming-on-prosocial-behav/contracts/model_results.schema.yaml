@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GLMM Model Results Schema"
+description: "Schema for the output of the Generalized Linear Mixed Model analysis."
+type: "object"
+properties:
+  model_formula:
+    type: "string"
+    description: "The formula used for the GLMM."
+  model_family:
+    type: "string"
+    enum: ["Poisson", "NegativeBinomial"]
+    description: "Distribution family used."
+  convergence_status:
+    type: "string"
+    enum: ["converged", "failed", "warning"]
+    description: "Status of the model fitting process."
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Total number of observations used in the model."
+  fixed_effects:
+    type: "object"
+    properties:
+      thread_type:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
+            minimum: 0.0
+            maximum: 1.0
+            description: "P-value for the thread_type effect."
+        required:
+          - estimate
+          - std_error
+          - p_value
+      thread_length:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - estimate
+          - std_error
+          - p_value
+      user_tenure:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - estimate
+          - std_error
+          - p_value
+        description: "Optional if data missing."
+    required:
+      - thread_type
+      - thread_length
+  random_effects:
+    type: "object"
+    properties:
+      subreddit_variance:
+        type: "number"
+        minimum: 0
+      user_id_variance:
+        type: "number"
+        minimum: 0
+    required:
+      - subreddit_variance
+      - user_id_variance
+  success:
+    type: "boolean"
+    description: "True if converged and p-value < 0.05."
+required:
+  - model_formula
+  - model_family
+  - convergence_status
+  - sample_size
+  - fixed_effects
+  - random_effects
+  - success
+additionalProperties: false

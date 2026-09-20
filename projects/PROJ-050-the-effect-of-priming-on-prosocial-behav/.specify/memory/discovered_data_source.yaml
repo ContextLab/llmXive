@@ -1,0 +1,14 @@
+status: none
+intent: download pushshift reddit comment dataset python package psaw pushshift-py
+  python package dataset
+required_fields:
+- comment_id
+- subreddit
+- created_utc
+- author
+- body
+- link_id
+- submission_title
+cache_key: 85ef350e64c63237b5b220ffacd75c21d2d54eb8da785f14970d4d8e2b8ea60f
+searched_at: '2026-09-20T10:42:21.446987+00:00'
+retry_count: 1

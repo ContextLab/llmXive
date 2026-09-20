@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Scored Comment Data Schema"
+description: "Schema for the processed and scored comment dataset."
+type: "object"
+properties:
+  comment_id:
+    type: "string"
+    description: "Unique identifier for the comment."
+  user_id:
+    type: "string"
+    description: "SHA-256 hash of the user ID."
+    pattern: "^[a-f0-9]{64}$"
+  thread_id:
+    type: "string"
+    description: "Foreign key to the parent thread."
+  subreddit:
+    type: "string"
+    enum: ["AskReddit", "science", "relationships"]
+    description: "Subreddit name."
+  thread_type:
+    type: "string"
+    enum: ["Prime", "Control"]
+    description: "Classification based on thread title."
+  vader_score:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "VADER compound sentiment score."
+  prosocial_keyword_count:
+    type: "integer"
+    minimum: 0
+    description: "Count of prosocial keywords in the comment body."
+  user_tenure:
+    type: ["number", "null"]
+    description: "Days since user account creation (or first comment). May be null if data missing."
+required:
+  - comment_id
+  - user_id
+  - thread_id
+  - subreddit
+  - thread_type
+  - vader_score
+  - prosocial_keyword_count
+additionalProperties: false

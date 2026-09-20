@@ -1,15 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T011` (rejected 1x): The required file `tests/unit/test_classification.py` does not exist, so no unit test for the negation‑aware keyword classification logic is present. The task’s deliverable is missing entirely.
-- `T012` (rejected 1x): The required artifact `tests/unit/test_anonymization.py` does not exist on disk, so no unit test for PII anonymization is provided. The task cannot be considered completed until the file is created with appropriate tests.
-- `T015b` (rejected 1x): No code, log output, or comment indicating that a CPU feasibility analysis for FR‑002c was performed (or that the feature was deferred) is present. The required artifact—a file containing the feasibility check logic or a comment/log entry “FR‑002c Deferred”—is missing.
-- `T017` (rejected 1x): The required output files `data/processed/anonymized.csv` and `data/processed/raw_counts.json` are absent, and the provided `code/01_ingest.py` is truncated and does not contain logic that writes those files. Consequently the task’s core requirement—to save the processed CSV and JSON—is not satisfied.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- FABRICATED-RESULT signal — projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md: self-declared fabricated metric — “…simulated files, flagging the simulated results. Real human annotation is re…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.

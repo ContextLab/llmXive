@@ -1,12 +1,35 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for the final statistical report JSON."
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: "Schema for the JSON output of the statistical analysis."
 type: object
 properties:
-  primary_model:
+  model_summary:
     type: object
+    description: "Summary of the LMM fit."
     properties:
-      thread_type_Prime:
+      formula:
+        type: string
+        description: "The formula used for the model."
+      n_obs:
+        type: integer
+        description: "Number of observations."
+      n_groups:
+        type: integer
+        description: "Number of random effect groups (users)."
+      AIC:
+        type: number
+        description: "Akaike Information Criterion."
+      BIC:
+        type: number
+        description: "Bayesian Information Criterion."
+      log_likelihood:
+        type: number
+        description: "Log-likelihood value."
+  fixed_effects:
+    type: object
+    description: "Fixed effect coefficients."
+    properties:
+      intercept:
         type: object
         properties:
           coef:
@@ -15,81 +38,45 @@ properties:
             type: number
           p_value:
             type: number
-            minimum: 0
-            maximum: 1
-          conf_int:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-        required:
-          - coef
-          - std_err
-          - p_value
-          - conf_int
-      singular_fit_fallback:
-        type: boolean
-        description: "True if user_id random effect was dropped."
-    required:
-      - thread_type_Prime
-      - singular_fit_fallback
-  sensitivity_analysis:
-    type: object
-    properties:
-      bootstrap_p_values:
-        type: array
-        items:
-          type: number
-        description: "P-values from 1,000 bootstrap resamples."
-      control_drop_p_values:
+      thread_type:
         type: object
-        description: "P-values when dropping each control variable."
-      random_effect_variants:
-        type: object
-        description: "P-values for alternative random effect structures."
+        properties:
+          coef:
+            type: number
+          std_err:
+            type: number
+          p_value:
+            type: number
     required:
-      - bootstrap_p_values
-  power_analysis:
+      - intercept
+      - thread_type
+  random_effects:
     type: object
+    description: "Random effect variance components."
     properties:
-      effect_size_d:
-        type: number
-      sample_size:
-        type: integer
-      power:
+      user_id_variance:
         type: number
         minimum: 0
-        maximum: 1
-      warning:
-        type: string
-        description: "Warning message if power < 80%."
+      residual_variance:
+        type: number
+        minimum: 0
     required:
-      - effect_size_d
-      - sample_size
-      - power
+      - user_id_variance
+      - residual_variance
   validation:
     type: object
+    description: "Validation metrics."
     properties:
-      cohen_kappa:
+      kappa:
         type: number
+        description: "Cohen's Kappa score."
         minimum: 0
         maximum: 1
-      raters_count:
-        type: integer
-        minimum: 3
-      neg_score_pearson_r:
-        type: number
-        minimum: -1
-        maximum: 1
-        description: "Pearson correlation between neg_score and VADER native neg."
     required:
-      - cohen_kappa
-      - raters_count
-      - neg_score_pearson_r
+      - kappa
 required:
-  - primary_model
-  - sensitivity_analysis
-  - power_analysis
+  - model_summary
+  - fixed_effects
+  - random_effects
   - validation
-
+additionalProperties: false

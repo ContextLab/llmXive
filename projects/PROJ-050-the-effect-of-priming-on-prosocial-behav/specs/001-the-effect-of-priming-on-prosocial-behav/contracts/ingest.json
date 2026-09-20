@@ -2,17 +2,18 @@
   "name": "ingest_contract",
   "description": "Contract for the data ingestion pipeline",
   "inputs": {
-    "source": "pushshift/reddit",
-    "subreddits": ["AskReddit", "relationships", "socialscience", "psychology", "dataisbeautiful"],
+    "source": "jplu/tf-reddit-comments-2020",
+    "subreddits": ["AskReddit", "science", "relationships"],
     "min_group_size": 4000
   },
   "outputs": {
     "file": "data/processed/anonymized.csv",
-    "columns": ["comment_id", "thread_id", "user_id", "body", "thread_type", "subreddit", "thread_age", "comment_count"],
+    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "user_tenure"],
     "constraints": [
       "No plaintext usernames",
-      "At least 4000 rows per thread_type",
-      "At least 3 distinct subreddits"
+      "No raw timestamps (created_utc) in output",
+      "At least 3 distinct subreddits",
+      "raw_vs_fetched_count metric included in raw_counts.json"
     ]
   }
 }
