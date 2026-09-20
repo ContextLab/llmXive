@@ -1,24 +1,32 @@
-# Python bytecode and cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyo
-*.pyd
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
 *.egg
-*.manifest
-*.spec
 
-# Virtual environments
-.venv/
+# Virtual Environments
 venv/
-env/
-.env/
 ENV/
-env.bak/
-venv.bak/
+env/
+.venv/
 
-# IDE and editor files
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -26,71 +34,57 @@ venv.bak/
 *~
 .project
 .settings/
-.metadata/
 
-# Jupyter notebooks checkpoints
-.ipynb_checkpoints/
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints
 
-# Data artifacts (raw and processed)
+# Testing
+.coverage
+htmlcov/
+pytest.ini
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Data Artifacts (Do not commit large files)
 data/raw/
 data/processed/
 data/external/
 data/temp/
-*.nii
-*.nii.gz
-*.dcm
-*.bval
-*.bvec
-*.csv
 *.parquet
-*.npz
 *.npy
+*.npz
 *.h5
 *.hdf5
+*.csv
+*.tsv
+*.json (large datasets only)
 
-# Results and figures
-results/
-figures/
+# Results and Figures
+results/figures/
+results/reports/
 *.png
 *.jpg
-*.jpeg
 *.svg
-*.pdf
-*.gif
+*.pdf (generated reports)
 
-# Metadata and logs
-metadata/
+# Metadata (Generated)
+metadata/generated/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
 logs/
 
-# Contracts and schemas (keep these if they are source files, but ignore generated ones)
-# Note: contracts/*.yaml are source files, but generated validation reports should be ignored
-contracts/generated/
-
-# OS specific files
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-*.cover
-
-# Build and distribution
-dist/
-build/
-bdist/
-*.so
+# Environment variables
+.env
+.env.local
 
 # Temporary files
-*.tmp
-*.temp
 tmp/
 temp/
-
-# Lock files (optional - uncomment if you don't want to track them)
-# poetry.lock
-# Pipfile.lock
+*.tmp

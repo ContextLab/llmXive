@@ -1,9 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Raw Dataset Schema
-description: >
-  Schema for validating the raw dataset structure loaded from the HCP Young Adult
-  (or alternative) dataset. Ensures presence of required fMRI metadata and tactile
-  discrimination measures per FR-007 and data-model.md.
+title: Raw HCP Dataset Schema
+description: Schema for validating the raw dataset loaded from HCP (HCP-RestingState.parquet).
 type: object
 required:
   - subject_id
@@ -12,41 +9,47 @@ required:
   - sex
   - mean_fd
   - scanner_id
-  - fmri_data_path
 properties:
   subject_id:
     type: string
     description: Unique identifier for the subject.
   tactile_score:
     type: number
-    description: >
-      Standardized tactile discrimination score (e.g., 2-point discrimination
-      threshold in mm, normalized). Must not be NaN.
+    description: Two-point tactile discrimination threshold (mm).
     minimum: 0
   age:
     type: integer
     description: Age of the subject in years.
     minimum: 18
-    maximum: 100
+    maximum: 35
   sex:
     type: string
-    enum: ["M", "F", "Male", "Female", "Other"]
-    description: Biological sex or gender as recorded in the dataset.
+    enum:
+      - M
+      - F
+    description: Biological sex of the subject.
   mean_fd:
     type: number
-    description: Mean Framewise Displacement (motion metric).
+    description: Mean Framewise Displacement (motion estimate).
     minimum: 0
   scanner_id:
     type: string
-    description: Identifier for the scanner used (e.g., "HCP_3T").
-  fmri_data_path:
-    type: string
-    description: Relative or absolute path to the preprocessed fMRI NIfTI file.
-  acquisition_time:
-    type: string
-    format: date-time
-    description: Timestamp of the fMRI acquisition.
-  notes:
-    type: string
-    description: Optional notes regarding data quality or exclusions.
+    description: Identifier for the scanner used.
+  roi_time_series:
+    type: array
+    items:
+      type: number
+    description: Time series data for each ROI (Schaefer-200 atlas).
+  metadata:
+    type: object
+    properties:
+      doi:
+        type: string
+        description: DOI of the tactile instrument used.
+      source:
+        type: string
+        description: Source dataset name (e.g., HCP).
+      version:
+        type: string
+        description: Dataset version.
 additionalProperties: true

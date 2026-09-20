@@ -88,7 +88,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/brainnet-tactile
   verified_at: '2026-06-29T16:50:06.661061Z'
-- artifact_hash: 659afa47c9afd885c71b6cba0640e5ce373b9f106d6a622939030ce84015c600
+- artifact_hash: b24e9096d835aa73671709ef112677a2eb92bc9dee0fd5cd410f715a692734d2
   artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -99,4 +99,4 @@
   value: 10.1016/j.neuropsychologia.2011.04.012
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.neuropsychologia.2011.04.012
-  verified_at: '2026-09-13T08:25:56.440971Z'
+  verified_at: '2026-09-20T13:41:25.498763Z'

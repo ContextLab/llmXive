@@ -726,3 +726,709 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-13T08:25:56Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP dataset subject count 1200 plus or minus 50
+  claim_id: c_f156ae95
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Expected N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom\
+    \ datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:34:46Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_eb36e398
+  context: If the DOI is missing or invalid, fallback to the standard Weinstein DOI
+    (10.1016/j.neuropsychologia.2011.04.012) and log a warning.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Standard Weinstein DOI is 10.1016/j.neuropsychologia.2011.04.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:34:47Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP Segregation expected range greater than 0.0
+  claim_id: c_7f6c7c8e
+  context: 'Verify the computed values fall within the expected physiological ranges
+    for HCP (Modularity Q: 0.3-0.7, Segregation: >0.0) as documented in literature.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HCP_Segregation_expected_range_greater_than_0.0
+  kind: magnitude
+  raw_text: Expected physiological range for HCP Segregation is greater than 0.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:36:36Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP subject count expected to be 1200 plus or minus 50
+  claim_id: c_7c75fee6
+  context: "Function validate_completeness() to compute missing value rates. Validates\
+    \ subject count matches the selected dataset documentation (expected N\u22481200\xB1\
+    50 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:37:47Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: HCP Modularity Q expected range 0.3 to 0.7
+  claim_id: c_7feee20c
+  context: 'Verify the computed values fall within the expected physiological ranges
+    for HCP (Modularity Q: 0.3-0.7, Segregation: >0.0) as documented in literature.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Expected physiological range for HCP Modularity Q is 0.3-0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:37:48Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PCA components retain 90 percent variance
+  claim_id: c_81c2b498
+  context: "Perform PCA on the remaining predictor set, retain components explaining\
+    \ \u226590% variance, save data/processed/pca_components.parquet."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform PCA on the remaining predictor set, retain components explaining\
+    \ \u226590% variance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:37:49Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: VIF threshold is 5.0
+  claim_id: c_05888de7
+  context: Compute VIF for all predictors; flag if VIF > 5.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:37:49Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR threshold q less than or equal to 0.05
+  claim_id: c_35107ca8
+  context: "Apply Benjamini-Hochberg FDR (q\u22640.05) to all \u22655 hypothesis tests"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_threshold_q_less_than_or_equal_to_0.0
+  kind: magnitude
+  raw_text: "Apply Benjamini-Hochberg FDR (q\u22640.05) to all \u22655 hypothesis\
+    \ tests."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:38:18Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Memory scaling ratio tolerance 10 percent
+  claim_id: c_5fe48c99
+  context: Log peak RAM for each run and verify the ratio of memory usage matches
+    the theoretical square of the subject count ratio within a 10% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the ratio of memory usage matches the theoretical square of the
+    subject count ratio within a 10% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:38:18Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: expected subject count 1200 plus or minus 50 for HCP dataset
+  claim_id: c_3266ad2c
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Expected subject count N\u22481200\xB150 for HCP or N\u22481000\xB1100\
+    \ for alternative/custom."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:12Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP dataset ID 7eu7d7/HCP-Diffusion-datas file HCP_RestingState.parquet
+  claim_id: c_b92d0bf3
+  context: 'Specifics: Use dataset ID 7eu7d7/HCP-Diffusion-datas and file HCP_RestingState.parquet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HCP_dataset_ID_7eu7d7/HCP-Diffusion-datas_file_HCP_RestingSt
+  kind: entity_fact
+  raw_text: Use dataset ID 7eu7d7/HCP-Diffusion-datas and file HCP_RestingState.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:38Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: standard Weinstein DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_cf849673
+  context: If the DOI is missing or invalid, fallback to the standard Weinstein DOI
+    (10.1016/j.neuropsychologia.2011.04.012) and log a warning.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Fallback to the standard Weinstein DOI 10.1016/j.neuropsychologia.2011.04.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:39Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: dynamic metrics computation time 3 hours for 100 subjects memory 6.5GB
+  claim_id: c_b40e5ab5
+  context: "Goal: Compute static and dynamic network metrics (modularity, segregation,\
+    \ flexibility) within \u22643 hours for \u2264100 subjects and \u22646.5GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute dynamic metrics within \u22643 hours for \u2264100 subjects and\
+    \ \u22646.5GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:39Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP Modularity Q physiological range 0.3 to 0.7
+  claim_id: c_be895e7e
+  context: Expected physiological range for HCP Modularity Q is 0.3-0.7. Log any deviations
+    from expected ranges.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Expected physiological range for HCP Modularity Q is 0.3-0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:39Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: memory usage ratio matches theoretical square of subject count ratio
+    within 10 percent tolerance
+  claim_id: c_d5f6f8fe
+  context: Log peak RAM for each run and verify the ratio of memory usage matches
+    the theoretical square of the subject count ratio within a 10% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the ratio of memory usage matches the theoretical square of the
+    subject count ratio within a 10% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:40Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP dataset subject count is approximately 1200 plus or minus 50
+  claim_id: c_375d890c
+  context: "Function validate_completeness() to compute missing value rates. Validates\
+    \ subject count matches the selected dataset documentation (expected N\u22481200\xB1\
+    50 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Expected subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:40:21Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: Standard Weinstein DOI is 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_97fde019
+  context: Read the DOI from the dataset's metadata. If the DOI is missing or invalid,
+    fallback to the standard Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+    and log a warning.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: If the DOI is missing or invalid, fallback to the standard Weinstein DOI
+    (10.1016/j.neuropsychologia.2011.04.012).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:40:23Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP Modularity Q physiological range is 0.3 to 0.7
+  claim_id: c_0e3d1785
+  context: Expected physiological range for HCP Modularity Q is 0.3-0.7. Log any deviations
+    from expected ranges.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Expected physiological range for HCP Modularity Q is 0.3-0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:40:23Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset ID 7eu7d7/HCP-Diffusion-datas
+  claim_id: c_b6f91fef
+  context: Use dataset ID 7eu7d7/HCP-Diffusion-datas and file HCP_RestingState.parquet.
+  evidence:
+    entailment_evidence: Dataset ID 7eu7d7/HCP-Diffusion-datas
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_ID_7eu7d7/HCP-Diffusion-datas
+  kind: entity_fact
+  raw_text: Dataset ID for HCP-Diffusion-datas is 7eu7d7/HCP-Diffusion-datas.
+  resolved_value: Dataset ID 7eu7d7/HCP-Diffusion-datas
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T13:40:25Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: File name HCP_RestingState.parquet
+  claim_id: c_e3ff2d8d
+  context: Use dataset ID 7eu7d7/HCP-Diffusion-datas and file HCP_RestingState.parquet.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/File_name_HCP_RestingState.parquet
+  kind: entity_fact
+  raw_text: File name for HCP resting state data is HCP_RestingState.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:41:00Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Pipeline fails with exit code 1 if tactile_score is missing
+  claim_id: c_b103e220
+  context: 'T013 [P] [US1] Implement src/brainnet/data_loader.py: Function to download
+    HCP via datasets.load_dataset from verified HF URL. Constraint: Must fail loudly
+    if the tactile_score column is missing... Exit Behavior: If tactile_score is missing,
+    raise ValueError... and exit with code 1.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline must fail if the tactile_score column is missing, with an
+    exit code of 1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T13:41:56Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset ID is 7eu7d7/HCP-Diffusion-datas
+  claim_id: c_8fa29c8c
+  context: 'T013 [P] [US1] Implement src/brainnet/data_loader.py: Function to download
+    HCP via datasets.load_dataset from verified HF URL. Specifics: Use dataset ID
+    7eu7d7/HCP-Diffusion-datas and file HCP_RestingState.parquet.'
+  evidence:
+    entailment_evidence: Dataset ID is 7eu7d7/HCP-Diffusion-datas
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_ID_is_7eu7d7/HCP-Diffusion-datas
+  kind: entity_fact
+  raw_text: The dataset ID used is 7eu7d7/HCP-Diffusion-datas.
+  resolved_value: Dataset ID is 7eu7d7/HCP-Diffusion-datas
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T13:41:58Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: File used is HCP_RestingState.parquet
+  claim_id: c_bc8b9b3f
+  context: 'T013 [P] [US1] Implement src/brainnet/data_loader.py: Function to download
+    HCP via datasets.load_dataset from verified HF URL. Specifics: Use dataset ID
+    7eu7d7/HCP-Diffusion-datas and file HCP_RestingState.parquet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/File_used_is_HCP_RestingState.parquet
+  kind: entity_fact
+  raw_text: The file used is HCP_RestingState.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:43:00Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Standard Weinstein DOI is 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_40fe74d3
+  context: 'T016 [US1] Implement src/brainnet/data_loader.py: Function to load tactile
+    instrument metadata from the loaded dataset. Constraint: Read the DOI from the
+    dataset''s metadata. If the DOI is missing or invalid, fallback to the standard
+    Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012) and log a warning.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The standard Weinstein DOI is 10.1016/j.neuropsychologia.2011.04.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:43:01Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Expected HCP subject count is 1200 plus or minus 50
+  claim_id: c_6ca4e6ea
+  context: "T015 [US1] Implement src/brainnet/data_loader.py: Function validate_completeness()\
+    \ to compute missing value rates. Validates subject count matches the selected\
+    \ dataset documentation (expected N\u22481200\xB150 for HCP or N\u22481000\xB1\
+    100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The expected subject count for HCP is approximately 1200 \xB1 50."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:43:44Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Expected alternative/custom subject count is 1000 plus or minus 100
+  claim_id: c_0ad266c1
+  context: "T015 [US1] Implement src/brainnet/data_loader.py: Function validate_completeness()\
+    \ to compute missing value rates. Validates subject count matches the selected\
+    \ dataset documentation (expected N\u22481200\xB150 for HCP or N\u22481000\xB1\
+    100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The expected subject count for alternative/custom datasets is approximately\
+    \ 1000 \xB1 100."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:44:42Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Expected HCP Modularity Q range is 0.3 to 0.7
+  claim_id: c_4e23ef14
+  context: 'T029e [Diag] Implement src/brainnet/analysis.py: Benchmark Validation...
+    Expected physiological range for HCP Modularity Q is 0.3-0.7. Log any deviations
+    from expected ranges.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The expected physiological range for HCP Modularity Q is 0.3 to 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:45:12Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Network metrics computed within 3 hours for 100 subjects
+  claim_id: c_4d71d2d4
+  context: "Phase 4: User Story 2 - Network Dynamics Computation (Priority: P2) Goal:\
+    \ Compute static and dynamic network metrics (modularity, segregation, flexibility)\
+    \ within \u22643 hours for \u2264100 subjects and \u22646.5GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline should compute static and dynamic network metrics within
+    3 hours for 100 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:46:05Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Graph construction absolute correlation threshold is 0.2
+  claim_id: c_f0e51cef
+  context: "T022 [US2] Implement src/brainnet/static_metrics.py: Graph construction\
+    \ with absolute correlation threshold \u22650.2; compute Modularity Q (Louvain)\
+    \ and Segregation Index"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The absolute correlation threshold for graph construction is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:46:26Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding-window length is 60 seconds
+  claim_id: c_81c1a10c
+  context: 'T023 [P] [US2] Implement src/brainnet/dynamic_metrics.py: Sliding-window
+    logic (length=60s, step=30s) using Numba or efficient NumPy loops'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding-window length is 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:46:59Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding-window step is 30 seconds
+  claim_id: c_e877bf56
+  context: 'T023 [P] [US2] Implement src/brainnet/dynamic_metrics.py: Sliding-window
+    logic (length=60s, step=30s) using Numba or efficient NumPy loops'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding-window step is 30 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:25Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: VIF flagging threshold is 5.0
+  claim_id: c_4d346535
+  context: 'T029 [Diag] Implement src/brainnet/analysis.py: Compute VIF for all predictors;
+    flag if VIF > 5.0. Logic: If VIF > 5.0, identify the predictor with the highest
+    VIF, remove it, and recompute VIFs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF flagging threshold is 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:15Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PCA components explain at least 90% variance
+  claim_id: c_185f1bd6
+  context: "T029c [Diag] Implement src/brainnet/analysis.py: Conditional: Perform\
+    \ PCA on the remaining predictor set, retain components explaining \u226590% variance,\
+    \ save data/processed/pca_components.parquet."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_components_explain_at_least_90%25_variance
+  kind: magnitude
+  raw_text: PCA components should explain at least 90% of the variance.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:56Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Memory scaling ratio matches theoretical square within 10% tolerance
+  claim_id: c_94e67ea4
+  context: 'T029f [Diag] Implement src/brainnet/analysis.py: Scaling Validation...
+    Log peak RAM for each run and verify the ratio of memory usage matches the theoretical
+    square of the subject count ratio within a 10% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory scaling ratio should match the theoretical square of the subject
+    count ratio within a 10% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:57Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: A priori power analysis assumes r=0.20
+  claim_id: c_1cef2176
+  context: "T032 [P] [US3] Implement src/brainnet/analysis.py: A priori power analysis\
+    \ (Pingouin) for r=0.20, \u03B1=0.05, power=0.80; flag if N < required"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The a priori power analysis assumes an effect size (r) of 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:50:13Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Significance level for power analysis is 0.05
+  claim_id: c_1cfc4355
+  context: "T032 [P] [US3] Implement src/brainnet/analysis.py: A priori power analysis\
+    \ (Pingouin) for r=0.20, \u03B1=0.05, power=0.80; flag if N < required"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance level (alpha) for power analysis is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:50:39Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Target power for analysis is 0.80
+  claim_id: c_0824cac6
+  context: "T032 [P] [US3] Implement src/brainnet/analysis.py: A priori power analysis\
+    \ (Pingouin) for r=0.20, \u03B1=0.05, power=0.80; flag if N < required"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The target power for analysis is 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T13:50:49Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied with q less than or equal to
+    0.05
+  claim_id: c_c71f4bdd
+  context: "T035 [US3] Implement src/brainnet/analysis.py: Apply Benjamini-Hochberg\
+    \ FDR (q\u22640.05) to all \u22655 hypothesis tests"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_applied_with_q_less_than_o
+  kind: magnitude
+  raw_text: "The Benjamini-Hochberg FDR correction is applied with q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:51:17Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Numba optimization achieves at least 50% runtime reduction
+  claim_id: c_7edfbca6
+  context: 'T050b [P] Performance: Run benchmark on CI subset (100 subjects) and verify
+    runtime reduction of at least 50% compared to the unoptimized version in T023.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Numba_optimization_achieves_at_least_50%25_runtime_reduction
+  kind: magnitude
+  raw_text: Numba optimization should achieve a runtime reduction of at least 50%
+    compared to the unoptimized version.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:52:20Z'

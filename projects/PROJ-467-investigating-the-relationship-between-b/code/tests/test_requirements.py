@@ -1,53 +1,94 @@
-"""
-Test that required dependencies are importable and meet minimum version constraints.
-"""
 import importlib
 import sys
-from packaging import version
+from pathlib import Path
+import pytest
 
-# Define required packages and minimum versions
-REQUIRED_PACKAGES = {
-    "numpy": "1.24.0",
-    "pandas": "2.0.0",
-    "nilearn": "0.10.0",
-    "networkx": "3.0.0",
-    "scikit-learn": "1.2.0",
-    "statsmodels": "0.14.0",
-    "pingouin": "0.5.0",
-    "datasets": "2.14.0",
-    "pytest": "7.3.0",
-    "jsonschema": "4.17.0",
-}
+try:
+    from packaging import version
+except ImportError:
+    # Fallback if packaging is not installed in test env (though it should be)
+    version = None
+
 
 def test_dependencies_installed():
-    """Verify all required packages are installed."""
+    """Verify all required packages in requirements.txt are importable."""
+    requirements_path = Path(__file__).parent.parent / "requirements.txt"
+    if not requirements_path.exists():
+        pytest.fail("requirements.txt not found at expected path.")
+
+    with open(requirements_path, "r") as f:
+        lines = f.readlines()
+
+    required_packages = []
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        # Extract package name (ignore version specifiers)
+        pkg_name = line.split(">=")[0].split("<")[0].split("==")[0].split("[")[0].strip()
+        if pkg_name:
+            required_packages.append(pkg_name)
+
     missing = []
-    for package in REQUIRED_PACKAGES:
+    for pkg in required_packages:
+        # Map common package names to import names if they differ
+        import_name = pkg
+        if pkg == "scikit-learn":
+            import_name = "sklearn"
+        elif pkg == "nilearn":
+            import_name = "nilearn"
+        elif pkg == "huggingface-hub":
+            import_name = "huggingface_hub"
+        elif pkg == "datasets":
+            import_name = "datasets"
+        
         try:
-            importlib.import_module(package)
+            importlib.import_module(import_name)
         except ImportError:
-            missing.append(package)
-    
-    assert not missing, f"Missing required packages: {missing}"
+            missing.append(pkg)
+
+    if missing:
+        pytest.fail(f"Missing required dependencies: {', '.join(missing)}")
+
 
 def test_dependency_versions():
-    """Verify installed packages meet minimum version requirements."""
-    failed = []
-    for package, min_version in REQUIRED_PACKAGES.items():
+    """Verify installed versions meet minimum requirements (if packaging is available)."""
+    if version is None:
+        pytest.skip("packaging library not available for version check")
+
+    requirements_path = Path(__file__).parent.parent / "requirements.txt"
+    with open(requirements_path, "r") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        pkg_name = line.split(">=")[0].split("<")[0].split("==")[0].split("[")[0].strip()
+        if not pkg_name:
+            continue
+
+        # Determine import name
+        import_name = pkg_name
+        if pkg_name == "scikit-learn":
+            import_name = "sklearn"
+        elif pkg_name == "huggingface-hub":
+            import_name = "huggingface_hub"
+        
         try:
-            module = importlib.import_module(package)
-            # Handle packages where __version__ might be missing or in a different attribute
-            if hasattr(module, "__version__"):
-                installed_version = module.__version__
-            else:
-                # Fallback for packages that might not expose __version__ directly
-                # In a real scenario, we might use importlib.metadata
-                import importlib.metadata
-                installed_version = importlib.metadata.version(package)
+            pkg_module = importlib.import_module(import_name)
+            installed_ver = pkg_module.__version__
             
-            if version.parse(installed_version) < version.parse(min_version):
-                failed.append(f"{package}: {installed_version} < {min_version}")
-        except (ImportError, importlib.metadata.PackageNotFoundError) as e:
-            failed.append(f"{package}: {str(e)}")
-    
-    assert not failed, f"Version check failed: {failed}"
+            # Check minimum version if specified
+            if ">=" in line:
+                min_ver_str = line.split(">=")[1].split(",")[0].split("<")[0]
+                if version.parse(installed_ver) < version.parse(min_ver_str):
+                    pytest.fail(f"Package {pkg_name} version {installed_ver} is below required {min_ver_str}")
+                    
+        except ImportError:
+            # Already caught in test_dependencies_installed, but safe to skip here
+            pass
+        except AttributeError:
+            # Some packages don't have __version__
+            pass

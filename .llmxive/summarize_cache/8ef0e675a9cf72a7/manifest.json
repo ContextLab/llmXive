@@ -1,10 +1,10 @@
 {
   "schema": "llmxive-summary/1",
-  "root_hash": "1ea62be4e21eec9b",
+  "root_hash": "8ef0e675a9cf72a7",
   "goal": "extract every plan element (phases, contracts, entities, quickstart steps) the tasks must cover",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-09-20T13:15:14.406278+00:00",
+  "created_at": "2026-09-20T13:19:33.346964+00:00",
   "entries": [
     {
       "element_id": "e000",
@@ -61,8 +61,8 @@
         "0",
         "15",
         "152",
-        "200",
         "30",
+        "200",
         "45"
       ],
       "summary": "# Implementation Plan: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Tactile Discrimination\n\n**Branch**: `001-brain-network-tactile` | **Date**: 2026-06-29 | **Spec**: [spec.md](../specs/001-brain-network-tactile/spec.md)\n**Input**: Feature specification from `/specs/001-brain-network-tactile/spec.md`\n\n## Summary\nThe project must (1) load the Human Connectome Project (HCP) resting\u2011state fMRI dataset **and** verify the presence of tactile discrimination scores, (2) compute a suite of static and dynamic graph\u2011theoretic metrics from the fMRI data usin [... full chunk preserved on disk; desummarize() to retrieve.]"

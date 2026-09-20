@@ -1,63 +1,43 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Network Metric Schema
-description: >
-  Schema for validating computed network metrics (static and dynamic) derived
-  from fMRI time series using the Schaefer-200 atlas.
+description: Schema for validating static and dynamic network metrics computed from fMRI data.
 type: object
 required:
   - subject_id
   - modularity_q
   - segregation_index
   - flexibility
-  - timestamp
 properties:
   subject_id:
     type: string
-    description: Unique identifier for the subject, matching raw_dataset.subject_id.
+    description: Unique identifier for the subject.
   modularity_q:
     type: number
-    description: >
-      Louvain modularity Q value (static). Range typically [0, 1].
+    description: Louvain modularity Q value.
     minimum: 0
     maximum: 1
   segregation_index:
     type: number
-    description: Global segregation index derived from the static network.
+    description: Network segregation index.
+    minimum: 0
+    maximum: 1
   flexibility:
     type: number
-    description: >
-      Average flexibility metric across nodes (dynamic). Represents the number
-      of community changes per node across sliding windows.
+    description: Average node flexibility across windows.
     minimum: 0
-  dynamic_modularity_series:
+    maximum: 1
+  dynamic_modularity:
     type: array
     items:
       type: number
-    description: >
-      Time-series of modularity Q values for each sliding window (optional,
-      if dynamic analysis is performed).
-  window_length_sec:
+    description: Time series of modularity values across sliding windows.
+  window_length_s:
     type: integer
-    description: Length of the sliding window in seconds.
-  step_size_sec:
+    description: Sliding window length in seconds.
+  step_size_s:
     type: integer
     description: Step size between windows in seconds.
-  atlas:
-    type: string
-    description: Atlas used for ROI extraction (e.g., "Schaefer-200").
-  timestamp:
-    type: string
-    format: date-time
-    description: Timestamp of the metric computation.
-  parameters:
-    type: object
-    description: Dictionary of parameters used for computation (threshold, etc.).
-    properties:
-      correlation_threshold:
-        type: number
-        minimum: 0
-        maximum: 1
-      method:
-        type: string
-        enum: ["pearson", "spearman"]
+  threshold:
+    type: number
+    description: Correlation threshold used for graph construction.
 additionalProperties: true
