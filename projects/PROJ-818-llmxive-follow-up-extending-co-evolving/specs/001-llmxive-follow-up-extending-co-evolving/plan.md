@@ -13,7 +13,7 @@ This feature implements a comparative study of three training strategies (Sequen
 **Primary Dependencies**: `sympy` (logic generation), `networkx` (grid generation), `numpy` (numerical ops), `scipy` (statistical tests), `pytest` (testing).  
 **Storage**: Persistent `data/` directory for all generated artifacts. All files are checksummed and the checksums are recorded in `data/checksums.json`. No persistent database.  
 **Testing**: `pytest` with contract tests validating schema compliance and statistical output.  
-**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU, limited RAM, no GPU).  
 **Project Type**: Research CLI / Simulation Engine.  
 **Performance Goals**: Complete 30+ runs per condition (total ~90+ runs) within 6 hours; memory footprint < 4GB.  
 **Constraints**: No GPU usage; strict integer parity for rule evaluations; deterministic seeding.  

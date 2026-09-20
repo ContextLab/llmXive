@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -45,7 +45,7 @@
 
 - [X] T001a [P] Create directory structure: `src/generators`, `src/agents`, `src/analysis`, `src/utils`, `tests/`, `data/`, `data/results/`
 - [X] T001b [P] Create empty `__init__.py` files in all `src/` and `tests/` subdirectories
-- [X] T001c [P] Initialize Python 3.11 project with dependencies: `sympy`, `networkx`, `numpy`, `scipy`, `pytest` in `pyproject.toml`
+- [X] T001c [P] Initialize Python 3.11 project with dependencies: `sympy`, `networkx`, `numpy`, `scipy`, `statsmodels`, `pytest` in `pyproject.toml`
 - [X] T001d [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml` and `.pre-commit-config.yaml`
 - [X] T001e [P] Create `.gitignore` for Python and data artifacts
 
@@ -57,14 +57,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement configuration loader in `src/utils/config.py` to handle seeding, generation counts, and rule evaluation budgets. **Requirement**: Define `VALIDITY_THRESHOLD` (defaulting to a high confidence level) and `RULE_EVALUATION_BUDGET` constants here.
+- [X] T004a [P] [Foundational] Implement configuration constants in `src/utils/config.py` to handle seeding, generation counts, and rule evaluation budgets. **Requirement**: Define `VALIDITY_THRESHOLD` (defaulting to a high confidence level), `RULE_EVALUATION_BUDGET`, and `RULES_PER_GENERATION` (integer) constants here. `RULES_PER_GENERATION` must be used to calculate the total target exposure for SC-002.
+- [X] T004b [P] [Foundational] Implement total exposure calculation logic in `src/utils/config.py` using `RULES_PER_GENERATION` and the number of generations to calculate the target budget. **Dependency**: Requires T004a to be complete.
 - [X] T005 [P] Implement checksum utility in `src/utils/checksums.py` to generate SHA-256 hashes for data artifacts and manage `data/checksums.json`
 - [X] T006 [P] Create base abstract agent class in `src/agents/base_agent.py` defining the interface for rule-set management and evaluation
 - [X] T007 [P] Implement CLI skeleton in `src/cli.py` (entry point only, no logic) to establish command structure
 - [X] T008a [P] Generate `contracts/dataset.schema.yaml` defining the schema for generated proofs and grids, including `id`, `domain`, `rule_set_id`, and `instance_data` fields.
-- [X] T008b [P] Generate `contracts/agent_state.schema.yaml` defining the schema for agent state, including `population`, `rule_sets`, and `generation_count`.
+- [X] T008b [P] Generate `contracts/agent_state.schema.yaml` defining the schema for agent state, including `population`, `rule_sets` (with `rule_id`), and `generation_count`.
 - [X] T008c [P] Generate `contracts/result.schema.yaml` defining the schema for result metrics, including `forgetting_rate`, `accuracy`, and `rule_retention`.
 - [X] T008 [P] Implement schema validators in `tests/contract/` based on the generated contracts (`contracts/dataset.schema.yaml`, `contracts/agent_state.schema.yaml`, `contracts/result.schema.yaml`) to validate `dataset`, `agent_state`, and `result` JSON structures. **Dependency**: Requires T008a-c to be complete.
+- [X] T042 [P] [Foundational] Implement "Pilot Power Estimation" in `src/analysis/statistical_tests.py`. **Logic**: Run a pilot simulation (a minimal number of runs per condition) to estimate variance. Calculate the required sample size (N) to achieve power ≥ 0.8 for a medium effect size (Cohen's f = 0.25). **Output**: Generate `data/batch_config.json` containing a dynamic list of unique random seeds (minimum N=30, or higher if variance suggests) to ensure SC-004 is met. **Requirement**: Do NOT abort the project; instead, dynamically adjust the seed list size to meet the power requirement. **Dependency**: Requires T004a, T005, T006, T007.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,11 +87,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement propositional logic proof generator in `src/generators/logic_generator.py` using `sympy` to create valid proofs from parameterized axioms. **Requirement**: Include retry logic with a **bounded retry (max 3 attempts)** for invalid generations. If generation fails after 3 attempts, log a warning and skip that instance. **Verification**: Ensure the implementation includes a log assertion that triggers when the retry limit is reached (e.g., "Retry limit reached for instance X") and a unit test verifies this log message.
-- [X] T012 [P] [US1] Implement grid-world navigation generator in `src/generators/grid_generator.py` using `networkx` to create solvable grids with non-overlapping rule sets (e.g., "avoid red", "diagonal paths"). **Requirement**: Include retry logic with a **bounded retry (max 3 attempts)** for invalid generations. If generation fails after 3 attempts, log a warning and skip that instance. **Verification**: Ensure the implementation includes a log assertion that triggers when the retry limit is reached (e.g., "Retry limit reached for instance X") and a unit test verifies this log message.
-- [X] T013 [US1] Implement held-out test instance generator in `src/generators/test_generator.py`. **Output**: `data/test_instances.json` as a JSON array of objects with keys `id`, `domain`, `rule_set_id`, and `instance_data`. **Requirement**: Ensure instances are strictly separate from the training set by using a **separate seed range** or distinct axiom set B to guarantee distinct logical axioms or grid configurations, satisfying FR-004 and providing baseline measurement data.
+- [X] T011 [P] [US1] Implement propositional logic proof generator in `src/generators/logic_generator.py` using `sympy` to create valid proofs from parameterized axioms. **Requirement**: Include retry logic with a **bounded retry (max 3 attempts)** for invalid generations. If generation fails after multiple attempts, log a warning and skip that instance. **Verification**: Ensure the implementation includes a log assertion that triggers when the retry limit is reached (e.g., "Retry limit reached for instance X") and a unit test verifies this log message.
+- [X] T012 [P] [US1] Implement grid-world navigation generator in `src/generators/grid_generator.py` using `networkx` to create solvable grids with non-overlapping rule sets (e.g., "avoid red", "diagonal paths"). **Requirement**: Include retry logic with a **bounded retry (max 3 attempts)** for invalid generations. If generation fails after a limited number of attempts, log a warning and skip that instance. **Verification**: Ensure the implementation includes a log assertion that triggers when the retry limit is reached (e.g., "Retry limit reached for instance X") and a unit test verifies this log message.
+- [X] T013 [US1] Implement held-out test instance generator in `src/generators/test_generator.py`. **Output**: `data/test_instances.json` as a JSON array of objects with keys `id`, `domain`, `rule_set_id`, and `instance_data`. **Requirement**: Ensure instances are strictly separate from the training set by using a **disjoint seed range** (e.g., `TEST_SEED_START` defined in `config.py`, distinct from `TRAIN_SEED_START` used in T011/T012) to guarantee distinct logical axioms or grid configurations, satisfying FR-004 and providing baseline measurement data.
 - [X] T014 [US1] Implement data writing logic to save generated training datasets to `data/` (e.g., `data/generated_proofs.json`, `data/generated_grids.json`) with checksums recorded in `data/checksums.json`.
-- [X] T015 [US1] Implement validation script `src/analysis/validate_dataset.py`. **Input**: `data/generated_proofs.json`, `data/generated_grids.json`. **Output**: `data/validation_report.json`. **Requirement**: Load `VALIDITY_THRESHOLD` from `config.py` (default 0.99). Check generated datasets and exit with an error code if validity falls below `VALIDITY_THRESHOLD` for proofs or solvability falls below `VALIDITY_THRESHOLD` for grids.
+- [X] T015 [US1] Implement validation script `src/analysis/validate_dataset.py`. **Input**: `data/generated_proofs.json`, `data/generated_grids.json`. **Output**: `data/validation_report.json`. **Requirement**: Load `VALIDITY_THRESHOLD` from `config.py` (default a high threshold). Check generated datasets and exit with an error code if validity falls below `VALIDITY_THRESHOLD` for proofs or solvability falls below `VALIDITY_THRESHOLD` for grids.
 - [X] T015b [US1] Implement and execute the validation script in `src/cli.py` as a mandatory blocking gate before any training (Phase 4) can commence, ensuring SC-005 is enforced in the pipeline flow and preventing training on invalid data. **Dependency**: Requires T015 to be complete.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -113,7 +115,7 @@
 - [X] T019 [P] [US2] Implement `MixedAgent` in `src/agents/mixed_agent.py` to train on mixed task domains randomly per generation.
 - [X] T020 [P] [US2] Implement `CoevolvingAgent` in `src/agents/coevolving_agent.py` to manage sub-populations and execute **bidirectional rule-set exchanges at every generation step**.
 - [X] T021 [US2] Implement selection pressure logic in `src/agents/coevolving_agent.py` to discard non-performing rule-sets and prevent population collapse.
-- [X] T022 [US2] Implement `src/utils/parity_checker.py`. **Function**: Provide a `check_and_enforce_parity(budget, current_count)` function that raises `ParityError` immediately if the count exceeds the budget. **Integration**: This utility is designed to be called **during** the training loop (T023) to enforce the hard integer cap in real-time, preventing wasted compute.
+- [X] T022 [US2] Implement `src/utils/parity_checker.py`. **Function**: Provide a `check_and_enforce_parity(budget, current_count)` function that raises `ParityError` immediately if the count exceeds the budget. **Requirement**: Use **integer arithmetic exclusively** to prevent floating-point drift. Integrate this utility into the training loop (T023) to enforce the hard integer cap in real-time. **Dependency**: Requires T004b to be complete.
 - [X] T023 [US2] Implement training loop logic in `src/cli.py` (training component only) that utilizes `parity_checker.py` (T022) to ensure exact parity of total rule evaluations across all three conditions (FR-002). **Requirement**: Call `check_and_enforce_parity` at every generation step to fail fast if the budget is exceeded. **Dependency**: Requires T022 to be complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,37 +130,47 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
 - [X] T024 [P] [US3] Contract test for forgetting metric schema in `tests/contract/test_result_schema.py`
 - [X] T025 [P] [US3] Integration test for full statistical analysis pipeline in `tests/integration/test_full_pipeline.py`
+- [X] T039b1 [P] [US3] Add unit test `test_anova_significant_diff` in `tests/unit/test_statistical_tests.py` to verify the correct application of Mixed-Design ANOVA and Tukey tests with simulated data where a significant difference exists.
+- [X] T039b2 [P] [US3] Add unit test `test_anova_no_diff` in `tests/unit/test_statistical_tests.py` to verify the correct application of Mixed-Design ANOVA and Tukey tests with simulated data where no significant difference exists.
 
 ### Implementation for User Story 3
 
-- [X] T026 [P] [US3] Implement evaluation logic in `src/analysis/forgetting_metrics.py` to calculate accuracy drop from initial single-task to final multi-task performance. **Input**: `data/test_instances.json` (from T013) and trained agent states from T018-T020. **Output**: `data/results/baseline_metrics.json` and `data/results/final_metrics.json`. **Requirement**: Measure "initial single-task performance" by running agents on held-out instances immediately after single-task training, before multi-task training begins.
-- [X] T027 [P] [US3] Implement statistical analysis module in `src/analysis/statistical_tests.py` using `scipy` and `statsmodels` to perform a **Mixed-Design ANOVA (repeated measures)** followed by post-hoc Tukey tests. **Requirement**: Include fallback to **Kruskal-Wallis if non-parametric assumptions are violated**, strictly adhering to Constitution Principle VII and FR-006.
+- [X] T026 [P] [US3] Implement evaluation logic in `src/analysis/forgetting_metrics.py` to calculate accuracy drop from initial single-task to final multi-task performance. **Input**: `data/test_instances.json` (from T013) and trained agent states from T018-T020. **Output**: `data/results/baseline_metrics.json` and `data/results/final_metrics.json`. **Requirement**: Measure "initial single-task performance" by running agents on held-out instances immediately after single-task training, before multi-task training begins. **Dependency**: Requires T018-T020 (US2) to be functionally complete before execution.
+- [X] T027 [P] [US3] Implement statistical analysis module in `src/analysis/statistical_tests.py` using `scipy` and `statsmodels` to perform a **Mixed-Design ANOVA (repeated measures)** followed by post-hoc Tukey tests. **Requirement**: If assumptions for parametric tests are violated, fallback to **Kruskal-Wallis**. Strictly adhere to Constitution Principle VII and FR-006.
 - [X] T028 [US3] Implement "Warmup and Feasibility Check" in `src/cli.py`. **Input**: Single run parameters. **Logic**: Execute a single run of each condition and measure wall-clock time. **Output**: Estimate total time for multiple runs per condition. **Requirement**: Abort if estimated time > 5.5 hours (leaving 30 mins buffer for CI overhead) to satisfy SC-004 time constraints.
-- [X] T029a [US3] Implement seed generation utility in `src/utils/seed_manager.py` to generate and store a fixed list of 30+ unique random seeds per condition in `data/batch_config.json`. **Requirement**: Ensure seeds are reproducible and distinct to satisfy SC-004 statistical power requirements.
-- [X] T029 [US3] Implement batch runner in `src/cli.py` (orchestration component) to execute multiple independent runs per condition with unique seeds from `data/batch_config.json`, generating the dataset required for SC-004 statistical power. **Dependency**: Requires T028 to confirm feasibility and T029a to provide seeds.
+- [X] T029 [US3] Implement batch runner in `src/cli.py` (orchestration component) to execute multiple independent runs per condition with unique seeds from `data/batch_config.json` (generated by T042), generating the dataset required for SC-004 statistical power. **Dependency**: Requires T028 to confirm feasibility, T042 to provide seeds, and **T023 (Training Loop) to be complete** (stable interface).
 - [X] T030 [US3] Implement data aggregation logic to collect results from the batch runner output in `data/results/`. **Input Pattern**: `data/results/run_*/final_metrics.json`. **Metric Key**: `forgetting_rate`. **Requirement**: Verify that the number of runs meets the SC-004 requirement (N ≥ 30) before proceeding to analysis.
-- [X] T031 [US3] Implement retention rate calculation in `src/analysis/forgetting_metrics.py` to compute and store raw retention rates of **distinct logical rules** for Co-evolving vs Mixed-task conditions (SC-003). **Requirement**: Explicitly trace the **identity of specific rules** from the `RuleSet` entity (e.g., by `rule_id`) to ensure the metric isolates the effect of bidirectional exchange on specific rules, not just generic accuracy.
-- [X] T032 [US3] Implement comparison logic in `src/analysis/statistical_tests.py` to compare retention rates between Co-evolving and Mixed-task conditions.
+- [X] T040 [US3] [P] Implement explicit "Rule-Set Identity Tracker" in `src/analysis/forgetting_metrics.py`. **Requirement**: Extend the metric calculation to not only track accuracy but also maintain a `retained_rule_ids` list per agent, referencing `contracts/agent_state.schema.yaml` for `rule_id` format. The final report must explicitly show the intersection of rule IDs retained from the initial single-task training vs. the final multi-task state, satisfying SC-003 and the requirement to isolate the effect of bidirectional exchange on specific rules (justification: granular tracking is required to distinguish rule-specific retention from generic accuracy). **Dependency**: Must be implemented before T031 and T032.
+- [X] T031 [US3] Implement retention rate calculation in `src/analysis/forgetting_metrics.py` to compute and store raw retention rates of **distinct logical rules** for Co-evolving vs Mixed-task conditions (SC-003). **Requirement**: Explicitly trace the **identity of specific rules** from the `RuleSet` entity (e.g., by `rule_id`) to ensure the metric isolates the effect of bidirectional exchange on specific rules, not just generic accuracy. **Dependency**: Requires T040 to be complete.
+- [X] T032 [US3] Implement comparison logic in `src/analysis/statistical_tests.py` to compare retention rates between Co-evolving and Mixed-task conditions. **Dependency**: Requires T040 to be complete.
+- [X] T044 [US3] [P] Add "Time-Budget Enforcement" in `src/cli.py`. **Requirement**: Implement a hard wall-clock timer that interrupts the batch runner if the total runtime exceeds a predefined threshold, logging the current state and exiting gracefully to ensure the CI job does not exceed the 6-hour limit. **Dependency**: Must be integrated into T029.
 - [X] T033 [US3] Implement report generation to output forgetting rates, ANOVA results (p-values), and retention comparisons to `data/results/forgetting_analysis.json`.
-- [X] T039b1 [US3] Add unit test `test_anova_significant_diff` in `src/analysis/statistical_tests.py` to verify the correct application of Mixed-Design ANOVA and Tukey tests with simulated data where a significant difference exists.
-- [X] T039b2 [US3] Add unit test `test_anova_no_diff` in `src/analysis/statistical_tests.py` to verify the correct application of Mixed-Design ANOVA and Tukey tests with simulated data where no significant difference exists.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Final Validation & Reporting
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Generate required verification artifacts (post-run checksums, power analysis) and ensure all success criteria are met before project completion.
 
-- [X] T034 [P] Implement full CLI logic in `src/cli.py` to orchestrate the complete pipeline: generation -> validation gate (T015b) -> training (T023) -> batch running (T029) -> analysis (T027-T033), integrating all previous components
-- [X] T035 [P] Documentation updates in `docs/` and `quickstart.md` with examples of running the 3 conditions
-- [X] T036 Code cleanup and refactoring to ensure type hints and docstrings are complete
-- [X] T037 Performance optimization to ensure a sufficient number of runs complete within the CI time limit on a limited number of CPU cores
-- [X] T038 [P] Additional unit tests for edge cases (logical contradictions, floating-point drift) in `tests/unit/`
-- [X] T039 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T045 [P] [US3] Implement a "Reproducibility Audit Script" in `tests/integration/test_reproducibility.py`. **Requirement**: Re-run the entire pipeline with the exact same seeds from `data/batch_config.json` and verify that the checksums in `data/checksums.json` and the final metrics in `data/results/forgetting_analysis.json` are bit-for-bit identical, ensuring the "deterministic seeding" requirement is met.
+- [X] T041 [US2] [P] Add a "Post-Run Parity Verification Report" generator in `src/analysis/parity_checker.py`. **Requirement**: After the batch run (T029) completes, aggregate the real-time parity enforcement logs from T022/T023 to generate `data/results/parity_report.json`. This report must **audit and confirm** that the hard integer cap was never violated across all 90+ runs, satisfying the "post-run checksum" requirement of FR-002 and verifying the fail-fast enforcement.
+- [X] T048 [US2] [P] Implement "Post-Run Checksum Verification" in `src/analysis/parity_checker.py`. **Requirement**: Perform a final checksum verification of the total rule evaluations across all runs to ensure no floating-point drift occurred during the batch run, as a secondary check to the real-time enforcement.
+
+---
+
+## Phase 7: Robustness & Edge Case Handling (Revision)
+
+**Purpose**: Address specific edge cases and failure modes identified in the specification to ensure the system fails loudly on real data issues and handles logical contradictions gracefully.
+
+- [X] T046 [US1] [P] Enhance `src/generators/logic_generator.py` and `src/generators/grid_generator.py` to implement **strict failure-on-failure** for data loading. **Requirement**: Remove any `try/except` blocks that fall back to `generate_synthetic_*()` or `mock_*()` data when the primary generation logic fails. If a real instance cannot be generated after max retries (3 attempts), **log a warning and skip that instance** (do NOT halt execution), ensuring the "Fabrication Gate" never receives synthetic fallback data and the run continues for reproducibility.
+- [X] T047 [US2] [P] Implement "Population Collapse Prevention" in `src/agents/coevolving_agent.py`. **Requirement**: Add a specific logic check after every rule-set exchange (T020) to detect if the average fitness of a sub-population has dropped below a critical threshold (e.g., 50% of initial fitness). If detected, automatically trigger a "reset" or "re-introduction" of high-fitness rules from the previous generation to prevent total population collapse, addressing the edge case where exchange degrades performance.
+- [X] T049 [US3] [P] Implement "Edge Case Logging" in `src/cli.py`. **Requirement**: Ensure that all warnings (e.g., "Retry limit reached", "Population collapse detected", "Parity mismatch") are written to a dedicated `data/logs/edge_cases.log` file with timestamps and run IDs, facilitating the analysis of rare failure modes without cluttering standard output.
 
 ---
 
@@ -171,13 +183,14 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Final Validation (Phase 6)**: Depends on completion of Phases 1-5
+- **Robustness (Phase 7)**: Depends on completion of Phases 1-5; must be completed before final CI run.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Produces the data required by US2 and US3.**
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2). **Consumes data from US1; produces trained agents for US3.**
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2). **Consumes agents from US2 and test data from US1.**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2). **Consumes agents from US2 and test data from US1.** **Note**: While code can be written in parallel, T026 (Evaluation) and T029 (Batch Runner) require the *functional completion* of US2 (T018-T020, T023) to execute.
 
 ### Within Each User Story
 
@@ -253,3 +266,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained memory. No GPU, no 8-bit quantization, no large model loading. Use `sympy`, `networkx`, and `scipy` exclusively.
+- **Fabrication Prevention**: T046 ensures that no synthetic fallback data is ever used; the system must fail loudly if real data generation fails.
