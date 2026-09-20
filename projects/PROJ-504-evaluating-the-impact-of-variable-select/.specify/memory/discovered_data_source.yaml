@@ -1,0 +1,14 @@
+status: none
+intent: download OpenML regression datasets with at least 100 rows and 3 features
+  python package dataset
+required_fields:
+- dataset_id
+- feature_names
+- X (predictor matrix)
+- y (continuous target)
+- n_samples
+- n_features
+- feature_covariance_matrix
+cache_key: 5bf13f0ebe7c403630d9f397abac76789dfc1f87c4208707d962e16a682eeb1a
+searched_at: '2026-09-20T09:18:59.437726+00:00'
+retry_count: 1

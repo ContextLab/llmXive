@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-504-evaluating-the-impact-of-variable-select",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/main.py --mode simulate; python code/main.py --mode analyze; python code/main.py --mode paper; 1 command(s) failed: python code/data/downloader.py (rc=1); 1 declared deliverable(s) absent: data/processed/simulation_results.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data/downloader.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/data/downloader.py\", line 18, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/main.py --mode simulate -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --mode analyze -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --mode paper -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/main.py': [Errno 2] No such file or directory",
+    "python code/verify.py --check-memory --check-runtime -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-504-evaluating-the-impact-of-variable-select/code/verify.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-20T09:18:18Z"
+}

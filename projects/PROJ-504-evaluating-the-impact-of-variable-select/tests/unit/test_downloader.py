@@ -89,3 +89,42 @@ class TestFetcher:
 
         with pytest.raises(Exception):
             fetch_datasets([42])
+
+    @patch('data.downloader.openml')
+    def test_downloader_fetches_10_datasets(self, mock_openml):
+        """
+        TDD-First test for T011:
+        Asserts len(datasets) == 10 and all(d.n_rows >= 100) and all(d.n_features >= 3).
+        """
+        # Create 10 valid mock datasets
+        mock_datasets = []
+        for i in range(10):
+            mock_ds = MagicMock()
+            mock_ds.id = 1468 + i
+            mock_ds.name = f"Dataset {1468 + i}"
+            # Ensure n_rows >= 100 and n_features >= 3
+            mock_ds.data_frame = pd.DataFrame(
+                np.random.randn(150, 5),
+                columns=[f'f{j}' for j in range(5)]
+            )
+            mock_ds.target = 'target'
+            mock_datasets.append(mock_ds)
+
+        # Configure the mock to return these datasets sequentially or by ID
+        # Since fetch_datasets likely iterates over IDs, we mock the get call
+        def get_dataset_side_effect(dataset_id):
+            idx = dataset_id - 1468
+            if 0 <= idx < 10:
+                return mock_datasets[idx]
+            raise ValueError(f"Unexpected dataset ID: {dataset_id}")
+
+        mock_openml.datasets.get_dataset.side_effect = get_dataset_side_effect
+
+        # Call the function with the specific 10 IDs from config.py
+        dataset_ids = [1468, 1469, 1470, 1471, 1472, 1473, 1474, 1475, 1476, 1477]
+        datasets = fetch_datasets(dataset_ids)
+
+        # Assert the core requirements of T011
+        assert len(datasets) == 10, f"Expected 10 datasets, got {len(datasets)}"
+        assert all(d.n_rows >= 100 for d in datasets), "All datasets must have >= 100 rows"
+        assert all(d.n_features >= 3 for d in datasets), "All datasets must have >= 3 features"

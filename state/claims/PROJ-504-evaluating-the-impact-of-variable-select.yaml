@@ -2700,3 +2700,1261 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T15:29:22Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Fetch 10 specific OpenML datasets with IDs 1468-1477
+  claim_id: c_03372873
+  context: Implementation for User Story 1, Task T018
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/downloader.py to fetch exactly 10 datasets from OpenML
+    using the specific IDs defined in code/config.py: [1468, 1469, 1470, 1471, 1472,
+    1473, 1474, 1475, 1476, 1477].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:20:43Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Verify 10 datasets with at least 100 rows and 3 features are fetched
+  claim_id: c_87a80704
+  context: Tests for User Story 1, Task T011
+  evidence:
+    candidates:
+    - - Verify 10 datasets with at least
+      - 100.0
+    - - Donate Create account Log in Verify
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_10_datasets_with_at_least_100_rows_and_3_features_are
+  kind: magnitude
+  raw_text: 'Unit test for OpenML downloader in tests/unit/test_downloader.py: function
+    test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) and all(d.n_features >= 3).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T09:21:10Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Verify total simulation rows equal 10 datasets * 4 SNR * 3 Sparsity *
+    simulations_per_condition
+  claim_id: c_bd10d861
+  context: Tests for User Story 1, Task T013
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Integration test for full download+simulate pipeline in tests/integration/test_pipeline.py:
+    function test_pipeline_generates_expected_rows asserts len(results_df) == 10 *
+    4 * 3 * config.simulations_per_condition.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:22:07Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Support Sparsity levels 0.1, 0.2, and 0.4
+  claim_id: c_b7cba3ad
+  context: Implementation for User Story 1, Task T016
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/simulators.py configuration to support low to moderate
+    SNR levels and Sparsity levels {0.1, 0.2, 0.4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:22:34Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Use AIC improvement threshold of 0.01 for Forward Stepwise
+  claim_id: c_d47aefa5
+  context: Foundational tasks, Task T045
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/selectors.py to perform Forward Stepwise selection
+    using AIC criterion with an improvement threshold of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:22:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Use correlation threshold of 0.95 for predictor pruning
+  claim_id: c_a72e166a
+  context: Foundational tasks, Task T045
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement predictor pruning logic with a correlation threshold of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:23:23Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Abort pilot if runtime > 5.5h or CI width > 0.1
+  claim_id: c_94c396e0
+  context: Foundational tasks, Task T004
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Abort if runtime exceeds 5.5 hours or CI width (std/sqrt(n)) exceeds 0.1
+    during the pilot run gate.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:23:23Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Abort if memory usage > 6.5 GB
+  claim_id: c_47368867
+  context: Foundational tasks, Task T058
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort simulation if memory usage exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:23:45Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Shutdown if runtime limit of 6 hours is approached
+  claim_id: c_599b9f18
+  context: Foundational tasks, Task T057
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger a graceful shutdown if the 6-hour runtime limit is approached.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:24:09Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Recalculate simulation count using formula new_n = old_n * (current_width
+    / 0.1)^2
+  claim_id: c_3c73c184
+  context: Foundational tasks, Task T004b
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate new simulation count as new_n = old_n * (current_width / 0.1)^2
+    if the pilot run fails the CI width check.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:24:10Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Skip datasets with condition number > 10^10
+  claim_id: c_cda4bcf7
+  context: Implementation for User Story 1, Task T015
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_condition_number_%3E_10%5E10
+  kind: magnitude
+  raw_text: Skip datasets with a condition number greater than 10^10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:25:20Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Verify 10 datasets with >= 100 rows and >= 3 predictors
+  claim_id: c_85b75362
+  context: Independent Test for User Story 1
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_10_datasets_with_%3E=_100_rows_and_%3E=_3_predictors
+  kind: magnitude
+  raw_text: Verify that 10 datasets with at least 100 rows and at least 3 predictors
+    are loaded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:25:41Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Verify power calculation matches expected values within 0.01 tolerance
+  claim_id: c_4de9c3a1
+  context: Independent Test for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that Power = (True Positives / Total True Non-Zero Coefficients)\
+    \ matches expected values within \xB10.01 tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:26:33Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Perform Kruskal-Wallis on 24,000 simulation-level rows
+  claim_id: c_d30ec7c1
+  context: Implementation for User Story 3, Task T037
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Kruskal-Wallis tests on the simulation-level data (n=24,000 rows)
+    from data/processed/simulation_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:26:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Perform sensitivity analysis at alpha levels 0.01, 0.05, and 0.10
+  claim_id: c_1eb65fc8
+  context: Implementation for User Story 3, Task T039
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis on Alpha across Alpha=0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:27:16Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Assert non-zero coefficient count > 0 before power calculation
+  claim_id: c_97f8f90f
+  context: Revision tasks, Task T064
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_non-zero_coefficient_count_%3E_0_before_power_calculati
+  kind: magnitude
+  raw_text: Assert that the number of non-zero coefficients in true_coefficients is
+    greater than zero before calculating the power denominator.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:27:41Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Assert row count matches 10 * 4 * 3 * simulations_per_condition
+  claim_id: c_89a151dd
+  context: Revision tasks, Task T065
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert the row count in data/processed/simulation_results.csv matches
+    the expected total (10 datasets * 4 SNR * 3 Sparsity * simulations_per_condition).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:28:10Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: fetch 10 OpenML datasets with IDs 1468-1477
+  claim_id: c_df8e8162
+  context: 'T018 [US1] Implement code/data/pipeline.py to fetch exactly 10 datasets
+    from OpenML using the specific IDs defined in code/config.py: [1468, 1469, 1470,
+    1471, 1472, 1473, 1474, 1475, 1476, 1477]. Fail Hard: If <10 valid datasets are
+    found after retries, abort immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'fetch exactly 10 datasets from OpenML using the specific IDs defined
+    in code/config.py: [1468, 1469, 1470, 1471, 1472, 1473, 1474, 1475, 1476, 1477]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:30:54Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: verify 10 datasets have at least 100 rows and 3 predictors
+  claim_id: c_1d2df25c
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that a large set of synthetic outcome vectors are\
+    \ generated."
+  evidence:
+    candidates:
+    - - Verify 10 datasets have at least
+      - 100.0
+    - - Donate Create account Log in Verify
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_10_datasets_have_at_least_100_rows_and_3_predictors
+  kind: magnitude
+  raw_text: "verify that 10 datasets with \u2265100 rows and \u22653 predictors are\
+    \ loaded"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T09:31:23Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: assert dataset count is 10 with at least 100 rows and 3 features
+  claim_id: c_02b8b51b
+  context: 'T011 [TDD-First] [P] [US1] Unit test for OpenML downloader in tests/unit/test_downloader.py:
+    function test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) and all(d.n_features >= 3)'
+  evidence:
+    candidates:
+    - - Assert dataset count is 10 with at least
+      - 100.0
+    - - Log in Assert dataset count is
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Assert_dataset_count_is_10_with_at_least_100_rows_and_3_feat
+  kind: magnitude
+  raw_text: assert len(datasets) == 10 and all(d.n_rows >= 100) and all(d.n_features
+    >= 3)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T09:31:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: assert result dataframe length equals 10 datasets times 4 SNR levels
+    times 3 sparsity levels times simulations per condition
+  claim_id: c_14806dfd
+  context: 'T013 [TDD-First] [P] [US1] Integration test for full download+simulate
+    pipeline in tests/integration/test_pipeline.py: function test_pipeline_generates_expected_rows
+    asserts len(results_df) == 10 * 4 * 3 * config.simulations_per_condition'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(results_df) == 10 * 4 * 3 * config.simulations_per_condition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:32:19Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: support sparsity levels 0.1, 0.2, and 0.4
+  claim_id: c_3375964e
+  context: T016 [P] [US1] Implement code/data/simulators.py configuration to support
+    low to moderate SNR levels and Sparsity levels {0.1, 0.2, 0.4}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: support low to moderate SNR levels and Sparsity levels {0.1, 0.2, 0.4}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:32:43Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: perform Kruskal-Wallis test on 24000 simulation-level rows
+  claim_id: c_775426e8
+  context: T037 [P] [US3] Implement code/analysis/comparators.py to perform Kruskal-Wallis
+    tests on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform Kruskal-Wallis tests on the simulation-level data (n=24,000 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:13Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: assert input dataframe contains individual simulation-level rows
+  claim_id: c_7ef2742c
+  context: T055 [US3] Add a pre-check in code/analysis/comparators.py to assert that
+    the input dataframe contains individual simulation-level rows (n=10 * 4 * 3 *
+    config.simulations_per_condition) and NOT aggregated means before running Kruskal-Wallis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert the input dataframe contains individual simulation-level rows (n=10
+    * 4 * 3 * config.simulations_per_condition)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:37Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: perform sensitivity analysis on alpha levels 0.01, 0.05, and 0.10
+  claim_id: c_b0871512
+  context: T039 [US3] Implement code/analysis/comparators.py to perform sensitivity
+    analysis on Alpha across Alpha=0.01, 0.05, and 0.10 as required by FR-006
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform sensitivity analysis on Alpha across Alpha=0.01, 0.05, and 0.10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:37Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: verify power calculation matches expected values within 0.01 tolerance
+  claim_id: c_bfd8e8bc
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that Power = (True Positives / Total True Non-Zero Coefficients)\
+    \ matches expected values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:38Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: skip datasets with condition number greater than 10 to the power of 10
+  claim_id: c_1c7ea201
+  context: T015 [P] [US1] Implement code/data/downloader.py logic to skip datasets
+    with condition number > 10^10 and log warning to code/utils/logger.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_condition_number_greater_than_10_to_the_p
+  kind: magnitude
+  raw_text: skip datasets with condition number > 10^10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:34:17Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: abort simulation if RAM exceeds safety threshold
+  claim_id: c_777102e4
+  context: T019 [US1] Implement code/data/simulators.py to generate synthetic Y vectors
+    using real X covariance and ground-truth coefficients; includes memory-efficient
+    chunking and monitoring via psutil to abort if RAM exceeds a defined safety threshold
+    consistent with system constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_simulation_if_RAM_exceeds_safety_threshold
+  kind: entity_fact
+  raw_text: abort if RAM exceeds a defined safety threshold consistent with system
+    constraints
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:34:49Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: abort if memory usage exceeds 6.5 GB
+  claim_id: c_66e9e308
+  context: 'T058 [P] Memory Monitoring: Enhance code/data/simulators.py to include
+    a tracemalloc snapshot at the start and end of each batch of simulations; write
+    peak memory usage to data/processed/memory_profile.log and abort if > 6.5 GB (SC-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abort if > 6.5 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:34:50Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: trigger graceful shutdown if 6-hour runtime limit is approached
+  claim_id: c_d5f8217c
+  context: 'T057 [P] Runtime Watchdog: Implement a code/utils/watchdog.py module that
+    monitors total runtime and triggers a graceful shutdown with a partial results
+    save if the 6-hour limit is approached (FR-008, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trigger a graceful shutdown with a partial results save if the 6-hour
+    limit is approached
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:35:29Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: use early stopping for stepwise selection with AIC improvement threshold
+    of 0.01
+  claim_id: c_0dd343db
+  context: 'T045 [P] Performance Optimization: Implement code/utils/watchdog.py and
+    code/analysis/selectors.py with early stopping for stepwise selection (AIC improvement
+    threshold = 0.01) and predictor pruning logic (correlation threshold = 0.95).'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: use early stopping for stepwise selection (AIC improvement threshold =
+    0.01)
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:35:30Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: use predictor pruning logic with correlation threshold of 0.95
+  claim_id: c_30cb04f5
+  context: 'T045 [P] Performance Optimization: Implement code/utils/watchdog.py and
+    code/analysis/selectors.py with early stopping for stepwise selection (AIC improvement
+    threshold = 0.01) and predictor pruning logic (correlation threshold = 0.95).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use predictor pruning logic (correlation threshold = 0.95)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:36:15Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: initialize pilot simulations per condition to 10 as default
+  claim_id: c_f673c778
+  context: 'T004a [P] Pilot Configuration: Initialize code/config.py with pilot_simulations_per_condition
+    = 10 as a default value. This task sets the initial baseline for the pilot run
+    gate.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: initialize pilot_simulations_per_condition = 10 as a default value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:36:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: execute pilot run with count 10
+  claim_id: c_27f01f8a
+  context: 'T004 [P] Pilot Run & Gate: Implement code/verify.py to run a small-scale
+    simulation using the count defined in T004a. Execute: python code/verify.py --mode
+    pilot --count 10.'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: execute python code/verify.py --mode pilot --count 10
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:36:54Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: abort pilot run if runtime exceeds 5.5 hours or CI width exceeds 0.1
+  claim_id: c_8011f383
+  context: 'T004 [P] Pilot Run & Gate: Gate: If runtime > 5.5h or CI width (std/sqrt(n))
+    > 0.1, trigger T004b. If successful, proceed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abort if runtime > 5.5h or CI width (std/sqrt(n)) > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:36:55Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: load configuration keys including openml_ids 1470-1477
+  claim_id: c_e8e12a16
+  context: 'T007 [P] Create base configuration loader in code/config.py to manage
+    seeds and paths; must load keys: seed, openml_ids = [,, 1470, 1471, 1472, 1473,
+    1474, 1475, 1476, 1477], snr_levels, sparsity_levels, output_path, and simulations_per_condition'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'load keys: seed, openml_ids = [,, 1470, 1471, 1472, 1473, 1474, 1475,
+    1476, 1477], snr_levels, sparsity_levels, output_path, and simulations_per_condition'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:37:18Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: pin scikit-learn version to 1.4.0 or higher
+  claim_id: c_b7ced4e5
+  context: T002 Initialize Python project with requirements.txt pinning versions (e.g.,
+    scikit-learn>=1.4.0 , statsmodels>=0.14.0 , openml>=0.14.0 , pandas, numpy, scipy,
+    matplotlib, seaborn)
+  evidence:
+    asserted: '1.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pin versions (e.g., scikit-learn>=1.4.0 , statsmodels>=0.14.0 , openml>=0.14.0
+    )
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:37:19Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: enforce black line length of 88
+  claim_id: c_3c798c18
+  context: T003 [P] Configure linting and formatting by creating code/pyproject.toml
+    with [tool.black] section (line-length = 88) and code/.flake8 file with [flake8]
+    section (max-line-length = 88, extend-ignore = E203)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce line-length = 88 in black configuration
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:37:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: verify all 10 datasets meet row column and condition number constraints
+  claim_id: c_e7fa0c16
+  context: 'T052 [P] Data Validation: Add a code/data/validator.py script that runs
+    after T018 to verify all 10 datasets meet the minimum row/column constraints and
+    condition number thresholds before proceeding to simulation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify all 10 datasets meet the minimum row/column constraints and condition
+    number thresholds before proceeding to simulation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:38:22Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: generate SHA-256 checksum for raw OpenML files
+  claim_id: c_8dad6f0d
+  context: 'T051 [P] Data Hygiene: Implement explicit SHA-256 checksum generation
+    for all raw OpenML files upon download in code/data/downloader.py; store checksums
+    in state/checksums.json and verify before simulation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate SHA-256 checksum for all raw OpenML files upon download
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:38:48Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: assert row count matches expected total of 10 datasets times 4 SNR times
+    3 sparsity times simulations per condition
+  claim_id: c_caa6b710
+  context: 'T065 [US3] Statistical Unit Verification: Update code/analysis/comparators.py
+    (T037) to include a pre-flight check that counts the rows in data/processed/simulation_results.csv
+    and asserts the count matches the expected total (10 datasets * 4 SNR * 3 Sparsity
+    * simulations_per_condition).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert the count matches the expected total (10 datasets * 4 SNR * 3 Sparsity
+    * simulations_per_condition)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:39:11Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: compare Dunn's post-hoc test against known synthetic dataset with known
+    p-values
+  claim_id: c_f6a2a013
+  context: T060 [US3] Add a unit test in tests/unit/test_comparators.py to verify
+    that Dunn's post-hoc test correctly applies Holm correction by comparing against
+    a known synthetic dataset with known p-values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_Dunn%27s_post-hoc_test_against_known_synthetic_dataset
+  kind: entity_fact
+  raw_text: compare against a known synthetic dataset with known p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:39:35Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: OpenML IDs used are 1468, 1469, 1470, 1471, 1472, 1473, 1474, 1475, 1476,
+    1477
+  claim_id: c_446ccc4e
+  context: 'T007 [P] Create base configuration loader in code/config.py to manage
+    seeds and paths; must load keys: seed, openml_ids = [,, 1470, 1471, 1472, 1473,
+    1474, 1475, 1476, 1477], snr_levels, sparsity_levels, output_path, and simulations_per_condition
+    (populated by T004/T004b) (FR-006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The configuration loader must load keys: ''seed'', ''openml_ids = [1468,
+    1469, 1470, 1471, 1472, 1473, 1474, 1475, 1476, 1477]'', ''snr_levels'', ''sparsity_levels'',
+    ''output_path'', and ''simulations_per_condition''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:41:22Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pipeline fetches exactly 10 OpenML datasets with IDs 1468 to 1477
+  claim_id: c_0ae2c2af
+  context: 'T018 [US1] Implement code/data/pipeline.py to fetch exactly 10 datasets
+    from OpenML using the specific IDs defined in code/config.py: [1468, 1469, 1470,
+    1471, 1472, 1473, 1474, 1475, 1476, 1477]. Fail Hard: If <10 valid datasets are
+    found after retries, abort immediately with a clear error message listing which
+    IDs failed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The pipeline fetches exactly 10 datasets from OpenML using the specific
+    IDs defined in code/config.py: [1468, 1469, 1470, 1471, 1472, 1473, 1474, 1475,
+    1476, 1477].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:41:38Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Datasets with condition number > 10^10 are skipped
+  claim_id: c_de6c1750
+  context: T015 [P] [US1] Implement code/data/downloader.py logic to skip datasets
+    with condition number > 10^10 and log warning to code/utils/logger.py (FR-001)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_condition_number_%3E_10%5E10_are_skipped
+  kind: magnitude
+  raw_text: Datasets are skipped if the condition number is greater than 10^10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:42:24Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Supported Sparsity levels are 0.1, 0.2, 0.4
+  claim_id: c_d6f17684
+  context: T016 [P] [US1] Implement code/data/simulators.py configuration to support
+    low to moderate SNR levels and Sparsity levels {0.1, 0.2, 0.4}; Must read simulations_per_condition
+    from code/config.py (populated by T004/T004b); MUST run after T004 and T004b (FR-002,
+    Plan Feasibility)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation configuration supports Sparsity levels of 0.1, 0.2, and
+    0.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:42:50Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pilot run gate triggers if runtime > 5.5h or CI width > 0.1
+  claim_id: c_00e64315
+  context: 'T004 [P] Pilot Run & Gate: Implement code/verify.py to run a small-scale
+    simulation using the count defined in T004a. Execute: python code/verify.py --mode
+    pilot --count 10. Gate: If runtime > 5.5h or CI width (std/sqrt(n)) > 0.1, trigger
+    T004b. If successful, proceed.'
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pilot run gate triggers an adjustment if the runtime is greater than
+    5.5 hours or the CI width (std/sqrt(n)) is greater than 0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:42:51Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Early stopping AIC improvement threshold is 0.01
+  claim_id: c_d678a423
+  context: 'T045 [P] Performance Optimization: Implement code/utils/watchdog.py and
+    code/analysis/selectors.py with early stopping for stepwise selection (AIC improvement
+    threshold = 0.01) and predictor pruning logic (correlation threshold = 0.95).'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The early stopping logic for stepwise selection uses an AIC improvement
+    threshold of 0.01.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:42:51Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Predictor pruning correlation threshold is 0.95
+  claim_id: c_89814e54
+  context: 'T045 [P] Performance Optimization: Implement code/utils/watchdog.py and
+    code/analysis/selectors.py with early stopping for stepwise selection (AIC improvement
+    threshold = 0.01) and predictor pruning logic (correlation threshold = 0.95).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictor_pruning_correlation_threshold_is_0.95
+  kind: magnitude
+  raw_text: Predictor pruning removes highly correlated predictors with a correlation
+    threshold greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:43:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Runtime watchdog limit is 6 hours
+  claim_id: c_c0ff97de
+  context: 'T057 [P] Runtime Watchdog: Implement a code/utils/watchdog.py module that
+    monitors total runtime and triggers a graceful shutdown with a partial results
+    save if the 6-hour limit is approached (FR-008, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The watchdog module triggers a graceful shutdown if the runtime approaches
+    a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:44:13Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Memory abort threshold is 6.5 GB
+  claim_id: c_8d317367
+  context: 'T058 [P] Memory Monitoring: Enhance code/data/simulators.py to include
+    a tracemalloc snapshot at the start and end of each batch of simulations; write
+    peak memory usage to data/processed/memory_profile.log and abort if > 6.5 GB (SC-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation process aborts if memory usage exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:44:53Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis Alpha thresholds are 0.01, 0.05, 0.10
+  claim_id: c_d6abf435
+  context: T039 [US3] Implement code/analysis/comparators.py to perform sensitivity
+    analysis on Alpha across Alpha=0.01, 0.05, and 0.10 as required by FR-006; generates
+    separate power metrics for each threshold (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis is performed across Alpha thresholds of 0.01,
+    0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:45:19Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis test performed on 24,000 rows of simulation-level data
+  claim_id: c_1dfd2c3e
+  context: T037 [P] [US3] Implement code/analysis/comparators.py to perform Kruskal-Wallis
+    tests on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005; unit of analysis is individual simulation; MUST run after T020,
+    T028, T036 to ensure input data validity (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical comparison is performed on simulation-level data with
+    an expected count of 24,000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:45:46Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Unit test asserts datasets have >= 100 rows
+  claim_id: c_30025252
+  context: 'T011 [TDD-First] [P] [US1] Unit test for OpenML downloader in tests/unit/test_downloader.py:
+    function test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) and all(d.n_features >= 3) (FR-001)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_asserts_datasets_have_%3E=_100_rows
+  kind: magnitude
+  raw_text: The dataset loader unit test asserts that all loaded datasets have at
+    least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:46:12Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Unit test asserts datasets have >= 3 predictors
+  claim_id: c_2c5bfa31
+  context: 'T011 [TDD-First] [P] [US1] Unit test for OpenML downloader in tests/unit/test_downloader.py:
+    function test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) and all(d.n_features >= 3) (FR-001)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_asserts_datasets_have_%3E=_3_predictors
+  kind: magnitude
+  raw_text: The dataset loader unit test asserts that all loaded datasets have at
+    least 3 predictors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:46:37Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: OpenML dataset IDs 1468-1477 used for regression tasks
+  claim_id: c_958bc37d
+  context: 'Implement code/data/pipeline.py to fetch exactly 10 datasets from OpenML
+    using the specific IDs defined in code/config.py: [1468, 1469, 1470, 1471, 1472,
+    1473, 1474, 1475, 1476, 1477].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OpenML IDs used in the study are [1468, 1469, 1470, 1471, 1472, 1473,
+    1474, 1475, 1476, 1477].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:48:16Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 10 datasets with >= 100 rows and >= 3 predictors
+  claim_id: c_50842281
+  context: "Independent Test: Verify that 10 datasets with \u2265100 rows and \u2265\
+    3 predictors are loaded, and that a large set of synthetic outcome vectors (Multiple\
+    \ simulations across conditions) are generated and stored in data/processed/ with\
+    \ correct metadata."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10_datasets_with_%3E=_100_rows_and_%3E=_3_predictors
+  kind: magnitude
+  raw_text: The study analyzes 10 datasets with at least 100 rows and at least 3 predictors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:48:43Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Sparsity levels 0.1, 0.2, 0.4 used in simulation
+  claim_id: c_23f9c375
+  context: Implement code/data/simulators.py configuration to support low to moderate
+    SNR levels and Sparsity levels {0.1, 0.2, 0.4}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic outcome vectors are generated across Sparsity levels {0.1, 0.2,
+    0.4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:49:09Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 24,000 simulation-level rows from 10 datasets, 4 SNR, 3 sparsity
+  claim_id: c_ca204794
+  context: Implement code/analysis/comparators.py to perform Kruskal-Wallis tests
+    on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses 10 datasets, 4 SNR levels, and 3 sparsity levels to generate
+    24,000 rows of simulation-level data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:49:39Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Alpha thresholds 0.01, 0.05, 0.10 used in sensitivity analysis
+  claim_id: c_fee7bd7f
+  context: Implement code/analysis/comparators.py to perform sensitivity analysis
+    on Alpha across Alpha=0.01, 0.05, and 0.10 as required by FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis is performed on Alpha thresholds of 0.01, 0.05, and
+    0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:50:07Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pilot gate aborts if runtime > 5.5h or CI width > 0.1
+  claim_id: c_82ffdafc
+  context: 'Gate: If runtime > 5.5h or CI width (std/sqrt(n)) > 0.1, trigger T004b.
+    If successful, proceed.'
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot run gate aborts if runtime exceeds 5.5 hours or CI width (std/sqrt(n))
+    exceeds 0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:50:07Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Memory limit 6.5 GB enforced
+  claim_id: c_d426cc27
+  context: Enhance code/data/simulators.py to include a tracemalloc snapshot at the
+    start and end of each batch of simulations; write peak memory usage to data/processed/memory_profile.log
+    and abort if > 6.5 GB (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage is aborted if it exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:50:27Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 6-hour runtime limit enforced
+  claim_id: c_777db19a
+  context: Implement a code/utils/watchdog.py module that monitors total runtime and
+    triggers a graceful shutdown with a partial results save if the 6-hour limit is
+    approached (FR-008, SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total runtime limit for the simulation is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:50:54Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Condition number threshold 10^10 for dataset filtering
+  claim_id: c_5d1ca987
+  context: Implement code/data/downloader.py logic to skip datasets with condition
+    number > 10^10 and log warning to code/utils/logger.py (FR-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Condition_number_threshold_10%5E10_for_dataset_filtering
+  kind: magnitude
+  raw_text: Datasets with a condition number greater than 10^10 are skipped.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:52:06Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: AIC improvement threshold 0.01 for early stopping
+  claim_id: c_fa512a87
+  context: Implement code/utils/watchdog.py and code/analysis/selectors.py with early
+    stopping for stepwise selection (AIC improvement threshold = 0.01) and predictor
+    pruning logic (correlation threshold = 0.95).
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: AIC improvement threshold for early stopping in stepwise selection is
+    0.01.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:52:07Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Correlation threshold 0.95 for predictor pruning
+  claim_id: c_6e6cca16
+  context: Implement code/utils/watchdog.py and code/analysis/selectors.py with early
+    stopping for stepwise selection (AIC improvement threshold = 0.01) and predictor
+    pruning logic (correlation threshold = 0.95).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Predictor pruning uses a correlation threshold of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:52:37Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Reference DOI:10.21105/joss.01686 for OpenML
+  claim_id: c_a1f50237
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol. References: DOI:10.21105/joss.01686.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The study references DOI:10.21105/joss.01686 regarding OpenML.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:52:41Z'
