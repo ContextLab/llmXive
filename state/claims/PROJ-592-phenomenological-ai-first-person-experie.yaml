@@ -4977,3 +4977,252 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T16:06:35Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 1600 samples per strategy for TinyLlama generation
+  claim_id: c_77205cac
+  context: Task T009 specifies implementation using TinyLlama-1.1B on CPU-only environment
+    with a target volume of at least 80 samples per prompt per strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target volume: \u226580 samples per prompt per strategy (prompts \xD7\
+    \ 80 = 1600 per strategy)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:56:32Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 1600 samples per strategy for Mistral-7B generation
+  claim_id: c_7edacc02
+  context: Task T009b mandates generating at least 80 samples per prompt per strategy
+    using Mistral-7B for the GPU-offload checkpoint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target: \u226580 samples per prompt per strategy (1600 per strategy)\
+    \ for the second checkpoint."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:56:33Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 samples per prompt per strategy for Llama-7B generation
+  claim_id: c_a62a9068
+  context: Task T009c requires generating samples using Llama-7b-chat-hf to cover
+    the second mandatory checkpoint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target: \u226580 samples per prompt per strategy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:56:34Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 control samples generated from arxiv dataset
+  claim_id: c_a5ed4ef2
+  context: Task T011 requires generating at least 80 control samples using the arxiv
+    dataset filtered for technical domains.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:56:35Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 10 reports per condition for human rating
+  claim_id: c_d70e776b
+  context: Task T023 requires selecting a representative sample of reports for human
+    rating, enforcing exactly 10 reports per strategy if data is available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `data/qualitative/sampling_list.csv` exists and contains a representative
+    number of rows per strategy... Must enforce exactly 10 reports per condition (strategy)
+    if data available, otherwise min(10, available).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:59:42Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Sample size calculation for kappa reliability 0.6 power 0.8 alpha 0.05
+  claim_id: c_a1445613
+  context: Task T026 requires performing a power analysis to determine the minimum
+    sample size for Cohen's kappa reliability with specific statistical parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate minimum sample size required to achieve \u03BA\u22650.6 with\
+    \ power 0.8, alpha=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:09:05Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Calculated sample size at least 10 per condition
+  claim_id: c_808e2443
+  context: Task T026 verification step requires the power analysis report to show
+    a calculated sample size of at least 10 per condition.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculated_sample_size_at_least_10_per_condition
+  kind: magnitude
+  raw_text: "Verify `data/qualitative/power_analysis_report.md` exists and contains\
+    \ a calculated sample size \u226510 per condition."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:11:06Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Use cross-encoder/stsb-distilroberta-base NLI model for contradiction
+    counting
+  claim_id: c_4eda308f
+  context: Task T014 specifies loading the cross-encoder/stsb-distilroberta-base model
+    to compute pairwise contradiction counts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_cross-encoder/stsb-distilroberta-base_NLI_model_for_cont
+  kind: entity_fact
+  raw_text: Load NLI model cross-encoder/stsb-distilroberta-base (CPU-safe), compute
+    pairwise contradiction counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:11:13Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Human corpus source verification
+  claim_id: c_b62b93b1
+  context: Task T034a requires creating a human corpus using a verified public dataset
+    or manually written samples for the Turing Test.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Human_corpus_source_verification
+  kind: entity_fact
+  raw_text: Use a verified public dataset or a small set of manually written samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:11:28Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 6 hours on free-tier
+  claim_id: c_ed2c572c
+  context: Task T033 requires running the quickstart validation to ensure full pipeline
+    execution is under 6 hours on a free-tier resource.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `time python code/main.py --mode generation --limit 100 --config config.yaml`;
+    verify exit code 0 and total time < 6h (simulated by limit).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:11:37Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Turing test accuracy near chance indicates model sustains fiction
+  claim_id: c_6819781b
+  context: Task T034 defines the logic for the Turing-style operational test where
+    accuracy near chance indicates the model effectively sustains the fiction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Turing_test_accuracy_near_chance_indicates_model_sustains_fi
+  kind: entity_fact
+  raw_text: Report the accuracy; if accuracy is near chance, the model sustains the
+    'fiction' effectively.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:11:54Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Kappa threshold 0.6 triggers re-evaluation
+  claim_id: c_127a3476
+  context: Task T022 specifies that if Cohen's kappa is less than 0.6, a mandatory
+    re-evaluation workflow must be triggered.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If \u03BA < 0.6, trigger the mandatory re-evaluation workflow."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:11:55Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Minimum 3 citations from Husserl or Merleau-Ponty for construct validity
+  claim_id: c_0350d553
+  context: Task T039 requires justifying construct validity by citing at least 3 citations
+    from primary phenomenological sources.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cite phenomenological literature (minimum 3 citations from primary sources
+    like Husserl, Merleau-Ponty).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:12:04Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: Definition of sensory, temporal, and intentional marker dictionaries
+  claim_id: c_a8769923
+  context: Task T004 requires defining concrete lists of keywords for sensory, temporal,
+    and intentional markers in the configuration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Definition_of_sensory,_temporal,_and_intentional_marker_dict
+  kind: entity_fact
+  raw_text: 'Phenomenological Marker Dictionaries: Define concrete lists for ''sensory''
+    (e.g., see, hear, feel, touch, taste, smell, light, sound), ''temporal'' (e.g.,
+    now, then, before, after, moment, duration), and ''intentional'' (e.g., think,
+    believe, desire, intend, perceive, experience) keywords.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T03:14:52Z'

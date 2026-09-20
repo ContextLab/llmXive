@@ -7,10 +7,9 @@ import time
 import warnings
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Callable, List, Optional, TypeVar
+from typing import Any, Callable, TypeVar, Optional
 
-T = TypeVar("T", bound=Callable[..., Any])
-
+from code.config import get_config
 
 @dataclass
 class LogEntry:
@@ -32,8 +31,7 @@ class ReproducibilityLogger:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
-        self.entries: List[LogEntry] = []
-        self._warning_log: List[str] = []
+        self.entries: list = []
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
@@ -47,20 +45,11 @@ class ReproducibilityLogger:
             return None
         return _noop
 
-    def capture_warning(self, msg: str) -> None:
-        self._warning_log.append(msg)
 
-    def get_captured_warnings(self) -> List[str]:
-        return self._warning_log.copy()
-
-    def clear_warnings(self) -> None:
-        self._warning_log.clear()
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
 
 
-_GLOBAL_LOGGER: Optional["ReproducibilityLogger"] = None
-
-
-def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -87,77 +76,111 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
+F = TypeVar('F', bound=Callable[..., Any])
+
+
 def retry_on_failure(
     max_attempts: int = 3,
     delay: float = 1.0,
-    delay_seconds: Optional[float] = None,
-    logger: Optional[ReproducibilityLogger] = None,
-) -> Callable[[T], T]:
-    """Decorator to retry a function on failure.
-
-    Accepts both 'delay' and 'delay_seconds' for compatibility with various callers.
-    If delay_seconds is provided, it takes precedence.
+    backoff: float = 2.0,
+    max_delay: float = 10.0,
+    logger: Optional[Any] = None
+) -> Callable[[F], F]:
     """
-    actual_delay = delay_seconds if delay_seconds is not None else delay
-
-    def decorator(func: T) -> T:
+    Decorator to retry a function on failure with exponential backoff.
+    
+    Implements T010: Retry logic with exponential backoff.
+    
+    Args:
+        max_attempts: Maximum number of attempts.
+        delay: Initial delay in seconds.
+        backoff: Multiplier for delay (exponential).
+        max_delay: Maximum delay cap in seconds.
+        logger: Optional logger to log retry attempts.
+        
+    Returns:
+        Decorated function.
+    """
+    def decorator(func: F) -> F:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            current_delay = delay
             last_exception = None
-            for attempt in range(max_attempts):
+            
+            for attempt in range(1, max_attempts + 1):
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
                     last_exception = e
-                    if attempt < max_attempts - 1:
+                    if attempt < max_attempts:
+                        # Log retry attempt
                         if logger:
-                            logger.log(
+                            log_operation(
                                 "retry_attempt",
                                 function=func.__name__,
-                                attempt=attempt + 1,
+                                attempt=attempt,
                                 max_attempts=max_attempts,
-                                error=str(e),
+                                delay=current_delay,
+                                error=str(e)
                             )
-                        time.sleep(actual_delay)
-            if last_exception:
-                raise last_exception
+                        time.sleep(current_delay)
+                        current_delay = min(current_delay * backoff, max_delay)
+                    else:
+                        # Final attempt failed
+                        log_operation(
+                            "retry_exhausted",
+                            function=func.__name__,
+                            attempts=max_attempts,
+                            error=str(e)
+                        )
+                        
+            raise last_exception
         return wrapper  # type: ignore
     return decorator
 
 
-def capture_warning(msg: str) -> None:
-    get_logger().capture_warning(msg)
+def capture_warning(category=Warning, stacklevel=2):
+    """Capture warnings for later retrieval."""
+    def decorator(func: F) -> F:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always", category)
+                result = func(*args, **kwargs)
+                return result, w
+        return wrapper  # type: ignore
+    return decorator
 
 
-def get_captured_warnings() -> List[str]:
-    return get_logger().get_captured_warnings()
+_WARNINGS_LOG: list = []
+
+
+def get_captured_warnings() -> list:
+    return _WARNINGS_LOG
 
 
 def clear_warnings() -> None:
-    get_logger().clear_warnings()
+    _WARNINGS_LOG.clear()
 
 
 def export_warning_log(path: str) -> None:
-    warnings_list = get_captured_warnings()
-    with open(path, "w") as f:
-        json.dump(warnings_list, f, indent=2)
+    import json
+    with open(path, 'w') as f:
+        json.dump(_WARNINGS_LOG, f, indent=2, default=str)
 
 
-def log_retry_attempts(
-    func_name: str,
-    attempt: int,
-    error: str,
-    logger: Optional[ReproducibilityLogger] = None,
-) -> None:
-    target = logger or get_logger()
-    target.log(
+def log_retry_attempts(operation: str, attempt: int, max_attempts: int, error: str) -> None:
+    """Helper to log retry attempts."""
+    log_operation(
         "retry_attempt",
-        function=func_name,
+        operation=operation,
         attempt=attempt,
-        error=error,
+        max_attempts=max_attempts,
+        error=error
     )
 
 
-def setup_logging(level: int = 20) -> None:
-    """Setup logging (no-op for reproducibility logger, but kept for API compat)."""
+def setup_logging(level: str = "INFO") -> None:
+    """Setup standard logging configuration if needed."""
+    # This is a no-op for the ReproducibilityLogger but kept for API compatibility
     pass

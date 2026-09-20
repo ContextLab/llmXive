@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-592-phenomenological-ai-first-person-experie",
+  "tasks": [
+    {
+      "task_key": "T011",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/generation/control_corpus.py`, which loads the arXiv dataset and tags samples as \u201ccontrol\u201d, but there is no `data/processed/merged_dataset.csv` file and the script does not show any merging step or marker\u2011absence verification. Consequently the required merged CSV with \u226580 control rows does not exist, so the task is not fulfilled.",
+      "first_seen": "2026-09-20T03:15:01.437683+00:00",
+      "last_seen": "2026-09-20T03:15:01.437683+00:00"
+    }
+  ],
+  "updated_at": "2026-09-20T03:15:01.437683+00:00"
+}

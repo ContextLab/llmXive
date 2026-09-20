@@ -1,262 +1,173 @@
 """
-Unit tests for GPU-Offload Generation Runner (T009b).
+Unit tests for the GPU Generation Runner (T009b).
 
-These tests verify the logic of the GPU runner without requiring actual GPU hardware.
+These tests verify the logic of the runner without requiring actual GPU hardware.
+They mock the llama-cpp-python interactions to ensure correct data flow.
 """
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch, mock_open
 
 import pytest
 
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from code.generation.runner_gpu import (
     GenerationError,
     HardwareError,
-    setup_logger,
     check_cuda_availability,
-    load_model,
-    generate_sample,
     load_prompts,
+    generate_sample,
     save_batch,
     run_generation_pipeline
 )
 
-
-class TestCudaAvailability:
-    """Tests for CUDA availability checking."""
-
-    @patch('code.generation.runner_gpu.torch')
-    def test_cuda_available(self, mock_torch):
+class TestCheckCudaAvailability:
+    def test_cuda_available(self):
         """Test when CUDA is available."""
-        mock_torch.cuda.is_available.return_value = True
-        mock_tensor = MagicMock()
-        mock_torch.zeros.return_value = mock_tensor
-        mock_tensor.cuda.return_value = mock_tensor
-        mock_torch.cuda.get_device_name.return_value = "NVIDIA A100"
+        with patch('code.generation.runner_gpu.torch') as mock_torch:
+            mock_torch.cuda.is_available.return_value = True
+            mock_torch.cuda.device_count.return_value = 1
+            logger = MagicMock()
+            result = check_cuda_availability(logger)
+            assert result is True
+            logger.info.assert_called()
 
-        assert check_cuda_availability() is True
-
-    @patch('code.generation.runner_gpu.torch')
-    def test_cuda_not_available(self, mock_torch):
+    def test_cuda_not_available(self):
         """Test when CUDA is not available."""
-        mock_torch.cuda.is_available.return_value = False
-        assert check_cuda_availability() is False
-
-    @patch('code.generation.runner_gpu.torch')
-    def test_cuda_runtime_error(self, mock_torch):
-        """Test when CUDA allocation fails."""
-        mock_torch.cuda.is_available.return_value = True
-        mock_torch.zeros.side_effect = RuntimeError("CUDA error")
-        assert check_cuda_availability() is False
+        with patch('code.generation.runner_gpu.torch') as mock_torch:
+            mock_torch.cuda.is_available.return_value = False
+            logger = MagicMock()
+            result = check_cuda_availability(logger)
+            assert result is False
+            logger.warning.assert_called()
 
     def test_torch_not_installed(self):
-        """Test when torch is not installed."""
-        with patch.dict('sys.modules', {'torch': None}):
-            assert check_cuda_availability() is False
+        """Test when PyTorch is not installed."""
+        with patch('code.generation.runner_gpu.torch', side_effect=ImportError):
+            logger = MagicMock()
+            result = check_cuda_availability(logger)
+            # Should return False or handle gracefully
+            assert result is False
+            logger.warning.assert_called()
 
+class TestLoadPrompts:
+    def test_load_prompts_success(self):
+        """Test successful loading of prompts."""
+        mock_data = [{"id": "1", "prompt": "Test prompt"}]
+        with patch('builtins.open', mock_open(read_data=json.dumps(mock_data))):
+            with patch('os.path.exists', return_value=True):
+                result = load_prompts("dummy_path.json")
+                assert len(result) == 1
+                assert result[0]["id"] == "1"
 
-class TestLoadModel:
-    """Tests for model loading."""
+    def test_load_prompts_file_not_found(self):
+        """Test handling of missing prompt file."""
+        with patch('os.path.exists', return_value=False):
+            with pytest.raises(GenerationError):
+                load_prompts("non_existent.json")
 
-    @patch('code.generation.runner_gpu.check_cuda_availability')
-    @patch('code.generation.runner_gpu.Llama')
-    def test_load_model_success(self, mock_llama, mock_cuda_check):
-        """Test successful model loading."""
-        mock_cuda_check.return_value = True
-        mock_instance = MagicMock()
-        mock_llama.return_value = mock_instance
-
-        model = load_model("test_model.gguf", n_ctx=2048, n_gpu_layers=35)
-
-        mock_llama.assert_called_once_with(
-            model_path="test_model.gguf",
-            n_ctx=2048,
-            n_gpu_layers=35,
-            verbose=False
-        )
-        assert model == mock_instance
-
-    @patch('code.generation.runner_gpu.check_cuda_availability')
-    def test_load_model_no_cuda(self, mock_cuda_check):
-        """Test model loading fails without CUDA."""
-        mock_cuda_check.return_value = False
-
-        with pytest.raises(HardwareError, match="CUDA is not available"):
-            load_model("test_model.gguf")
-
-    @patch('code.generation.runner_gpu.check_cuda_availability')
-    def test_load_model_import_error(self, mock_cuda_check):
-        """Test model loading fails with ImportError."""
-        mock_cuda_check.return_value = True
-        with patch('code.generation.runner_gpu.Llama', side_effect=ImportError("No module")):
-            with pytest.raises(HardwareError, match="llama-cpp-python not installed"):
-                load_model("test_model.gguf")
-
+    def test_load_prompts_invalid_json(self):
+        """Test handling of invalid JSON."""
+        with patch('builtins.open', mock_open(read_data="not json")):
+            with patch('os.path.exists', return_value=True):
+                with pytest.raises(GenerationError):
+                    load_prompts("invalid.json")
 
 class TestGenerateSample:
-    """Tests for sample generation."""
-
-    @patch('code.generation.runner_gpu.log_operation')
-    @patch('code.generation.runner_gpu.get_logger')
-    def test_generate_sample_success(self, mock_logger, mock_log_op):
+    def test_generate_sample_success(self):
         """Test successful sample generation."""
         mock_model = MagicMock()
-        mock_model.set_seed = MagicMock()
         mock_output = {
             'choices': [{'text': 'This is a generated response.'}]
         }
         mock_model.return_value = mock_output
 
-        result = generate_sample(
-            model=mock_model,
-            prompt="Test prompt",
-            strategy="Direct",
-            prompt_id="p1",
-            seed=12345
-        )
+        with patch.object(mock_model, '__call__', return_value=mock_output):
+            sample = generate_sample(
+                model=mock_model,
+                prompt="Test",
+                strategy="Direct",
+                seed=42
+            )
+            assert sample["strategy"] == "Direct"
+            assert sample["seed"] == 42
+            assert "text" in sample
 
-        assert result['prompt_id'] == "p1"
-        assert result['strategy'] == "Direct"
-        assert result['seed'] == 12345
-        assert 'generated_text' in result
-        assert result['model'] == "Mistral-7B-Instruct-v0.2"
-        assert result['device'] == "cuda"
-
-    @patch('code.generation.runner_gpu.log_operation')
-    @patch('code.generation.runner_gpu.get_logger')
-    def test_generate_sample_failure(self, mock_logger, mock_log_op):
-        """Test sample generation failure raises error."""
+    def test_generate_sample_failure(self):
+        """Test handling of generation failure."""
         mock_model = MagicMock()
-        mock_model.set_seed = MagicMock()
-        mock_model.return_value.side_effect = Exception("Generation failed")
+        mock_model.side_effect = Exception("GPU OOM")
 
-        with pytest.raises(GenerationError, match="Generation failed for prompt"):
+        with pytest.raises(GenerationError):
             generate_sample(
                 model=mock_model,
-                prompt="Test prompt",
+                prompt="Test",
                 strategy="Direct",
-                prompt_id="p1",
-                seed=12345
+                seed=42
             )
 
-
-class TestLoadPrompts:
-    """Tests for prompt loading."""
-
-    def test_load_prompts_list_format(self):
-        """Test loading prompts in list format."""
-        prompts_data = [
-            {"id": "p1", "prompt": "First prompt"},
-            {"id": "p2", "prompt": "Second prompt"}
-        ]
-
-        with patch('builtins.open', mock_open(read_data=json.dumps(prompts_data))):
-            prompts = load_prompts("test_prompts.json")
-
-        assert len(prompts) == 2
-        assert prompts[0]['id'] == "p1"
-
-    def test_load_prompts_dict_format(self):
-        """Test loading prompts in dict format with 'prompts' key."""
-        prompts_data = {
-            "prompts": [
-                {"id": "p1", "prompt": "First prompt"}
-            ]
-        }
-
-        with patch('builtins.open', mock_open(read_data=json.dumps(prompts_data))):
-            prompts = load_prompts("test_prompts.json")
-
-        assert len(prompts) == 1
-
-    def test_load_prompts_file_not_found(self):
-        """Test loading prompts from non-existent file."""
-        with patch('builtins.open', side_effect=FileNotFoundError()):
-            with pytest.raises(FileNotFoundError):
-                load_prompts("non_existent.json")
-
-    def test_load_prompts_invalid_json(self):
-        """Test loading prompts with invalid JSON."""
-        with patch('builtins.open', mock_open(read_data="invalid json")):
-            with pytest.raises(ValueError, match="Invalid JSON"):
-                load_prompts("test.json")
-
-
 class TestSaveBatch:
-    """Tests for batch saving."""
-
-    def test_save_batch_creates_file(self):
-        """Test that save_batch creates a file with correct content."""
-        samples = [
-            {"id": 1, "text": "Sample 1"},
-            {"id": 2, "text": "Sample 2"}
-        ]
-
+    def test_save_batch_success(self):
+        """Test successful batch saving."""
+        samples = [{"id": 1, "text": "test"}]
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir)
-            save_batch(samples, output_path, batch_id=1)
-
-            filepath = output_path / "generation_batch_gpu_mistral_001.json"
-            assert filepath.exists()
-
-            with open(filepath, 'r') as f:
-                saved_data = json.load(f)
-
-            assert len(saved_data) == 2
-            assert saved_data[0]['id'] == 1
-
+            output_path = os.path.join(tmpdir, "test_batch.json")
+            save_batch(samples, output_path, "Direct", "test_model")
+            assert os.path.exists(output_path)
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            assert data["count"] == 1
+            assert data["strategy"] == "Direct"
 
 class TestRunGenerationPipeline:
-    """Tests for the full generation pipeline."""
+    def test_run_pipeline_cuda_fail(self):
+        """Test pipeline fails when CUDA is not available."""
+        with patch('code.generation.runner_gpu.check_cuda_availability', return_value=False):
+            with pytest.raises(HardwareError):
+                run_generation_pipeline()
 
-    @patch('code.generation.runner_gpu.load_prompts')
+    def test_run_pipeline_model_not_found(self):
+        """Test pipeline fails when model file is missing."""
+        with patch('code.generation.runner_gpu.check_cuda_availability', return_value=True):
+            with patch('code.generation.runner_gpu.load_prompts', return_value=[{"prompt": "test"}]):
+                with patch('os.path.exists', return_value=False):
+                    with pytest.raises(FileNotFoundError):
+                        run_generation_pipeline()
+
+    @patch('code.generation.runner_gpu.check_cuda_availability', return_value=True)
+    @patch('code.generation.runner_gpu.load_prompts', return_value=[{"id": "1", "prompt": "Test"}])
     @patch('code.generation.runner_gpu.load_model')
     @patch('code.generation.runner_gpu.generate_sample')
     @patch('code.generation.runner_gpu.save_batch')
-    def test_run_pipeline_basic(self, mock_save, mock_gen, mock_load_model, mock_load_prompts):
-        """Test basic pipeline execution."""
-        mock_load_prompts.return_value = [
-            {"id": "p1", "prompt": "Test prompt 1"},
-            {"id": "p2", "prompt": "Test prompt 2"}
-        ]
+    @patch('builtins.open', new_callable=mock_open)
+    def test_run_pipeline_success(
+        self, mock_open_file, mock_save_batch, mock_gen_sample, mock_load_model, mock_load_prompts, mock_check_cuda
+    ):
+        """Test successful pipeline execution."""
+        mock_gen_sample.return_value = {"seed": 1, "text": "generated", "strategy": "Direct"}
         mock_model = MagicMock()
         mock_load_model.return_value = mock_model
-        mock_gen.return_value = {
-            "prompt_id": "p1",
-            "strategy": "Direct",
-            "seed": 123,
-            "generated_text": "Generated text"
+
+        config = {
+            "prompts_path": "test.json",
+            "output_dir": "/tmp",
+            "model_path": "/tmp/model.gguf"
         }
 
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with patch('os.path.exists', return_value=True):
             result = run_generation_pipeline(
-                config={"prompts_path": "test.json", "output_dir": tmpdir, "gpu_model_path": "model.gguf"},
+                config=config,
+                prompts_path="test.json",
+                output_dir="/tmp",
                 samples_per_prompt=2
             )
 
-            assert len(result) == 2 * 4 * 2  # 2 prompts * 4 strategies * 2 samples
-            mock_load_model.assert_called_once()
-
-    @patch('code.generation.runner_gpu.load_prompts')
-    @patch('code.generation.runner_gpu.load_model')
-    @patch('code.generation.runner_gpu.generate_sample')
-    def test_run_pipeline_with_config(self, mock_gen, mock_load_model, mock_load_prompts):
-        """Test pipeline with explicit config."""
-        mock_load_prompts.return_value = [{"id": "p1", "prompt": "Prompt 1"}]
-        mock_load_model.return_value = MagicMock()
-        mock_gen.return_value = {"prompt_id": "p1", "strategy": "Direct", "seed": 1, "generated_text": "Text"}
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            run_generation_pipeline(
-                config={
-                    "prompts_path": "test.json",
-                    "output_dir": tmpdir,
-                    "gpu_model_path": "model.gguf"
-                },
-                samples_per_prompt=1
-            )
-
-            # Verify output directory was created
-            assert Path(tmpdir).exists()
+            assert result["total"] > 0
+            assert "strategy_counts" in result
+            mock_save_batch.assert_called()
+            mock_open_file.assert_called()

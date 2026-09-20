@@ -1,8 +1,16 @@
-T011:
+T009:
   c: false
-  h: ff76117136ec9154ad9219eed6789d1acf560b46959ac28b6fe475f3282d3c33
-  r: "The `control_corpus.py` script exists but loads the CNN/DailyMail dataset (not\
-    \ a technical\u2011report\u2011style source) and the provided code is truncated\
-    \ before any merging or CSV output logic; the required `data/processed/merged_dataset.csv`\
-    \ file is missing. Consequently the control samples are never merged nor verified\
-    \ against the marker dictionaries as the task demands."
+  h: 1e9716a092bbeb087afa24800d974f45b5d4191f69abb891b4cf8d61b84c7d7c
+  r: "The repository lacks the required `data/raw/generation_log.json` file, and the\
+    \ provided `runner.py` does not show any loading of the TinyLlama model via `llama-cpp-python`\
+    \ nor the logic to write per\u2011sample JSON files and enforce the \u226580\u2011\
+    samples\u2011per\u2011prompt rule. Consequently the core functionality and logging\
+    \ mandated by the task are missing."
+T009d:
+  c: false
+  h: d5d29ba091069c25e78f180fa8158825e76401d210b3dd2a8f61d9b065e9c438
+  r: The `power_analysis.py` script is present, but it never writes `data/raw/power_gap_report.md`
+    (no `if __name__ == "__main__":` block) and the required markdown file is missing,
+    so the deliverable and verification step are not satisfied. The next implementer
+    must add code to generate and save the report and ensure the file exists with
+    the calculated metrics.
