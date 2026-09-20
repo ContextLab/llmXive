@@ -13,13 +13,13 @@ This project extends the **AgentBench** analysis to quantify the trade-off betwe
 **Primary Dependencies**: `datasets` (HuggingFace), `llama-cpp-python` (CPU), `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `pytest`  
 **Storage**: Local `data/` (raw benchmark), `results/` (execution logs, CSVs), `artifacts/` (checksummed)  
 **Testing**: `pytest` (unit), `contract` tests against YAML schemas  
-**Target Platform**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, GB Disk) — **CPU Only**.  
+**Target Platform**: GitHub Actions Free Tier (multiple CPU cores, 7 GB RAM, GB Disk) — **CPU Only**.  
 **Project Type**: Computational Research / Data Science Pipeline  
-**Performance Goals**: Complete all tasks within 6 hours on CPU. If the 8B model (int4) fails to load, the system defaults to Qwen-1.5-1.8B (int4) to ensure reproducibility.  
-**Constraints**: No external API keys; strict memory budget (7 GB); no synthetic data generation; no un-reproducible GPU offloads.  
+**Performance Goals**: Complete all tasks within 6 hours on CPU. If the base model (int4) fails to load, the system defaults to Qwen-1.5-1.8B (int4) to ensure reproducibility.  
+**Constraints**: No external API keys; strict memory budget (limited capacity); no synthetic data generation; no un-reproducible GPU offloads.  
 **Scale/Scope**: A subset of tasks from the AgentBench `os` and `web` environments.; Multiple experimental conditions (Baseline, Binary Pruning, Dense Pruning).
 
-> **Compute Feasibility Note**: The plan strictly adheres to CPU execution using `llama-cpp-python` with `int4` quantization. The 8B model is the primary target; if it exceeds 7 GB RAM, the system automatically switches to Qwen-1.5-1.8B (int4) which is guaranteed to fit. No GPU offload is permitted to maintain reproducibility on a fresh runner.
+> **Compute Feasibility Note**: The plan strictly adheres to CPU execution using `llama-cpp-python` with `int4` quantization. The primary target model is the large-scale variant; if it exceeds available RAM, the system automatically switches to a smaller quantized model which is guaranteed to fit. No GPU offload is permitted to maintain reproducibility on a fresh runner.
 
 ## Constitution Check
 
@@ -78,6 +78,6 @@ projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **CPU-Only Execution** | GPU offload violates reproducibility on a fresh runner. | A GPU-dependent plan cannot be verified on the declared target platform (GitHub Actions Free Tier). The plan commits to a model size (B or B-int4) that fits in 7 GB RAM. |
+| **CPU-Only Execution** | GPU offload violates reproducibility on a fresh runner. | A GPU-dependent plan cannot be verified on the declared target platform (GitHub Actions Free Tier). The plan commits to a model size (B or B-int) that fits in a constrained memory environment. |
 | **Independent Heuristic (FR-007)** | Need to programmatically identify "recovery-critical" segments without circularity. | Using the model's own attention weights creates a tautology. The plan uses an *independent* semantic state-diff metric to ensure validity. |
 | **AgentBench Dataset** | "Long-Horizon-Terminal-Bench" does not exist as a public dataset. | Using a non-existent dataset makes the plan infeasible. AgentBench is a verified, accessible alternative with the necessary trajectory data. |

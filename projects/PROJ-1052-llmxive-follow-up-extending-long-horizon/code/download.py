@@ -1,255 +1,221 @@
-"""
-Download and validate the AgentBench dataset.
-
-This script fetches the 'lmz/agentbench' dataset from Hugging Face,
-saves it to 'data/raw/', performs cryptographic hash validation,
-verifies the presence of required variables (observations, actions, rewards),
-and implements task selection logic to filter error-prone tasks.
-"""
 import hashlib
 import logging
 import os
 import sys
 import itertools
 from pathlib import Path
-
+from typing import List, Dict, Any, Optional, Tuple
 from datasets import load_dataset
 
-# Configuration
-DATASET_ID = "lmz/agentbench"
-OUTPUT_DIR = Path("data/raw")
-# Expected checksum for the dataset archive (example placeholder; 
-# in a real scenario, this would be the verified SHA-256 from the dataset card).
-# Since the specific split file checksums vary by version, we will validate
-# the integrity of the download via the datasets library's built-in checks
-# and log the actual hash of the downloaded file for verification.
-# If a specific checksum is mandated by the spec, it should be updated here.
-EXPECTED_SHA256 = None  # Replace with actual hash if known from documentation
-
-# Required variables for the research pipeline
-REQUIRED_VARIABLES = ["observations", "actions", "rewards"]
-
-# Task selection configuration
-# Filter for tasks known to be error-prone based on domain characteristics
-# or specific task IDs from the benchmark.
-# In a real implementation, this would be populated from a configuration file
-# or research specification.
-ERROR_PRONE_TASK_KEYWORDS = [
-    "math",  # Mathematical reasoning tasks
-    "code",  # Code generation tasks
-    "logic", # Logic puzzles
-    "planning" # Multi-step planning
-]
-
-# Size constraints for sampling (in rows)
-# If the filtered dataset exceeds this, we sample the first N rows
-MAX_TASKS_LIMIT = 100  # Example limit; adjust based on compute constraints
-
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("logs/download.log", mode="a", encoding="utf-8")
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-def calculate_sha256(file_path: Path) -> str:
-    """Calculate the SHA-256 hash of a file."""
+def calculate_sha256(file_path: str) -> str:
+    """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def validate_variables(dataset, dataset_id: str) -> None:
-    """
-    Verify that the dataset contains the required variables: observations, actions, rewards.
-    
-    Raises:
-        ValueError: If any required variable is missing, with error code ERR_MISSING_VAR.
-    """
+def validate_variables(dataset: Any) -> Tuple[bool, Optional[List[str]]]:
+    """Validate that required variables exist in the dataset."""
+    required_vars = ["observations", "actions", "rewards"]
     missing_vars = []
-    available_columns = set(dataset.column_names)
     
-    for var in REQUIRED_VARIABLES:
-        if var not in available_columns:
+    if hasattr(dataset, 'features'):
+        features = list(dataset.features.keys())
+    else:
+        # Fallback for streaming or other dataset types
+        sample = next(iter(dataset))
+        features = list(sample.keys())
+    
+    for var in required_vars:
+        if var not in features:
             missing_vars.append(var)
     
     if missing_vars:
-        error_msg = f"ERR_MISSING_VAR: The dataset '{dataset_id}' is missing required variables: {missing_vars}. " \
-                    f"Available columns: {list(available_columns)}."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+        logger.error(f"Missing required variables: {missing_vars}")
+        return False, missing_vars
     
-    logger.info(f"✓ Validation PASSED: All required variables {REQUIRED_VARIABLES} found in '{dataset_id}'.")
+    logger.info(f"All required variables present: {required_vars}")
+    return True, None
 
-def filter_error_prone_tasks(dataset, keywords=None) -> list:
+def filter_error_prone_tasks(dataset: Any) -> List[Dict[str, Any]]:
     """
-    Filter the dataset to include only error-prone tasks based on keywords.
+    Filter the dataset to identify error-prone tasks.
     
-    Args:
-        dataset: The Hugging Face dataset object.
-        keywords: List of keywords to search for in task descriptions or IDs.
-                
+    Logic:
+    1. Identify tasks where the agent failed in the baseline (success == 0 or False).
+    2. If the dataset doesn't have an explicit 'success' column, infer failure
+       based on reward patterns (e.g., final reward < threshold or negative rewards).
+    
     Returns:
-        List of indices of tasks that match the error-prone criteria.
+        List of task dictionaries that are error-prone.
     """
-    if keywords is None:
-        keywords = ERROR_PRONE_TASK_KEYWORDS
+    error_prone_tasks = []
+    success_col = None
     
-    filtered_indices = []
+    # Determine success column name
+    if hasattr(dataset, 'features'):
+        features = list(dataset.features.keys())
+        if 'success' in features:
+            success_col = 'success'
+        elif 'final_reward' in features:
+            # Infer success from final_reward if available
+            pass
+    else:
+        sample = next(iter(dataset))
+        if 'success' in sample:
+            success_col = 'success'
     
-    # Determine the column to search for task identification
-    # Typically 'task_id', 'task_name', or 'description'
-    search_columns = []
-    for col in ["task_id", "task_name", "description", "category"]:
-        if col in dataset.column_names:
-            search_columns.append(col)
-    
-    if not search_columns:
-        logger.warning("No suitable column found for task filtering. Returning all tasks.")
-        return list(range(len(dataset)))
-    
-    logger.info(f"Searching for error-prone tasks using keywords: {keywords} in columns: {search_columns}")
-    
+    # Iterate through dataset
     for idx, item in enumerate(dataset):
         is_error_prone = False
-        for col in search_columns:
-            if col in item and item[col]:
-                text = str(item[col]).lower()
-                if any(keyword.lower() in text for keyword in keywords):
+        
+        if success_col:
+            # Check explicit success field
+            if item.get(success_col) == 0 or item.get(success_col) is False:
+                is_error_prone = True
+        else:
+            # Infer from reward patterns
+            rewards = item.get('rewards', [])
+            if rewards:
+                final_reward = rewards[-1] if isinstance(rewards, list) else rewards
+                if final_reward < 0:  # Negative reward indicates failure
                     is_error_prone = True
-                    break
         
         if is_error_prone:
-            filtered_indices.append(idx)
+            # Ensure task_id exists, otherwise use index
+            task_id = item.get('task_id', f"task_{idx}")
+            error_prone_tasks.append({
+                'task_id': task_id,
+                'index': idx,
+                'data': item
+            })
     
-    return filtered_indices
+    logger.info(f"Identified {len(error_prone_tasks)} error-prone tasks out of {len(dataset)} total tasks")
+    return error_prone_tasks
 
-def select_tasks_for_baseline(dataset, max_tasks=None):
+def select_tasks_for_baseline(
+    error_prone_tasks: List[Dict[str, Any]],
+    max_tasks: Optional[int] = None,
+    sample_strategy: str = "first_n"
+) -> List[Dict[str, Any]]:
     """
-    Select tasks for baseline execution with sampling strategy if constraints are hit.
-    
-    This implements the task selection logic for T012a:
-    - Filters for error-prone tasks
-    - If the count exceeds max_tasks, samples the first N rows using itertools.islice
-    - Logs the sampling strategy used
+    Select a subset of error-prone tasks for baseline execution.
     
     Args:
-        dataset: The Hugging Face dataset object.
-        max_tasks: Maximum number of tasks to select. If None, uses MAX_TASKS_LIMIT.
+        error_prone_tasks: List of error-prone task dictionaries from filter_error_prone_tasks.
+        max_tasks: Maximum number of tasks to select. If None, select all.
+        sample_strategy: Strategy for sampling if max_tasks is hit.
+                       Options: "first_n", "random" (requires random seed).
     
     Returns:
-        List of selected task indices.
+        List of selected task dictionaries.
     """
-    if max_tasks is None:
-        max_tasks = MAX_TASKS_LIMIT
+    if not error_prone_tasks:
+        logger.warning("No error-prone tasks found to select.")
+        return []
     
-    logger.info(f"Starting task selection for baseline execution with limit: {max_tasks}")
+    if max_tasks is None or max_tasks >= len(error_prone_tasks):
+        logger.info(f"Selecting all {len(error_prone_tasks)} error-prone tasks.")
+        return error_prone_tasks
     
-    # Filter for error-prone tasks
-    filtered_indices = filter_error_prone_tasks(dataset)
-    total_filtered = len(filtered_indices)
-    
-    logger.info(f"Found {total_filtered} error-prone tasks out of {len(dataset)} total tasks.")
-    
-    if total_filtered == 0:
-        logger.warning("No error-prone tasks found. Falling back to all tasks.")
-        return list(range(len(dataset)))
-    
-    # Apply size constraint if necessary
-    if total_filtered > max_tasks:
-        logger.info(f"Constraint hit: {total_filtered} tasks > {max_tasks} limit.")
-        logger.info(f"Sampling strategy: Using itertools.islice to select first {max_tasks} rows.")
-        
-        # Use itertools.islice to select the first N rows
-        selected_indices = list(itertools.islice(filtered_indices, max_tasks))
-        
-        logger.info(f"Selected {len(selected_indices)} tasks for baseline execution.")
-        return selected_indices
+    # Apply sampling strategy
+    if sample_strategy == "first_n":
+        selected = list(itertools.islice(error_prone_tasks, max_tasks))
+        logger.info(f"Selected first {max_tasks} error-prone tasks using 'first_n' strategy.")
+    elif sample_strategy == "random":
+        import random
+        # Set a fixed seed for reproducibility
+        random.seed(42)
+        selected = random.sample(error_prone_tasks, max_tasks)
+        logger.info(f"Selected {max_tasks} random error-prone tasks using 'random' strategy (seed=42).")
     else:
-        logger.info(f"All {total_filtered} error-prone tasks selected (within limit).")
-        return filtered_indices
+        raise ValueError(f"Unknown sample_strategy: {sample_strategy}. Use 'first_n' or 'random'.")
+    
+    return selected
 
 def main():
-    """Main entry point for downloading, validating, and checking the dataset."""
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    """
+    Main entry point for downloading and filtering the AgentBench dataset.
     
-    # Ensure logs directory exists
-    Path("logs").mkdir(parents=True, exist_ok=True)
+    This function:
+    1. Loads the 'lmz/agentbench' dataset.
+    2. Validates required variables.
+    3. Filters for error-prone tasks.
+    4. Selects a subset for baseline execution (T012a logic).
+    5. Saves the selected tasks to a JSON file in data/processed/.
+    """
+    logger.info("Starting dataset download and task selection process...")
     
-    logger.info(f"Starting download and validation for dataset '{DATASET_ID}'...")
-
+    # 1. Load dataset
+    dataset_name = "lmz/agentbench"
+    logger.info(f"Loading dataset: {dataset_name}")
+    
     try:
-        # Log the substitution note as per task requirements
-        logger.info("ℹ Note: 'Long-Horizon-Terminal-Bench' was substituted with 'AgentBench' (lmz/agentbench).")
-
-        # Load the dataset
-        # We use streaming=False to download the full dataset for local validation
-        logger.info(f"Loading dataset '{DATASET_ID}' split='train'...")
-        dataset = load_dataset(DATASET_ID, split="train", trust_remote_code=True)
-        
-        # Save the dataset to disk in Parquet format for efficiency
-        output_path = OUTPUT_DIR / "agentbench.parquet"
-        logger.info(f"Saving dataset to: {output_path}")
-        dataset.to_parquet(str(output_path))
-
-        # Calculate and log the hash of the downloaded file
-        actual_hash = calculate_sha256(output_path)
-        logger.info(f"Calculated SHA-256: {actual_hash}")
-
-        if EXPECTED_SHA256:
-            if actual_hash == EXPECTED_SHA256:
-                logger.info("✓ Checksum verification PASSED.")
-            else:
-                logger.error(f"✗ Checksum verification FAILED.")
-                logger.error(f"  Expected: {EXPECTED_SHA256}")
-                logger.error(f"  Actual:   {actual_hash}")
-                sys.exit(1)
-        else:
-            logger.warning("⚠ No expected checksum provided for verification. "
-                         "Please verify the hash against the dataset documentation manually.")
-
-        # Validate required variables
-        logger.info("Validating required variables (observations, actions, rewards)...")
-        validate_variables(dataset, DATASET_ID)
-
-        # Task selection logic for T012a
-        selected_indices = select_tasks_for_baseline(dataset)
-        
-        # Create a subset dataset for the selected tasks
-        if selected_indices:
-            selected_dataset = dataset.select(selected_indices)
-            subset_output_path = OUTPUT_DIR / "agentbench_baseline_subset.parquet"
-            logger.info(f"Saving baseline subset ({len(selected_indices)} tasks) to: {subset_output_path}")
-            selected_dataset.to_parquet(str(subset_output_path))
-            
-            # Log the selected task IDs for verification
-            logger.info("Selected task IDs (first 10):")
-            for i, idx in enumerate(selected_indices[:10]):
-                task_id = dataset[idx].get("task_id", f"index_{idx}")
-                logger.info(f"  {i+1}. {task_id}")
-            if len(selected_indices) > 10:
-                logger.info(f"  ... and {len(selected_indices) - 10} more.")
-        else:
-            logger.warning("No tasks selected for baseline execution.")
-
-        logger.info("Dataset download, validation, and task selection completed successfully.")
-
-    except ValueError as e:
-        if "ERR_MISSING_VAR" in str(e):
-            logger.error(f"Validation failed: {e}")
-            sys.exit(1)
-        else:
-            logger.error(f"Unexpected error during validation: {e}")
-            sys.exit(1)
+        # Load the dataset (using streaming to handle large sizes if needed)
+        # Note: If the full dataset is too large for memory, we might need to adjust this.
+        # For now, we assume it fits or use streaming=True if necessary.
+        dataset = load_dataset(dataset_name, split="train")
+        logger.info(f"Dataset loaded successfully. Total rows: {len(dataset)}")
     except Exception as e:
-        logger.error(f"Error downloading or processing dataset: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to load dataset {dataset_name}: {e}")
+        raise
+
+    # 2. Validate variables
+    is_valid, missing = validate_variables(dataset)
+    if not is_valid:
+        raise ValueError(f"Dataset validation failed. Missing variables: {missing}")
+
+    # 3. Filter error-prone tasks
+    error_prone_tasks = filter_error_prone_tasks(dataset)
+    
+    if not error_prone_tasks:
+        logger.warning("No error-prone tasks identified. Cannot proceed with selection.")
+        # Depending on requirements, we might want to exit or handle this differently.
+        # For now, we'll proceed with an empty list, but log a warning.
+        selected_tasks = []
+    else:
+        # 4. Select tasks for baseline (T012a logic)
+        # Define max_tasks based on constraints (e.g., hourly/size limits)
+        # For this implementation, we'll use a reasonable default or allow override.
+        # Let's assume a limit of 50 tasks for baseline if not specified.
+        max_tasks = 50 
+        
+        selected_tasks = select_tasks_for_baseline(
+            error_prone_tasks, 
+            max_tasks=max_tasks, 
+            sample_strategy="first_n"
+        )
+    
+    # 5. Save selected tasks
+    output_dir = Path("data/processed")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "selected_baseline_tasks.json"
+    
+    # Prepare data for saving (remove large 'data' field if needed, or keep full)
+    # For now, we'll keep the full data but in a serializable format.
+    # If 'data' contains non-serializable objects, we might need to convert.
+    # Assuming dataset items are already dicts of serializable types.
+    serializable_selected = []
+    for task in selected_tasks:
+        task_copy = task.copy()
+        # Ensure 'data' is serializable (it should be from load_dataset)
+        serializable_selected.append(task_copy)
+    
+    import json
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(serializable_selected, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Selected {len(selected_tasks)} tasks saved to {output_file}")
+    logger.info("Task selection process completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -4,206 +4,186 @@ import os
 import sys
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parents[1]
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Ensure the project root is in the path for imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from download import filter_error_prone_tasks, select_tasks_for_baseline
-from utils.logging_handler import setup_logger, log_metric
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Configure logging
-logger = setup_logger(__name__, log_level=logging.INFO)
-
-def generate_state_mismatch(
-    original_observation: str,
-    task_context: Optional[Dict[str, Any]] = None
-) -> str:
+def generate_state_mismatch(step_index: int) -> str:
     """
-    Generates a modified observation that introduces a state mismatch.
-    
-    Strategy:
-    1. If the observation is a list of steps/turns, inject a 'hallucinated'
-       state change in a random step.
-    2. If it's a raw string, inject a specific keyword or alter a value
-       to simulate a sensor drift or logic error.
-    
-    This simulates an error where the agent's internal state does not match
-    the environment's ground truth.
+    Generates a semantic contradiction string to be injected.
+    Matches the requirement: 'ERROR: State mismatch detected at step X'
     """
-    if not original_observation:
-        return original_observation
+    return f"ERROR: State mismatch detected at step {step_index}"
 
-    # Case 1: Observation is a list of dialogue/turns/steps
-    if isinstance(original_observation, list):
-        if len(original_observation) == 0:
-            return original_observation
-        
-        # Select a random step to corrupt
-        idx = random.randint(0, len(original_observation) - 1)
-        step = original_observation[idx]
-        
-        if isinstance(step, dict):
-            # Inject a 'state_mismatch' flag or alter content
-            step["state_mismatch_injected"] = True
-            step["original_content"] = step.get("content", "")
-            step["content"] = step.get("content", "") + " [ERROR: State Mismatch Detected]"
-            original_observation[idx] = step
-        elif isinstance(step, str):
-            original_observation[idx] = step + " [ERROR: State Mismatch Detected]"
-        
-        return original_observation
-
-    # Case 2: Observation is a string
-    if isinstance(original_observation, str):
-        # Inject a specific marker to simulate the error
-        return original_observation + " [ERROR: State Mismatch Detected]"
-    
-    # Case 3: Fallback - return as is
-    return original_observation
-
-def inject_errors_into_trajectory(
-    trajectory: Dict[str, Any],
-    error_rate: float = 1.0
-) -> Dict[str, Any]:
+def inject_errors_into_trajectory(trajectory: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Modifies the 'observations' field in a trajectory to introduce state mismatches.
+    Injects a semantic contradiction into the last observation of a trajectory.
+    
+    The task specifies modifying the 'observations' field.
+    We assume the trajectory structure contains a list of observations.
+    The injection happens at the **last observation** (index -1), 
+    which is the point immediately before the final success/failure state.
     
     Args:
-        trajectory: A dictionary representing a single task execution log.
-        error_rate: Probability (0.0 to 1.0) of injecting an error into an observation.
-    
+        trajectory: A dictionary representing a single trajectory from the dataset.
+                    Expected keys: 'observations' (List[str]), 'task_id', etc.
+                    
     Returns:
-        Modified trajectory with injected errors.
+        Modified trajectory dictionary with injected error in the last observation.
     """
     if not trajectory:
+        raise ValueError("Trajectory cannot be empty")
+
+    if 'observations' not in trajectory:
+        logger.warning(f"Trajectory missing 'observations' key. Task ID: {trajectory.get('task_id', 'unknown')}")
+        # If no observations, we cannot inject into the last one. 
+        # We return the trajectory as is but log a warning.
+        # However, for strict adherence to T013, we might want to ensure we fail loudly 
+        # if the data structure is invalid for injection. 
+        # For now, we log and return.
         return trajectory
 
-    # Ensure we have a copy to avoid mutating the original if not intended,
-    # though for this pipeline we are generating a new file.
-    modified_trajectory = trajectory.copy()
+    observations = trajectory['observations']
     
-    if "observations" not in modified_trajectory:
-        logger.warning(f"Trajectory missing 'observations' key: {trajectory.get('task_id', 'unknown')}")
-        return modified_trajectory
+    if not observations:
+        logger.warning(f"Observations list is empty. Task ID: {trajectory.get('task_id', 'unknown')}")
+        return trajectory
 
-    observations = modified_trajectory["observations"]
+    # Identify the last observation index
+    last_obs_index = len(observations) - 1
+    original_last_obs = observations[last_obs_index]
     
-    # If observations is a list of steps
-    if isinstance(observations, list):
-        for i, obs in enumerate(observations):
-            if random.random() < error_rate:
-                if isinstance(obs, dict):
-                    obs["state_mismatch_injected"] = True
-                    obs["injection_step"] = i
-                    obs["original_content"] = obs.get("content", "")
-                    obs["content"] = obs.get("content", "") + " [ERROR: State Mismatch]"
-                elif isinstance(obs, str):
-                    observations[i] = obs + " [ERROR: State Mismatch]"
+    # Generate the error string
+    error_string = generate_state_mismatch(last_obs_index)
     
-    # If observations is a single string or object, inject once
-    elif isinstance(observations, str):
-        modified_trajectory["observations"] = observations + " [ERROR: State Mismatch]"
+    # Append the error to the existing observation
+    # The requirement says "Append a semantic contradiction string"
+    # We append to the end of the text to maintain context while adding the error signal.
+    new_observation = f"{original_last_obs}\n\n{error_string}"
+    
+    # Create a copy to avoid mutating the original source if it's shared, 
+    # though in a stream we often just build the new object.
+    modified_trajectory = trajectory.copy()
+    modified_observations = observations.copy()
+    modified_observations[last_obs_index] = new_observation
+    modified_trajectory['observations'] = modified_observations
     
     # Log the injection for traceability
-    task_id = modified_trajectory.get("task_id", "unknown")
-    logger.info(f"Injected errors into trajectory {task_id}")
+    logger.info(f"Injected error into Task ID {trajectory.get('task_id', 'unknown')} at observation index {last_obs_index}")
     
     return modified_trajectory
 
 def main():
     """
-    Main entry point to inject errors into baseline execution logs.
-    
-    1. Loads baseline execution logs from data/processed/baseline_execution_logs.csv (or similar source).
-       *Note: Since T015 (baseline log generation) is marked as pending in the tasks list but T012 is done,
-       we assume the raw data or intermediate logs are available from the dataset download or T012 output.*
-       
-       However, T012 generates the baseline. If T012 output is not a single consolidated file yet,
-       we will read from the raw dataset (lmz/agentbench) and simulate the 'trajectory' structure
-       required for injection, or read from data/processed if T015 exists.
-       
-       Given the dependency chain, we will attempt to read from data/processed/baseline_execution_logs.csv.
-       If that doesn't exist, we fall back to reading the raw dataset and constructing trajectories
-       to ensure the script is runnable and produces the artifact.
+    Main entry point for T013.
+    Reads clean trajectories from data/processed/baseline_execution_logs.csv (T012 output),
+    injects errors, and writes to data/processed/injected_trajectories.jsonl.
     """
-    project_root = Path(__file__).resolve().parents[1]
-    input_path = project_root / "data" / "processed" / "baseline_execution_logs.csv"
-    output_path = project_root / "data" / "processed" / "injected_trajectories.jsonl"
+    input_path = Path("data/processed/baseline_execution_logs.csv")
+    output_path = Path("data/processed/injected_trajectories.jsonl")
     
-    # Fallback to raw dataset if baseline log doesn't exist yet (for robustness)
-    raw_data_path = project_root / "data" / "raw"
-    
-    logger.info(f"Starting error injection. Input: {input_path}")
-    
-    trajectories = []
-    
-    if input_path.exists():
-        logger.info(f"Loading baseline logs from {input_path}")
-        import pandas as pd
-        df = pd.read_csv(input_path)
-        # Convert rows to trajectory dicts if not already
-        # Assuming the CSV has columns that map to trajectory fields or we reconstruct
-        # For safety, we treat each row as a potential trajectory context.
-        # We need 'observations' specifically.
-        
-        # If the CSV is just summary stats, we might need to reload raw data.
-        # But T012a/T012 should have produced logs. Let's assume a JSONL source is better.
-        # If the CSV is the only thing, we can't inject 'observations' without the raw text.
-        # Let's check for a JSONL source from T012 if CSV is summary only.
-        pass
-    
-    # Since T015 is not marked complete, the CSV might not exist or be summary only.
-    # The most robust way to satisfy T013 (inject into observations) is to read the
-    # raw dataset (lmz/agentbench) which was downloaded in T004/T004a.
-    
-    logger.info("Falling back to raw dataset for observation injection.")
-    try:
-        from datasets import load_dataset
-        
-        # Load the dataset (cached from T004)
-        dataset = load_dataset("lmz/agentbench", split="train", streaming=True)
-        
-        count = 0
-        for item in dataset:
-            # Construct a trajectory-like structure
-            # AgentBench structure varies by task, but usually has 'observation' or 'steps'
-            trajectory = {
-                "task_id": item.get("task_id", f"task_{count}"),
-                "observations": item.get("observation", item.get("observations", [])),
-                "actions": item.get("actions", []),
-                "rewards": item.get("rewards", []),
-                "source": "agentbench"
-            }
-            
-            # Inject errors
-            modified = inject_errors_into_trajectory(trajectory, error_rate=1.0)
-            trajectories.append(modified)
-            count += 1
-            
-            # Limit to a reasonable batch if streaming full dataset is too slow for this step
-            # But the task says "all tasks in the benchmark suite".
-            # We will process all available in the stream until exhausted or error.
-            if count % 100 == 0:
-                logger.info(f"Processed {count} trajectories...")
-        
-        logger.info(f"Total trajectories processed: {count}")
-        
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        logger.error("T012 (baseline execution) must be completed first to generate the input file.")
+        sys.exit(1)
 
-    # Write output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        for traj in trajectories:
-            f.write(json.dumps(traj, ensure_ascii=False) + "\n")
+    logger.info(f"Starting error injection from {input_path} to {output_path}")
     
-    logger.info(f"Successfully wrote {len(trajectories)} injected trajectories to {output_path}")
-    log_metric("injected_trajectories_count", len(trajectories))
+    injected_count = 0
+    skipped_count = 0
+    
+    # We need to read the CSV, convert rows to trajectory dicts, inject, and write JSONL.
+    # The baseline execution logs from T012 are expected to contain the trajectory data.
+    # Assuming the CSV has columns like: task_id, success, trajectory (JSON string), ...
+    # Or it might be a flattened list of steps. 
+    # Given T012 description: "full trajectory", it likely stores the trajectory as a JSON string or a list of dicts.
+    # We will assume the CSV contains a 'trajectory' column that is a JSON string representation of the trajectory.
+    
+    import csv
+    
+    # Prepare output directory
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(input_path, 'r', encoding='utf-8') as infile, \
+         open(output_path, 'w', encoding='utf-8') as outfile:
+         
+         reader = csv.DictReader(infile)
+         
+         # Verify required columns exist
+         if 'trajectory' not in reader.fieldnames:
+             # Fallback: maybe the trajectory is split? Or maybe the whole row IS the trajectory?
+             # Based on T012 "full trajectory", it's most likely a JSON string in a column.
+             # If not, we try to reconstruct from other columns if they exist (observations, actions).
+             # But strict T012 output usually has a 'trajectory' column.
+             # Let's assume 'trajectory' is the column name. If not, we look for 'observations'.
+             if 'observations' in reader.fieldnames:
+                 # Reconstruct trajectory dict from CSV columns
+                 # This is a heuristic. If the CSV is flat, we might need to group.
+                 # However, T012 says "full trajectory", implying a nested structure or JSON string.
+                 # We will assume 'trajectory' column exists. If not, we raise error.
+                 raise ValueError("Input CSV must contain a 'trajectory' column (JSON string) or 'observations' column to reconstruct.")
+             else:
+                 raise ValueError(f"Input CSV missing expected 'trajectory' or 'observations' column. Found: {reader.fieldnames}")
+
+         for row_num, row in enumerate(reader):
+             try:
+                 # Parse the trajectory JSON
+                 if 'trajectory' in row:
+                     trajectory = json.loads(row['trajectory'])
+                 elif 'observations' in row:
+                     # Fallback: reconstruct minimal trajectory dict
+                     # This handles cases where T012 output might be flattened differently
+                     obs_list_str = row['observations']
+                     # If it's a JSON string
+                     if obs_list_str.startswith('['):
+                         obs_list = json.loads(obs_list_str)
+                     else:
+                         # Maybe it's a pipe-separated list? Or just a single string?
+                         # T012 "full trajectory" implies structure. 
+                         # We assume it's a JSON list of strings or dicts.
+                         # If it's a single string, we wrap it.
+                         obs_list = [obs_list_str]
+                     
+                     trajectory = {
+                         "task_id": row.get('task_id', f"unknown_{row_num}"),
+                         "observations": obs_list,
+                         "success": row.get('success', False)
+                     }
+                 else:
+                     continue
+                 
+                 # Inject error
+                 modified_trajectory = inject_errors_into_trajectory(trajectory)
+                 
+                 # Write to JSONL
+                 outfile.write(json.dumps(modified_trajectory, ensure_ascii=False) + '\n')
+                 injected_count += 1
+                 
+             except json.JSONDecodeError as e:
+                 logger.error(f"Failed to parse JSON in row {row_num}: {e}")
+                 skipped_count += 1
+             except Exception as e:
+                 logger.error(f"Unexpected error processing row {row_num}: {e}")
+                 skipped_count += 1
+
+    logger.info(f"Error injection complete. Injected: {injected_count}, Skipped: {skipped_count}")
+    logger.info(f"Output written to: {output_path}")
+    
+    # Verify output exists and is not empty
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logger.info("Verification: Output file created successfully.")
+    else:
+        logger.error("Verification failed: Output file is missing or empty.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

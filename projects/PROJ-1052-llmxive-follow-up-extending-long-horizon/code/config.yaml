@@ -1,23 +1,23 @@
-# llmXive Project Configuration
-# Generated for PROJ-1052-llmxive-follow-up-extending-long-horizon
-# Task: T009 - Environment configuration and logging infrastructure
+# Environment configuration for llmXive Follow-up: Reward Fidelity vs. Error Recovery Density
+# Project: PROJ-1052-llmxive-follow-up-extending-long-horizon
 
-project:
-  name: "llmXive-follow-up-extending-long-horizon"
-  version: "1.0.0"
-  root_path: "."
+# General settings
+project_name: "llmXive-RewardFidelity-ErrorRecovery"
+version: "1.0.0"
+seed: 42
 
+# Data paths
 data:
   raw_dir: "data/raw"
   processed_dir: "data/processed"
-  output_dir: "results"
-  figures_dir: "figures"
+  output_dir: "data/processed"
 
+# Logging configuration
 logging:
   level: "INFO"
-  file: "logs/run.log"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  # Metrics to capture in structured logs
+  file: "logs/run.log"
+  # Custom metrics to capture
   metrics:
     - "reward_fidelity_level"
     - "recovery_segment_id"
@@ -25,21 +25,23 @@ logging:
     - "success_status"
     - "token_count"
 
-# Default experimental settings
-defaults:
-  reward_fidelity_level: "dense"
-  model_name: "llama-3-8b"
-  quantization: "q4_0"
-  max_context_length: 4096
-
-# Agent configuration
+# Agent settings
 agent:
-  temperature: 0.0
-  top_p: 0.9
-  max_tokens: 1024
+  default_model: "llama-3-8b"
+  fallback_model: "qwen-1.5-1.8b"
+  max_context_length: 4096
+  quantization: "q4_0"
+
+# Reward Fidelity Levels
+# Used for T020/T021 pruning logic
+reward_fidelity:
+  levels:
+    - "dense"
+    - "binary"
+    - "3-bin"
+  default: "dense"
 
 # Pruning settings
 pruning:
-  enable: true
-  min_segment_length: 50
-  similarity_threshold: 0.85
+  threshold: 0.05
+  method: "cosine_similarity"

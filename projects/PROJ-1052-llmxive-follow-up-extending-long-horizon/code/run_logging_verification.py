@@ -1,91 +1,81 @@
 """
-Verification script for T009: Logging infrastructure setup.
-Verifies that config.yaml exists and the logging handler captures
-reward_fidelity_level and recovery_segment_id.
+Script to verify T009: Setup environment configuration and logging infrastructure.
+
+This script:
+1. Loads config.yaml
+2. Sets up the logger using utils.logging_handler
+3. Logs a verification metric: reward_fidelity_level=dense
+4. Verifies that logs/run.log contains the expected line.
 """
 import os
 import sys
 from pathlib import Path
 import yaml
+import logging
+import time
+import re
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add project root to path if needed
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.logging_handler import setup_logger, log_metric, load_config
 
 def main():
-    """Run verification checks for T009."""
-    print("Starting T009 verification...")
+    print("Starting T009 Verification: Environment Configuration and Logging...")
     
-    # 1. Verify config.yaml exists
-    config_path = project_root / "code" / "config.yaml"
+    # 1. Verify config.yaml exists and is valid
+    config_path = Path("config.yaml")
     if not config_path.exists():
-        print("FAIL: config.yaml does not exist")
-        return False
+        print("FAIL: config.yaml not found.")
+        sys.exit(1)
     
-    print("PASS: config.yaml exists")
-    
-    # 2. Verify config content
     try:
-        config = load_config(str(config_path))
-        assert 'logging' in config, "Missing 'logging' section in config"
-        assert 'metrics' in config['logging'], "Missing 'metrics' in logging section"
-        
-        required_metrics = ['reward_fidelity_level', 'recovery_segment_id']
-        for metric in required_metrics:
-            assert metric in config['logging']['metrics'], f"Missing {metric} in metrics"
-        
-        print("PASS: config.yaml contains required logging configuration")
+        config = load_config()
+        print(f"OK: config.yaml loaded successfully.")
     except Exception as e:
-        print(f"FAIL: config.yaml validation error: {e}")
-        return False
+        print(f"FAIL: Error loading config.yaml: {e}")
+        sys.exit(1)
     
-    # 3. Setup logger and log test metrics
-    log_file = project_root / "logs" / "run.log"
-    # Ensure logs directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    # 2. Setup logger
+    logger = setup_logger("T009_Verification", config)
+    print(f"OK: Logger setup complete. File handler -> {config['logging']['file_path']}")
     
-    logger = setup_logger(
-        name="llmXive",
-        log_file=str(log_file),
-        level=20,  # INFO
-        console_output=True
-    )
+    # 3. Log the specific metric required by T009
+    fidelity_level = config.get('default_experiment', {}).get('reward_fidelity_level', 'dense')
+    print(f"Logging metric: reward_fidelity_level={fidelity_level}")
     
-    # Log the specific metrics required by T009
     log_metric(
         logger,
-        "Initialization complete",
-        reward_fidelity_level="dense",
-        recovery_segment_id="test_segment_001",
-        task_id="T009"
+        "reward_fidelity_level",
+        fidelity_level,
+        extra_data={"recovery_segment_id": "verification_test"}
     )
     
-    print("PASS: Logged reward_fidelity_level=dense and recovery_segment_id")
+    # Force flush to ensure disk write
+    for handler in logger.handlers:
+        if hasattr(handler, 'flush'):
+            handler.flush()
     
-    # 4. Verify log file content
-    if not log_file.exists():
-        print("FAIL: logs/run.log was not created")
-        return False
+    # 4. Verify the log file contains the expected line
+    log_path = Path(config['logging']['file_path'])
+    if not log_path.exists():
+        print(f"FAIL: Log file {log_path} was not created.")
+        sys.exit(1)
     
-    with open(log_file, 'r', encoding='utf-8') as f:
-        log_content = f.read()
+    time.sleep(0.1) # Brief delay to ensure file system sync
     
-    # Check for required values
-    if "reward_fidelity_level=dense" not in log_content and '"reward_fidelity_level": "dense"' not in log_content:
-        print("FAIL: Log file does not contain reward_fidelity_level=dense")
-        return False
+    content = log_path.read_text()
+    search_pattern = r"reward_fidelity_level=dense"
     
-    if "recovery_segment_id" not in log_content:
-        print("FAIL: Log file does not contain recovery_segment_id")
-        return False
-    
-    print("PASS: logs/run.log contains required metrics")
-    print("\nT009 Verification: SUCCESS")
-    print(f"Log file location: {log_file}")
-    return True
+    if re.search(search_pattern, content):
+        print(f"SUCCESS: Log file {log_path} contains 'reward_fidelity_level=dense'.")
+        print("T009 Verification PASSED.")
+        return True
+    else:
+        print(f"FAIL: Log file {log_path} does not contain 'reward_fidelity_level=dense'.")
+        print("Content preview:")
+        print(content[-500:]) # Print last 500 chars
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

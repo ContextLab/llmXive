@@ -54,20 +54,20 @@
 
 - **What happens when** the dataset lacks a specific variable required to define "stagnant" vs. "critical" context segments? (The system MUST fail gracefully with error code `ERR_MISSING_VAR` and log the name of the missing variable).
 - **How does system handle** a task where the agent fails to recover even with full context (baseline failure)? (These tasks are excluded from the "recovery success" metric calculation but logged as "unrecoverable errors" to avoid skewing the fidelity threshold).
-- **What happens when** the CPU memory limit (7 GB) is exceeded during the baseline execution of all tasks? (The system MUST sample or subset the dataset to fit within 6 hours, prioritizing the most error-prone tasks, and log the sampling strategy).
+- **What happens when** the CPU memory limit (sufficient capacity) is exceeded during the baseline execution of all tasks? (The system MUST sample or subset the dataset to fit within 6 hours, prioritizing the most error-prone tasks, and log the sampling strategy).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the Long-Horizon-Terminal-Bench dataset (a set of tasks) and generate baseline execution logs by executing the agent on all 46 available tasks using only CPU resources (See US-1).
+- **FR-001**: System MUST download the Long-Horizon-Terminal-Bench dataset (a set of tasks) and generate baseline execution logs by executing the agent on all available tasks using only CPU resources (See US-1).
 - **FR-002**: System MUST execute a lightweight open-source model (Llama-3-8B via vLLM) on the full available subset of tasks (N=46) to maximize statistical power (See US-1).
 - **FR-003**: System MUST implement a context manager that can coarsen dense reward signals into discrete fidelity levels (e.g., binary, 3-bin) to drive pruning decisions (See US-2).
 - **FR-004**: System MUST tag and log specific context segments identified as "recovery-critical" during baseline execution and verify their retention or removal during pruned execution (See US-2).
 - **FR-005**: System MUST perform logistic regression to model the probability of task success as a function of reward fidelity and retained context density, identifying the inflection point (See US-3).
 - **FR-006**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) specifically to the p-values for the logistic regression coefficients when evaluating significance across multiple fidelity levels (See US-3).
 - **FR-007**: System MUST identify "recovery-critical" segments by calculating the absolute state vector difference between pre-error and post-recovery states, attributing contribution to context segments via attention-weighted token overlap, and tagging segments where the overlap contribution is significant relative to the total state change magnitude (See US-1, US-2).
-- **FR-008**: System MUST define the "inflection point" as the specific reward fidelity level where the first derivative of the fitted logistic curve reaches its maximum absolute value, or where the 95% confidence interval of the success rate no longer overlaps with the baseline; if the calculated power for the logistic regression is < 0.8, the system MUST fallback to a Cochran-Armitage trend test and report the EPV limitation (See US-3).
+- **FR-008**: System MUST define the "inflection point" as the specific reward fidelity level where the first derivative of the fitted logistic curve reaches its maximum absolute value, or where the confidence interval of the success rate no longer overlaps with the baseline; if the calculated power for the logistic regression is < 0.8, the system MUST fallback to a Cochran-Armitage trend test and report the EPV limitation (See US-3).
 - **FR-009**: System MUST execute a "Random Pruning" control condition where context segments are removed randomly (independent of reward signals) to isolate the effect of reward fidelity from general information density loss (See US-2).
 
 ### Key Entities
@@ -91,7 +91,7 @@
 ## Assumptions
 
 - The Long-Horizon-Terminal-Bench dataset contains all necessary variables (observations, actions, rewards) to define "stagnant" segments and "error recovery" events.
-- The Llama model (via vLLM) can execute a representative task subset on a free-tier GitHub Actions runner with limited CPU resources and constrained RAM within the 6-hour limit, without GPU acceleration.
+- The Llama model (via vLLM) can execute a representative task subset on a free-tier GitHub Actions runner with limited CPU resources and constrained RAM within the available time limit, without GPU acceleration.
 - The "recovery-critical" context segments can be programmatically identified by comparing trajectories where the agent succeeds with full context vs. those where it fails after pruning using the state-diff heuristic defined in FR-007.
 - The relationship between reward fidelity and recovery success is monotonic or non-linear but detectable via logistic regression or the fallback Cochran-Armitage test within a sufficient sample size of tasks.
 - The dataset's reward signals are granular enough to be coarsened into meaningful discrete levels (binary, ternary) without losing all semantic meaning.

@@ -6,16 +6,47 @@ T010:
     is present to satisfy the task.
 T011:
   c: false
-  h: b1d5c84bd9c2e7fe88279146eaa3e117da18a1bf7702deee23289814e9d2f9f0
-  r: "The required test file `code/tests/test_baseline.py` is missing entirely, so\
-    \ the integration test `test_baseline_execution_flow_logs_recovery_segments` does\
-    \ not exist. Without this artifact, the task\u2019s requirement cannot be satisfied.\
-    \ The implementer must add the missing test file with the specified test implementation."
+  h: c442ebc089011270fe4ec669b2dcf278032aab652712d584730e7fc943252d67
+  r: "The test file `code/tests/test_baseline.py` exists, but the required data artifact\
+    \ `data/processed/baseline_execution_logs.csv` is missing, so the test cannot\
+    \ actually verify the presence of a non\u2011empty `recovery_segment_id`. Additionally,\
+    \ the test code is truncated and does not contain the full logic to perform the\
+    \ check. The task\u2019s core requirement is therefore not satisfied."
+T012:
+  c: false
+  h: 99c52554a913226319835bda50b5c778c70f1d04ed9d7450281803fd2345c9a5
+  r: "The required output file `data/processed/baseline_execution_logs.csv` is absent,\
+    \ and the provided `code/agent_runner.py` only contains a random\u2011pruning\
+    \ helper and a partially shown class that does not implement a full\u2011context\
+    \ baseline runner or generate the required logs. Both the artifact and the expected\
+    \ CSV output are missing, so the task is not satisfied."
 T013:
   c: false
-  h: dcebfe3c4e93160158d432e570e9975e55425d5166742bd6a3d2bcc401364660
-  r: "The repository contains a partially\u2011implemented `code/inject_errors.py`\
-    \ (functions are defined but the file is truncated and no code writes the processed\
-    \ trajectories), and the required output `data/processed/injected_trajectories.jsonl`\
-    \ does not exist. The artifact the task demanded is missing, so the requirement\
-    \ is not satisfied."
+  h: 1ee8a05694dbdfd87a5ecb6adf1b9a9742c7ecad4707ce4a54862867af2c14d7
+  r: The `data/processed/injected_trajectories.jsonl` file does not exist, so the
+    required output artifact is missing. Moreover, `code/inject_errors.py` is truncated
+    and the `inject_errors_into_trajectory` function is not fully implemented, leaving
+    the injection logic incomplete. Both the artifact and the code need to be finished
+    for the task to be considered done.
+T014:
+  c: false
+  h: f68ba04c5230b2c1d2eaa869d5882abbdf3704d17e8123ffd2f3a9d03c65ac3f
+  r: The required output file `data/processed/baseline_execution_logs.csv` is missing,
+    and the provided `code/utils/state_diff.py` does not contain a complete implementation
+    (the file is truncated and lacks any logic to read the CSV, compute contributions,
+    and write a `recovery_segment_id` column). Both the artifact and the required
+    functionality are absent.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, test results, or logs were provided showing that unrecoverable\
+    \ errors are now excluded from the recovery success metric and logged separately.\
+    \ The required implementation artifact is missing, so the task\u2019s requirement\
+    \ is not demonstrated."
+T019:
+  c: false
+  h: 36fde50c22cf5cf73cc66f67f9b42004a5fe0004a9c2e002391d3fcb3b30f854
+  r: The test file `code/tests/test_fidelity.py` exists, but the required data artifact
+    `data/processed/pruned_execution_logs.csv` is missing, causing the test to fail
+    at setup. Without this CSV the assertion cannot be evaluated, so the integration
+    test is not truly complete.

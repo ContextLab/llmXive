@@ -1,238 +1,203 @@
-"""
-Pruning module for Reward Fidelity vs. Error Recovery Density study.
-
-Implements FR-003 (Context Coarsening) and FR-004 (Dynamic Pruning).
-Provides context managers and utility functions to manipulate reward
-fidelity levels (Dense -> Binary, 3-Bin) and execute pruning based on
-recovery-critical segments identified in US1.
-"""
-
 import logging
 from contextlib import contextmanager
-from typing import List, Dict, Any, Optional, Callable, Iterator, Tuple
+from typing import List, Dict, Any, Optional, Callable, Iterator, Tuple, Union
+from enum import Enum
 
+import numpy as np
+import pandas as pd
+
+# Import from sibling module as per API surface
 from .state_diff import identify_recovery_segments, cosine_similarity
 
 logger = logging.getLogger(__name__)
 
 
-class RewardFidelityLevel:
-    """Enumeration of reward fidelity levels."""
+class RewardFidelityLevel(str, Enum):
+    """Enumeration of reward fidelity levels for coarsening."""
     DENSE = "dense"
     BINARY = "binary"
-    THREE_BIN = "three_bin"
+    THREE_BIN = "3-bin"
+    QUATERNARY = "quaternary"  # Included for completeness, though validation may reject in tests if not fully implemented
 
 
 def coarsen_rewards(
-    rewards: List[float],
-    fidelity_level: str
-) -> List[float]:
+    trajectory: List[Dict[str, Any]],
+    fidelity_level: RewardFidelityLevel
+) -> List[Dict[str, Any]]:
     """
-    Coarsen a list of dense rewards to a lower fidelity level.
+    Coarsen the reward signals in a trajectory to the specified fidelity level.
 
     Args:
-        rewards: List of dense float rewards.
-        fidelity_level: One of 'dense', 'binary', or 'three_bin'.
+        trajectory: List of steps, each containing a 'reward' key (float).
+        fidelity_level: Target fidelity level (DENSE, BINARY, THREE_BIN).
 
     Returns:
-        List of coarsened rewards.
+        A new trajectory list with modified 'reward' values.
 
     Raises:
-        ValueError: If fidelity_level is not recognized.
+        ValueError: If fidelity_level is invalid or not implemented.
     """
-    if not rewards:
-        return []
+    if not isinstance(fidelity_level, RewardFidelityLevel):
+        try:
+            fidelity_level = RewardFidelityLevel(fidelity_level)
+        except ValueError:
+            raise ValueError(f"Invalid fidelity_level: {fidelity_level}. "
+                             f"Must be one of {[e.value for e in RewardFidelityLevel]}")
 
+    # If dense, return a copy (no change)
     if fidelity_level == RewardFidelityLevel.DENSE:
-        return list(rewards)
+        return [step.copy() for step in trajectory]
 
-    if fidelity_level == RewardFidelityLevel.BINARY:
-        # Threshold at 0: positive rewards become 1, others 0
-        return [1.0 if r > 0.0 else 0.0 for r in rewards]
+    # Extract original rewards
+    rewards = [step.get("reward", 0.0) for step in trajectory]
+    if not rewards:
+        logger.warning("Empty trajectory or no rewards found.")
+        return trajectory
 
-    if fidelity_level == RewardFidelityLevel.THREE_BIN:
-        # Thresholds at -0.5 and 0.5
-        # Low: r <= -0.5 -> 0
-        # Mid: -0.5 < r <= 0.5 -> 1
-        # High: r > 0.5 -> 2
-        coarsened = []
-        for r in rewards:
-            if r <= -0.5:
-                coarsened.append(0.0)
-            elif r <= 0.5:
-                coarsened.append(1.0)
+    rewards_np = np.array(rewards)
+    min_r, max_r = rewards_np.min(), rewards_np.max()
+    range_r = max_r - min_r if max_r > min_r else 1.0
+
+    new_trajectory = []
+
+    for i, step in enumerate(trajectory):
+        new_step = step.copy()
+        original_reward = rewards_np[i]
+
+        if fidelity_level == RewardFidelityLevel.BINARY:
+            # Binary: 0.0 if reward <= 0, 1.0 if reward > 0 (assuming standard 0/1 reward)
+            # Or based on median if distribution is unknown? Spec implies standard binary.
+            # Let's assume standard: success=1, fail=0 or similar.
+            # If continuous, we can threshold at 0 or median.
+            # Standard AgentBench often uses 0/1. Let's do > 0.
+            new_reward = 1.0 if original_reward > 0.0 else 0.0
+
+        elif fidelity_level == RewardFidelityLevel.THREE_BIN:
+            # 3-bin: Low (0-33%), Mid (33-66%), High (66-100%)
+            # Normalize to [0, 1]
+            normalized = (original_reward - min_r) / range_r
+            if normalized < 0.33:
+                new_reward = 0.0
+            elif normalized < 0.66:
+                new_reward = 0.5
             else:
-                coarsened.append(2.0)
-        return coarsened
+                new_reward = 1.0
 
-    raise ValueError(f"Unknown fidelity_level: {fidelity_level}")
+        else:
+            # Fallback for unimplemented levels (e.g., QUATERNARY)
+            raise ValueError(f"Coarsening to {fidelity_level.value} is not yet implemented.")
+
+        new_step["reward"] = new_reward
+        new_trajectory.append(new_step)
+
+    return new_trajectory
 
 
 def identify_pruning_candidates(
-    trajectory: Dict[str, Any],
-    recovery_segments: List[Dict[str, Any]],
-    fidelity_level: str
+    trajectory: List[Dict[str, Any]],
+    fidelity_level: RewardFidelityLevel,
+    threshold: float = 0.5
 ) -> List[int]:
     """
-    Identify indices of context segments to prune based on fidelity level.
+    Identify indices in the trajectory that are candidates for pruning
+    based on the coarsened reward signal.
 
     Logic:
-    - If fidelity is 'dense': Prune nothing (return empty list).
-    - If fidelity is 'binary' or 'three_bin':
-      Prune segments that were identified as 'recovery-critical' in US1
-      (i.e., segments with high contribution to state change) BUT ONLY IF
-      the current reward signal suggests the agent is not in a critical
-      recovery phase (proxy logic: if the immediate reward is low/non-positive).
+    - If BINARY: Prune steps where reward is 0 (failure/low signal).
+    - If THREE_BIN: Prune steps where reward is 0.0 (low bin).
+    - If DENSE: No pruning candidates (or based on a value threshold).
 
     Args:
-        trajectory: The current execution trajectory (observations, actions, rewards).
-        recovery_segments: List of segment dicts from US1 (must contain 'start_idx', 'end_idx', 'contribution').
-        fidelity_level: Current fidelity setting.
+        trajectory: List of steps.
+        fidelity_level: The fidelity level used to generate rewards (or to interpret them).
+        threshold: Threshold for dense rewards if applicable.
 
     Returns:
-        List of segment indices (or step indices) to prune.
+        List of indices to prune.
     """
-    if fidelity_level == RewardFidelityLevel.DENSE:
-        logger.debug("Dense fidelity: No pruning applied.")
-        return []
+    candidates = []
 
-    # For lower fidelity, we aggressively prune recovery-critical segments
-    # to test the hypothesis that low-fidelity signals cause the agent
-    # to miss these critical cues.
-    # We select the top N segments by contribution if they exist.
-    if not recovery_segments:
-        logger.warning("No recovery segments provided for pruning decision.")
-        return []
+    if fidelity_level == RewardFidelityLevel.BINARY:
+        for i, step in enumerate(trajectory):
+            if step.get("reward", 0.0) == 0.0:
+                candidates.append(i)
 
-    # Sort by contribution descending
-    sorted_segments = sorted(
-        recovery_segments,
-        key=lambda x: x.get('contribution', 0.0),
-        reverse=True
-    )
+    elif fidelity_level == RewardFidelityLevel.THREE_BIN:
+        for i, step in enumerate(trajectory):
+            if step.get("reward", 0.0) == 0.0:
+                candidates.append(i)
 
-    # Prune the top 50% of critical segments to simulate "loss of signal"
-    # In a real dynamic scenario, we might check current reward, but for
-    # the controlled experiment, we remove the most critical info to see
-    # if the agent can recover without it.
-    num_to_prune = max(1, len(sorted_segments) // 2)
-    candidates = sorted_segments[:num_to_prune]
+    elif fidelity_level == RewardFidelityLevel.DENSE:
+        for i, step in enumerate(trajectory):
+            if step.get("reward", 0.0) < threshold:
+                candidates.append(i)
 
-    # Extract indices. Assuming segments have 'start_idx' and 'end_idx'
-    # representing the range of steps in the trajectory.
-    # We return the start indices of the segments to mark for removal.
-    prune_indices = []
-    for seg in candidates:
-        start = seg.get('start_idx')
-        if start is not None:
-            prune_indices.append(start)
+    else:
+        raise ValueError(f"Unknown fidelity level: {fidelity_level}")
 
-    logger.info(
-        f"Pruning fidelity {fidelity_level}: Marked {len(prune_indices)} "
-        f"recovery-critical segments for removal."
-    )
-    return prune_indices
+    return candidates
 
 
 def prune_trajectory(
-    trajectory: Dict[str, Any],
-    prune_indices: List[int]
-) -> Dict[str, Any]:
+    trajectory: List[Dict[str, Any]],
+    indices_to_remove: List[int]
+) -> List[Dict[str, Any]]:
     """
-    Create a new trajectory with specified segments removed.
-
-    This modifies the 'observations', 'actions', and 'rewards' lists
-    by removing items at the specified indices (or ranges if indices
-    represent segment starts).
+    Remove specific indices from the trajectory.
 
     Args:
-        trajectory: Original trajectory dict.
-        prune_indices: List of start indices of segments to remove.
+        trajectory: Original trajectory.
+        indices_to_remove: List of indices to remove.
 
     Returns:
-        New trajectory dict with pruned content.
+        Pruned trajectory.
     """
-    if not prune_indices:
-        return trajectory
+    if not indices_to_remove:
+        return trajectory.copy()
 
-    # Convert indices to a set for O(1) lookup
-    # Assuming 'indices' refer to specific steps to remove.
-    # If they refer to ranges, we need to expand them.
-    # For this implementation, we assume 'prune_indices' are specific step indices
-    # to remove. If the segment has a range, the caller should have expanded it.
-    indices_to_remove = set(prune_indices)
-
-    new_trajectory = {
-        'observations': [],
-        'actions': [],
-        'rewards': [],
-        'metadata': trajectory.get('metadata', {}).copy()
-    }
-
-    if 'task_id' in trajectory:
-        new_trajectory['task_id'] = trajectory['task_id']
-
-    # Rebuild lists, skipping indices
-    # We need to know the length of the lists. Assuming they are equal length.
-    length = len(trajectory.get('observations', []))
-    if len(trajectory.get('actions', [])) != length or len(trajectory.get('rewards', [])) != length:
-        logger.warning("Trajectory lists have mismatched lengths. Pruning may be inconsistent.")
-
-    for i in range(length):
-        if i not in indices_to_remove:
-            if i < len(trajectory['observations']):
-                new_trajectory['observations'].append(trajectory['observations'][i])
-            if i < len(trajectory['actions']):
-                new_trajectory['actions'].append(trajectory['actions'][i])
-            if i < len(trajectory['rewards']):
-                new_trajectory['rewards'].append(trajectory['rewards'][i])
-
-    logger.debug(f"Pruned {len(indices_to_remove)} steps from trajectory.")
-    return new_trajectory
+    remove_set = set(indices_to_remove)
+    pruned = [step.copy() for i, step in enumerate(trajectory) if i not in remove_set]
+    logger.info(f"Pruned {len(indices_to_remove)} steps. Original: {len(trajectory)}, New: {len(pruned)}")
+    return pruned
 
 
 @contextmanager
 def fidelity_context(
-    fidelity_level: str,
-    trajectory: Dict[str, Any],
-    recovery_segments: List[Dict[str, Any]]
-) -> Iterator[Tuple[Dict[str, Any], List[float]]]:
+    trajectory: List[Dict[str, Any]],
+    fidelity_level: RewardFidelityLevel,
+    prune: bool = True,
+    threshold: float = 0.5
+) -> Iterator[Tuple[List[Dict[str, Any]], List[int]]]:
     """
-    Context manager that prepares a trajectory for execution under a specific
-    reward fidelity level.
+    Context manager to apply reward coarsening and optional pruning to a trajectory.
 
-    1. Coarsens the rewards in the trajectory.
-    2. Identifies and applies pruning based on recovery segments.
-    3. Yields the modified trajectory and the coarsened rewards.
-    4. Restores original state (conceptually) on exit (though we return a new object).
+    This implements the "Dynamic Pruning" logic where the agent's context is modified
+    based on the manipulated reward signals.
 
     Args:
-        fidelity_level: Target fidelity (dense, binary, three_bin).
-        trajectory: Original execution trajectory.
-        recovery_segments: Segments identified as critical in US1.
+        trajectory: The original trajectory data.
+        fidelity_level: The target reward fidelity.
+        prune: Whether to actually remove the identified steps.
+        threshold: Threshold for dense reward pruning.
 
     Yields:
-        Tuple of (pruned_trajectory, coarsened_rewards)
+        Tuple of (modified_trajectory, removed_indices)
     """
-    logger.info(f"Entering fidelity context: {fidelity_level}")
+    logger.info(f"Applying fidelity context: {fidelity_level.value}, prune={prune}")
 
     # 1. Coarsen rewards
-    original_rewards = trajectory.get('rewards', [])
-    coarsened_rewards = coarsen_rewards(original_rewards, fidelity_level)
+    coarsened_trajectory = coarsen_rewards(trajectory, fidelity_level)
 
-    # 2. Identify pruning candidates
-    prune_indices = identify_pruning_candidates(
-        trajectory,
-        recovery_segments,
-        fidelity_level
-    )
+    # 2. Identify candidates
+    candidates = identify_pruning_candidates(coarsened_trajectory, fidelity_level, threshold)
 
-    # 3. Apply pruning
-    pruned_trajectory = prune_trajectory(trajectory, prune_indices)
+    if prune:
+        # 3. Execute pruning
+        final_trajectory = prune_trajectory(coarsened_trajectory, candidates)
+    else:
+        final_trajectory = coarsened_trajectory
 
-    # Update the trajectory's rewards with the coarsened version
-    pruned_trajectory['rewards'] = coarsened_rewards
-
-    yield pruned_trajectory, coarsened_rewards
-
-    logger.debug("Exiting fidelity context.")
+    try:
+        yield final_trajectory, candidates
+    finally:
+        pass  # No cleanup needed for in-memory lists
