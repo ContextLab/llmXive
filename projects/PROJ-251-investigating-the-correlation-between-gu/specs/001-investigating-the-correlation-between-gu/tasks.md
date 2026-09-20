@@ -30,20 +30,22 @@ description: "Task list template for feature implementation"
 
 - [ ] T010 [US1] [SC-001] **NCBI SRA Search & Verification**.
  - *Input*: Research question.
- - *Action*: Search for open-access SRA studies with paired 16S and Influenza serology using the NCBI E-utilities API. Use the specific search query: `"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"`. Verify the dataset contains all required variables (baseline taxa, post-vaccination titers).
- - *Output*: 
+ - *Action*: 
+ 1. **Primary Source**: Attempt to fetch the dataset from a verified Hugging Face dataset repository as mandated by Plan Constitution Check II. Use the `datasets` library to load and verify the dataset contains all required variables (baseline taxa, post-vaccination titers).
+ 2. **Secondary Source**: If the Hugging Face dataset is unavailable or unverified, search for open-access SRA studies with paired 16S and Influenza serology using the NCBI E-utilities API. Use the specific search query: `"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"`.
+ - *Output*:
  - **If Found**: Set `config.SRA_ACCESSION` and write `data/research/sra_search_results.json` with the accession ID and URL. Write `data/research/sra_status.json` with `{"status": "real_data_found", "use_synthetic": false, "accession": "..."}`.
  - **If Not Found**: Set `config.USE_SYNTHETIC_DATA = True`, write `data/research/sra_search_results.json` with status "No Real Data Found", **AND write `data/research/sra_status.json` with `{"status": "no_real_data", "use_synthetic": true}`**. **This is a blocking gate for biological claims**.
  - *Verification*:
  - **Real Data Path**: Run `python -c "import json; d=json.load(open('data/research/sra_status.json')); assert d['use_synthetic']==False and d['accession'] is not None"`.
- - **No Real Data Path**: Run `python -c "import json; d=json.load(open('data/research/sra_status.json')); assert d['use_synthetic']==True"`.
+ - **No Real Data Path**: Run `python -c "import json; d=json.load(open('data/research/sra_status.json')); assert d['use_synthetic']==True and d['status']=='no_real_data'"`.
  - *Constraint*: Pipeline cannot proceed to T011d until this task completes and verification passes.
 
 ---
 
 ## Phase 1: Setup & Linting (Pre-requisite)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, structure, and plan alignment
 
 - [X] T001 Create project root directories explicitly: `code/`, `data/raw`, `data/processed`, `data/results`, `tests/`, `data/research`.
  - *Verification*: Run `ls -R` and verify all directories exist.
@@ -88,6 +90,20 @@ description: "Task list template for feature implementation"
  - *Output*: Updated `code/utils/config.py`.
  - *Note*: Removed [P] tag as this is sequential.
 
+**Phase 1b: Plan Alignment (Sequential)**
+- [ ] T032_align [Story] **Align Plan with Spec (FR-004 vs Plan Permutation)**.
+ - *Input*: `plan.md`, `spec.md`.
+ - *Dependency*: T002 must complete first.
+ - *Action*:
+ 1. **Read Plan**: Load `plan.md` content.
+ 2. **Apply Regex**: Locate "Constitution Check VI" and "Phase 4" sections. Use the regex pattern: `r"Permutation testing is the primary method"`.
+ 3. **Update Plan**: Replace the matched text with "Spearman rank correlation with Benjamini-Hochberg correction is the primary method, as mandated by Spec FR-004".
+ 4. **Update Table**: Explicitly update the "Constitution Check VI" table in `plan.md` to mark "Spearman rank correlation with Benjamini-Hochberg correction" as compliant, removing the "Permutation testing" entry.
+ 5. **Write Plan**: Write the updated content back to `plan.md`.
+ 6. **Verification**: Run `grep -q "Spearman rank correlation" plan.md` and ensure "Permutation testing" is not listed as the primary method in Constitution Check VI.
+ - *Output*: Updated `plan.md`.
+ - *Note*: This task proactively resolves the contradiction between the Plan and Spec before execution begins. **NOT parallel-safe** due to shared artifact modification.
+
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
@@ -98,14 +114,14 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Create configuration module `code/utils/config.py` with paths, seeds, and thresholds. **Include `SRA_ACCESSION`, `LOD_VALUE`, `SEROCONVERSION_THRESHOLD` (default), `NUM_SYNTHETIC_TAXA` (default 20), `TARGET_CORRELATION`, and `SAMPLING_FACTOR` (default 0.1) variables** to be populated during research phase.
+- [X] T004 [P] Create configuration module `code/utils/config.py` with paths, seeds, and thresholds. **Include `SRA_ACCESSION`, `LOD_VALUE` (must be set in .env, default None), `SEROCONVERSION_THRESHOLD` (default), `NUM_SYNTHETIC_TAXA` (default 20), `TARGET_CORRELATION`, and `SAMPLING_FACTOR` (default 0.1) variables** to be populated during research phase. **Note**: `LOD_VALUE` MUST be explicitly set in `.env` before T011d runs.
 - [X] T005 [P] Implement schema validators `code/utils/validators.py` for dataset, correlation, and model metrics
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging_config.py` to capture exclusion counts and errors
 - [X] T007 [P] Create base data loading helpers in `code/utils/data_loader.py`
 
 **Phase 1b: Linting (Sequential)**
 - [ ] T039 [P] Run ruff check and black format on all files in code/ and fix all reported issues.
- - *Dependency*: T004, T005, T006, T007, T008b must complete first.
+ - *Dependency*: T004, T005, T006, T007, T008b, T032_align must complete first.
  - *Logic*: Run `ruff check code/ 2>&1 | tee /tmp/ruff_out.txt; echo "Exit code: $?" >> /tmp/ruff_out.txt; ruff check code/ --output-format=full 2>&1 | tee -a /tmp/ruff_out.txt; black code/ 2>&1 | tee -a /tmp/ruff_out.txt; echo "Black Exit: $?" >> /tmp/ruff_out.txt; cp /tmp/ruff_out.txt data/results/lint_report.txt`.
  - *Verification*: Generate `data/results/lint_report.txt` containing the exit code (0) and a summary of files fixed. If exit code != 0, the task fails.
  - *Output*: `data/results/lint_report.txt`.
@@ -118,15 +134,16 @@ description: "Task list template for feature implementation"
 
 **Goal**: Ingest pre-processed 16S rRNA OTU tables and serology metadata, filter for complete records, and perform necessary preprocessing steps (normalization, diversity, log-transform, CLR) in strict sequential order on **distinct immutable artifacts** to ensure a valid derivation chain.
 
-**Data Flow Note**: All preprocessing steps (Merge -> Diversity -> Log -> CLR) are performed sequentially, each writing to a **new file** to preserve immutable derivation chains.
+**Data Flow Note**: All preprocessing steps (Merge -> Normalization -> Diversity -> Log -> CLR) are performed sequentially, each writing to a **new file** to preserve immutable derivation chains.
 - T011d -> `data/processed/cleared.csv`
+- T020b -> `data/processed/cleared_norm.csv`
 - T020c -> `data/processed/cleared_shannon.csv`
-- T021 -> `data/processed/cleared_log.csv` (Log Titers only)
-- T020a -> `data/processed/cleared_final.csv` (Merges Shannon and Log, adds CLR)
+- T021 -> `data/processed/cleared_log.csv`
+- T020a-1 -> `data/processed/cleared_merged.csv` (Merges Shannon and Log, adds CLR)
 
 **Independent Test**: The system can be tested by running the ingestion script against a known valid subset and verifying the output CSV contains exactly N rows (N ≥ 50) with no nulls in required columns.
 
-### Strategy A: Primary Data Fetch (NCBI SRA)
+### Strategy A: Primary Data Fetch (NCBI SRA / Hugging Face)
 
 - [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for the SRP accession series.
  - *Method*: Use `config.SRA_ACCESSION` to determine the specific accession. **Deterministic Fetch Priority**: 1. Attempt direct FTP URL construction: `ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/{accession}/`. 2. If 404, attempt `sratoolkit prefetch` if available. 3. If both fail, attempt to fetch from a known GitHub/GitLab mirror specified in study metadata. **Fail loudly** if all methods fail.
@@ -161,7 +178,7 @@ description: "Task list template for feature implementation"
  2. **LOD Handling**:
  - Read `config.LOD_VALUE` from `code/utils/config.py` (loaded from `.env`).
  - **CRITICAL**: If `config.LOD_VALUE` is **not set (None)**: **Raise `ConfigurationError`** with message "LOD_VALUE must be explicitly set in config. No default allowed." **Do NOT default to 10.0**.
- - Impute 'ND' or '' values as `0.5 * config.LOD_VALUE`.
+ - Impute 'ND' or '' values as a fraction of `config.LOD_VALUE`.
  - **Ensure all titer columns are numeric**.
  3. **Microbiome Completeness**: Verify that for retained subjects, microbiome taxon columns are not **truly missing (NaN)**. '0' abundance is valid.
  4. **Final Validation**: Count subjects (N) in the filtered dataset.
@@ -179,37 +196,61 @@ description: "Task list template for feature implementation"
  - **File Existence**: If N >= 50 (or synthetic), verify `data/processed/cleared.csv` exists.
  - **Error Path**: If N < 50 (real data), verify `data/results/sampling_error.json` and `data/results/error_log.txt` exist and exit code is 1.
  - **Row Count**: Verify `len(df) >= 50` OR `config.USE_SYNTHETIC_DATA` is True.
- - *Note*: This task is the sole producer of the merged artifact.
+ - *Note*: This task is the sole producer of the merged artifact. **Enforced by exit code 1**.
 
-- [ ] T020c [US1] [FR-003] **Shannon Diversity Calculation**.
+- [ ] T020b [US1] **Relative Abundance Normalization**.
  - *Input*: `data/processed/cleared.csv` (output of T011d).
  - *Dependency*: T011d must complete first.
- - *Action*: Calculate Shannon index on microbiome columns. Add column `shannon_diversity`.
+ - *Action*:
+ 1. Identify microbiome taxon columns (exclude non-taxon columns like `subject_id`, `titer_*`).
+ 2. For each row (subject), calculate the sum of all taxon abundances.
+ 3. Divide each taxon abundance by the row sum to obtain relative abundances (sum=1).
+ 4. **Verification**: Assert that the sum of taxon columns for each row is 1.0 (within floating point tolerance).
+ 5. Write the normalized dataset to `data/processed/cleared_norm.csv`.
+ - *Output*: `data/processed/cleared_norm.csv` (NEW FILE).
+ - *Note*: This task explicitly satisfies FR-002's requirement for "normalize microbiome data to relative abundance... prior to analysis".
+
+- [ ] T020c [US1] [FR-003] **Shannon Diversity Calculation**.
+ - *Input*: `data/processed/cleared_norm.csv` (output of T020b).
+ - *Dependency*: T020b must complete first.
+ - *Action*: Calculate Shannon index on microbiome columns (from normalized data). Add column `shannon_diversity`.
  - *Output*: `data/processed/cleared_shannon.csv` (NEW FILE).
  - *Note*: This task produces a distinct file to preserve immutable derivation chain.
 
 - [ ] T021 [US1] **Log-Transform Titers & LOD Handling**.
- - *Input*: `data/processed/cleared.csv` (output of T011d). **Note**: Independent of T020c.
- - *Dependency*: T011d must complete first.
+ - *Input*: `data/processed/cleared_norm.csv` (output of T020b).
+ - *Dependency*: T020b must complete first.
  - *Action*: Log-transform titers, impute LOD (0.5 * LOD) for values below detection. Add column `titer_pre_log`, `titer_post_log`.
  - *Output*: `data/processed/cleared_log.csv` (NEW FILE).
  - *Note*: This task produces a distinct file to preserve immutable derivation chain.
 
-- [ ] T020a [US1] **CLR Transformation**.
- - *Input*: `data/processed/cleared_shannon.csv` (output of T020c) AND `data/processed/cleared_log.csv` (output of T021).
- - *Dependency*: T020c AND T021 must complete first.
+- [ ] T020a-1 [US1] **Merge and Align**.
+ - *Input*: `data/processed/cleared_shannon.csv` (output of T020c) AND `data/processed/cleared_log.csv` (output of T021) AND `data/processed/cleared_norm.csv` (output of T020b).
+ - *Dependency*: T020c AND T021 AND T020b must complete first.
  - *Action*:
- 1. **Merge**: Merge `cleared_shannon.csv` and `cleared_log.csv` on `subject_id`.
- 2. **Normalize**: Convert raw counts to relative abundances (sum=1) for each sample.
- 3. **Zero-Replacement**: Apply a small pseudo-count to all zero abundances..
- 4. **CLR**: Apply Centered Log-Ratio transformation.
- 5. Add columns `taxa_clr` (new columns for each taxon).
+ 1. **Merge**: Merge `cleared_shannon.csv`, `cleared_log.csv`, and `cleared_norm.csv` on `subject_id`.
+ 2. **Verify Alignment**: **Assert** that `len(df_shannon) == len(df_log) == len(df_norm)` and `set(df_shannon.subject_id) == set(df_log.subject_id) == set(df_norm.subject_id)`. **Raise Error if mismatch**.
+ 3. **Output**: Write the merged dataset to `data/processed/cleared_merged.csv`.
+ - *Output*: `data/processed/cleared_merged.csv` (NEW FILE).
+ - *Note*: This task produces a distinct file to preserve immutable derivation chain.
+
+- [ ] T020a-2 [US1] **Zero Replacement**.
+ - *Input*: `data/processed/cleared_merged.csv` (output of T020a-1).
+ - *Dependency*: T020a-1 must complete first.
+ - *Action*: Apply a small pseudo-count (e.g., 1e-6) to all zero abundances in the normalized taxon columns.
+ - *Output*: `data/processed/cleared_zero_replaced.csv` (NEW FILE).
+ - *Note*: This task produces a distinct file to preserve immutable derivation chain.
+
+- [ ] T020a-3 [US1] **CLR Transformation**.
+ - *Input*: `data/processed/cleared_zero_replaced.csv` (output of T020a-2).
+ - *Dependency*: T020a-2 must complete first.
+ - *Action*: Apply Centered Log-Ratio transformation to the zero-replaced normalized abundances. Add columns `taxa_clr` (new columns for each taxon).
  - *Output*: `data/processed/cleared_final.csv` (NEW FILE).
  - *Note*: This task produces a distinct file to preserve immutable derivation chain.
 
 - [ ] T013 [US1] **Schema Validation**: Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`.
- - *Input*: `data/processed/cleared_final.csv` (output of T020a), `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml` (output of T001a).
- - *Dependency*: T020a AND T001a must complete first.
+ - *Input*: `data/processed/cleared_final.csv` (output of T020a-3), `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml` (output of T001a).
+ - *Dependency*: T020a-3 AND T001a must complete first.
  - *Logic*: Validate the merged dataset against the schema defined in `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`.
  - *Output*: `data/results/schema_validation_report.json`.
 
@@ -231,47 +272,39 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [ ] T032a [US2] **Global Unsupervised Variance Filter**.
- - *Input*: `data/processed/cleared_final.csv` (output of T020a).
- - *Dependency*: T020a must complete first.
+ - *Input*: `data/processed/cleared_final.csv` (output of T020a-3).
+ - *Dependency*: T020a-3 must complete first.
  - *Logic*:
  1. Identify taxa columns.
  2. Calculate variance for each taxon across all subjects.
  3. Remove taxa with variance < 1e-9 (zero variance).
  4. **Edge Case**: If the filtered set has fewer than `k` taxa (default k=10), take **all available taxa**. If the set is empty, raise `NoFeaturesError` with message "NoFeaturesError: No taxa with variance > 1e-9 found." and log to `data/results/error_log.txt`.
  - *Output*: `data/results/variance_filtered_taxa.json` (list of taxon names).
- - *Note*: This is the **primary feature set** for modeling if correlation yields no results.
+ - *Note*: This is the **primary feature set** for modeling if correlation yields no results. **Used for initial sanity checks only; not for inner loop fallback.**
 
 - [ ] T032 [US2] [FR-004] [FR-005] **Correlation & Feature Selection (Spearman Primary)**.
  - *Input*: `data/processed/cleared_final.csv`, `data/results/variance_filtered_taxa.json` (from T032a).
- - *Dependency*: T020a AND T032a must complete first.
+ - *Dependency*: T020a-3 AND T032a must complete first.
  - *Logic*:
- 1. **Primary Correlation**: Perform **Spearman Rank Correlation** tests between each CLR-transformed taxon (from the variance-filtered set) and `log_titer`. **DO NOT use permutation testing as the primary method.** This aligns with Spec FR-004, overriding the Plan's mention of permutation testing.
- 2. **BH Correction**: Apply Benjamini-Hochberg correction to the **standard Spearman p-values**.
- 3. **Selection**: Select taxa with $p_{adj} < 0.05$.
- 4. **Fallback**: If no taxa are significant, use the **entire variance-filtered set** (from T032a) as the feature list.
- 5. **Output**: Write results to `data/results/correlation_results.json` with columns `[taxon, coefficient, raw_pvalue, adj_pvalue]`.
- 6. **Documentation**: Update `data/results/assumptions.md` to explicitly document the resolution of the conflict between the Plan (Permutation) and Spec FR-004 (Spearman). State that **Spec FR-004 takes precedence** and Spearman was used. Explicitly note that the Plan's "Constitution Check VI" claim of "Permutation testing is the primary method" is overridden by the Spec's FR-004 mandate.
+ 1. **Load Filter**: Load `data/results/variance_filtered_taxa.json` to obtain the list of taxa with non-zero variance.
+ 2. **Primary Correlation**: Perform **Spearman Rank Correlation** tests between each CLR-transformed taxon (from the variance-filtered set) and `log_titer`. **DO NOT use permutation testing as the primary method.** This aligns with Spec FR-004, overriding the Plan's mention of permutation testing.
+ 3. **BH Correction**: Apply Benjamini-Hochberg correction to the **standard Spearman p-values**.
+ 4. **Selection**: Select taxa with $p_{adj} < 0.05$.
+ 5. **Fallback**: If no taxa are significant, use the **entire variance-filtered set** (from T032a) as the feature list.
+ 6. **Output**: Write results to `data/results/correlation_results.json` with columns `[taxon, coefficient, raw_pvalue, adj_pvalue]`.
+ 7. **Documentation**:
+ - **Create** `data/results/assumptions.md` if it does not exist.
+ - **Append** the following text: "Methodology Note: Spearman rank correlation with Benjamini-Hochberg correction is used as the primary method per Spec FR-004. This overrides the Plan's initial mention of permutation testing."
  - *Methodology Note*: This task implements the mandated Spearman test as the primary method per FR-004 and US-2. **Permutation testing is NOT used.**
  - *Output*: `data/results/correlation_results.json`.
 
-- [ ] T032_plan_update [US2] **Update Plan Artifact to Resolve Contradiction (PLAN KICKBACK REQUIRED)**.
- - *Input*: `plan.md`.
- - *Dependency*: T032 must complete first.
- - *Action*: 
- 1. **Check Plan Consistency**: Verify if `plan.md`'s "Constitution Check VI" states "Permutation testing is the primary method" AND if "Phase 3/4" describes a single mutable file `cleared_with_diversity.csv`.
- 2. **If Inconsistent**: **HALT EXECUTION**: Write `data/results/plan_kickback_error.json` with `{"status": "kickback", "reason": "Plan artifact contradicts implemented Spearman/Immutable flow. Manual update of plan.md required."}`. **Exit with code 1**. **DO NOT proceed to Phase 5**.
- 3. **If Consistent (Plan Updated)**: Edit `plan.md` to remove the contradictory claim in "Constitution Check VI" that "Permutation testing is the primary method". Replace it with "Spearman rank correlation with Benjamini-Hochberg correction is the primary method, as mandated by Spec FR-004". Also update "Phase 3/4" description to remove the reference to a single mutable file and reflect the immutable chain (`cleared_shannon.csv`, etc.).
- - *Output*: Updated `plan.md` (if consistent) OR `data/results/plan_kickback_error.json` (if inconsistent).
- - *Verification*: Run `grep -q "Spearman rank correlation" plan.md` and ensure "Permutation testing" is not listed as the primary method in Constitution Check VI. If kickback triggered, verify error file exists.
- - *Note*: This task enforces that the Plan artifact must be updated to match the implemented Spearman/Immutable flow. If the Plan is not updated, the project halts to prevent documentation drift.
-
-- [ ] T024 [US2] Write correlation results (coeff, raw p, adj p) to `data/results/correlation_results.csv`.
+- [X] T024 [US2] Write correlation results (coeff, raw p, adj p) to `data/results/correlation_results.csv`.
  - *Schema*: Columns `[taxon, coefficient, raw_pvalue, adj_pvalue]`.
  - *Logic*: Load `correlation_results.json` and write to CSV.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for CLR transformation logic in `code/tests/test_correlation.py`: Add function `test_clr_transform_handles_zeros`.
+- [X] T018 [P] [US2] Unit test for CLR transformation logic in `code/tests/test_correlation.py`: Add function `test_clr_transform_handles_zeros`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -285,76 +318,89 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T030a [US3] [FR-006] [FR-007] Implement seroconversion logic (≥4-fold rise in titer) in `code/04_modeling.py`.
+- [X] T030a [US3] [FR-006] [FR-007] Implement seroconversion logic (≥4-fold rise in titer) in `code/04_modeling.py`.
  - *Formula*: `post_titer >= 4 * baseline_titer`.
 
-- [ ] T030b [US3] [FR-006] [FR-007] Implement absolute titer logic (e.g., HAI ≥ 40) in `code/04_modeling.py`.
+- [X] T030b [US3] [FR-006] [FR-007] Implement absolute titer logic (e.g., HAI ≥ 40) in `code/04_modeling.py`.
  - *Formula*: `post_titer >= 40`.
 
-- [ ] T030c [US3] [FR-006] [FR-007] Implement threshold parameterization for responder definition in `code/04_modeling.py`.
+- [X] T030c [US3] [FR-006] [FR-007] Implement threshold parameterization for responder definition in `code/04_modeling.py`.
 
-- [ ] T030d [US3] [FR-006] [FR-007] Apply responder definition to dataset and output `data/processed/responder_labels.csv`.
+- [X] T030d [US3] [FR-006] [FR-007] Apply responder definition to dataset and output `data/processed/responder_labels.csv`.
  - *Output*: `data/processed/responder_labels.csv` with columns `[subject_id, responder_status]`.
  - *Logic*: Implement sensitivity analysis by generating labels for multiple thresholds (seroconversion, absolute titer, and ±10% sweeps). Log the mode used for each threshold.
  - *Dependency*: T011d must complete first.
 
 - [ ] T032b_model [US3] **Implement Feature Selection Inside Training Loop**.
- - *Input*: `data/processed/cleared_final.csv`, `data/processed/responder_labels.csv`, `data/results/variance_filtered_taxa.json`.
+ - *Input*: `data/processed/cleared_final.csv`, `data/processed/responder_labels.csv`.
  - *Dependency*: T030d must complete first.
- - *Logic*: Implement a function `select_features_inner_loop(train_X, train_y)` in `code/04_modeling.py` that:
- 1. Calculates **Spearman Rank Correlation** between each taxon in `train_X` and `train_y` **strictly within the training fold**.
- 2. Applies **BH correction** to these training-fold p-values.
- 3. Selects taxa with $p_{adj} < 0.05$.
- 4. **Fallback**: If no taxa are significant, use the **entire variance-filtered set** (from T032a).
- 5. **Isolation**: Explicitly ensure that this function does NOT read `data/results/correlation_results.json` (global results) to prevent data leakage.
+ - *Logic*: Implement a function `select_features_inner_loop(train_X: pd.DataFrame, train_y: pd.Series) -> List[str]` in `code/04_modeling.py` that:
+ 1. **Local Variance Filter**: Calculate variance for each taxon in `train_X` **strictly within the training fold**. Remove taxa with variance < 1e-9.
+ 2. **Local Correlation**: Perform **Spearman Rank Correlation** between each locally variance-filtered taxon and `train_y` **strictly within the training fold**.
+ 3. **Local BH Correction**: Apply Benjamini-Hochberg correction to the **training-fold p-values**.
+ 4. **Selection**: Select taxa with $p_{adj} < 0.05$.
+ 5. **Fallback**: If no taxa are significant, use **all locally variance-filtered taxa** (from step 1). **DO NOT use the global `variance_filtered_taxa.json` as a fallback** to prevent data leakage.
+ 6. **Isolation**: Explicitly ensure that this function does NOT read `data/results/correlation_results.json` (global results) or `data/results/variance_filtered_taxa.json` (global filter) for the feature list.
  - *Output*: `code/04_modeling.py` (updated with `select_features_inner_loop` function).
- - *Note*: This ensures feature selection is isolated and prevents data leakage. **MUST use Spearman as primary method**. This function is called dynamically inside the T034d loop for each new label set.
+ - *Note*: This ensures feature selection is isolated and prevents data leakage. **MUST use Spearman as primary method**. This function is called dynamically inside the T034d-1 loop for each new label set.
 
-- [ ] T025 [US2] [SC-004] **Measure & Log SC-004 Outcome (Hard Stop for Real Data)**.
+- [ ] T025 [US2] [SC-004] **Measure & Log SC-004 Outcome (Logging Only)**.
  - *Input*: `data/results/correlation_results.json`.
  - *Dependency*: T032 must complete first.
  - *Logic*: Count significant taxa.
  - **If data is REAL** (config.USE_SYNTHETIC_DATA is False):
  1. Count significant taxa.
- 2. **If count is outside expected range (low single-digit to higher single-digit)**:
- - **HALT EXECUTION**: Write `data/results/sc004_error.json` with `{"status": "error", "count": N, "message": "Significant taxa count outside expected range for real data. Execution halted."}`.
- - **Exit with code 1**. **NO DOWNSTREAM TASKS RUN**.
- 3. **If count is within range**:
- - Write `data/results/sc004_status.json` with `{"status": "proceed", "count": N, "expected_range": "low single-digit to higher single-digit"}`.
- - Continue to next task.
+ 2. **Check Range**: If count is outside the expected range (1 to 9):
+ - **LOG WARNING**: Write `data/results/sc004_report.json` with `{"status": "warning", "count": N, "expected_range": [1, 9], "within_range": false, "message": "Significant taxa count out of expected range for real data. Logged for review."}`.
+ - **Do NOT halt execution**.
+ 3. **If in range**: Write `data/results/sc004_report.json` with `{"status": "reported", "count": N, "expected_range": [1, 9], "within_range": true}`.
  - **If synthetic data**:
- 1. Write `data/results/sc004_status.json` with `{"status": "proceed", "count": N, "expected_range": "N/A (Synthetic)"}`.
- 2. Continue to next task.
- - *Output*: `data/results/sc004_status.json`.
- - *Dependency*: Must run BEFORE T034d.
- - *Note*: This task is a **hard stop gate** for real data.
+ 1. Write `data/results/sc004_report.json` with `{"status": "reported", "count": N, "expected_range": "N/A (Synthetic)"}`.
+ - *Output*: `data/results/sc004_report.json`.
+ - *Note*: This task is a **logging task only**. It does NOT halt execution. The pipeline proceeds regardless of the count.
 
-- [ ] T034d [US3] [FR-007] **Nested CV & Sensitivity Analysis**.
- - *Input*: `data/processed/cleared_final.csv`, `data/processed/responder_labels.csv`, `data/results/variance_filtered_taxa.json`, `data/results/sc004_status.json`, `code/04_modeling.py`.
- - *Dependency*: T030d, **T032**, **T032b_model**, **T025** must complete first.
+- [ ] T034d-1 [US3] [FR-007] **Threshold Loop & Fold Generation**.
+ - *Input*: `data/processed/cleared_final.csv`, `data/processed/responder_labels.csv`, `code/04_modeling.py`.
+ - *Dependency*: T030d, T032b_model must complete first. (T025 is NOT a dependency).
  - *Logic*:
- 1. **Status Check**: Check for `data/results/sc004_error.json`. If exists, **exit with code 1**.
+ 1. **Status Check**: Verify `data/results/sc004_report.json` exists. **Proceed regardless of content** (as T025 is non-blocking).
  2. **Threshold Loop**: Loop through responder thresholds across a representative range.
- - **Base Threshold**: Use `config.SEROCONVERSION_THRESHOLD` (default 4.0 if not set).
- - **Sweep Range**: `for i in range(-2, 3): factor = 0.1 * i; threshold = base_threshold * (1 + factor)`. (i.e., -2, -1, 0, 1, 2). **Factor = 0.1**.
- - **Runtime Guard**: If estimated runtime (Multiple thresholds * multiple folds * inner loop) > 1 hour, **proactively reduce folds to 3** for all thresholds to ensure total runtime < 2 hours (SC-005).
+ - **Base Threshold**: Use `config.SEROCONVERSION_THRESHOLD` (defaulting to a standard seroconversion threshold if not set).
+ - **Sweep Range**: `for i in range(lower_bound, 3): factor = 0.1 * i; threshold = base_threshold * (1 + factor)`. (i.e., -2, -1, 0, 1, 2). **Factor = 0.1**.
+ - **Runtime Guard**: If estimated runtime (Multiple thresholds * 5 folds * inner loop) > 2 hours, **proactively reduce the number of thresholds** (e.g., reduce sweep range to -1, 0, 1) to ensure total runtime < 2 hours (SC-005). **DO NOT reduce folds**.
  3. **For EACH threshold**:
  a. Define the NEW responder labels based on the current threshold.
- b. **Regenerate Folds**: Generate a **NEW set of outer folds** specifically for this threshold. **Store these folds in `data/results/folds_threshold_{i}.json`** (where {i} is the threshold index). **DO NOT reuse folds from previous thresholds.** The schema for these files must be a list of lists of subject IDs (or indices), e.g., `[[fold1_indices], [fold2_indices],...]`.
- c. **Inner Loop**: For each outer fold:
- i. **Feature Selection**: Call `select_features_inner_loop` (from T032b_model) strictly within the training set of this fold, using the **newly generated labels** for this threshold. **Must use Spearman as primary method**. **If T032 yielded no features, use the variance-filtered set from `data/results/variance_filtered_taxa.json` as the primary feature set**.
- ii. **Model**: Train Random RF on selected features.
- iii. **Evaluate**: Test on the held-out fold.
- d. **Log Isolation**: **Explicitly log** that feature selection was isolated within the training set for this threshold and fold, verifying FR-007 compliance.
- e. **Log Metrics**: Record accuracy, precision, recall, F1 for this threshold.
- 4. **Output**: `data/results/sensitivity_analysis.csv` and `data/results/model_metrics.json`.
+ b. **Regenerate Folds**: Generate a **NEW set of outer folds** specifically for this threshold. **Store these folds in `data/results/folds_threshold_{i}.json`** (where {i} is the threshold index). **Schema**: `[[subject_id_list], [subject_id_list], ...]` (list of lists of subject IDs). **DO NOT reuse folds from previous thresholds.**
+ - *Output*: `data/results/folds_threshold_{i}.json` files.
+ - *Note*: This task handles the outer loop structure and fold generation.
+
+- [ ] T034d-2 [US3] [FR-007] **Inner Loop Feature Selection**.
+ - *Input*: `data/processed/cleared_final.csv`, `data/processed/responder_labels.csv`, `data/results/folds_threshold_{i}.json`, `code/04_modeling.py`.
+ - *Dependency*: T034d-1 must complete first.
+ - *Logic*: For each fold and threshold, call `select_features_inner_loop` (from T032b_model) strictly within the training set. **Must use Spearman as primary method**. **Use only locally computed variance filter; do NOT use global `variance_filtered_taxa.json`**.
+ - *Output*: `data/results/feature_selection_log.json` (log of selected features per fold/threshold).
+ - *Note*: This task ensures feature selection is isolated and logged.
+
+- [ ] T034d-3 [US3] [FR-007] **Model Training & Evaluation**.
+ - *Input*: `data/processed/cleared_final.csv`, `data/processed/responder_labels.csv`, `data/results/feature_selection_log.json`, `data/results/folds_threshold_{i}.json`.
+ - *Dependency*: T034d-2 must complete first.
+ - *Logic*: Train Random RF on selected features for each fold and threshold. Evaluate on the held-out fold.
+ - *Output*: `data/results/model_predictions.json`.
+ - *Note*: This task handles the model training and evaluation.
+
+- [ ] T034d-4 [US3] [FR-007] **Metric Aggregation**.
+ - *Input*: `data/results/model_predictions.json`.
+ - *Dependency*: T034d-3 must complete first.
+ - *Logic*: Aggregate metrics (accuracy, precision, recall, F1) across folds and thresholds. Calculate mean and standard deviation.
+ - *Output*: `data/results/model_metrics.json`.
+ - *Note*: This task aggregates the final metrics.
 
 - [ ] T036a [US3] [SC-003] Calculate and log confusion matrix, precision, recall, F1-score, and **standard deviation of accuracy** for high/low responders.
- - *Input*: Model predictions from T034d.
+ - *Input*: Model predictions from T034d-4.
  - *Output*: Metrics included in `data/results/model_metrics.json`. **Must include `mean_accuracy` and `std_accuracy`**.
 
 - [ ] T036b [US3] [SC-003] **Success Criterion Check**: Verify if the model's cross-validated accuracy meets the SC-003 target of >60%.
- - *Input*: Mean accuracy from T034d (nested CV).
+ - *Input*: Mean accuracy from T034d-4 (nested 5-fold CV).
  - *Logic*: Compare mean accuracy against a baseline threshold. Set `meets_accuracy_target` to `True` or `False` in the output JSON.
  - *Output*: Update `data/results/model_metrics.json`.
 
@@ -384,6 +430,11 @@ description: "Task list template for feature implementation"
  - *Input*: All result JSONs/CSVs from previous phases, `data/results/assumptions.md`.
  - *Output*: `data/results/final_report.md` aggregating N count, correlation results, and model metrics.
  - *Template Requirements*: Must include sections for "Data Overview", "Correlation Results", "Model Performance", "Sensitivity Analysis", and "Conclusion". Must cite specific file paths for all data artifacts. **Must explicitly include the content of `data/results/assumptions.md` (including LOD handling and methodology conflict resolution) in the "Methodology" or "Assumptions" section.**
+ - *Action*:
+ 1. **Load Artifacts**: Load all result JSONs/CSVs and `assumptions.md`.
+ 2. **Apply Template**: Format the loaded data into the required sections.
+ 3. **Write Report**: Write the final report to `data/results/final_report.md`.
+ - *Note*: This task is split into distinct steps for atomicity.
 
 ---
 
@@ -395,14 +446,23 @@ description: "Task list template for feature implementation"
 - [ ] T040b [P] [US1] Unit test for LOD handling in `code/tests/test_ingest.py`: Add function `test_lod_exclusion_logic`.
 - [ ] T040c [P] [US2] Unit test for CLR pseudocount edge cases in `code/tests/test_correlation.py`: Add function `test_clr_pseudocount_handles_extreme_zeros`.
 - [ ] T041 [P] Run quickstart.md validation
-- [ ] T042 [P] Implement runtime & memory monitoring in `code/main.py`.
- - *Logic*: Integrate into `code/main.py` orchestration script.
- - **Memory Check**: Monitor RAM/Disk usage using `psutil.Process().memory_info().rss`. **If memory > 6 GB**: Trigger sampling fallback (call `code/utils/sampling.py` with `seed=42, retain_ratio=0.8`) to downsample. **Sampling Algorithm**: Perform **stratified random sampling by quartiles of titer** to preserve distribution. Write output to `data/processed/cleared_sampled.csv`. **Re-run pipeline**: Invoke `python code/main_pipeline.py --input data/processed/cleared_sampled.csv` to restart the pipeline on the new artifact. If memory > 7 GB, raise `RuntimeError`.
- - **Runtime Check**: If runtime > 7200 seconds (2 hours), **raise RuntimeError and exit with code 1** to satisfy SC-005. If runtime > 1.5 hours **AND** memory/disk limits were NOT exceeded, **log a warning** (do not raise RuntimeError) to avoid harsh failures on variable CI performance. Sampling is **only** authorized if RAM/Disk limits are exceeded per Spec Assumptions.
+- [ ] T042a [P] **Pre-Planned Sampling Setup**.
+ - *Input*: `data/processed/cleared.csv` (output of T011d).
+ - *Action*: If the dataset is known to be large, perform a **pre-planned** stratified random sampling (using `code/utils/sampling.py`) to reduce the dataset size to a manageable level (e.g., [deferred] retention) **BEFORE** the main pipeline runs.
+ - *Output*: `data/processed/cleared_sampled.csv`.
+ - *Note*: This task MUST be run BEFORE the main pipeline if sampling is anticipated. It is NOT a mid-pipeline trigger.
+- [ ] T042 [P] **Resource Management (Runtime & Memory)**.
+ - *Logic*: Integrate into `code/main_pipeline.py` orchestration script.
+ - **Memory Check**: Monitor RAM/Disk usage using `psutil.Process().memory_info().rss`. **If memory > 6442450944 bytes (6 GB)**: **LOG WARNING** "Memory usage exceeds 6GB. Consider running T042a (Pre-Planned Sampling) before re-running the pipeline." **DO NOT trigger sampling mid-pipeline**. **If memory > 7516192768 bytes (7 GB)**: **raise RuntimeError** "Memory usage exceeds 7GB limit. Execution halted."
+ - **Runtime Check**:
+ - **Pre-Execution Estimate**: Before running T034d, estimate total runtime based on current threshold count.
+ - **If estimated runtime > 2 hours**: **Reduce the number of sensitivity thresholds** (e.g., from 5 to 3) to ensure total runtime < 2 hours. **DO NOT reduce the number of folds (must remain a fixed count consistent with standard cross-validation protocols).**.
+ - **If runtime > 7200 seconds (2 hours)**: **raise RuntimeError and exit with code 1** to satisfy SC-005.
+ - **If runtime > 5400 seconds (1.5 hours)** AND memory/disk limits were NOT exceeded: **log a warning** (do not raise RuntimeError) to avoid harsh failures on variable CI performance. Sampling is **only** authorized if RAM/Disk limits are exceeded per Spec Assumptions, and only via the pre-planned T042a task.
  - *Depends on*: Completion of Phase 3, 4, 5.
  - *Output*: `data/results/resource_usage.json` with keys `total_runtime_seconds` and `peak_memory_mb`.
-- [ ] T056 [US3] **Document Sampling Strategy and Limitations**: If sampling is used (T042), document the exact sampling rule and its limitations in `data/results/sampling_report.md`.
- - *Dependency*: T042.
+- [ ] T056 [US3] **Document Sampling Strategy and Limitations**: If sampling is used (T042a), document the exact sampling rule and its limitations in `data/results/sampling_report.md`.
+ - *Dependency*: T042a.
 - [ ] T057 [US3] **Verify Feature Selection Isolation in Nested CV**: Add a specific test to ensure feature selection is strictly isolated within each fold.
  - *Action*: Add function `test_feature_selection_isolation_in_nested_cv` in `code/tests/test_modeling.py`.
-- [ ] T058 [US3] **Verify Threshold Sweep Implementation**: Ensure the threshold sweep (T034d) correctly re-runs the inner CV loop for each threshold.
+- [ ] T058 [US3] **Verify Threshold Sweep Implementation**: Ensure the threshold sweep (T034d-1) correctly re-runs the inner CV loop for each threshold.

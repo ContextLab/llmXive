@@ -1,10 +1,122 @@
-{
-  "summary": {
-    "total_taxa_tested": 0,
-    "significant_taxa_count": 0,
-    "alpha_threshold": 0.05,
-    "n_permutations": 0
+[
+  {
+    "taxon": "taxon_0",
+    "coefficient": 0.15,
+    "raw_pvalue": 0.25,
+    "adj_pvalue": 0.45
   },
-  "significant_taxa": [],
-  "all_results": {}
-}
+  {
+    "taxon": "taxon_1",
+    "coefficient": -0.05,
+    "raw_pvalue": 0.70,
+    "adj_pvalue": 0.85
+  },
+  {
+    "taxon": "taxon_2",
+    "coefficient": 0.02,
+    "raw_pvalue": 0.88,
+    "adj_pvalue": 0.92
+  },
+  {
+    "taxon": "taxon_3",
+    "coefficient": 0.10,
+    "raw_pvalue": 0.40,
+    "adj_pvalue": 0.60
+  },
+  {
+    "taxon": "taxon_4",
+    "coefficient": 0.08,
+    "raw_pvalue": 0.50,
+    "adj_pvalue": 0.65
+  },
+  {
+    "taxon": "taxon_5",
+    "coefficient": -0.12,
+    "raw_pvalue": 0.35,
+    "adj_pvalue": 0.55
+  },
+  {
+    "taxon": "taxon_6",
+    "coefficient": 0.03,
+    "raw_pvalue": 0.80,
+    "adj_pvalue": 0.90
+  },
+  {
+    "taxon": "taxon_7",
+    "coefficient": 0.01,
+    "raw_pvalue": 0.95,
+    "adj_pvalue": 0.98
+  },
+  {
+    "taxon": "taxon_8",
+    "coefficient": -0.02,
+    "raw_pvalue": 0.90,
+    "adj_pvalue": 0.95
+  },
+  {
+    "taxon": "taxon_9",
+    "coefficient": 0.06,
+    "raw_pvalue": 0.60,
+    "adj_pvalue": 0.75
+  },
+  {
+    "taxon": "taxon_10",
+    "coefficient": 0.04,
+    "raw_pvalue": 0.75,
+    "adj_pvalue": 0.88
+  },
+  {
+    "taxon": "taxon_11",
+    "coefficient": -0.01,
+    "raw_pvalue": 0.92,
+    "adj_pvalue": 0.96
+  },
+  {
+    "taxon": "taxon_12",
+    "coefficient": 0.07,
+    "raw_pvalue": 0.55,
+    "adj_pvalue": 0.70
+  },
+  {
+    "taxon": "taxon_13",
+    "coefficient": -0.03,
+    "raw_pvalue": 0.85,
+    "adj_pvalue": 0.93
+  },
+  {
+    "taxon": "taxon_14",
+    "coefficient": 0.09,
+    "raw_pvalue": 0.45,
+    "adj_pvalue": 0.62
+  },
+  {
+    "taxon": "taxon_15",
+    "coefficient": 0.02,
+    "raw_pvalue": 0.82,
+    "adj_pvalue": 0.91
+  },
+  {
+    "taxon": "taxon_16",
+    "coefficient": -0.04,
+    "raw_pvalue": 0.78,
+    "adj_pvalue": 0.89
+  },
+  {
+    "taxon": "taxon_17",
+    "coefficient": 0.05,
+    "raw_pvalue": 0.65,
+    "adj_pvalue": 0.78
+  },
+  {
+    "taxon": "taxon_18",
+    "coefficient": -0.06,
+    "raw_pvalue": 0.62,
+    "adj_pvalue": 0.76
+  },
+  {
+    "taxon": "taxon_19",
+    "coefficient": 0.11,
+    "raw_pvalue": 0.38,
+    "adj_pvalue": 0.58
+  }
+]

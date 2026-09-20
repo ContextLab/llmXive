@@ -1,18 +1,19 @@
 """
-Sampling utility for stratified random sampling.
+Sampling utilities for the microbiome-immune correlation pipeline.
 
-Provides functions to perform stratified sampling on dataframes
-to preserve distribution characteristics while reducing dataset size.
+Provides stratified sampling functions to preserve distribution properties
+while reducing dataset size for memory-constrained environments.
 """
+
 import logging
 import numpy as np
 import pandas as pd
-from typing import Optional
 from pathlib import Path
+from typing import Optional, Tuple
 
-from .logging_config import get_logger
+from code.utils.config import get_random_seed, get_processed_path
 
-logger: logging.Logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def stratified_sample(
@@ -22,91 +23,128 @@ def stratified_sample(
     seed: int = 42
 ) -> pd.DataFrame:
     """
-    Perform stratified random sampling by quartiles of the target column.
-    
-    This function preserves the distribution of the target variable by:
-    1. Dividing the data into quartiles based on the target column
-    2. Sampling a proportional number of rows from each quartile
-    3. Returning the combined sample
-    
+    Perform stratified random sampling by quartiles of a target column.
+
+    This preserves the distribution of the target variable (e.g., titer)
+    while reducing the dataset size.
+
     Args:
-        df: Input DataFrame
-        target_col: Column name to stratify by (should be numeric)
-        retain_ratio: Fraction of data to retain (0.0 to 1.0)
-        seed: Random seed for reproducibility
-    
+        df: Input DataFrame.
+        target_col: Column name to stratify by (e.g., 'titer_post_log').
+        retain_ratio: Fraction of data to retain (0.0 < ratio <= 1.0).
+        seed: Random seed for reproducibility.
+
     Returns:
-        Sampled DataFrame with approximately retain_ratio * len(df) rows
-    
+        A new DataFrame with stratified sample.
+
     Raises:
-        ValueError: If retain_ratio is not between 0 and 1
-        KeyError: If target_col is not in the DataFrame
-        ValueError: If target_col contains non-numeric data
+        ValueError: If retain_ratio is out of bounds or target_col missing.
+        KeyError: If target_col not found in DataFrame.
     """
-    if not 0.0 <= retain_ratio <= 1.0:
-        raise ValueError(f"retain_ratio must be between 0 and 1, got {retain_ratio}")
-    
+    if not 0.0 < retain_ratio <= 1.0:
+        raise ValueError(f"retain_ratio must be in (0.0, 1.0], got {retain_ratio}")
+
     if target_col not in df.columns:
-        raise KeyError(f"Target column '{target_col}' not found in DataFrame. Available columns: {list(df.columns)}")
-    
-    if not pd.api.types.is_numeric_dtype(df[target_col]):
-        raise ValueError(f"Target column '{target_col}' must be numeric, got {df[target_col].dtype}")
-    
-    # Handle NaN values in target column
-    if df[target_col].isna().any():
-        logger.warning(f"Found {df[target_col].isna().sum()} NaN values in '{target_col}'. Dropping these rows for stratification.")
-        df = df.dropna(subset=[target_col])
-    
+        raise KeyError(f"Target column '{target_col}' not found in DataFrame. "
+                       f"Available columns: {list(df.columns)}")
+
     if len(df) == 0:
-        logger.warning("DataFrame is empty after dropping NaN values. Returning empty DataFrame.")
-        return df.reset_index(drop=True)
-    
-    # Set random seed for reproducibility
+        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
+        return df.copy()
+
+    # Set seed for reproducibility
     np.random.seed(seed)
-    
-    # Create quartile bins
-    df_with_q = df.copy()
-    df_with_q['stratum'] = pd.qcut(df_with_q[target_col], q=4, duplicates='drop')
-    
-    # Calculate sample size per stratum
-    stratum_counts = df_with_q.groupby('stratum').size()
-    total_rows = len(df_with_q)
-    target_sample_size = int(total_rows * retain_ratio)
-    
-    logger.info(f"Total rows: {total_rows}, Target sample size: {target_sample_size}")
-    logger.info(f"Stratum distribution: {stratum_counts.to_dict()}")
-    
-    sampled_dfs = []
-    
-    for stratum, count in stratum_counts.items():
-        # Calculate how many rows to sample from this stratum
-        stratum_sample_size = int(count * retain_ratio)
-        # Ensure at least 1 row per stratum if we're keeping any data
-        if stratum_sample_size == 0 and target_sample_size > 0:
-            stratum_sample_size = 1
-        
-        # Don't sample more than available
-        stratum_sample_size = min(stratum_sample_size, count)
-        
-        # Sample from this stratum
-        stratum_df = df_with_q[df_with_q['stratum'] == stratum]
-        sampled_stratum = stratum_df.sample(n=stratum_sample_size, random_state=seed)
-        sampled_dfs.append(sampled_stratum)
-        logger.debug(f"Stratum {stratum}: sampled {stratum_sample_size}/{count} rows")
-    
-    # Combine sampled dataframes
-    if not sampled_dfs:
-        logger.warning("No data sampled. Returning empty DataFrame.")
-        return df.reset_index(drop=True)
-    
-    sampled_df = pd.concat(sampled_dfs, ignore_index=True)
-    
-    # Drop the temporary stratum column
-    sampled_df = sampled_df.drop(columns=['stratum'])
-    
-    # Shuffle the result
-    sampled_df = sampled_df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    
-    logger.info(f"Final sample size: {len(sampled_df)} rows (target: {target_sample_size})")
-    
-    return sampled_df
+
+    # Create a copy to avoid modifying the original
+    df_sample = df.copy()
+
+    # Add a temporary column for quartile assignment
+    # We use 'qcut' to ensure equal-sized bins, handling ties by dropping some
+    try:
+        df_sample['_stratum'] = pd.qcut(
+            df_sample[target_col],
+            q=4,  # Quartiles
+            labels=False,
+            duplicates='drop'
+        )
+    except ValueError as e:
+        # If qcut fails (e.g., too few unique values), use unique values as strata
+        logger.warning(f"qcut failed ({e}), falling back to unique value stratification.")
+        df_sample['_stratum'] = pd.factorize(df_sample[target_col])[0]
+
+    # Group by stratum and sample
+    sampled_indices = []
+    for stratum_id, group in df_sample.groupby('_stratum'):
+        n_stratum = len(group)
+        n_sample = max(1, int(n_stratum * retain_ratio))
+
+        # Shuffle and select
+        indices = group.index.tolist()
+        np.random.shuffle(indices)
+        sampled_indices.extend(indices[:n_sample])
+
+    # Sort indices to maintain original order
+    sampled_indices.sort()
+    result = df_sample.loc[sampled_indices].drop(columns=['_stratum'])
+
+    logger.info(
+        f"Stratified sampling: retained {len(result)} rows "
+        f"({100 * retain_ratio:.1f}% of {len(df)}) "
+        f"across {df_sample['_stratum'].nunique() if '_stratum' in df_sample.columns else 'N/A'} strata."
+    )
+
+    return result
+
+
+def apply_memory_sampling(
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    target_col: str = 'titer_post_log',
+    retain_ratio: float = 0.8,
+    seed: int = 42
+) -> Tuple[pd.DataFrame, str]:
+    """
+    Apply stratified sampling to a dataset file, primarily for memory management.
+
+    This function reads a CSV, performs stratified sampling, and writes the result.
+    It is designed to be called when memory usage exceeds thresholds.
+
+    Args:
+        input_path: Path to input CSV. Defaults to processed path if None.
+        output_path: Path to output CSV. Defaults to 'cleared_sampled.csv' in processed dir.
+        target_col: Column to stratify by.
+        retain_ratio: Fraction to retain.
+        seed: Random seed.
+
+    Returns:
+        Tuple of (sampled DataFrame, path to output file).
+    """
+    if input_path is None:
+        processed_dir = get_processed_path()
+        input_path = processed_dir / 'cleared.csv'
+
+    if output_path is None:
+        processed_dir = get_processed_path()
+        output_path = processed_dir / 'cleared_sampled.csv'
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    logger.info(f"Loading data from {input_path} for memory sampling...")
+    df = pd.read_csv(input_path)
+
+    logger.info(f"Applying stratified sampling (retain_ratio={retain_ratio})...")
+    df_sampled = stratified_sample(
+        df=df,
+        target_col=target_col,
+        retain_ratio=retain_ratio,
+        seed=seed
+    )
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Writing sampled data to {output_path}")
+    df_sampled.to_csv(output_path, index=False)
+
+    return df_sampled, str(output_path)

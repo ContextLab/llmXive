@@ -1,34 +1,70 @@
-T011b:
+T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No synthetic dataset file or description was provided; there is no artifact on
-    disk demonstrating that a synthetic dataset (with appropriate structure for microbiome
-    OTU tables and serology metadata) was generated, so the task requirement is not
-    satisfied.
-T011c:
+  r: No `.env` template file was provided; there is no evidence of a file containing
+    placeholders for `SRA_TOKEN` and `DATA_SOURCE_URL`. The required artifact is missing.
+T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No sampling utility code, script, or documentation was provided; the evidence
-    consists only of the task description and project spec, without any actual artifact
-    to examine. Consequently, we cannot confirm that a functional sampling utility
-    exists or meets the required specifications.
-T011d:
+  r: "No ingestion script, output CSV, logs, or analysis results were provided; the\
+    \ claim lacks any tangible artifacts (code, data files, or result tables) that\
+    \ demonstrate the required data filtering, validation, correlation calculations,\
+    \ multiple\u2011testing correction, or predictive modeling. The implementer must\
+    \ supply the actual scripts and generated outputs to satisfy the user stories."
+T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result artifacts (e.g., ingestion script, output CSV,\
-    \ correlation tables, adjusted p\u2011values, Shannon index calculations, or modeling\
-    \ outputs) were provided for inspection. Without these concrete artifacts, we\
-    \ cannot confirm that the required data ingestion, validation, correlation analysis,\
-    \ multiple\u2011testing correction, or predictive modeling were actually implemented.\
-    \ The next implementer must supply the relevant scripts and generated output files\
-    \ demonstrating each user story."
-T032:
+  r: "No code, script, or data files were provided that actually fetch the pre\u2011\
+    processed OTU table and serology metadata for the SRP accession series, so the\
+    \ required artifact is missing. The claim lacks any concrete implementation or\
+    \ output to verify."
+T020a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result outputs (e.g., CLR\u2011transformed matrix, Spearman\
-    \ correlation table with raw and BH\u2011adjusted p\u2011values, Shannon diversity\
-    \ values, or modeling artifacts) were provided. Consequently, the required correlation\
-    \ analysis and feature\u2011selection deliverables are missing."
+  r: "No CLR transformation script, notebook, or output files were provided; the claim\
+    \ lacks any actual artifact (code, results, or documentation) demonstrating that\
+    \ the microbiome data were CLR\u2011transformed, correlations computed, or p\u2011\
+    values corrected. The required deliverables are missing, so the task is not satisfied."
+T020b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file implementing or demonstrating relative\
+    \ abundance normalization was provided; the only evidence is the high\u2011level\
+    \ feature specification, which does not contain the required artifact. The task\
+    \ therefore lacks the concrete output it demands."
+T020c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or result outputs (e.g., a script that computes Shannon\
+    \ diversity, a CSV with per\u2011subject Shannon indices, or a report showing\
+    \ the calculations) were provided. Without any tangible artifact, we cannot verify\
+    \ that the Shannon diversity calculation was actually implemented or that it meets\
+    \ the specification. The next implementer must supply the implementation and its\
+    \ resulting output."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file was provided that demonstrates the titers\
+    \ have been log\u2011transformed and that limits of detection (LOD) are handled\
+    \ as required. Without any artifact to inspect, the claim cannot be verified.\
+    \ The next implementer must supply the actual implementation (e.g., a Python/R\
+    \ script) and/or resulting dataset showing the transformed titer values and LOD\
+    \ handling."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., log file, report, or measurement output) was provided to\
+    \ demonstrate that SC-004\u2019s outcome was measured and recorded; the only evidence\
+    \ is the task description itself. The required deliverable is missing."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion script, validation logs, correlation analysis output, or predictive\
+    \ modeling code/results were provided. The required artifacts (e.g., a script\
+    \ that filters the OTU tables, a CSV of the cleaned dataset, correlation tables\
+    \ with CLR\u2011transformed data and Benjamini\u2011Hochberg adjusted p\u2011\
+    values, and a trained Random Forest model with nested cross\u2011validation metrics)\
+    \ are missing, so the task is not satisfied."
 T034d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +79,10 @@ T036a:
     \ precision, recall, or F1\u2011score for the high/low responder classification\
     \ was provided. The claim lacks any concrete artifact demonstrating that these\
     \ metrics were calculated and recorded."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a ruff linting run or black formatting was executed
+    on the `code/` directory, nor any logs, diff outputs, or updated files showing
+    that reported issues were fixed. The required artifacts (lint/format reports and
+    corrected code) are missing.
