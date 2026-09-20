@@ -1,100 +1,102 @@
-"""
-Task T018: Generate SHA-256 checksums for raw CIFs and all derived CSV/JSON artifacts.
-Records them in state/projects/PROJ-238.../artifact_hashes.
-"""
 import hashlib
 import os
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Iterable
+from typing import List, Dict, Any
 
-# Import logging setup from config to match project style
-from code.config import setup_logging, log_event
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Define project root and state directory
+# Project root and target state directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = PROJECT_ROOT / "state" / "projects" / "PROJ-238-predicting-molecular-crystal-packing-fro"
-HASHES_FILE = STATE_DIR / "artifact_hashes"
+STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Define target directories to scan for artifacts
-# Based on tasks.md and pipeline outputs:
-# - data/raw/ (CIFs, sample IDs)
-# - data/descriptors/ (raw_descriptors.csv, derived.csv)
-# - data/processed/ (train.csv, val.csv, test.csv, logs, split_report.json)
-# - results/ (metrics.json, feature_importance.png, sensitivity_report.md, etc.)
-TARGET_DIRS = [
-    PROJECT_ROOT / "data" / "raw",
-    PROJECT_ROOT / "data" / "descriptors",
-    PROJECT_ROOT / "data" / "processed",
-    PROJECT_ROOT / "results",
+# Target files to hash (relative to project root)
+TARGET_FILES = [
+    "data/raw/cod_sample_ids.txt",
+    "data/raw/volume_validation.log",
+    "data/descriptors/raw_descriptors.csv",
+    "data/processed/hydrogen_addition.log",
+    "data/processed/filter_log.txt",
+    "data/processed/missing_target.log",
+    "data/processed/train.csv",
+    "data/processed/val.csv",
+    "data/processed/test.csv",
+    "data/processed/split_validation.log",
+    "data/processed/split_report.json",
+    "results/metrics.json",
+    "results/feature_importance.png",
+    "results/sensitivity_report.md",
+    "results/control_analysis_metrics.json",
+    "data/interactions/raw_interactions.csv",
+    "data/interactions/interaction_classification.csv",
+    "results/interaction_classification.md",
 ]
 
-# Extensions to include
-TARGET_EXTENSIONS = {".cif", ".csv", ".json", ".log", ".md", ".txt", ".png"}
-
-logger = setup_logging()
-
-def iter_target_files() -> Iterable[Path]:
-    """Iterate over all target files in the defined directories."""
-    for dir_path in TARGET_DIRS:
-        if not dir_path.exists():
-            logger.warning(f"Target directory does not exist: {dir_path}")
-            continue
-        for ext in TARGET_EXTENSIONS:
-            for file_path in dir_path.glob(f"*{ext}"):
-                if file_path.is_file():
-                    yield file_path
+def iter_target_files() -> List[Path]:
+    """Yield paths to target files that exist."""
+    existing = []
+    for rel_path in TARGET_FILES:
+        full_path = PROJECT_ROOT / rel_path
+        if full_path.exists():
+            existing.append(full_path)
+        else:
+            logger.warning(f"Target file not found, skipping: {full_path}")
+    return existing
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logger.error(f"Error computing hash for {file_path}: {e}")
+        return None
 
-def collect_hashes() -> List[Dict[str, Any]]:
-    """Collect hashes for all target files."""
+def collect_hashes(file_paths: List[Path]) -> List[Dict[str, Any]]:
+    """Collect hashes for a list of file paths."""
     hashes = []
-    for file_path in iter_target_files():
-        try:
-            hash_val = compute_sha256(file_path)
-            # Store relative path from project root for portability
-            rel_path = file_path.relative_to(PROJECT_ROOT)
+    for file_path in file_paths:
+        rel_path = file_path.relative_to(PROJECT_ROOT)
+        digest = compute_sha256(file_path)
+        if digest:
             hashes.append({
                 "path": str(rel_path),
-                "sha256": hash_val,
+                "sha256": digest,
                 "size_bytes": file_path.stat().st_size
             })
-            logger.info(f"Hashed: {rel_path}")
-        except Exception as e:
-            logger.error(f"Failed to hash {file_path}: {e}")
     return hashes
 
-def write_hash_file(hashes: List[Dict[str, Any]], output_path: Path) -> None:
-    """Write the collected hashes to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_data = {
+def write_hash_file(hashes: List[Dict[str, Any]], output_path: Path):
+    """Write collected hashes to a JSON file."""
+    output_content = {
         "project_id": "PROJ-238-predicting-molecular-crystal-packing-fro",
-        "generated_at": os.popen("date -u +%Y-%m-%dT%H:%M:%SZ").read().strip(),
-        "file_count": len(hashes),
-        "files": hashes
+        "artifact_hashes": hashes
     }
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2)
-    logger.info(f"Wrote {len(hashes)} hashes to {output_path}")
+    with open(output_path, "w") as f:
+        json.dump(output_content, f, indent=2)
+    logger.info(f"Hash file written to {output_path}")
 
-def main() -> int:
-    """Main entry point."""
-    logger.info("Starting artifact hash generation for T018")
-    hashes = collect_hashes()
-    if not hashes:
-        logger.warning("No files found to hash. Check TARGET_DIRS and TARGET_EXTENSIONS.")
-        # Still create the file to indicate completion, even if empty
-    write_hash_file(hashes, HASHES_FILE)
-    log_event("T018_hash_generation", {"file_count": len(hashes)})
-    return 0
+def main():
+    logger.info("Starting artifact hash generation...")
+    target_files = iter_target_files()
+    if not target_files:
+        logger.error("No target files found to hash.")
+        return
+
+    hashes = collect_hashes(target_files)
+    output_path = STATE_DIR / "artifact_hashes"
+    write_hash_file(hashes, output_path)
+    logger.info(f"Successfully updated {output_path} with {len(hashes)} artifact hashes.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ModelResult",
+  "description": "Represents the output of a trained model including metrics and parameters.",
+  "type": "object",
+  "properties": {
+    "model_type": {
+      "type": "string",
+      "description": "Type of model (e.g., RF, GB, Mean)"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Performance metrics (R², MAE, RMSE)"
+    },
+    "params": {
+      "type": "object",
+      "description": "Model hyperparameters"
+    }
+  },
+  "required": [
+    "model_type",
+    "metrics",
+    "params"
+  ]
+}

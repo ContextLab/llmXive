@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.,g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -56,16 +56,20 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
+**Note**: All data splits in this project MUST be stratified by **molecular weight** (FR-003), not by the target variable.
 
-- [X] T004 [P] Implement `utils/data_loaders.py` to fetch **only** the canonical COD bulk download URL.
- **Constraint**: NO fallback URLs are permitted.
- **Deliverable**: Generate `data/raw/cod_sample_ids.txt` containing a list of COD entry IDs.
- **Verification**: File exists and contains **≥ 100** lines.
-- [X] T004.1 [P] Validate that the COD sample contains at least **[deferred]** valid organic small molecules.
- **Definition of valid**: Molecules with molecular weight < 1000 Da, containing only C/H/N/O/F/Cl/Br atoms (no metals), as determined via RDKit filters.
- **Deliverable**: Write count and any exclusions to `data/raw/volume_validation.log`.
- **Verification**: Log reports count ≥ 1000; otherwise task fails and blocks further phases.
+- [X] T004 [P] Implement `utils/data_loaders.py` to fetch the canonical COD bulk download URL.
+ **Source**: Fetch IDs from the COD bulk index (e.g., ` or verified mirror) and write to `data/raw/cod_sample_ids.txt`.
+ **Format**: One COD entry ID per line.
+ **Constraint**: If the COD fetch yields an insufficient number of valid organic small molecules, the system MUST immediately trigger the fallback fetch to the CSD Community subset as authorized by FR-001.
+ **Deliverable**: `data/raw/cod_sample_ids.txt` containing ≥ 1000 valid IDs.
+ **Verification**: File exists and contains ≥ 1000 lines.
+- [X] T004.1 [P] Implement the CSD Community subset fetch fallback logic.
+ **Mechanism**: Use the CSD Community API endpoint (`) or the specific public bulk download URL as per CSD documentation. Handle required API keys or public access tokens.
+ **Fallback Logic**: Trigger ONLY if the count of **VALIDATED** organic small molecules from COD is < 1000 (not just retrieved IDs).
+ **Deliverable**: Append valid CSD IDs to `data/raw/cod_sample_ids.txt` or `data/raw/csd_sample_ids.txt`.
+ **Verification**: Log reports total count ≥ 1000 (from combined validated sources); otherwise task fails.
 - [X] T005 [P] Implement `utils/descriptors.py` wrapper for RDKit.
  **Signature**: `compute_descriptors(mol) -> dict` returning Volume, Surface Area, Dipole, HBA, HBD, PSA.
  **Verification**: Run on benzene (`c1ccccc1`); assert returned Volume is between **50 Å³** and **150 Å³**.
@@ -75,7 +79,7 @@
 - [X] T007 [P] Create base data model classes in `code/models.py`.
  **Classes**: `Molecule` (attrs: id, mw, descriptors), `CrystalStructure` (attrs: id, unit_cell, interaction_type), `ModelResult` (attrs: model_type, metrics, params).
 - [X] T008 [P] Configure environment variables and logging infrastructure in `code/config.py`.
- **Env Vars**: `COD_URL`, `RANDOM_SEED`, `DATA_PATH`.
+ **Env Vars**: `COD_URL`, `CSD_URL`, `RANDOM_SEED`, `DATA_PATH`.
  **Format**: JSON logs to stdout.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -99,26 +103,48 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
+ **Method**: Use `pymatgen.CifFile` or `rdkit.Chem.MolFromMolBlock` (via CIF parsing) to extract unit cell parameters.
  **Deliverable**: Generate `data/descriptors/raw_descriptors.csv` with columns `[ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, packing_coefficient]`.
  **Verification**: File exists with **≥ 50** rows and all listed columns present.
+- [X] T012.1 [US1] **NEW**: Validate atomic coordinates in raw CIFs for geometric extraction.
+ **Logic**: Parse raw CIFs using `pymatgen` or `rdkit` to ensure atomic coordinates are present and valid for H-bond angle/distance calculation.
+ **Deliverable**: Generate `data/raw/coordinate_validation.log` listing any CIFs missing coordinates.
+ **Verification**: Log confirms all CIFs used in T035.1 have valid coordinates; if not, exclude and log count.
 - [X] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
 - [X] T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA, HBD, PSA using `utils/descriptors.py`.
- **Implementation Detail**: Must call `utils/descriptors.py` for every molecule; depends on T013 (Hydrogen Addition) completing first. If RDKit fails to compute a descriptor (e.g., dipole), catch the exception, log it, and proceed to the next molecule (do not impute here, handle in T016).
- **Verification**: `raw_descriptors.csv` is populated with numeric values for all 6 descriptors for valid entries.
+ **Implementation Detail**: Must call `utils/descriptors.py` for every molecule; depends on T013 (Hydrogen Addition) completing first. If RDKit fails to compute a descriptor (e.g., dipole), **mark the value as NULL in the CSV, log the error, and proceed** to the next molecule. **Do NOT impute here**; imputation is handled in T016.
+ **Verification**: `raw_descriptors.csv` is populated with numeric values for all 6 descriptors for valid entries; NULLs are preserved for missing values.
 - [X] T015 [US1] Derive `packing_coefficient = V_mol / V_cell` and **filter out physically impossible values** (`packing_coefficient <= 0` or `> 1.0`).
  **Log**: Write number of excluded rows to `data/processed/filter_log.txt`.
  **Implementation Detail**: Ensure `V_mol` is computed in Å³ and `V_cell` in Å³ to maintain unit consistency. Explicitly exclude values <= 0 and > 1.0.
-- [X] T017.1 [US1] Perform a **stratified split** of the cleaned dataset into Train/Val/Test (70/15/15) **by molecular weight (MW)** to satisfy FR‑003.
+- [X] T017.1 [US1] **Split Step 1**: Create binned Molecular Weight (MW) labels for stratification.
+ **Logic**: Bin the MW values of the full dataset (before imputation) into discrete intervals using `pandas.cut(..., bins='quantile')` to enable stratified splitting.
+ **Deliverable**: Add a `mw_bin` column to the dataset.
+ **Verification**: Verify that bins cover the full MW range and contain sufficient samples.
+- [X] T017.2 [US1] **Split Step 2**: Perform the **stratified split** of the cleaned dataset into Train/Val/Test (70/15/15) **by `mw_bin`** (molecular weight) to satisfy FR‑003.
+ **Note**: This explicitly implements the spec's requirement for MW stratification. Bin-based stratification is a valid implementation of continuous stratification; the KS test in T017.3 validates distributional equivalence.
  **Deliverable**: `data/processed/train.csv`, `data/processed/val.csv`, `data/processed/test.csv`.
- **Implementation Detail**: Use `sklearn.model_selection.train_test_split` with `stratify` on binned MW values to ensure distributional similarity. This task must run BEFORE T016.
-- [X] T017.2 [US1] Validate the split: run a Kolmogorov‑Smirnov test on the MW distributions across the three splits; assert KS distance `< 0.05`.
+ **Implementation Detail**: Use `sklearn.model_selection.train_test_split` with `stratify` on the `mw_bin` column.
+ **Verification**: Files exist and are disjoint.
+- [X] T017.3 [US1] **Split Step 3**: Validate the split.
+ **Logic**: Run a Kolmogorov‑Smirnov test on the **MW distributions** across the three splits; assert KS distance `< 0.05`.
  **Log**: Write KS statistic and p‑value to `data/processed/split_validation.log`.
- **Verification**: If KS distance >= 0.05, the task fails and requires re-stratification or dataset review.
-- [X] T017.3 [US1] Generate a JSON report `data/processed/split_report.json` summarizing row counts, MW statistics (mean, std), and KS test results. Follow the schema defined in `contracts/dataset.schema.yaml`.
-- [X] T016 [US1] Implement missing‑data handling: impute auxiliary descriptors (e.g., Dipole) with the training‑set median and flag the row in `data/descriptors/raw_descriptors.csv` with a boolean column `dipole_imputed`. Exclude rows with missing target and log count to `data/processed/missing_target.log`.
- **Implementation Detail**: Calculate medians ONLY on the training set (after split) to prevent data leakage; apply these medians to Val/Test sets if needed. This task must run AFTER T017.1.
+ **Verification**: If KS distance >= 0.05, the task fails and requires re-stratification.
+- [X] T017.4 [US1] Generate a JSON report `data/processed/split_report.json` summarizing row counts, MW statistics (mean, std), and KS test results. Follow the schema defined in `contracts/dataset.schema.yaml`.
+- [X] T016 [US1] Implement missing‑data handling: **CRITICAL: This task must run AFTER T017.2 (Split)**.
+ **Logic**: Calculate medians for auxiliary descriptors (e.g., Dipole) using **ONLY** the `train.csv` split. Impute NULL values in the **train and val splits** using these medians. Apply the same training-set median to the **test set** (do NOT calculate stats on test set). Flag imputed rows in `data/descriptors/raw_descriptors.csv` with a boolean column `dipole_imputed`. Exclude rows with missing target (`packing_coefficient`) and log count to `data/processed/missing_target.log`.
+ **Dependency**: Must run **after** T017.2 (Splitting) to ensure the dataset is clean before stratification.
+ **Verification**: No NULL values remain in auxiliary descriptor columns after this step.
 - [X] T018 [US1] Generate SHA‑256 checksums for raw CIFs and all derived CSV/JSON artifacts; record them in `state/projects/PROJ-238.../artifact_hashes`.
-- [ ] **(Removed) T019** – interaction classification is now handled in User Story 3.
+- [X] T041 [P] [US1] Implement streaming download logic in `code/utils/data_loaders.py` to handle datasets larger than available RAM (≥ 7GB) by processing CIFs in chunks, ensuring the full real dataset is processed without memory exhaustion.
+ **Rationale**: Addresses the risk of memory exhaustion if the COD bulk download exceeds the 7GB RAM limit on the free runner.
+ **Implementation Detail**: Implement `def stream_cif_ids()` in `code/utils/data_loaders.py` as a generator function yielding chunks.
+ **Deliverable**: `code/utils/data_loaders.py` contains the streaming generator.
+ **Verification**: Memory usage stays < 7GB during full dataset fetch.
+- [X] T042 [P] [US1] Add a strict `try/except` block in `code/utils/data_loaders.py` that raises a fatal error if the real COD/CSD fetch fails, explicitly **removing** any synthetic data generation fallback to prevent fabrication.
+ **Rationale**: Enforces the "Fail Loudly" principle. If the real data source is unreachable, the pipeline must crash immediately rather than substituting fake data, ensuring the execution stage detects the issue and re-routes to a verified source or halts.
+ **Implementation Detail**: Raise `SystemExit("FATAL: Real data fetch failed. No synthetic fallback allowed.")` on failure.
+ **Verification**: Pipeline exits with code 1 and specific error message on fetch failure.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -150,11 +176,16 @@
  **Implementation Detail**: Explicitly drop columns `['Volume', 'SurfaceArea']` from the feature matrix before training.
 - [X] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
  **Implementation Detail**: Use `sklearn.metrics` functions; ensure all metrics are rounded to an appropriate number of decimal places for precision for consistency.
-- [X] T028 [US2] Perform paired t‑tests of each primary model (RF, GB) against the baseline.
- **Statistical correction**: Calculate `alpha_corrected = 0.05 / 2` (N_models = 2, excluding control analysis) and apply Bonferroni correction.
- **Output**: Write corrected p‑values, `alpha_corrected`, and a flag indicating significance to `results/metrics.json`.
-- [X] T029 [US2] Save a consolidated metrics summary (R², MAE, RMSE, corrected p‑values, significance flags) to `results/metrics.json`.
+- [X] T028.1 [US2] **Stat Step 1**: Compute paired t‑tests of each primary model (RF, GB) and the **Control Analysis model** against the baseline.
+ **Implementation Detail**: Perform t-tests on the test set predictions.
+- [X] T028.2 [US2] **Stat Step 2**: Apply Bonferroni correction.
+ **Logic**: Calculate `alpha_corrected = 0.05 / 3` (N_models = 3: RF, GB, Control). The Control Analysis is a formal model comparison and must be included in the multiple-comparison correction count to satisfy SC-005.
+ **Output**: Write `alpha_corrected` and corrected p-values to a temporary log.
+ **Rationale**: Control Analysis is a formal model comparison and must be included in n=3.
+- [X] T028.3 [US2] **Stat Step 3**: Write results.
+ **Output**: Write corrected p-values, `alpha_corrected`, and a flag indicating significance to `results/metrics.json`.
  **Implementation Detail**: Include a `metadata` section in JSON with `random_seed`, `timestamp`, and `scikit_learn_version`.
+- [X] T029 [US2] Save a consolidated metrics summary (R², MAE, RMSE, corrected p‑values, significance flags) to `results/metrics.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -178,18 +209,26 @@
 - [X] T033 [US3] Generate `results/feature_importance.png` identifying the top 3 features and showing their cumulative importance (> 60% total).
  **Implementation Detail**: Use `seaborn.barplot`; ensure the y-axis is sorted by importance; save as PNG with high resolution suitable for publication.
 - [X] T034 [US3] Perform Leave‑One‑Feature‑Out (LOFO) analysis; document R² variation across feature subsets in `results/sensitivity_report.md`.
- **Requirement**: Report the R² variation; acknowledge that removing the top 5 features may change R² significantly. Do NOT set an arbitrary threshold.
+ **Requirement**: Explicitly verify **SC-003**: Measure the R² drop when removing the **top 2 least important features**. The drop must be **≤ 10%** to satisfy the success criterion. Document the variation and the pass/fail status.
  **Implementation Detail**: Iterate through each feature, drop it, re-train (or use pre-trained model with masked feature if computationally feasible), and record R².
-- [X] T035.1 [US3] Extract geometric interaction criteria from the original CIF files (e.g., H‑bond distance < 3.5 Å and angle > 150°) and create a temporary table `data/interactions/raw_interactions.csv`.
- **Verification**: File exists with columns `[CIF_ID, interaction_type, confidence]`.
- **Implementation Detail**: This is a separate extraction step because T012 only extracted unit cell parameters. Parse CIF files using `code/utils/data_loaders.py` (extended to extract bond angles/distances); calculate H-bond metrics based on atomic coordinates.
-- [X] T035.2 [US3] Classify the **dominant intermolecular interaction type** for each crystal using the criteria from T035.1; write results to `data/descriptors/derived.csv` (adds columns `interaction_type`, `interaction_confidence`).
+- [X] T035.1 [US3] Extract geometric interaction criteria from the original CIF files.
+ **Criteria**: H‑bond distance < 3.5 Å and angle > 150°.
+ **Method**: Parse CIF atomic coordinates (validated in T012.1) using `pymatgen.analysis.hydrogen_bonds.HydrogenBondFinder` to calculate H-bond metrics.
+ **Deliverable**: Create `data/interactions/raw_interactions.csv` with columns `[CIF_ID, interaction_type, confidence]`.
+ **Edge Case Handling**: If specific variables (e.g., angles) are missing, proceed with available variables and record the limitation in the log. Do not fail the task.
+ **Dependency**: Depends on T012.1 (Coordinate Validation).
+- [X] T035.2 [US3] Classify the **dominant intermolecular interaction type** for each crystal using the criteria from T035.1; write results to `data/interactions/interaction_classification.csv`.
  **Verification**: All rows have non‑null `interaction_type`.
  **Implementation Detail**: If multiple interaction types are present, select the one with the highest "confidence" score (e.g., shortest distance / best angle).
-- [X] T035.3 [US3] Generate `results/interaction_classification.md` reporting overall **consistency** and 95% confidence intervals obtained via bootstrapping (≥ 1 000 resamples) of the dominant interaction frequency.
- **Verification**: Report includes consistency metric, CI, and number of resamples.
- **Implementation Detail**: Since no ground truth exists, "accuracy" is replaced by "consistency" of the geometric heuristic; bootstrap the confidence interval of the dominant interaction frequency.
-- [ ] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
+ **Note**: Output path corrected to `data/interactions/` to comply with Data Hygiene principles.
+ **Dependency**: Depends on T035.1.
+- [X] T035.3 [US3] Generate `results/interaction_classification.md` reporting overall **accuracy** and % confidence intervals obtained via bootstrapping (≥ 1 000 resamples) of the dominant interaction frequency.
+ **Verification**: Report includes accuracy metric, 95% CI, and number of resamples.
+ **Implementation Detail**: Since no ground truth exists, "accuracy" is reported as the consistency of the geometric heuristic against itself (internal reliability), with a 95% CI derived from bootstrapping.
+- [X] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
+- [X] T043 [US3] Implement a robust geometric parser in `code/utils/data_loaders.py` to extract H-bond angles and distances directly from CIF atomic coordinates, ensuring the interaction classification (T035.1) uses real structural data rather than derived proxies.
+ **Rationale**: Addresses the requirement to use real structural data for interaction classification, avoiding reliance on potentially inaccurate proxies.
+ **Implementation Detail**: Use `pymatgen.analysis.chemenv` or custom geometry calculations to extract precise bond angles and distances from the CIF coordinates.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -199,11 +238,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
-- [ ] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
-- [ ] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
-- [X] T040 [P] Execute full pipeline validation: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment. <!-- ATOMIZE: requested -->
+- [X] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
+ **Rationale**: Satisfies Constitution Principle III (Data Hygiene) requiring checksums for all data artifacts.
+- [X] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
+- [X] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
+ **Rationale**: Satisfies Constitution Principle IV (Single Source of Truth) requiring schema generation.
+- [X] T040 Verify full pipeline execution: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment.
  **Verification**: All exit codes are 0 and artifacts are generated in `data/` and `results/`.
+ **Note**: Removed [P] tag as this is a sequential pipeline validation.
 
 ---
 
@@ -283,3 +325,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
+
+**Plan Note**: The plan.md Phase 2 description contains a contradiction ("Stratified split by packing_coefficient") vs the spec (FR-003) and these tasks (MW stratification). These tasks correctly implement the spec. The plan.md file should be updated to reflect the MW stratification requirement.

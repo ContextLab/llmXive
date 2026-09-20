@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Molecule",
+  "description": "Represents a molecular structure with computed descriptors.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the molecule"
+    },
+    "mw": {
+      "type": "number",
+      "description": "Molecular weight of the molecule"
+    },
+    "descriptors": {
+      "type": "object",
+      "description": "Dictionary of computed molecular descriptors"
+    }
+  },
+  "required": [
+    "id",
+    "mw",
+    "descriptors"
+  ]
+}

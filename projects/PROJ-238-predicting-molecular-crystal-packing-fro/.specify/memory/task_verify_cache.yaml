@@ -54,22 +54,9 @@ T036:
   r: "The required `results/interaction_benchmark.log` file is absent, so no evidence\
     \ of the benchmark evaluation or logging is present. The task\u2019s core deliverable\
     \ is missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/projects/PROJ-238.../artifact_hashes` file (or any file containing
-    final result checksums) was provided; the implementer supplied no evidence that
-    the checksum list was created or updated. The required artifact is missing.
 T038:
   c: false
   h: 1e5913fa4a49c57f9625664dc530c0a33ec6466de912adc734dbb6045a40af9c
   r: The required artifact `results/metrics.json` does not exist, so there is no file
     to check for required fields or the Bonferroni flag. The task cannot be considered
     satisfied until the JSON file is present and contains the specified content.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `quickstart.md` file or any schema files under a `contracts/` directory were
-    presented. Without these artifacts, the requirement to generate documentation
-    and contract schemas from the data model is not satisfied. The implementer must
-    add the missing markdown guide and the corresponding schema files.

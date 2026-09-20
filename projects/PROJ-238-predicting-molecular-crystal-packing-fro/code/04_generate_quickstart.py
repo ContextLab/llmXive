@@ -1,290 +1,218 @@
 """
-Script to generate quickstart.md and contracts/ schemas from the data model.
-This task (T039) ensures documentation and schema artifacts are up-to-date.
+Script to generate quickstart.md and contract schemas from the data model.
 """
 import os
+import json
+import inspect
 from pathlib import Path
+from typing import Dict, Any, List, Optional
+from dataclasses import fields, is_dataclass
+
+# Import the data model classes
 from code.models import Molecule, CrystalStructure, ModelResult
 
-def generate_schema():
-    """Generate the JSON/YAML schema for the dataset based on the data model."""
-    schema_content = """%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: Molecular Crystal Packing Dataset Schema
-description: >
-  Schema for the processed dataset used in predicting molecular crystal packing
-  from structural descriptors. Includes raw descriptors, imputed values, and
-  stratified splits.
-type: object
-required:
-  - metadata
-  - columns
-  - data
-properties:
-  metadata:
-    type: object
-    required:
-      - version
-      - created_at
-      - source
-      - checksum
-    properties:
-      version:
-        type: string
-        description: Schema version (e.g., "1.0.0")
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of dataset creation
-      source:
-        type: string
-        description: Source of the raw data (e.g., "Crystallography Open Database")
-      checksum:
-        type: string
-        description: SHA-256 checksum of the raw source file
-      split_strategy:
-        type: string
-        description: Method used for splitting (e.g., "stratified_by_mw")
-  columns:
-    type: array
-    items:
-      type: object
-      required:
-        - name
-        - type
-        - description
-      properties:
-        name:
-          type: string
-        type:
-          type: string
-          enum: [integer, float, string, boolean]
-        description:
-          type: string
-        nullable:
-          type: boolean
-          default: false
-        imputed:
-          type: boolean
-          default: false
-          description: True if value was imputed
-    minItems: 8
-    description: >
-      Expected columns: ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, 
-      packing_coefficient, mw, dipole_imputed, interaction_type, interaction_confidence
-  data:
-    type: array
-    items:
-      type: object
-      required:
-        - ID
-        - packing_coefficient
-      properties:
-        ID:
-          type: string
-          description: Unique identifier from COD
-        Volume:
-          type: number
-          minimum: 0
-          description: Molecular volume in Å³
-        SurfaceArea:
-          type: number
-          minimum: 0
-          description: Molecular surface area in Å²
-        Dipole:
-          type: number
-          nullable: true
-          description: Dipole moment in Debye
-        HBD:
-          type: integer
-          minimum: 0
-          description: Number of hydrogen bond donors
-        HBA:
-          type: integer
-          minimum: 0
-          description: Number of hydrogen bond acceptors
-        PSA:
-          type: number
-          minimum: 0
-          description: Polar surface area in Å²
-        packing_coefficient:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: Ratio of molecular volume to unit cell volume
-        mw:
-          type: number
-          minimum: 0
-          description: Molecular weight in Da
-        dipole_imputed:
-          type: boolean
-          description: Flag indicating if Dipole was imputed
-        interaction_type:
-          type: ["string", "null"]
-          description: Dominant intermolecular interaction type
-        interaction_confidence:
-          type: ["number", "null"]
-          minimum: 0
-          maximum: 1
-          description: Confidence score for interaction classification
-examples:
-  - metadata:
-      version: "1.0.0"
-      created_at: "2023-10-27T10:00:00Z"
-      source: "Crystallography Open Database"
-      checksum: "abc123..."
-      split_strategy: "stratified_by_mw"
-    columns:
-      - name: ID
-        type: string
-        description: "Unique identifier"
-      - name: packing_coefficient
-        type: float
-        description: "Target variable"
-    data:
-      - ID: "COD-12345"
-        Volume: 120.5
-        SurfaceArea: 250.0
-        Dipole: 1.5
-        HBD: 1
-        HBA: 2
-        PSA: 40.0
-        packing_coefficient: 0.65
-        mw: 180.16
-        dipole_imputed: false
-        interaction_type: "hydrogen_bond"
-        interaction_confidence: 0.92
-"""
-    return schema_content
+def get_type_name(field_type: type) -> str:
+    """Convert a Python type to a JSON schema type string."""
+    if field_type is int:
+        return "integer"
+    elif field_type is float:
+        return "number"
+    elif field_type is str:
+        return "string"
+    elif field_type is bool:
+        return "boolean"
+    elif field_type is list:
+        return "array"
+    elif field_type is dict:
+        return "object"
+    else:
+        return "string"  # Default fallback
 
-def generate_quickstart():
-    """Generate the quickstart.md documentation."""
-    quickstart_content = """# Quickstart Guide: Predicting Molecular Crystal Packing
+def generate_schema_for_class(cls: type, schema_name: str) -> Dict[str, Any]:
+    """Generate a JSON schema for a dataclass."""
+    if not is_dataclass(cls):
+        raise ValueError(f"{cls.__name__} is not a dataclass")
 
-This guide provides a step-by-step walkthrough to run the full pipeline for
-predicting molecular crystal packing from structural descriptors using the
-Crystallography Open Database (COD).
+    properties = {}
+    required = []
+
+    for f in fields(cls):
+        prop_name = f.name
+        prop_type = get_type_name(f.type)
+        
+        # Handle optional types (simplified for common cases)
+        if hasattr(f.type, '__origin__'):
+            if f.type.__origin__ is Optional:
+                prop_type = get_type_name(f.type.__args__[0])
+                # Optional fields are not required
+            elif f.type.__origin__ is list:
+                prop_type = "array"
+                # Add items type if possible
+                if hasattr(f.type, '__args__') and f.type.__args__:
+                    items_type = get_type_name(f.type.__args__[0])
+                    properties[prop_name] = {
+                        "type": "array",
+                        "items": {"type": items_type}
+                    }
+                    required.append(prop_name)
+                    continue
+            elif f.type.__origin__ is dict:
+                prop_type = "object"
+                required.append(prop_name)
+                continue
+        else:
+            required.append(prop_name)
+
+        properties[prop_name] = {"type": prop_type}
+
+    schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": schema_name,
+        "type": "object",
+        "properties": properties,
+        "required": required
+    }
+
+    return schema
+
+def generate_schemas(output_dir: Path) -> None:
+    """Generate JSON schema files for all data model classes."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    classes = [
+        (Molecule, "molecule_schema.json"),
+        (CrystalStructure, "crystal_structure_schema.json"),
+        (ModelResult, "model_result_schema.json")
+    ]
+
+    for cls, filename in classes:
+        schema = generate_schema_for_class(cls, cls.__name__)
+        schema_path = output_dir / filename
+        with open(schema_path, 'w') as f:
+            json.dump(schema, f, indent=2)
+        print(f"Generated schema: {schema_path}")
+
+def generate_quickstart(output_path: Path) -> None:
+    """Generate a quickstart.md file."""
+    content = """# Quickstart Guide: Predicting Molecular Crystal Packing
+
+## Overview
+This project predicts molecular crystal packing coefficients from structural descriptors using machine learning.
 
 ## Prerequisites
-
 - Python 3.11+
 - pip
-- Git
+- Access to the Crystallography Open Database (COD)
 
-## 1. Setup Environment
+## Installation
 
-Clone the repository and install dependencies:
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <project-dir>
+   ```
 
-```bash
-git clone <repository-url>
-cd PROJ-238-predicting-molecular-crystal-packing-fro
-pip install -r requirements.txt
-```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Ensure the following environment variables are set (optional, defaults provided):
+3. Set environment variables (optional):
+   ```bash
+   export COD_URL="https://www.crystallography.net/cod/cif/2/10/15/2101536.cif"
+   export RANDOM_SEED=42
+   export DATA_PATH="./data"
+   ```
 
-```bash
-export COD_URL="https://www.crystallography.net/cod-2023-09-01.tar.gz"
-export RANDOM_SEED=42
-export DATA_PATH="./data"
-```
+## Data Pipeline
 
-## 2. Ingest Data and Compute Descriptors
-
-Download CIFs from COD, parse unit cell parameters, add missing hydrogens,
-and compute molecular descriptors.
-
+### Step 1: Ingest and Compute Descriptors
+Run the ingestion script to download CIF files and compute molecular descriptors:
 ```bash
 python code/01_ingest_and_descriptors.py
 ```
+This generates:
+- `data/raw/cod_sample_ids.txt`: List of COD entry IDs
+- `data/descriptors/raw_descriptors.csv`: Computed descriptors
 
-**Outputs:**
-- `data/descriptors/raw_descriptors.csv`: Raw descriptor values.
-- `data/processed/hydrogen_addition.log`: Log of hydrogen additions.
-
-## 3. Impute and Filter Data
-
-Handle missing values and filter physically impossible packing coefficients.
-
+### Step 2: Filter and Impute
+Filter invalid packing coefficients and impute missing values:
 ```bash
+python code/02_filter_packing_coefficient.py
 python code/02_impute_and_filter.py
 ```
+This generates:
+- `data/processed/train.csv`, `val.csv`, `test.csv`: Split datasets
 
-**Outputs:**
-- `data/processed/train.csv`, `val.csv`, `test.csv`: Stratified splits.
-- `data/processed/filter_log.txt`: Exclusion log.
-
-## 4. Train Models
-
-Train Random Forest, Gradient Boosting, and Mean Predictor baseline models.
-
+### Step 3: Train Models
+Train Random Forest and Gradient Boosting models:
 ```bash
 python code/02_train_models.py
 ```
+This generates:
+- `results/metrics.json`: Model performance metrics
+- `results/control_analysis_metrics.json`: Control analysis results
 
-**Outputs:**
-- `results/models/`: Saved model artifacts.
-- `results/metrics.json`: Initial performance metrics.
-
-## 5. Evaluate and Report
-
-Perform statistical evaluation, feature importance analysis, and sensitivity testing.
-
+### Step 4: Evaluate and Report
+Perform feature importance analysis and generate reports:
 ```bash
 python code/03_evaluate_and_report.py
+python code/03_lofo_sensitivity.py
+python code/03_control_analysis.py
 ```
+This generates:
+- `results/feature_importance.png`: Visualization of feature importance
+- `results/sensitivity_report.md`: Sensitivity analysis results
+- `data/interactions/interaction_classification.csv`: Interaction type classifications
 
-**Outputs:**
-- `results/feature_importance.png`: Visualization of top features.
-- `results/sensitivity_report.md`: LOFO analysis results.
-- `results/interaction_classification.md`: Interaction type accuracy.
+## Output Artifacts
 
-## 6. Verify Results
+| Artifact | Description |
+|----------|-------------|
+| `data/raw/cod_sample_ids.txt` | List of COD entry IDs |
+| `data/descriptors/raw_descriptors.csv` | Raw molecular descriptors |
+| `data/processed/train.csv` | Training dataset |
+| `data/processed/val.csv` | Validation dataset |
+| `data/processed/test.csv` | Test dataset |
+| `results/metrics.json` | Model performance metrics |
+| `results/feature_importance.png` | Feature importance plot |
+| `results/sensitivity_report.md` | Sensitivity analysis report |
 
-Validate the integrity of the output artifacts.
+## Validation
 
+To verify the pipeline:
 ```bash
+python code/04_generate_quickstart.py
 python code/verify_metrics.py
 ```
 
-## Schema Reference
-
-The dataset schema is defined in `contracts/dataset.schema.yaml`.
-It specifies the required columns, data types, and metadata for all
-processed datasets (raw, imputed, and split).
-
 ## Troubleshooting
 
-- **Missing COD URL**: Ensure `COD_URL` is set or update `code/config.py`.
-- **RDKit Errors**: Verify RDKit installation and version compatibility.
-- **Memory Issues**: For large datasets, ensure sufficient RAM or use streaming.
+- **Missing dependencies**: Ensure all packages in `requirements.txt` are installed.
+- **COD access issues**: Check network connectivity and the `COD_URL` environment variable.
+- **Memory errors**: Reduce the sample size in the ingestion script if running on limited hardware.
 
-## Next Steps
-
-- Review `results/metrics.json` for model performance.
-- Analyze `results/feature_importance.png` for descriptor insights.
-- Read `results/sensitivity_report.md` for model robustness details.
+## License
+This project is licensed under the terms specified in the repository.
 """
-    return quickstart_content
+    
+    with open(output_path, 'w') as f:
+        f.write(content)
+    print(f"Generated quickstart: {output_path}")
 
 def main():
-    """Main entry point to generate artifacts."""
-    # Ensure contracts directory exists
-    contracts_dir = Path("contracts")
-    contracts_dir.mkdir(exist_ok=True)
-
-    # Write schema
-    schema_path = contracts_dir / "dataset.schema.yaml"
-    with open(schema_path, "w") as f:
-        f.write(generate_schema())
-    print(f"Generated schema: {schema_path}")
-
-    # Write quickstart
-    quickstart_path = Path("quickstart.md")
-    with open(quickstart_path, "w") as f:
-        f.write(generate_quickstart())
-    print(f"Generated quickstart: {quickstart_path}")
+    """Main entry point."""
+    project_root = Path(__file__).parent.parent
+    
+    # Generate schemas
+    contracts_dir = project_root / "contracts"
+    generate_schemas(contracts_dir)
+    
+    # Generate quickstart
+    quickstart_path = project_root / "quickstart.md"
+    generate_quickstart(quickstart_path)
+    
+    print("Quickstart and schemas generation complete.")
 
 if __name__ == "__main__":
     main()

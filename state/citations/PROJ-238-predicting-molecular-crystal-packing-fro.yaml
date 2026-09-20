@@ -42,14 +42,25 @@
   verification_status: mismatch
   verified_against_url: https://www.crystallography.net/cod-2023-09-01.tar.gz
   verified_at: '2026-08-04T10:12:12.994267Z'
-- artifact_hash: 2ccb1e0a1a77ad3adc740ae1ca0a13e536d3904b80c3c368e470ea3d8ed67c42
+- artifact_hash: d840c408261744ef030ed8fdeac46c0467fd65ffa4de5c4646905d47d2d436f7
   artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/specs/001-predicting-molecular-crystal-packing-fro/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: http://ftp.crystallography.net/cod-full.zip`
+  value: https://www.ccdc.cam.ac.uk/structures/Search?Ccdcid=...`
   verification_status: mismatch
-  verified_against_url: http://ftp.crystallography.net/cod-full.zip
-  verified_at: '2026-09-18T05:18:49.716083Z'
+  verified_against_url: https://www.ccdc.cam.ac.uk/structures
+  verified_at: '2026-09-20T18:55:19.768670Z'
+- artifact_hash: d840c408261744ef030ed8fdeac46c0467fd65ffa4de5c4646905d47d2d436f7
+  artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/specs/001-predicting-molecular-crystal-packing-fro/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ccdc.cam.ac.uk/Community/`
+  verification_status: mismatch
+  verified_against_url: https://www.ccdc.cam.ac.uk/Community/
+  verified_at: '2026-09-20T18:55:19.768670Z'

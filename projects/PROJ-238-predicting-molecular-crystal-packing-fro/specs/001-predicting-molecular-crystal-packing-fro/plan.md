@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a machine learning pipeline to predict the packing coefficient of molecular crystals and classify dominant intermolecular interaction types using only single-molecule descriptors (volume, surface area, dipole, H-bond counts, PSA) as input. The approach involves ingesting crystallographic data (COD), computing descriptors via RDKit, training Random Forest and Gradient Boosting regressors on CPU, and validating performance against a mean baseline with statistical rigor (paired t-tests, multiple-comparison correction). The pipeline is constrained to run within GitHub Actions free-tier limits (limited CPU, restricted RAM, 6h).
+This project implements a machine learning pipeline to predict the packing coefficient of molecular crystals and classify dominant intermolecular interaction types using only single-molecule descriptors (volume, surface area, dipole, H-bond counts, PSA) as input. The approach involves ingesting crystallographic data (COD), computing descriptors via RDKit, training Random Forest and Gradient Boosting regressors on CPU, and validating performance against a mean baseline with statistical rigor (paired t-tests, multiple-comparison correction). The pipeline is constrained to run within GitHub Actions free-tier limits (limited CPU, restricted RAM, maximum execution duration).
 
 **Critical Scientific Control**: To address the tautology risk (predicting `V_mol / V_cell` using `V_mol`), the plan includes a **Control Analysis** phase that excludes geometric descriptors (Volume, Surface Area) to test if interaction-specific descriptors (Dipole, H-bonds) drive packing efficiency.
 
@@ -31,10 +31,10 @@ This project implements a machine learning pipeline to predict the packing coeff
 |-----------|------------------------------|---------------------|
 | **I. Reproducibility** | Phase 0: `requirements.txt` pins; `random_state=42` in all scripts. | Re-run on fresh runner yields identical `results/metrics.json`. |
 | **II. Verified Accuracy** | Phase 0: COD bulk download URL is the canonical source. | Script fetches from official COD mirror; no fabricated URLs. |
-| **III. Data Hygiene** | Phase 1: `01_ingest_and_descriptors.py` generates SHA-256 checksums. | Checksums recorded in `state/projects/PROJ-238.../artifact_hashes`. |
+| **III. Data Hygiene** | Phase: `01_ingest_and_descriptors.py` generates SHA-256 checksums. | Checksums recorded in `state/projects/PROJ-238.../artifact_hashes`. |
 | **IV. Single Source of Truth** | Phase 2: `02_train_models.py` outputs JSON metrics. | No hand-typed numbers in `paper/`; all stats from JSON. |
 | **V. Versioning Discipline** | Phase 0: `requirements.txt` and `state/` updates. | Content hashes updated on artifact change. |
-| **VI. Descriptor Consistency** | Phase 1: `utils/descriptors.py` uses RDKit v2023.9.1+. | Script version-controlled; deterministic CSV output. |
+| **VI. Descriptor Consistency** | Phase: `utils/descriptors.py` uses RDKit v2023.9.1+. | Script version-controlled; deterministic CSV output. |
 | **VII. Eval Transparency** | Phase 3: `03_evaluate_and_report.py` logs hyperparams, seeds, Bonferroni correction. | JSON summary includes all config and statistical test details. |
 
 ## Project Structure
