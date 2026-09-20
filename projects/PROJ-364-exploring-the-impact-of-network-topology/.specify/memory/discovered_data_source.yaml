@@ -1,0 +1,16 @@
+status: none
+intent: defect coordinate thermal conductivity dataset 2D materials Materials Cloud
+  Zenodo python package dataset
+required_fields:
+- material
+- sample_id
+- x_coordinate
+- y_coordinate
+- defect_type
+- thermal_conductivity
+- temperature
+- lattice_constant
+- measurement_units
+cache_key: 98b48c0fbb802e69dc708373de2d9ed796fa5a8f385f4317a3635087c81b744b
+searched_at: '2026-09-20T09:26:34.884624+00:00'
+retry_count: 1

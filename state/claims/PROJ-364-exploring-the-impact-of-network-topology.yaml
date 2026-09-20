@@ -2527,3 +2527,374 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-12T19:33:03Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: R_lattice value is 1.2e-4 K/W based on DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_762f84f1
+  context: 'T005 [P] Create src/constants/material_lattice.yaml and src/constants/lattice_resistance.yaml
+    file structures with placeholder comments. 2. Create src/constants/lattice_resistance.yaml
+    with R_lattice (1.2e-4 K/W from DOI: 10.1103/PhysRevB.93.045417).'
+  evidence:
+    asserted: '0.00012'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: citation
+  raw_text: 'Create src/constants/lattice_resistance.yaml with R_lattice (1.2e-4 K/W
+    from DOI: 10.1103/PhysRevB.93.045417).'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:27:30Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Graphene lattice constant is 0.246 nm
+  claim_id: c_7ae7b316
+  context: T005 [P] Create src/constants/material_lattice.yaml and src/constants/lattice_resistance.yaml
+    file structures with placeholder comments. 1. Create src/constants/material_lattice.yaml
+    with keys for graphene (0.246 nm) and MoS2 (commented as "VALUE REQUIRED").
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create src/constants/material_lattice.yaml with keys for graphene (0.246
+    nm).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:27:53Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis uses 1000 resamples to generate 95% confidence intervals
+  claim_id: c_6a15ac6f
+  context: "T032 [US3] Implement src/analysis/bootstrap.py for 1 000 resamples, generating\
+    \ 95 % confidence intervals for all coefficients (FR\u2011004, US3\u2011Scenario\
+    \ 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/analysis/bootstrap.py for 1,000 resamples, generating 95%
+    confidence intervals for all coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:28:16Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Default proximity threshold is 2.0 nm
+  claim_id: c_d970ba86
+  context: Threshold defaults to 2.0 nm (physically motivated) but can be overridden
+    via statistical_override and the multipliers used in sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold defaults to 2.0 nm (physically motivated) but can be overridden
+    via statistical_override.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:28:38Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis evaluates scaling factors 0.75x, 1.0x, 1.5x, 2.0x,
+    and 2.5x anchored to 2.0 nm baseline
+  claim_id: c_59e982df
+  context: Sensitivity analysis follows the Plan's multiplier set (A range of scaling
+    factors (including 0.75x, 1.0x, 1.5x, 2.0x, and 2.5x) will be evaluated.) anchored
+    to 2.0nm baseline and reports robustness per SC-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis follows the Plan's multiplier set (A range of scaling
+    factors (including 0.75x, 1.0x, 1.5x, 2.0x, and 2.5x) will be evaluated.) anchored
+    to 2.0nm baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:28:56Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Streaming ingestion RAM usage is verified to be less than 7 GB
+  claim_id: c_5b4e5c39
+  context: 'T039 [P] Performance optimization: verify streaming ingestion keeps RAM
+    < 7 GB for A set of samples will be collected.; add profiling script src/utils/profile_memory.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_ingestion_RAM_usage_is_verified_to_be_less_than_7
+  kind: magnitude
+  raw_text: Verify streaming ingestion keeps RAM < 7 GB for A set of samples will
+    be collected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:29:43Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: LCC fraction is calculated as |LCC| divided by total nodes
+  claim_id: c_1266081c
+  context: 'T022 [US2] Implement src/metrics/paths_and_lcc.py to compute: 1. Average
+    path length only on the Largest Connected Component (LCC); if the graph is disconnected,
+    set average_path_length to null and is_connected: false. 2. lcc_fraction = |LCC|
+    / total_nodes.'
+  evidence:
+    entailment_evidence: LCC fraction is calculated as LCC divided by total nodes
+    entailment_status: grounded
+    object: divided by total nodes
+    relation: LCC
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LCC_fraction_is_calculated_as_LCC_divided_by_total_nodes
+    source_value: https://en.wikipedia.org/wiki/LCC_fraction_is_calculated_as_LCC_divided_by_total_nodes
+    subject: LCC fraction is calculated as
+  kind: relational
+  raw_text: Implement src/metrics/paths_and_lcc.py to compute lcc_fraction = |LCC|
+    / total_nodes.
+  resolved_value: LCC fraction is calculated as |LCC| divided by total nodes
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:29:45Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Percolation critical distance d_c is estimated where LCC fraction exceeds
+    default threshold 0.9
+  claim_id: c_fad01dc6
+  context: T023 [US2] Implement src/metrics/percolation.py to estimate critical distance
+    d_c via binary search where LCC fraction exceeds a configurable threshold (default
+    0.9). Serialize d_c into the TopologyGraph JSON dict.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/metrics/percolation.py to estimate critical distance d_c
+    via binary search where LCC fraction exceeds a configurable threshold (default
+    0.9).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:30:11Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction uses Bonferroni for 5 or fewer tests,
+    otherwise Benjamini-Hochberg FDR
+  claim_id: c_7f0e4201
+  context: "T033_corr [US3] Implement src/analysis/correction.py for multiple\u2011\
+    comparison correction: - Use Bonferroni when \u2264 5 tests, otherwise Benjamini\u2011\
+    Hochberg FDR."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Bonferroni when <= 5 tests, otherwise Benjamini-Hochberg FDR.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:30:35Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: R_lattice value of 1.2e-4 K/W from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_0ed29187
+  context: 'Create src/constants/lattice_resistance.yaml with R_lattice (1.2e-4 K/W
+    from DOI: 10.1103/PhysRevB.93.045417).'
+  evidence:
+    asserted: '0.00012'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: citation
+  raw_text: 'R_lattice (1.2e-4 K/W from DOI: 10.1103/PhysRevB.93.045417)'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T09:31:38Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: graphene lattice constant of 0.246 nm
+  claim_id: c_ab785d51
+  context: Create src/constants/material_lattice.yaml with keys for graphene (0.246
+    nm) and MoS2 (commented as 'VALUE REQUIRED').
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: graphene (0.246 nm)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:32:00Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: LCC fraction threshold default of 0.9 for percolation critical distance
+  claim_id: c_3a60b6ad
+  context: Implement src/metrics/percolation.py to estimate critical distance d_c
+    via binary search where LCC fraction exceeds a configurable threshold (default
+    0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:32:24Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling generates 95% confidence intervals
+  claim_id: c_48d39234
+  context: "Implement src/analysis/bootstrap.py for 1 000 resamples, generating 95\
+    \ % confidence intervals for all coefficients (FR\u2011004, US3\u2011Scenario\
+    \ 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95 % confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:32:51Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 resamples
+  claim_id: c_cbcc3581
+  context: "Implement src/analysis/bootstrap.py for 1 000 resamples, generating 95\
+    \ % confidence intervals for all coefficients (FR\u2011004, US3\u2011Scenario\
+    \ 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1 000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:49Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: PCA retains components explaining 95% or more variance
+  claim_id: c_577c1d44
+  context: "Implement src/analysis/dimensionality.py to perform PCA on the full metric\
+    \ set, retaining components that explain \u2265 95 % variance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u2265 95 % variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:49Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Streaming ingestion keeps RAM under 7 GB
+  claim_id: c_3e93da4c
+  context: 'Performance optimization: verify streaming ingestion keeps RAM < 7 GB
+    for A set of samples will be collected.; add profiling script src/utils/profile_memory.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM < 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:33:49Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses proximity-threshold multipliers 0.75, 1.0,
+    1.5, 2.0, and 2.5
+  claim_id: c_d54d0649
+  context: 'Implement src/analysis/sensitivity.py to repeat the full pipeline for
+    proximity-threshold multipliers: [, 0.75, 1.0, 1.5, 2.0, 2.5] as per FR-010 and
+    SC-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'multipliers: 0.75, 1.0, 1.5, 2.0, 2.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:35:19Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Absolute threshold calculated using 2.0nm baseline
+  claim_id: c_d5e42907
+  context: 'Logic: For each multiplier m in the range, calculate absolute_threshold
+    = m * 2.0nm (using the nm baseline from the plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2.0nm baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:35:37Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Robustness status is target_met if standard deviation is less than or
+    equal to 0.05
+  claim_id: c_274f084f
+  context: "Compute std_dev across the six runs. Write std_dev and robustness_status\
+    \ (target_met if \u2264 0.05, else target_exceeded) into results/sensitivity_analysis.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_status_is_target_met_if_standard_deviation_is_les
+  kind: magnitude
+  raw_text: "robustness_status target_met if \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:36:22Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Known sample dataset contains 100 defects
+  claim_id: c_fc033b4b
+  context: 'Independent Test: Load a known sample dataset (500x500 pixel graphene
+    simulation with 100 known defects) and verify the resulting graph has exactly
+    100 nodes and edge density matches the threshold logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100 known defects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T09:37:01Z'

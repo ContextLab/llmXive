@@ -1,9 +1,3 @@
-"""
-Checksum utilities for file integrity verification.
-
-Provides functions to calculate SHA-256 hashes for files and strings,
-verify file checksums against known values, and manage checksum manifests.
-"""
 import hashlib
 import json
 import logging
@@ -11,136 +5,155 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
 
-from src.logging_config import get_data_ingestion_logger
+logger = logging.getLogger(__name__)
 
-logger = get_data_ingestion_logger(__name__)
-
-
-def compute_string_sha256(data: str) -> str:
+def calculate_sha256(file_path: str) -> str:
     """
-    Compute the SHA-256 hash of a string.
-
-    Args:
-        data: The string to hash.
-
-    Returns:
-        The hexadecimal SHA-256 hash string.
-    """
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
-
-
-def compute_file_sha256(file_path: Union[str, Path], chunk_size: int = 8192) -> str:
-    """
-    Compute the SHA-256 hash of a file by reading it in chunks.
-
-    This is memory-efficient for large files.
+    Calculate the SHA256 checksum of a file.
 
     Args:
         file_path: Path to the file to hash.
-        chunk_size: Size of chunks to read (default 8KB).
 
     Returns:
-        The hexadecimal SHA-256 hash string.
+        Hexadecimal string of the SHA256 hash.
 
     Raises:
         FileNotFoundError: If the file does not exist.
         IOError: If the file cannot be read.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
+    path = Path(file_path)
+    if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
     sha256_hash = hashlib.sha256()
     try:
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(chunk_size), b""):
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
     except IOError as e:
-        logger.error(f"Failed to read file {file_path}: {e}")
-        raise
+        raise IOError(f"Failed to read file {file_path}: {e}")
 
-    return sha256_hash.hexdigest()
-
-
-def calculate_sha256(file_path: str) -> str:
+def compute_string_sha256(content: str) -> str:
     """
-    Calculate the SHA-256 checksum of a file.
-
-    This is a convenience wrapper around compute_file_sha256.
+    Calculate the SHA256 checksum of a string.
 
     Args:
-        file_path: Path to the file to hash.
+        content: String content to hash.
 
     Returns:
-        The hexadecimal SHA-256 hash string.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        Hexadecimal string of the SHA256 hash.
     """
-    return compute_file_sha256(file_path)
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-
-def verify_file_checksum(file_path: Union[str, Path], expected_checksum: str) -> bool:
+def compute_file_checksum(file_path: str, algorithm: str = 'sha256') -> str:
     """
-    Verify a file's checksum against an expected value.
+    Calculate a checksum of a file using the specified algorithm.
 
     Args:
-        file_path: Path to the file to verify.
-        expected_checksum: The expected SHA-256 hash string.
+        file_path: Path to the file.
+        algorithm: Hash algorithm name (default: 'sha256').
 
     Returns:
-        True if the checksum matches, False otherwise.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
+        Hexadecimal string of the checksum.
     """
-    actual_checksum = compute_file_sha256(file_path)
-    is_valid = actual_checksum.lower() == expected_checksum.lower()
-    if not is_valid:
-        logger.warning(
-            f"Checksum mismatch for {file_path}. "
-            f"Expected: {expected_checksum}, Got: {actual_checksum}"
-        )
-    return is_valid
+    hasher = hashlib.new(algorithm)
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
 
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-def generate_checksum_manifest(file_paths: list, output_path: Union[str, Path]) -> None:
+def verify_file_checksum(file_path: str, expected_checksum: str, algorithm: str = 'sha256') -> bool:
     """
-    Generate a JSON manifest containing checksums for multiple files.
+    Verify that a file's checksum matches the expected value.
 
     Args:
-        file_paths: List of file paths to include in the manifest.
-        output_path: Path where the manifest JSON will be written.
+        file_path: Path to the file.
+        expected_checksum: Expected hexadecimal checksum.
+        algorithm: Hash algorithm name (default: 'sha256').
 
-    Raises:
-        FileNotFoundError: If any file in file_paths does not exist.
-        IOError: If the output file cannot be written.
+    Returns:
+        True if checksums match, False otherwise.
     """
+    try:
+        actual_checksum = compute_file_checksum(file_path, algorithm)
+        return actual_checksum.lower() == expected_checksum.lower()
+    except (FileNotFoundError, IOError):
+        return False
+
+def generate_checksum_manifest(
+    files: Union[list, str],
+    manifest_path: Optional[str] = None,
+    root_dir: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
+    """
+    Generate a manifest of checksums for a list of files.
+
+    This function is designed to be tolerant of different calling conventions:
+    1. generate_checksum_manifest([file1, file2]) -> returns dict
+    2. generate_checksum_manifest([file1], manifest_path="path") -> writes file, returns path
+    3. generate_checksum_manifest([file1], root_dir="path") -> handles root_dir logic if needed
+
+    Args:
+        files: List of file paths or a single file path string.
+        manifest_path: Optional path to write the manifest JSON. If provided,
+                       the manifest is written to disk and the path is returned.
+        root_dir: Optional root directory to prepend to file paths (for context).
+                  If provided, it is used to resolve relative paths but does not
+                  alter the checksum calculation logic itself.
+
+    Returns:
+        If manifest_path is provided: returns the manifest_path string.
+        Otherwise: returns the manifest dictionary.
+    """
+    if isinstance(files, str):
+        files = [files]
+
     manifest = {
         "version": "1.0",
         "algorithm": "sha256",
         "files": {}
     }
 
-    for file_path in file_paths:
-        path = Path(file_path)
-        if not path.exists():
-            raise FileNotFoundError(f"File not found in manifest generation: {path}")
-        manifest["files"][str(path)] = compute_file_sha256(path)
+    for file_path in files:
+        # Handle root_dir context if provided
+        if root_dir:
+            # If file_path is relative, make it absolute relative to root_dir
+            # but we only store the original path or the resolved one?
+            # Usually manifests store the path relative to the manifest or absolute.
+            # We will store the path as provided, but ensure we can read it.
+            full_path = Path(root_dir) / file_path
+        else:
+            full_path = Path(file_path)
 
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
+        if not full_path.exists():
+            logger.warning(f"File not found for checksum: {full_path}")
+            continue
+
+        try:
+            checksum = calculate_sha256(str(full_path))
+            # Store with the original relative path if root_dir was used, else the input path
+            display_path = file_path if root_dir else file_path
+            manifest["files"][display_path] = {
+                "checksum": checksum,
+                "size_bytes": full_path.stat().st_size
+            }
+        except Exception as e:
+            logger.error(f"Failed to checksum {full_path}: {e}")
+
+    if manifest_path:
+        with open(manifest_path, 'w', encoding='utf-8') as f:
             json.dump(manifest, f, indent=2)
-        logger.info(f"Checksum manifest written to {output_path}")
-    except IOError as e:
-        logger.error(f"Failed to write manifest to {output_path}: {e}")
-        raise
+        logger.info(f"Checksum manifest written to {manifest_path}")
+        return manifest_path
 
+    return manifest
 
-def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, Any]:
+def load_checksum_manifest(manifest_path: str) -> Dict[str, Any]:
     """
     Load a checksum manifest from a JSON file.
 
@@ -148,25 +161,16 @@ def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, Any]:
         manifest_path: Path to the manifest JSON file.
 
     Returns:
-        The manifest dictionary.
-
-    Raises:
-        FileNotFoundError: If the manifest file does not exist.
-        json.JSONDecodeError: If the manifest is not valid JSON.
+        Dictionary containing the manifest data.
     """
-    manifest_path = Path(manifest_path)
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
+    path = Path(manifest_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
 
-    try:
-        with open(manifest_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in manifest {manifest_path}: {e}")
-        raise
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-
-def verify_manifest(manifest_path: Union[str, Path]) -> Dict[str, bool]:
+def verify_manifest(manifest_path: str) -> bool:
     """
     Verify all files listed in a checksum manifest.
 
@@ -174,19 +178,24 @@ def verify_manifest(manifest_path: Union[str, Path]) -> Dict[str, bool]:
         manifest_path: Path to the manifest JSON file.
 
     Returns:
-        A dictionary mapping file paths to their verification status (True/False).
-
-    Raises:
-        FileNotFoundError: If the manifest file does not exist.
+        True if all files match their checksums, False otherwise.
     """
-    manifest = load_checksum_manifest(manifest_path)
-    results = {}
+    try:
+        manifest = load_checksum_manifest(manifest_path)
+        files = manifest.get("files", {})
+        all_valid = True
 
-    for file_path, expected_checksum in manifest.get("files", {}).items():
-        try:
-            results[file_path] = verify_file_checksum(file_path, expected_checksum)
-        except FileNotFoundError:
-            results[file_path] = False
-            logger.error(f"File missing during manifest verification: {file_path}")
+        for file_path, info in files.items():
+            expected = info.get("checksum")
+            if not expected:
+                logger.warning(f"No checksum found for {file_path} in manifest")
+                continue
 
-    return results
+            if not verify_file_checksum(file_path, expected):
+                logger.error(f"Checksum mismatch for {file_path}")
+                all_valid = False
+
+        return all_valid
+    except Exception as e:
+        logger.error(f"Failed to verify manifest: {e}")
+        return False

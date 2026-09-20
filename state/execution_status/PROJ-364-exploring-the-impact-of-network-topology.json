@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-364-exploring-the-impact-of-network-topology",
+  "ok": false,
+  "reason": "13 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/contracts/analysis.schema.yaml: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026description: Warning if synthetic data was detected.     proper\u2026\u201d; code/src/data_ingestion/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Validation\u2026\u201d; code/src/data_ingestion/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rsioned, and checksummed synthetic datasets strictly for pipeline va\u2026\u201d; every produced artifact is gitignored (data/raw/synthetic_defects.csv/synthetic_defects.csv, data/raw/synthetic_defects.csv/synthetic_metadata.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/utils/checksum_data.py data/raw/synthetic_defects.csv; python code/main.py --config code/config.yaml; 1 command(s) failed: python code/src/data_ingestion/generate_synthetic.py --output data/raw/synthetic_defects.csv --seed 42 (rc=1)",
+  "artifacts": [
+    "data/raw/synthetic_defects.csv/synthetic_defects.csv",
+    "data/raw/synthetic_defects.csv/synthetic_metadata.json"
+  ],
+  "failures": [
+    "python code/src/data_ingestion/generate_synthetic.py --output data/raw/synthetic_defects.csv --seed 42 -> rc=1\n    2026-09-20 09:25:58 - llmXive.data_ingestion - WARNING - === SYNTHETIC DATA GENERATION MODE ===\n2026-09-20 09:25:58 - llmXive.data_ingestion - WARNING - This dataset is generated for pipeline validation ONLY.\n2026-09-20 09:25:58 - llmXive.data_ingestion - WARNING - Do not use for scientific hypothesis testing.\n2026-09-20 09:25:58 - llmXive.data_ingestion - ERROR - Failed to generate synthetic data: generate_checksum_manifest() got an unexpected keyword argument 'root_dir'\nTracebac",
+    "python code/utils/checksum_data.py data/raw/synthetic_defects.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-364-exploring-the-impact-of-network-topology/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-364-exploring-the-impact-of-network-topology/code/utils/checksum_data.py': [Errno 2] No such file or directory",
+    "python code/main.py --config code/config.yaml -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-364-exploring-the-impact-of-network-topology/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-364-exploring-the-impact-of-network-topology/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-20T09:26:00Z"
+}
