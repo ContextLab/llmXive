@@ -6,225 +6,160 @@ import pandas as pd
 import numpy as np
 
 from utils.logger import get_logger, log_execution_start, log_execution_end
-from utils.validators import validate_dataframe_schema, load_schema
 from data.config import get_config
 
-logger = get_logger(__name__)
+# Ensure logs directory exists
+LOGS_DIR = Path("logs")
+LOGS_DIR.mkdir(exist_ok=True)
 
 def calculate_missing_ratio(df: pd.DataFrame, column: str) -> float:
     """
     Calculate the ratio of missing values for a specific column.
-
+    
     Args:
         df: Input DataFrame
         column: Column name to check
-
+        
     Returns:
-        Float between 0.0 and 1.0 representing missing ratio
+        Float ratio of missing values (0.0 to 1.0)
     """
     if column not in df.columns:
         raise ValueError(f"Column '{column}' not found in DataFrame")
-    return df[column].isna().sum() / len(df)
-
-def _normalize_binary_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
-    """
-    Normalize a binary column to 0/1 integer representation.
     
-    Handles various binary encodings:
-    - Strings: 'yes'/'no', 'true'/'false', 'high'/'low', 'treatment'/'control'
-    - Mixed case strings
-    - Numeric 0/1 or 1/0 (already normalized)
+    total = len(df)
+    if total == 0:
+        return 0.0
+    
+    missing = df[column].isna().sum()
+    return missing / total
+
+def preprocess_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Preprocess the dataset according to T017 requirements.
+    
+    1. Normalize binary variables (specifically avatar_condition to 0/1).
+    2. Compute change scores (post_self_esteem - pre_self_esteem) for 
+       in-memory logging/diagnostics ONLY.
+    3. DO NOT persist change scores to disk.
+    4. Log a warning that change scores are for descriptive use only.
+    
+    CRITICAL: The primary model (ANCOVA) must use post_self_esteem as outcome 
+    and pre_self_esteem as covariate to avoid mathematical coupling.
     
     Args:
-        df: Input DataFrame
-        col_name: Name of the column to normalize
+        df: Input DataFrame containing raw or imputed data
         
     Returns:
-        DataFrame with normalized column
+        Tuple of (processed_df, diagnostics_df)
+        - processed_df: DataFrame with normalized variables, ready for analysis
+        - diagnostics_df: DataFrame containing only change scores for logging (not saved)
     """
-    df = df.copy()
+    logger = get_logger(__name__)
+    log_execution_start(logger, "preprocess_data")
     
-    if col_name not in df.columns:
-        logger.warning(f"Column '{col_name}' not found in DataFrame, skipping normalization")
-        return df
+    # Create a copy to avoid modifying the original
+    processed_df = df.copy()
     
-    series = df[col_name]
-    
-    # Check if already numeric 0/1
-    if pd.api.types.is_numeric_dtype(series):
-        unique_vals = series.unique()
-        if set(unique_vals).issubset({0, 1, np.nan}):
-            logger.info(f"Column '{col_name}' already normalized to 0/1")
-            return df
-        elif set(unique_vals).issubset({0, 1, 2, np.nan}):
-            # Might be multi-class, check if it's actually binary encoded oddly
-            logger.warning(f"Column '{col_name}' has numeric values {unique_vals}, not strictly 0/1")
-            return df
-    
-    # Convert to string for uniform processing
-    str_series = series.astype(str).str.lower().str.strip()
-    
-    # Define mapping for common binary representations
-    # Format: (positive_value, negative_value)
-    binary_mappings = [
-        (['yes', 'true', 't', '1', 'high', 'treatment', 'high_avatar', 'social'], 
-         ['no', 'false', 'f', '0', 'low', 'control', 'low_avatar', 'non_social']),
-        (['high', 'treatment'], ['low', 'control']),
-        (['1', 'true', 'yes'], ['0', 'false', 'no']),
-    ]
-    
-    # Try to find a mapping that fits the data
-    unique_lower = set(str_series.dropna().unique())
-    
-    normalized_map = {}
-    found_mapping = False
-    
-    for pos_vals, neg_vals in binary_mappings:
-        pos_set = set(pos_vals)
-        neg_set = set(neg_vals)
+    # 1. Normalize binary variables (avatar_condition to 0/1)
+    if 'avatar_condition' in processed_df.columns:
+        # Convert to numeric first to handle potential string representations
+        processed_df['avatar_condition'] = pd.to_numeric(
+            processed_df['avatar_condition'], 
+            errors='coerce'
+        )
         
-        # Check if all unique values (excluding nan) are in either pos or neg sets
-        if unique_lower.issubset(pos_set | neg_set):
-            # Found a valid mapping
-            for val in pos_vals:
-                if val in unique_lower:
-                    normalized_map[val] = 1
-            for val in neg_vals:
-                if val in unique_lower:
-                    normalized_map[val] = 0
-            found_mapping = True
-            logger.info(f"Applied binary mapping to '{col_name}': {unique_lower} -> 0/1")
-            break
-    
-    if not found_mapping:
-        # If we can't map it, check if it's already 0/1 numerically (handled above)
-        # or if it has exactly 2 unique non-null values that we can map arbitrarily
-        if len(unique_lower) == 2:
-            vals = sorted(list(unique_lower))
-            normalized_map[vals[0]] = 0
-            normalized_map[vals[1]] = 1
-            logger.info(f"Arbitrarily mapped binary values for '{col_name}': {vals} -> 0/1")
-            found_mapping = True
+        # Ensure it's binary (0 or 1)
+        unique_vals = processed_df['avatar_condition'].dropna().unique()
+        if len(unique_vals) == 0:
+            logger.warning("avatar_condition is entirely NaN. Cannot normalize.")
+        elif set(unique_vals) == {0, 1}:
+            logger.info("avatar_condition is already normalized to 0/1.")
+        elif set(unique_vals) == {0.0, 1.0}:
+            logger.info("avatar_condition is already normalized to 0.0/1.0.")
+        elif set(unique_vals) <= {0, 1} and len(unique_vals) > 0:
+            # Already binary, ensure integer type for consistency
+            processed_df['avatar_condition'] = processed_df['avatar_condition'].astype(int)
+            logger.info("avatar_condition normalized to binary integers (0/1).")
         else:
-            logger.error(f"Cannot normalize column '{col_name}' to binary. Unique values: {unique_lower}")
-            raise ValueError(f"Column '{col_name}' cannot be normalized to binary 0/1. "
-                           f"Unique values found: {unique_lower}")
+            # Attempt to map common binary representations to 0/1
+            # e.g., ['neutral', 'idealized'] -> [0, 1]
+            # e.g., [False, True] -> [0, 1]
+            # e.g., [1, 2] -> [0, 1] (shifted)
+            
+            if len(unique_vals) == 2:
+                sorted_vals = sorted(unique_vals)
+                mapping = {sorted_vals[0]: 0, sorted_vals[1]: 1}
+                processed_df['avatar_condition'] = processed_df['avatar_condition'].map(mapping)
+                logger.info(f"avatar_condition mapped from {list(unique_vals)} to [0, 1].")
+            else:
+                logger.error(f"avatar_condition has non-binary values: {unique_vals}. Cannot normalize automatically.")
+                raise ValueError(f"avatar_condition contains non-binary values: {unique_vals}")
     
-    # Apply mapping
-    def map_val(x):
-        if pd.isna(x):
-            return np.nan
-        s = str(x).lower().strip()
-        return normalized_map.get(s, np.nan)
+    # 2. Compute change scores for in-memory logging/diagnostics ONLY
+    diagnostics_df = pd.DataFrame()
     
-    df[col_name] = str_series.map(map_val).astype('Int64')
-    
-    return df
-
-def preprocess_data(
-    df: pd.DataFrame, 
-    config: Optional[dict] = None,
-    schema_path: Optional[Union[str, Path]] = None
-) -> pd.DataFrame:
-    """
-    Main preprocessing pipeline for the analysis.
-    
-    Steps:
-    1. Validate required columns exist
-    2. Handle missing data (delegation to T016 logic if needed)
-    3. Normalize binary variables (avatar_condition)
-    4. Ensure numeric types for analysis variables
-    
-    Args:
-        df: Input DataFrame from raw data
-        config: Configuration dictionary (optional, uses global config if None)
-        schema_path: Path to validation schema (optional)
+    if 'post_self_esteem' in processed_df.columns and 'pre_self_esteem' in processed_df.columns:
+        # Calculate change score
+        change_scores = processed_df['post_self_esteem'] - processed_df['pre_self_esteem']
+        diagnostics_df['change_score'] = change_scores
         
-    Returns:
-        Preprocessed DataFrame ready for ANCOVA
-    """
-    if config is None:
-        config = get_config()
-    
-    logger.info("Starting data preprocessing")
-    
-    # 1. Validate required columns
-    required_cols = [
-        'avatar_condition', 
-        'pre_self_esteem', 
-        'post_self_esteem', 
-        'comparison_tendency'
-    ]
-    
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    # 2. Normalize binary variables
-    # Specifically normalize avatar_condition to 0/1
-    df = _normalize_binary_column(df, 'avatar_condition')
-    
-    # 3. Ensure numeric types for analysis variables
-    numeric_cols = ['pre_self_esteem', 'post_self_esteem', 'comparison_tendency']
-    for col in numeric_cols:
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            logger.info(f"Converting '{col}' to numeric")
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    # 4. Validate schema if provided
-    if schema_path:
-        schema = load_schema(schema_path)
-        validate_dataframe_schema(df, schema)
-        logger.info("Schema validation passed")
-    
-    logger.info(f"Preprocessing complete. Shape: {df.shape}")
-    return df
-
-def run_preprocess(
-    input_path: Union[str, Path], 
-    output_path: Union[str, Path],
-    schema_path: Optional[Union[str, Path]] = None
-) -> None:
-    """
-    CLI-style entry point for preprocessing.
-    
-    Loads data from input_path, preprocesses it, and saves to output_path.
-    
-    Args:
-        input_path: Path to input CSV/Parquet file
-        output_path: Path to save preprocessed CSV
-        schema_path: Optional path to schema for validation
-    """
-    log_execution_start("run_preprocess", {"input": str(input_path), "output": str(output_path)})
-    
-    input_path = Path(input_path)
-    output_path = Path(output_path)
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
-    logger.info(f"Loading data from {input_path}")
-    if input_path.suffix == '.csv':
-        df = pd.read_csv(input_path)
-    elif input_path.suffix in ['.parquet', '.pq']:
-        df = pd.read_parquet(input_path)
+        # Log descriptive statistics for change scores (in-memory only)
+        logger.warning(
+            "Change scores (post - pre) computed for descriptive/diagnostic purposes ONLY. "
+            "These are NOT used in the primary ANCOVA model to avoid mathematical coupling. "
+            "DO NOT persist change scores to disk."
+        )
+        
+        # Log summary stats
+        mean_change = change_scores.mean()
+        std_change = change_scores.std()
+        logger.info(f"Change Score Diagnostics: Mean={mean_change:.4f}, Std={std_change:.4f}, N={len(change_scores)}")
     else:
-        raise ValueError(f"Unsupported file format: {input_path.suffix}")
+        logger.warning("Cannot compute change scores: missing 'post_self_esteem' or 'pre_self_esteem' columns.")
     
-    logger.info(f"Loaded {len(df)} rows")
+    log_execution_end(logger, "preprocess_data")
     
-    # Preprocess
+    return processed_df, diagnostics_df
+
+def run_preprocess() -> None:
+    """
+    Main entry point for the preprocessing step (T017).
+    
+    Loads imputed data from data/processed/imputed_data.csv,
+    performs normalization and change score calculation,
+    and saves the processed data to data/processed/preprocessed_data.csv.
+    
+    Change scores are computed but NOT saved to disk.
+    """
+    logger = get_logger(__name__)
+    log_execution_start(logger, "run_preprocess")
+    
     config = get_config()
-    df_clean = preprocess_data(df, config=config, schema_path=schema_path)
+    raw_data_path = Path(config.get('paths', {}).get('imputed_data', 'data/processed/imputed_data.csv'))
+    output_path = Path(config.get('paths', {}).get('preprocessed_data', 'data/processed/preprocessed_data.csv'))
     
-    # Save
-    logger.info(f"Saving preprocessed data to {output_path}")
-    df_clean.to_csv(output_path, index=False)
+    if not raw_data_path.exists():
+        raise FileNotFoundError(f"Input file not found: {raw_data_path}")
     
-    log_execution_end("run_preprocess", {"rows_processed": len(df_clean)})
+    logger.info(f"Loading data from: {raw_data_path}")
+    df = pd.read_csv(raw_data_path)
     
-    logger.info("Preprocessing pipeline completed successfully")
+    logger.info(f"Loaded {len(df)} rows, {len(df.columns)} columns")
+    logger.info(f"Columns: {list(df.columns)}")
+    
+    # Perform preprocessing
+    processed_df, diagnostics_df = preprocess_data(df)
+    
+    # Save processed data (excluding change scores)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    processed_df.to_csv(output_path, index=False)
+    logger.info(f"Saved processed data to: {output_path}")
+    
+    # Log that change scores were NOT saved
+    if not diagnostics_df.empty:
+        logger.info("Change scores computed for diagnostics but NOT saved to disk (per T017 requirements).")
+    
+    log_execution_end(logger, "run_preprocess")
+
+if __name__ == "__main__":
+    run_preprocess()

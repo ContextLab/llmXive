@@ -1,6 +1,3 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Output Schema
-description: Schema for intermediate output artifacts, specifically imputation reports.
 type: object
 required:
   - imputed_data_checksum
@@ -8,22 +5,21 @@ required:
 properties:
   imputed_data_checksum:
     type: string
-    description: SHA-256 checksum of the imputed dataset for reproducibility verification.
+    description: SHA-256 checksum of the imputed data file (data/processed/imputed_data.csv) to ensure data integrity and reproducibility.
   missingness_report:
     type: object
-    description: Summary of missing data before and after imputation.
+    description: Summary statistics regarding missing data handling and exclusion.
     required:
-      - initial_missing_count
-      - final_missing_count
-      - missing_percentage
+      - total_rows
+      - rows_excluded
+      - missingness_pct
     properties:
-      initial_missing_count:
+      total_rows:
         type: integer
-      final_missing_count:
+        description: Total number of rows in the raw input dataset before imputation or exclusion.
+      rows_excluded:
         type: integer
-      missing_percentage:
+        description: Number of rows excluded from analysis due to missingness exceeding the 20% threshold (FR-002).
+      missingness_pct:
         type: number
-        format: float
-        minimum: 0.0
-        maximum: 100.0
-additionalProperties: false
+        description: Percentage of total missing values in the raw dataset (before imputation), calculated as (missing_cells / total_cells) * 100.

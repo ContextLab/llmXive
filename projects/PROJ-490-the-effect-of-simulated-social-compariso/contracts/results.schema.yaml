@@ -1,6 +1,3 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Results Schema
-description: Schema for final regression results and model diagnostics.
 type: object
 required:
   - coefficients
@@ -9,57 +6,108 @@ required:
 properties:
   coefficients:
     type: array
-    description: List of regression coefficients.
+    description: List of regression model coefficients
     items:
       type: object
+      properties:
+        name:
+          type: string
+          description: Name of the coefficient (e.g., 'Intercept', 'avatar_condition')
+        estimate:
+          type: number
+          description: Estimated value of the coefficient
+        std_err:
+          type: number
+          description: Standard error of the estimate
+        p_value:
+          type: number
+          description: P-value for the coefficient significance test
+        conf_int_low:
+          type: number
+          description: Lower bound of the 95% confidence interval (optional)
+        conf_int_high:
+          type: number
+          description: Upper bound of the 95% confidence interval (optional)
       required:
         - name
         - estimate
         - std_err
         - p_value
-      properties:
-        name:
-          type: string
-        estimate:
-          type: number
-          format: float
-        std_err:
-          type: number
-          format: float
-        p_value:
-          type: number
-          format: float
-          minimum: 0.0
-          maximum: 1.0
   assumptions:
     type: object
-    description: Model assumption validation results.
+    description: Model assumption validation results
+    properties:
+      shapiro_p:
+        type: number
+        description: Shapiro-Wilk normality test p-value for residuals
+      breusch_pagan_p:
+        type: number
+        description: Breusch-Pagan homoscedasticity test p-value
+      vif_max:
+        type: number
+        description: Maximum Variance Inflation Factor among predictors
+      collinearity_warning:
+        type: boolean
+        description: True if VIF >= 5 detected for any predictor
+      normality_passed:
+        type: boolean
+        description: True if Shapiro-Wilk p > 0.05
+      homoscedasticity_passed:
+        type: boolean
+        description: True if Breusch-Pagan p > 0.05
     required:
       - shapiro_p
       - breusch_pagan_p
       - vif_max
-    properties:
-      shapiro_p:
-        type: number
-        format: float
-        minimum: 0.0
-        maximum: 1.0
-        description: Shapiro-Wilk normality test p-value.
-      breusch_pagan_p:
-        type: number
-        format: float
-        minimum: 0.0
-        maximum: 1.0
-        description: Breusch-Pagan homoscedasticity test p-value.
-      vif_max:
-        type: number
-        format: float
-        minimum: 1.0
-        description: Maximum Variance Inflation Factor.
   data_source_type:
     type: string
     enum:
-      - real
-      - synthetic
-    description: Indicates whether the analysis used real or synthetic data.
-additionalProperties: false
+      - "real"
+      - "synthetic"
+    description: Indicates whether the analysis used real experimental data or synthetic data
+  model_info:
+    type: object
+    description: Additional model metadata
+    properties:
+      formula:
+        type: string
+        description: The regression formula used (e.g., 'post_self_esteem ~ pre_self_esteem + avatar_condition + comparison_tendency + ...')
+      n_observations:
+        type: integer
+        description: Number of observations used in the model
+      r_squared:
+        type: number
+        description: R-squared value of the model
+      adj_r_squared:
+        type: number
+        description: Adjusted R-squared value of the model
+      aic:
+        type: number
+        description: Akaike Information Criterion
+      bic:
+        type: number
+        description: Bayesian Information Criterion
+  sensitivity_summary:
+    type: object
+    description: Summary of sensitivity analysis results (optional)
+    properties:
+      stability_passed:
+        type: boolean
+        description: True if bootstrap CI width variance < 0.01
+      ci_width_variance:
+        type: number
+        description: Final CI width variance achieved
+      parameter_recovery_bias:
+        type: number
+        description: Absolute bias between estimated and true parameters (for synthetic data)
+      sensitivity_thresholds_tested:
+        type: array
+        items:
+          type: number
+        description: List of p-value thresholds tested
+  interpretation:
+    type: string
+    enum:
+      - "Empirical Association"
+      - "Simulated Causal Effect"
+    description: Interpretation label based on data source type

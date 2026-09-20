@@ -1,16 +1,16 @@
-T017a:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided spec excerpt includes FR\u2011003 with the amended ANCOVA specification,\
-    \ explicitly naming `post_self_esteem` as the outcome and `pre_self_esteem` as\
-    \ a covariate, replacing the previous `self\u2011esteem_change` requirement. This\
-    \ satisfies the task\u2019s requirement to update `spec.md`."
-T026:
+T013b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or result file was provided that computes the confidence\u2011\
-    interval width variance from bootstrap outputs nor that flags cases where the\
-    \ variance meets or exceeds 0.01. Consequently the required artifact is missing."
+  h: 699c2e4bf81d239a7e938085408027d4f2b2dccd00a34b4e746f3e8bb0d9096e
+  r: The required file `data/processed/imputed_data.csv` does not exist, so the validation
+    step cannot actually verify any data. Only the JSON status file is present, which
+    is insufficient because the primary artifact to be validated is missing. The task
+    is therefore not genuinely completed.
+T022:
+  c: false
+  h: 7d6c5d0e392e7c229f9f85b030c278f6e58155811f776606ee7d4a8671a41711
+  r: "The required `data/processed/model_diagnostics.json` file is missing, so the\
+    \ collinearity warning cannot be recorded as specified. The task\u2019s primary\
+    \ artifact does not exist."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

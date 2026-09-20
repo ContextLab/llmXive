@@ -1,209 +1,315 @@
+"""
+Collinearity handling module for the ANCOVA analysis pipeline.
+
+This module calculates Variance Inflation Factors (VIF) for model predictors,
+flags high collinearity (VIF >= 5), and generates descriptive framing for
+results to avoid claiming independent effects when collinearity is present.
+
+Implements T022: Handle collinearity (VIF ≥ 5) by flagging and framing
+results descriptively without claiming independent effects.
+"""
+
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
+
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
+
+# Import from sibling modules based on project API surface
+from data.config import get_config
 from utils.logger import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
 
+# VIF threshold for flagging collinearity
 VIF_THRESHOLD = 5.0
 
-def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> pd.DataFrame:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    
-    Args:
-        df: DataFrame containing the features.
-        feature_cols: List of column names to calculate VIF for.
-        
-    Returns:
-        DataFrame with 'feature', 'vif', and 'flagged' columns.
-    """
-    logger.info(f"Calculating VIF for features: {feature_cols}")
-    
-    # Ensure we have a numeric dataframe
-    X = df[feature_cols].copy()
-    X = X.dropna()
-    
-    if X.empty or len(X) < 2:
-        logger.warning("Insufficient data for VIF calculation.")
-        return pd.DataFrame(columns=['feature', 'vif', 'flagged'])
-    
-    # Add constant for intercept if not present (required for VIF calculation)
-    if not np.all(np.any(X != 0, axis=0)):
-        # Check for columns with zero variance which might cause issues
-        pass
-    
-    try:
-        vif_data = []
-        for i, col in enumerate(X.columns):
-            try:
-                vif = variance_inflation_factor(X.values, i)
-                flagged = vif >= VIF_THRESHOLD
-                vif_data.append({
-                    'feature': col,
-                    'vif': vif,
-                    'flagged': flagged
-                })
-            except Exception as e:
-                logger.warning(f"Could not calculate VIF for {col}: {e}")
-                vif_data.append({
-                    'feature': col,
-                    'vif': np.nan,
-                    'flagged': False
-                })
-        
-        return pd.DataFrame(vif_data)
-    except Exception as e:
-        logger.error(f"Error calculating VIF: {e}")
-        raise
 
-def check_collinearity_flags(vif_df: pd.DataFrame) -> Dict[str, Any]:
+def calculate_vif(df: pd.DataFrame, feature_columns: List[str]) -> Dict[str, float]:
     """
-    Check VIF results and generate flags for collinearity issues.
+    Calculate Variance Inflation Factors (VIF) for specified features.
     
     Args:
-        vif_df: DataFrame with VIF results from calculate_vif.
+        df: DataFrame containing the data
+        feature_columns: List of column names to calculate VIF for
         
     Returns:
-        Dictionary with collinearity status and flagged features.
+        Dictionary mapping feature names to their VIF values
+        
+    Raises:
+        ValueError: If any feature column is not found in the DataFrame
+        ValueError: If the DataFrame contains non-numeric data for the features
     """
-    flagged_features = vif_df[vif_df['flagged']]['feature'].tolist()
+    # Filter to only the feature columns
+    features = df[feature_columns].copy()
+    
+    # Check for non-numeric data
+    if not np.issubdtype(features.values.dtype, np.number):
+        # Try to convert to numeric, handling potential categorical variables
+        try:
+            features = features.apply(pd.to_numeric, errors='raise')
+        except (ValueError, TypeError) as e:
+            raise ValueError(f"Features must be numeric for VIF calculation: {e}")
+    
+    # Add constant term for intercept
+    features_with_const = add_constant(features)
+    
+    vif_results = {}
+    for i, col in enumerate(features_with_const.columns):
+        if col == 'const':
+            continue
+        
+        vif_val = variance_inflation_factor(features_with_const.values, i)
+        vif_results[col] = vif_val
+        
+        logger.debug(f"VIF for {col}: {vif_val:.4f}")
+    
+    return vif_results
+
+
+def check_collinearity_flags(vif_results: Dict[str, float], threshold: float = VIF_THRESHOLD) -> Dict[str, Any]:
+    """
+    Check VIF results for collinearity flags.
+    
+    Args:
+        vif_results: Dictionary of feature VIF values
+        threshold: VIF threshold for flagging (default: 5.0)
+        
+    Returns:
+        Dictionary containing:
+            - 'has_collinearity': bool, True if any VIF >= threshold
+            - 'flagged_features': List of feature names with high VIF
+            - 'max_vif': Maximum VIF value
+            - 'warning_message': String describing the collinearity issue
+    """
+    flagged_features = [
+        feature for feature, vif_val in vif_results.items()
+        if vif_val >= threshold
+    ]
+    
+    max_vif = max(vif_results.values()) if vif_results else 0.0
     has_collinearity = len(flagged_features) > 0
+    
+    warning_message = ""
+    if has_collinearity:
+        warning_message = (
+            f"Collinearity detected: {len(flagged_features)} feature(s) have VIF >= {threshold}. "
+            f"Flagged features: {', '.join(flagged_features)}. "
+            f"Maximum VIF: {max_vif:.2f}. "
+            f"Results should be framed descriptively without claiming independent effects."
+        )
+        logger.warning(warning_message)
+    else:
+        logger.info(f"No collinearity detected. Max VIF: {max_vif:.2f}")
     
     return {
         'has_collinearity': has_collinearity,
         'flagged_features': flagged_features,
-        'max_vif': float(vif_df['vif'].max()) if not vif_df.empty else 0.0,
-        'threshold': VIF_THRESHOLD
+        'max_vif': max_vif,
+        'warning_message': warning_message
     }
 
+
 def generate_descriptive_framing(
-    vif_df: pd.DataFrame, 
-    collinearity_flags: Dict[str, Any],
-    coefficients: Optional[Dict[str, float]] = None
-) -> str:
+    coefficients: List[Dict[str, Any]],
+    collinearity_flags: Dict[str, Any]
+) -> List[Dict[str, Any]]:
     """
-    Generate a descriptive framing of results when collinearity is detected.
-    Ensures results are described without claiming independent effects.
+    Generate descriptive framing for regression coefficients when collinearity is present.
+    
+    This function modifies the interpretation of coefficients to avoid claiming
+    independent effects when collinearity is detected.
     
     Args:
-        vif_df: DataFrame with VIF results.
-        collinearity_flags: Dictionary from check_collinearity_flags.
-        coefficients: Optional dictionary of regression coefficients.
+        coefficients: List of coefficient dictionaries with 'name', 'estimate', 'std_err', 'p_value'
+        collinearity_flags: Output from check_collinearity_flags
         
     Returns:
-        Descriptive string suitable for reports.
+        List of coefficient dictionaries with added 'framing' and 'interpretation' fields
     """
-    lines = []
+    framed_coefficients = []
     
     if collinearity_flags['has_collinearity']:
-        lines.append("COLLINEARITY WARNING DETECTED")
-        lines.append(f"The following variables exhibit high multicollinearity (VIF >= {VIF_THRESHOLD}):")
-        for feature in collinearity_flags['flagged_features']:
-            vif_val = vif_df[vif_df['feature'] == feature]['vif'].values[0]
-            lines.append(f"  - {feature}: VIF = {vif_val:.2f}")
-        
-        lines.append("")
-        lines.append("Interpretation Note:")
-        lines.append("Due to the presence of high multicollinearity among predictors,")
-        lines.append("the estimated coefficients should be interpreted with caution.")
-        lines.append("We cannot reliably disentangle the independent effects of the")
-        lines.append("collinear variables. Results are presented as descriptive associations")
-        lines.append("within the context of the full model, rather than as isolated causal effects.")
-        lines.append("The interaction term and main effects are reported, but claims of")
-        lines.append("independent contribution for the flagged variables are avoided.")
+        flagged_set = set(collinearity_flags['flagged_features'])
+        framing_note = (
+            "Due to collinearity (VIF >= 5), this coefficient represents an association "
+            "conditional on other variables in the model. Independent causal effects "
+            "cannot be claimed."
+        )
     else:
-        lines.append("No significant collinearity detected (all VIF < 5).")
-        lines.append("Independent effects can be interpreted with standard confidence.")
+        framing_note = "Standard interpretation applies."
+    
+    for coef in coefficients:
+        name = coef.get('name', 'unknown')
         
-    return "\n".join(lines)
+        # Create a copy to avoid modifying the original
+        framed_coef = coef.copy()
+        
+        # Add framing information
+        framed_coef['framing'] = 'descriptive_association' if collinearity_flags['has_collinearity'] else 'standard'
+        framed_coef['interpretation_note'] = framing_note if collinearity_flags['has_collinearity'] else None
+        framed_coef['is_flagged'] = name in flagged_set if collinearity_flags['has_collinearity'] else False
+        
+        # Adjust interpretation text if flagged
+        if name in flagged_set:
+            original_interpretation = framed_coef.get('interpretation', '')
+            if original_interpretation:
+                framed_coef['interpretation'] = (
+                    f"{original_interpretation} Note: Collinearity present; "
+                    f"effect is conditional on other predictors."
+                )
+        
+        framed_coefficients.append(framed_coef)
+    
+    return framed_coefficients
+
 
 def run_collinearity_analysis(
     df: pd.DataFrame,
-    feature_cols: List[str],
-    output_dir: Optional[Path] = None
-) -> Tuple[Dict[str, Any], str]:
+    feature_columns: List[str],
+    coefficients: Optional[List[Dict[str, Any]]] = None,
+    output_path: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Run the full collinearity analysis pipeline: calculate VIF, check flags,
-    and generate descriptive framing.
+    Run complete collinearity analysis pipeline.
+    
+    This function:
+    1. Calculates VIF for all features
+    2. Checks for collinearity flags
+    3. Generates descriptive framing for coefficients if needed
+    4. Optionally updates diagnostics file
     
     Args:
-        df: Input DataFrame.
-        feature_cols: List of feature columns to analyze.
-        output_dir: Optional directory to save VIF results JSON.
+        df: DataFrame with the data
+        feature_columns: List of feature column names
+        coefficients: Optional list of coefficient dictionaries to frame
+        output_path: Optional path to update model_diagnostics.json
         
     Returns:
-        Tuple of (flags_dict, descriptive_text).
+        Dictionary containing:
+            - vif_results: Dict of VIF values
+            - collinearity_flags: Dict with flag information
+            - framed_coefficients: List of framed coefficients (if provided)
+            - collinearity_warning: String warning message
     """
-    logger.info("Running collinearity analysis")
+    logger.info(f"Running collinearity analysis for features: {feature_columns}")
     
-    vif_df = calculate_vif(df, feature_cols)
-    flags = check_collinearity_flags(vif_df)
-    framing = generate_descriptive_framing(vif_df, flags)
+    # Calculate VIF
+    vif_results = calculate_vif(df, feature_columns)
     
-    if output_dir:
-        output_dir.mkdir(parents=True, exist_ok=True)
-        vif_path = output_dir / "vif_analysis.json"
-        # Convert dataframe to serializable dict
-        vif_dict = vif_df.to_dict(orient='records')
-        with open(vif_path, 'w') as f:
-            json.dump({
-                'vif_results': vif_dict,
-                'collinearity_flags': flags
-            }, f, indent=2)
-        logger.info(f"Saved VIF analysis to {vif_path}")
-        
-    return flags, framing
+    # Check for flags
+    collinearity_flags = check_collinearity_flags(vif_results)
+    
+    # Frame coefficients if provided
+    framed_coefficients = None
+    if coefficients is not None:
+        framed_coefficients = generate_descriptive_framing(coefficients, collinearity_flags)
+    
+    # Prepare result dictionary
+    result = {
+        'vif_results': vif_results,
+        'collinearity_flags': collinearity_flags,
+        'collinearity_warning': collinearity_flags['warning_message']
+    }
+    
+    if framed_coefficients is not None:
+        result['framed_coefficients'] = framed_coefficients
+    
+    # Update diagnostics file if output_path provided
+    if output_path is not None:
+        update_diagnostics_with_collinearity(output_path, result)
+    
+    return result
 
-def main():
+
+def update_diagnostics_with_collinearity(
+    diagnostics_path: Path,
+    collinearity_result: Dict[str, Any]
+) -> None:
     """
-    Entry point for testing the collinearity handler.
-    Generates sample data to demonstrate functionality.
+    Update the model_diagnostics.json file with collinearity information.
+    
+    Args:
+        diagnostics_path: Path to the model_diagnostics.json file
+        collinearity_result: Result dictionary from run_collinearity_analysis
     """
-    import argparse
+    logger.info(f"Updating diagnostics file: {diagnostics_path}")
     
-    parser = argparse.ArgumentParser(description="Run collinearity analysis")
-    parser.add_argument("--input", type=str, help="Path to input CSV")
-    parser.add_argument("--output", type=str, help="Path to output directory")
-    args = parser.parse_args()
-    
-    if args.input:
-        df = pd.read_csv(args.input)
-        # Assume standard columns for this project
-        features = ['avatar_condition', 'pre_self_esteem', 'comparison_tendency']
-        # Add interaction term if not present
-        if 'comparison_tendency' in df.columns and 'avatar_condition' in df.columns:
-            df['interaction'] = df['comparison_tendency'] * df['avatar_condition']
-            features.append('interaction')
+    # Load existing diagnostics if it exists
+    if diagnostics_path.exists():
+        try:
+            with open(diagnostics_path, 'r') as f:
+                diagnostics = json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Could not load existing diagnostics: {e}. Creating new file.")
+            diagnostics = {}
     else:
-        # Create synthetic data for demonstration
-        logger.info("No input provided. Generating synthetic data for demonstration.")
-        np.random.seed(42)
-        n = 200
-        df = pd.DataFrame({
-            'avatar_condition': np.random.binomial(1, 0.5, n),
-            'comparison_tendency': np.random.normal(50, 10, n),
-            'pre_self_esteem': np.random.normal(50, 10, n)
-        })
-        # Create high correlation to trigger VIF warning
-        df['comparison_tendency'] = df['pre_self_esteem'] * 0.8 + np.random.normal(0, 2, n)
-        df['interaction'] = df['avatar_condition'] * df['comparison_tendency']
-        
-        features = ['avatar_condition', 'pre_self_esteem', 'comparison_tendency', 'interaction']
+        diagnostics = {}
     
-    flags, framing = run_collinearity_analysis(df, features, Path(args.output) if args.output else None)
+    # Ensure 'assumptions' key exists
+    if 'assumptions' not in diagnostics:
+        diagnostics['assumptions'] = {}
     
-    print("\n--- Collinearity Analysis Results ---")
-    print(f"Has Collinearity: {flags['has_collinearity']}")
-    print(f"Flagged Features: {flags['flagged_features']}")
-    print(f"Max VIF: {flags['max_vif']:.2f}")
-    print("\n--- Descriptive Framing ---")
-    print(framing)
+    # Update with collinearity information
+    diagnostics['assumptions']['collinearity_warning'] = collinearity_result['collinearity_warning']
+    diagnostics['assumptions']['vif_results'] = collinearity_result['vif_results']
+    diagnostics['assumptions']['vif_max'] = collinearity_result['collinearity_flags']['max_vif']
+    diagnostics['assumptions']['has_collinearity'] = collinearity_result['collinearity_flags']['has_collinearity']
+    diagnostics['assumptions']['flagged_features'] = collinearity_result['collinearity_flags']['flagged_features']
+    
+    # Write updated diagnostics
+    with open(diagnostics_path, 'w') as f:
+        json.dump(diagnostics, f, indent=2)
+    
+    logger.info("Diagnostics file updated with collinearity information")
 
-if __name__ == "__main__":
+
+def main() -> None:
+    """
+    Main entry point for collinearity analysis.
+    
+    This function:
+    1. Loads the imputed data
+    2. Runs collinearity analysis on model features
+    3. Updates the model diagnostics file
+    """
+    config = get_config()
+    imputed_data_path = config['paths']['imputed_data']
+    diagnostics_path = config['paths']['model_diagnostics']
+    
+    logger.info("Starting collinearity analysis")
+    
+    # Load imputed data
+    if not Path(imputed_data_path).exists():
+        logger.error(f"Imputed data file not found: {imputed_data_path}")
+        return
+    
+    df = pd.read_csv(imputed_data_path)
+    
+    # Define feature columns (excluding outcome and covariate)
+    # For ANCOVA: outcome=post_self_esteem, covariate=pre_self_esteem
+    # Predictors: avatar_condition, comparison_tendency, interaction
+    feature_columns = ['avatar_condition', 'comparison_tendency']
+    
+    # Check for interaction term if it exists
+    if 'interaction' in df.columns:
+        feature_columns.append('interaction')
+    
+    # Run collinearity analysis
+    result = run_collinearity_analysis(
+        df=df,
+        feature_columns=feature_columns,
+        output_path=Path(diagnostics_path)
+    )
+    
+    logger.info("Collinearity analysis completed")
+    logger.info(f"Collinearity warning: {result['collinearity_warning']}")
+
+if __name__ == '__main__':
     main()

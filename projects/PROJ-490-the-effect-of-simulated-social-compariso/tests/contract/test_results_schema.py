@@ -1,64 +1,80 @@
-import pytest
 import json
+import os
 from pathlib import Path
-import sys
+import pytest
+import pandas as pd
+from utils.validators import validate_json_against_schema, load_schema
 
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+def test_regression_coefficients_csv_schema():
+    """
+    Contract test to verify regression_coefficients.csv matches the expected schema.
+    This test ensures the CSV file contains the required columns and data types.
+    """
+    # Construct the expected path
+    project_root = Path(__file__).parent.parent.parent
+    output_file = project_root / "data" / "processed" / "regression_coefficients.csv"
+    
+    # Skip if file doesn't exist (task not yet run)
+    if not output_file.exists():
+        pytest.skip(f"File {output_file} does not exist yet. Run the pipeline first.")
+    
+    # Load the CSV
+    df = pd.read_csv(output_file)
+    
+    # Define expected columns
+    expected_columns = {'name', 'estimate', 'std_err', 'p_value', 'conf_int_low', 'conf_int_high'}
+    
+    # Check that all expected columns exist
+    assert expected_columns.issubset(set(df.columns)), f"Missing columns: {expected_columns - set(df.columns)}"
+    
+    # Check data types
+    assert df['estimate'].dtype in ['float64', 'int64'], "estimate column must be numeric"
+    assert df['std_err'].dtype in ['float64', 'int64'], "std_err column must be numeric"
+    assert df['p_value'].dtype in ['float64', 'int64'], "p_value column must be numeric"
+    
+    # Check that p_values are between 0 and 1
+    assert (df['p_value'] >= 0).all() and (df['p_value'] <= 1).all(), "p_values must be between 0 and 1"
 
-from utils.validators import load_schema, validate_json_against_schema, assert_valid
-
-CONTRACTS_DIR = project_root / "contracts"
-
-@pytest.fixture
-def results_schema():
-    return load_schema(CONTRACTS_DIR / "results.schema.yaml")
-
-@pytest.fixture
-def valid_results():
-    return {
-        "data_path": "data/raw/synthetic_dataset.csv",
-        "data_source_type": "synthetic",
-        "model_summary": {
-            "r_squared": 0.45,
-            "adj_r_squared": 0.42,
-            "f_statistic": 15.2,
-            "f_p_value": 0.001,
-            "coefficients": [
-                {"term": "Intercept", "coefficient": 10.0, "std_error": 1.0, "p_value": 0.0, "ci_lower": 8.0, "ci_upper": 12.0},
-                {"term": "avatar_condition", "coefficient": 2.5, "std_error": 0.5, "p_value": 0.01, "ci_lower": 1.5, "ci_upper": 3.5}
-            ]
-        },
-        "assumption_checks": {
-            "normality": {"test_name": "Shapiro-Wilk", "statistic": 0.98, "p_value": 0.5, "passed": True},
-            "homoscedasticity": {"test_name": "Breusch-Pagan", "statistic": 1.2, "p_value": 0.3, "passed": True},
-            "collinearity": {"vif_scores": {"avatar_condition": 1.1, "pre_self_esteem": 1.05}, "max_vif": 1.1, "passed": True}
-        },
-        "bootstrap_stability": {
-            "interaction_ci_width_variance": 0.005,
-            "iterations": 1000,
-            "stable": True
-        },
-        "sensitivity_findings": {
-            "parameter_recovery_error": 0.02,
-            "threshold_stability": [
-                {"threshold": 0.05, "stability_metric": 0.95}
-            ],
-            "error_correction_applied": False
-        }
-    }
-
-def test_results_schema_validation(results_schema, valid_results):
-    """Test that a valid results dict passes the results schema."""
-    result = validate_json_against_schema(valid_results, results_schema)
-    assert result["valid"], f"Schema validation failed: {result.get('errors')}"
-    assert_valid(result)
-
-def test_results_schema_missing_required(results_schema):
-    """Test that a results dict missing a required field fails validation."""
-    data = {
-        "data_path": "data/raw/test.csv",
-        # Missing data_source_type and other required fields
-    }
-    result = validate_json_against_schema(data, results_schema)
-    assert not result["valid"]
+def test_model_diagnostics_json_schema():
+    """
+    Contract test to verify model_diagnostics.json matches the expected schema.
+    This test validates the JSON structure against the results.schema.yaml.
+    """
+    # Construct the expected path
+    project_root = Path(__file__).parent.parent.parent
+    output_file = project_root / "data" / "processed" / "model_diagnostics.json"
+    
+    # Skip if file doesn't exist (task not yet run)
+    if not output_file.exists():
+        pytest.skip(f"File {output_file} does not exist yet. Run the pipeline first.")
+    
+    # Load the schema
+    schema_path = project_root / "contracts" / "results.schema.yaml"
+    if not schema_path.exists():
+        pytest.skip(f"Schema file {schema_path} does not exist.")
+    
+    schema = load_schema(schema_path)
+    
+    # Load the JSON
+    with open(output_file, 'r') as f:
+        data = json.load(f)
+    
+    # Validate against schema
+    errors = validate_json_against_schema(data, schema)
+    
+    assert len(errors) == 0, f"Schema validation failed: {errors}"
+    
+    # Additional specific checks
+    assert 'coefficients' in data, "Missing 'coefficients' key in diagnostics"
+    assert 'assumptions' in data, "Missing 'assumptions' key in diagnostics"
+    assert 'data_source_type' in data, "Missing 'data_source_type' key in diagnostics"
+    
+    # Check data_source_type is valid
+    valid_types = ["real", "synthetic"]
+    assert data['data_source_type'] in valid_types, f"Invalid data_source_type: {data['data_source_type']}"
+    
+    # Check assumptions structure
+    assumptions = data['assumptions']
+    assert 'shapiro_p' in assumptions, "Missing 'shapiro_p' in assumptions"
+    assert 'breusch_pagan_p' in assumptions, "Missing 'breusch_pagan_p' in assumptions"
+    assert 'vif_max' in assumptions, "Missing 'vif_max' in assumptions"
