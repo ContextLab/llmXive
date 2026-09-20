@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://www.ctcms.nist.gov/potentials/
   verified_at: '2026-07-06T10:54:59.267013Z'
-- artifact_hash: 6330ec864f20127f9303f1f5a3d38dbb8d4990176a050aa2e52d6d229186b5c9
+- artifact_hash: 8854b9df1c05713f892d088526329b4e3125d5633a3be8985d53230c81db706c
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,15 +52,4 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-09-17T16:17:15.684853Z'
-- artifact_hash: 6330ec864f20127f9303f1f5a3d38dbb8d4990176a050aa2e52d6d229186b5c9
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://oqmd.org
-  verification_status: unreachable
-  verified_against_url: https://oqmd.org
-  verified_at: '2026-09-17T16:17:15.684853Z'
+  verified_at: '2026-09-20T13:57:20.010920Z'

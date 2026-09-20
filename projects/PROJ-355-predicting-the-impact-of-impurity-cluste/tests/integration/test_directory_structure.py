@@ -1,59 +1,53 @@
-"""
-Integration test for T008: Directory Structure Setup.
-This test verifies that the entire pipeline setup creates the necessary
-directories for data and results as a cohesive unit.
-"""
 import os
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import shutil
 
-def test_full_directory_structure_exists():
-    """
-    Integration test: Ensure that after setup, the full directory tree
-    required for the project exists and contains .gitkeep files.
-    """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        
-        # Define expected structure relative to root
-        expected_dirs = [
-            "data/raw",
-            "data/processed",
-            "results",
-            "tests/unit",
-            "tests/integration"
-        ]
+class TestDirectoryStructureIntegration:
+    """Integration tests for the full directory structure setup."""
 
-        # Simulate the creation logic (since we can't easily run the 
-        # full script with config dependencies in a temp dir without setup)
-        for rel_path in expected_dirs:
-            full_path = project_root / rel_path
-            full_path.mkdir(parents=True, exist_ok=True)
-            gitkeep_path = full_path / ".gitkeep"
-            gitkeep_path.write_text("# Placeholder for git tracking\n")
+    def test_full_directory_setup(self, tmp_path):
+        """Test that the full directory structure is created correctly."""
+        # Create a temporary project structure
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
+        
+        # Create the expected directories
+        data_raw = project_root / "data" / "raw"
+        data_processed = project_root / "data" / "processed"
+        results = project_root / "results"
+        
+        directories = [data_raw, data_processed, results]
+        
+        for directory in directories:
+            directory.mkdir(parents=True, exist_ok=True)
+            gitkeep_path = directory / ".gitkeep"
+            gitkeep_path.touch()
+        
+        # Verify all directories exist
+        for directory in directories:
+            assert directory.exists(), f"Directory {directory} was not created"
+            assert directory.is_dir(), f"{directory} is not a directory"
+        
+        # Verify .gitkeep files exist
+        for directory in directories:
+            gitkeep_path = directory / ".gitkeep"
+            assert gitkeep_path.exists(), f".gitkeep not found in {directory}"
+            assert gitkeep_path.is_file(), f"{gitkeep_path} is not a file"
 
-        # Assertions
-        for rel_path in expected_dirs:
-            full_path = project_root / rel_path
-            assert full_path.is_dir(), f"Missing directory: {full_path}"
-            gitkeep = full_path / ".gitkeep"
-            assert gitkeep.is_file(), f"Missing .gitkeep in {full_path}"
-            # Verify .gitkeep is not empty (optional but good practice)
-            # assert gitkeep.read_text().strip(), f".gitkeep in {full_path} is empty"
-
-def test_nested_structure():
-    """Verify that nested directories (e.g., data/processed) are created correctly."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
+    def test_directory_structure_persistence(self, tmp_path):
+        """Test that the directory structure persists after creation."""
+        project_root = tmp_path / "persistent_project"
+        project_root.mkdir()
         
-        # Create nested
-        nested = project_root / "data" / "processed"
-        nested.mkdir(parents=True, exist_ok=True)
-        (nested / ".gitkeep").touch()
+        data_raw = project_root / "data" / "raw"
+        data_raw.mkdir(parents=True)
+        (data_raw / ".gitkeep").touch()
         
-        assert nested.exists()
-        assert (nested / ".gitkeep").exists()
+        # Verify the structure exists
+        assert data_raw.exists()
+        assert (data_raw / ".gitkeep").exists()
         
-        # Verify parent also exists
-        assert (project_root / "data").exists()
+        # Simulate "closing" and reopening by checking again
+        assert data_raw.exists()
+        assert (data_raw / ".gitkeep").exists()

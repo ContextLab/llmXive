@@ -1,56 +1,77 @@
-# Methodology: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
+# Methodology: Cross-Validation and Model Evaluation
 
-## Overview
+This document outlines the statistical methodology employed for training and evaluating the regression models in the "Predicting the Impact of Impurity Clustering on Grain Boundary Segregation" project.
 
-This document outlines the computational methodology employed in the `PROJ-355` project.
-The primary goal is to quantify the relationship between impurity clustering descriptors
-and grain boundary (GB) segregation energies using statistical regression models.
+## 1. Overview
 
-## Data Pipeline
+The primary objective is to predict segregation energies based on clustering descriptors (RDF peaks, pair correlation, Voronoi neighbor counts). Given the likely limited size of the simulated dataset (due to computational cost of energy calculations), a robust cross-validation strategy is essential to assess model generalizability and avoid overfitting.
 
-1. **Data Acquisition**: Bulk crystal structures are downloaded from the Materials Project (MP)
- and the Open Quantum Materials Database (OQMD).
-2. **GB Construction**: Grain boundary supercells are constructed using `pymatgen`.
-3. **Impurity Insertion**: Impurity atoms are inserted at the GB interface.
-4. **Descriptor Computation**: Local atomic environment descriptors (RDF peaks, pair correlation,
- Voronoi neighbor counts) are computed for the interface region.
-5. **Energy Simulation**: Segregation energies are calculated using NIST EAM potentials
- with structural perturbation to break symmetry.
+We employ **k-Fold Cross-Validation** as the primary evaluation protocol, with a fallback to **Leave-One-Out Cross-Validation (LOOCV)** for very small datasets.
 
-## Cross-Validation Procedure
+## 2. Random Seed and Reproducibility
 
-To ensure robust model evaluation and prevent overfitting, a **K-Fold Cross-Validation**
-strategy is employed.
+To ensure strict reproducibility of all random operations (data shuffling, fold splitting, perturbation initialization), a fixed random seed is mandated.
 
-### K-Fold Setup
-- **K Value**: 5 folds (configurable via `code/config.py`).
-- **Shuffle**: True.
-- **Random Seed**: Fixed at **42** (defined in `code/config.py`) to ensure reproducibility
- across runs (Constitution Principle I).
+- **Source**: The seed is defined in `code/config.py` under the key `RANDOM_SEED`.
+- **Default Value**: `42` (unless overridden in the configuration file).
+- **Application**:
+ - Used to initialize `numpy.random` and `pandas` shuffling operations.
+ - Passed to `sklearn.model_selection.KFold` and `LeaveOneOut` splitters.
+ - Used in `code/data/simulate_energy.py` for structural perturbations.
 
-### Procedure
-1. The dataset is split into K mutually exclusive subsets of approximately equal size.
-2. The model is trained K times. In each iteration:
- - K-1 folds are used for training.
- - The remaining 1 fold is used for validation.
-3. Metrics (R², RMSE, p-values) are computed for each fold and aggregated.
+## 3. Cross-Validation Procedure
 
-### LOOCV Fallback Logic
-If the dataset size is smaller than K (i.e., fewer than 5 samples), the procedure
-automatically switches to **Leave-One-Out Cross-Validation (LOOCV)**:
-- The number of folds is set to the number of samples.
-- Each sample serves as the validation set exactly once.
-- This ensures every data point is used for both training and validation.
+### 3.1. Primary Strategy: k-Fold Cross-Validation
 
-## Statistical Analysis
+For datasets with sufficient sample size ($N \ge 5$), we utilize **5-Fold Cross-Validation**.
 
-- **Model**: Linear Regression (MVP) with `statsmodels` OLS.
-- **Collinearity**: Variance Inflation Factor (VIF) is calculated. If VIF ≥ 10,
- a warning is logged, but features are retained as per FR-007 (Report, don't remove).
-- **Significance**: p-values are calculated for coefficients using HC3 robust standard errors.
- Multiple comparison correction (Bonferroni/FDR) is applied in Phase 5.
+**Procedure**:
+1. **Data Preparation**: The dataset (descriptors $X$, segregation energies $y$) is loaded from `data/processed/`.
+2. **Shuffling**: The data is shuffled once using the fixed `RANDOM_SEED` to ensure folds are not biased by the order of insertion.
+3. **Splitting**: The data is partitioned into $k=5$ mutually exclusive folds of approximately equal size.
+4. **Iteration**: The model (Linear Regression via `statsmodels.api.OLS` with `cov_type='HC3'` for robust standard errors) is trained and evaluated 5 times:
+ - In iteration $i$, fold $i$ is held out as the **validation set**.
+ - The remaining $k-1$ folds are combined to form the **training set**.
+ - The model is trained on the training set.
+ - Predictions are made on the validation set.
+ - Metrics ($R^2$, RMSE) are computed and stored.
+5. **Aggregation**: Final performance metrics are reported as the mean and standard deviation across the 5 folds.
 
-## Reproducibility
+**Rationale**: 5-fold CV offers a good balance between computational efficiency and variance in the performance estimate, reducing the bias inherent in a single train/test split while being less computationally expensive than LOOCV for moderate $N$.
 
-All random operations (data splitting, structural perturbation) use the seed defined
-in `code/config.py`. The seed is 42.
+### 3.2. Fallback Strategy: Leave-One-Out Cross-Validation (LOOCV)
+
+For very small datasets ($N < 5$), k-Fold CV (with $k=5$) is not feasible or would result in extremely small training sets. In this case, we switch to **LOOCV**.
+
+**Procedure**:
+1. **Iteration**: The process iterates $N$ times (where $N$ is the total number of samples).
+2. **Splitting**: In iteration $i$, the $i$-th sample is held out as the validation set, and the remaining $N-1$ samples form the training set.
+3. **Training & Evaluation**: The model is trained on $N-1$ samples and evaluated on the single held-out sample.
+4. **Aggregation**: Metrics are aggregated across all $N$ iterations.
+
+**Rationale**: LOOCV provides an almost unbiased estimate of the model error (as the training set size is maximized) but has higher variance and computational cost. It is strictly reserved for cases where $N$ is too small for k-Fold.
+
+## 4. Model Training Details
+
+- **Algorithm**: Ordinary Least Squares (OLS) Linear Regression.
+- **Library**: `statsmodels.api.OLS`.
+- **Covariance Type**: `HC3` (White's heteroskedasticity-consistent standard errors) to ensure valid p-values and confidence intervals even if the assumption of homoscedasticity is violated.
+- **Features**: Raw clustering descriptors (RDF, Pair Correlation, Voronoi Count) as per `contracts/dataset.schema.yaml`. PCA is explicitly **not** applied (per FR-007).
+- **Collinearity Check**: Before training, Variance Inflation Factor (VIF) is calculated (see `code/data/descriptor_filter.py`). If VIF $\ge 10$, a warning is logged, but training proceeds with raw features to satisfy the "report, don't remove" requirement.
+
+## 5. Metrics and Reporting
+
+The following metrics are computed for each fold and aggregated:
+
+1. **$R^2$ (Coefficient of Determination)**: Measures the proportion of variance in the target variable explained by the model.
+2. **RMSE (Root Mean Squared Error)**: Measures the average magnitude of the error in the same units as the target (eV).
+3. **P-values**: Extracted from the OLS summary for each coefficient to assess statistical significance of individual descriptors.
+4. **Confidence Intervals**: 95% confidence intervals for predictions are calculated using `statsmodels` `get_prediction()` method.
+
+All results are saved to `results/metrics.json` and `results/confidence_intervals.json`.
+
+## 6. Implementation Location
+
+The logic for this methodology is implemented in:
+- `code/modeling/train.py`: Contains the `run_kfold_cv` function which handles the splitting logic, seed initialization, and the training loop.
+- `code/config.py`: Contains the `RANDOM_SEED` constant.

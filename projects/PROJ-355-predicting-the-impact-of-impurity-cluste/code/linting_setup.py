@@ -1,89 +1,98 @@
 """
-Script to verify and optionally install linting tools (ruff, black).
-This script is used during the setup phase to ensure the project
-has the necessary tools configured.
+Setup script to install linting and formatting tools.
 """
 import subprocess
 import sys
 from pathlib import Path
+from config import get_project_root
 
-def check_tool(tool_name: str) -> bool:
-    """Check if a tool is installed."""
+
+def check_tool(tool_name: str, version: str) -> bool:
+    """
+    Check if a tool is installed with the correct version.
+
+    Args:
+        tool_name: Name of the tool (e.g., 'ruff', 'black').
+        version: Expected version string (e.g., '0.1.0').
+
+    Returns:
+        True if the tool is installed with the correct version, False otherwise.
+    """
     try:
-        subprocess.run(
+        result = subprocess.run(
             [tool_name, "--version"],
+            capture_output=True,
+            text=True,
             check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            cwd=get_project_root(),
         )
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Simple version check (might need refinement for complex version strings)
+        output = result.stdout.strip()
+        if version in output:
+            print(f"✓ {tool_name} {version} is installed.")
+            return True
+        else:
+            print(f"⚠ {tool_name} found but version mismatch. Expected {version}, got: {output}")
+            return False
+    except subprocess.CalledProcessError:
+        print(f"✗ {tool_name} is not installed.")
+        return False
+    except FileNotFoundError:
+        print(f"✗ {tool_name} command not found.")
         return False
 
-def install_tool(tool_name: str) -> None:
-    """Install a tool using pip."""
-    print(f"Installing {tool_name}...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", tool_name])
+
+def install_tool(tool_name: str, version: str) -> bool:
+    """
+    Install a tool with a specific version.
+
+    Args:
+        tool_name: Name of the tool.
+        version: Version to install.
+
+    Returns:
+        True if installation was successful, False otherwise.
+    """
+    print(f"Installing {tool_name}=={version}...")
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", f"{tool_name}=={version}"],
+            check=True,
+            cwd=get_project_root(),
+        )
+        print(f"✓ {tool_name}=={version} installed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Failed to install {tool_name}=={version}: {e}")
+        return False
+
 
 def main() -> int:
-    """Main entry point for linting setup verification."""
-    project_root = Path(__file__).parent.parent
-    config_files = [
-        project_root / "pyproject.toml",
-        project_root / ".ruff.toml",
-        project_root / ".black.toml",
+    """
+    Main entry point for the linting setup script.
+    """
+    print("Setting up linting and formatting tools...")
+    root = get_project_root()
+    print(f"Project Root: {root}")
+
+    tools = [
+        ("ruff", "0.1.0"),
+        ("black", "23.10.0"),
     ]
 
-    print("Checking linting configuration files...")
-    for config in config_files:
-        if not config.exists():
-            print(f"Error: Missing config file: {config}")
-            return 1
-        print(f"Found: {config}")
+    all_installed = True
+    for tool, version in tools:
+        if not check_tool(tool, version):
+            if not install_tool(tool, version):
+                all_installed = False
 
-    tools = {"ruff": "ruff", "black": "black"}
-    for name, cmd in tools.items():
-        if not check_tool(cmd):
-            print(f"{name} not found. Attempting to install...")
-            try:
-                install_tool(cmd)
-            except subprocess.CalledProcessError as e:
-                print(f"Failed to install {name}: {e}")
-                return 1
-        else:
-            print(f"{name} is installed.")
-
-    # Verify configuration validity
-    print("\nVerifying Ruff configuration...")
-    try:
-        subprocess.run(
-            ["ruff", "check", "--config", str(project_root / ".ruff.toml"), "."],
-            cwd=project_root,
-            check=False, # Don't fail if lint errors exist, just config validity
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        print("Ruff configuration is valid.")
-    except FileNotFoundError:
-        print("Ruff command not found after installation.")
+    if all_installed:
+        print("\n✓ All tools installed and verified.")
+        return 0
+    else:
+        print("\n✗ Some tools failed to install.")
         return 1
 
-    print("\nVerifying Black configuration...")
-    try:
-        subprocess.run(
-            ["black", "--config", str(project_root / ".black.toml"), "--check", "."],
-            cwd=project_root,
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        print("Black configuration is valid.")
-    except FileNotFoundError:
-        print("Black command not found after installation.")
-        return 1
-
-    print("\nLinting setup complete.")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

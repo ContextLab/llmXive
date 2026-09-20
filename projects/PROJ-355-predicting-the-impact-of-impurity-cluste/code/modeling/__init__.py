@@ -6,15 +6,22 @@ This package provides utilities for:
 - Performing cross-validation and metric calculation.
 - Conducting hypothesis testing and sensitivity analysis.
 """
-from .train import train_linear_regression, perform_cross_validation
-from .evaluate import evaluate_model, calculate_confidence_intervals
-from .hypothesis import test_significance, apply_bonferroni_correction
+from .train import train_model, run_kfold_cv, calculate_confidence_intervals
+from .evaluate import run_sensitivity_analysis, calculate_rmse_variance
+from .confidence_intervals import calculate_prediction_intervals, run_confidence_interval_analysis
+from .sensitivity_metrics import compute_sensitivity_metrics, save_sensitivity_metrics
+from .evaluate_per_system import evaluate_per_system, run_per_system_evaluation
 
 __all__ = [
-    "train_linear_regression",
-    "perform_cross_validation",
-    "evaluate_model",
+    "train_model",
+    "run_kfold_cv",
     "calculate_confidence_intervals",
-    "test_significance",
-    "apply_bonferroni_correction",
+    "run_sensitivity_analysis",
+    "calculate_rmse_variance",
+    "calculate_prediction_intervals",
+    "run_confidence_interval_analysis",
+    "compute_sensitivity_metrics",
+    "save_sensitivity_metrics",
+    "evaluate_per_system",
+    "run_per_system_evaluation",
 ]

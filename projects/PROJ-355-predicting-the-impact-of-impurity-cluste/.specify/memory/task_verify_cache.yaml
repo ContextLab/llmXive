@@ -1,23 +1,22 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented; without visible evidence
+    of `data/raw/`, `data/processed/`, and `results/` containing `.gitkeep`, the requirement
+    cannot be confirmed. The implementer must provide the actual folder hierarchy
+    and placeholder files.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
+    (or any test files within them) was provided; without these scaffolding artifacts
+    the task is not satisfied.
 T012:
   c: false
   h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
   r: "The required integration test file `tests/integration/test_data_pipeline.py`\
     \ is missing from the repository, so the artifact does not exist and the task\u2019\
     s requirement is not satisfied."
-T015:
-  c: false
-  h: d8556775af170044f3c4ce52c21a8aab2f04ff56800d79bf3d7ed7cb19981974
-  r: "The required output file `data/processed/descriptors.csv` does not exist, and\
-    \ the provided `code/data/descriptors.py` is only partially shown (truncated)\
-    \ with no evidence that it writes the CSV with the specified columns. Without\
-    \ the CSV artifact, the task\u2019s core requirement is unmet."
-T016c:
-  c: false
-  h: 63c77d26f0de08f56ce012a3530872a526d211e577c29a985a5a4c04873483a9
-  r: The provided `code/data/simulate_energy.py` file does not show a `run_simulation`
-    function, and the required output `data/processed/segregation_energies.csv` is
-    absent. Both the runner implementation and the generated CSV are missing, so the
-    task is not fulfilled.
 T018:
   c: false
   h: 2217459be35e415a8158fcace86a29d32015073449ba374948e6127ef6acae27

@@ -1,6 +1,8 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Schema for Regression Analysis"
-description: "Schema defining the required fields for model evaluation outputs."
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: >
+  Schema defining the required fields for model evaluation results,
+  including performance metrics, statistical significance, and uncertainty estimates.
 type: object
 required:
   - r2
@@ -10,27 +12,81 @@ required:
 properties:
   r2:
     type: number
-    description: "Coefficient of determination (R-squared) value."
-    minimum: -1.0
-    maximum: 1.0
+    description: >
+      Coefficient of determination (R-squared) measuring the proportion
+      of variance in the dependent variable that is predictable from the
+      independent variables.
+    minimum: -1
+    examples:
+      - 0.85
+      - 0.42
+      - -0.15
   rmse:
     type: number
-    description: "Root Mean Squared Error."
-    minimum: 0.0
+    description: >
+      Root Mean Square Error measuring the average magnitude of the
+      errors between predicted and observed values.
+    minimum: 0
+    examples:
+      - 0.125
+      - 0.045
+      - 1.23
   p_values:
     type: object
-    description: "Dictionary mapping feature names to their p-values."
+    description: >
+      Dictionary mapping predictor variable names to their p-values
+      from the regression coefficient tests. Used to assess statistical
+      significance of each feature.
     additionalProperties:
       type: number
-      minimum: 0.0
-      maximum: 1.0
+      minimum: 0
+      maximum: 1
+    examples:
+      rdf_peak: 0.0023
+      pair_corr: 0.154
+      voronoi_count: 0.0001
   confidence_intervals:
+    type: array
+    description: >
+      List of confidence interval records for individual predictions.
+      Each record contains the sample identifier, predicted value, and
+      the lower and upper bounds of the confidence interval.
+    items:
+      type: object
+      required:
+        - sample_id
+        - predicted_energy
+        - ci_lower
+        - ci_upper
+      properties:
+        sample_id:
+          type: string
+          description: Unique identifier for the sample.
+        predicted_energy:
+          type: number
+          description: The predicted segregation energy value.
+        ci_lower:
+          type: number
+          description: Lower bound of the confidence interval.
+        ci_upper:
+          type: number
+          description: Upper bound of the confidence interval.
+    minItems: 1
+  metadata:
     type: object
-    description: "Dictionary mapping feature names to their confidence intervals (list of two numbers)."
-    additionalProperties:
-      type: array
-      items:
-        type: number
-      minItems: 2
-      maxItems: 2
-additionalProperties: true
+    description: Optional metadata about the model run.
+    properties:
+      model_type:
+        type: string
+        description: Type of model used (e.g., 'LinearRegression').
+      cross_validation_method:
+        type: string
+        description: Method used for cross-validation (e.g., '5-fold', 'LOOCV').
+      seed:
+        type: integer
+        description: Random seed used for reproducibility.
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the results were generated.
+additionalProperties: false

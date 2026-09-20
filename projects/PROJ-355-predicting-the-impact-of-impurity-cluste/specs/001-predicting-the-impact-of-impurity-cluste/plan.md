@@ -13,7 +13,7 @@ This project implements a computational pipeline to quantify the relationship be
 **Primary Dependencies**: `pymatgen` (structure manipulation), `scikit-learn` (regression, metrics, VIF), `statsmodels` (p-values, robust SE), `numpy`, `pandas`, `ase` (atomistic simulations), `requests` (data fetching), `pyyaml` (contracts).  
 **Storage**: Local file system (`data/`, `results/`); no external database.  
 **Testing**: `pytest` (unit tests for descriptor calculation, integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7 GB RAM, ~14 GB disk, NO GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7 GB RAM, ~Sufficient disk capacity, NO GPU).  
 **Project Type**: Computational science pipeline / CLI tool.  
 **Performance Goals**: Full pipeline (download + simulate + train) ≤ 6 hours on sampled dataset (≤ 500 configurations); Memory ≤ 6 GB.  
 **Constraints**: No GPU; no heavy DFT calculations (use empirical potentials or pre-computed subsets); strict adherence to Spec FR-007 (detect but do not remove collinear features); strict dataset fit (OQMD/MP for bulk, simulated GBs for energies).  
