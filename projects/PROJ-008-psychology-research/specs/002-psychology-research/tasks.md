@@ -20,34 +20,14 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create root project directory tree: `projects/PROJ-008-psychology-research/`, `projects/PROJ-008-psychology-research/code/`, `projects/PROJ-008-psychology-research/data/`, `projects/PROJ-008-psychology-research/docs/`, `projects/PROJ-008-psychology-research/tests/`, `projects/PROJ-008-psychology-research/contracts/`, `projects/PROJ-008-psychology-research/scripts/`, `projects/PROJ-008-psychology-research/.github/workflows/` <!-- FAILED: unspecified -->
-- [ ] T001b [P] Create data sub-directories: `projects/PROJ-008-psychology-research/data/raw/`, `projects/PROJ-008-psychology-research/data/processed/`, `projects/PROJ-008-psychology-research/data/interim/`
-- [ ] T001c [P] Create code sub-directories: `projects/PROJ-008-psychology-research/code/data/`, `projects/PROJ-008-psychology-research/code/analysis/`, `projects/PROJ-008-psychology-research/code/viz/`, `projects/PROJ-008-psychology-research/code/utils/`, `projects/PROJ-008-psychology-research/tests/unit/`, `projects/PROJ-008-psychology-research/tests/integration/`, `projects/PROJ-008-psychology-research/tests/contract/`
-- [X] T002a [P] Create `pyproject.toml` at `projects/PROJ-008-psychology-research/` with: build-system (setuptools>=61.0), python version `>=3.11` [UNRESOLVED-CLAIM: c_f2723f18 — status=not_enough_info], and dependencies list: `pandas>=2.0.0`, `scikit-learn>=1.3.0`, `statsmodels>=0.14.0`, `matplotlib>=3.7.0`, `requests>=2.31.0`, `pyyaml>=6.0`, `pytest>=7.4.0`, `bayesmeta>=0.1.0`, `pdfplumber>=0.10.0`. [UNRESOLVED-CLAIM: c_d5f8d394 — status=not_enough_info]
-- [ ] T002b [P] Install dependencies defined in T002a using `pip install -e.` in the project root. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T001 [P] Create the full project directory structure for `projects/PROJ-008-psychology-research/` including: `code/`, `data/` (with `raw/`, `processed/`, `interim/`), `docs/`, `tests/` (with `unit/`, `integration/`, `contract/`), `contracts/`, `scripts/`, `.github/workflows/`. **Additionally, create valid `__init__.py` files in all `code/` and `tests/` subdirectories to ensure Python package recognition, and create a `data/raw/.gitkeep` file to ensure the directory is tracked. Do not create empty placeholder files.**
+
+- [X] T002a [P] Create `pyproject.toml` at `projects/PROJ-008-psychology-research/` with: build-system (setuptools>=61.0), python version `>=3.11`, and dependencies list with **PINNED versions** (e.g., `pandas==2.0.0`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `matplotlib==3.7.0`, `requests==2.31.0`, `pyyaml==6.0`, `pytest==7.4.0`, `bayesmeta==0.1.0`, `pdfplumber==0.10.0`). **No version ranges (>=) are permitted.**
+- [X] T002b [P] Generate `requirements.txt` at `projects/PROJ-008-psychology-research/` by extracting the pinned dependencies from `pyproject.toml` to ensure reproducibility on fresh runners (SC-005). Verify that `requirements.txt` contains exact versions for all packages.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -58,15 +38,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`. **Include docstrings citing the specific Constitution Principle and FR for each field to satisfy FR-007 (Data Integrity) and Principle II (Verified Accuracy).**
+- [X] T004 [P] Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`. **Include docstrings citing the specific Constitution Principle and FR for each field to satisfy FR-007 (Data Integrity) and Principle II (Verified Accuracy).**
 - [X] T005 [P] Implement structured logging infrastructure in `code/utils/logging.py` (FR-007)
 - [X] T006 [P] Setup configuration management and seed pinning in `code/utils/config.py`
-- [ ] T007a [P] Create `contracts/cleaned_study.schema.yaml` with EXACT fields: `id` (str), `title` (str), `registry` (str: enum[ClinicalTrials.gov, OSF]), `age_range` (str), `diagnosis` (str), `outcomes` (list), `intervention_components` (list), `delivery_format` (str), `follow_up` (str), `abstract_text` (str, optional).
-- [ ] T007b [P] Update `contracts/cleaned_study.schema.yaml` to add field `assessor_blinding` (str: enum[single-blind, double-blind, unblinded, not-reported]) for blinding extraction. **This task MUST be completed before T022.**
-- [ ] T007c [P] Create `contracts/effect_size.schema.yaml` with EXACT fields: `study_id` (str), `hedges_g` (float), `se` (float), `ci_lower` (float), `ci_upper` (float), `n_treatment` (int), `n_control` (int).
-- [X] T008 Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
+- [ ] T007 [P] Create **ALL** schema contracts in `contracts/`:
+ 1. `contracts/cleaned_study.schema.yaml`: Include fields `id`, `title`, `registry`, `age_range`, `diagnosis`, `outcomes`, `intervention_components`, `delivery_format` (enum: [caregiver-mediated, child-led, mixed, not-reported]), `follow_up`, `abstract_text` (nullable), `social_skill_domain` (enum: [communication, peer interaction, emotional regulation]). **Verify file with `pyyaml` validator.**
+ 2. `contracts/effect_size.schema.yaml`: Include fields `study_id`, `hedges_g`, `se`, `ci_lower`, `ci_upper`, `n_treatment`, `n_control`. **Verify file with `pyyaml` validator.**
+- [X] T008 [P] Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
 - [X] T009 [P] Create `docs/ethics_determination.md` documenting the 'Exempt' status for secondary analysis of de-identified public registry data (ClinicalTrials.gov, OSF) and justification for no IRB requirement
-- [X] T010 [P] Create `docs/analysis-plan.md` detailing missing-data handling and imputation strategies. **Must include sections: Missing Data Strategy (with table of methods), Imputation Method (with formula), Sensitivity Analysis (with criteria).**
+- [X] T010 [P] Create `docs/analysis-plan.md` detailing missing-data-handling and imputation strategies. **Must include sections: Missing Data Strategy (with table of methods), Imputation Method (with formula), Sensitivity Analysis (with criteria).** **Verify file contains regex `Missing Data Strategy` and `Imputation Method`.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,14 +70,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting and exponential backoff for **ClinicalTrials.gov and OSF ONLY**. **Log search query strings and retrieval timestamps to `data/raw/retrieval_log.json` to satisfy Constitution Principle VI audit requirements.**
-- [X] T017 [P] [US1] Implement data extractor in `code/data/extractor.py` (FR-003) with regex patterns for intervention components
-- [ ] T018 [US1] Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age (6-12), ASD diagnosis, and social skill outcomes
-- [ ] T019 [US1] Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally
-- [ ] T020 [US1] Implement **abstract-only** text extraction logic in `code/data/extractor.py` (FR-009) using `pdfplumber`. **Logic: If registry metadata is missing, the code attempts extraction via pdfplumber. HOWEVER, if registry metadata is insufficient to confirm the study meets inclusion criteria, the study MUST be flagged in `excluded_studies.log` with reason `INSUFFICIENT_REGISTRY_DATA` and NO PDF reconstruction fallback is performed.** **Output: Add column `abstract_text` to `cleaned_studies.csv` for studies where metadata was sufficient.**
-- [ ] T021 [US1] **Verify and archive output**: Create script `scripts/verify_output.py` that checks for existence of `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log` and exits 0 on success, 1 on failure.
-- [ ] T022 [US1] depends on T007b: Implement **Blinded Assessment Extraction** in `code/data/extractor.py`. **Extract `assessor_blinding` field (enum: single-blind, double-blind, unblinded, not-reported) for each study and add to `cleaned_studies.csv`.**
-- [ ] T023 [US1] depends on T022: Implement **Blinding Validation** in `code/data/cleaner.py`. **Validate `assessor_blinding` field against schema and flag studies with invalid values.**
+- [ ] T016 [US1] depends on T007: Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting (requests per minute per API) and exponential backoff (base s, max 30s) for **ClinicalTrials.gov and OSF ONLY** per Constitution Principle VI. **Log search query strings and retrieval timestamps to `data/raw/retrieval_log.json` (JSON schema: `[{query: str, timestamp: str, status_code: int, source: str}]`). Verify log contains at least one entry with status 200.**
+- [X] T017a [US1] depends on T007: Implement data extractor for intervention components in `code/data/extractor.py` (FR-003). **Logic: Scan the 'description' and 'abstract' fields of registry metadata. Use case-insensitive, whole-word regex patterns to detect: 'breathing', 'body scan', 'mindful movement', 'mindful eating'. Output: List of detected components in `intervention_components` column.**
+- [X] T017b [US1] depends on T007: Implement data extractor for social skill domains in `code/data/extractor.py` (FR-010). **Logic: Scan the 'description' and 'abstract' fields. Use regex patterns to detect keywords mapping to exactly three domains: 'communication' (keywords: speech, language, verbal, non-verbal), 'peer interaction' (keywords: peer, social, group, play), 'emotional regulation' (keywords: emotion, affect, regulation, tantrum). Assign the first matching domain found; if multiple, assign 'mixed'. Output: `social_skill_domain` column with values restricted to [communication, peer interaction, emotional regulation, mixed].**
+- [ ] T018 [US1] depends on T007: Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age (-12), ASD diagnosis, and social skill outcomes. **Logic: Validate `outcomes` field against a whitelist of known social skill measures (e.g., 'SRS-2', 'ABC', 'SSIS', 'PEP-3'). If no match is found, flag the study in `data/raw/excluded_studies.log` (JSONL format: `[{study_id: str, reason: "INVALID_OUTCOME", timestamp: str}])`.**
+- [X] T019 [US1] depends on T007: Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally.
+- [ ] T020 [US1] depends on T007: Implement **Abstract-only text extraction fallback** in `code/data/extractor.py` (FR-009). **Logic: If registry metadata contains an abstract field, extract it to `abstract_text`. If metadata is insufficient to confirm inclusion criteria (age, diagnosis), check if an abstract is available. If abstract is available, use it for further validation; if not, flag the study in `data/raw/excluded_studies.log` (JSONL: `[{study_id: str, reason: "INSUFFICIENT_METADATA_NO_ABSTRACT", timestamp: str}]`). DO NOT attempt PDF reconstruction.**
+- [ ] T021 [US1] depends on T007: **Verify and archive output**: Create script `scripts/verify_output.py` that checks for existence of `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log`, verifies CSV has >0 rows, log is not empty, and schema compliance. Exits 0 on success, 1 on failure.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,22 +86,22 @@
 
 **Goal**: Calculate Hedges' *g* effect sizes, perform random-effects meta-analysis, and conduct subgroup analyses comparing mindfulness components and delivery formats.
 
-**Independent Test**: The calculation module can be tested by providing a synthetic dataset of 3 studies with known means and standard deviations, verifying that the calculated Hedges' *g* matches the manual calculation within a tolerance of 0.001.
+**Independent Test**: The calculation module can be tested by providing a synthetic dataset of studies with known means and standard deviations, verifying that the calculated Hedges' *g* matches the manual calculation within a tolerance of a sufficiently small magnitude.
 
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T024 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
-- [ ] T025 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
-- [ ] T026 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
+- [X] T025 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
+- [X] T026 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
+- [X] T027 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] depends on T016, T017, T018, T019, T020, T021, T022, T023: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
-- [ ] T028 [US2] depends on T016, T017, T018, T019, T020, T021, T022, T023: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels` or `metafor` equivalent
-- [ ] T029 [US2] depends on T027, T028, T022, T023: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005)
-- [ ] T030 [US2] depends on T027, T028, T022, T023: Implement social skill domain extraction and subgroup analysis in `code/analysis/meta_analysis.py` (FR-010, FR-011)
-- [ ] T031 [US2] depends on T027, T028, T022, T023: Implement follow-up duration subgroup analysis (3-month vs others) in `code/analysis/meta_analysis.py` (FR-012)
-- [ ] T032 [US2] depends on T027, T028, T022, T023: Implement conditional logic to suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis (FR-014)
+- [X] T028 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T007: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
+- [X] T029 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T007: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels` or `metafor` equivalent
+- [X] T030 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T028, T029, T007: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005). **Logic: Categorize 'mindfulness components' as binary (present/absent) based on `intervention_components` column. Categorize 'delivery formats' by mapping `delivery_format` column values (caregiver-mediated vs. child-led) to groups. Output: Subgroup effect sizes and heterogeneity statistics for each group.**
+- [X] T031 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T028, T029, T007: Implement social skill domain extraction and subgroup analysis in `code/analysis/meta_analysis.py` (FR-010, FR-011). **Logic: Group studies by `social_skill_domain` column (values: communication, peer interaction, emotional regulation, mixed). Calculate subgroup effect sizes for each domain. Output: Subgroup effect sizes and heterogeneity statistics.**
+- [X] T032 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T028, T029, T007: Implement follow-up duration subgroup analysis (3-month vs. others) in `code/analysis/meta_analysis.py` (FR-012)
+- [X] T033 [US2] depends on T016, T017a, T017b, T018, T019, T020, T021, T028, T029, T007: Implement conditional logic to suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis. **Generate `docs/native_synthesis.md` containing the descriptive synthesis results.** (FR-014)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,19 +115,18 @@
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T034 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
-- [ ] T035 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
-- [ ] T036 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
+- [X] T034 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
+- [X] T035 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
+- [X] T036 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] depends on T027-T032: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
-- [ ] T038 [US3] depends on T027-T032: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
-- [ ] T039 [US3] depends on T027-T032: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
+- [ ] T037 [US3] depends on T028-T033: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
+- [ ] T038 [US3] depends on T028-T033: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
+- [ ] T039 [US3] depends on T028-T033: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
 - [ ] T040 [US3] depends on T039: Implement conditional logic to suppress funnel plot/Egger's test if N < 10 and add warning to report (FR-014)
-- [ ] T041 [US3] depends on T037, T038: Generate `data/processed/forest_plot.png` and `data/processed/funnel_plot.png` at 300 DPI using matplotlib savefig() with explicit dpi parameter (FR-006).
-- [ ] T042 [US3] depends on T041, T021, T023: Generate `docs/results.md` containing: 1) Executive Summary, 2) Forest Plot (T037), 3) Funnel Plot (T038), 4) Heterogeneity Statistics (I², Q), 5) Subgroup Analysis Results, 6) Narrative Synthesis if N<10. **Verify file exists and contains all 6 sections (FR-006).**
-- [ ] T043 [US3] depends on T022, T037: Implement **Blinding Comparison Visualization** in `code/viz/plots.py`. **Generate `data/processed/blinding_comparison_plot.png` (bar chart or forest plot) comparing effect sizes for single-blind vs. unblinded studies. Verify file exists and contains two distinct pooled effect diamonds.**
+- [ ] T041 [US3] depends on T037, T038: Generate `data/processed/forest_plot.png` and `data/processed/funnel_plot.png` at a high resolution using matplotlib savefig() with explicit dpi parameter (FR-006).
+- [ ] T042 [US3] depends on T041, T021, T017b: Generate `docs/results.md` containing: 1) Executive Summary, 2) Forest Plot (T037), 3) Funnel Plot (T038), 4) Heterogeneity Statistics (I², Q), 5) Subgroup Analysis Results (table with columns `Domain`, `N`, `Effect Size`), 6) Narrative Synthesis if N<10. **For Section 5, read the unique values from the `social_skill_domain` column of `data/processed/cleaned_studies.csv` to populate the 'Domain' column. Verify file exists and contains all 6 sections with actual content (e.g., verify section 5 contains a table with columns Domain, N, Effect Size) (FR-006).**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -159,8 +137,10 @@
 **Purpose**: Improvements that affect multiple user stories and address current spec requirements
 
 - [ ] T044 [P] Create `.github/workflows/ci.yml` to automate pipeline execution on a fresh runner, verifying reproducibility (SC-005). **Success criteria: All tests pass, data checksums match, no errors.**
-- [ ] T045 [P] depends on T007a, T021: Implement data integrity check script `scripts/validate_contracts.py` to run schema validation on `data/processed/cleaned_studies.csv` against `contracts/cleaned_study.schema.yaml`, writing a detailed `data/validation_report.json` with pass/fail status per record and summary statistics (SC-005, FR-007).
-- [ ] T046 [P] depends on T042, T004: Generate final `docs/protocol.md` detailing the full methodology (search strategy, inclusion criteria, statistical methods) as per PRISMA guidelines. **Verify file exists and includes PRISMA flow diagram description (text, not image) with regex `\\bPRISMA\\b` and a table with columns `Included`, `Excluded`. Explicitly document the novel contribution (6-12 age range, disaggregated components, delivery format) in the Introduction section.**
+- [ ] T045 [P] depends on T007, T021: Implement data integrity check script `scripts/validate_contracts.py` to run schema validation on `data/processed/cleaned_studies.csv` against `contracts/cleaned_study.schema.yaml`, writing a detailed `data/validation_report.json` (schema: `total_records`, `passed_count`, `failed_count`, `error_list` (array of `{record_id`, `error_message`})) with pass/fail status per record and summary statistics (SC-005, FR-007).
+- [ ] T046 [P] depends on T042, T004: Generate final `docs/protocol.md` detailing the full methodology (search strategy, inclusion criteria, statistical methods) as per PRISMA guidelines. **Verify file exists and includes PRISMA flow diagram description (text, not image) with regex `\\bPRISMA\\b` and a table with columns `Included`, `Excluded`. Explicitly document the novel contribution (6-12 age range, disaggregated components, delivery format) in the Introduction section.** **Note: This task depends on US3 completion (cross-phase dependency).**
+- [ ] T047 [P] Create `quickstart.md` in root to document environment setup and verification steps from a clean clone, resolving the T032 failure from prior reviews.
+- [ ] T048 [P] Add `LICENSE` file specifying research data usage terms and ensure all data artifacts have corresponding license headers.
 
 ---
 
@@ -178,7 +158,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1 (T016-T023)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1 (T016-T021)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on analysis results from US2
 
 ### Within Each User Story
@@ -257,10 +237,13 @@ With multiple developers:
 - **CPU Constraint**: All tasks must run on CPU-only CI (no GPU, no 8-bit models, no large LLM inference). Use `statsmodels` or `scikit-learn` for all statistical methods.
 - **Data Integrity**: No fake data generation. All analysis must use real data from the download/fetch task or documented gaps.
 - **Ethics**: T009 documents the 'Exempt' status for secondary analysis; no IRB protocol is required.
-- **PDF Extraction**: T020 uses `pdfplumber` for **abstract-only** reconstruction. Full-text OCR is disabled to comply with CPU-only constraints. If registry data is insufficient, flag and exclude, do not fabricate.
+- **PDF Extraction**: T020 uses registry metadata only. **NO PDF reconstruction or extraction is attempted if metadata is insufficient.** If metadata is missing, the study is flagged and excluded.
 - **CI/CD**: T044 ensures reproducibility on a fresh runner as per SC-005.
 - **Contract Validation**: T045 provides the concrete validation step required for data hygiene and reproducibility.
-- **Constitution Override**: T016 strictly enforces Constitution Principle VI (Clinical Trial Registry Integrity) by limiting sources to ClinicalTrials.gov and OSF, overriding FR-001's list of other sources. The spec is flagged for a kickback.
+- **Constitution Override**: T016 strictly enforces Constitution Principle VI (Clinical Trial Registry Integrity) by limiting sources to ClinicalTrials.gov and OSF.
 - **Scope Adherence**: This task list strictly adheres to Functional Requirements FR-001 through FR-014 as defined in `spec.md`. No tasks referencing non-existent FRs (e.g., FR-015+) are included.
 - **Status Reset**: All task statuses have been reset to '[ ]' (incomplete) to accurately reflect the current state of the filesystem and resolve contradictions from previous revisions.
-- **T049 Removal**: Task T049 (Artifact Generation Verification referencing FR-022) has been removed as FR-022 does not exist. Verification scope is covered by T042 and T045.
+- **Schema Correction**: T007 now correctly implements `delivery_format` (caregiver-mediated vs. child-led) as mandated by Constitution Principle VII.
+- **Domain Extraction**: T017b and T031 now explicitly define the social skill domain taxonomy (communication, peer interaction, emotional regulation) and extraction logic.
+- **Reproducibility**: T002a and T002b ensure all dependencies are pinned to exact versions in both `pyproject.toml` and `requirements.txt`.
+- **Artifact Hygiene**: T001 generates valid `__init__.py` files instead of empty placeholders. T051 and T049 have been removed as they were scope creep or violations.

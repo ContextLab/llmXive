@@ -23,12 +23,19 @@ class ProjectConfig:
     
     Constitution Principle IV (Reproducibility): All random seeds are pinned
     via set_seed() to ensure deterministic execution across runs.
+    
+    FR-007 (Data Integrity): Configuration paths are validated and created
+    to ensure all data artifacts are written to verified locations.
     """
     project_root: Path = field(default_factory=lambda: Path(__file__).resolve().parents[2])
     data_dir: Path = field(default_factory=lambda: Path("data"))
     code_dir: Path = field(default_factory=lambda: Path("code"))
     output_dir: Path = field(default_factory=lambda: Path("data/processed"))
     logs_dir: Path = field(default_factory=lambda: Path("data/logs"))
+    contracts_dir: Path = field(default_factory=lambda: Path("contracts"))
+    docs_dir: Path = field(default_factory=lambda: Path("docs"))
+    scripts_dir: Path = field(default_factory=lambda: Path("scripts"))
+    tests_dir: Path = field(default_factory=lambda: Path("tests"))
     
     # Reproducibility settings
     random_seed: int = 42
@@ -41,9 +48,14 @@ class ProjectConfig:
         self.code_dir = self.project_root / self.code_dir
         self.output_dir = self.project_root / self.output_dir
         self.logs_dir = self.project_root / self.logs_dir
+        self.contracts_dir = self.project_root / self.contracts_dir
+        self.docs_dir = self.project_root / self.docs_dir
+        self.scripts_dir = self.project_root / self.scripts_dir
+        self.tests_dir = self.project_root / self.tests_dir
         
         # Create directories if they don't exist
-        for d in [self.data_dir, self.output_dir, self.logs_dir, self.project_root]:
+        for d in [self.data_dir, self.output_dir, self.logs_dir, self.project_root, 
+                  self.contracts_dir, self.docs_dir, self.scripts_dir, self.tests_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
     def get_data_path(self, subpath: str) -> Path:
@@ -58,6 +70,22 @@ class ProjectConfig:
         """Construct a full path within the code directory."""
         return self.code_dir / subpath
 
+    def get_contracts_path(self, subpath: str) -> Path:
+        """Construct a full path within the contracts directory."""
+        return self.contracts_dir / subpath
+
+    def get_docs_path(self, subpath: str) -> Path:
+        """Construct a full path within the docs directory."""
+        return self.docs_dir / subpath
+
+    def get_scripts_path(self, subpath: str) -> Path:
+        """Construct a full path within the scripts directory."""
+        return self.scripts_dir / subpath
+
+    def get_tests_path(self, subpath: str) -> Path:
+        """Construct a full path within the tests directory."""
+        return self.tests_dir / subpath
+
 
 # Global configuration instance
 _config: Optional[ProjectConfig] = None
@@ -67,6 +95,9 @@ def get_config() -> ProjectConfig:
     """
     Retrieve the singleton ProjectConfig instance.
     Initializes it if it doesn't exist.
+    
+    Returns:
+        ProjectConfig: The singleton configuration instance.
     """
     global _config
     if _config is None:
@@ -151,3 +182,55 @@ def get_code_path(subpath: str) -> Path:
         Absolute Path object.
     """
     return get_config().get_code_path(subpath)
+
+
+def get_contracts_path(subpath: str) -> Path:
+    """
+    Helper to get a path relative to the contracts directory.
+    
+    Args:
+        subpath: Relative path within the contracts directory.
+    
+    Returns:
+        Absolute Path object.
+    """
+    return get_config().get_contracts_path(subpath)
+
+
+def get_docs_path(subpath: str) -> Path:
+    """
+    Helper to get a path relative to the docs directory.
+    
+    Args:
+        subpath: Relative path within the docs directory.
+    
+    Returns:
+        Absolute Path object.
+    """
+    return get_config().get_docs_path(subpath)
+
+
+def get_scripts_path(subpath: str) -> Path:
+    """
+    Helper to get a path relative to the scripts directory.
+    
+    Args:
+        subpath: Relative path within the scripts directory.
+    
+    Returns:
+        Absolute Path object.
+    """
+    return get_config().get_scripts_path(subpath)
+
+
+def get_tests_path(subpath: str) -> Path:
+    """
+    Helper to get a path relative to the tests directory.
+    
+    Args:
+        subpath: Relative path within the tests directory.
+    
+    Returns:
+        Absolute Path object.
+    """
+    return get_config().get_tests_path(subpath)

@@ -1,9 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: EffectSize
-description: >-
-  Schema for calculated effect sizes (Hedges' g) derived from study data.
+title: Effect Size Schema
+description: |
+  Schema for calculated Hedges' g effect sizes derived from cleaned studies.
   Used for meta-analysis and subgroup comparisons.
-  Derived from T007c requirements.
 type: object
 required:
   - study_id
@@ -16,27 +15,31 @@ required:
 properties:
   study_id:
     type: string
-    description: Unique identifier referencing the source study record.
+    description: Reference to the parent study ID
+    minLength: 1
   hedges_g:
     type: number
-    format: float
-    description: Hedges' g effect size with small-sample correction.
+    description: Hedges' g effect size with small-sample correction
+    nullable: false
   se:
     type: number
-    format: float
-    description: Standard error of the effect size.
+    description: Standard error of the effect size
+    nullable: false
+    minimum: 0
   ci_lower:
     type: number
-    format: float
-    description: Lower bound of the confidence interval.
+    description: Lower bound of the 95% confidence interval
+    nullable: false
   ci_upper:
     type: number
-    format: float
-    description: Upper bound of the confidence interval.
+    description: Upper bound of the 95% confidence interval
+    nullable: false
   n_treatment:
     type: integer
-    description: Number of participants in the treatment group.
+    description: Sample size of the treatment group
+    minimum: 1
   n_control:
     type: integer
-    description: Number of participants in the control group.
+    description: Sample size of the control group
+    minimum: 1
 additionalProperties: false

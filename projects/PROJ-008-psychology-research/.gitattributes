@@ -1,20 +1,12 @@
-# Set default behavior for line endings
-* text=auto
-
-# Force specific file types to use Unix line endings
-*.sh text eol=lf
+# Ensure consistent line endings for Python files
 *.py text eol=lf
-*.md text eol=lf
-*.yaml text eol=lf
-*.yml text eol=lf
-*.json text eol=lf
 *.toml text eol=lf
-*.txt text eol=lf
-*.csv text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+# Binary files should not have line ending conversion
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.pdf binary
-*.zip binary
-*.tar binary
-*.gz binary
+*.csv binary # CSVs often have platform-specific line endings, keep as is or handle explicitly

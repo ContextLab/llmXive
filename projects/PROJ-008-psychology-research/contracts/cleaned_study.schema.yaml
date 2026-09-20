@@ -1,9 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Cleaned Study
+title: Cleaned Study Schema
 description: |
-  Schema for cleaned study records extracted from ClinicalTrials.gov and OSF.
-  Validated against inclusion criteria: ASD diagnosis, age 6-12, social skill outcomes.
-  This schema supports FR-007 (Data Integrity) and Constitution Principle VI.
+  Schema for validated study records extracted from ClinicalTrials.gov and OSF.
+  Enforces Constitution Principle VII (Delivery Format) and FR-010 (Social Skill Domain).
 type: object
 required:
   - id
@@ -14,66 +13,64 @@ required:
   - outcomes
   - intervention_components
   - delivery_format
-  - follow_up
-  - assessor_blinding
+  - social_skill_domain
 properties:
   id:
     type: string
     description: Unique identifier for the study (e.g., NCT number or OSF ID)
+    minLength: 1
   title:
     type: string
-    description: Official title of the study
+    description: Full title of the study
+    minLength: 1
   registry:
     type: string
+    description: Source registry
     enum:
       - ClinicalTrials.gov
       - OSF
-    description: Source registry where the study was registered
   age_range:
     type: string
-    description: Age range of participants (e.g., "6-12", "8-10")
+    description: Age range of participants (e.g., "8-12")
+    pattern: "^\\d+-\\d+$"
   diagnosis:
     type: string
-    description: Primary diagnosis (must be ASD or Autism Spectrum Disorder)
+    description: Diagnostic criteria used (e.g., DSM-5, ADOS-2)
+    minLength: 1
   outcomes:
     type: array
+    description: List of social skill outcome measures used
     items:
       type: string
-    description: List of measured social skill outcomes
+      minLength: 1
   intervention_components:
     type: array
+    description: Detected mindfulness components (e.g., 'breathing', 'body scan')
     items:
       type: string
-    description: List of mindfulness components present in the intervention
+      minLength: 1
   delivery_format:
     type: string
+    description: Format of intervention delivery per Constitution Principle VII
     enum:
-      - individual
-      - group
-      - hybrid
-      - online
+      - caregiver-mediated
+      - child-led
+      - mixed
       - not-reported
-    description: Format of intervention delivery
   follow_up:
     type: string
-    description: Follow-up duration (e.g., "3-month", "6-month", "none")
+    description: Follow-up duration (e.g., "3 months", "6 months")
+    nullable: true
   abstract_text:
     type: string
+    description: Extracted abstract text for validation fallback
     nullable: true
-    description: Extracted abstract text (optional, from PDF if metadata insufficient)
-  assessor_blinding:
+  social_skill_domain:
     type: string
+    description: Primary social skill domain targeted
     enum:
-      - single-blind
-      - double-blind
-      - unblinded
-      - not-reported
-    description: |
-      Blinding status of the study assessors.
-      Required for T022 and T023 (Blinded Assessment Extraction and Validation).
-      Values:
-        - single-blind: Assessors unaware of group assignment
-        - double-blind: Both participants and assessors unaware
-        - unblinded: No blinding performed
-        - not-reported: Blinding status not mentioned in registry data
+      - communication
+      - peer interaction
+      - emotional regulation
+      - mixed
 additionalProperties: false

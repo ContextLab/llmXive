@@ -1,54 +1,25 @@
-# PROJ-008: Mindfulness Components and Delivery Formats in ASD Social Skills
+# PROJ-008-psychology-research
 
 ## Overview
-This project implements a systematic review and meta-analysis of mindfulness-based interventions for improving social skills in children aged 6-12 with Autism Spectrum Disorder (ASD).
+Automated meta-analysis pipeline investigating mindfulness components and delivery formats in ASD social skills interventions.
+
+## Setup
+
+1. **Environment**: Ensure Python 3.11+ is installed.
+2. **Dependencies**: Install pinned dependencies from `requirements.txt`.
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. **Linting & Formatting**:
+ - **Black**: Format code with `black code/ tests/ scripts/`
+ - **Ruff**: Lint code with `ruff check code/ tests/ scripts/`
 
 ## Project Structure
-```
-projects/PROJ-008-psychology-research/
-├── code/ # Source code
-│ ├── analysis/ # Statistical analysis modules
-│ ├── data/ # Data collection and cleaning
-│ ├── utils/ # Utility functions
-│ └── viz/ # Visualization modules
-├── data/ # Data artifacts
-│ ├── raw/ # Raw data from APIs and PDFs
-│ ├── processed/ # Cleaned and analyzed data
-│ └── interim/ # Intermediate data files
-├── docs/ # Documentation
-├── tests/ # Test suites
-├── contracts/ # Schema definitions
-├── scripts/ # Utility scripts
-└──.github/workflows/ # CI/CD pipelines
-```
+- `code/`: Source code for data collection, extraction, analysis, and visualization.
+- `data/`: Raw and processed data artifacts.
+- `tests/`: Unit, integration, and contract tests.
+- `contracts/`: Schema definitions for data validation.
+- `docs/`: Documentation and reports.
 
-## Installation
-```bash
-pip install -e.
-```
-
-## Development Tools
-- **Black**: Code formatter (configured in `pyproject.toml`)
-- **Ruff**: Linter (configured in `.ruff.toml`)
-
-### Formatting
-```bash
-black.
-```
-
-### Linting
-```bash
-ruff check.
-```
-
-### Running Tests
-```bash
-pytest
-```
-
-## Data Sources
-- ClinicalTrials.gov
-- Open Science Framework (OSF)
-
-## Ethics
-This study uses secondary analysis of de-identified public registry data and is exempt from IRB review (see `docs/ethics_determination.md`).
+## Execution
+See `quickstart.md` for detailed execution steps.

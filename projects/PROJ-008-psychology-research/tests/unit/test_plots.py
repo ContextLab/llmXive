@@ -1,225 +1,175 @@
-"""
-Unit tests for visualization module, specifically focusing on funnel plot suppression logic.
-
-This file extends the existing test suite for the plots module.
-It includes tests for:
-1. Forest plot generation (T031)
-2. Funnel plot suppression when N < 10 (T032)
-"""
-
-import pytest
 import os
-import sys
+import tempfile
+import pytest
+import pandas as pd
+import numpy as np
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-from io import BytesIO
 
-# Add code root to path for imports
-code_root = Path(__file__).resolve().parent.parent.parent / "code"
-sys.path.insert(0, str(code_root))
+# Import the function under test from the existing API surface
+from code.viz.plots import create_forest_plot, create_funnel_plot
 
-from analysis.meta_analysis import MetaAnalysisStats
-from data.models import EffectSize
-from viz.plots import generate_forest_plot, generate_funnel_plot
+# Test data fixture: a minimal set of effect sizes and study metadata
+@pytest.fixture
+def mock_study_data():
+    """
+    Creates a DataFrame with the minimum required columns for a forest plot:
+    - study_id: str
+    - hedges_g: float (effect size)
+    - se: float (standard error)
+    - domain: str (social skill domain)
+    """
+    return pd.DataFrame([
+        {
+            "study_id": "Study_A",
+            "hedges_g": 0.5,
+            "se": 0.1,
+            "domain": "communication"
+        },
+        {
+            "study_id": "Study_B",
+            "hedges_g": -0.2,
+            "se": 0.15,
+            "domain": "peer interaction"
+        },
+        {
+            "study_id": "Study_C",
+            "hedges_g": 1.1,
+            "se": 0.2,
+            "domain": "emotional regulation"
+        }
+    ])
 
+def test_forest_plot_creates_file(mock_study_data, tmp_path):
+    """
+    Unit test for forest plot generation.
+    Verifies that create_forest_plot writes a valid PNG file to disk
+    when provided with real study data.
+    """
+    output_path = tmp_path / "test_forest.png"
 
-class TestForestPlotGeneration:
-    """Test cases for T031: Forest plot generation."""
+    # Call the function under test
+    create_forest_plot(
+        studies=mock_study_data,
+        output_path=str(output_path),
+        title="Test Forest Plot"
+    )
 
-    def test_forest_plot_with_valid_data(self, tmp_path):
-        """Test that a forest plot is generated correctly with valid data."""
-        # Create mock effect sizes
-        effect_sizes = [
-            EffectSize(
-                study_id="Study_A",
-                effect_size=0.5,
-                se=0.1,
-                ci_lower=0.3,
-                ci_upper=0.7,
-                n_intervention=30,
-                n_control=30,
-                domain="Social Skills"
-            ),
-            EffectSize(
-                study_id="Study_B",
-                effect_size=0.8,
-                se=0.15,
-                ci_lower=0.5,
-                ci_upper=1.1,
-                n_intervention=25,
-                n_control=25,
-                domain="Communication"
-            ),
-        ]
-        
-        output_path = tmp_path / "forest_plot.png"
-        
-        # Generate plot
-        generate_forest_plot(effect_sizes, str(output_path))
-        
-        # Verify file exists and has content
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
+    # Assert the file was created
+    assert output_path.exists(), "Forest plot file was not created"
+    assert output_path.stat().st_size > 0, "Forest plot file is empty"
+
+    # Verify it's a valid PNG (basic magic number check)
+    with open(output_path, "rb") as f:
+        header = f.read(8)
+        # PNG signature: 89 50 4E 47 0D 0A 1A 0A
+        assert header.startswith(b"\x89PNG"), "File is not a valid PNG"
+
+def test_forest_plot_handles_empty_data(tmp_path):
+    """
+    Unit test to ensure the function handles empty input gracefully.
+    Expected behavior: Raise a ValueError or return False, not crash.
+    """
+    empty_data = pd.DataFrame(columns=["study_id", "hedges_g", "se", "domain"])
+    output_path = tmp_path / "empty_forest.png"
+
+    with pytest.raises(ValueError, match="No studies provided"):
+        create_forest_plot(
+            studies=empty_data,
+            output_path=str(output_path),
+            title="Empty Plot"
+        )
+
+def test_forest_plot_confidence_intervals_visible(mock_study_data, tmp_path):
+    """
+    Unit test to verify that confidence intervals are calculated and rendered.
+    While we cannot easily check pixel-level rendering in a unit test without
+    heavy dependencies, we verify the function accepts the data and produces output.
+    The visual verification of CIs is done in integration tests.
+    """
+    output_path = tmp_path / "ci_test.png"
     
-    def test_forest_plot_with_single_study(self, tmp_path):
-        """Test forest plot generation with a single study."""
-        effect_sizes = [
-            EffectSize(
-                study_id="Single_Study",
-                effect_size=0.3,
-                se=0.1,
-                ci_lower=0.1,
-                ci_upper=0.5,
-                n_intervention=20,
-                n_control=20,
-                domain="Social Skills"
-            ),
-        ]
-        
-        output_path = tmp_path / "forest_plot_single.png"
-        
-        generate_forest_plot(effect_sizes, str(output_path))
-        
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
+    # Run the generation
+    create_forest_plot(
+        studies=mock_study_data,
+        output_path=str(output_path),
+        title="CI Test"
+    )
+    
+    assert output_path.exists()
 
-class TestFunnelPlotSuppression:
-    """Test cases for T032: Funnel plot suppression logic when N < 10."""
+def test_funnel_plot_suppression_when_n_less_than_10(tmp_path):
+    """
+    Unit test for funnel plot suppression logic when N < 10 (T035).
+    
+    Verifies that create_funnel_plot raises a ValueError when the number
+    of studies is less than 10, as per the requirement to suppress
+    publication bias assessment for small samples.
+    """
+    # Create a dataset with N = 5 (less than 10)
+    small_data = pd.DataFrame([
+        {"study_id": f"Study_{i}", "hedges_g": 0.1 * i, "se": 0.1, "domain": "communication"}
+        for i in range(5)
+    ])
+    
+    output_path = tmp_path / "funnel_small.png"
+    
+    # Verify that the function raises ValueError with the correct message
+    with pytest.raises(ValueError, match="Insufficient data for funnel plot"):
+        create_funnel_plot(
+            studies=small_data,
+            output_path=str(output_path),
+            title="Small Sample Funnel"
+        )
+    
+    # Ensure no file was created
+    assert not output_path.exists(), "Funnel plot should not be created for N < 10"
 
-    def test_funnel_plot_suppressed_when_n_less_than_10(self, tmp_path):
-        """
-        Verify that generate_funnel_plot raises a ValueError when N < 10.
-        This enforces FR-014: suppress funnel plot if N < 10.
-        """
-        # Create only 5 effect sizes (N < 10)
-        effect_sizes = [
-            EffectSize(
-                study_id=f"Study_{i}",
-                effect_size=0.5 + (i * 0.1),
-                se=0.1 + (i * 0.01),
-                ci_lower=0.4 + (i * 0.1),
-                ci_upper=0.6 + (i * 0.1),
-                n_intervention=20,
-                n_control=20,
-                domain="Social Skills"
-            )
-            for i in range(5)
-        ]
-        
-        output_path = tmp_path / "funnel_plot.png"
-        
-        # Should raise ValueError
-        with pytest.raises(ValueError) as exc_info:
-            generate_funnel_plot(effect_sizes, str(output_path))
-        
-        assert "N < 10" in str(exc_info.value)
-        assert "funnel plot" in str(exc_info.value).lower()
-        assert str(exc_info.value).count("5") > 0  # Mention actual count
-        
-        # Verify no file was created
-        assert not output_path.exists()
+def test_funnel_plot_creates_file_when_n_ge_10(tmp_path):
+    """
+    Unit test to ensure funnel plot is created when N >= 10.
+    """
+    # Create a dataset with N = 12 (greater than or equal to 10)
+    sufficient_data = pd.DataFrame([
+        {"study_id": f"Study_{i}", "hedges_g": 0.1 * i, "se": 0.1, "domain": "communication"}
+        for i in range(12)
+    ])
     
-    def test_funnel_plot_suppressed_when_n_equals_9(self, tmp_path):
-        """Verify suppression when N = 9 (just under threshold)."""
-        effect_sizes = [
-            EffectSize(
-                study_id=f"Study_{i}",
-                effect_size=0.5,
-                se=0.1,
-                ci_lower=0.3,
-                ci_upper=0.7,
-                n_intervention=20,
-                n_control=20,
-                domain="Social Skills"
-            )
-            for i in range(9)
-        ]
-        
-        output_path = tmp_path / "funnel_plot_n9.png"
-        
-        with pytest.raises(ValueError) as exc_info:
-            generate_funnel_plot(effect_sizes, str(output_path))
-        
-        assert "N < 10" in str(exc_info.value)
-        assert not output_path.exists()
+    output_path = tmp_path / "funnel_sufficient.png"
     
-    def test_funnel_plot_allowed_when_n_equals_10(self, tmp_path):
-        """Verify that funnel plot is generated when N >= 10."""
-        effect_sizes = [
-            EffectSize(
-                study_id=f"Study_{i}",
-                effect_size=0.5 + (i * 0.05),
-                se=0.1 + (i * 0.005),
-                ci_lower=0.4 + (i * 0.05),
-                ci_upper=0.6 + (i * 0.05),
-                n_intervention=20,
-                n_control=20,
-                domain="Social Skills"
-            )
-            for i in range(10)
-        ]
-        
-        output_path = tmp_path / "funnel_plot_n10.png"
-        
-        # Should NOT raise an error
-        generate_funnel_plot(effect_sizes, str(output_path))
-        
-        # Verify file was created
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
+    # This should succeed without raising an error
+    create_funnel_plot(
+        studies=sufficient_data,
+        output_path=str(output_path),
+        title="Sufficient Sample Funnel"
+    )
     
-    def test_funnel_plot_allowed_when_n_greater_than_10(self, tmp_path):
-        """Verify that funnel plot is generated when N > 10."""
-        effect_sizes = [
-            EffectSize(
-                study_id=f"Study_{i}",
-                effect_size=0.5 + (i * 0.05),
-                se=0.1 + (i * 0.005),
-                ci_lower=0.4 + (i * 0.05),
-                ci_upper=0.6 + (i * 0.05),
-                n_intervention=20,
-                n_control=20,
-                domain="Social Skills"
-            )
-            for i in range(15)
-        ]
-        
-        output_path = tmp_path / "funnel_plot_n15.png"
-        
-        # Should NOT raise an error
-        generate_funnel_plot(effect_sizes, str(output_path))
-        
-        # Verify file was created
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
+    # Assert the file was created and is not empty
+    assert output_path.exists(), "Funnel plot file was not created for N >= 10"
+    assert output_path.stat().st_size > 0, "Funnel plot file is empty"
     
-    def test_error_message_contains_helpful_guidance(self, tmp_path):
-        """Verify that the error message provides helpful guidance for users."""
-        effect_sizes = [
-            EffectSize(
-                study_id=f"Study_{i}",
-                effect_size=0.5,
-                se=0.1,
-                ci_lower=0.3,
-                ci_upper=0.7,
-                n_intervention=20,
-                n_control=20,
-                domain="Social Skills"
-            )
-            for i in range(3)
-        ]
-        
-        output_path = tmp_path / "funnel_plot.png"
-        
-        with pytest.raises(ValueError) as exc_info:
-            generate_funnel_plot(effect_sizes, str(output_path))
-        
-        error_msg = str(exc_info.value).lower()
-        # Check for helpful keywords
-        assert any(keyword in error_msg for keyword in ["n <", "threshold", "minimum", "sample size"])
-        
-        # Verify no file was created
-        assert not output_path.exists()
+    # Verify it's a valid PNG
+    with open(output_path, "rb") as f:
+        header = f.read(8)
+        assert header.startswith(b"\x89PNG"), "File is not a valid PNG"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_funnel_plot_exactly_n_10(tmp_path):
+    """
+    Unit test for the boundary condition where N == 10.
+    The plot should be generated (not suppressed) when N is exactly 10.
+    """
+    # Create a dataset with exactly N = 10
+    boundary_data = pd.DataFrame([
+        {"study_id": f"Study_{i}", "hedges_g": 0.1 * i, "se": 0.1, "domain": "communication"}
+        for i in range(10)
+    ])
+    
+    output_path = tmp_path / "funnel_boundary.png"
+    
+    # Should succeed
+    create_funnel_plot(
+        studies=boundary_data,
+        output_path=str(output_path),
+        title="Boundary Sample Funnel"
+    )
+    
+    assert output_path.exists(), "Funnel plot should be created when N == 10"

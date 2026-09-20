@@ -1,1 +1,2 @@
-# PROJ-008-psychology-research: Core package
+# llmXive Psychology Research Project
+# Code package initialization

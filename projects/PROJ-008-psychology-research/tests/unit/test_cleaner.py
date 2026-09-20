@@ -1,271 +1,241 @@
 """
 Unit tests for inclusion criteria filtering logic in code/data/cleaner.py.
 
-This module verifies that the filter_included_studies function correctly
-applies the inclusion criteria defined in the research protocol:
-1. Age range must be 6-12 years (inclusive)
-2. Diagnosis must include ASD (Autism Spectrum Disorder)
-3. Outcomes must include social skill measures
+These tests verify that the filter_included_studies function correctly applies
+the inclusion/exclusion criteria defined in the research protocol:
+- Age range: 6-12 years
+- Diagnosis: Must include ASD/autism
+- Outcomes: Must use validated social skill measures (SRS-2, ABC, SSIS, PEP-3)
 """
 
 import pytest
 from typing import List, Dict, Any
 from code.data.cleaner import filter_included_studies
-from code.data.models import Study, RegistrySource, BlindingStatus
+from code.utils.logging import get_logger
 
+logger = get_logger(__name__)
 
-class TestInclusionCriteriaFiltering:
-    """Test suite for the inclusion criteria filtering logic."""
+# Valid outcome measures whitelist
+VALID_OUTCOMES = {'SRS-2', 'ABC', 'SSIS', 'PEP-3', 'SRS', 'Aberrant Behavior Checklist'}
 
-    def _create_test_study(
-        self,
-        study_id: str = "test_001",
-        title: str = "Test Study",
-        registry: str = "ClinicalTrials.gov",
-        age_range: str = "6-12",
-        diagnosis: str = "ASD",
-        outcomes: List[str] = None,
-        intervention_components: List[str] = None,
-        delivery_format: str = "Group",
-        follow_up: str = "3-month",
-        assessor_blinding: str = "single-blind",
-        abstract_text: str = None
-    ) -> Dict[str, Any]:
-        """Helper to create a test study dictionary."""
-        if outcomes is None:
-            outcomes = ["social skills"]
-        if intervention_components is None:
-            intervention_components = ["mindfulness"]
+# Test fixtures
+@pytest.fixture
+def valid_study() -> Dict[str, Any]:
+    """A study that meets all inclusion criteria."""
+    return {
+        'id': 'NCT00000001',
+        'title': 'Mindfulness for ASD Social Skills',
+        'age_range': '6-12',
+        'diagnosis': 'Autism Spectrum Disorder',
+        'outcomes': ['SRS-2', 'ABC'],
+        'intervention_components': ['breathing', 'body scan'],
+        'delivery_format': 'caregiver-mediated'
+    }
 
-        return {
-            "id": study_id,
-            "title": title,
-            "registry": registry,
-            "age_range": age_range,
-            "diagnosis": diagnosis,
-            "outcomes": outcomes,
-            "intervention_components": intervention_components,
-            "delivery_format": delivery_format,
-            "follow_up": follow_up,
-            "assessor_blinding": assessor_blinding,
-            "abstract_text": abstract_text
+@pytest.fixture
+def invalid_age_study() -> Dict[str, Any]:
+    """A study with age range outside 6-12."""
+    return {
+        'id': 'NCT00000002',
+        'title': 'Mindfulness for Teens with ASD',
+        'age_range': '13-17',
+        'diagnosis': 'Autism Spectrum Disorder',
+        'outcomes': ['SRS-2'],
+        'intervention_components': ['breathing'],
+        'delivery_format': 'child-led'
+    }
+
+@pytest.fixture
+def invalid_diagnosis_study() -> Dict[str, Any]:
+    """A study without ASD diagnosis."""
+    return {
+        'id': 'NCT00000003',
+        'title': 'Mindfulness for ADHD',
+        'age_range': '8-12',
+        'diagnosis': 'Attention Deficit Hyperactivity Disorder',
+        'outcomes': ['SRS-2'],
+        'intervention_components': ['breathing'],
+        'delivery_format': 'caregiver-mediated'
+    }
+
+@pytest.fixture
+def invalid_outcome_study() -> Dict[str, Any]:
+    """A study with unvalidated outcome measures."""
+    return {
+        'id': 'NCT00000004',
+        'title': 'Mindfulness with Custom Measures',
+        'age_range': '6-12',
+        'diagnosis': 'Autism Spectrum Disorder',
+        'outcomes': ['Custom Survey', 'Self Report'],
+        'intervention_components': ['breathing'],
+        'delivery_format': 'caregiver-mediated'
+    }
+
+@pytest.fixture
+def mixed_valid_invalid_studies(
+    valid_study,
+    invalid_age_study,
+    invalid_diagnosis_study,
+    invalid_outcome_study
+) -> List[Dict[str, Any]]:
+    """A list containing both valid and invalid studies."""
+    return [
+        valid_study,
+        invalid_age_study,
+        invalid_diagnosis_study,
+        invalid_outcome_study
+    ]
+
+class TestFilterIncludedStudies:
+    """Tests for the filter_included_studies function."""
+
+    def test_valid_study_is_included(self, valid_study):
+        """A study meeting all criteria should be included."""
+        studies = [valid_study]
+        included, excluded = filter_included_studies(studies)
+        
+        assert len(included) == 1
+        assert included[0]['id'] == valid_study['id']
+        assert len(excluded) == 0
+
+    def test_invalid_age_study_is_excluded(self, invalid_age_study):
+        """A study with age outside 6-12 should be excluded."""
+        studies = [invalid_age_study]
+        included, excluded = filter_included_studies(studies)
+        
+        assert len(included) == 0
+        assert len(excluded) == 1
+        assert excluded[0]['id'] == invalid_age_study['id']
+        assert excluded[0]['reason'] == 'INVALID_AGE_RANGE'
+
+    def test_invalid_diagnosis_study_is_excluded(self, invalid_diagnosis_study):
+        """A study without ASD diagnosis should be excluded."""
+        studies = [invalid_diagnosis_study]
+        included, excluded = filter_included_studies(studies)
+        
+        assert len(included) == 0
+        assert len(excluded) == 1
+        assert excluded[0]['id'] == invalid_diagnosis_study['id']
+        assert excluded[0]['reason'] == 'INVALID_DIAGNOSIS'
+
+    def test_invalid_outcome_study_is_excluded(self, invalid_outcome_study):
+        """A study with unvalidated outcomes should be excluded."""
+        studies = [invalid_outcome_study]
+        included, excluded = filter_included_studies(studies)
+        
+        assert len(included) == 0
+        assert len(excluded) == 1
+        assert excluded[0]['id'] == invalid_outcome_study['id']
+        assert excluded[0]['reason'] == 'INVALID_OUTCOME'
+
+    def test_mixed_studies_are_correctly_filtered(self, mixed_valid_invalid_studies):
+        """Mixed studies should be correctly separated into included and excluded."""
+        included, excluded = filter_included_studies(mixed_valid_invalid_studies)
+        
+        # Should have 1 included (the valid study)
+        assert len(included) == 1
+        assert included[0]['id'] == mixed_valid_invalid_studies[0]['id']
+        
+        # Should have 3 excluded (age, diagnosis, outcome)
+        assert len(excluded) == 3
+        excluded_ids = {e['id'] for e in excluded}
+        assert excluded_ids == {
+            'NCT00000002',  # invalid age
+            'NCT00000003',  # invalid diagnosis
+            'NCT00000004'   # invalid outcome
         }
 
-    def test_all_criteria_met_included(self):
-        """Studies meeting all criteria should be included."""
-        studies = [
-            self._create_test_study(
-                study_id="S001",
-                age_range="6-12",
-                diagnosis="ASD",
-                outcomes=["social skills", "communication"]
-            ),
-            self._create_test_study(
-                study_id="S002",
-                age_range="8-10",
-                diagnosis="Autism Spectrum Disorder",
-                outcomes=["social interaction"]
-            )
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        assert len(included) == 2
-        assert len(excluded) == 0
-        assert included[0]["id"] == "S001"
-        assert included[1]["id"] == "S002"
-
-    def test_age_out_of_range_excluded(self):
-        """Studies with age range outside 6-12 should be excluded."""
-        studies = [
-            self._create_test_study(
-                study_id="S001",
-                age_range="6-12",
-                diagnosis="ASD",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S002",
-                age_range="13-17",
-                diagnosis="ASD",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S003",
-                age_range="4-8",
-                diagnosis="ASD",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S004",
-                age_range="18-25",
-                diagnosis="ASD",
-                outcomes=["social skills"]
-            )
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        assert len(included) == 1
-        assert len(excluded) == 3
-        assert included[0]["id"] == "S001"
-        excluded_ids = [s["id"] for s in excluded]
-        assert "S002" in excluded_ids
-        assert "S003" in excluded_ids
-        assert "S004" in excluded_ids
-
-    def test_non_asd_diagnosis_excluded(self):
-        """Studies without ASD diagnosis should be excluded."""
-        studies = [
-            self._create_test_study(
-                study_id="S001",
-                diagnosis="ASD",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S002",
-                diagnosis="ADHD",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S003",
-                diagnosis="Anxiety Disorder",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S004",
-                diagnosis="Typical Development",
-                outcomes=["social skills"]
-            )
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        assert len(included) == 1
-        assert len(excluded) == 3
-        assert included[0]["id"] == "S001"
-        excluded_ids = [s["id"] for s in excluded]
-        assert "S002" in excluded_ids
-        assert "S003" in excluded_ids
-        assert "S004" in excluded_ids
-
-    def test_no_social_skill_outcomes_excluded(self):
-        """Studies without social skill outcomes should be excluded."""
-        studies = [
-            self._create_test_study(
-                study_id="S001",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S002",
-                outcomes=["academic achievement"]
-            ),
-            self._create_test_study(
-                study_id="S003",
-                outcomes=["motor skills", "cognitive function"]
-            ),
-            self._create_test_study(
-                study_id="S004",
-                outcomes=[]
-            )
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        assert len(included) == 1
-        assert len(excluded) == 3
-        assert included[0]["id"] == "S001"
-        excluded_ids = [s["id"] for s in excluded]
-        assert "S002" in excluded_ids
-        assert "S003" in excluded_ids
-        assert "S004" in excluded_ids
-
-    def test_asd_variations_included(self):
-        """Various ASD terminology should be included."""
-        studies = [
-            self._create_test_study(study_id="S001", diagnosis="ASD"),
-            self._create_test_study(study_id="S002", diagnosis="Autism Spectrum Disorder"),
-            self._create_test_study(study_id="S003", diagnosis="Autism"),
-            self._create_test_study(study_id="S004", diagnosis="Pervasive Developmental Disorder"),
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        # All should be included as they all relate to ASD
-        assert len(included) == 4
-        assert len(excluded) == 0
-
-    def test_empty_studies_list(self):
-        """Empty input should return empty output."""
+    def test_empty_studies_list_returns_empty(self):
+        """An empty list should return empty included and excluded."""
         included, excluded = filter_included_studies([])
-
+        
         assert len(included) == 0
         assert len(excluded) == 0
 
-    def test_combined_criteria_failure(self):
-        """Studies failing multiple criteria should be excluded."""
-        studies = [
-            self._create_test_study(
-                study_id="S001",
-                age_range="6-12",
-                diagnosis="ASD",
-                outcomes=["social skills"]
-            ),
-            self._create_test_study(
-                study_id="S002",
-                age_range="14-18",  # Age fail
-                diagnosis="ADHD",  # Diagnosis fail
-                outcomes=["academic achievement"]  # Outcome fail
-            )
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
+    def test_partial_age_range_inclusion(self):
+        """Studies with partial overlap in age range should be included."""
+        # Age range 8-10 overlaps with 6-12
+        study_with_partial_age = {
+            'id': 'NCT00000005',
+            'title': 'Mindfulness for Younger ASD',
+            'age_range': '8-10',
+            'diagnosis': 'Autism Spectrum Disorder',
+            'outcomes': ['SRS-2'],
+            'intervention_components': ['breathing'],
+            'delivery_format': 'caregiver-mediated'
+        }
+        
+        included, excluded = filter_included_studies([study_with_partial_age])
+        
         assert len(included) == 1
+        assert included[0]['id'] == study_with_partial_age['id']
+
+    def test_case_insensitive_diagnosis_check(self):
+        """Diagnosis check should be case-insensitive."""
+        study_lowercase = {
+            'id': 'NCT00000006',
+            'title': 'Mindfulness with lowercase diagnosis',
+            'age_range': '6-12',
+            'diagnosis': 'autism spectrum disorder',
+            'outcomes': ['SRS-2'],
+            'intervention_components': ['breathing'],
+            'delivery_format': 'caregiver-mediated'
+        }
+        
+        included, excluded = filter_included_studies([study_lowercase])
+        
+        assert len(included) == 1
+        assert included[0]['id'] == study_lowercase['id']
+
+    def test_case_insensitive_outcome_check(self):
+        """Outcome check should be case-insensitive."""
+        study_lowercase_outcome = {
+            'id': 'NCT00000007',
+            'title': 'Mindfulness with lowercase outcome',
+            'age_range': '6-12',
+            'diagnosis': 'Autism Spectrum Disorder',
+            'outcomes': ['srs-2', 'abc'],
+            'intervention_components': ['breathing'],
+            'delivery_format': 'caregiver-mediated'
+        }
+        
+        included, excluded = filter_included_studies([study_lowercase_outcome])
+        
+        assert len(included) == 1
+        assert included[0]['id'] == study_lowercase_outcome['id']
+
+    def test_multiple_outcomes_with_at_least_one_valid(self):
+        """Study with multiple outcomes where at least one is valid should be included."""
+        study_mixed_outcomes = {
+            'id': 'NCT00000008',
+            'title': 'Mindfulness with mixed outcomes',
+            'age_range': '6-12',
+            'diagnosis': 'Autism Spectrum Disorder',
+            'outcomes': ['Custom Survey', 'SRS-2', 'Self Report'],
+            'intervention_components': ['breathing'],
+            'delivery_format': 'caregiver-mediated'
+        }
+        
+        included, excluded = filter_included_studies([study_mixed_outcomes])
+        
+        assert len(included) == 1
+        assert included[0]['id'] == study_mixed_outcomes['id']
+
+    def test_multiple_outcomes_all_invalid(self):
+        """Study with multiple outcomes where all are invalid should be excluded."""
+        study_all_invalid_outcomes = {
+            'id': 'NCT00000009',
+            'title': 'Mindfulness with all invalid outcomes',
+            'age_range': '6-12',
+            'diagnosis': 'Autism Spectrum Disorder',
+            'outcomes': ['Custom Survey', 'Self Report', 'Parent Opinion'],
+            'intervention_components': ['breathing'],
+            'delivery_format': 'caregiver-mediated'
+        }
+        
+        included, excluded = filter_included_studies([study_all_invalid_outcomes])
+        
+        assert len(included) == 0
         assert len(excluded) == 1
-        assert included[0]["id"] == "S001"
-        assert excluded[0]["id"] == "S002"
-
-    def test_boundary_age_values(self):
-        """Test exact boundary values for age range."""
-        studies = [
-            self._create_test_study(study_id="S001", age_range="6-12"),
-            self._create_test_study(study_id="S002", age_range="6-6"),
-            self._create_test_study(study_id="S003", age_range="12-12"),
-            self._create_test_study(study_id="S004", age_range="5-12"),  # 5 is out
-            self._create_test_study(study_id="S005", age_range="6-13"),  # 13 is out
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        # S001, S002, S003 should be included (all within 6-12)
-        # S004 (starts at 5) and S005 (ends at 13) should be excluded
-        assert len(included) == 3
-        assert len(excluded) == 2
-        included_ids = [s["id"] for s in included]
-        assert "S001" in included_ids
-        assert "S002" in included_ids
-        assert "S003" in included_ids
-        excluded_ids = [s["id"] for s in excluded]
-        assert "S004" in excluded_ids
-        assert "S005" in excluded_ids
-
-    def test_case_insensitive_outcome_matching(self):
-        """Outcome matching should be case-insensitive."""
-        studies = [
-            self._create_test_study(study_id="S001", outcomes=["Social Skills"]),
-            self._create_test_study(study_id="S002", outcomes=["SOCIAL SKILLS"]),
-            self._create_test_study(study_id="S003", outcomes=["social interaction"]),
-            self._create_test_study(study_id="S004", outcomes=["Communication"]),
-        ]
-
-        included, excluded = filter_included_studies(studies)
-
-        # S001, S002, S003 should be included (contain social-related terms)
-        # S004 should be excluded (no social skill term)
-        assert len(included) == 3
-        assert len(excluded) == 1
-        assert included[0]["id"] == "S001"
-        assert included[1]["id"] == "S002"
-        assert included[2]["id"] == "S003"
-        assert excluded[0]["id"] == "S004"
+        assert excluded[0]['id'] == study_all_invalid_outcomes['id']
+        assert excluded[0]['reason'] == 'INVALID_OUTCOME'

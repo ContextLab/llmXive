@@ -75,7 +75,7 @@ def effect_size_schema():
     if not schema_path.exists():
         pytest.fail(f"Schema file not found at {schema_path}. "
                     "Ensure T007 (Create schema contracts) is completed first.")
-                    
+                        
     return load_schema(str(schema_path))
 
 

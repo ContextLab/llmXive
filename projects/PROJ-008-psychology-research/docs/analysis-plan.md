@@ -1,104 +1,72 @@
 # Analysis Plan: Missing Data Handling and Imputation Strategies
 
 **Project**: PROJ-008-psychology-research
-**Study**: Mindfulness Components and Delivery Formats in ASD Social Skills
-**Version**: 1.0
+**Study Focus**: Mindfulness Components and Delivery Formats in ASD Social Skills
 **Date**: 2026-04-29
+**Version**: 1.0
 
 ## 1. Introduction
 
-This document outlines the statistical strategies for handling missing data in the meta-analysis of mindfulness interventions for social skills in children (ages 6–12) with Autism Spectrum Disorder (ASD). Given the secondary nature of this analysis (ClinicalTrials.gov and OSF), missing data is expected in the form of incomplete reporting of effect sizes, standard deviations, or sample sizes.
-
-The primary goal is to minimize bias while maintaining statistical power, adhering to PRISMA guidelines and the project's Constitution Principle II (Verified Accuracy).
+This document outlines the statistical strategies for handling missing data in the systematic review and meta-analysis of mindfulness-based interventions for children with Autism Spectrum Disorder (ASD). The analysis relies on secondary data from ClinicalTrials.gov and OSF. While registry data is generally structured, missingness may occur in outcome means, standard deviations, or subgroup counts required for effect size calculation.
 
 ## 2. Missing Data Strategy
 
-Missing data in this meta-analysis will be classified into three mechanisms:
-1. **MCAR (Missing Completely at Random)**: Unlikely in this context, as missingness often correlates with study quality or sample size.
-2. **MAR (Missing at Random)**: Missingness depends on observed variables (e.g., study year, sample size).
-3. **MNAR (Missing Not at Random)**: Missingness depends on the unobserved effect size itself (e.g., studies with non-significant results failing to report standard deviations).
+We adopt a tiered approach to missing data, prioritizing the recovery of raw statistics before resorting to estimation. The strategy is defined by the mechanism of missingness and the availability of auxiliary information.
 
-### 2.1 Assessment of Missingness
-Before imputation, we will:
-- Generate a missingness matrix to visualize patterns.
-- Perform Little's MCAR test (if sufficient N) to distinguish MCAR from MAR.
-- Compare characteristics of studies with complete data vs. those with missing data (e.g., sample size, publication year) using t-tests or chi-square tests.
-
-### 2.2 Handling Methods Table
-
-| Data Type | Missingness Pattern | Handling Method | Rationale |
+| Missing Data Scenario | Mechanism | Method | Justification |
 |:--- |:--- |:--- |:--- |
-| **Study Exclusion** | Missing primary outcome (social skill score) or inability to calculate effect size (missing N, mean, or SD) | **Exclude from Meta-Analysis** | Cannot impute effect sizes without raw summary statistics; excludes from pooled estimate. |
-| **Standard Deviation (SD)** | Missing SD but reported SE, CI, or p-value | **Recover via Formula** | Convert reported statistics to SD using standard meta-analytic formulas (see Section 3). |
-| **Standard Deviation (SD)** | Missing SD, SE, CI, and p-value | **Multiple Imputation (MI)** | Impute based on observed SDs from similar studies (matched by age, intervention type). |
-| **Sample Size (N)** | Missing N for one arm | **Exclude** | Critical for weighting; cannot be reliably imputed. |
-| **Covariates** | Missing moderator data (e.g., exact age mean, blinding status) | **Listwise Deletion** or **Indicator Variable** | If <5% missing, listwise deletion. If >5%, create a "Missing" category for categorical moderators. |
-| **Effect Size (Hedges' g)** | Missing outcome data entirely | **Exclude** | No data to analyze. |
+| **Outcome Mean/SD Missing** | MCAR (Random) | Contact study authors via registry email; search supplementary materials. | Primary recovery method; preserves raw data integrity. |
+| **N (Sample Size) Missing** | MAR (Dependent on reported stats) | Impute from total N if group allocation ratio is known (e.g., 1:1). | Standard practice in meta-analysis when randomization is balanced. |
+| **SD Missing, CI Reported** | MCAR | Convert Confidence Intervals (CI) to SD using standard formulas. | CI is often reported when SD is omitted; mathematically reversible. |
+| **SD Missing, SE Reported** | MCAR | Convert Standard Error (SE) to SD using $SD = SE \times \sqrt{N}$. | Direct algebraic transformation. |
+| **SD Missing, p-value Reported** | MCAR | Back-calculate t-statistic or z-score from p-value, then derive SD. | Allows inclusion of studies otherwise excluded due to incomplete stats. |
+| **Complete Outcome Missing** | MNAR (Missing Not At Random) | Exclude from quantitative synthesis; include in narrative synthesis. | Imputation of entirely missing outcomes introduces unacceptable bias. |
 
 ## 3. Imputation Method
 
-When Standard Deviations (SD) are missing but other statistics are available, we will recover them using deterministic formulas. If SDs are entirely missing, we will use **Multiple Imputation by Chained Equations (MICE)**.
+When direct contact fails and auxiliary statistics (CI, SE, p-value) are available, the following formulas will be applied to recover the Standard Deviation ($SD$) and subsequently calculate Hedges' $g$.
 
-### 3.1 Deterministic Recovery Formulas
-If the study reports the Standard Error (SE), Confidence Interval (CI), or p-value for the mean difference, we calculate SD as follows:
+### 3.1. Deriving SD from Confidence Intervals
+If the 95% Confidence Interval ($CI_{lower}, CI_{upper}$) is reported for a group mean:
+$$ SE = \frac{CI_{upper} - CI_{lower}}{2 \times 1.96} $$
+$$ SD = SE \times \sqrt{N} $$
+*Note: If the CI is not 95%, the Z-score (1.96) must be adjusted to the corresponding quantile.*
 
-**From Standard Error (SE):**
-$$ SD = SE \times \sqrt{n} $$
-Where $n$ is the sample size of the respective group.
+### 3.2. Deriving SD from Standard Error
+If the Standard Error ($SE$) is explicitly reported:
+$$ SD = SE \times \sqrt{N} $$
 
-**From 95% Confidence Interval (CI):**
-$$ SD = \frac{(CI_{upper} - CI_{lower}) \times \sqrt{n}}{3.92} $$
-*(Assuming 95% CI corresponds to $1.96 \times SE$)*
+### 3.3. Deriving SD from p-values
+If only a p-value and group means ($M_1, M_2$) are available:
+1. Calculate the t-statistic ($t$) from the p-value (assuming degrees of freedom $df = N_1 + N_2 - 2$).
+2. Calculate the pooled standard error ($SE_{diff}$):
+ $$ SE_{diff} = \frac{M_1 - M_2}{t} $$
+3. Derive the pooled standard deviation ($SD_{pooled}$):
+ $$ SD_{pooled} = SE_{diff} \times \sqrt{\frac{1}{N_1} + \frac{1}{N_2}} $$
 
-**From t-statistic or p-value:**
-$$ SE = \frac{Mean_{diff}}{t} $$
-Then proceed to calculate SD from SE.
-
-### 3.2 Multiple Imputation (MICE) for Missing SDs
-If SDs are missing and cannot be recovered, we will perform MICE using the `statsmodels` or `scikit-learn` imputation pipelines.
-
-**Model Specification:**
-$$ SD_{ij} = \beta_0 + \beta_1(\text{SampleSize}_i) + \beta_2(\text{MeanAge}_i) + \beta_3(\text{InterventionType}_i) + \epsilon_i $$
-
-**Procedure:**
-1. Create $m=5$ imputed datasets.
-2. Impute missing SDs using predictive mean matching (PMM) to ensure imputed values are within the plausible range of observed SDs.
-3. Calculate Hedges' *g* for each imputed dataset.
-4. Pool results using Rubin's Rules:
- $$ \bar{Q} = \frac{1}{m} \sum_{i=1}^{m} \hat{Q}_i $$
- $$ T = \bar{U} + \left( 1 + \frac{1}{m} \right) B $$
- Where $\bar{U}$ is the within-imputation variance and $B$ is the between-imputation variance.
+### 3.4. Hedges' g Calculation
+Once $SD_{pooled}$ is recovered or observed, the effect size is calculated as:
+$$ g = J \times \frac{M_1 - M_2}{SD_{pooled}} $$
+Where $J$ is the small-sample correction factor:
+$$ J = 1 - \frac{3}{4(N_1 + N_2) - 9} $$
 
 ## 4. Sensitivity Analysis
 
-To ensure robustness, we will conduct sensitivity analyses to evaluate the impact of missing data assumptions.
+To assess the robustness of the meta-analysis results to missing data assumptions, the following sensitivity analyses will be conducted:
 
-### 4.1 Criteria for Sensitivity Analysis
-- **Completeness Threshold**: If >20% of studies require imputation for SDs, a sensitivity analysis is mandatory.
-- **Method Comparison**: Compare pooled effect sizes from:
- 1. Complete-case analysis (Listwise deletion).
- 2. Deterministic recovery only.
- 3. Full Multiple Imputation.
-- **Worst-Case Scenario**: Assume studies with missing SDs have larger variances (less precision) than observed studies, effectively down-weighting them.
+1. **Best-Worst Case Scenario**:
+ * **Best Case**: Missing outcomes in the treatment group are assumed to be favorable (mean = max observed), and missing in control are unfavorable.
+ * **Worst Case**: Reverse the assumption.
+ * **Criteria**: If the pooled effect size direction changes or significance is lost ($p > 0.05$) under either scenario, the result is deemed sensitive to missing data assumptions.
 
-### 4.2 Decision Rules
-- **Robust**: If the pooled effect size (Hedges' *g*) and its 95% CI direction/significance remain consistent across all three methods above.
-- **Sensitive**: If the conclusion (significant vs. non-significant) changes based on the imputation method. In this case, we will report the range of plausible effects and flag the result as "inconclusive due to missing data."
+2. **Imputation vs. Complete Case Comparison**:
+ * Run the meta-analysis twice: once including studies with imputed SDs and once excluding them.
+ * **Criteria**: Calculate the percentage change in the pooled effect size ($\% \Delta$). If $\% \Delta > 10\%$, the imputation strategy significantly influences the conclusion, and the result must be reported with a cautionary note.
 
-### 4.3 Publication Bias Check
-We will compare the distribution of imputed effect sizes against observed ones. If imputed values cluster systematically at the null (g=0), it may indicate MNAR mechanisms (non-significant studies hiding missing data), requiring a selection model adjustment (e.g., Copas selection model) if N permits.
+3. **Heterogeneity Assessment**:
+ * Compare $I^2$ statistics between the complete-case model and the imputed model.
+ * **Criteria**: A substantial increase in $I^2$ in the imputed model suggests that the imputed values introduce unexplained variance, potentially indicating that the missingness is not random.
 
-## 5. Software Implementation
+## 5. Implementation in Pipeline
 
-- **Language**: Python 3.11+
-- **Libraries**:
- - `pandas` for data manipulation.
- - `scikit-learn` (`IterativeImputer`) for MICE.
- - `statsmodels` for meta-analysis and Rubin's rule pooling.
-- **Reproducibility**: All imputation models will be seeded (see `code/utils/config.py`) to ensure deterministic results.
-
-## 6. References
-
-1. Higgins JPT, Thomas J, Chandler J, et al. (eds). *Cochrane Handbook for Systematic Reviews of Interventions*. Version 6.4. 2023.
-2. Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*. Wiley.
-3. Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. *Journal of Statistical Software*, 36(3), 1-48.
+The `code/analysis/effect_sizes.py` module will implement the conversion logic described in Section 3. The `code/analysis/meta_analysis.py` module will execute the sensitivity checks described in Section 4. All imputation steps will be logged in `data/processed/imputation_log.json` to ensure full reproducibility and auditability, satisfying Constitution Principle V.

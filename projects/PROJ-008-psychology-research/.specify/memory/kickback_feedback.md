@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was provided showing that the required directories (`projects/PROJ-008-psychology-research/`, `code/`, `data/`, `docs/`, `tests/`, `contracts/`, `scripts/`, `.github/workflows/`) actually exist; without such artifacts the task’s requirement is not satisfied.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or equivalent) are presented, nor any evidence that Ruff and Black have been set up in the repository. The required artifacts are missing.
+- `T016` (rejected 1x): The `collector.py` file exists and contains rate‑limiting and backoff logic, but the required log file `data/raw/retrieval_log.json` is missing, so the task’s logging requirement (including a 200‑status entry) is not met. The implementer must create and populate the log file as specified.
 
 ## Required change
 

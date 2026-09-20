@@ -1,8 +1,10 @@
 """
-Pydantic models for the Psychology Research Pipeline.
+Pydantic data models for the Mindfulness Components and Delivery Formats in ASD Social Skills research pipeline.
 
-These models enforce data integrity and verified accuracy as per
-Constitution Principle II and FR-007.
+These models enforce data integrity and schema validation as required by:
+- Constitution Principle II (Verified Accuracy)
+- Constitution Principle V (Fail Fast)
+- FR-007 (Data Integrity)
 """
 
 from datetime import date
@@ -11,219 +13,217 @@ from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 import math
 
-# ---------------------------------------------------------------------------
-# Enums for Categorical Data
-# ---------------------------------------------------------------------------
 
 class DeliveryFormat(Enum):
     """
-    Enum for intervention delivery formats.
-    Source: FR-003 (Standardized Variables)
+    Enumeration of delivery formats for the intervention.
+
+    Constitution Principle VII mandates strict adherence to these categories.
+    FR-010 requires extraction of this field from study metadata.
     """
-    IN_PERSON = "in_person"
-    VIRTUAL = "virtual"
-    HYBRID = "hybrid"
-    SELF_GUIDED = "self_guided"
+    CAREGIVER_MEDIANATED = "caregiver-mediated"
+    CHILD_LEAD = "child-led"
+    MIXED = "mixed"
+    NOT_REPORTED = "not-reported"
+
 
 class MindfulnessComponent(Enum):
     """
-    Enum for specific mindfulness components extracted from studies.
-    Source: FR-003, FR-009
+    Enumeration of specific mindfulness components extracted from study descriptions.
+
+    FR-003 requires detection of these components via regex scanning of abstract/description.
+    Constitution Principle II ensures these labels match the actual intervention content.
     """
     BREATHING = "breathing"
     BODY_SCAN = "body_scan"
-    MEDITATION = "meditation"
-    YOGA = "yoga"
-    MINDFUL_LISTENING = "mindful_listening"
+    MINDFUL_MOVEMENT = "mindful_movement"
+    MINDFUL_EATING = "mindful_eating"
     OTHER = "other"
+
 
 class SocialSkillDomain(Enum):
     """
-    Enum for social skill outcome domains.
-    Source: FR-010
+    Enumeration of social skill domains targeted by the intervention.
+
+    Defined in T017b and T031.
+    FR-010 requires mapping keywords to these domains.
     """
     COMMUNICATION = "communication"
-    INTERACTION = "interaction"
-    EMOTION_RECOGNITION = "emotion_recognition"
-    PEER_RELATIONS = "peer_relations"
-    BEHAVIOR_REGULATION = "behavior_regulation"
+    PEER_INTERACTION = "peer_interaction"
+    EMOTIONAL_REGULATION = "emotional_regulation"
+    MIXED = "mixed"
+
 
 class RegistrySource(Enum):
     """
-    Enum for study registry sources.
-    Source: Constitution Principle VI (Clinical Trial Registry Integrity)
+    Source registry for the study data.
+
+    Constitution Principle VI restricts sources to ClinicalTrials.gov and OSF.
+    FR-001 mandates data collection from these specific registries.
     """
     CLINICAL_TRIALS_GOV = "ClinicalTrials.gov"
     OSF = "OSF"
 
+
 class BlindingStatus(Enum):
     """
-    Enum for assessor blinding status.
-    Source: FR-007, T007b
-    """
-    SINGLE_BLIND = "single-blind"
-    DOUBLE_BLIND = "double-blind"
-    UNBLINDED = "unblinded"
-    NOT_REPORTED = "not-reported"
+    Status of blinding in the study.
 
-# ---------------------------------------------------------------------------
-# Core Data Models
-# ---------------------------------------------------------------------------
+    FR-008 requires capturing blinding status for quality assessment.
+    """
+    SINGLE_BLIND = "single"
+    DOUBLE_BLIND = "double"
+    NOT_BLINDED = "not_blinded"
+    NOT_REPORTED = "not_reported"
+
 
 class Study(BaseModel):
     """
-    Represents a single study record extracted from a registry.
+    Represents a single study record extracted from a clinical trial registry.
 
-    Attributes:
-        id (str): Unique identifier for the study.
-            Source: FR-007 (Data Integrity), Constitution Principle V
-        title (str): Official title of the study.
-            Source: FR-002
-        registry (RegistrySource): Source registry.
-            Source: Constitution Principle VI
-        age_range (str): Target age range (e.g., "6-12").
-            Source: FR-003
-        diagnosis (str): Primary diagnosis (must be ASD).
-            Source: FR-003
-        outcomes (List[str]): List of outcome measures used.
-            Source: FR-010
-        intervention_components (List[MindfulnessComponent]): Components used.
-            Source: FR-003
-        delivery_format (DeliveryFormat): How the intervention was delivered.
-            Source: FR-003
-        follow_up (str): Duration of follow-up.
-            Source: FR-012
-        abstract_text (Optional[str]): Extracted abstract text.
-            Source: FR-009
-        assessor_blinding (BlindingStatus): Blinding status of assessors.
-            Source: FR-007, T007b
-        registry_url (Optional[str]): Direct link to registry entry.
-            Source: Constitution Principle VI
-        retrieval_timestamp (Optional[str]): When data was fetched.
-            Source: Constitution Principle VI
+    Constitution Principle II (Verified Accuracy): All fields must be derived from
+    verified registry metadata or validated extraction logic.
+    FR-007 (Data Integrity): Schema validation ensures no malformed data enters the pipeline.
+    FR-003: Intervention components must be explicitly detected.
+    FR-010: Social skill domain must be categorized.
     """
     model_config = ConfigDict(use_enum_values=True, str_strip_whitespace=True)
 
-    id: str = Field(..., description="Unique study identifier")
-    title: str = Field(..., description="Study title")
-    registry: RegistrySource = Field(..., description="Source registry")
-    age_range: str = Field(..., description="Target age range")
-    diagnosis: str = Field(..., description="Primary diagnosis")
-    outcomes: List[str] = Field(default_factory=list, description="Outcome measures")
-    intervention_components: List[MindfulnessComponent] = Field(default_factory=list)
-    delivery_format: DeliveryFormat = Field(..., description="Delivery format")
-    follow_up: str = Field(..., description="Follow-up duration")
-    abstract_text: Optional[str] = Field(None, description="Abstract text")
-    assessor_blinding: BlindingStatus = Field(..., description="Blinding status")
-    registry_url: Optional[str] = Field(None, description="Registry URL")
-    retrieval_timestamp: Optional[str] = Field(None, description="Retrieval time")
+    id: str = Field(..., description="Unique registry identifier (e.g., NCT number or OSF ID).")
+    title: str = Field(..., description="Full title of the study.")
+    registry: RegistrySource = Field(..., description="Source registry (Constitution Principle VI).")
+    age_range_min: Optional[float] = Field(None, description="Minimum age of participants.")
+    age_range_max: Optional[float] = Field(None, description="Maximum age of participants.")
+    diagnosis: str = Field(..., description="Primary diagnosis criteria (e.g., ASD, Autistic Disorder).")
+    outcomes: List[str] = Field(..., description="List of outcome measures used (must be validated).")
+    intervention_components: List[MindfulnessComponent] = Field(
+        default_factory=list,
+        description="Detected mindfulness components (FR-003)."
+    )
+    delivery_format: DeliveryFormat = Field(
+        default=DeliveryFormat.NOT_REPORTED,
+        description="Delivery format of the intervention (Constitution Principle VII)."
+    )
+    follow_up_months: Optional[float] = Field(None, description="Follow-up duration in months.")
+    abstract_text: Optional[str] = Field(None, description="Extracted abstract text (FR-009).")
+    social_skill_domain: Optional[SocialSkillDomain] = Field(
+        None,
+        description="Targeted social skill domain (FR-010)."
+    )
+    blinding_status: Optional[BlindingStatus] = Field(None, description="Blinding status of the study.")
+    n_treatment: Optional[int] = Field(None, description="Number of participants in treatment group.")
+    n_control: Optional[int] = Field(None, description="Number of participants in control group.")
+    mean_treatment: Optional[float] = Field(None, description="Mean outcome for treatment group.")
+    mean_control: Optional[float] = Field(None, description="Mean outcome for control group.")
+    sd_treatment: Optional[float] = Field(None, description="Standard deviation for treatment group.")
+    sd_control: Optional[float] = Field(None, description="Standard deviation for control group.")
+    registry_url: Optional[str] = Field(None, description="URL to the registry entry.")
+    retrieval_timestamp: Optional[str] = Field(None, description="ISO timestamp of data retrieval.")
 
-    @field_validator('age_range')
+    @field_validator('age_range_min', 'age_range_max')
     @classmethod
-    def validate_age_range(cls, v: str) -> str:
+    def validate_age(cls, v: Optional[float]) -> Optional[float]:
         """
-        Validates that the age range is within the acceptable bounds (6-12).
-        Source: FR-003 (Inclusion Criteria)
+        Validate age values are within reasonable bounds for pediatric ASD research.
+        Constitution Principle II: Ensures data accuracy by rejecting impossible values.
+        """
+        if v is None:
+            return v
+        if v < 0 or v > 100:
+            raise ValueError(f"Age must be between 0 and 100, got {v}")
+        return v
+
+    @field_validator('outcomes')
+    @classmethod
+    def validate_outcomes(cls, v: List[str]) -> List[str]:
+        """
+        Validate that outcomes are non-empty strings.
+        FR-007: Ensures data integrity by preventing empty outcome lists.
         """
         if not v:
-            return v
-        # Simple heuristic check for inclusion criteria
-        # In a full pipeline, this would parse "6-12" specifically
-        if "6" not in v and "7" not in v and "8" not in v and "9" not in v and "10" not in v and "11" not in v and "12" not in v:
-            raise ValueError("Age range must include children between 6 and 12.")
-        return v
+            raise ValueError("Outcomes list cannot be empty")
+        return [str(o).strip() for o in v if str(o).strip()]
+
 
 class EffectSize(BaseModel):
     """
-    Represents a calculated effect size for a specific study comparison.
+    Represents a calculated effect size (Hedges' g) for a specific study comparison.
 
-    Attributes:
-        study_id (str): Reference to the parent Study.
-            Source: FR-007
-        hedges_g (float): Hedges' g effect size with small-sample correction.
-            Source: FR-004
-        se (float): Standard error of the effect size.
-            Source: FR-004
-        ci_lower (float): Lower bound of 95% CI.
-            Source: FR-004
-        ci_upper (float): Upper bound of 95% CI.
-            Source: FR-004
-        n_treatment (int): Sample size of treatment group.
-            Source: FR-004
-        n_control (int): Sample size of control group.
-            Source: FR-004
-        calculation_method (str): Method used for calculation.
-            Source: FR-004
+    Constitution Principle II: Calculations must be reproducible and accurate.
+    FR-004: Requires Hedges' g with small-sample correction.
     """
-    model_config = ConfigDict(use_enum_values=True)
-
-    study_id: str = Field(..., description="Reference to study ID")
-    hedges_g: float = Field(..., description="Hedges' g value")
-    se: float = Field(..., description="Standard error")
-    ci_lower: float = Field(..., description="95% CI Lower")
-    ci_upper: float = Field(..., description="95% CI Upper")
-    n_treatment: int = Field(..., description="Treatment N")
-    n_control: int = Field(..., description="Control N")
-    calculation_method: str = Field("Hedges' g (small-sample corrected)", description="Method")
+    study_id: str = Field(..., description="Reference to the parent Study.id.")
+    hedges_g: float = Field(..., description="Calculated Hedges' g effect size.")
+    se: float = Field(..., description="Standard error of the effect size.")
+    ci_lower: float = Field(..., description="Lower bound of 95% confidence interval.")
+    ci_upper: float = Field(..., description="Upper bound of 95% confidence interval.")
+    n_treatment: int = Field(..., description="Sample size of treatment group.")
+    n_control: int = Field(..., description="Sample size of control group.")
+    calculation_method: str = Field(
+        default="hedges_g_correction",
+        description="Method used for calculation (FR-004)."
+    )
 
     @field_validator('hedges_g', 'se', 'ci_lower', 'ci_upper')
     @classmethod
     def validate_finite(cls, v: float) -> float:
         """
-        Ensures effect size values are finite numbers.
-        Source: Constitution Principle II (Verified Accuracy)
+        Ensure effect size metrics are finite numbers.
+        Constitution Principle V: Fail fast on invalid numerical results.
         """
-        if math.isnan(v) or math.isinf(v):
-            raise ValueError("Effect size metrics must be finite numbers.")
+        if not math.isfinite(v):
+            raise ValueError(f"Value must be finite, got {v}")
         return v
+
+    @field_validator('n_treatment', 'n_control')
+    @classmethod
+    def validate_sample_size(cls, v: int) -> int:
+        """
+        Ensure sample sizes are positive integers.
+        FR-004: Required for effect size calculation.
+        """
+        if v <= 0:
+            raise ValueError(f"Sample size must be positive, got {v}")
+        return v
+
 
 class MetaAnalysisResult(BaseModel):
     """
     Represents the aggregated results of a meta-analysis.
 
-    Attributes:
-        pooled_effect (float): Pooled effect size.
-            Source: FR-005
-        pooled_se (float): Standard error of the pooled effect.
-            Source: FR-005
-        ci_lower (float): Lower bound of pooled 95% CI.
-            Source: FR-005
-        ci_upper (float): Upper bound of pooled 95% CI.
-            Source: FR-005
-        i_squared (float): I-squared heterogeneity statistic.
-            Source: FR-005
-        q_statistic (float): Cochran's Q statistic.
-            Source: FR-005
-        p_value (float): P-value for heterogeneity.
-            Source: FR-005
-        model_type (str): 'random-effects' or 'fixed-effects'.
-            Source: FR-005
-        k_studies (int): Number of studies included.
-            Source: FR-005
-        total_n (int): Total sample size across studies.
-            Source: FR-005
+    Constitution Principle II: Aggregated statistics must be derived from verified inputs.
+    FR-005: Requires random-effects model and subgroup analysis.
     """
     model_config = ConfigDict(use_enum_values=True)
 
-    pooled_effect: float = Field(..., description="Pooled effect size")
-    pooled_se: float = Field(..., description="Pooled SE")
-    ci_lower: float = Field(..., description="Pooled CI Lower")
-    ci_upper: float = Field(..., description="Pooled CI Upper")
-    i_squared: float = Field(..., description="I-squared statistic")
-    q_statistic: float = Field(..., description="Cochran's Q")
-    p_value: float = Field(..., description="Heterogeneity p-value")
-    model_type: str = Field(..., description="Model type")
-    k_studies: int = Field(..., description="Number of studies")
-    total_n: int = Field(..., description="Total N")
-    subgroup: Optional[str] = Field(None, description="Subgroup label if applicable")
+    analysis_type: str = Field(..., description="Type of analysis (e.g., 'random_effects', 'subgroup').")
+    pooled_effect_size: Optional[float] = Field(None, description="Pooled Hedges' g.")
+    pooled_se: Optional[float] = Field(None, description="Pooled standard error.")
+    ci_lower: Optional[float] = Field(None, description="Lower CI of pooled effect.")
+    ci_upper: Optional[float] = Field(None, description="Upper CI of pooled effect.")
+    i_squared: Optional[float] = Field(None, description="Heterogeneity statistic I².")
+    q_statistic: Optional[float] = Field(None, description="Cochran's Q statistic.")
+    p_value: Optional[float] = Field(None, description="P-value for heterogeneity or pooled effect.")
+    k_studies: int = Field(..., description="Number of studies included in analysis.")
+    subgroup_breakdown: Optional[List[Dict[str, Any]]] = Field(
+        None,
+        description="Results broken down by subgroup (e.g., domain, format)."
+    )
+    method: str = Field(
+        default="restricted_maximum_likelihood",
+        description="Estimation method for random effects (FR-005)."
+    )
+    timestamp: Optional[str] = Field(None, description="ISO timestamp of analysis run.")
 
-    @field_validator('pooled_effect', 'i_squared', 'q_statistic', 'p_value')
+    @field_validator('pooled_effect_size', 'i_squared', 'q_statistic', 'p_value')
     @classmethod
-    def validate_finite(cls, v: float) -> float:
+    def validate_metrics(cls, v: Optional[float]) -> Optional[float]:
         """
-        Ensures meta-analysis metrics are finite.
-        Source: Constitution Principle II
+        Ensure metrics are finite if present.
+        Constitution Principle V: Fail fast on invalid statistical results.
         """
-        if math.isnan(v) or math.isinf(v):
-            raise ValueError("Meta-analysis metrics must be finite.")
+        if v is None:
+            return v
+        if not math.isfinite(v):
+            raise ValueError(f"Metric must be finite, got {v}")
         return v
