@@ -1,11 +1,9 @@
-T016a:
+T012b:
   c: false
-  h: 9eb2d87f8d3c8ecfcf83750495e315ed57a4f59f6d874297f0e0ef35d14bbbd6
-  r: "The repository lacks the required `verify_parquet()` function in `tests/unit/test_graph_utils.py`;\
-    \ the file only contains bridging\u2011coefficient unit tests. Additionally, the\
-    \ expected artifact `data/processed/subgraph_with_clusters.parquet` is absent,\
-    \ so the test cannot even be executed. Both the test code and the data file need\
-    \ to be added to satisfy the task."
+  h: a8b90aab3b5f6a6cf969a570b087ffd6fb42acbc58fa7776f01e9f2ea7471dd4
+  r: "The `src/services/ingest.py` file shown does not contain a `validate_sampled_graph`\
+    \ function, and the required output file `artifacts/results/sampling_validation.json`\
+    \ is absent, so the task\u2019s deliverables are not present."
 T020:
   c: false
   h: 028e8c495abe7320119a401e850fb55fbf7f3151557b84ee5c3d5dbcd38fb427
@@ -30,10 +28,12 @@ T028:
     \ select the method. Without such artifacts, the requirement is not satisfied."
 T037:
   c: false
-  h: f7f5b88c96870b1aab41276122c3c490cc8a53a8a2bb79661ca0c19f95d2979d
-  r: The required file `tests/integration/test_statistical_pipeline.py` does not exist,
-    so the integration test with `test_binned_analysis_execution` is missing entirely.
-    No evidence of the requested test implementation is present.
+  h: a34c907e2e814f83d0e00e8fd47bc381686d60aaac2b5a456595bd0b48c44ffa
+  r: "The integration test file `tests/integration/test_statistical_pipeline.py` exists,\
+    \ but the required input dataset `data/processed/final_analysis_dataset.parquet`\
+    \ is missing, so the test cannot be executed and cannot verify the asserted p\u2011\
+    values and report label. The missing dataset must be provided (or generated) for\
+    \ the task to be complete."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,3 +48,11 @@ T039:
     \ and does not log peak RAM usage per batch. Additionally, the required `src/services/embeddings.py`\
     \ file is completely missing. Both files need the memory\u2011profiling integration\
     \ and the embeddings module must exist."
+T040:
+  c: false
+  h: 9432b5396c8f39274b236499880eb062295df1343af13f44f67fb0fdcf5fd88f
+  r: The provided `src/services/ingest.py` still uses `pyalex` and a custom sampling
+    routine; it never calls `datasets.load_dataset(..., streaming=True)` nor specifies
+    the required `fields` and `filters`, nor streams nodes directly into the graph
+    with a memory buffer limit. Additionally, the required fallback cache file `data/raw/cache.parquet`
+    is missing, and there is no RuntimeError handling as specified.

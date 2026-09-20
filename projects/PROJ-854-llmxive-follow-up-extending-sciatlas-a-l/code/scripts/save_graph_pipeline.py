@@ -1,81 +1,68 @@
+"""
+Pipeline script to fetch, build, cluster, and save the graph.
+
+This script orchestrates the full ingestion pipeline for User Story 1:
+1. Fetch sample IDs from OpenAlex
+2. Build subgraph with snowball sampling
+3. Compute Louvain clusters and bridging coefficients
+4. Save to parquet
+
+Output: data/processed/subgraph_with_clusters.parquet
+"""
 import logging
 import sys
 from pathlib import Path
 
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from src.services.ingest import fetch_and_build_subgraph, save_graph_to_parquet
 from src.models.graph_utils import louvain_cluster, calc_bridging
-from src.lib import config
+from src.lib.config import ensure_directories, get_processed_data_path
 
-
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
-    """
-    Main entry point for the save graph pipeline.
-    Executes: Fetch -> Cluster -> Calculate Bridging -> Save
-    """
-    setup_logging()
-    logger = logging.getLogger(__name__)
-
-    # Parameters
-    sample_size = 1000
-    logger.info(f"Starting pipeline with sample size: {sample_size}")
-
+    """Main entry point for the graph save pipeline."""
     try:
-        # 1. Fetch and Build Subgraph (T012)
-        logger.info("Step 1: Fetching and building subgraph...")
-        graph = fetch_and_build_subgraph(sample_size=sample_size)
-
-        if graph is None or len(graph.nodes()) == 0:
-            logger.error("Graph is empty after fetching. Aborting.")
-            sys.exit(1)
-
-        logger.info(f"Graph loaded: {len(graph.nodes())} nodes, {len(graph.edges())} edges")
-
-        # 2. Cluster Nodes (T013)
-        logger.info("Step 2: Running Louvain clustering...")
-        clusters = louvain_cluster(graph)
-        logger.info(f"Clustering complete. {len(set(clusters.values()))} clusters found.")
-
-        # 3. Calculate Bridging Coefficients (T014)
-        logger.info("Step 3: Calculating bridging coefficients...")
-        calc_bridging(graph, clusters)
-        logger.info("Bridging coefficients calculated.")
-
-        # 4. Save to Parquet (T016)
-        logger.info("Step 4: Saving graph to Parquet...")
-        output_path = config.get_data_path() / "processed" / "subgraph_with_clusters.parquet"
+        logger.info("Starting graph ingestion and save pipeline")
         
-        # Ensure directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Convert graph to dataframe and save
-        nodes_data = []
-        for node_id, data in graph.nodes(data=True):
-            nodes_data.append({
-                'id': node_id,
-                'title': data.get('title', ''),
-                'citation_count': data.get('citation_count', 0),
-                'primary_cluster': data.get('primary_cluster'),
-                'bridging_coefficient': data.get('bridging_coefficient', 0.0)
-            })
+        # Ensure directories exist
+        ensure_directories()
         
-        import pandas as pd
-        df = pd.DataFrame(nodes_data)
-        df.to_parquet(str(output_path), index=False)
-
-        logger.info(f"Successfully saved graph to {output_path}")
-        logger.info(f"Saved {len(df)} nodes.")
-
+        # Step 1: Fetch and build subgraph
+        logger.info("Fetching and building subgraph...")
+        G = fetch_and_build_subgraph(target_size=1000)
+        
+        if G.number_of_nodes() == 0:
+            raise RuntimeError("Failed to build subgraph: no nodes collected")
+        
+        logger.info(f"Built subgraph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+        
+        # Step 2: Assign structural clusters (Louvain)
+        logger.info("Running Louvain community detection...")
+        clusters = louvain_cluster(G)
+        
+        # Step 3: Calculate bridging coefficients
+        logger.info("Calculating bridging coefficients...")
+        calc_bridging(G, clusters)
+        
+        # Step 4: Save to parquet
+        logger.info("Saving graph to parquet...")
+        output_path = save_graph_to_parquet(G, clusters)
+        
+        logger.info(f"Pipeline completed successfully. Output: {output_path}")
+        return 0
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
-
+        logger.error(f"Pipeline failed: {e}")
+        logger.exception("Traceback:")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

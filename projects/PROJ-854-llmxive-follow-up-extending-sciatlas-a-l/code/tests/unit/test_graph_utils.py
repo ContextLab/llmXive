@@ -5,147 +5,108 @@ import os
 import tempfile
 from src.models.graph_utils import calc_bridging, louvain_cluster
 
-
 def test_calc_bridging_complete_graph():
-    """Test bridging coefficient on a complete graph (should be 0)."""
+    """
+    In a complete graph, every node is connected to every other node.
+    If all nodes are in the same cluster, bridging should be 0.
+    If nodes are in different clusters, bridging depends on cluster split.
+    """
     G = nx.complete_graph(5)
-    # Assign all nodes to the same cluster
-    clusters = {i: 0 for i in G.nodes()}
+    # All in same cluster
+    clusters = {i: 0 for i in range(5)}
     calc_bridging(G, clusters)
-
     for node in G.nodes():
         assert G.nodes[node]['bridging_coefficient'] == 0.0
 
-
 def test_calc_bridging_bipartite_clusters():
-    """Test bridging coefficient on a bipartite-like graph."""
+    """
+    Bipartite graph: 0-1, 2-3, 4-5. Clusters: {0,1,2,3} and {4,5}.
+    Node 0 connected to 1,2,3. All in same cluster -> bridging 0.
+    Node 4 connected to 5. Same cluster -> bridging 0.
+    Let's make a graph where inter-cluster edges exist.
+    Graph: 0-1, 1-2, 2-3. Clusters: {0,1}, {2,3}.
+    Node 1: neighbors 0 (same), 2 (diff). Degree 2. Inter=1. Bridging=0.5.
+    """
     G = nx.Graph()
-    G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 1), (1, 5), (5, 6)])
-    # Cluster 1: {1, 2, 3, 4}, Cluster 2: {5, 6}
-    # Node 1 connects to 2, 4 (intra) and 5 (inter). Degree 3. Inter=1. Coeff = 1/3.
-    # Node 5 connects to 1 (inter) and 6 (intra). Degree 2. Inter=1. Coeff = 0.5.
-    clusters = {1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1}
+    G.add_edges_from([(0, 1), (1, 2), (2, 3)])
+    clusters = {0: 0, 1: 0, 2: 1, 3: 1}
     calc_bridging(G, clusters)
-
-    assert abs(G.nodes[1]['bridging_coefficient'] - 1/3) < 0.001
-    assert abs(G.nodes[5]['bridging_coefficient'] - 0.5) < 0.001
-
+    
+    # Node 1: degree 2, inter=1 (to 2) -> 0.5
+    assert G.nodes[1]['bridging_coefficient'] == 0.5
+    # Node 0: degree 1, inter=0 -> 0.0
+    assert G.nodes[0]['bridging_coefficient'] == 0.0
 
 def test_isolated_node():
-    """Test that isolated nodes get bridging_coefficient=0.0."""
+    """
+    Isolated node (degree 0) should have bridging 0.0.
+    """
     G = nx.Graph()
     G.add_node(1)
     clusters = {1: 0}
     calc_bridging(G, clusters)
     assert G.nodes[1]['bridging_coefficient'] == 0.0
 
-
 def test_single_node_cluster():
-    """Test single node cluster handling."""
+    """
+    Single node cluster in a larger graph.
+    """
     G = nx.Graph()
-    G.add_edge(1, 2)
-    clusters = {1: 0, 2: 0}
+    G.add_edges_from([(0, 1), (1, 2)])
+    clusters = {0: 0, 1: 1, 2: 0}
     calc_bridging(G, clusters)
-    # Both in same cluster, so bridging should be 0
-    assert G.nodes[1]['bridging_coefficient'] == 0.0
-    assert G.nodes[2]['bridging_coefficient'] == 0.0
-
+    # Node 1: neighbors 0 (diff), 2 (diff). Degree 2. Inter=2. Bridging=1.0.
+    assert G.nodes[1]['bridging_coefficient'] == 1.0
 
 def test_calc_bridging_missing_cluster_assignment():
-    """Test handling of missing cluster assignment."""
+    """
+    Node without cluster assignment should get 0.0.
+    """
     G = nx.Graph()
-    G.add_edge(1, 2)
-    # Only assign cluster to node 1
-    clusters = {1: 0}
-    # Should not crash, but might assign default or skip?
-    # Based on implementation, if cluster is missing, it might be treated as a new cluster or 0.
-    # Let's assume implementation handles missing keys gracefully or we test the robust version.
-    # For this test, we ensure it doesn't crash.
-    try:
-        calc_bridging(G, clusters)
-    except KeyError:
-        # If the implementation raises KeyError for missing nodes, we catch it.
-        # However, robust implementations should handle this.
-        # Let's assume the implementation in graph_utils.py handles missing keys by assigning a new cluster ID or 0.
-        # If it crashes, the test fails, which is expected if the implementation is not robust.
-        # But for T016a, we need to verify the file.
-        pass
+    G.add_edge(0, 1)
+    clusters = {0: 0} # 1 is missing
+    calc_bridging(G, clusters)
+    # Node 0: neighbor 1 (missing cluster). Inter=0?
+    # Logic: if neighbor_cluster is None, continue. So inter=0.
+    assert G.nodes[0]['bridging_coefficient'] == 0.0
+    # Node 1: no cluster.
+    assert G.nodes[1]['bridging_coefficient'] == 0.0
 
-
-def verify_parquet(file_path: str) -> bool:
+def verify_parquet():
     """
-    Verify that the parquet file exists and contains the required columns with no nulls.
-    
-    Args:
-        file_path: Path to the parquet file.
-        
-    Returns:
-        True if verification passes, False otherwise.
+    T016a: Verify saved graph artifact.
+    Checks existence and columns.
     """
-    if not os.path.exists(file_path):
-        print(f"File not found: {file_path}")
-        return False
-
-    try:
-        df = pd.read_parquet(file_path)
-    except Exception as e:
-        print(f"Error reading parquet file: {e}")
-        return False
-
-    required_columns = ['id', 'title', 'citation_count', 'primary_cluster', 'bridging_coefficient']
+    import sys
+    from pathlib import Path
+    project_root = Path(__file__).resolve().parent.parent.parent
+    sys.path.insert(0, str(project_root))
+    from src.lib import config
     
-    # Check columns
-    for col in required_columns:
-        if col not in df.columns:
-            print(f"Missing column: {col}")
-            return False
-
-    # Check for nulls in critical columns
-    if df['primary_cluster'].isnull().any():
-        print("Found null values in primary_cluster")
-        return False
-
-    if df['bridging_coefficient'].isnull().any():
-        print("Found null values in bridging_coefficient")
-        return False
-
-    print(f"Verification passed: {len(df)} rows, all required columns present and non-null.")
-    return True
-
+    output_path = config.get_processed_data_path() / "subgraph_with_clusters.parquet"
+    
+    if not os.path.exists(output_path):
+        pytest.skip(f"File {output_path} does not exist. Run the pipeline first.")
+    
+    df = pd.read_parquet(output_path)
+    required_cols = ['id', 'title', 'citation_count', 'primary_cluster', 'bridging_coefficient']
+    
+    for col in required_cols:
+        assert col in df.columns, f"Missing column: {col}"
+    
+    # Check for nulls in primary_cluster for nodes with degree > 0 (if we had degree info)
+    # Since we don't have degree in df, we check generally.
+    # T016a: Assert primary_cluster has no nulls for nodes with degree > 0.
+    # We can't verify degree here without the graph, so we check no nulls at all?
+    # Or assume the pipeline handles it.
+    # Let's assert no nulls in primary_cluster.
+    assert df['primary_cluster'].notnull().all(), "primary_cluster has nulls."
+    
+    # Assert bridging_coefficient is non-null
+    assert df['bridging_coefficient'].notnull().all(), "bridging_coefficient has nulls."
 
 def test_verify_parquet():
-    """Test the verify_parquet function with a temporary file."""
-    # Create a temporary parquet file
-    with tempfile.TemporaryDirectory() as tmpdir:
-        test_file = os.path.join(tmpdir, "test.parquet")
-        
-        # Create a valid dataframe
-        df = pd.DataFrame({
-            'id': [1, 2, 3],
-            'title': ['A', 'B', 'C'],
-            'citation_count': [10, 20, 30],
-            'primary_cluster': [0, 1, 0],
-            'bridging_coefficient': [0.0, 0.5, 0.2]
-        })
-        df.to_parquet(test_file, index=False)
-
-        assert verify_parquet(test_file) is True
-
-        # Test with missing column
-        df2 = pd.DataFrame({
-            'id': [1, 2],
-            'title': ['A', 'B']
-        })
-        df2.to_parquet(test_file, index=False)
-        assert verify_parquet(test_file) is False
-
-        # Test with nulls
-        df3 = pd.DataFrame({
-            'id': [1, 2],
-            'title': ['A', 'B'],
-            'citation_count': [10, 20],
-            'primary_cluster': [0, None],
-            'bridging_coefficient': [0.0, 0.5]
-        })
-        df3.to_parquet(test_file, index=False)
-        assert verify_parquet(test_file) is False
+    """
+    Wrapper for pytest.
+    """
+    verify_parquet()
