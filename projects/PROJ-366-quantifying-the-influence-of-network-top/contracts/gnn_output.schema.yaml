@@ -1,44 +1,36 @@
-# GNN Output Schema
-# Defines the structure for GNN model outputs
-# Used by T007 and T030
-
+$schema: http://json-schema.org/draft-07/schema#
+title: GNN Output Schema
+description: >
+  Schema for the output of the Graph Neural Network training stage.
+  Defines the structure for predicted local heat flux, training loss, and epoch count.
+  Used to validate artifacts produced by code/model/trainer.py and code/model/gnn.py.
 type: object
 required:
   - predicted_flux
   - loss
   - epoch
-
 properties:
   predicted_flux:
     type: array
-    description: Predicted local heat flux for each atom
+    description: >
+      Predicted local heat flux vector for each atom in the graph.
+      Each element corresponds to the flux magnitude or vector component
+      for a specific node.
     items:
       type: number
+      format: float64
     minItems: 1
-
   loss:
     type: number
-    description: Training loss value
-    minimum: 0.0
-
+    format: float64
+    description: >
+      The final training loss value (e.g., Mean Squared Error) achieved
+      at the end of the specified epoch.
+    minimum: 0
   epoch:
     type: integer
-    description: Training epoch number
-    minimum: 0
-
-  model_checkpoint:
-    type: string
-    description: Path to saved model checkpoint
-
-  training_metrics:
-    type: object
-    description: Additional training metrics
-    properties:
-      mse:
-        type: number
-      rmse:
-        type: number
-      r2_score:
-        type: number
-
+    description: >
+      The epoch number at which this output was generated.
+      Corresponds to the training iteration count.
+    minimum: 1
 additionalProperties: false

@@ -1,17 +1,14 @@
-# Existing dependencies
-numpy
-scipy
-pandas
-torch
-torch-geometric
-ase
-statsmodels
-scikit-learn
-pyyaml
-pytest
-jsonschema
-
-# New dependencies for T013a
-# ase-lammps is part of ase, but we need to ensure ase is recent enough
-# LAMMPS itself is an external binary, not a pip package.
-# We assume the user has LAMMPS installed.
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+torch>=2.0.0
+torch-geometric>=2.3.0
+ase>=3.22.0
+statsmodels>=0.14.0
+scikit-learn>=1.2.0
+pyyaml>=6.0
+pytest>=7.0.0
+jsonschema>=4.0.0
+h5py>=3.8.0
+networkx>=3.1.0
+shap>=0.42.0

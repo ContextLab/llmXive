@@ -25,7 +25,7 @@
 **Purpose**: Project initialization, environment configuration, and seed pinning (FR-009)
 
 - [ ] T001 [P] Create project directory tree per `plan.md` (directories: `code/`, `data/raw/`, `data/processed/`, `data/generated/`, `data/validation/`, `tests/`)
-- [ ] T002 [P] Initialize Python 3.11 environment and create `requirements.txt` pinning `datasets`, `transformers`, `torch` (CPU), `radon>=0.7.0`, `pylint`, `statsmodels>=0.14.0`, `pandas`, `numpy`, `scikit-learn`, `pwr`
+- [X] T002 [P] Initialize Python 3.11 environment and create `requirements.txt` pinning `datasets`, `transformers`, `torch` (CPU), `radon>=0.7.0`, `pylint`, `statsmodels>=0.14.0`, `pandas`, `numpy`, `scikit-learn`, `pwr`
 - [ ] T003 [P] Create `.gitignore` to exclude `data/` (raw/processed/generated) and `__pycache__`
 - [X] T004 [P] Implement `code/config.py` to define constants, paths, and global random seed `42` for `random`, `numpy`, and `torch`
 - [ ] T005 [P] Create `state.yaml` skeleton for artifact hashing and version tracking
@@ -97,7 +97,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/generation/model_loader.py` to {{claim:c_10ca5a73}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145). If an Out-of-Memory (OOM) error occurs during loading or inference, automatically fall back to StarCoder-1B. If StarCoder-1B also fails or OOM persists, enforce sample size reduction to N=200 pairsand trigger power recalculation logic (as per FR-003). Note: This task implements the runtime fallback logic; T031 only defines initial planning targets.
+- [ ] T023 [US2] Implement `code/generation/model_loader.py` to {{claim:c_10ca5a73}} (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145). If an Out-of-Memory (OOM) error occurs during loading or inference, automatically fall back to StarCoder-1B. [UNRESOLVED-CLAIM: c_7f0fb7a6 — status=not_enough_info] If StarCoder-1B also fails or OOM persists, enforce sample size reduction to N=200 pairsand trigger power recalculation logic (as per FR-003). Note: This task implements the runtime fallback logic; T031 only defines initial planning targets.
 - [ ] T024 [US2] Implement `code/generation/generate.py` to extract problem statements from PR titles and generate code with seed=42
 - [ ] T025 [US2] Implement symmetric prompting logic in `code/generation/generate.py` to ensure same prompt for Human and LLM comparison
 - [ ] T026 [US2] Implement `code/generation/provenance.py` call in generation loop to log `model_id`, `prompt`, `seed`, `timestamp` to `data/generated_provenance.csv`

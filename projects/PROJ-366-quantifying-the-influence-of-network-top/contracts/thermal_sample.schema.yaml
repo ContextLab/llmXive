@@ -1,61 +1,59 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ThermalSample
-description: >
+description: >-
   Schema for a thermal conductivity sample resulting from Green-Kubo simulation.
-  Validates the output of the simulation stage (T022) and serves as input for
-  statistical analysis (T033a, T034).
+  Corresponds to FR-002 and SC-003 requirements.
 type: object
+properties:
+  graph_id:
+    type: string
+    description: Unique identifier linking to the atomic graph used for this sample.
+  conductivity:
+    type: number
+    format: float
+    description: Computed thermal conductivity in W/(m·K).
+  converged:
+    type: boolean
+    description: Whether the Green-Kubo simulation has converged (relative change < 1%).
+  metadata:
+    type: object
+    description: Additional simulation metadata.
+    properties:
+      simulation_time_ps:
+        type: number
+        description: Total simulation time in picoseconds.
+      temperature_K:
+        type: number
+        description: Simulation temperature in Kelvin.
+      potential:
+        type: string
+        description: Interatomic potential used (e.g., "Stillinger-Weber").
+      cores:
+        type: integer
+        description: Number of CPU cores used for simulation.
+      hcacf_relative_change:
+        type: number
+        description: Relative change in heat current autocorrelation in the final segment.
+      voronoi_volume_mean:
+        type: number
+        format: float
+        description: Mean Voronoi volume per atom (optional, from T027).
+        nullable: true
+      impurity_fraction:
+        type: number
+        format: float
+        description: Fraction of impurity atoms (optional, from T027).
+        nullable: true
+    required:
+      - simulation_time_ps
+      - temperature_K
+      - potential
+      - cores
+      - hcacf_relative_change
+    additionalProperties: true
 required:
   - graph_id
   - conductivity
   - converged
   - metadata
-properties:
-  graph_id:
-    type: string
-    description: Unique identifier linking this sample to its atomic graph (e.g., 'sample_01').
-    pattern: "^sample_[0-9]+$"
-  conductivity:
-    type: number
-    description: >
-      Calculated thermal conductivity in W/(m·K).
-      Expected range for amorphous silicon: ~1.0 to 3.0 W/(m·K).
-    minimum: 0.0
-  converged:
-    type: boolean
-    description: >
-      Indicates whether the Green-Kubo heat current autocorrelation function
-      has converged (relative change < 1% in the final segment).
-  metadata:
-    type: object
-    description: Additional simulation parameters and diagnostics.
-    required:
-      - simulation_time_ps
-      - thermostat_type
-      - potential_file
-      - temperature_K
-    properties:
-      simulation_time_ps:
-        type: number
-        description: Total simulation time in picoseconds.
-      thermostat_type:
-        type: string
-        description: Type of thermostat used (e.g., 'nose-hoover', 'berendsen').
-      potential_file:
-        type: string
-        description: Path or name of the potential file used (e.g., 'Si.sw').
-      temperature_K:
-        type: number
-        description: Target temperature in Kelvin.
-      hcacf_samples:
-        type: integer
-        description: Number of samples collected for heat current autocorrelation.
-      voronoi_volume_mean:
-        type: number
-        description: Mean Voronoi volume per atom (optional confounder).
-        nullable: true
-      impurity_fraction:
-        type: number
-        description: Fraction of impurity atoms (optional confounder).
-        nullable: true
 additionalProperties: false

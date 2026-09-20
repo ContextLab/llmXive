@@ -8,5 +8,8 @@ nilearn
 matplotlib
 requests
 tqdm
+pillow
+pyyaml
 black
 flake8
+pytest

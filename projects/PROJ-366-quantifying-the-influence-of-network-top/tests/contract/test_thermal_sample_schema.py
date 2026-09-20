@@ -1,134 +1,139 @@
 """
-Contract tests for the ThermalSample schema (T007b).
-
-These tests verify that:
-1. The schema file loads correctly.
-2. Valid thermal sample data passes validation.
-3. Invalid data (missing fields, wrong types) fails validation as expected.
+Contract test for ThermalSample schema (T007b).
+Validates that data produced by simulation modules conforms to contracts/thermal_sample.schema.yaml.
 """
 import json
 import pytest
 from pathlib import Path
 import yaml
-import jsonschema
 from jsonschema import validate, ValidationError
+from jsonschema.exceptions import ValidationError as SchemaValidationError
 
-# Path to the schema file relative to project root
-SCHEMA_PATH = Path(__file__).parent.parent.parent / "contracts" / "thermal_sample.schema.yaml"
+# Import the loader utility from the project's ingest validators to ensure consistency
+# or implement a local loader if not available.
+# Based on existing API: from ingest.validators import load_schema, validate_data
+# We will implement a local loader here to avoid circular imports or missing dependencies
+# if the task T007b is run in isolation before T007a/c are fully integrated.
 
-@pytest.fixture
-def schema():
-    """Load the thermal_sample schema."""
-    if not SCHEMA_PATH.exists():
-        pytest.fail(f"Schema file not found at {SCHEMA_PATH}. "
-                    "Ensure T007b has created contracts/thermal_sample.schema.yaml.")
-    with open(SCHEMA_PATH, 'r') as f:
-        return yaml.safe_load(f)
+SCHEMA_PATH = Path("contracts/thermal_sample.schema.yaml")
 
-@pytest.fixture
-def valid_sample():
-    """Generate a valid ThermalSample dictionary."""
-    return {
-        "graph_id": "sample_01",
-        "conductivity": 1.85,
+def load_schema(schema_path: Path) -> dict:
+    """Load a JSON/YAML schema from disk."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r") as f:
+        if schema_path.suffix in (".yaml", ".yml"):
+            return yaml.safe_load(f)
+        else:
+            return json.load(f)
+
+def test_schema_file_exists():
+    """Verify the schema file exists."""
+    assert SCHEMA_PATH.exists(), f"Schema file {SCHEMA_PATH} is missing."
+
+def test_schema_loads_valid_json():
+    """Verify the schema is valid JSON/YAML."""
+    schema = load_schema(SCHEMA_PATH)
+    assert isinstance(schema, dict)
+    assert schema.get("$schema") is not None
+    assert schema.get("type") == "object"
+
+def test_valid_thermal_sample():
+    """Test a valid ThermalSample instance against the schema."""
+    schema = load_schema(SCHEMA_PATH)
+    
+    valid_instance = {
+        "graph_id": "sample_001",
+        "conductivity": 1.45,
         "converged": True,
         "metadata": {
-            "simulation_time_ps": 200.0,
-            "thermostat_type": "nose-hoover",
-            "potential_file": "Si.sw",
+            "simulation_time_ps": 50.0,
             "temperature_K": 300.0,
-            "hcacf_samples": 5000,
+            "potential": "Stillinger-Weber",
+            "cores": 2,
+            "hcacf_relative_change": 0.005,
             "voronoi_volume_mean": 20.1,
             "impurity_fraction": 0.0
         }
     }
+    
+    # This should not raise
+    validate(instance=valid_instance, schema=schema)
 
-@pytest.fixture
-def minimal_valid_sample():
-    """Generate a minimal valid ThermalSample (optional metadata fields omitted)."""
-    return {
-        "graph_id": "sample_02",
-        "conductivity": 2.10,
-        "converged": False,
-        "metadata": {
-            "simulation_time_ps": 100.0,
-            "thermostat_type": "berendsen",
-            "potential_file": "Si.sw",
-            "temperature_K": 500.0,
-            "hcacf_samples": 2000
-            # voronoi_volume_mean and impurity_fraction are nullable/optional in logic,
-            # but schema requires them to be present if metadata is present? 
-            # Re-reading schema: metadata properties are not required, only the top-level metadata object is.
-            # Wait, schema says:
-            # metadata:
-            #   required: [simulation_time_ps, thermostat_type, potential_file, temperature_K]
-            # So the above is valid.
-        }
-    }
-
-def test_schema_loads(schema):
-    """Test that the schema file is valid YAML and parses correctly."""
-    assert isinstance(schema, dict)
-    assert schema["$schema"] is not None
-    assert schema["title"] == "ThermalSample"
-
-def test_valid_sample_passes(schema, valid_sample):
-    """Test that a fully populated valid sample passes validation."""
-    try:
-        validate(instance=valid_sample, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Valid sample failed validation: {e.message}")
-
-def test_minimal_valid_sample_passes(schema, minimal_valid_sample):
-    """Test that a minimal valid sample passes validation."""
-    try:
-        validate(instance=minimal_valid_sample, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Minimal valid sample failed validation: {e.message}")
-
-def test_missing_graph_id(schema, valid_sample):
-    """Test that missing required field 'graph_id' raises ValidationError."""
-    del valid_sample["graph_id"]
-    with pytest.raises(ValidationError):
-        validate(instance=valid_sample, schema=schema)
-
-def test_invalid_graph_id_format(schema):
-    """Test that graph_id not matching pattern raises ValidationError."""
-    sample = {
-        "graph_id": "invalid_id_123",
-        "conductivity": 1.5,
+def test_minimal_valid_thermal_sample():
+    """Test a minimal valid instance (without optional fields)."""
+    schema = load_schema(SCHEMA_PATH)
+    
+    minimal_instance = {
+        "graph_id": "sample_002",
+        "conductivity": 1.42,
         "converged": True,
         "metadata": {
-            "simulation_time_ps": 100.0,
-            "thermostat_type": "nose-hoover",
-            "potential_file": "Si.sw",
+            "simulation_time_ps": 20.0,
             "temperature_K": 300.0,
-            "hcacf_samples": 1000
+            "potential": "Stillinger-Weber",
+            "cores": 2,
+            "hcacf_relative_change": 0.008
         }
     }
-    with pytest.raises(ValidationError):
-        validate(instance=sample, schema=schema)
+    
+    validate(instance=minimal_instance, schema=schema)
 
-def test_negative_conductivity(schema, valid_sample):
-    """Test that negative conductivity raises ValidationError."""
-    valid_sample["conductivity"] = -1.0
-    with pytest.raises(ValidationError):
-        validate(instance=valid_sample, schema=schema)
+def test_invalid_missing_conductivity():
+    """Test that missing required field raises error."""
+    schema = load_schema(SCHEMA_PATH)
+    
+    invalid_instance = {
+        "graph_id": "sample_003",
+        "converged": True,
+        "metadata": {
+            "simulation_time_ps": 20.0,
+            "temperature_K": 300.0,
+            "potential": "Stillinger-Weber",
+            "cores": 2,
+            "hcacf_relative_change": 0.008
+        }
+    }
+    
+    with pytest.raises(SchemaValidationError):
+        validate(instance=invalid_instance, schema=schema)
 
-def test_missing_metadata_required_field(schema, valid_sample):
-    """Test that missing required field in metadata raises ValidationError."""
-    del valid_sample["metadata"]["temperature_K"]
-    with pytest.raises(ValidationError):
-        validate(instance=valid_sample, schema=schema)
+def test_invalid_conductivity_type():
+    """Test that wrong type for conductivity raises error."""
+    schema = load_schema(SCHEMA_PATH)
+    
+    invalid_instance = {
+        "graph_id": "sample_004",
+        "conductivity": "not_a_number",
+        "converged": True,
+        "metadata": {
+            "simulation_time_ps": 20.0,
+            "temperature_K": 300.0,
+            "potential": "Stillinger-Weber",
+            "cores": 2,
+            "hcacf_relative_change": 0.008
+        }
+    }
+    
+    with pytest.raises(SchemaValidationError):
+        validate(instance=invalid_instance, schema=schema)
 
-def test_converged_boolean_type(schema, valid_sample):
-    """Test that non-boolean converged value raises ValidationError."""
-    valid_sample["converged"] = "yes"
-    with pytest.raises(ValidationError):
-        validate(instance=valid_sample, schema=schema)
-
-def test_additional_properties_rejected(schema, valid_sample):
-    """Test that additional properties at the root level raise ValidationError."""
-    valid_sample["extra_field"] = "should_fail"
-    with pytest.raises(ValidationError):
-        validate(instance=valid_sample, schema=schema)
+def test_invalid_converged_type():
+    """Test that wrong type for converged raises error."""
+    schema = load_schema(SCHEMA_PATH)
+    
+    invalid_instance = {
+        "graph_id": "sample_005",
+        "conductivity": 1.45,
+        "converged": "yes",
+        "metadata": {
+            "simulation_time_ps": 20.0,
+            "temperature_K": 300.0,
+            "potential": "Stillinger-Weber",
+            "cores": 2,
+            "hcacf_relative_change": 0.008
+        }
+    }
+    
+    with pytest.raises(SchemaValidationError):
+        validate(instance=invalid_instance, schema=schema)

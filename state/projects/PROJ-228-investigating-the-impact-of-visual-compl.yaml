@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T23:22:58.201893Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-228-investigating-the-impact-of-visual-compl
-last_run_id: 14aa6c75-933f-4fbd-a3a3-ecacaa3c88a8
+last_run_id: 83484395-39dc-4beb-8576-88c31da1877f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl
 title: Investigating the Impact of Visual Complexity on Prefrontal Cortex Activity
-updated_at: '2026-06-30T11:24:55.694088Z'
+updated_at: '2026-09-20T12:36:44.405445Z'

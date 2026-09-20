@@ -1,84 +1,130 @@
 """
-Unit tests for T013b: Sample Validator.
+Unit tests for the sample validator module.
 """
 import json
 import tempfile
 from pathlib import Path
 import pytest
 
-# Import the function to test
-from ingest.sample_validator import is_valid_xyz_file, scan_raw_directory
+from ingest.sample_validator import is_valid_xyz_file, scan_raw_directory, write_sample_count
 
-def test_is_valid_xyz_file_valid():
-    """Test that a valid XYZ file returns True."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.xyz', delete=False) as f:
-        # Header: 2 atoms
-        f.write("2\n")
-        f.write("Comment line\n")
-        f.write("Si 0.0 0.0 0.0\n")
-        f.write("Si 1.0 1.0 1.0\n")
-        temp_path = Path(f.name)
-    
-    try:
-        assert is_valid_xyz_file(temp_path) is True
-    finally:
-        temp_path.unlink()
 
-def test_is_valid_xyz_file_invalid_header():
-    """Test that an XYZ file with non-integer header returns False."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.xyz', delete=False) as f:
-        f.write("invalid\n")
-        f.write("Si 0.0 0.0 0.0\n")
-        temp_path = Path(f.name)
-    
-    try:
-        assert is_valid_xyz_file(temp_path) is False
-    finally:
-        temp_path.unlink()
+def create_dummy_xyz_file(path: Path, atom_count: int, valid: bool = True):
+    """Helper to create a dummy XYZ file for testing."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        f.write(f"{atom_count}\n")
+        f.write(f"Dummy comment line for {atom_count} atoms\n")
+        for i in range(atom_count):
+            f.write(f"Si {i*1.0:.4f} {i*1.0:.4f} {i*1.0:.4f}\n")
+    if not valid:
+        # Corrupt the file if requested
+        with open(path, 'r') as f:
+            content = f.read()
+        with open(path, 'w') as f:
+            f.write("Not a valid XYZ file")
 
-def test_is_valid_xyz_file_insufficient_lines():
-    """Test that an XYZ file with fewer lines than atom count returns False."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.xyz', delete=False) as f:
-        f.write("5\n")
-        f.write("Comment\n")
-        f.write("Si 0.0 0.0 0.0\n")
-        temp_path = Path(f.name)
-    
-    try:
-        assert is_valid_xyz_file(temp_path) is False
-    finally:
-        temp_path.unlink()
 
-def test_is_valid_xyz_file_not_found():
-    """Test that a non-existent file returns False."""
-    assert is_valid_xyz_file(Path("non_existent_file.xyz")) is False
+class TestIsValidXyzFile:
+    def test_valid_xyz_with_enough_atoms(self, tmp_path):
+        file_path = tmp_path / "valid.xyz"
+        create_dummy_xyz_file(file_path, 1000)
+        assert is_valid_xyz_file(file_path) is True
 
-def test_scan_raw_directory():
-    """Test scanning a directory for valid XYZ files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        
-        # Create valid files
-        for i in range(3):
-            file_path = tmp_path / f"sample_{i}.xyz"
-            with open(file_path, 'w') as f:
-                f.write(f"{i+1}\n")
-                f.write("Comment\n")
-                for _ in range(i+1):
-                    f.write("Si 0.0 0.0 0.0\n")
-        
-        # Create an invalid file
-        invalid_path = tmp_path / "invalid.xyz"
-        with open(invalid_path, 'w') as f:
-            f.write("bad\n")
-        
-        # Create a non-xyz file
-        txt_path = tmp_path / "readme.txt"
-        with open(txt_path, 'w') as f:
-            f.write("hello")
+    def test_valid_xyz_with_more_atoms(self, tmp_path):
+        file_path = tmp_path / "valid_large.xyz"
+        create_dummy_xyz_file(file_path, 2000)
+        assert is_valid_xyz_file(file_path) is True
 
-        valid_files = scan_raw_directory(tmp_path)
-        
-        assert len(valid_files) == 3
-        assert all(f.suffix == '.xyz' for f in valid_files)
-        assert all(f.exists() for f in valid_files)
+    def test_invalid_xyz_too_few_atoms(self, tmp_path):
+        file_path = tmp_path / "small.xyz"
+        create_dummy_xyz_file(file_path, 500)
+        assert is_valid_xyz_file(file_path) is False
+
+    def test_invalid_xyz_not_xyz_extension(self, tmp_path):
+        file_path = tmp_path / "valid.txt"
+        create_dummy_xyz_file(file_path, 1000)
+        assert is_valid_xyz_file(file_path) is False
+
+    def test_invalid_xyz_nonexistent(self, tmp_path):
+        file_path = tmp_path / "nonexistent.xyz"
+        assert is_valid_xyz_file(file_path) is False
+
+    def test_invalid_xyz_malformed(self, tmp_path):
+        file_path = tmp_path / "malformed.xyz"
+        create_dummy_xyz_file(file_path, 1000, valid=False)
+        assert is_valid_xyz_file(file_path) is False
+
+    def test_invalid_xyz_missing_comment(self, tmp_path):
+        file_path = tmp_path / "no_comment.xyz"
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, 'w') as f:
+            f.write("1000\n")
+            # No comment line
+        assert is_valid_xyz_file(file_path) is False
+
+    def test_invalid_xyz_wrong_atom_count(self, tmp_path):
+        file_path = tmp_path / "wrong_count.xyz"
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, 'w') as f:
+            f.write("10\n")  # Claims 10 atoms
+            f.write("Comment\n")
+            for i in range(20):  # But has 20 lines
+                f.write(f"Si {i:.4f} {i:.4f} {i:.4f}\n")
+        assert is_valid_xyz_file(file_path) is False
+
+
+class TestScanRawDirectory:
+    def test_scan_empty_directory(self, tmp_path):
+        result = scan_raw_directory(tmp_path)
+        assert result == []
+
+    def test_scan_directory_with_valid_files(self, tmp_path):
+        valid1 = tmp_path / "sample_01.xyz"
+        valid2 = tmp_path / "sample_02.xyz"
+        create_dummy_xyz_file(valid1, 1000)
+        create_dummy_xyz_file(valid2, 1500)
+
+        result = scan_raw_directory(tmp_path)
+        assert len(result) == 2
+        assert valid1 in result
+        assert valid2 in result
+
+    def test_scan_directory_mixed_validity(self, tmp_path):
+        valid = tmp_path / "valid.xyz"
+        invalid = tmp_path / "invalid.xyz"
+        create_dummy_xyz_file(valid, 1000)
+        create_dummy_xyz_file(invalid, 500)  # Too few atoms
+
+        result = scan_raw_directory(tmp_path)
+        assert len(result) == 1
+        assert valid in result
+        assert invalid not in result
+
+
+class TestWriteSampleCount:
+    def test_write_sample_count(self, tmp_path):
+        output_file = tmp_path / "count.json"
+        write_sample_count(10, output_file)
+
+        assert output_file.exists()
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+
+        assert data["count"] == 10
+        assert data["expected"] == 10
+        assert data["status"] == "VERIFIED"
+        assert "10 valid samples" in data["message"]
+
+    def test_write_sample_count_failure(self, tmp_path):
+        output_file = tmp_path / "count.json"
+        write_sample_count(5, output_file)
+
+        assert output_file.exists()
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+
+        assert data["count"] == 5
+        assert data["expected"] == 10
+        assert data["status"] == "FAILED"
+        assert "ERROR" in data["message"]

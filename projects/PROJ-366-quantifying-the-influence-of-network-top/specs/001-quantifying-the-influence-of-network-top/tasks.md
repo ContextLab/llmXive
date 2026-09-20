@@ -84,7 +84,7 @@
  - Function `build_graph(xyz_path: str, cutoff: float = 3.0) -> AtomicGraph`.
  - Output must conform to `contracts/atomic_graph.schema.yaml` (fields: `node_id`, `coords`, `degree`, `clustering`).
  - Verification: Run on `data/raw/sample_01.xyz`; assert node count matches file atom count and edge count matches bond distribution.
-- [ ] T013a [US1] **NEW**: Generate N=10 pre-equilibrated amorphous silicon samples. [UNRESOLVED-CLAIM: c_f8cab394 — status=not_enough_info]
+- [ ] T013a [US1] **NEW**: Generate N=10 pre-equilibrated amorphous silicon samples.
  **Action**: Use `code/ingest/sample_generator.py` to generate 10 independent supercells (≥1000 atoms each) using ASE + LAMMPS (or fetch from a verified real source if available).
  **Constraint**: Must produce exactly 10 valid XYZ files in `data/raw/`.
  **Verification**: Assert 10 files exist in `data/raw/` and each has ≥1000 atoms.

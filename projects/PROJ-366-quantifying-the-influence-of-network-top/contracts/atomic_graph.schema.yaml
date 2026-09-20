@@ -1,18 +1,27 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AtomicGraph
-description: |
-  Schema for atomic graph representation of amorphous silicon structures.
-  Defines nodes (atoms) and edges (bonds) based on a distance cutoff.
-  Used for validation of graph construction outputs.
+description: >
+  Schema for atomic graph representations of amorphous silicon configurations.
+  Defines nodes with topological features (degree, clustering coefficient) and edges.
+  Used for validation of graph construction outputs from code/ingest/graph_builder.py.
 type: object
 required:
   - nodes
   - edges
-  - metadata
+  - graph_id
+  - cutoff_distance
 properties:
+  graph_id:
+    type: string
+    description: Unique identifier for the graph, derived from the source XYZ filename.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  cutoff_distance:
+    type: number
+    description: Bond cutoff distance in Angstroms used for edge construction.
+    minimum: 0.0
   nodes:
     type: array
-    description: List of atomic nodes with topological features.
+    description: List of atomic nodes with topological properties.
     items:
       type: object
       required:
@@ -23,49 +32,31 @@ properties:
       properties:
         id:
           type: integer
-          description: Unique identifier for the atom/node.
+          description: Unique integer identifier for the atom/node.
         coords:
           type: array
-          description: Cartesian coordinates (x, y, z).
+          description: 3D coordinates of the atom in Angstroms.
           items:
             type: number
-            format: float32
           minItems: 3
           maxItems: 3
         degree:
           type: integer
-          description: Number of bonds connected to this atom.
+          description: Number of edges connected to this node (coordination number).
           minimum: 0
         clustering_coeff:
           type: number
-          description: Local clustering coefficient for the atom.
-          format: float32
+          description: Local clustering coefficient for the node.
           minimum: 0.0
           maximum: 1.0
   edges:
     type: array
-    description: List of bonds represented as pairs of node indices.
+    description: List of edges represented as pairs of node indices.
     items:
       type: array
-      description: Pair of node IDs [u, v] representing a bond.
+      description: Pair of node IDs [source, target].
       items:
         type: integer
       minItems: 2
       maxItems: 2
-  metadata:
-    type: object
-    description: Additional metadata about the graph.
-    properties:
-      cutoff_distance:
-        type: number
-        description: Distance cutoff used for bond determination (Angstroms).
-      atom_count:
-        type: integer
-        description: Total number of atoms in the system.
-      bond_count:
-        type: integer
-        description: Total number of bonds in the system.
-      source_file:
-        type: string
-        description: Path to the source XYZ file.
 additionalProperties: false

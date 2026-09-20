@@ -1,0 +1,7 @@
+T017:
+  c: false
+  h: 8f2a5c7ed7b156f4037c7722bf32f39cbdb3dcf30e17bf3ebf14a88bc9762b7b
+  r: "The required CSV file `data/interim/complexity_metrics.csv` is missing, and\
+    \ the provided `code/complexity.py` snippet does not contain any logic that writes\
+    \ such a file with the specified columns. Consequently, the task\u2019s output\
+    \ generation and verification steps have not been fulfilled."

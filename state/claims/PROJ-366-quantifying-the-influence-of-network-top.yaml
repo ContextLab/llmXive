@@ -553,3 +553,243 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T15:58:45Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Generate 10 pre-equilibrated amorphous silicon samples
+  claim_id: c_3bda655b
+  context: Task T013a requires generating 10 independent supercells using ASE + LAMMPS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=10 pre-equilibrated amorphous silicon samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:38:00Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Generate 10 supercells with at least 1000 atoms each
+  claim_id: c_2b7a4586
+  context: Constraint for T013a specifies each supercell must contain at least 1000
+    atoms.
+  evidence:
+    candidates:
+    - - Generate 10 supercells with at least
+      - 1000.0
+    - - Donate Create account Log in Generate
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Generate_10_supercells_with_at_least_1000_atoms_each
+  kind: magnitude
+  raw_text: "Generate 10 independent supercells (\u22651000 atoms each)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T12:38:29Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Verify existence of exactly 10 valid XYZ files
+  claim_id: c_a35c4fed
+  context: Task T013b requires scanning data/raw/ and asserting exactly 10 valid files.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 10 valid XYZ files exist in data/raw/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:38:54Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Use 3.0 Angstrom bond cutoff
+  claim_id: c_0002648f
+  context: "Task T012 specifies using a 3.0 \xC5 cutoff when constructing AtomicGraph\
+    \ objects."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use 3.0 \xC5 cutoff for bond construction."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:39:20Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Run Green-Kubo simulations on 2 CPU cores
+  claim_id: c_5eca1ce2
+  context: Task T022 details specify using mpirun -np 2 to enforce core limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Green-Kubo simulations using 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:39:49Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Verify thermal conductivity falls within literature range
+  claim_id: c_238f58d1
+  context: Independent test for User Story 2 requires verifying conductivity is within
+    literature range.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_thermal_conductivity_falls_within_literature_range
+  kind: entity_fact
+  raw_text: Verify conductivity falls within literature range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:40:30Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Convergence defined as relative change less than 1% in heat current autocorrelation
+  claim_id: c_8e266e35
+  context: Task T020 and T023 define convergence as a relative change of less than
+    1%.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Convergence_defined_as_relative_change_less_than_1%25_in_heat
+  kind: magnitude
+  raw_text: Relative change in heat current autocorrelation must be less than 1% for
+    convergence.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T12:41:21Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Exclude samples with over 15% coordination defects
+  claim_id: c_ab2a26fb
+  context: Task T024 logic specifies outlier detection for extreme topological defects
+    (>15% atoms with coord <3 or >6).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_samples_with_over_15%25_coordination_defects
+  kind: magnitude
+  raw_text: Exclude samples with more than 15% atoms having coordination less than
+    3 or greater than 6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:42:21Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Implement 2-layer GNN with less than 1 million parameters
+  claim_id: c_12378f40
+  context: Task T030 specifies implementing a 2-layer GNN with <1M parameters.
+  evidence:
+    candidates:
+    - - Donate Create account Log in Implement
+      - 2.0
+    - - Implement 2-layer GNN with less than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Implement_2-layer_GNN_with_less_than_1_million_parameters
+  kind: magnitude
+  raw_text: Implement a 2-layer GNN with less than 1M parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T12:43:15Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Convergence requires loss change less than 0.0001 for 5 epochs
+  claim_id: c_2817869e
+  context: Task T031 defines convergence check as loss change <1e-4 for 5 epochs.
+  evidence:
+    candidates:
+    - - ''
+      - 5.0
+    - - ''
+      - 0.0001
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Convergence_requires_loss_change_less_than_0.0001_for_5_epoc
+  kind: magnitude
+  raw_text: Convergence check requires loss change <1e-4 for 5 epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T12:43:36Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Verify end-to-end pipeline within 6-hour limit
+  claim_id: c_8f43139b
+  context: Task T048 requires running full integration test within 6-hour limit (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full integration test must verify end-to-end pipeline within 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:43:56Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Limit Green-Kubo simulation duration
+  claim_id: c_0926dace
+  context: Notes section states Green-Kubo is limited to a short duration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Limit_Green-Kubo_simulation_duration
+  kind: entity_fact
+  raw_text: Green-Kubo limited to a short duration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:44:20Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Reduce full pipeline duration
+  claim_id: c_5211f6d1
+  context: Notes section states the full pipeline is reduced to a reduced duration.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: both throughput and memory utilization. In particular, we reduce idle
+        pipeline time by up to 50%
+      source_id: '2510.05186'
+      url: https://arxiv.org/abs/2510.05186
+      value: 50%
+    filled: true
+  kind: entity_fact
+  raw_text: Full pipeline reduced to a reduced duration.
+  resolved_value: 50%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:44:44Z'

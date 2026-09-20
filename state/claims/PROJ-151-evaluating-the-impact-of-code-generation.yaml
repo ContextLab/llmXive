@@ -859,3 +859,380 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T22:36:16Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: fallback to StarCoder-1B on OOM error
+  claim_id: c_2ce2a5c8
+  context: Implement code/generation/model_loader.py to load CodeGen-350M. If an Out-of-Memory
+    (OOM) error occurs during loading or inference, automatically fall back to StarCoder-1B.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_StarCoder-1B_on_OOM_error
+  kind: entity_fact
+  raw_text: If an Out-of-Memory (OOM) error occurs during loading or inference, automatically
+    fall back to StarCoder-1B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:53:05Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: enforce sample size reduction to 200 pairs on persistent OOM
+  claim_id: c_d35782b5
+  context: If an Out-of-Memory (OOM) error occurs during loading or inference, automatically
+    fall back to StarCoder-1B. If StarCoder-1B also fails or OOM persists, enforce
+    sample size reduction to N=200 pairs and trigger power recalculation logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If StarCoder-1B also fails or OOM persists, enforce sample size reduction
+    to N=200 pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:53:47Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: linear mixed-effects model formula for effort complexity origin
+  claim_id: c_a7e8eeb4
+  context: 'Implement code/analysis/model_fit.py to fit Linear Mixed-Effects model
+    (Wikidata Q120282163, https://www.wikidata.org/wiki/Q120282163): Effort ~ Complexity
+    + Origin + (Complexity * Origin) + (1|Project_ID)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Linear Mixed-Effects model formula: Effort ~ Complexity + Origin + (Complexity
+    * Origin) + (1|Project_ID)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:54:56Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: record review time with millisecond precision
+  claim_id: c_83d67cdb
+  context: Implement code/validation/stopwatch_server.py to serve a browser-based
+    HTML/JS interface for the validation study. Record actual review time (millisecond
+    precision) and submit to data/validation/survey_results.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Record_review_time_with_millisecond_precision
+  kind: entity_fact
+  raw_text: Record actual review time with millisecond precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:55:29Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: validation study requires 3 reviewers and 50 snippets
+  claim_id: c_802060ef
+  context: "Implement code/validation/collect_survey_data.py to manage the survey\
+    \ workflow, ensuring \u22653 reviewers and \u226550 snippets are processed"
+  evidence:
+    candidates:
+    - - Validation study requires 3 reviewers and
+      - 50.0
+    - - Log in Validation study requires
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Validation_study_requires_3_reviewers_and_50_snippets
+  kind: magnitude
+  raw_text: Ensure at least 3 reviewers and at least 50 snippets are processed in
+    the validation study.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T12:55:48Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: CodeGen-350M Wikidata ID Q117453145
+  claim_id: c_6544224b
+  context: T023 [US2] Implement code/generation/model_loader.py to {{claim:c_10ca5a73}}
+    (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145). If an Out-of-Memory
+    (OOM) error occurs...
+  evidence:
+    entailment_evidence: Look for CodeGen-350M identified by Wikidata Q117453145 on
+      one of Wikipedia's sister projects
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CodeGen-350M_identified_by_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: Implement code/generation/model_loader.py to load CodeGen-350M (Wikidata
+    Q117453145, https://www.wikidata.org/wiki/Q117453145).
+  resolved_value: CodeGen-350M identified by Wikidata Q117453145
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:55:57Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: Linear Mixed-Effects model Wikidata ID Q120282163
+  claim_id: c_8e285f6e
+  context: 'T036 [US3] Implement code/analysis/model_fit.py to fit Linear Mixed-Effects
+    model (Wikidata Q120282163, https://www.wikidata.org/wiki/Q120282163): Effort
+    ~ Complexity + Origin + (Complexity * Origin) + (1|Project_ID)'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: entity_fact
+  raw_text: Implement code/analysis/model_fit.py to fit Linear Mixed-Effects model
+    (Wikidata Q120282163, https://www.wikidata.org/wiki/Q120282163).
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:55:58Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fallback to StarCoder-1B upon Out-of-Memory error during CodeGen-350M
+    loading or inference
+  claim_id: c_7f0fb7a6
+  context: Task T023 implements runtime fallback logic for CodeGen-350M to StarCoder-1B
+    if OOM occurs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_StarCoder-1B_upon_Out-of-Memory_error_during_Cod
+  kind: entity_fact
+  raw_text: If an Out-of-Memory (OOM) error occurs during loading or inference, automatically
+    fall back to StarCoder-1B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:56:20Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Enforce sample size reduction to N=200 pairs if StarCoder-1B fallback
+    fails or OOM persists
+  claim_id: c_abe57d39
+  context: Task T023 specifies that persistent OOM after fallback triggers a reduction
+    to N=200 pairs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If StarCoder-1B also fails or OOM persists, enforce sample size reduction
+    to N=200 pairs and trigger power recalculation logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:56:53Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fit Linear Mixed-Effects model with formula Effort ~ Complexity + Origin
+    + (Complexity * Origin) + (1|Project_ID)
+  claim_id: c_b78e5ddc
+  context: Task T036 details the specific formula for the Linear Mixed-Effects model
+    used in the analysis.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Project_ID)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Fit_Linear_Mixed-Effects_model_with_formula_Effort_~_Complex
+    source_value: https://en.wikipedia.org/wiki/Fit_Linear_Mixed-Effects_model_with_formula_Effort_~_Complex
+    subject: Fit Linear Mixed-Effects model with formula Effort ~ Complexity + Origin
+      + (Complexity * Origin) + (1
+  kind: relational
+  raw_text: 'Implement Linear Mixed-Effects model: Effort ~ Complexity + Origin +
+    (Complexity * Origin) + (1|Project_ID).'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:57:50Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Validation study requires at least 3 reviewers and 50 snippets processed
+  claim_id: c_b23868cd
+  context: Task T053 specifies the minimum requirements for the validation study workflow.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_study_requires_at_least_3_reviewers_and_50_snippe
+  kind: magnitude
+  raw_text: "The validation study must ensure \u22653 reviewers and \u226550 snippets\
+    \ are processed."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:58:15Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Review time recorded with millisecond precision
+  claim_id: c_196aa143
+  context: Task T052 describes the stopwatch server implementation for the validation
+    study.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Review_time_recorded_with_millisecond_precision
+  kind: entity_fact
+  raw_text: Record actual review time with millisecond precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:58:17Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Download loubnabnl/prs-v2-sample dataset using datasets.load_dataset
+  claim_id: c_7b4eac27
+  context: Task T014 specifies the source dataset and method for data ingestion.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_loubnabnl/prs-v2-sample_dataset_using_datasets.load
+  kind: entity_fact
+  raw_text: Download loubnabnl/prs-v2-sample dataset via datasets.load_dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:58:58Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Filter dataset for Java and Python pull requests with diff lines less
+    than or equal to 30
+  claim_id: c_fc91edaa
+  context: Task T015 defines the filtering logic for language and lines of code.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_dataset_for_Java_and_Python_pull_requests_with_diff_l
+  kind: magnitude
+  raw_text: "Filter for Java/Python PRs with diff_lines \u2264 30."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:59:23Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Exclude comments shorter than 10 characters or containing LGTM
+  claim_id: c_708f43cd
+  context: Task T013 describes the unit test for comment quality filtering logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude comments with <10 characters or content 'LGTM'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:59:24Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Verify filtered_prs.parquet contains at least 1000 rows
+  claim_id: c_bb9df79d
+  context: The independent test for User Story 1 specifies the minimum row count for
+    the filtered dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_filtered_prs.parquet_contains_at_least_1000_rows
+  kind: magnitude
+  raw_text: "Verify filtered_prs.parquet exists with \u22651,000 rows."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:00:15Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 environment
+  claim_id: c_7e608f7b
+  context: Task T002 specifies the Python version requirement for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 environment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:00:38Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Set global random seed to 42 for random, numpy, and torch libraries
+  claim_id: c_5c6feaec
+  context: Task T004 details the configuration of random seeds for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define global random seed 42 for random, numpy, and torch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:01:02Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Implement Propensity Score Matching if shift detected in complexity distributions
+  claim_id: c_c3663ba2
+  context: Task T035 describes the collinearity analysis and subsequent PSM implementation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_Propensity_Score_Matching_if_shift_detected_in_com
+  kind: entity_fact
+  raw_text: Implement Propensity Score Matching (PSM) if shift detected in complexity
+    distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:01:42Z'
+- artifact_path: projects/PROJ-151-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni or FDR correction to all p-values
+  claim_id: c_bc5b8439
+  context: Task T039 specifies the multiple-comparison correction method for statistical
+    analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_or_FDR_correction_to_all_p-values
+  kind: entity_fact
+  raw_text: Apply Bonferroni/FDR correction to all p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:02:13Z'

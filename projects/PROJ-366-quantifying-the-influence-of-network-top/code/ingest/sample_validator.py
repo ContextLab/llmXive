@@ -1,8 +1,8 @@
 """
-Task T013b: Verify sample count and validity for N=10.
+Sample Validator Module
 
-Scans data/raw/ for valid XYZ files, asserts exactly 10 exist,
-and writes the count to data/processed/graphs/sample_count.json.
+Verifies the existence and validity of pre-equilibrated amorphous silicon samples
+generated in data/raw/. Ensures exactly N=10 valid XYZ files exist before proceeding.
 """
 import json
 import logging
@@ -10,107 +10,149 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-# Import existing utilities from the project
 from config import get_config, get_paths
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
 
 def is_valid_xyz_file(file_path: Path) -> bool:
     """
-    Basic validation for an XYZ file.
-    Returns True if the file exists, is readable, and has at least 2 lines
-    (header + at least one atom).
+    Validates that a file is a properly formatted XYZ file with at least 1000 atoms.
+
+    Args:
+        file_path: Path to the XYZ file.
+
+    Returns:
+        True if valid, False otherwise.
     """
-    if not file_path.is_file():
+    if not file_path.exists():
         return False
-    
+
+    if not file_path.suffix.lower() == '.xyz':
+        return False
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            if len(lines) < 2:
+        with open(file_path, 'r') as f:
+            # First line: atom count
+            first_line = f.readline().strip()
+            if not first_line.isdigit():
+                logger.warning(f"Invalid atom count line in {file_path}: {first_line}")
                 return False
-            
-            # First line should be the atom count (integer)
-            try:
-                atom_count = int(lines[0].strip())
-                if atom_count < 1:
-                    return False
-                # Check if we have enough lines for header + atoms
-                if len(lines) < atom_count + 2:
-                    return False
-            except ValueError:
+
+            atom_count = int(first_line)
+
+            # Must have at least 1000 atoms as per task requirements
+            if atom_count < 1000:
+                logger.warning(f"File {file_path} has only {atom_count} atoms (< 1000).")
                 return False
-            
+
+            # Check that comment line exists
+            comment_line = f.readline()
+            if not comment_line:
+                logger.warning(f"Missing comment line in {file_path}")
+                return False
+
+            # Check that atom lines exist
+            lines_read = 2
+            for line in f:
+                lines_read += 1
+                if lines_read > atom_count + 2:
+                    break
+
+            if lines_read != atom_count + 2:
+                logger.warning(f"Atom count mismatch in {file_path}: expected {atom_count} atoms, found {lines_read - 2}")
+                return False
+
             return True
-    except (IOError, UnicodeDecodeError):
+
+    except Exception as e:
+        logger.error(f"Error validating {file_path}: {e}")
         return False
+
 
 def scan_raw_directory(raw_dir: Path) -> List[Path]:
     """
-    Scan the raw directory for valid XYZ files.
-    Returns a list of valid file paths.
+    Scans the raw data directory for valid XYZ files.
+
+    Args:
+        raw_dir: Path to the data/raw directory.
+
+    Returns:
+        List of valid XYZ file paths.
     """
     if not raw_dir.exists():
         logger.error(f"Raw directory does not exist: {raw_dir}")
         return []
-    
+
     valid_files = []
-    for file_path in raw_dir.iterdir():
-        if file_path.suffix.lower() == '.xyz' and is_valid_xyz_file(file_path):
+    for file_path in sorted(raw_dir.glob("*.xyz")):
+        if is_valid_xyz_file(file_path):
             valid_files.append(file_path)
-    
-    return sorted(valid_files)
+            logger.info(f"Valid sample found: {file_path.name} ({file_path.stat().st_size} bytes)")
+        else:
+            logger.warning(f"Invalid sample skipped: {file_path.name}")
+
+    return valid_files
+
 
 def write_sample_count(count: int, output_path: Path) -> None:
     """
-    Write the sample count to the output JSON file.
+    Writes the sample count verification result to a JSON file.
+
+    Args:
+        count: The number of valid samples found.
+        output_path: Path to the output JSON file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    data = {"count": count}
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Written sample count to {output_path}: {data}")
+    output_dir = output_path.parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    result = {
+        "count": count,
+        "expected": 10,
+        "status": "VERIFIED" if count == 10 else "FAILED",
+        "message": f"Found {count} valid samples. Expected 10." if count == 10 else f"ERROR: Found {count} valid samples. Expected 10. Pipeline halted."
+    }
+
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    logger.info(f"Sample count report written to {output_path}")
+
 
 def main() -> int:
     """
-    Main entry point for T013b.
-    Returns 0 on success, 1 on failure.
+    Main entry point for sample validation.
+
+    Returns:
+        0 if validation passes, 1 if it fails.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    config = get_config()
+    paths = get_paths()
 
-    try:
-        config = get_config()
-        paths = get_paths()
-        
-        raw_dir = paths.get('raw_data_dir', 'data/raw')
-        raw_path = Path(raw_dir)
-        
-        output_path = paths.get('sample_count_file', 'data/processed/graphs/sample_count.json')
-        output_file = Path(output_path)
+    raw_dir = paths['raw_data']
+    output_file = paths['processed_graphs'] / 'sample_count.json'
 
-        logger.info(f"Scanning raw directory: {raw_path}")
-        valid_files = scan_raw_directory(raw_path)
-        count = len(valid_files)
+    logger.info(f"Scanning {raw_dir} for valid XYZ samples...")
+    valid_samples = scan_raw_directory(raw_dir)
 
-        logger.info(f"Found {count} valid XYZ files.")
+    count = len(valid_samples)
+    logger.info(f"Found {count} valid samples.")
 
-        if count != 10:
-            logger.error(f"VALIDATION FAILED: Expected exactly 10 valid XYZ files, but found {count}.")
-            logger.error("Halt: Sample generation (T013a) may have failed or produced incorrect count.")
-            # Write the actual count for debugging, but exit with error
-            write_sample_count(count, output_file)
-            return 1
+    write_sample_count(count, output_file)
 
-        logger.info("Validation successful: Exactly 10 valid XYZ files found.")
-        write_sample_count(count, output_file)
-        return 0
-
-    except Exception as e:
-        logger.exception(f"Unexpected error during validation: {e}")
+    if count != 10:
+        logger.error(f"VALIDATION FAILED: Expected 10 samples, found {count}.")
+        logger.error("Pipeline halted. Please ensure T013a (sample generation) has completed successfully.")
         return 1
 
-if __name__ == '__main__':
+    logger.info("VALIDATION PASSED: Exactly 10 valid samples found.")
+    return 0
+
+
+if __name__ == "__main__":
     sys.exit(main())
