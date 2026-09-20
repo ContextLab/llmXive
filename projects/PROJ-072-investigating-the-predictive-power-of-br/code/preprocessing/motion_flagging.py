@@ -1,11 +1,3 @@
-"""
-Motion Flagging Module for User Story 1.
-
-This module implements the logic to exclude subjects with excessive head motion
-(>2mm translation) from the analysis pipeline. It reads motion parameters from
-the preprocessed data directory, calculates maximum displacement, and updates
-the subject status metadata file.
-"""
 import os
 import sys
 import csv
@@ -14,16 +6,12 @@ import logging
 import numpy as np
 from pathlib import Path
 
-# Project root configuration
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_METADATA_DIR = PROJECT_ROOT / "data" / "metadata"
-SUBJECT_STATUS_FILE = DATA_METADATA_DIR / "subject_status.csv"
-EXCLUSION_LOG_FILE = DATA_METADATA_DIR / "exclusion_log.txt"
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Motion threshold in mm
-MOTION_THRESHOLD_MM = 2.0
+from preprocessing.download import check_motion_parameters_exist
+from preprocessing.metadata import load_subject_status
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,236 +19,320 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+MOTION_THRESHOLD_MM = 2.0
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
+RAW_DIR = DATA_DIR / "raw"
+METADATA_DIR = DATA_DIR / "metadata"
+PROCESSED_DIR = DATA_DIR / "processed"
+
+# Ensure directories exist
+METADATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_all_subject_ids() -> list:
     """
-    Scans the raw data directory for available subject folders.
-    Assumes directory structure: data/raw/ds000030/sub-<id>/
-
-    Returns:
-        List of subject IDs (e.g., ['sub-01', 'sub-02'])
+    Get all subject IDs from the processed connectivity matrices or raw data.
+    Returns a list of subject ID strings.
     """
-    if not DATA_RAW_DIR.exists():
-        logger.warning(f"Data raw directory not found: {DATA_RAW_DIR}")
-        return []
-
-    # Look for sub- folders directly in the dataset root or inside ds000030
-    # OpenNeuro ds000030 structure is typically: data/raw/ds000030/sub-XXX/
-    dataset_root = DATA_RAW_DIR / "ds000030"
-    if not dataset_root.exists():
-        # Fallback if dataset is extracted directly to data/raw
-        dataset_root = DATA_RAW_DIR
-
-    subject_dirs = [d for d in dataset_root.iterdir() if d.is_dir() and d.name.startswith("sub-")]
-    return [d.name for d in sorted(subject_dirs)]
-
+    # Try to get from processed matrices first
+    processed_matrices_dir = PROCESSED_DIR
+    if processed_matrices_dir.exists():
+        csv_files = list(processed_matrices_dir.glob("*.csv"))
+        if csv_files:
+            # Assume filenames are like 'sub-XXX_matrix.csv'
+            subjects = []
+            for f in csv_files:
+                stem = f.stem
+                if stem.endswith("_matrix"):
+                    sub_id = stem.replace("_matrix", "")
+                    subjects.append(sub_id)
+            if subjects:
+                logger.info(f"Found {len(subjects)} subjects from processed matrices")
+                return sorted(subjects)
+    
+    # Fallback: try to get from raw data structure
+    if RAW_DIR.exists():
+        # Look for subject directories (common pattern: sub-XXX)
+        sub_dirs = [d for d in RAW_DIR.iterdir() if d.is_dir() and d.name.startswith("sub-")]
+        if sub_dirs:
+            subjects = [d.name.replace("sub-", "") for d in sub_dirs]
+            logger.info(f"Found {len(subjects)} subjects from raw data directories")
+            return sorted(subjects)
+    
+    # Last resort: try to get from existing subject_status.csv
+    status_file = METADATA_DIR / "subject_status.csv"
+    if status_file.exists():
+        try:
+            with open(status_file, 'r') as f:
+                reader = csv.DictReader(f)
+                subjects = [row['subject_id'] for row in reader]
+                if subjects:
+                    logger.info(f"Found {len(subjects)} subjects from subject_status.csv")
+                    return sorted(subjects)
+        except Exception as e:
+            logger.warning(f"Could not read subject_status.csv: {e}")
+    
+    logger.error("Could not find any subject IDs")
+    return []
 
 def load_motion_parameters(subject_id: str) -> np.ndarray:
     """
-    Loads motion parameters (6 rigid body parameters: 3 translation, 3 rotation)
-    for a specific subject.
-
-    The motion parameters are typically stored in a .tsv or .txt file generated
-    during preprocessing (e.g., from FSL MCFLIRT or similar).
-    Expected file pattern: sub-<id>_motion_params.tsv
-
-    Args:
-        subject_id: The subject ID string (e.g., 'sub-01')
-
-    Returns:
-        numpy array of shape (n_timepoints, 6) containing motion parameters.
-        Translation is in mm, rotation in radians.
-
-    Raises:
-        FileNotFoundError: If the motion parameters file does not exist.
+    Load motion parameters for a subject from the raw data.
+    Returns a numpy array of shape (time_points, 6) containing the 6 motion parameters.
+    
+    Expected format:
+    - Text file with 6 columns (trans_x, trans_y, trans_z, rot_x, rot_y, rot_z)
+    - One row per time point
+    - Values in mm for translation, radians for rotation
     """
-    # Try to find the motion parameters file in the subject's raw directory
-    subject_dir = DATA_RAW_DIR / "ds000030" / subject_id
-    if not subject_dir.exists():
-        subject_dir = DATA_RAW_DIR / subject_id
-
-    # Look for common motion parameter file names
-    possible_files = [
-        subject_dir / f"{subject_id}_motion_params.tsv",
-        subject_dir / f"{subject_id}_mc_params.tsv",
-        subject_dir / "regressors.tsv", # Common nilearn/FSL output
-        subject_dir / "confounds.tsv",
-    ]
-
+    # Try to find motion parameters file
+    # Common naming conventions:
+    # - sub-XXX_desc-confounds_timeseries.tsv (from fMRIPrep)
+    # - sub-XXX_motion_params.txt
+    # - sub-XXX_regressors.txt
+    
+    raw_sub_dir = RAW_DIR / f"sub-{subject_id}"
+    if not raw_sub_dir.exists():
+        # Try without sub- prefix if directory structure is different
+        raw_sub_dir = RAW_DIR / subject_id
+    
     motion_file = None
-    for p in possible_files:
-        if p.exists():
-            motion_file = p
-            break
-
-    if motion_file is None:
-        # If preprocessing hasn't generated motion params yet, we might need to
-        # look in the processed directory or assume a placeholder.
-        # However, per T012/T013, preprocessing should have run.
-        # Let's check processed dir as a fallback for the specific output of T012
-        processed_subject_dir = DATA_PROCESSED_DIR / subject_id
-        if processed_subject_dir.exists():
-            for p in processed_subject_dir.iterdir():
-                if "motion" in p.name.lower() or "confound" in p.name.lower():
-                    motion_file = p
-                    break
-
-    if motion_file is None:
-        # If we still can't find it, we cannot calculate motion.
-        # This implies the preprocessing step (T012) did not generate motion logs.
-        # We raise an error to fail loudly as per constraints.
-        raise FileNotFoundError(
-            f"Motion parameters file not found for {subject_id}. "
-            f"Searched in: {subject_dir} and {processed_subject_dir}. "
-            f"Ensure T012 (preprocess.py) generates motion logs."
-        )
-
-    # Load the file
+    
+    if raw_sub_dir.exists():
+        # Look for confounds file (fMRIPrep standard)
+        confounds_files = list(raw_sub_dir.glob("*confounds*.tsv"))
+        if confounds_files:
+            motion_file = confounds_files[0]
+        else:
+            # Look for motion parameter files
+            motion_files = list(raw_sub_dir.glob("*motion*.txt")) + list(raw_sub_dir.glob("*motion*.csv"))
+            if motion_files:
+                motion_file = motion_files[0]
+            else:
+                regressors_files = list(raw_sub_dir.glob("*regressors*.txt"))
+                if regressors_files:
+                    motion_file = regressors_files[0]
+    
+    if motion_file is None or not motion_file.exists():
+        raise FileNotFoundError(f"Motion parameters file not found for subject {subject_id}")
+    
+    # Load motion parameters
     try:
-        # Assuming TSV or CSV with 6 columns (3 trans, 3 rot)
-        # If headers exist, we skip them or use pandas
-        import pandas as pd
-        df = pd.read_csv(motion_file, sep='\t')
-
-        # Identify columns. Usually named trans_x, trans_y, trans_z, rot_x, rot_y, rot_z
-        # or just 6 columns.
-        if df.shape[1] < 6:
-            logger.warning(f"Motion file {motion_file} has fewer than 6 columns. Skipping subject {subject_id}.")
-            return np.array([])
-
-        # Select first 6 columns if more exist, or specific columns if named
-        # Standardizing on first 6 for robustness if names vary
-        params_df = df.iloc[:, :6]
-        return params_df.values.astype(float)
+        # Try to load as TSV (fMRIPrep format)
+        if motion_file.suffix == '.tsv':
+            import pandas as pd
+            df = pd.read_csv(motion_file, sep='\t')
+            # Look for motion parameter columns
+            motion_cols = [col for col in df.columns if 'trans' in col.lower() or 'rot' in col.lower()]
+            if len(motion_cols) >= 6:
+                # Take first 6 motion columns
+                motion_data = df[motion_cols[:6]].values
+            else:
+                # Try to find specific columns
+                trans_cols = [col for col in df.columns if 'trans' in col.lower()]
+                rot_cols = [col for col in df.columns if 'rot' in col.lower()]
+                if len(trans_cols) >= 3 and len(rot_cols) >= 3:
+                    motion_data = df[trans_cols[:3] + rot_cols[:3]].values
+                else:
+                    raise ValueError(f"Could not identify 6 motion parameters in {motion_file}")
+        else:
+            # Try to load as text/csv
+            import pandas as pd
+            df = pd.read_csv(motion_file, sep=None, engine='python')
+            # Assume first 6 numeric columns are motion parameters
+            numeric_cols = df.select_dtypes(include=[np.number]).columns[:6]
+            if len(numeric_cols) < 6:
+                raise ValueError(f"Could not find 6 numeric columns in {motion_file}")
+            motion_data = df[numeric_cols].values
+        
+        return motion_data
+      
     except Exception as e:
-        logger.error(f"Failed to parse motion parameters for {subject_id}: {e}")
-        raise
-
+        raise RuntimeError(f"Failed to load motion parameters from {motion_file}: {e}")
 
 def calculate_max_displacement(motion_params: np.ndarray) -> float:
     """
-    Calculates the maximum translation displacement (in mm) for a subject.
+    Calculate the maximum displacement (in mm) from the motion parameters.
+    
+    For translation parameters (first 3 columns), values are already in mm.
+    For rotation parameters (last 3 columns), convert radians to mm assuming
+    a typical brain radius of 60mm.
+    
+    Returns the maximum displacement across all time points.
+    """
+    if motion_params.shape[1] < 6:
+        raise ValueError(f"Expected at least 6 motion parameters, got {motion_params.shape[1]}")
+    
+    # Extract translation (mm) and rotation (radians)
+    translations = motion_params[:, :3]  # trans_x, trans_y, trans_z in mm
+    rotations = motion_params[:, 3:]     # rot_x, rot_y, rot_z in radians
+    
+    # Convert rotations to mm (assuming 60mm radius)
+    ROTATION_RADIUS_MM = 60.0
+    rotation_displacements = np.abs(rotations) * ROTATION_RADIUS_MM
+    
+    # Calculate total displacement at each time point
+    # Sum of absolute displacements for simplicity
+    total_displacement = np.sum(np.abs(translations), axis=1) + np.sum(rotation_displacements, axis=1)
+    
+    return float(np.max(total_displacement))
 
-    The first 3 columns are assumed to be translation (x, y, z) in mm.
-    Rotation is ignored for the >2mm translation threshold check as per task description.
-
+def flag_subject_motion(subject_id: str, motion_available: bool) -> dict:
+    """
+    Flag a subject based on motion parameters.
+    
     Args:
-        motion_params: numpy array of shape (n_timepoints, 6)
-
+        subject_id: The subject ID
+        motion_available: Whether motion parameters were found in the dataset
+        
     Returns:
-        Maximum translation displacement in mm.
+        dict with keys:
+            - subject_id: str
+            - included: bool (True if subject should be included)
+            - reason: str (explanation of inclusion/exclusion)
+            - max_displacement_mm: float (if available, else None)
     """
-    if motion_params.size == 0:
-        return 0.0
-
-    translations = motion_params[:, :3]
-    # Calculate Euclidean distance from origin (0,0,0) for each timepoint
-    # Or max absolute difference from mean? Usually max absolute displacement from origin or baseline.
-    # Standard practice: max absolute value of any translation parameter, or max displacement from first frame.
-    # Task says ">2mm translation". We interpret this as max absolute translation value across all timepoints.
-    max_trans = np.max(np.abs(translations))
-    return float(max_trans)
-
-
-def flag_subject_motion(subject_id: str) -> dict:
-    """
-    Evaluates a single subject for motion artifacts.
-
-    Args:
-        subject_id: Subject ID string.
-
-    Returns:
-        Dictionary with keys:
-            - 'subject_id': str
-            - 'excluded': bool
-            - 'reason': str (empty if included)
-            - 'max_displacement': float (mm)
-    """
-    try:
-        params = load_motion_parameters(subject_id)
-        max_disp = calculate_max_displacement(params)
-    except FileNotFoundError as e:
-        logger.warning(str(e))
-        # If we can't load motion, we might exclude or keep?
-        # Strictly, we can't verify, so we exclude to be safe or log as error.
-        # Let's exclude and flag as 'missing_motion_data'.
-        return {
-            'subject_id': subject_id,
-            'excluded': True,
-            'reason': 'missing_motion_data',
-            'max_displacement': np.nan
-        }
-
-    excluded = max_disp > MOTION_THRESHOLD_MM
-    reason = ""
-    if excluded:
-        reason = f"excessive_motion (> {MOTION_THRESHOLD_MM}mm, max={max_disp:.3f}mm)"
-
-    return {
+    result = {
         'subject_id': subject_id,
-        'excluded': excluded,
-        'reason': reason,
-        'max_displacement': max_disp
+        'included': True,
+        'reason': 'No motion issues detected',
+        'max_displacement_mm': None
     }
+    
+    try:
+        if not motion_available:
+            # If motion parameters are not available, we cannot assess motion
+            # According to task T014: "If T014b found NO motion parameters, exclude subjects with >2mm translation"
+            # Since we can't measure, we exclude to be conservative
+            result['included'] = False
+            result['reason'] = 'Motion parameters not available - excluded conservatively'
+            return result
+        
+        # Load motion parameters
+        motion_params = load_motion_parameters(subject_id)
+        
+        # Calculate maximum displacement
+        max_disp = calculate_max_displacement(motion_params)
+        result['max_displacement_mm'] = max_disp
+        
+        # Flag based on threshold
+        if max_disp > MOTION_THRESHOLD_MM:
+            result['included'] = False
+            result['reason'] = f'Motion exceeds threshold ({max_disp:.2f}mm > {MOTION_THRESHOLD_MM}mm)'
+        else:
+            result['included'] = True
+            result['reason'] = f'Motion within acceptable limits ({max_disp:.2f}mm <= {MOTION_THRESHOLD_MM}mm)'
+            
+    except FileNotFoundError as e:
+        logger.warning(f"Motion parameters not found for {subject_id}: {e}")
+        result['included'] = False
+        result['reason'] = f'Motion parameters file not found: {e}'
+    except Exception as e:
+        logger.error(f"Error processing motion for {subject_id}: {e}")
+        result['included'] = False
+        result['reason'] = f'Error processing motion parameters: {e}'
+    
+    return result
 
-
-def run_motion_flagging_pipeline() -> None:
+def run_motion_flagging_pipeline():
     """
-    Main pipeline function to process all subjects, flag motion, and update metadata.
-
-    1. Gets all subject IDs.
-    2. Flags each subject for motion.
-    3. Updates `data/metadata/subject_status.csv`.
-    4. Updates `data/metadata/exclusion_log.txt` with the count of excluded subjects.
+    Main pipeline to flag subjects based on motion parameters.
+    
+    This function:
+    1. Checks if motion parameters are available in the dataset (from T014b)
+    2. Gets all subject IDs
+    3. Flags each subject based on motion
+    4. Updates data/metadata/subject_status.csv with exclusion flags and reasons
     """
-    logger.info("Starting motion flagging pipeline...")
-
+    logger.info("Starting motion flagging pipeline")
+    
+    # Load motion parameters availability from T014b
+    motion_params_file = METADATA_DIR / "motion_params_available.json"
+    if not motion_params_file.exists():
+        raise FileNotFoundError(
+            f"Motion parameters check file not found: {motion_params_file}. "
+            "Please run T014b first."
+        )
+    
+    with open(motion_params_file, 'r') as f:
+        motion_config = json.load(f)
+    
+    motion_available = motion_config.get('motion_params_available', False)
+    logger.info(f"Motion parameters available: {motion_available}")
+    
+    # Get all subject IDs
     subject_ids = get_all_subject_ids()
     if not subject_ids:
-        logger.warning("No subjects found to process.")
-        return
-
-    results = []
-    excluded_count = 0
-    excluded_subjects = []
-
-    # Ensure metadata directory exists
-    DATA_METADATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    for sub_id in subject_ids:
-        status = flag_subject_motion(sub_id)
-        results.append(status)
-        if status['excluded']:
-            excluded_count += 1
-            excluded_subjects.append(sub_id)
-
-    # Write subject_status.csv
-    # Columns: subject_id, excluded, reason, max_displacement
-    status_file_path = SUBJECT_STATUS_FILE
-    with open(status_file_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['subject_id', 'excluded', 'reason', 'max_displacement'])
+        logger.warning("No subject IDs found. Skipping motion flagging.")
+        return []
+    
+    logger.info(f"Processing {len(subject_ids)} subjects for motion flagging")
+    
+    # Flag each subject
+    flag_results = []
+    for subject_id in subject_ids:
+        result = flag_subject_motion(subject_id, motion_available)
+        flag_results.append(result)
+        logger.info(f"Subject {subject_id}: included={result['included']}, reason='{result['reason']}'")
+    
+    # Update subject_status.csv
+    status_file = METADATA_DIR / "subject_status.csv"
+    
+    # Load existing status if it exists
+    existing_status = {}
+    if status_file.exists():
+        try:
+            with open(status_file, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    existing_status[row['subject_id']] = row
+        except Exception as e:
+            logger.warning(f"Could not read existing subject_status.csv: {e}")
+    
+    # Merge with new flags
+    for result in flag_results:
+        sid = result['subject_id']
+        if sid in existing_status:
+            # Update existing entry
+            existing_status[sid]['status'] = 'included' if result['included'] else 'excluded'
+            existing_status[sid]['exclusion_reason'] = result['reason']
+            if result['max_displacement_mm'] is not None:
+                existing_status[sid]['max_displacement_mm'] = f"{result['max_displacement_mm']:.3f}"
+        else:
+            # Create new entry
+            existing_status[sid] = {
+                'subject_id': sid,
+                'status': 'included' if result['included'] else 'excluded',
+                'exclusion_reason': result['reason'],
+                'max_displacement_mm': f"{result['max_displacement_mm']:.3f}" if result['max_displacement_mm'] is not None else ''
+            }
+    
+    # Write updated status file
+    with open(status_file, 'w', newline='') as f:
+        fieldnames = ['subject_id', 'status', 'exclusion_reason', 'max_displacement_mm']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for res in results:
-            writer.writerow(res)
-
-    logger.info(f"Updated subject status file: {status_file_path}")
-
-    # Write exclusion_log.txt (Append mode to preserve history if run multiple times, or overwrite?)
-    # Task says "update ... with exclusion count". Let's append a summary line.
-    exclusion_log_path = EXCLUSION_LOG_FILE
-    with open(exclusion_log_path, 'a') as f:
-        f.write(f"Motion Flagging Run: {len(subject_ids)} subjects processed, {excluded_count} excluded.\n")
-        if excluded_subjects:
-            f.write(f"Excluded subjects: {', '.join(excluded_subjects)}\n")
-        f.write("-" * 40 + "\n")
-
-    logger.info(f"Exclusion log updated: {exclusion_log_path}. Excluded: {excluded_count}")
-
+        for sid in sorted(existing_status.keys()):
+            writer.writerow(existing_status[sid])
+    
+    logger.info(f"Updated {len(existing_status)} entries in {status_file}")
+    
+    # Log summary
+    included_count = sum(1 for r in flag_results if r['included'])
+    excluded_count = len(flag_results) - included_count
+    logger.info(f"Motion flagging complete: {included_count} included, {excluded_count} excluded")
+    
+    return flag_results
 
 def main():
-    """Entry point for script execution."""
-    run_motion_flagging_pipeline()
-
+    """Main entry point for the script."""
+    try:
+        results = run_motion_flagging_pipeline()
+        logger.info("Motion flagging pipeline completed successfully")
+        return 0
+    except Exception as e:
+        logger.error(f"Motion flagging pipeline failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1455,3 +1455,497 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-14T10:38:49Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Memory threshold set to 7GB RAM for 5 seconds
+  claim_id: c_008ea36a
+  context: Implement `code/main.py` orchestrator with runtime monitoring (stop if
+    >6h) and memory monitoring (stop if >7GB RAM using psutil for 5 consecutive seconds)
+    and DATA_GAP stop condition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline will stop if memory usage exceeds 7GB RAM for 5 consecutive
+    seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:33:41Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Runtime threshold set to 6 hours
+  claim_id: c_200f1a11
+  context: Implement `code/main.py` orchestrator with runtime monitoring (stop if
+    >6h) and memory monitoring (stop if >7GB RAM using psutil for 5 consecutive seconds)
+    and DATA_GAP stop condition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline will stop if runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:34:16Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Connectivity matrix dimension is 90x90
+  claim_id: c_c39f7f6e
+  context: Implement `test_preprocess_single_subject` which runs the pipeline on the
+    first subject from data/raw/ds and verifies output `data/processed/test_subject_matrix.csv`
+    exists, is a 90x90 matrix, and contains no NaNs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_matrix_dimension_is_90x90
+  kind: entity_fact
+  raw_text: The preprocessing pipeline generates 90x90 connectivity matrices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:34:55Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Global efficiency is 1.0 for fully connected graph
+  claim_id: c_9b448235
+  context: Implement `test_efficiency_full_graph` which creates a x10 matrix of all
+    1.0s and asserts `calculator.global_efficiency(matrix) == 1.0`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Global efficiency equals 1.0 for a fully connected graph.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:36:20Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Feature extraction output shape is 60x18
+  claim_id: c_2ee32858
+  context: Implement `test_feature_extraction` which runs `calculator.extract_features(all_matrices)`
+    on a synthetic matrix of moderate dimensionality and asserts the output `data/processed/features.csv`
+    has a shape consistent with the number of subjects and the expected feature dimensionality
+    (e.g., 60 rows x 18 columns), contains no NaNs, and includes columns for 'global_efficiency',
+    'local_efficiency', 'modularity', 'prefrontal_centrality', 'hippocampal_centrality'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feature extraction output has dimensions of 60 rows by 18 columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:36:42Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Collinearity threshold defined as r > 0.8
+  claim_id: c_74159039
+  context: 'Implement collinearity check (r > 0.8) in `code/graph_metrics/calculator.py`:
+    If found, drop the feature with lower variance and log to `data/metadata/collinearity_log.txt`.
+    **Decision Logic**: Define ''collinear'' as pairwise correlation r > 0.8.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_threshold_defined_as_r_%3E_0.8
+  kind: magnitude
+  raw_text: Collinearity is defined as a pairwise correlation coefficient greater
+    than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:37:23Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability Selection sample size per subsample is 30
+  claim_id: c_736c6a57
+  context: 'Implement Stability Selection algorithm class in `code/classification/models.py`:
+    Manually implement a loop with sample size per subsample = 30 ([deferred] of N=60),
+    subsamples, L1 penalty, and a retention frequency threshold of >60%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability Selection uses a sample size of 30 per subsample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:38:05Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Total sample size is 60
+  claim_id: c_784514ab
+  context: Manually implement a loop with sample size per subsample = 30 ([deferred]
+    of N=60), subsamples, L1 penalty, and a retention frequency threshold of >60%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total sample size for the analysis is 60 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:39:14Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability Selection retention threshold is 60%
+  claim_id: c_427ccf82
+  context: Manually implement a loop with sample size per subsample = 30 ([deferred]
+    of N=60), subsamples, L1 penalty, and a retention frequency threshold of >60%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retention frequency threshold for Stability Selection is 60%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:39:15Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 100 iterations
+  claim_id: c_ce51a43a
+  context: Implement `test_permutation_p_value` which runs `validation.permutation_test(y_real,
+    y_shuffled, 100)` where `y_real` is 60 random labels with 30/30 split (seed=42)
+    and `y_shuffled` is a shuffled version.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe\
+        \ rmutations"
+      source_id: '1411.7565'
+      url: https://arxiv.org/abs/1411.7565
+      value: '100'
+    filled: true
+  kind: numeric
+  raw_text: The permutation test in the unit test uses 100 iterations.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T18:39:52Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Test split is 30 subjects per group
+  claim_id: c_db1d082a
+  context: Implement `test_permutation_p_value` which runs `validation.permutation_test(y_real,
+    y_shuffled, 100)` where `y_real` is 60 random labels with 30/30 split (seed=42)
+    and `y_shuffled` is a shuffled version.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The control group and schizophrenia group in the unit test each have 30
+    subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:40:39Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Cohen's d calculated for group differences
+  claim_id: c_9abf8cbc
+  context: Implement calculation of Cohen's d for significant group differences in
+    `code/classification/validation.py`. Save results to `data/processed/cohen_d_results.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_d_calculated_for_group_differences
+  kind: entity_fact
+  raw_text: Cohen's d is calculated for significant group differences.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:00Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: MDE calculated for N=60 and power=0.8
+  claim_id: c_2229d3db
+  context: 'Implement calculation of Minimum Detectable Effect (MDE) in `code/classification/validation.py`:
+    Calculate MDE for observed sample size (N=60) and power=0.8. Save results to `data/processed/mde_results.json`
+    with keys: `mde_value` (float), `sample_size` (int), `power` (float).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum Detectable Effect (MDE) is calculated for a sample size of 60
+    with 80% power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:43Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Simulated medication status uses Bernoulli p=0.5
+  claim_id: c_7ba94a89
+  context: If `medication_status_available` is false, generate simulated covariate
+    `sim_med_status` (Bernoulli p=0.5, seed=42, dtype=float) and append it to `data/processed/features.csv`
+    to create a NEW file `data/processed/features_sim_med.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulated medication status covariate is generated with a Bernoulli
+    probability of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:44:02Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Confidence interval uses 1000 permutation iterations
+  claim_id: c_8c1b899e
+  context: 'Implement calculation of a confidence interval for accuracy using permutation-based
+    resampling: ... `iterations` (int: 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence interval for accuracy is calculated using 1000 permutation-based
+    resampling iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:44:24Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: 'Significance flag logic: CI lower bound >= 0.65 and effect >= MDE'
+  claim_id: c_51e0790f
+  context: 'Compute `significance_flag`: If `ci_lower_bound >= 0.65` AND `observed_effect
+    >= MDE`: `true`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significance_flag_logic:_CI_lower_bound_%3E=_0.65_and_effect_%3E
+  kind: magnitude
+  raw_text: The significance flag is set to true if the confidence interval lower
+    bound is greater than or equal to 0.65 and the observed effect is greater than
+    or equal to the MDE.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:45:00Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time under 6 hours on 2-core CPU
+  claim_id: c_91d96760
+  context: 'Performance optimization: ensure pipeline completes <6h on 2-core CPU'
+  evidence:
+    candidates:
+    - - Log in Pipeline completion time under
+      - 6.0
+    - - Pipeline completion time under 6 hours on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_completion_time_under_6_hours_on_2-core_CPU
+  kind: magnitude
+  raw_text: The pipeline must complete in less than 6 hours on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T18:46:11Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Download logic for an OpenNeuro dataset implemented in code/preprocessing/download.py
+  claim_id: c_196646e9
+  context: 'T011 [US1] Implement `code/preprocessing/download.py`: Download logic
+    for an OpenNeuro dataset. The research question and method remain unchanged as
+    per the planning document guidelines, with specific empirical identifiers generalized
+    to reflect the dataset source without asserting precise low-level values. References:
+    OpenNeuro (); handle missing diagnostic labels by excluding subjects and logging
+    the count to `data/metadata/exclusion_log.txt`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_logic_for_an_OpenNeuro_dataset_implemented_in_code/
+  kind: entity_fact
+  raw_text: 'Implement `code/preprocessing/download.py`: Download logic for an OpenNeuro
+    dataset.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:51:07Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Motion correction, normalization, and bandpass filtering using nilearn's
+    FSL-compatible wrappers implemented in code/preprocessing/preprocess.py
+  claim_id: c_6ea54051
+  context: 'T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction,
+    normalization, and bandpass filtering (low-frequency range) using nilearn''s FSL-compatible
+    wrappers; verify output headers match FSL standard logs to ensure Constitution
+    Principle VI compliance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_correction,_normalization,_and_bandpass_filtering_usi
+  kind: entity_fact
+  raw_text: 'Implement `code/preprocessing/preprocess.py`: motion correction, normalization,
+    and bandpass filtering (low-frequency range) using nilearn''s FSL-compatible wrappers'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:51:27Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: AAL atlas parcellation to generate connectivity matrices implemented
+    in code/preprocessing/parcellate.py
+  claim_id: c_c9447631
+  context: 'T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation
+    to generate connectivity matrices.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AAL_atlas_parcellation_to_generate_connectivity_matrices_imp
+  kind: entity_fact
+  raw_text: 'Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation
+    to generate connectivity matrices.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:52:52Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Computation of Global Efficiency, Local Efficiency, Modularity (Louvain),
+    and Betweenness Centrality in code/graph_metrics/calculator.py
+  claim_id: c_b90ffbe8
+  context: T019 [P] [US2] Implement `code/graph_metrics/calculator.py` to compute
+    Global Efficiency, Local Efficiency, Modularity (Louvain), Betweenness Centrality.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computation_of_Global_Efficiency,_Local_Efficiency,_Modulari
+  kind: entity_fact
+  raw_text: Implement `code/graph_metrics/calculator.py` to compute Global Efficiency,
+    Local Efficiency, Modularity (Louvain), Betweenness Centrality.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:53:30Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Logistic Regression and SVM implementation with strict stratified train-test
+    split in code/classification/models.py
+  claim_id: c_cde17073
+  context: T026 [P] [US3] Implement `code/classification/models.py` with Logistic
+    Regression and SVM, using strict stratified train-test split.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logistic_Regression_and_SVM_implementation_with_strict_strat
+  kind: entity_fact
+  raw_text: Implement `code/classification/models.py` with Logistic Regression and
+    SVM, using strict stratified train-test split.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:54:06Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Stability Selection algorithm with sample size 30 of N=60, L1 penalty,
+    and >60% retention threshold
+  claim_id: c_af51a053
+  context: 'T027a [US3] Implement Stability Selection algorithm class in `code/classification/models.py`:
+    Manually implement a loop with **sample size per subsample = 30 ([deferred] of
+    N=60)**, **subsamples**, L1 penalty, and a retention frequency threshold of >60%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manually implement a loop with sample size per subsample = 30 (of N=60),
+    subsamples, L1 penalty, and a retention frequency threshold of >60%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:54:49Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: MDE calculation for sample size 60 and power 0.8
+  claim_id: c_cab934a6
+  context: 'T030b [US3] Implement calculation of Minimum Detectable Effect (MDE) in
+    `code/classification/validation.py`: Calculate MDE for observed sample size (N=60)
+    and power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate MDE for observed sample size (N=60) and power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:55:24Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Permutation-based confidence interval with 1000 iterations
+  claim_id: c_60e9022c
+  context: 'T032a [US3] Implement calculation of a confidence interval for accuracy
+    using **permutation-based resampling**: **Depends on T029**. Shuffle labels, retrain
+    model, record accuracy distribution. Save results to `data/processed/ci_results.json`.
+    **Schema**: keys `accuracy` (float, 4 decimals), `lower_bound` (float, 4 decimals),
+    `upper_bound` (float, 4 decimals), `method` (str: ''permutation''), `iterations`
+    (int: 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Save results to `data/processed/ci_results.json` with schema: keys `accuracy`
+    (float, 4 decimals), `lower_bound` (float, 4 decimals), `upper_bound` (float,
+    4 decimals), `method` (str: ''permutation''), `iterations` (int: 1000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:55:46Z'
+- artifact_path: projects/PROJ-072-investigating-the-predictive-power-of-br/specs/001-investigating-the-predictive-power-of-br/tasks.md
+  attempts: 1
+  canonical: Dataset loading using streaming=True
+  claim_id: c_13b9ed9e
+  context: 'T039a [US1] Implement streaming iterator wrapper in `code/preprocessing/streaming.py`:
+    Use `datasets.load_dataset(..., streaming=True)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loading_using_streaming=True
+  kind: entity_fact
+  raw_text: Use `datasets.load_dataset(..., streaming=True)`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:56:48Z'

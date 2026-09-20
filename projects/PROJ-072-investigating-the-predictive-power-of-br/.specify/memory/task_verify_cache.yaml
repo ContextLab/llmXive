@@ -29,6 +29,13 @@ T021:
     nor does it log dropped features to `data/metadata/collinearity_log.txt`. Both
     required output files are absent from the repository. The task therefore remains
     unfinished.
+T022b:
+  c: false
+  h: 4f9dc73ea9678c8c501550e2b1ab3ddfd5b26355663f3b21954899458f888e11
+  r: "The repository contains the verification script, but the required `data/processed/features.csv`\
+    \ (and consequently the log file) is missing, so the script cannot actually confirm\
+    \ the presence of the required columns. The task\u2019s core requirement\u2014\
+    to assert that the CSV exists and includes the specified columns\u2014is not met."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -44,14 +51,14 @@ T025:
     \ pipeline, checks that `data/processed/results.json` is created, loads it, verifies\
     \ the presence of the required keys, and asserts that `significance_flag` is `False`\
     \ for shuffled labels. No missing or placeholder code is evident."
-T027:
+T027a:
   c: false
-  h: 0dfa60d5b54ae6001bf4f8e20bf63f653b4527092491d477abebf355b4139d92
-  r: "The provided `models.py` only defines logistic regression and SVM pipelines;\
-    \ there is no implementation of the Meinshausen & B\xFChlmann stability selection\
-    \ loop, L1\u2011penalized fitting, or frequency\u2011threshold logic. Additionally,\
-    \ the required output file `data/processed/stable_features.csv` does not exist.\
-    \ Both the core algorithm and its saved results are missing."
+  h: f22b40e1c10cae3425e6d471cd622304c890f716dc0ed587ea31bb4ba8d656c8
+  r: "The `StabilitySelection` class in `code/classification/models.py` is only partially\
+    \ shown and ends abruptly (the loop body is incomplete, no feature\u2011selection\
+    \ logic, and no code to write `stable_features.csv`). Moreover, the required output\
+    \ file `data/processed/stable_features.csv` does not exist. Both the algorithm\
+    \ implementation and the required saved results are missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

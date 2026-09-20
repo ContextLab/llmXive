@@ -4,11 +4,14 @@ import requests
 from urllib.parse import urljoin
 import logging
 import time
-from pathlib import Path
 import json
-import pandas as pd
+from pathlib import Path
+import sys
 
-# Configure logging
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -17,58 +20,56 @@ logger = logging.getLogger(__name__)
 
 # Constants
 OPENNEURO_BASE_URL = "https://openneuro.org/datasets"
-DATASET_ID = "ds000030"
-DATASET_VERSION = "1.0.4"  # Specific version to ensure reproducibility
-RAW_DATA_DIR = Path("data/raw")
-METADATA_DIR = Path("data/metadata")
-PARTICIPANTS_FILE = "participants.tsv"
-EXCLUSION_LOG_FILE = "exclusion_log.txt"
-SUBJECT_STATUS_FILE = "subject_status.csv"
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
+RAW_DIR = DATA_DIR / "raw"
+METADATA_DIR = DATA_DIR / "metadata"
 
-def download_url_exists(url: str) -> bool:
+# Ensure directories exist
+RAW_DIR.mkdir(parents=True, exist_ok=True)
+METADATA_DIR.mkdir(parents=True, exist_ok=True)
+
+class DataFetchError(Exception):
+    """Exception raised when data fetch fails."""
+    pass
+
+def download_url_exists(dataset_id: str) -> bool:
     """
-    Check if a URL exists by sending a HEAD request.
+    Check if the dataset URL exists on OpenNeuro.
     
     Args:
-        url: The URL to check
+        dataset_id: The OpenNeuro dataset identifier (e.g., 'ds000030')
         
     Returns:
-        True if the URL exists (status 200), False otherwise
+        True if the dataset exists, False otherwise
     """
+    url = f"{OPENNEURO_BASE_URL}/{dataset_id}"
     try:
-        response = requests.head(url, timeout=30)
+        response = requests.head(url, timeout=10)
         return response.status_code == 200
     except requests.RequestException as e:
-        logger.error(f"Error checking URL {url}: {e}")
+        logger.warning(f"Could not check URL existence for {dataset_id}: {e}")
         return False
 
-def get_dataset_download_url() -> str:
+def get_dataset_download_url(dataset_id: str) -> str:
     """
-    Construct the download URL for the OpenNeuro dataset.
-    
-    Returns:
-        The download URL for the dataset
-    """
-    # OpenNeuro provides download links via their API or direct tarballs
-    # For ds000030, we construct the tarball URL
-    base_url = f"{OPENNEURO_BASE_URL}/{DATASET_ID}/download"
-    # The actual download is typically a tarball of the dataset
-    # Using the versioned snapshot URL
-    snapshot_url = f"{OPENNEURO_BASE_URL}/{DATASET_ID}/snapshots/{DATASET_VERSION}"
-    
-    # For programmatic access, we use the datalad or direct tarball approach
-    # Since OpenNeuro doesn't provide a direct single-file download URL for the whole dataset,
-    # we will use the participants.tsv and subject directories approach
-    # The base URL for accessing files is:
-    return f"https://openneuro.org/datasets/{DATASET_ID}/versions/{DATASET_VERSION}"
-
-def verify_checksum(file_path: str, expected_sha256: str) -> bool:
-    """
-    Verify the SHA-256 checksum of a file.
+    Get the download URL for an OpenNeuro dataset.
     
     Args:
-        file_path: Path to the file to verify
-        expected_sha256: Expected SHA-256 hash
+        dataset_id: The OpenNeuro dataset identifier
+        
+    Returns:
+        The download URL string
+    """
+    # OpenNeuro download URL pattern
+    return f"https://s3.amazonaws.com/openneuro.org/{dataset_id}.tar.gz"
+
+def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+    """
+    Verify the SHA256 checksum of a downloaded file.
+    
+    Args:
+        file_path: Path to the downloaded file
+        expected_checksum: Expected SHA256 checksum string
         
     Returns:
         True if checksum matches, False otherwise
@@ -78,261 +79,202 @@ def verify_checksum(file_path: str, expected_sha256: str) -> bool:
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
-        actual_sha256 = sha256_hash.hexdigest()
-        return actual_sha256 == expected_sha256
-    except FileNotFoundError:
-        logger.error(f"File not found: {file_path}")
-        return False
+        actual_checksum = sha256_hash.hexdigest()
+        return actual_checksum == expected_checksum
     except Exception as e:
-        logger.error(f"Error verifying checksum: {e}")
+        logger.error(f"Error verifying checksum for {file_path}: {e}")
         return False
 
-def download_dataset():
+def download_dataset(dataset_id: str, output_dir: Path = None):
     """
-    Download the OpenNeuro dataset ds000030.
+    Download an OpenNeuro dataset.
     
-    This function downloads the dataset using the OpenNeuro API.
-    Since OpenNeuro doesn't provide a simple direct download link for the entire dataset,
-    we use a combination of their API and direct file access.
-    
-    For this implementation, we will download the participants.tsv file first
-    to get subject information, then download individual subject directories.
+    Args:
+        dataset_id: The OpenNeuro dataset identifier
+        output_dir: Directory to save the downloaded file (default: data/raw)
+        
+    Raises:
+        DataFetchError: If download fails
     """
-    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    METADATA_DIR.mkdir(parents=True, exist_ok=True)
+    if output_dir is None:
+        output_dir = RAW_DIR
     
-    logger.info(f"Starting download of dataset {DATASET_ID}")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # First, try to get the participants.tsv file
-    participants_url = f"https://openneuro.org/datasets/{DATASET_ID}/files/participants.tsv"
-    participants_path = RAW_DATA_DIR / PARTICIPANTS_FILE
+    download_url = get_dataset_download_url(dataset_id)
+    output_file = output_dir / f"{dataset_id}.tar.gz"
     
-    if not participants_path.exists():
-        logger.info(f"Downloading participants file from {participants_url}")
-        try:
-            response = requests.get(participants_url, timeout=120)
-            response.raise_for_status()
-            with open(participants_path, 'w', encoding='utf-8') as f:
-                f.write(response.text)
-            logger.info(f"Successfully downloaded participants file to {participants_path}")
-        except requests.RequestException as e:
-            logger.error(f"Failed to download participants file: {e}")
-            # If we can't get participants, we can't proceed
-            raise RuntimeError(f"Cannot proceed without participants file: {e}")
-    else:
-        logger.info(f"Participants file already exists at {participants_path}")
+    logger.info(f"Downloading dataset {dataset_id} from {download_url}")
     
-    # Now we need to download subject data
-    # OpenNeuro dataset structure: sub-<label>/func/, sub-<label>/anat/, etc.
-    # We'll download subject directories that have functional imaging data
-    
-    # Load participants to get subject IDs
     try:
-        df_participants = pd.read_csv(participants_path, sep='\t')
-        subject_ids = df_participants['participant_id'].tolist()
-        logger.info(f"Found {len(subject_ids)} subjects in participants file")
+        response = requests.get(download_url, stream=True, timeout=300)
+        response.raise_for_status()
+        
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        with open(output_file, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        logger.info(f"Download progress: {progress:.1f}%")
+        
+        logger.info(f"Download completed: {output_file}")
+        return output_file
+      
+    except requests.RequestException as e:
+        raise DataFetchError(f"Failed to download dataset {dataset_id}: {e}")
     except Exception as e:
-        logger.error(f"Error reading participants file: {e}")
-        raise RuntimeError(f"Cannot parse participants file: {e}")
-    
-    # Download each subject's functional data
-    # Note: This is a simplified approach. In production, you might want to use
-    # datalad or the OpenNeuro API more comprehensively
-    for i, subject_id in enumerate(subject_ids):
-        logger.info(f"Downloading subject {i+1}/{len(subject_ids)}: {subject_id}")
-        
-        # Construct URL for subject's functional data
-        # OpenNeuro file structure: sub-<label>/func/sub-<label>_task-<task>_bold.nii.gz
-        # We'll download the first available BOLD file for each subject
-        
-        subject_dir = RAW_DATA_DIR / subject_id
-        subject_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Try to find and download a BOLD file
-        # This is a simplified approach - in reality, you'd need to query the dataset structure
-        bold_filename = f"{subject_id}_task-rest_bold.nii.gz"
-        bold_url = f"https://openneuro.org/datasets/{DATASET_ID}/files/{subject_id}/func/{bold_filename}"
-        bold_path = subject_dir / "func" / bold_filename
-        bold_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        if not bold_path.exists():
-            try:
-                logger.info(f"Downloading {bold_url}")
-                response = requests.get(bold_url, timeout=300)
-                if response.status_code == 404:
-                    # Try alternative naming convention
-                    bold_filename_alt = f"{subject_id}_task-rest_bold.nii"
-                    bold_url_alt = f"https://openneuro.org/datasets/{DATASET_ID}/files/{subject_id}/func/{bold_filename_alt}"
-                    logger.info(f"Trying alternative URL: {bold_url_alt}")
-                    response = requests.get(bold_url_alt, timeout=300)
-                    if response.status_code == 404:
-                        logger.warning(f"No BOLD file found for {subject_id}, skipping")
-                        continue
-                    bold_filename = bold_filename_alt
-                    bold_path = subject_dir / "func" / bold_filename
-                
-                response.raise_for_status()
-                with open(bold_path, 'wb') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                logger.info(f"Successfully downloaded {bold_filename}")
-            except requests.RequestException as e:
-                logger.warning(f"Failed to download {subject_id}: {e}")
-                # Continue with next subject rather than failing completely
-                continue
-        else:
-            logger.info(f"Subject {subject_id} data already exists")
-    
-    logger.info("Dataset download completed")
-    return True
+        raise DataFetchError(f"Error during download of {dataset_id}: {e}")
 
-def process_metadata_and_exclude_subjects():
+def process_metadata_and_exclude_subjects(dataset_dir: Path):
     """
-    Process metadata to identify and exclude subjects with missing diagnostic labels.
+    Process dataset metadata and exclude subjects based on diagnostic labels.
     
-    This function:
-    1. Reads the participants.tsv file
-    2. Identifies subjects missing diagnostic labels (e.g., 'group', 'diagnosis', 'status')
-    3. Excludes these subjects from further processing
-    4. Logs the exclusion count and reasons to data/metadata/exclusion_log.txt
-    5. Creates subject_status.csv with inclusion/exclusion flags
+    Args:
+        dataset_dir: Path to the extracted dataset directory
+        
+    Returns:
+        List of excluded subject IDs
     """
-    participants_path = RAW_DATA_DIR / PARTICIPANTS_FILE
-    exclusion_log_path = METADATA_DIR / EXCLUSION_LOG_FILE
-    subject_status_path = METADATA_DIR / SUBJECT_STATUS_FILE
+    excluded_subjects = []
+    exclusion_log_path = METADATA_DIR / "exclusion_log.txt"
     
-    if not participants_path.exists():
-        logger.error(f"Participants file not found: {participants_path}")
-        raise FileNotFoundError(f"Participants file not found: {participants_path}")
-    
-    # Read participants file
-    try:
-        df_participants = pd.read_csv(participants_path, sep='\t')
-    except Exception as e:
-        logger.error(f"Error reading participants file: {e}")
-        raise RuntimeError(f"Cannot parse participants file: {e}")
-    
-    # Identify diagnostic label columns
-    # Common column names for diagnostic information
-    diagnostic_columns = ['group', 'diagnosis', 'status', 'diagnostic_group', 'patient_status', 'dx']
-    diagnostic_column = None
-    
-    for col in diagnostic_columns:
-        if col in df_participants.columns:
-            diagnostic_column = col
-            break
-    
-    if not diagnostic_column:
-        # If no standard column found, check for any column with 'group' or 'diag' in name
-        for col in df_participants.columns:
-            if 'group' in col.lower() or 'diag' in col.lower():
-                diagnostic_column = col
+    # Look for participants.tsv or similar metadata file
+    participants_file = dataset_dir / "participants.tsv"
+    if not participants_file.exists():
+        # Try other common names
+        for name in ["participants.csv", "participants.json", "metadata.json"]:
+            alt_file = dataset_dir / name
+            if alt_file.exists():
+                participants_file = alt_file
                 break
     
-    excluded_subjects = []
-    included_subjects = []
-    
-    if not diagnostic_column:
-        logger.warning("No diagnostic label column found in participants file")
-        logger.warning("All subjects will be excluded due to missing diagnostic information")
-        excluded_subjects = df_participants['participant_id'].tolist()
-        included_subjects = []
-    else:
-        # Check for missing values in diagnostic column
-        for _, row in df_participants.iterrows():
-            subject_id = row['participant_id']
-            diagnostic_value = row[diagnostic_column]
-            
-            # Check if diagnostic value is missing (NaN, None, empty string, 'unknown', 'n/a')
-            if pd.isna(diagnostic_value) or \
-               str(diagnostic_value).strip().lower() in ['', 'nan', 'none', 'unknown', 'n/a', 'na']:
-                excluded_subjects.append({
-                    'subject_id': subject_id,
-                    'reason': f'Missing diagnostic label in column "{diagnostic_column}"',
-                    'value': str(diagnostic_value)
-                })
-            else:
-                included_subjects.append({
-                    'subject_id': subject_id,
-                    'diagnostic_label': diagnostic_value,
-                    'reason': 'Has valid diagnostic label'
-                })
-    
-    # Log exclusions
-    METADATA_DIR.mkdir(parents=True, exist_ok=True)
-    
-    with open(exclusion_log_path, 'w', encoding='utf-8') as f:
-        f.write(f"Exclusion Log for Dataset {DATASET_ID}\n")
-        f.write(f"Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"Diagnostic column used: {diagnostic_column if diagnostic_column else 'None (no diagnostic column found)'}\n")
-        f.write(f"Total subjects processed: {len(df_participants)}\n")
-        f.write(f"Subjects excluded: {len(excluded_subjects)}\n")
-        f.write(f"Subjects included: {len(included_subjects)}\n")
-        f.write("\n")
-        f.write("Excluded Subjects:\n")
-        f.write("-" * 50 + "\n")
-        
-        for exc in excluded_subjects:
-            f.write(f"Subject: {exc['subject_id']}\n")
-            f.write(f"  Reason: {exc['reason']}\n")
-            f.write(f"  Value: {exc['value']}\n")
-            f.write("\n")
-    
-    logger.info(f"Exclusion log written to {exclusion_log_path}")
-    logger.info(f"Excluded {len(excluded_subjects)} subjects due to missing diagnostic labels")
-    
-    # Create subject_status.csv
-    status_data = []
-    
-    # Add included subjects
-    for inc in included_subjects:
-        status_data.append({
-            'subject_id': inc['subject_id'],
-            'status': 'included',
-            'diagnostic_label': inc['diagnostic_label'],
-            'reason': inc['reason']
-        })
-    
-    # Add excluded subjects
-    for exc in excluded_subjects:
-        status_data.append({
-            'subject_id': exc['subject_id'],
-            'status': 'excluded',
-            'diagnostic_label': '',
-            'reason': exc['reason']
-        })
-    
-    df_status = pd.DataFrame(status_data)
-    df_status.to_csv(subject_status_path, index=False)
-    
-    logger.info(f"Subject status written to {subject_status_path}")
-    logger.info(f"Total included subjects: {len(included_subjects)}")
-    logger.info(f"Total excluded subjects: {len(excluded_subjects)}")
-    
-    return len(excluded_subjects), len(included_subjects)
-
-def main():
-    """
-    Main function to run the download and metadata processing pipeline.
-    """
-    logger.info("Starting download pipeline for OpenNeuro dataset ds000030")
+    if not participants_file.exists():
+        logger.warning(f"Participants file not found in {dataset_dir}")
+        return excluded_subjects
     
     try:
-        # Download the dataset
-        download_dataset()
+        import pandas as pd
+        df = pd.read_csv(participants_file, sep='\t')
         
-        # Process metadata and exclude subjects with missing labels
-        excluded_count, included_count = process_metadata_and_exclude_subjects()
+        # Look for diagnosis column
+        diagnosis_col = None
+        for col in df.columns:
+            if 'diagnosis' in col.lower() or 'group' in col.lower() or 'label' in col.lower():
+                diagnosis_col = col
+                break
         
-        logger.info(f"Pipeline completed successfully")
-        logger.info(f"Excluded subjects: {excluded_count}")
-        logger.info(f"Included subjects: {included_count}")
+        if diagnosis_col is None:
+            logger.warning("No diagnosis column found in participants file")
+            return excluded_subjects
         
-        return True
+        # Process each subject
+        with open(exclusion_log_path, 'w') as log_file:
+            log_file.write(f"Exclusion Log - {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            log_file.write("=" * 50 + "\n\n")
         
+            for idx, row in df.iterrows():
+                subject_id = row.get('participant_id', f'sub-{idx}')
+                if pd.isna(row.get(diagnosis_col)):
+                    excluded_subjects.append(subject_id)
+                    log_file.write(f"[{subject_id}] Excluded: Missing diagnostic label\n")
+                    logger.info(f"Excluded {subject_id}: Missing diagnostic label")
+        
+        logger.info(f"Processed metadata: {len(excluded_subjects)} subjects excluded")
+        return excluded_subjects
+      
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        logger.error(f"Error processing metadata: {e}")
+        return excluded_subjects
+
+def check_motion_parameters_exist(dataset_dir: Path) -> bool:
+    """
+    Check if motion parameters exist in the dataset metadata.
+    
+    Args:
+        dataset_dir: Path to the dataset directory
+        
+    Returns:
+        True if motion parameters are found, False otherwise
+    """
+    # Look for common motion parameter files
+    motion_file_patterns = [
+        "*confounds*.tsv",
+        "*motion*.txt",
+        "*motion*.csv",
+        "*regressors*.txt",
+        "task-*_desc-confounds_timeseries.tsv"
+    ]
+    
+    # Search in dataset directory and subdirectories
+    for root, dirs, files in os.walk(dataset_dir):
+        for pattern in motion_file_patterns:
+            import glob
+            matches = glob.glob(os.path.join(root, pattern))
+            if matches:
+                logger.info(f"Found motion parameters: {matches[0]}")
+                return True
+    
+    logger.info("No motion parameters found in dataset")
+    return False
+
+def save_motion_params_check_result(motion_available: bool):
+    """
+    Save the result of motion parameters check to a JSON file.
+    
+    Args:
+        motion_available: Boolean indicating if motion parameters were found
+    """
+    output_file = METADATA_DIR / "motion_params_available.json"
+    
+    result = {
+        "motion_params_available": motion_available
+    }
+    
+    with open(output_file, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Saved motion parameters check result to {output_file}")
+
+def run_motion_params_check_pipeline():
+    """
+    Run the motion parameters check pipeline.
+    
+    This function:
+    1. Checks for the presence of motion parameters in the dataset
+    2. Saves the result to data/metadata/motion_params_available.json
+    """
+    logger.info("Starting motion parameters check pipeline")
+    
+    # Look for the dataset directory
+    dataset_dirs = [d for d in RAW_DIR.iterdir() if d.is_dir() and d.name.startswith("ds")]
+    
+    if not dataset_dirs:
+        logger.warning("No dataset directory found. Assuming motion parameters not available.")
+        save_motion_params_check_result(False)
+        return False
+    
+    # Check the first dataset found
+    dataset_dir = dataset_dirs[0]
+    motion_available = check_motion_parameters_exist(dataset_dir)
+    save_motion_params_check_result(motion_available)
+    
+    return motion_available
+
+def main():
+    """Main entry point for the script."""
+    try:
+        # Example usage: check motion parameters
+        motion_available = run_motion_params_check_pipeline()
+        logger.info(f"Motion parameters check complete: {motion_available}")
+        return 0
+    except Exception as e:
+        logger.error(f"Motion parameters check failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
