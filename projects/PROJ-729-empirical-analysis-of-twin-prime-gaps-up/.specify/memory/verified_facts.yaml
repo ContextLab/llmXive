@@ -1,6 +1,5 @@
-'|between context gap goldston heuristic ld pintz prime refined small':
-  quote: "in\uFB01nitely many prime pairs that di\uFB00er by at most 16. The aim of\
-    \ this article is to explain"
-  source_id: math/0605696
-  url: https://arxiv.org/abs/math/0605696
-  value: '16'
+'|c2 calculated expected formula prime twin up using':
+  quote: '{\displaystyle \pi _{2}(n)\sim C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}},}'
+  source_id: "First Hardy\u2013Littlewood conjecture"
+  url: "https://en.wikipedia.org/wiki/First_Hardy\u2013Littlewood_conjecture"
+  value: C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}}

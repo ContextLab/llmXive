@@ -1864,26 +1864,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T06:27:51Z'
 - artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
-  attempts: 2
-  canonical: "Cram\xE9r model posits prime gaps follow exponential distribution"
-  claim_id: c_468f223f
-  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
-    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
-    \ posits that prime gaps follow an exponential distribution.'"
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r_model_posits_prime_gaps_follow_exponential_distributi
-  kind: entity_fact
-  raw_text: "Cram\xE9r's probabilistic model of primes posits that prime gaps follow\
-    \ an exponential distribution."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T06:27:53Z'
-- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   attempts: 1
   canonical: OEIS A002386 citation used
   claim_id: c_583b5e7e
@@ -3444,3 +3424,694 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-12T19:28:04Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Hardy-Littlewood twin prime constant C_2 is approximately 0.660161815846869573927812110014
+  claim_id: c_86f4232e
+  context: "Implement calculate_hardy_littlewood_expected_count(x) in code/generate_primes.py\
+    \ using the formula C_2 x / (ln x)^2 where C_2 \u2248 0.660161815846869573927812110014."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "C_2 \u2248 0.660161815846869573927812110014"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:33:41Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: OEIS sequence A002386 exists and relates to twin primes
+  claim_id: c_f5a66288
+  context: "Validate citations for Cram\xE9r (year), Hardy-Littlewood, OEIS A002386,\
+    \ and Goldston, Pintz, and Y\u0131ld\u0131r\u0131m against primary sources."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Prime gap
+        url: https://en.wikipedia.org/wiki/Prime_gap
+        value: A002386
+      quote: 67 80873624627234849
+      source_id: A002386
+      url: https://oeis.org/A002386
+      value: '80873624627234849'
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS A002386
+  resolved_value: '80873624627234849'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:33:51Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: OEIS sequence A002386 twin prime records
+  claim_id: c_ad8ee4cd
+  context: "Validate citations for Cram\xE9r (year), Hardy-Littlewood, {{claim:c_f5a66288}}\
+    \ (OEIS A002386, https://oeis.org/A002386), and Goldston, Pintz, and Y\u0131ld\u0131\
+    r\u0131m against primary sources."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'in OEIS: A002386, and the values of'
+      source_id: Prime gap
+      url: https://en.wikipedia.org/wiki/Prime_gap
+      value: A002386
+    filled: true
+  kind: entity_fact
+  raw_text: The OEIS sequence for twin prime records is A002386.
+  resolved_value: A002386
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:34:18Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Hardy-Littlewood constant C_2 value 0.660161815846869573927812110014
+  claim_id: c_0617f6ed
+  context: Implement calculate_hardy_littlewood_expected_count(x) in code/generate_primes.py
+    using the formula C_2 x / (ln x)^2 where C_2 approx 0.660161815846869573927812110014.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hardy-Littlewood constant C_2 is approximately 0.660161815846869573927812110014.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:35:50Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Goldston Pintz and Yildirim publication year 2005
+  claim_id: c_09f6574d
+  context: "Update code/report.py to include a dedicated Historical Context section\
+    \ citing Cram\xE9r (year) and Goldston, Pintz, and Y\u0131ld\u0131r\u0131m (2005)."
+  evidence:
+    asserted: '2005.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Goldston, Pintz, and Y\u0131ld\u0131r\u0131m published their work on\
+    \ small gaps between primes in 2005."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:35:51Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Goldston Pintz and Yildirim publication year
+  claim_id: c_348a6684
+  context: "Update `code/report.py` to include a dedicated \"Historical Context\"\
+    \ section citing Cram\xE9r (year) and Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005)."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Twin prime
+        url: https://en.wikipedia.org/wiki/Twin_prime
+        value: '0.085786'
+      quote: 74 804212830686677669
+      source_id: A002386
+      url: https://oeis.org/A002386
+      value: '804212830686677669'
+    filled: true
+  kind: numeric
+  raw_text: "Goldston, Pintz, and Y\u0131ld\u0131r\u0131m (2005)"
+  resolved_value: '804212830686677669'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:37:15Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: OEIS sequence A002386
+  claim_id: c_e86a42d1
+  context: "Validate citations for **Cram\xE9r (year)**, **Hardy-Littlewood**, **{{claim:c_f5a66288}}\
+    \ (OEIS A002386, https://oeis.org/A002386)**, and **Goldston, Pintz, and Y\u0131\
+    ld\u0131r\u0131m** against primary sources."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Prime gap
+        url: https://en.wikipedia.org/wiki/Prime_gap
+        value: A002386
+      quote: 67 80873624627234849
+      source_id: A002386
+      url: https://oeis.org/A002386
+      value: '80873624627234849'
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS A002386
+  resolved_value: '80873624627234849'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:37:16Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Hardy-Littlewood constant C2 value
+  claim_id: c_ae2cf2be
+  context: Implement calculate_hardy_littlewood_expected_count(x) in code/generate_primes.py
+    using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014
+    $.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "C_2 \approx 0.660161815846869573927812110014"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:38:39Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Parametric Bootstrap KS test iteration count
+  claim_id: c_14308145
+  context: Compare empirical distribution against `expon(scale=1)` using **Parametric
+    Bootstrap** (10000 iterations, **seed=42**) to correct for self-normalization
+    bias.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:39:22Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
+    primes
+  claim_id: c_9e08b631
+  context: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m in the context of small gaps between primes., and is consistent with the Hardy-Littlewood\
+    \ k-tuple conjecture which provides the asymptotic density for twin primes."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes.
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:39:54Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: OEIS A002386 cited for prime gaps
+  claim_id: c_5e732c79
+  context: "Validate citations for Cram\xE9r (year), Hardy-Littlewood, {{claim:c_f5a66288}}\
+    \ ({{claim:c_e86a42d1}}, https://oeis.org/A002386), and Goldston, Pintz, and Y\u0131\
+    ld\u0131r\u0131m against primary sources."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'in OEIS: A002386, and the values of'
+      source_id: Prime gap
+      url: https://en.wikipedia.org/wiki/Prime_gap
+      value: A002386
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS sequence A002386 is cited in the context of prime gaps.
+  resolved_value: A002386
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:39:55Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Hardy-Littlewood constant C2 approximately 0.660161815846869573927812110014
+  claim_id: c_2dd0f8ab
+  context: 'Step 1: Implement calculate_hardy_littlewood_expected_count(x) in code/generate_primes.py
+    using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014
+    $.'
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: "(p \u2212 1)2 = 0, 66016...,"
+      source_id: '0902.1046'
+      url: https://arxiv.org/abs/0902.1046
+      value: 0, 66016...
+    filled: true
+  kind: numeric
+  raw_text: Use the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_2 \approx 0.660161815846869573927812110014
+    $ for the Hardy-Littlewood calculation.
+  resolved_value: 0, 66016...
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:41:13Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 3
+  canonical: "Cram\xE9r model posits prime gaps follow exponential distribution"
+  claim_id: c_468f223f
+  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
+    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
+    \ posits that prime gaps follow an exponential distribution.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r_model_posits_prime_gaps_follow_exponential_distributi
+  kind: entity_fact
+  raw_text: "Cram\xE9r's probabilistic model of primes posits that prime gaps follow\
+    \ an exponential distribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:42:17Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Generate twin primes up to 10^9
+  claim_id: c_a9b9feb7
+  context: "Goal: Generate the complete list of twin primes up to 10\u2079, compute\
+    \ normalized gaps, and output a validated CSV dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project aims to generate twin primes up to 10\u2079."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:42:40Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Hardy-Littlewood formula estimates twin prime count up to 10^9
+  claim_id: c_53b5e4b8
+  context: Call calculate_hardy_littlewood_expected_count(10**9). Log the calculated
+    expected count to the console. Save the expected count to data/results/expected_count.json
+    with key expected_count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The expected count of twin primes up to 10\u2079 is estimated using the\
+    \ Hardy-Littlewood formula."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:42:59Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
+    primes
+  claim_id: c_d0f71c91
+  context: "Insert the following specific paragraph: 'Cram\xE9r's probabilistic model\
+    \ of primes posits that prime gaps follow an exponential distribution. This heuristic\
+    \ was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131m in the context of\
+    \ small gaps between primes., and is consistent with the Hardy-Littlewood k-tuple\
+    \ conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:44:05Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Hardy-Littlewood constant C_2 is approximately 0.660161815846869573927812110014
+  claim_id: c_d58f5405
+  context: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py`
+    using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014
+    $.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: C_2 \approx 0.660161815846869573927812110014
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:45:44Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "Cram\xE9r's probabilistic model of primes posits that prime gaps follow\
+    \ an exponential distribution"
+  claim_id: c_36ed6442
+  context: "Insert the following specific paragraph: 'Cram\xE9r's probabilistic model\
+    \ of primes posits that prime gaps follow an exponential distribution. This heuristic\
+    \ was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131m in the context of\
+    \ small gaps between primes., and is consistent with the Hardy-Littlewood k-tuple\
+    \ conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r's_probabilistic_model_of_primes_posits_that_prime_gap
+  kind: entity_fact
+  raw_text: "Cram\xE9r's probabilistic model of primes posits that prime gaps follow\
+    \ an exponential distribution"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:45:46Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "Goldston, Pintz, and Y\u0131ld\u0131r\u0131m refined Cram\xE9r's heuristic\
+    \ regarding small gaps between primes"
+  claim_id: c_cedc5dc2
+  context: "Insert the following specific paragraph: 'Cram\xE9r's probabilistic model\
+    \ of primes posits that prime gaps follow an exponential distribution. This heuristic\
+    \ was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131m in the context of\
+    \ small gaps between primes., and is consistent with the Hardy-Littlewood k-tuple\
+    \ conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Goldston,_Pintz,_and_Y%C4%B1ld%C4%B1r%C4%B1m_refined_Cram%C3%A9r's_heuristic_reg
+  kind: entity_fact
+  raw_text: "Goldston, Pintz, and Y\u0131ld\u0131r\u0131m refined Cram\xE9r's heuristic\
+    \ in the context of small gaps between primes"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:46:42Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: hardy-littlewood k-tuple conjecture twin prime density
+  claim_id: c_a38010ef
+  context: "Insert the following specific paragraph: 'Cram\xE9r's probabilistic model\
+    \ of primes posits that prime gaps follow an exponential distribution. This heuristic\
+    \ was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131m in the context of\
+    \ small gaps between primes., and is consistent with the Hardy-Littlewood k-tuple\
+    \ conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes.
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:48:05Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: generate twin primes up to 10^9 using primesieve
+  claim_id: c_519a9840
+  context: 'Implementation: Use `primesieve` to find twin primes up to 1,000,000,000.
+    Verification: Calculate the actual count of generated twin primes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Twin primes up to 1,000,000,000 are generated using the primesieve library.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:48:28Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: hardy-littlewood constant c2 value
+  claim_id: c_8aa60d1d
+  context: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py`
+    using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014
+    $.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Hardy-Littlewood constant C2 is approximately 0.660161815846869573927812110014.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:49:56Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: hardy-littlewood twin prime count formula
+  claim_id: c_92f920e7
+  context: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py`
+    using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014
+    $.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '{\displaystyle \pi _{2}(n)\sim C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}},}'
+      source_id: "First Hardy\u2013Littlewood conjecture"
+      url: "https://en.wikipedia.org/wiki/First_Hardy\u2013Littlewood_conjecture"
+      value: C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}}
+    filled: true
+  kind: numeric
+  raw_text: The expected count of twin primes up to x is calculated using the formula
+    C2 * x / (ln x)^2.
+  resolved_value: C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}}
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:50:12Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: twin prime count verification tolerance 5%
+  claim_id: c_17bfe025
+  context: "Verify the actual count is within \xB15% of `expected_count`. Ensure no\
+    \ NaN values in `normalized_gap`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The actual count of generated twin primes is verified to be within \xB1\
+    5% of the theoretical expected count."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:50:13Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: normalized gap formula delta log p
+  claim_id: c_4f22b7c7
+  context: 'Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify
+    formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula`
+    asserting `delta / log(p)` equals expected float derived from p=3 (calculate as
+    `(5-3)/log(3)`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normalized_gap_formula_delta_log_p
+  kind: entity_fact
+  raw_text: The normalized gap is calculated using the formula delta / log(p).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:51:22Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: parametric bootstrap ks test 10000 iterations seed 42
+  claim_id: c_8ea22d19
+  context: Compare empirical distribution against `expon(scale=1)` using **Parametric
+    Bootstrap** (10000 iterations, **seed=42**) to correct for self-normalization
+    bias.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Parametric Bootstrap Kolmogorov\u2013Smirnov test uses 10000 iterations\
+    \ with seed=42."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:51:51Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: normalized gaps follow exponential distribution lambda 1
+  claim_id: c_43b8a9cd
+  context: "Perform Parametric Bootstrap KS tests and generate QQ-plots comparing\
+    \ empirical normalized gaps against the theoretical exponential distribution (\u03BB\
+    =1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical distribution for normalized gaps is exponential with lambda=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:53:24Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: ks test rejection threshold alpha 0.05
+  claim_id: c_2cf1ec13
+  context: "Measure the KS p-value against the \u03B1=0.05 threshold. Record the **rejection_status**\
+    \ (boolean: `true` if p < 0.05) in `data/results/stats.json`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rejection status for the KS test is determined by comparing the p-value
+    against the alpha=0.05 threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:53:53Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: localized analysis window size 10000 around powers of two
+  claim_id: c_af258bce
+  context: 'Filter twin primes for windows around powers of two: $ [2^k - 10000, 2^k
+    + 10000] $. Define range of exponents `k` (e.g., $ k \in [small, 30] $) to ensure
+    sufficient data in each window.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The localized deviation analysis filters twin primes in windows around
+    powers of two defined as [2^k - 10000, 2^k + 10000].
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T08:53:53Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: one-sample t-test hypothesized mean 1.0
+  claim_id: c_cf88edce
+  context: Spec FR-005 mandates one-sample t-tests against mean 1.0. This task **supersedes**
+    the Plan's 'Complexity Tracking' rationale (which argues against one-sample tests)
+    per the Constitution Principle of 'Spec Supersedes Plan' when explicit requirements
+    conflict.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: One-sample t-tests are performed against a hypothesized mean of 1.0 for
+    the normalized gaps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:14Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: cramer model prime gaps exponential distribution
+  claim_id: c_0874e821
+  context: "Insert the following specific paragraph: 'Cram\xE9r's probabilistic model\
+    \ of primes posits that prime gaps follow an exponential distribution. This heuristic\
+    \ was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131m in the context of\
+    \ small gaps between primes., and is consistent with the Hardy-Littlewood k-tuple\
+    \ conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cramer_model_prime_gaps_exponential_distribution
+  kind: entity_fact
+  raw_text: "Cram\xE9r's probabilistic model of primes posits that prime gaps follow\
+    \ an exponential distribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:16Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: execution time limit 45 minutes
+  claim_id: c_40091898
+  context: 'Ensure RAM usage < 2 GiB and execution time < 45 mins. Output columns:
+    `p`, `p_next`, `delta`, `normalized_gap`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_time_limit_45_minutes
+  kind: magnitude
+  raw_text: The project requires execution time to be less than 45 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:54:47Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: ram usage limit 2 gib
+  claim_id: c_e7317b67
+  context: 'Ensure RAM usage < 2 GiB and execution time < 45 mins. Output columns:
+    `p`, `p_next`, `delta`, `normalized_gap`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ram_usage_limit_2_gib
+  kind: magnitude
+  raw_text: The project requires RAM usage to be less than 2 GiB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T08:55:14Z'

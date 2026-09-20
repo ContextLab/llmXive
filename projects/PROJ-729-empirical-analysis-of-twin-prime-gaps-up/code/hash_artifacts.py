@@ -1,9 +1,3 @@
-"""
-Artifact Hashing and State Management.
-
-Computes SHA-256 hashes for project artifacts and updates the state YAML file.
-Implements Constitution Principle V: Traceability and Integrity.
-"""
 import os
 import sys
 import hashlib
@@ -11,10 +5,14 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-from config import get_config, get_state_path, get_schema_path
-from utils import setup_logging, exit_with_error
+try:
+    from config import get_config, get_state_path
+except ImportError:
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from config import get_config, get_state_path
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -22,97 +20,94 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def get_artifacts_to_hash(config: Dict[str, Any]) -> List[Path]:
-    """Get list of artifacts to hash based on configuration."""
+def get_artifacts_to_hash(config: Optional[Dict[str, Any]] = None) -> List[str]:
+    """
+    Return a list of file paths that should be hashed.
+    Based on the project structure, this includes generated data and results.
+    """
+    if config is None:
+        config = get_config()
+    
     artifacts = []
     
-    # Data artifacts
-    data_raw = Path(config['data_raw'])
-    if data_raw.exists():
-        for file in data_raw.glob("*.csv"):
-            artifacts.append(file)
+    # Raw data
+    raw_csv = config.get("output_csv", "data/raw/twin_primes.csv")
+    if os.path.exists(raw_csv):
+        artifacts.append(raw_csv)
     
-    # Results artifacts
-    data_results = Path(config['data_results'])
-    if data_results.exists():
-        for file in data_results.glob("*.json"):
-            artifacts.append(file)
+    # Results
+    results_dir = config.get("results_dir", "data/results")
+    if os.path.exists(results_dir):
+        for root, _, files in os.walk(results_dir):
+            for file in files:
+                if file.endswith(".json") or file.endswith(".csv"):
+                    artifacts.append(os.path.join(root, file))
     
     # Figures
-    data_figures = Path(config['data_figures'])
-    if data_figures.exists():
-        for file in data_figures.glob("*.png"):
-            artifacts.append(file)
-    
-    # Schema
-    schema_path = get_schema_path(config)
-    if schema_path and schema_path.exists():
-        artifacts.append(schema_path)
+    figures_dir = config.get("figures_dir", "data/figures")
+    if os.path.exists(figures_dir):
+        for root, _, files in os.walk(figures_dir):
+            for file in files:
+                if file.endswith(".png") or file.endswith(".pdf"):
+                    artifacts.append(os.path.join(root, file))
     
     return artifacts
 
-def update_state_file(config: Dict[str, Any], artifacts_hashes: Dict[str, str], 
-                     execution_metrics: Optional[Dict[str, Any]] = None) -> None:
-    """Update the project state YAML file with new artifact hashes."""
-    state_path = get_state_path(config)
+def update_state_file(state_path: str, hashes: Dict[str, str], metadata: Dict[str, Any]) -> None:
+    """
+    Update the project state YAML file with new hashes and metadata.
+    Creates the file if it doesn't exist.
+    """
+    state = {"artifacts": {}}
     
-    # Load existing state or create new
-    if state_path.exists():
-        with open(state_path, 'r') as f:
-            state = yaml.safe_load(f) or {}
-    else:
-        state = {
-            "project_id": config.get('project_id', 'unknown'),
-            "artifacts": {},
-            "last_updated": None,
-            "execution_metrics": {}
-        }
+    if os.path.exists(state_path):
+        try:
+            with open(state_path, "r") as f:
+                state = yaml.safe_load(f) or {"artifacts": {}}
+        except yaml.YAMLError:
+            state = {"artifacts": {}}
     
-    # Update artifact hashes
-    state["artifacts"] = artifacts_hashes
+    # Update artifacts with hashes
+    for path, hash_val in hashes.items():
+        state["artifacts"][path] = {"hash": hash_val}
     
-    # Update execution metrics if provided
-    if execution_metrics:
-        state["execution_metrics"] = execution_metrics
+    # Merge metadata
+    if "metadata" not in state:
+        state["metadata"] = {}
+    state["metadata"].update(metadata)
     
-    # Update timestamp
-    import datetime
-    state["last_updated"] = datetime.datetime.now().isoformat()
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(state_path) or ".", exist_ok=True)
     
-    # Write state back to file
-    with open(state_path, 'w') as f:
+    with open(state_path, "w") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
 def main():
-    """Main entry point for hashing artifacts."""
-    logger = setup_logging("hash_artifacts")
-    
+    """
+    Entry point to hash all artifacts and update state.
+    """
     config = get_config()
-    logger.info("Starting artifact hashing process.")
+    state_path = get_state_path()
     
-    # Get artifacts to hash
+    print(f"Computing hashes for artifacts...")
     artifacts = get_artifacts_to_hash(config)
     
     if not artifacts:
-        logger.warning("No artifacts found to hash.")
+        print("No artifacts found to hash.")
         return
+
+    hashes = {}
+    for path in artifacts:
+        if os.path.exists(path):
+            h = compute_sha256(path)
+            hashes[path] = h
+            print(f"  {path}: {h[:16]}...")
+        else:
+            print(f"  Warning: {path} not found.")
     
-    # Compute hashes
-    artifacts_hashes = {}
-    for artifact in artifacts:
-        try:
-            file_hash = compute_sha256(artifact)
-            artifacts_hashes[artifact.name] = file_hash
-            logger.info(f"Hashed {artifact.name}: {file_hash[:16]}...")
-        except Exception as e:
-            logger.error(f"Failed to hash {artifact.name}: {e}")
-    
-    # Update state file
-    try:
-        update_state_file(config, artifacts_hashes)
-        logger.info("State file updated successfully.")
-    except Exception as e:
-        exit_with_error(f"Failed to update state file: {e}")
+    # Update state
+    update_state_file(state_path, hashes, {"last_hashed": "run"})
+    print(f"State updated at {state_path}")
 
 if __name__ == "__main__":
     main()

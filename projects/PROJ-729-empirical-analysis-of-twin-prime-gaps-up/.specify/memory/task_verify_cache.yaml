@@ -1,3 +1,24 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required files (e.g., `data/raw/twin_primes.csv`, `data/results/stats.json`,\
+    \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`,\
+    \ final Markdown report) was presented, so the task\u2019s deliverables cannot\
+    \ be confirmed as completed."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV file `data/raw/twin_primes.csv` or any evidence of its creation is present,\
+    \ and there is no indication that RAM usage is monitored or constrained to <\u202F\
+    2\u202FGiB as required by FR\u2011007. The implementer provided no artifacts or\
+    \ code demonstrating CSV output or memory\u2011monitoring functionality."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., log file, JSON, CSV, or report) containing measured execution
+    time and peak memory usage is present; the claim provides no evidence that these
+    metrics were recorded. The implementer must add a concrete record of the runtime
+    and memory consumption for the pipeline.
 T015:
   c: false
   h: b912b4770988c3fa9be18b3493bf54103259988663983ea64e0e681ff677f143
@@ -5,3 +26,10 @@ T015:
     =`) and thus cannot perform validation. Moreover, the required data file `data/raw/twin_primes.csv`
     and the schema file `contracts/twin_prime_schema.schema.yaml` are absent, so the
     script has nothing to validate against. The task therefore remains unfinished.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing an added execution guard (`if __name__
+    == "__main__":`) or a computed hash is present; the evidence list contains no
+    artifacts related to this requirement, so the claim cannot be verified. The implementer
+    must provide the modified source file(s) demonstrating the guard and hash functionality.

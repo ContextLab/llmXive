@@ -1,5 +1,5 @@
 ---
-description: "Task list template for feature implementation"
+description: "Task list for Twin Prime Gap Analysis implementation"
 ---
 
 # Tasks: Empirical Analysis of Twin Prime Gaps up to 10⁹
@@ -79,25 +79,48 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float 1.8205 for input p=3, p_next=5. **Verification**: Use tolerance `assert abs(val - 1.8205) < 1e-4 ` to handle floating point precision.
+- [X] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float derived from p=3 (calculate as `(5-3)/log(3)`). **Verification**: Use tolerance `assert abs(val - expected) < 1e-4` to handle floating point precision.
 - [X] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] Implement `code/generate_primes.py` using `primesieve` to find twin primes up to 1,000,000,000. **Verification**: Run `python code/generate_primes.py` and verify `data/raw/twin_primes.csv` exists with row count within ±5% of the theoretical expectation calculated in T013b, and no NaN values in `normalized_gap`.
-- [X] T013 [US1] [FR-002] Implement gap calculation and normalization logic in `code/generate_primes.py`
- - Must compute `delta = p_{n+1} - p_n` (gap between starts of consecutive pairs)
- - Must compute `normalized_gap = delta / log(p_n)`
- - Must handle edge cases (log(0 (Theorem DB: math/0506067, https://arxiv.org/abs/math/0506067)) guards)
-- [X] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output.
-- [X] T014 [US1] [FR-007] [SC-004] [SC-005] Implement CSV output and memory monitoring in `code/generate_primes.py`
- - Ensure RAM usage < 2 GiB and execution time < 45 mins
- - Output columns: `p`, `p_next`, `delta`, `normalized_gap`
-- [X] T014b [US1] [SC-004] [SC-005] Measure and record execution time and peak memory usage for the generation pipeline. **Output**: Save metrics to `data/results/performance_gen.json`.
- - **Dependency**: Must run sequentially immediately after T014 to capture metrics of the just-completed run.
-- [ ] T015 [US1] [P] Implement `code/validate_schema.py` to validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`
- - **Dependency**: Must run sequentially immediately after T014 to validate the generated artifact.
-- [X] T016 [US1] [P] Add execution guard in `code/generate_primes.py` to detect dependency failures (e.g., missing `primesieve` binary) and exit with code 1. Also run `code/hash_artifacts.py` to hash the generated CSV and update state.
+- [ ] T013b-a [US1] [FR-002] [SC-001] **Implement Hardy-Littlewood Calculation Function**.
+ - **Step 1**: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py` using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014 $.
+ - **Output**: A reusable function in `code/generate_primes.py`.
+
+- [ ] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**.
+ - **Step 1**: Call `calculate_hardy_littlewood_expected_count(10**9)`.
+ - **Step 2**: Log the calculated expected count to the console.
+ - **Step 3**: Save the expected count to `data/results/expected_count.json` with key `expected_count`.
+ - **Output**: `data/results/expected_count.json` containing `{"expected_count": <float>}`.
+ - **Dependency**: **Must run after T013b-a** (implementation of the function).
+
+- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**.
+ - **Implementation**: Use `primesieve` to find twin primes up to 1,000,000,000.
+ - **Verification**:
+ 1. Read `expected_count` from `data/results/expected_count.json` (produced by T013b-b).
+ 2. Calculate the actual count of generated twin primes.
+ 3. Verify the actual count is within ±5% of `expected_count`.
+ 4. Ensure no NaN values in `normalized_gap`.
+ - **Dependency**: **Must run after T013b-b** to ensure the theoretical expectation is available for verification.
+ - **Output**: `data/raw/twin_primes.csv` with columns `p`, `p_next`, `delta`, `normalized_gap`.
+
+- [ ] T014 [US1] [FR-007] [SC-004] [SC-005] **Implement CSV output and memory monitoring**.
+ - Ensure RAM usage < 2 GiB and execution time < 45 mins.
+ - Output columns: `p`, `p_next`, `delta`, `normalized_gap`.
+ - **Dependency**: Must run after T012 (generation logic).
+
+- [ ] T014b [US1] [SC-004] [SC-005] **Measure and record execution time and peak memory usage**.
+ - **Output**: Save metrics to `data/results/performance_gen.json`.
+ - **Dependency**: Must run sequentially immediately after T014 completes file writes.
+
+- [X] T015 [US1] [FR-003] **Implement `code/validate_schema.py`**.
+ - Validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`.
+ - **Dependency**: **Must run after T014** (file generation) to ensure the file exists.
+
+- [ ] T016 [US1] **Add execution guard and hash**.
+ - Add execution guard in `code/generate_primes.py` to detect dependency failures (e.g., missing `primesieve` binary) and exit with code 1.
+ - Run `code/hash_artifacts.py` to hash the generated CSV and update state.
  - **Dependency**: Must run after T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -112,26 +135,38 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for Parametric Bootstrap KS logic in `tests/unit/test_bootstrap_ks.py`
-- [ ] T019 [P] [US2] Integration test for analysis pipeline in `tests/integration/test_analysis.py`
+- [X] T018 [P] [US2] Unit test for Parametric Bootstrap KS logic in `tests/unit/test_bootstrap_ks.py`
+- [X] T019 [P] [US2] Integration test for analysis pipeline in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/analyze_gaps.py` to load `data/raw/twin_primes.csv`
-- [ ] T021 [US2] [FR-003] Implement Parametric Bootstrap Kolmogorov–Smirnov test in `code/analyze_gaps.py`
-- Compare empirical distribution against `expon(scale=1)` using **Parametric Bootstrap** (3.141592653589793 (Wikipedia: pi, https://en.wikipedia.org/wiki/Pi) iterations, seed=42) to correct for self-normalization bias.
+- [ ] T020 [US2] **Implement `code/analyze_gaps.py` to load `data/raw/twin_primes.csv`**.
+ - **Dependency**: **Must run after T012** (data generation) is complete.
+
+- [ ] T021 [US2] [FR-003] **Implement Parametric Bootstrap Kolmogorov–Smirnov test**.
+ - Compare empirical distribution against `expon(scale=1)` using **Parametric Bootstrap** (10000 iterations, **seed=42**) to correct for self-normalization bias.
  - Explicitly document the "self-normalized" nature of the data.
- - Save results to `data/results/stats.json`
+ - Save results to `data/results/stats.json`.
  - **Verification**: Check stats.json contains a non-zero KS statistic and a valid p-value.
-- [ ] T021b [US2] [SC-002] Measure the KS p-value against the α=0.05 threshold and record the deviation status in `data/results/stats.json`.
+ - **Reproducibility**: The `seed=42` constraint is mandatory to satisfy Constitution Principle I.
+
+- [ ] T021b [US2] [SC-002] **Record Rejection Status**.
+ - Measure the KS p-value against the α=0.05 threshold.
+ - Record the **rejection_status** (boolean: `true` if p < 0.05) in `data/results/stats.json` with the exact JSON key `rejection_status`.
  - **Dependency**: Must run sequentially immediately after T021.
-- [ ] T021c [US2] [SC-004] [SC-005] Measure and record execution time and peak memory usage for the analysis pipeline. **Output**: Save metrics to `data/results/performance_analysis.json`.
- - **Dependency**: Must run sequentially immediately after T021.
-- [ ] T022 [US2] [FR-004] Implement QQ-plot generation in `code/analyze_gaps.py`
- - Plot empirical quantiles (y) vs theoretical exponential quantiles (x)
- - Include reference line `y=x`
- - Save to `data/figures/qq_plot.png`
-- [ ] T023 [US2] [P] Add logic to flag rejection status (p < 0.05 vs p ≥ 0.05) in the JSON summary. Run `code/hash_artifacts.py` to hash `stats.json` and update state.
+
+- [ ] T021c [US2] [SC-004] [SC-005] **Measure and record execution time and peak memory usage**.
+ - **Output**: Save metrics to `data/results/performance_analysis.json`.
+ - **Dependency**: Must run sequentially immediately after T021 completes.
+
+- [ ] T022 [US2] [FR-004] **Implement QQ-plot generation**.
+ - Plot empirical quantiles (y) vs theoretical exponential quantiles (x).
+ - Include reference line `y=x`.
+ - Save to `data/figures/qq_plot.png`.
+
+- [ ] T023 [US2] **Hash and Update State**.
+ - Add logic to flag rejection status (p < 0.05 vs p ≥ 0.05) in the JSON summary.
+ - Run `code/hash_artifacts.py` to hash `stats.json` and update state.
  - **Dependency**: Must run after T021/T021b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -151,17 +186,31 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analyze_local.py` to load `data/raw/twin_primes.csv`
-- [ ] T027 [US3] Implement window filtering logic for `k` in a range of exponents (range `[^k - 10000, 2^k + 10000]`) (FR-005)
-- [ ] T028 [US3] [FR-005] [SC-003] Perform **one-sample t-tests** comparing each window's mean to the theoretical mean of 1.0.
- - **Note**: This task explicitly follows Spec FR-005 and SC-003, overriding the Plan's Complexity Tracking rationale which argued against one-sample tests.
+- [ ] T026 [US3] **Implement `code/analyze_local.py` to load `data/raw/twin_primes.csv`**.
+ - **Dependency**: **Must run after T012** (data generation) is complete.
+
+- [ ] T028a [US3] [FR-005] **Implement window filtering logic**.
+ - Filter twin primes for windows around powers of two: $ [2^k - 10000, 2^k + 10000] $.
+ - Define range of exponents `k` (e.g., $ k \in [small, 30] $) to ensure sufficient data in each window.
+ - **Output**: List of filtered windows ready for analysis.
+
+- [ ] T028b [US3] [FR-005] [SC-003] **Perform one-sample t-tests**.
+ - **Override Note**: Spec FR-005 mandates one-sample t-tests against mean 1.0. This task **supersedes** the Plan's "Complexity Tracking" rationale (which argues against one-sample tests) per the Constitution Principle of "Spec Supersedes Plan" when explicit requirements conflict.
  - Compute local mean and variance for each window.
- - Perform one-sample t-test against mean 1.0.
+ - Perform one-sample t-test against a hypothesized mean of a specified theoretical value.
  - **Output**: Add a boolean column `is_significant` to `local_stats.json` for windows where p < 0.05.
-- [ ] T029 [US3] [FR-005] Generate bar chart of mean normalized gaps per window relative to 1.0 (FR-005)
- - Save to `data/figures/local_deviation.png`
-- [ ] T030 [US3] [P] Save window statistics (mean, variance, t-stat, p-value) to `data/results/local_stats.json`. Run `code/hash_artifacts.py` to hash `local_stats.json` and update state.
- - **Dependency**: Must run after T028.
+
+- [ ] T028c [US3] [FR-005] **Format and save window statistics**.
+ - Save full schema: `mean`, `variance`, `t_stat`, `p_value`, `is_significant` to `data/results/local_stats.json`.
+ - **Dependency**: Must run after T028b.
+
+- [ ] T029 [US3] [FR-005] **Generate bar chart**.
+ - Generate bar chart of mean normalized gaps per window relative to 1.0.
+ - Save to `data/figures/local_deviation.png`.
+
+- [ ] T030 [US3] **Hash and Update State**.
+ - Run `code/hash_artifacts.py` to hash `local_stats.json` and update state.
+ - **Dependency**: Must run after T028c.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -169,38 +218,48 @@ description: "Task list template for feature implementation"
 
 ## Phase 6: Reporting & Verification (Polish)
 
-**Purpose**: Generate final report, verify citations, andhash artifacts.
+**Purpose**: Generate final report, verify citations, and hash artifacts.
 
-- [ ] T031 [P] [FR-009] Implement `code/verify_citations.py` to validate {{claim:c_ddd2cee1}} and {{claim:c_462d859b}} (OEIS A002386, https://oeis.org/A002386) citations against primary sources.
+- [ ] T031 [P] [FR-009] **Implement `code/verify_citations.py`**.
+ - Validate citations for **Cramér (year)**, **Hardy-Littlewood**, **{{claim:c_f5a66288}} ({{claim:c_e86a42d1}}, https://oeis.org/A002386)**, and **Goldston, Pintz, and Yıldırım** against primary sources.
  - **Step 1**: Attempt to resolve missing URLs in spec.md Assumptions via DOI lookup using `requests` and crossref logic.
- - **Step 2 (Fallback)**: If DOI lookup fails, use a hardcoded canonical URL list for {{claim:c_ddd2cee1}} and Goldston et al. (2005) to ensure verification proceeds.
+ - **Step 2 (Fallback)**: If DOI lookup fails, use a hardcoded canonical URL list for {{claim:c_f5a66288}} to ensure verification proceeds.
  - **Validation Criteria**: Verify title overlap >= 0.7 against resolved primary source URLs.
-- [ ] T032 [P] [FR-006] Implement `code/report.py` to compile final Markdown report
+
+- [ ] T032 [P] [FR-006] **Implement Final Report Generation**.
+ - Compile final Markdown report.
  - Include KS statistics, p-values, QQ-plot, and localized deviation summary.
  - Include a section on historical framing (Cramér, Hardy-Littlewood) and computational limits (addresses Dan Rockmore review).
  - Explicitly consume the KS p-value deviation status from `data/results/stats.json` (SC-002).
-- [ ] T033 [P] Run `code/hash_artifacts.py` to hash the final report and update state YAML.
+ - **Dependency**: **Must run after T035 and T036** (Revision tasks) to ensure all sections are included.
+
+- [ ] T033 Run `code/hash_artifacts.py` to hash the final report and update state YAML.
  - **Dependency**: Must run after T032 (Report Generation).
 
 ---
 
 ## Phase 7: Review Response & Methodological Framing (Revision)
 
-**Purpose**: Address Dan Rockmore's review regarding historical context and computational limits.
+**Purpose**: Address Dan Rockmore's review regarding historical context, computational limits, and methodological framing.
 
 - [ ] T034 [P] [addresses Dan Rockmore review] Add a paragraph to `research.md` contextualizing the experiment within the broader history of probabilistic number theory.
- - **Content**:  Quote Cramér's heuristic and mention the Goldston-Pintz-Yıldırım refinement.
-- [ ] T035 [P] Update `code/report.py` to include a dedicated "Historical Context" section citing Cramér (1936) and Goldston, Pintz, and Yıldırım (n.d.).
- - **Dependency**: Must run sequentially after T032.
+ - **Content**: Quote Cramér's heuristic and mention the Goldston-Pintz-Yıldırım refinement regarding small gaps between primes.
+ - **Verification**: Ensure the text explicitly links the normalized gap metric to the Cramér model.
+
+- [ ] T035 [P] [addresses Dan Rockmore review] Update `code/report.py` to include a dedicated "Historical Context" section citing Cramér (year) and {{claim:c_348a6684}}.
+ - **Dependency**: Must run sequentially before T032.
  - Must explicitly quote or paraphrase the heuristic regarding prime gap distribution.
  - Must reference the Hardy-Littlewood k-tuple conjecture context.
-- [ ] T036 [P] Update `code/report.py` to include a "Computational Limits & Bias Analysis" section (Addresses Rockmore Review)
- - **Dependency**: Must run sequentially after T032.
- - Analyze how the bound $10^9$ might bias the observed tail of the distribution.
+
+- [ ] T036 [P] [addresses Dan Rockmore review] Update `code/report.py` to include a "Computational Limits & Bias Analysis" section.
+ - **Dependency**: Must run sequentially before T032.
+ - Analyze how the bound might bias the observed tail of the distribution.
  - Discuss the robustness of the claim given the finite sample size.
  - Explicitly state the limitations of the CPU-only approach on the tail behavior.
-- [ ] T037 [P] Update `specs/001-twin-prime-gaps/research.md` to include the missing lineage paragraph before the validation verdict (Addresses Rockmore Review)
- - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_ecab7430 — status=not_enough_info]. This heuristic was refined by Goldston, Pintz, and Yıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes. "
+
+- [ ] T037 [P] [addresses Dan Rockmore review] Update `specs/001-empirical-analysis-of-twin-prime-gaps-up/research.md` to include the missing lineage paragraph before the validation verdict.
+ - **Content**: Insert the following specific paragraph: "Cramér's probabilistic model of primes posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_0874e821 — status=not_enough_info] This heuristic was refined by Goldston, Pintz, and Yıldırım in the context of small gaps between primes., and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes."
+ - **Verification**: Ensure the paragraph is placed immediately before the validation verdict section. No unresolved claim markers are permitted.
 
 ---
 
@@ -293,5 +352,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All prime generation and analysis MUST run on CPU-only CI (a minimal core count, limited RAM, a constrained time budget). No GPU, no 8-bit quantization, no large LLMs.
-- **Review Response**: Tasks T031, T032, T035, T036, and T037 specifically address the Dan Rockmore review regarding historical context, computational limits, and methodological framing.
-- **Methodology Note**: This project uses Parametric Bootstrap KS tests and one-sample t-tests for local windows as explicitly mandated by the Spec (FR-005), overriding the Plan's Complexity Tracking rationale which argued against one-sample tests. The Spec takes precedence.
+- **Review Response**: Tasks T034, T035, T036, and T037 specifically address the Dan Rockmore review regarding historical context, computational limits, and methodological framing.
+- **Methodology Note**: This project uses Parametric Bootstrap KS tests and one-sample t-tests for local windows as explicitly mandated by the Spec (FR-005). While the Plan's Complexity Tracking argues against one-sample tests, Spec FR-005 takes precedence (see T028b Override Note).
