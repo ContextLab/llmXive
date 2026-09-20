@@ -1,4 +1,3 @@
 """
-llmXive Pipeline Code Package
+llmXive Automated Science Pipeline Code Base.
 """
-__version__ = "0.1.0"

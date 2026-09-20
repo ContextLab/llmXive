@@ -1,3 +1,46 @@
-# This file is a duplicate for IDE compatibility; prefer pyproject.toml
-# Configuration matches pyproject.toml [tool.ruff] section
+# Ruff configuration for linting
+# Extends settings from pyproject.toml if needed, or standalone config
 extend = "pyproject.toml"
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function calls in argument defaults
+    "C901", # Too complex
+    "N806", # Variable in function should be lowercase (allowing uppercase for constants in specific contexts if needed)
+]
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+known-third-party = [
+    "ase",
+    "matplotlib",
+    "networkx",
+    "numpy",
+    "pandas",
+    "phonopy",
+    "pydantic",
+    "pymatgen",
+    "scipy",
+    "seaborn",
+    "sklearn",
+    "statsmodels",
+]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "S311"] # Allow assertions in tests, random in tests
+"code/synthetic.py" = ["S311"] # Random usage in synthetic data generation

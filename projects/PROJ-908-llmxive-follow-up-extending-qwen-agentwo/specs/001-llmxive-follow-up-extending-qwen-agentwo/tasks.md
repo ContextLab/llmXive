@@ -70,7 +70,7 @@
 
 **Goal**: Parse Qwen-AgentWorld source code to generate a deterministic state-transition oracle for independent ground truth verification.
 
-**Independent Test**: Run parser on a known subset; Verify generated oracle matches original environment simulator trajectories for N=1,000 random inputs (seed=42) with ≥99.9% accuracy..
+**Independent Test**: Run parser on a known subset; Verify generated oracle matches original environment simulator trajectories for N=1,000 random inputs (seed=42) with ≥99.9% accuracy [UNRESOLVED-CLAIM: c_b628ff2a — status=not_enough_info]..
 
 ### Tests for User Story 1 ⚠️
 
@@ -93,7 +93,7 @@
 
 **Goal**: Apply ILP/Decision Tree to LLM CoT traces to extract explicit logical rules and validate against the Oracle.
 
-**Independent Test**: Feed 500 synthetic traces with known patterns; Verify extracted rules reproduce patterns with ≥95% precision..
+**Independent Test**: Feed 500 synthetic traces with known patterns [UNRESOLVED-CLAIM: c_d30c80cf — status=not_enough_info]; Verify extracted rules reproduce patterns with ≥95% precision [UNRESOLVED-CLAIM: c_4b3a1d9a — status=not_enough_info].
 
 ### Implementation for User Story 2
 
@@ -114,7 +114,7 @@
 
 **Goal**: Compare LLM, Extracted Rules, and Oracle on long-horizon tasks; classify errors into "Hallucination" and "Rule Gap"; perform statistical significance testing.
 
-**Independent Test**: Run on small manually verified dataset; confirm error classification (Hallucination vs Rule Gap) matches human annotation (Cohen's Kappa ≥ 0.8).
+**Independent Test**: Run on small manually verified dataset; Confirm error classification (Hallucination vs Rule Gap) matches human annotation (Cohen's Kappa ≥ 0.8). [UNRESOLVED-CLAIM: c_a2d859d4 — status=not_enough_info].
 
 ### Tests for User Story 3 ⚠️
 
@@ -131,7 +131,7 @@
 - [ ] T031 [US3] Generate `data/processed/divergence_report.json` with classified counts, `excluded_metrics` (uncertainty/cold start), and metadata.
 - [ ] T032 [US3] Implement logic in `code/analysis/stats.py` to identify the specific step count or state complexity boundary where measured adherence drops below the **95%** threshold (per FR-006/SC-004).
 - [ ] T033 [US3] Calculate Pearson's correlation (r) between extracted rule precision (from T027 `data/processed/rule_precision.json`) and CoT quality metrics (from T026 `data/processed/cot_quality_metrics.json`) to satisfy SC-005.
-- [ ] T034 [US3] Finalize `divergence_report.json` with p-values (α ≤ 0.05), boundary conditions (from T032), and correlation metrics (from T033).
+- [ ] T034 [US3] Finalize `divergence_report.json` with p-values (α ≤ 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)), boundary conditions (from T032), and correlation metrics (from T033).
 
 **Checkpoint**: Divergence Report is generated with statistically significant error classification, boundary analysis, and correlation metrics.
 
@@ -143,7 +143,7 @@
 
 - [ ] T035 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T036 Code cleanup and refactoring across `code/`
-- [ ] T037 Performance optimization for ILP induction on CPU (ensure <6h runtime)
+- [ ] T037 Performance optimization for ILP induction on CPU (ensure <6h runtime [UNRESOLVED-CLAIM: c_cb88a028 — status=not_enough_info])
 - [ ] T038 [P] Additional unit tests coverage in `tests/unit/`
 - [ ] T039 Run `quickstart.md` validation and end-to-end smoke test
 

@@ -1,49 +1,42 @@
+"""
+Utility script to run linting and formatting checks.
+This script ensures that the codebase adheres to the configured
+ruff/flake8 and black standards.
+"""
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd):
-    """Run a shell command and return the result."""
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    return result
+def run_command(cmd: list[str], check: bool = True) -> None:
+    """Run a command and exit if it fails."""
+    print(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, check=False)
+    if result.returncode != 0:
+        if check:
+            print(f"Error: Command failed with exit code {result.returncode}")
+            sys.exit(result.returncode)
+        else:
+            print(f"Warning: Command returned exit code {result.returncode}")
 
-def main():
-    """
-    Check and format code using ruff and black.
-    
-    This satisfies the requirement for T003 (linting and formatting configuration).
-    """
-    base_dir = Path(__file__).resolve().parent.parent
-    code_dir = base_dir / "code"
-    
-    # Install dependencies if not present
-    print("Installing linting and formatting tools...")
-    run_command(f"{sys.executable} -m pip install ruff black --quiet")
-    
-    # Format with black
-    print("Running black formatter...")
-    result = run_command(f"black {code_dir}")
-    if result.returncode == 0:
-        print("Black formatting successful.")
-    else:
-        print(f"Black formatting failed: {result.stderr}")
-    
-    # Lint with ruff
-    print("Running ruff linter...")
-    result = run_command(f"ruff check {code_dir}")
-    if result.returncode == 0:
-        print("Ruff linting successful.")
-    else:
-        print(f"Ruff linting found issues: {result.stdout}")
-    
-    # Generate report
-    report_path = base_dir / "data" / "lint_report.txt"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w") as f:
-        f.write("Linting and Formatting Report\n")
-        f.write("=" * 40 + "\n")
-        f.write(f"Black: {'Success' if result.returncode == 0 else 'Issues Found'}\n")
-        f.write(f"Ruff: {'Success' if result.returncode == 0 else 'Issues Found'}\n")
-    
-    print(f"Report saved to {report_path}")
-    return 0
+def main() -> None:
+    """Run linting and formatting checks."""
+    project_root = Path(__file__).parent.parent
+
+    # 1. Run Black (formatting)
+    # We use --check to verify formatting without modifying files
+    run_command(["black", "--check", "--diff", str(project_root)])
+
+    # 2. Run Ruff (linting)
+    run_command(["ruff", "check", str(project_root)])
+
+    # 3. Run Flake8 (legacy linting, if needed for specific checks)
+    # Note: Ruff is preferred, but we run flake8 for compatibility if configured
+    try:
+        run_command(["flake8", str(project_root)])
+    except FileNotFoundError:
+        print("Warning: flake8 not found. Skipping flake8 checks.")
+
+    print("All checks passed.")
+
+if __name__ == "__main__":
+    main()

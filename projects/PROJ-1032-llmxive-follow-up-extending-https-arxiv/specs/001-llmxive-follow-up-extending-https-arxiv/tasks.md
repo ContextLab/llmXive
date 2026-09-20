@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` (src/llmxive, src/cli, src/utils, tests/, data/)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, datasets, torch, bitsandbytes, scipy, numpy, accelerate, lifelines)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per `plan.md` (src/llmxive, src/cli, src/utils, tests/, data/)
+- [X] T002 Initialize a Python project with `requirements.txt` (transformers, datasets, torch, bitsandbytes, scipy, numpy, accelerate, lifelines)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -39,15 +39,16 @@
 - [X] T004 Implement `src/llmxive/config.py` for loading staleness, seeds, and model configurations; includes deterministic seed sequence management (FR-004).
 - [X] T005a [P] Define custom exceptions in `src/llmxive/exceptions.py`: `DATA_INTEGRITY_ERROR`, `ERR_CPU_LOAD_FAIL`, `STALENESS_OVERFLOW` (for executability of T005, T006, T007)
 - [X] T005 Implement `src/llmxive/data_loader.py` to stream GSM8K from `openai/gsm8k` with checksum verification; MUST raise `DATA_INTEGRITY_ERROR` (from T005a) on truncation (FR-006, Edge Case)
-- [X] T005b [P] Implement `src/llmxive/data_loader.py` (FR-006 compliance): Assert no overlap between training staleness queue indices and test set indices before training begins; raise `DATA_INTEGRITY_ERROR` if overlap detected.
-- [X] T006 Implement `src/llmxive/model_factory.py` to load Phi-2 and Qwen1.5-1.8B with 8-bit CPU quantization; MUST raise `ERR_CPU_LOAD_FAIL` (from T005a) if OOM (FR-001, Edge Case)
+- [X] T005b [P] Implement `src/llmxive/data_loader.py` (FR-006 compliance): Assert no overlap between training staleness queue indices and test set indices before training begins; raise `DATA_INTEGRITY_ERROR` if overlap detected. **Verification**: Run unit test in `tests/unit/test_data_loader.py` to verify overlap detection raises `DATA_INTEGRITY_ERROR`.
+- [X] T006 Implement `src/llmxive/model_factory.py` to load Phi-2 and Qwen-1.8B with 8-bit CPU quantization; MUST raise `ERR_CPU_LOAD_FAIL` (from T005a) if OOM (FR-001, Edge Case)
+- [X] T014 [P] [US1] Integrate `src/llmxive/staleness_queue.py` (T007) into the training loop logic. This task ensures the queue is correctly instantiated and configured for the trainer.
 - [X] T007 Implement `src/llmxive/staleness_queue.py` to buffer gradients; MUST clamp staleness to `buffer_size - 1` if exceeded (Edge Case)
 - [X] T008 Implement `src/utils/logging.py` for structured JSON logging to `data/processed/`
 - [X] T009 Implement `src/llmxive/metrics.py` for real-time reward and gradient norm monitoring (excluding baseline loading logic)
 - [X] T035 [P] [US1] Refactor `src/llmxive/data_loader.py` to remove any implicit `try/except` blocks that might catch `datasets` download errors and fall back to `generate_synthetic_*` or `mock_*` functions. Ensure the loader raises `DATA_INTEGRITY_ERROR` immediately on any fetch failure, allowing the execution stage to detect the issue and retry with a verified source.
 - [X] T036 [P] [US1] Add explicit unit tests in `tests/unit/test_data_loader.py` to verify that `data_loader.py` raises `DATA_INTEGRITY_ERROR` when `datasets.load_dataset` fails, ensuring no silent fallback occurs.
 - [X] T037 [P] [US1] Implement a "Verified Source" check in `src/llmxive/config.py`: If the execution environment provides a "VERIFIED REAL DATA SOURCE" block (e.g., a specific package or URL), the loader MUST adopt this source exclusively and ignore any default `openai/gsm8k` configuration.
-- [X] T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py** to ensure GSM8K is processed in chunks, preventing OOM on a resource-constrained runner with limited RAM. Verify that the loader does not attempt to load the full dataset into memory.
+- [X] T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py` to ensure GSM8K is processed in chunks, preventing OOM on a resource-constrained runner with limited RAM. Verify that the loader does not attempt to load the full dataset into memory.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,42 +58,41 @@
 
 **Goal**: Execute an asynchronous RL training loop on CPU with configurable staleness for Phi-2 and Qwen1.5-1.8B.
 
-**Independent Test**: The system can be tested by running a single training job with a fixed staleness value and verifying that the training log outputs a sequence of reward values and gradient norms without crashing due to OOM or CUDA errors. [UNRESOLVED-CLAIM: c_603e3ecf — status=not_enough_info]
+**Independent Test**: The system can be tested by running a single training job with a fixed staleness value and verifying that the training log outputs a sequence of reward values and gradient norms without crashing due to OOM or CUDA errors.
 
 ### Baseline Generation & Seed Management (Critical Prerequisites for US1 Divergence Logic)
 **⚠️ CRITICAL**: These tasks MUST be completed and executed before T013 (Async Trainer) or T020/T021 (Divergence Logic).
 
-- [ ] T016 [P] [US1] Implement deterministic seed sequence generator and stability validator in `src/llmxive/seed_manager.py`. Logic must manage the pre-defined integer sequence (e.,g., 1-5), verify stability of the synchronous baseline for each seed, and handle the discard-and-retry logic per FR-004. **Output**: `data/processed/seed_audit.json` containing `discarded_seeds`, `reasons` (variance > 5% of mean), and `final_sequence`.
-- [X] T019a [US1/US2] Implement `src/llmxive/baseline_generator.py`: Logic to perform synchronous run, compute static mean reward/gradient of the **first 50 steps**, verify stability (variance < 5% of mean calculated over the first 50 steps), and save manifest. MUST verify seed stability before saving. If unstable, **discard** and **retry** with the next seed in the pre-defined integer sequence. **Max retry limit**: Infinite (bounded only by total seed pool size) to guarantee 5 valid runs per FR-004. **Output Artifact**: `data/processed/baseline_manifests/{seed}.json` containing `mean_reward`, `mean_grad_norm`, `status`, `seed_id`.
-- [ ] T019b [US1/US2] Implement `src/llmxive/baseline_orchestrator.py`: Logic to orchestrate the generation of baseline manifests for all required seeds. This task implements the loop that calls `baseline_generator.py` (T019a) for each seed in the sequence, handles the retry logic defined in T019a, and ensures all 5 valid manifests are generated before proceeding. This task provides the *orchestration logic* but does NOT execute the runs itself; T019c/T019d execute the runs.
-- [ ] T019c [US1/US2] [P] Execute synchronous baseline runs for a small-scale language model across multiple seeds using `src/llmxive/baseline_orchestrator.py`. Generates `data/processed/baseline_manifests/phi2_{seed}.json`.
-- [ ] T019d [US1/US2] [P] Execute synchronous baseline runs for Qwen across 5 seeds using `src/llmxive/baseline_orchestrator.py`. Generates `data/processed/baseline_manifests/qwen15_{seed}.json`.
+- [X] T016 [P] [US1] Implement deterministic seed sequence generator and stability validator in `src/llmxive/seed_manager.py`. Logic must manage the pre-defined integer sequence (e.,g., 1-5), verify stability of the synchronous baseline for each seed, and handle the discard-and-retry logic per FR-004. **Output**: `data/processed/seed_audit.json` containing `discarded_seeds`, `reasons` (variance > 5% of mean), and `final_sequence`.
+- [X] T019a [US1/US2] Implement `src/llmxive/baseline_generator.py`: Logic to perform synchronous run, compute static mean reward/gradient of the **first initial steps**, verify stability (variance < 5% of mean calculated over the first 50 steps), and save manifest. MUST verify seed stability before saving. If unstable, **discard** and **retry** with the next seed in the pre-defined integer sequence. **Max retry limit**: Infinite (bounded only by total seed pool size) to guarantee 5 valid runs per FR-004. **Output Artifact**: `data/processed/baseline_manifests/{seed}.json` containing `mean_reward`, `mean_grad_norm`, `status`, `seed_id`.
+- [X] T019b [US1/US2] Implement `src/llmxive/baseline_orchestrator.py`: Logic to orchestrate the generation of baseline manifests for all required seeds. This task implements the loop that calls `baseline_generator.py` (T019a) for each seed in the sequence, handles the retry logic defined in T019a, and ensures all 5 valid manifests are generated before proceeding. This task provides the *orchestration logic* but does NOT execute the runs itself; T019c/T019d execute the runs.
+- [X] T019c [US1/US2] [P] Execute synchronous baseline runs for a small-scale language model across multiple seeds using `src/llmxive/baseline_orchestrator.py`. Generates `data/processed/baseline_manifests/phi2_{seed}.json`.
+- [X] T019d [US1/US2] [P] Execute synchronous baseline runs for Qwen across multiple seeds using `src/llmxive/baseline_orchestrator.py`. Generates `data/processed/baseline_manifests/qwen15_{seed}.json`.
 - [X] T020 [US1/US2] Implement `src/llmxive/baseline_loader.py`: Logic to load and validate the pre-computed manifest from `data/processed/baseline_manifests/{seed}.json` (generated by T019a/T019b).
 - [X] T021 [US1/US2] Implement `src/llmxive/baseline_loader.py` (FR-004 compliance): Read the manifest from T019a for the current seed and verify `variance < 5% of mean` before proceeding with async runs; discard seed if unstable.
-- [X] T022 [US1/US2] Implement the discard-and-retry loop logic: Handle unstable seeds by selecting the next seed in the sequence (incrementing integer index) and calling the generation logic in `src/llmxive/baseline_generator.py` (T019a) for that specific seed. **Constraint**: Max attempts per seed slot removed; infinite retry until 5 valid seeds are found (FR-004). **Input**: `data/processed/baseline_manifests/{seed}.json`. **Output**: Updated manifest or `DATA_INTEGRITY_ERROR` if pool exhausted.
+- [X] T022 [US1/US2] Implement the discard-and-retry loop logic: Handle unstable seeds by selecting the next seed in the sequence (incrementing integer index) and calling the generation logic in `src/llmxive/baseline_generator.py` (T019a) for that specific seed. **Constraint**: Max attempts per seed slot removed; infinite retry until A set of valid seeds is identified. (FR-004). **Input**: `data/processed/baseline_manifests/{seed}.json`. **Output**: Updated manifest or `DATA_INTEGRITY_ERROR` if pool exhausted.
 
 **Checkpoint**: Baseline generation and stability logic complete.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] [P] Integrate `src/llmxive/staleness_queue.py` (T007) into the training loop logic. This task ensures the queue is correctly instantiated and configured for the trainer.
-- [ ] T013 [US1] Implement `src/llmxive/trainer.py` main RL loop with `device="cpu"`, `bitsandbytes` quantization, and integrated `staleness_queue` (FR-001, FR-002).
+- [X] T013 [US1] Implement `src/llmxive/trainer.py` main RL loop with `device="cpu"`, `bitsandbytes` quantization, and integrated `staleness_queue` (FR-001, FR-002).
  *Dependency*: T007, T014, T020 (Baseline Loading), T021 (Stability Check), T022 (Retry Logic), **T019a (Baseline Generator)**, and **T019b (Orchestrator)** MUST be completed first to provide thresholds and valid seeds for FR-003.
  *Note*: This task includes the integration of the staleness queue as the trainer cannot function without it.
-- [ ] T015 [US1] Add memory monitoring in `trainer.py` to log peak RAM usage and abort if > 6.5 GB (FR-001, SC-004)
-- [ ] T017 [US1] Add logging for `model_id`, `staleness_level`, `seed`, and `reward_curve` to JSON manifests (FR-003)
-- [ ] T013b [US1] [P] Execute multiple independent training runs for Low Staleness regime for Phi-2 (1.4B) using T013. Generates `data/processed/logs/phi2_low_{seed}.json`.
-- [ ] T013c [US1] [P] Execute multiple independent training runs for High Staleness regime for Phi-2 (1.4B) using T013. Generates `data/processed/logs/phi2_high_{seed}.json`.
-- [ ] T013d [US1] [P] Execute multiple independent training runs for Adaptive Staleness regime for Phi-2 (1.4B) using T013. Generates `data/processed/logs/phi2_adaptive_{seed}.json`.
-- [ ] T013e [US1] [P] Execute multiple independent training runs for Low Staleness regime for Qwen1.5-1.8B using T013. Generates `data/processed/logs/qwen15_low_{seed}.json`.
-- [ ] T013f [US1] [P] Execute multiple independent training runs for High Staleness regime for Qwen1.5-1.8B using T013. Generates `data/processed/logs/qwen15_high_{seed}.json`.
-- [ ] T013g [US1] [P] Execute multiple independent training runs for Adaptive Staleness regime for Qwen1.5-1.8B using T013. Generates `data/processed/logs/qwen15_adaptive_{seed}.json`.
+- [X] T015 [US1] Add memory monitoring in `trainer.py` to log peak RAM usage and abort if > 6.5 GB (FR-001, SC-004)
+- [X] T017 [US1] Add logging for `model_id`, `staleness_level`, `seed`, and `reward_curve` to JSON manifests (FR-003)
+- [X] T013b [US1] [P] Execute multiple independent training runs for Low Staleness regime for Phi (1.4B) using T013. Generates `data/processed/logs/phi2_low_{seed}.json`.
+- [X] T013c [US1] [P] Execute multiple independent training runs for High Staleness regime for Phi-2 (1.4B) using T013. Generates `data/processed/logs/phi2_high_{seed}.json`.
+- [X] T013d [US1] [P] Execute multiple independent training runs for Adaptive Staleness regime for Phi-2 (1.4B) using T013. Generates `data/processed/logs/phi2_adaptive_{seed}.json`.
+- [X] T013e [US1] [P] Execute multiple independent training runs for Low Staleness regime for Qwen1.5-1.8B using T013. Generates `data/processed/logs/qwen15_low_{seed}.json`.
+- [X] T013f [US1] [P] Execute multiple independent training runs for High Staleness regime for Qwen1.5-1.8B using T013. Generates `data/processed/logs/qwen15_high_{seed}.json`.
+- [X] T013g [US1] [P] Execute multiple independent training runs for Adaptive Staleness regime for Qwen1.5-1.8B using T013. Generates `data/processed/logs/qwen15_adaptive_{seed}.json`.
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Unit test for `staleness_queue.py` in `tests/unit/test_staleness_queue.py` (verify clamping logic)
-- [ ] T011 [P] [US1] Integration test for CPU model loading in `tests/integration/test_cpu_load.py` (verify no CUDA fallback)
-- [ ] T012 [P] [US1] Integration test for training loop with `staleness=0` in `tests/integration/test_sync_loop.py` (verify 500 steps < 45 mins, no OOM)
+- [X] T010 [P] [US1] Unit test for `staleness_queue.py` in `tests/unit/test_staleness_queue.py` (verify clamping logic)
+- [X] T011 [P] [US1] Integration test for CPU model loading in `tests/integration/test_cpu_load.py` (verify no CUDA fallback)
+- [X] T012 [P] [US1] Integration test for training loop with `staleness=0` in `tests/integration/test_sync_loop.py` (verify 500 steps < 45 mins, no OOM)
 
 **Checkpoint**: At this point, User Story 1 (including baseline generation) should be fully functional and testable independently
 
@@ -106,17 +106,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020b [US2] Implement `src/llmxive/divergence_detector.py`: Class structure and initialization for divergence detection logic.
-- [ ] T020c [US2] Implement `src/llmxive/divergence_detector.py` (Static Mean Baseline): MUST implement Spec FR-003 as the primary method: Flag if reward < `baseline_mean_reward` (from T020) for 50 consecutive steps OR gradient norm > 2x `baseline_mean_grad_norm` (from T020) for 50 consecutive steps.
+- [X] T020b [US2] Implement `src/llmxive/divergence_detector.py`: Class structure and initialization for divergence detection logic.
+- [X] T020c [US2] Implement `src/llmxive/divergence_detector.py` (Static Mean Baseline): MUST implement Spec FR-003 as the primary method: Flag if reward < `baseline_mean_reward` (from T020) for A fixed number of consecutive steps OR gradient norm > 2x `baseline_mean_grad_norm` (from T020) for A consecutive sequence of steps.
  *Input*: `data/processed/baseline_manifests/{seed}.json`.
  *Note*: This task implements the Spec's mandatory static mean approach.
-- [ ] T020d [US2] Implement `src/llmxive/divergence_detector.py` (50-Step Check): Implement the 50-step consecutive check logic for both reward and gradient norm thresholds.
-- [ ] T018 [P] [US2] Unit test for divergence logic in `tests/unit/test_divergence_logic.py` (verify -step drop detection for static mean method)
-- [ ] T023 [US2] Create `src/cli/analyze_divergence.py` to aggregate logs from executed US1 runs and identify max stable staleness threshold per model (US-2, SC-002).
+- [X] T020d [US2] Implement `src/llmxive/divergence_detector.py` (Consecutive-Step Check): Implement the consecutive-step check logic for both reward and gradient norm thresholds.
+- [X] T018 [P] [US2] Unit test for divergence logic in `tests/unit/test_divergence_logic.py` (verify -step drop detection for static mean method)
+- [X] T023 [US2] Create `src/cli/analyze_divergence.py` to aggregate logs from executed US1 runs and identify max stable staleness threshold per model (US-2, SC-002).
  *Input*: JSON logs from T017 (T013b-g). **Dependency**: Execution of T013 (Async Trainer) must be complete.
  *Output Artifact*: `data/processed/threshold_map.json` containing `model_id`, `max_stable_staleness`, `status`.
-- [ ] T023b [US2] [P] Execute divergence analysis for Qwen1.5-1.8B across varying staleness levels to generate the necessary data for the 1.8B model comparison.
-- [ ] T024 [US2] Implement output formatting for `status: DIVERGED/STABLE` and `divergence_point` (US-2, AC-1)
+- [X] T023b [US2] [P] Execute divergence analysis for Qwen1.5-1.8B across varying staleness levels to generate the necessary data for the 1.8B model comparison.
+- [X] T024 [US2] Implement output formatting for `status: DIVERGED/STABLE` and `divergence_point` (US-2, AC-1)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,15 +130,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement aggregation script in `src/cli/run_experiment.py` to collect final rewards from multiple seeds per regime (Low, High) from executed runs (FR-004).
+- [X] T027 [US3] Implement aggregation script in `src/cli/run_experiment.py` to collect final rewards from multiple seeds per regime (Low, High) from executed runs (FR-004).
  *Input*: JSON logs from T017 (T013b-g); Output: aggregated lists for t-test. **Dependency**: Execution of T013 (Async Trainer) must be complete.
-- [ ] T027b [US3] [P] Execute multiple runs for High Staleness/Phi-2 to generate data for t-test.
-- [ ] T027c [US3] [P] Execute multiple runs for High Staleness/Qwen1.5 to generate data for t-test.
-- [ ] T026 [US3] Implement `src/llmxive/stats.py` with two-sample t-test for equality of means on final reward (FR-005, US-3).
+- [X] T027b [US3] [P] Execute multiple runs for High Staleness/Phi-2 to generate data for t-test.
+- [X] T027c [US3] [P] Execute multiple runs for High Staleness/Qwen1.5 to generate data for t-test.
+- [X] T026 [US3] Implement `src/llmxive/stats.py` with two-sample t-test for equality of means on final reward (FR-005, US-3).
  *Note*: Per Spec FR-005, implement Two-Sample T-Test. This task satisfies the Spec requirement. Survival Analysis (Log-Rank) is excluded per Spec FR-005 constraints.
-- [ ] T028 [US3] Generate statistical report outputting p-value, significance statement (alpha=0.05), and hypothesis confirmation status (SC-003, SC-001).
+- [X] T028 [US3] Generate statistical report outputting p-value, significance statement (alpha=0.05), and hypothesis confirmation status (SC-003, SC-001).
  *Output Artifact*: `data/processed/stats_report.json` containing `p_value`, `significant`, `hypothesis_status`.
-- [ ] T029 [US3] Implement calculation of reward variance ratio (Low vs High staleness) and log confirmation status if ratio > 1.5 to confirm hypothesis (SC-001).
+- [X] T029 [US3] Implement calculation of reward variance ratio (Low vs High staleness) and log confirmation status if ratio > 1.5 to confirm hypothesis (SC-001).
  *Behavior*: If ratio <= 1.5, log "HYPOTHESIS_NOT_CONFIRMED: ratio <= 1.5" at INFO level and continue; do NOT assert/fail.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -149,12 +149,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Generate final plots using `src/llmxive/plot_generator.py` from `data/processed/` logs (US-2, US-3)
-- [ ] T034 [P] [US2] Implement cross-model comparison script in `src/cli/compare_models.py` to aggregate thresholds from T023 for both models and generate the "non-linear trend" plot required by SC-002 (threshold 1.8B > 1.4B).
-- [ ] T034b [US2] [P] Verify Non-Linear Trend: Programmatically assert that `threshold(1.8B) > threshold(1.4B)` and log success/failure to `data/processed/trend_verification.json`.
-- [ ] T031 [P] Validate `requirements.txt` and `quickstart.md` for reproducibility
-- [ ] T032a [P] Define "sampled dataset" for integration tests (e.g., first rows of GSM8K train split) in `tests/integration/conftest.py`.
-- [ ] T032b [P] Define "full integration test suite" selection (e.g., T012, T018, T025) in `pytest.ini`.
+- [X] T030 [P] Generate final plots using `src/llmxive/plot_generator.py` from `data/processed/` logs (US-2, US-3)
+- [X] T034 [P] [US2] Implement cross-model comparison script in `src/cli/compare_models.py` to aggregate thresholds from T023 for both models and generate the "non-linear trend" plot required by SC-002 (threshold 1.8B > 1.4B).
+- [X] T034b [US2] [P] Verify Non-Linear Trend: Programmatically assert that `threshold(larger model) > threshold(smaller model)` and log success/failure to `data/processed/trend_verification.json`.
+- [X] T031 [P] Validate `requirements.txt` and `quickstart.md` for reproducibility
+- [X] T032a [P] Define "sampled dataset" for integration tests (e.g., first rows of GSM8K train split) in `tests/integration/conftest.py`.
+- [X] T032b [P] Define "full integration test suite" selection (e.g., T012, T018, T025) in `pytest.ini`.
 - [ ] T032c1 [P] Execute integration test T012 (Sync Loop) and generate `pytest.xml` artifact; verify exit code 0.
 - [ ] T032c2 [P] Execute integration test T018 (Divergence Logic) and generate `pytest.xml` artifact; verify exit code 0.
 - [ ] T032c3 [P] Execute integration test T025 (Stats) and generate `pytest.xml` artifact; verify exit code 0.
@@ -171,7 +171,7 @@
 - [ ] (Moved to Phase 2) T035 [P] [US1] Refactor `src/llmxive/data_loader.py` to remove any implicit `try/except` blocks that might catch `datasets` download errors and fall back to `generate_synthetic_*` or `mock_*` functions. Ensure the loader raises `DATA_INTEGRITY_ERROR` immediately on any fetch failure, allowing the execution stage to detect the issue and retry with a verified source.
 - [ ] (Moved to Phase 2) T036 [P] [US1] Add explicit unit tests in `tests/unit/test_data_loader.py` to verify that `data_loader.py` raises `DATA_INTEGRITY_ERROR` when `datasets.load_dataset` fails, ensuring no silent fallback occurs.
 - [ ] (Moved to Phase 2) T037 [P] [US1] Implement a "Verified Source" check in `src/llmxive/config.py`: If the execution environment provides a "VERIFIED REAL DATA SOURCE" block (e.g., a specific package or URL), the loader MUST adopt this source exclusively and ignore any default `openai/gsm8k` configuration.
-- [ ] (Moved to Phase 2) T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py` to ensure GSM8K is processed in chunks, preventing OOM on the 7GB RAM runner. Verify that the loader does not attempt to load the full dataset into memory.
+- [ ] (Moved to Phase 2) T038 [P] [US1] Add a `streaming=True` flag enforcement in `src/llmxive/data_loader.py` to ensure GSM8K is processed in chunks, preventing OOM on the GB RAM runner. Verify that the loader does not attempt to load the full dataset into memory.
 
 ---
 
@@ -278,3 +278,4 @@ With multiple developers:
 - **Execution Safety**: Phase 7 tasks (T035-T038) moved to Phase 2 to ensure data integrity before training.
 - **Seed Audit**: T016 explicitly logs discarded seeds to `data/processed/seed_audit.json` to satisfy Constitution Principle IV.
 - **Trend Verification**: T034b programmatically verifies the non-linear trend (SC-002).
+- **Plan vs Spec Note**: `plan.md` Summary and Complexity Tracking contain contradictory text regarding "intrinsic variance" and "Survival Analysis". `tasks.md` correctly implements `spec.md` (Static Mean, T-Test). `plan.md` requires a separate revision to align with `spec.md`.

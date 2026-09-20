@@ -1,120 +1,96 @@
 import pytest
-import os
-import tempfile
+import pandas as pd
 import gzip
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import sys
+import os
 
-from data_ingestion import filter_snps, MAF_THRESHOLD
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from data_ingestion import filter_snps, parse_vcf_line
 from utils import SNP
 
-# Mock MAF_THRESHOLD if not defined in config for testing
-if 'MAF_THRESHOLD' not in globals():
-    MAF_THRESHOLD = 0.01
-
-def create_test_vcf(content_lines, filename="test.vcf"):
-    """Helper to create a temporary VCF file."""
-    fd, path = tempfile.mkstemp(suffix=".vcf")
-    with os.fdopen(fd, 'w') as f:
-        f.write("\n".join(content_lines))
-    return path
-
-def test_filter_snps_maf_exclusion():
-    """Test that SNPs with MAF < 1% are excluded."""
-    vcf_content = [
-        "##fileformat=VCFv4.2",
-        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE1",
-        "chr1\t100\trs1\tA\tG\t30\tPASS\tAF=0.005\tGT\t0/1", # MAF 0.5%
-        "chr1\t200\trs2\tC\tT\t30\tPASS\tAF=0.05\tGT\t0/1",  # MAF 5%
-    ]
-    vcf_path = create_test_vcf(vcf_content)
+def test_parse_vcf_line():
+    """Test parsing of a standard VCF line."""
+    line = 'chr1\t100\trs123\tA\tG\t.\tPASS\tAF=0.05;AC=10;AN=200'
+    snp = parse_vcf_line(line)
     
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-            out_path = tmp.name
-        
-        filtered = filter_snps(vcf_path, out_path)
-        
-        # Should only contain rs2
-        assert len(filtered) == 1
-        assert filtered[0].snp_id == "rs2"
-    finally:
-        os.unlink(vcf_path)
-        if os.path.exists(out_path):
-            os.unlink(out_path)
+    assert snp is not None
+    assert snp.chrom == "chr1"
+    assert snp.pos == 100
+    assert snp.id == "rs123"
+    assert snp.ref == "A"
+    assert snp.alt == "G"
+    assert snp.info['AF'] == '0.05'
 
-def test_filter_snps_allele_exclusion():
-    """Test that SNPs with non-ACGT alleles are excluded."""
-    vcf_content = [
-        "##fileformat=VCFv4.2",
-        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE1",
-        "chr1\t100\trs1\tA\tN\t30\tPASS\tAF=0.05\tGT\t0/1", # Non-ACGT
-        "chr1\t200\trs2\tG\tT\t30\tPASS\tAF=0.05\tGT\t0/1", # Valid
-    ]
-    vcf_path = create_test_vcf(vcf_content)
-    
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-            out_path = tmp.name
-        
-        filtered = filter_snps(vcf_path, out_path)
-        
-        # Should only contain rs2
-        assert len(filtered) == 1
-        assert filtered[0].snp_id == "rs2"
-    finally:
-        os.unlink(vcf_path)
-        if os.path.exists(out_path):
-            os.unlink(out_path)
+def test_parse_vcf_line_invalid_alleles():
+    """Test parsing of a line with invalid alleles (N)."""
+    line = 'chr1\t100\trs456\tN\tG\t.\tPASS\tAF=0.05'
+    snp = parse_vcf_line(line)
+    assert snp is not None
+    # The parser should still return the object, filtering happens later
+    assert snp.ref == "N"
 
-def test_filter_snps_indel_exclusion():
-    """Test that indels are excluded."""
-    vcf_content = [
-        "##fileformat=VCFv4.2",
-        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE1",
-        "chr1\t100\trs1\tA\tAT\t30\tPASS\tAF=0.05\tGT\t0/1", # Indel
-        "chr1\t200\trs2\tC\tT\t30\tPASS\tAF=0.05\tGT\t0/1",  # SNP
-    ]
-    vcf_path = create_test_vcf(vcf_content)
+def test_filter_snps_maf_threshold(tmp_path):
+    """Test that filter_snps correctly excludes SNPs with MAF < threshold."""
+    # Create a mock VCF
+    vcf_content = """##fileformat=VCFv4.2
+    #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
+    chr1\t100\trs1\tA\tG\t.\tPASS\tAF=0.05
+    chr1\t200\trs2\tC\tT\t.\tPASS\tAF=0.005
+    chr1\t300\trs3\tG\tA\t.\tPASS\tAF=0.10
+    """
     
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-            out_path = tmp.name
-        
-        filtered = filter_snps(vcf_path, out_path)
-        
-        # Should only contain rs2
-        assert len(filtered) == 1
-        assert filtered[0].snp_id == "rs2"
-    finally:
-        os.unlink(vcf_path)
-        if os.path.exists(out_path):
-            os.unlink(out_path)
+    vcf_file = tmp_path / "test.vcf"
+    with gzip.open(vcf_file, 'wt') as f:
+        f.write(vcf_content)
+    
+    output_file = tmp_path / "output.parquet"
+    
+    # Filter with MAF > 0.01 (1%)
+    df = filter_snps(vcf_file, output_file, min_maf=0.01)
+    
+    assert len(df) == 2
+    assert set(df['snp_id']) == {'rs1', 'rs3'}
+    assert all(df['maf'] >= 0.01)
 
-def test_filter_snps_combined():
-    """Test combined filtering logic."""
-    vcf_content = [
-        "##fileformat=VCFv4.2",
-        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLE1",
-        "chr1\t100\trs1\tA\tG\t30\tPASS\tAF=0.005\tGT\t0/1", # MAF fail
-        "chr1\t200\trs2\tA\tN\t30\tPASS\tAF=0.05\tGT\t0/1", # Allele fail
-        "chr1\t300\trs3\tA\tAT\t30\tPASS\tAF=0.05\tGT\t0/1", # Indel fail
-        "chr1\t400\trs4\tC\tT\t30\tPASS\tAF=0.05\tGT\t0/1", # Pass
-        "chr1\t500\trs5\tG\tA\t30\tPASS\tAF=0.02\tGT\t0/1", # Pass
-    ]
-    vcf_path = create_test_vcf(vcf_content)
+def test_filter_snps_invalid_alleles(tmp_path):
+    """Test that filter_snps excludes non-ACGT alleles."""
+    vcf_content = """##fileformat=VCFv4.2
+    #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
+    chr1\t100\trs1\tA\tG\t.\tPASS\tAF=0.05
+    chr1\t200\trs2\tN\tT\t.\tPASS\tAF=0.05
+    chr1\t300\trs3\tC\tD\t.\tPASS\tAF=0.05
+    """
     
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-            out_path = tmp.name
-        
-        filtered = filter_snps(vcf_path, out_path)
-        
-        assert len(filtered) == 2
-        ids = [s.snp_id for s in filtered]
-        assert "rs4" in ids
-        assert "rs5" in ids
-    finally:
-        os.unlink(vcf_path)
-        if os.path.exists(out_path):
-            os.unlink(out_path)
+    vcf_file = tmp_path / "test.vcf"
+    with gzip.open(vcf_file, 'wt') as f:
+        f.write(vcf_content)
+    
+    output_file = tmp_path / "output.parquet"
+    
+    df = filter_snps(vcf_file, output_file, min_maf=0.01)
+    
+    # Only rs1 should remain (valid ACGT alleles)
+    assert len(df) == 1
+    assert df.iloc[0]['snp_id'] == 'rs1'
+
+def test_filter_snps_empty_output(tmp_path):
+    """Test behavior when no SNPs pass filtering."""
+    vcf_content = """##fileformat=VCFv4.2
+    #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
+    chr1\t100\trs1\tA\tG\t.\tPASS\tAF=0.0001
+    """
+    
+    vcf_file = tmp_path / "test.vcf"
+    with gzip.open(vcf_file, 'wt') as f:
+        f.write(vcf_content)
+    
+    output_file = tmp_path / "output.parquet"
+    
+    df = filter_snps(vcf_file, output_file, min_maf=0.01)
+    
+    assert len(df) == 0
+    assert os.path.exists(output_file)

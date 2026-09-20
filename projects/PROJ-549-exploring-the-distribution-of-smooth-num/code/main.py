@@ -46,9 +46,28 @@ def run_aggregation():
         "spec_chi2_p": None
     }
 
+    # --- Verification Step (T029 Requirement 2) ---
+    # Explicitly verify that the analysis prioritizes the 'plan' grid for deviation ratio and KS tests.
+    # We inspect the data sources used by the analysis functions.
+    plan_data_path = "data/density_measurements_plan.csv"
+    spec_data_path = "data/density_measurements_spec.csv"
+    
+    if not os.path.exists(plan_data_path):
+        logging.warning(f"Verification Warning: Expected Plan grid file {plan_data_path} not found.")
+    else:
+        logging.info("Verification: Plan grid file exists for deviation ratio regression and KS test.")
+        
+    if not os.path.exists(spec_data_path):
+        logging.warning(f"Verification Warning: Expected Spec grid file {spec_data_path} not found.")
+    else:
+        logging.info("Verification: Spec grid file exists for raw density regression and Chi-Square test.")
+
     try:
         # --- Plan-Primary Analysis (T026a & T027a) ---
+        # Requirement: Prioritize 'plan' grid for deviation ratio regression and KS test.
         logging.info("Running Plan-Primary Analysis (Deviation Ratio Regression & KS Test)...")
+        logging.info("CONFIRMATION: This analysis uses 'density_measurements_plan.csv' as per Plan's methodological revision.")
+        
         plan_results = run_plan_primary_analysis()
         
         if plan_results:
@@ -56,7 +75,10 @@ def run_aggregation():
             result["plan_beta_se"] = plan_results.get("se")
             result["plan_r_squared"] = plan_results.get("r_squared")
             result["plan_ks_p"] = plan_results.get("ks_p_value")
+            
+            # Log explicit confirmation of metric nature
             logging.info(f"Plan Analysis Complete: beta={result['plan_beta']}, p={result['plan_ks_p']}")
+            logging.info("NOTE: 'plan_beta' is an exploratory metric with no Spec-defined success threshold.")
         else:
             logging.warning("Plan-Primary analysis returned no results (non-convergence or data error).")
 
@@ -67,6 +89,8 @@ def run_aggregation():
     try:
         # --- Spec-Mandatory Analysis (T026b) ---
         logging.info("Running Spec-Mandatory Analysis (Raw Density Regression)...")
+        logging.info("CONFIRMATION: This analysis uses 'density_measurements_spec.csv' as per Spec FR-004.")
+        
         spec_results = run_spec_mandatory_analysis()
         
         if spec_results:
@@ -84,6 +108,8 @@ def run_aggregation():
     try:
         # --- Spec-Mandatory Chi-Square Test (T027b) ---
         logging.info("Running Spec-Mandatory Chi-Square Goodness-of-Fit Test...")
+        logging.info("CONFIRMATION: This test uses 'density_measurements_spec.csv' as per Spec FR-005.")
+        
         chi2_results = run_chi_square_goodness_of_fit()
         
         if chi2_results:

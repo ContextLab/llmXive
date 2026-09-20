@@ -25,8 +25,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure: Execute `mkdir -p code data tests state docs` and `touch code/__init__.py code/requirements.txt code/config.py tests/__init__.py`. Ensure all directories (`code`, `data`, `tests`, `state`, `docs`) exist before proceeding.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `matplotlib`, `pytest`, `sympy`.
-- [X] T003 [P] Configure linting and formatting: Create `.flake8` with content `[flake8] max-line-length = 100` and `pyproject.toml` with sections `[tool.black] line-length = 100 target-version = ['py311']` and `[tool.pytest]`.
+- [X] T002 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f1edbe45 — status=not_enough_info] project with `requirements.txt` containing `numpy`, `scipy`, `matplotlib`, `pytest`, `sympy`.
+- [X] T003 [P] Configure linting and formatting: Create `.flake8` with content `[flake8] max-line-length = 100 [UNRESOLVED-CLAIM: c_4b3fde03 — status=not_enough_info]` and `pyproject.toml` with sections `[tool.black] line-length = 100 target-version = ['py311'] [UNRESOLVED-CLAIM: c_9f389882 — status=not_enough_info]` and `[tool.pytest]`.
 
 ---
 
@@ -48,14 +48,14 @@
 
 **Goal**: Implement a memory-safe segmented sieve to generate all primes up to $10^9$ for use in factorization.
 
-**Independent Test**: Execute the sieve script in isolation; verify output count matches $\pi(10^9) = 50,847,534$ within 1 second; verify peak memory < 4 GB.
+**Independent Test**: Execute the sieve script in isolation; verify output count matches $\pi(10^9) = 50,847,534$ within 1 second; verify peak memory < 4 GB [UNRESOLVED-CLAIM: c_31f876f8 — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Unit test for sieve boundary conditions in `tests/test_sieve.py`: Implement `test_sieve_empty_interval` (range [1,1] returns 0), `test_sieve_single_prime` (range [2,2] returns 1), and `test_sieve_boundary_1e9` (range [1e9,1e9] checks primality).
-- [X] T011 [P] [US1] Integration test for prime count verification in `tests/test_sieve.py`: Implement `test_prime_count_exact` asserting `len(primes) == 50847534` (verified value for $\pi(10^9)$) and `test_sieve_runtime` asserting `runtime_seconds < 7200` (120 minutes).
+- [X] T011 [P] [US1] Integration test for prime count verification in `tests/test_sieve.py`: Implement `test_prime_count_exact` asserting `{{claim:c_11b1c421}} ` (verified value for $\pi(10^9)$) and `test_sieve_runtime` asserting `{{claim:c_19adce4d}} (2603.26441, https://arxiv.org/abs/2603.26441)` (120 minutes).
 
 ### Implementation for User Story 1
 
@@ -66,7 +66,7 @@
  4. Perform a self-check: verify `last_prime < 10^9` and `len(set(primes)) == len(primes)` before writing.
  5. Output to `data/primes_1e9.csv` (one prime per line).
  **Dependency**: None.
-- [ ] T013 [US1] Implement and run `code/validate_sieve.py`: A separate script to verify the generated prime list from `data/primes_1e9.csv`. **Requirements**: <!-- ATOMIZE: requested -->
+- [ ] T013 [US1] Implement and run `code/validate_sieve.py`: A separate script to verify the generated prime list from `data/primes_1e9.csv`. **Requirements**: <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
  1. **DO NOT** use self-referential trial division (circular logic).
  2. Verify total count aligns with the expected theoretical magnitude.
  3. **Spot Check**: Sample a representative subset of primes from the list. using **stratified sampling** (evenly spaced indices) with a fixed seed (e.g., `seed=42`). Verify each sampled prime `p` using `sympy.isprime(p)` (an independent, deterministic library) to ensure primality.
@@ -96,7 +96,7 @@
 - [X] T021 [US2] Implement `code/smoothness.py`: Interval enumeration loop that handles edge cases (empty intervals, $x+h > 10^9$) without crashing. **Dependency**: Must wait for T012 AND T013.
 - [X] T022 [US2] Implement `code/smoothness.py`: Aggregation logic to compute density $\rho = \text{count}/h$ and deviation ratio $R = \rho_{obs} / \rho_{Dickman}(u)$ for **50** random starting positions per configuration. **Dependency**: Must wait for T012, T013, AND T004 (Dickman function).
 - [X] T023 [US2] Implement `code/main.py` orchestration to run **TWO** distinct parameter sweeps. **Justification**: The Spec grid satisfies FR-002; the Plan grid satisfies SC-004 (Variance analysis) and the Plan's methodological revision.
- 1. **Spec-Defined Grid (Baseline)**: $y \in \{100, 1000, 10000 (OEIS A114856, https://oeis.org/A114856)\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$. Save results to `data/density_measurements_spec.csv` with a `source` column set to 'spec'. **Multiple random starts per configuration**.
+ 1. **Spec-Defined Grid (Baseline)**: $y \in \{100, 1000, 10000 ({{claim:c_81df3239}}, https://oeis.org/A114856)\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$. Save results to `data/density_measurements_spec.csv` with a `source` column set to 'spec'. **Multiple random starts per configuration**.
  2. **Plan-Defined Grid (Variance Analysis)**: $y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with **fixed interval lengths** $h \in \{10^3, 10^4, 10^5, 10^6\}$. Save results to `data/density_measurements_plan.csv` with a `source` column set to 'plan'. **Multiple random starts per configuration**.
  **Dependency**: Must wait for T012 AND T013.
 - [ ] T023b [US2] **Verify Grid Generation**: Validate the output of T023. **Requirements**:
@@ -119,7 +119,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T024 [P] [US3] Unit test for WLS regression implementation in `tests/test_analysis.py`: Implement `test_wls_recovery` using synthetic data: 10 points, slope=2.0, noise=0.1. Assert `abs(beta_estimated - 2.0) < 0.05 `.
+- [X] T024 [P] [US3] Unit test for WLS regression implementation in `tests/test_analysis.py`: Implement `test_wls_recovery` using synthetic data: 10 points, slope=2.0, noise=0.1 [UNRESOLVED-CLAIM: c_7a21bdf0 — status=not_enough_info]. Assert `abs(beta_estimated - 2.0) < 0.05 `.
 - [X] T025 [P] [US3] Unit test for Chi-Square test logic in `tests/test_analysis.py`: Implement `test_chi_square_logic` with synthetic observed/expected counts. Assert p-value is calculated and within expected range.
 
 ### Implementation for User Story 3
@@ -136,7 +136,7 @@
  6. Output: Write `chi_square_p_value` to `data/model_fits.json`.
  **Note**: This test satisfies FR-005 and is mandatory. **Dependency**: Must wait for T023.
 - [X] T028 [US3] Implement `code/viz.py`: Generate density vs. interval length plots with confidence intervals and theoretical curves for BOTH grids; save to `data/` as PNG. **Requirement**: Generate captions directly from the data (e.g., "Observed: {rho}, Expected: {exp}, p={p}") and save as text next to the image. **Dependency**: Must wait for T026/T027.
-- [ ] T029 [US3] Implement `code/main.py` to orchestrate analysis. **Requirements**:
+- [X] T029 [US3] Implement `code/main.py` to orchestrate analysis. **Requirements**:
  1. Aggregate results from T026a, T026b, T027a, T027b.
  2. **Verification**: Explicitly verify that the analysis logic prioritizes the 'plan' grid for the deviation ratio regression (T026a) and KS test (T027a) as per the Plan's methodological revision. Log a warning if the 'spec' grid is used for these specific metrics.
  3. Save to `data/model_fits.json` with exact schema:
@@ -167,7 +167,7 @@
 - [X] T030 [P] **Visualization Annotation**: Update `code/viz.py` to add specific text annotations at coordinates (x,y) for each plot indicating "Associational Trend Only" (per Spec Assumptions). Update `code/analysis.py` docstrings to explicitly state "Correlation does not imply causation".
 - [X] T031 [P] Documentation updates: Create `docs/methodology.md` containing sections: "Sieve Implementation", "Smoothness Logic", "Statistical Tests (KS & Chi-Square)", "Dual-Grid Rationale". Ensure reproducibility steps are detailed.
 - [X] T032a [P] **Performance Profiling**: Profile `code/smoothness.py` loop using `cProfile`. **Output**: Save detailed profiling report to `data/profiles/smoothness_baseline.txt` (cProfile pstats text format).
-- [ ] T032b [US2] **Performance Optimization**: Implement vectorized factorization using `numpy` broadcasting. **Method**: Create boolean masks for primes $\le y$ and use `np.all` to check smoothness across the interval array. **Dependency**: Must wait for T032a.
+- [ ] T032b [US2] **Performance Optimization**: Implement vectorized factorization using `numpy` broadcasting. **Method**: Create boolean masks for primes $\le y$ and use `np.all` to check smoothness across the interval array. **Dependency**: Must wait for T032a. <!-- ATOMIZE: requested -->
 - [ ] T032c [US2] **Benchmark Verification**: Run the optimized `smoothness.py` against the same parameters as T032a and record the runtime comparison. **Output**: Save results to `data/benchmark_results.json` with schema `{"baseline_ms": float, "optimized_ms": float, "speedup_factor": float, "passed": bool}`. **Dependency**: Must wait for T032b.
 - [ ] T033a [P] **Reproducibility Execution**: Execute the `quickstart.md` script end-to-end in a clean environment using Docker image `python:3.11-slim` on an `ubuntu-latest` runner. **Output**: Capture stdout/stderr to `data/ci_logs/repro_run.log`. **Dependency**: None.
 - [ ] T033b [P] **Reproducibility Verification**: Verify the output of T033a. **Requirements**:

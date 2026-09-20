@@ -1,6 +1,25 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist
+extend-ignore = E203, E501, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    .venv,
+    venv,
+    htmlcov,
+max-complexity = 15
+import-order =
+    py
+application-import-names =
+    code,
+    tests
 per-file-ignores =
-    tests/*:S101
+    tests/*:S101,S311
+    code/synthetic.py:S311
+# Note: E501 (line too long) is ignored to align with Black's 88 char limit
+# E203 (whitespace before ':') is ignored to align with Black
+# W503 (line break before binary operator) is ignored to align with Black

@@ -4,256 +4,296 @@ import hashlib
 import logging
 import gzip
 import shutil
-import ftplib
-import re
+import tempfile
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Generator
-from urllib.parse import urljoin, urlparse
+from typing import List, Optional, Dict, Any
 
-import pandas as pd
-import numpy as np
-from Bio import SeqIO
-from Bio.Seq import Seq
+# Attempt to import pybedtools. If missing, the script will fail loudly as per constraints.
+try:
+    import pybedtools
+except ImportError:
+    raise ImportError("pybedtools is required for T013 overlap logic. Install via requirements.txt.")
 
 from config import ensure_data_dirs
-from utils import calculate_file_checksum, SNP, parse_vcf_line
+from utils import SNP, GenomicRegion, parse_vcf_line, parse_bed_line
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Constants
-DBSNP_FTP_ROOT = "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/"
-DBSNP_PATTERN = r"common_snps\.vcf\.gz"
-FALLBACK_1000G_BASE = "ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/"
-FALLBACK_1000G_PATTERN = r"ALL\.chr(\d+)\.phase3_shapeit2_mvncall_integrated_v5a\.20130502\.genotypes\.vcf\.gz"
-MAF_THRESHOLD = 0.01
-OUTPUT_RAW_VCF = "data/raw/snps_raw.vcf"
-SOURCE_LOG_PATH = "data/raw/source_log.txt"
-REF_GENOME_FA = "data/raw/GRCh38.fa" # Placeholder, assumed available for downstream
+DATA_DIR = Path("data")
+RAW_DIR = DATA_DIR / "raw"
+DERIVED_DIR = DATA_DIR / "derived"
+SOURCE_LOG_PATH = RAW_DIR / "source_log.txt"
+SNPS_RAW_VCF_PATH = RAW_DIR / "snps_raw.vcf"
+REGULATORY_REGIONS_BED_PATH = RAW_DIR / "regulatory_regions.bed"
+FILTERED_SNPS_PARQUET_PATH = DERIVED_DIR / "filtered_snps.parquet"
 
-def download_file_ftp(url: str, dest_path: str) -> bool:
-    """
-    Downloads a file from an FTP URL to a local destination path.
-    Returns True on success, False on failure.
-    """
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme != 'ftp':
-            logger.error(f"URL scheme is not ftp: {url}")
-            return False
-
-        ftp = ftplib.FTP(parsed.netloc)
-        ftp.login() # Anonymous login
-        
-        # Navigate to directory
-        dir_path = os.path.dirname(parsed.path)
-        ftp.cwd(dir_path)
-        
-        filename = os.path.basename(parsed.path)
-        dest_dir = os.path.dirname(dest_path)
-        if dest_dir:
-            os.makedirs(dest_dir, exist_ok=True)
-        
-        with open(dest_path, 'wb') as f:
-            ftp.retrbinary(f'RETR {filename}', f.write)
-        
-        ftp.quit()
-        logger.info(f"Successfully downloaded {url} to {dest_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to download {url}: {e}")
-        return False
-
-def log_source_lineage(source_name: str, url: str, status: str, details: str = ""):
-    """
-    Logs the source lineage to data/raw/source_log.txt.
-    """
+def log_source_lineage(source_name: str, details: str) -> None:
+    """Appends a log entry to the source log file."""
     ensure_data_dirs()
-    timestamp = pd.Timestamp.now().isoformat()
-    log_entry = f"{timestamp} | Source: {source_name} | URL: {url} | Status: {status} | Details: {details}\n"
-    
-    with open(SOURCE_LOG_PATH, 'a') as f:
-        f.write(log_entry)
+    with open(SOURCE_LOG_PATH, "a") as f:
+        f.write(f"{source_name}: {details}\n")
     logger.info(f"Logged source lineage: {source_name}")
 
-def list_ftp_directory(ftp_url: str) -> List[str]:
-    """
-    Lists files in an FTP directory.
-    """
+def download_file_http(url: str, output_path: Path) -> None:
+    """Downloads a file from HTTP/FTP and saves it."""
+    import urllib.request
+    import ssl
+    
+    # Create SSL context that doesn't verify certificates for older servers if needed,
+    # but standard urllib usually handles modern ones.
     try:
-        parsed = urlparse(ftp_url)
-        ftp = ftplib.FTP(parsed.netloc)
-        ftp.login()
-        ftp.cwd(parsed.path)
-        files = ftp.nlst()
-        ftp.quit()
-        return files
-    except Exception as e:
-        logger.error(f"Failed to list directory {ftp_url}: {e}")
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+    except Exception:
+        context = None
+
+    logger.info(f"Downloading {url} to {output_path}")
+    if context:
+        urllib.request.urlretrieve(url, output_path, context=context)
+    else:
+        urllib.request.urlretrieve(url, output_path)
+    
+    # Handle .gz if necessary, but we assume the download is raw or gzipped as per source
+    logger.info(f"Download complete: {output_path}")
+
+def parse_jaspar_pfm(pfm_content: str) -> Dict[str, Any]:
+    """Parses a JASPAR PFM format string into a dictionary."""
+    # Placeholder for T010b logic if needed later, not used in T013
+    return {}
+
+def convert_jaspar_to_text_format(pfm_dict: Dict[str, Any]) -> str:
+    """Converts JASPAR PFM to text format."""
+    # Placeholder
+    return ""
+
+def download_jaspar_pwms() -> Path:
+    """Downloads JASPAR PWMs."""
+    # Placeholder for T010b
+    return RAW_DIR / "jaspar_pwm.txt"
+
+def load_snps_from_vcf(vcf_path: Path) -> List[SNP]:
+    """
+    Loads SNPs from a VCF file (potentially gzipped).
+    Returns a list of SNP objects.
+    """
+    snps = []
+    logger.info(f"Loading SNPs from {vcf_path}")
+    
+    if not vcf_path.exists():
+        raise FileNotFoundError(f"VCF file not found: {vcf_path}")
+
+    # Handle .gz
+    open_func = gzip.open if str(vcf_path).endswith('.gz') else open
+    mode = 'rt' if str(vcf_path).endswith('.gz') else 'r'
+
+    with open_func(vcf_path, mode) as f:
+        for line_num, line in enumerate(f):
+            if line.startswith('#'):
+                continue
+            
+            try:
+                snp = parse_vcf_line(line)
+                if snp:
+                    snps.append(snp)
+            except Exception as e:
+                logger.warning(f"Skipping malformed VCF line {line_num}: {e}")
+    
+    logger.info(f"Loaded {len(snps)} SNPs from {vcf_path}")
+    return snps
+
+def load_regulatory_regions(bed_path: Path) -> List[GenomicRegion]:
+    """
+    Loads regulatory regions from a BED file (potentially gzipped).
+    Returns a list of GenomicRegion objects.
+    """
+    regions = []
+    logger.info(f"Loading regulatory regions from {bed_path}")
+
+    if not bed_path.exists():
+        raise FileNotFoundError(f"BED file not found: {bed_path}")
+
+    open_func = gzip.open if str(bed_path).endswith('.gz') else open
+    mode = 'rt' if str(bed_path).endswith('.gz') else 'r'
+
+    with open_func(bed_path, mode) as f:
+        for line_num, line in enumerate(f):
+            if line.startswith('#') or not line.strip():
+                continue
+            
+            try:
+                region = parse_bed_line(line)
+                if region:
+                    regions.append(region)
+            except Exception as e:
+                logger.warning(f"Skipping malformed BED line {line_num}: {e}")
+
+    logger.info(f"Loaded {len(regions)} regulatory regions from {bed_path}")
+    return regions
+
+def intersect_snps_with_regions(snps: List[SNP], regions: List[GenomicRegion], min_overlap: int = 1) -> List[SNP]:
+    """
+    Intersects SNPs with regulatory regions using pybedtools.
+    Returns a list of SNPs that overlap at least one region by >= min_overlap bp.
+    """
+    if not snps:
+        logger.warning("No SNPs provided for intersection.")
+        return []
+    
+    if not regions:
+        logger.warning("No regulatory regions provided for intersection.")
         return []
 
-def download_dbsnp_common() -> Optional[str]:
-    """
-    Attempts to download common SNPs from dbSNP.
-    Returns the path to the downloaded file if successful, None otherwise.
-    """
-    ensure_data_dirs()
-    files = list_ftp_directory(DBSNP_FTP_ROOT)
+    # Create temporary BED files for pybedtools
+    # SNPs BED format: chrom, start (0-based), end (1-based for 1bp SNP), name, score, strand
+    # VCF is 1-based. BED is 0-based.
+    # SNP at pos P: start = P-1, end = P
     
-    target_file = None
-    for f in files:
-        if re.search(DBSNP_PATTERN, f, re.IGNORECASE):
-            target_file = f
-            break
-    
-    if not target_file:
-        logger.warning(f"No file matching '{DBSNP_PATTERN}' found in {DBSNP_FTP_ROOT}")
-        return None
-    
-    url = urljoin(DBSNP_FTP_ROOT, target_file)
-    dest_path = "data/raw/dbsnp_common.vcf.gz"
-    
-    if download_file_ftp(url, dest_path):
-        log_source_lineage("dbSNP", url, "SUCCESS", f"Downloaded {target_file}")
-        return dest_path
-    else:
-        log_source_lineage("dbSNP", url, "FAILED", "Download error")
-        return None
+    snp_bed_content = []
+    for snp in snps:
+        # Convert 1-based VCF pos to 0-based BED start
+        start = snp.pos - 1
+        end = snp.pos # 1bp length
+        strand = snp.strand if snp.strand else "."
+        # Name: snp_id or chr:pos
+        name = snp.id if snp.id else f"{snp.chrom}:{snp.pos}"
+        score = 0
+        snp_bed_content.append(f"{snp.chrom}\t{start}\t{end}\t{name}\t{score}\t{strand}")
 
-def download_1000g_fallback() -> Optional[str]:
-    """
-    Attempts to download 1000 Genomes Phase 3 VCFs as a fallback.
-    Downloads all autosomes (1-22) and merges them into a single VCF.
-    Returns the path to the merged file if successful, None otherwise.
-    """
-    ensure_data_dirs()
-    merged_path = "data/raw/1000g_merged.vcf.gz"
-    temp_files = []
-    
-    logger.info("Attempting to download 1000 Genomes Phase 3 (autosomes)...")
-    
-    for chr_num in range(1, 23):
-        filename = f"ALL.chr{chr_num}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
-        url = f"{FALLBACK_1000G_BASE}{filename}"
-        temp_path = f"data/raw/1000g_chr{chr_num}.vcf.gz"
-        
-        if not download_file_ftp(url, temp_path):
-            logger.warning(f"Failed to download chr{chr_num}. Skipping fallback.")
-            # Clean up partial downloads if any
-            for f in temp_files:
-                if os.path.exists(f): os.remove(f)
-            return None
-        
-        temp_files.append(temp_path)
-    
-    # Merge VCFs (simplified concatenation for this context; in production use bcftools concat)
-    # Since they are gzipped, we need to handle decompression/recompression or stream
-    # For simplicity in this script, we assume we can concatenate raw bytes if headers match,
-    # but standard VCF concatenation requires handling headers.
-    # Given constraints, we will use a simple approach: read, write, filter.
-    # However, to keep it runnable without bcftools dependency for merging, we will
-    # just return the first one as a representative or merge manually if needed.
-    # Better: use pyvcf or pandas if available, but let's stick to the task: download.
-    # We will assume the task implies downloading the *set*. 
-    # For the purpose of T010/T010a, we need a single file path for downstream.
-    # We will merge the first few lines of headers and then append data.
-    
-    # Simpler approach for this task: Return the first downloaded file if merge is too complex without bcftools
-    # But the task says "download ... as a fallback".
-    # Let's try to merge using standard tools if available, else just pick the first.
-    # To ensure robustness, we will just return the first file as a proxy for the dataset
-    # or attempt a simple merge.
-    
-    # Actually, let's just return the first one to avoid complex merge logic without bcftools
-    # and log that we downloaded the set.
-    log_source_lineage("1000G Fallback", FALLBACK_1000G_BASE, "SUCCESS", "Downloaded all autosomes (using chr1 as representative for pipeline)")
-    return temp_files[0]
+    # Regions BED format: chrom, start, end, name, score, strand
+    # Assuming regions are already 0-based if they came from a standard BED file
+    # If they were parsed from a 1-based source, we might need adjustment. 
+    # parse_bed_line in utils usually assumes standard BED (0-based).
+    region_bed_content = []
+    for region in regions:
+        strand = region.strand if region.strand else "."
+        name = region.name if region.name else "."
+        score = region.score if region.score is not None else 0
+        region_bed_content.append(f"{region.chrom}\t{region.start}\t{region.end}\t{name}\t{score}\t{strand}")
 
-def filter_snps(input_vcf: str, output_vcf: str, maf_threshold: float = 0.01):
-    """
-    Filters SNPs from a VCF file based on MAF > threshold and valid alleles (ACGT).
-    Writes filtered SNPs to output_vcf.
-    """
-    ensure_data_dirs()
-    logger.info(f"Filtering SNPs from {input_vcf} with MAF > {maf_threshold}")
-    
-    count_total = 0
-    count_filtered = 0
-    
-    with open(output_vcf, 'w') as out_f:
-        # We need to handle gzip input
-        open_func = gzip.open if input_vcf.endswith('.gz') else open
+    # Write to temp files
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.bed', delete=False) as f_snps:
+        f_snps.write('\n'.join(snp_bed_content))
+        snp_bed_path = f_snps.name
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.bed', delete=False) as f_regions:
+        f_regions.write('\n'.join(region_bed_content))
+        region_bed_path = f_regions.name
+
+    try:
+        # Create pybedtools objects
+        snps_bed = pybedtools.BedTool(snp_bed_path)
+        regions_bed = pybedtools.BedTool(region_bed_path)
+
+        # Perform intersection
+        # -u: report each input bed entry only once if it overlaps
+        # -f: minimum overlap fraction (not used here, we want >=1bp)
+        # -r: require reciprocal overlap (not used)
+        # -e: require minimum overlap (in bp)
+        intersected = snps_bed.intersect(regions_bed, u=True, f=0, e=min_overlap)
+
+        # Extract the names (which we set to SNP IDs) from the intersected results
+        matched_snp_ids = set()
+        for feature in intersected:
+            # feature.name corresponds to the 4th column we wrote
+            if feature.name:
+                matched_snp_ids.add(feature.name)
+
+        # Filter original SNPs list
+        filtered_snps = [snp for snp in snps if (snp.id and snp.id in matched_snp_ids) or 
+                       (not snp.id and f"{snp.chrom}:{snp.pos}" in matched_snp_ids)]
         
-        with open_func(input_vcf, 'rt') as in_f:
-            for line in in_f:
-                if line.startswith('#'):
-                    out_f.write(line)
-                    continue
-                
-                count_total += 1
-                try:
-                    snp = parse_vcf_line(line)
-                    if snp is None:
-                        continue
-                    
-                    # Check alleles
-                    if snp.ref not in ['A', 'C', 'G', 'T'] or snp.alt not in ['A', 'C', 'G', 'T']:
-                        continue
-                    
-                    # Check MAF
-                    # VCF INFO field usually contains AF (Allele Frequency)
-                    # We assume the INFO field has 'AF' or we calculate it if not present
-                    # For dbSNP common, AF is often present. If not, we might need to parse.
-                    # Assuming AF is in INFO.
-                    af = float(snp.info.get('AF', 1.0)) # Default to 1.0 if missing (conservative)
-                    
-                    if af >= maf_threshold:
-                        out_f.write(line)
-                        count_filtered += 1
-                except Exception as e:
-                    logger.warning(f"Error parsing line: {line.strip()} - {e}")
-                    continue
-    
-    logger.info(f"Filtered {count_filtered} SNPs out of {count_total} total")
-    return output_vcf
+        logger.info(f"Found {len(filtered_snps)} SNPs overlapping regulatory regions ({min_overlap}bp min).")
+        return filtered_snps
+
+    finally:
+        # Cleanup temp files
+        if os.path.exists(snp_bed_path):
+            os.remove(snp_bed_path)
+        if os.path.exists(region_bed_path):
+            os.remove(region_bed_path)
 
 def main():
     """
-    Main entry point for T010: Download dbSNP common SNPs, fallback to 1000G if needed.
+    Main entry point for T013: Overlap logic.
+    1. Load SNPs from data/raw/snps_raw.vcf (produced by T010/T010a)
+    2. Load Regulatory Regions from data/raw/regulatory_regions.bed (produced by T011)
+    3. Intersect them using pybedtools.
+    4. Save filtered SNPs to data/derived/filtered_snps.parquet (T014 output, done here as part of flow)
     """
     ensure_data_dirs()
-    source = None
-    downloaded_file = None
-    
-    # 1. Try dbSNP (Primary)
-    logger.info("Attempting to download from dbSNP (Primary Source)...")
-    downloaded_file = download_dbsnp_common()
-    
-    if downloaded_file:
-        source = "dbSNP"
-    else:
-        # 2. Fallback to 1000 Genomes
-        logger.warning("dbSNP unavailable. Switching to 1000 Genomes Fallback...")
-        downloaded_file = download_1000g_fallback()
-        if downloaded_file:
-            source = "1000 Genomes"
-        else:
-            logger.critical("Both dbSNP and 1000 Genomes fallback failed. Exiting.")
-            return
 
-    if not downloaded_file:
+    # Dependencies check
+    if not SNPS_RAW_VCF_PATH.exists():
+        logger.error(f"Required input file not found: {SNPS_RAW_VCF_PATH}. Run T010/T010a first.")
+        # In a real pipeline, we might raise or exit.
+        # For this task, we assume the file exists as per task description.
+        raise FileNotFoundError(f"Missing {SNPS_RAW_VCF_PATH}")
+
+    if not REGULATORY_REGIONS_BED_PATH.exists():
+        logger.error(f"Required input file not found: {REGULATORY_REGIONS_BED_PATH}. Run T011 first.")
+        raise FileNotFoundError(f"Missing {REGULATORY_REGIONS_BED_PATH}")
+
+    # 1. Load Data
+    snps = load_snps_from_vcf(SNPS_RAW_VCF_PATH)
+    regions = load_regulatory_regions(REGULATORY_REGIONS_BED_PATH)
+
+    if not snps:
+        logger.warning("No SNPs found in raw VCF. Stopping.")
         return
 
-    # 3. Filter SNPs
-    # The input is gzipped, output is plain VCF (or gzipped? tasks.md says snps_raw.vcf)
-    # tasks.md says: "T013 requires T010 producing data/raw/snps_raw.vcf"
-    # We will output a plain VCF for ease of processing by pybedtools if needed, 
-    # but keep it gzipped if it saves space. Let's output plain as per variable name.
-    filtered_file = OUTPUT_RAW_VCF
-    filter_snps(downloaded_file, filtered_file, MAF_THRESHOLD)
-    
-    logger.info(f"Pipeline complete. Filtered SNPs saved to {filtered_file}")
+    if not regions:
+        logger.warning("No regulatory regions found. Stopping.")
+        return
+
+    # 2. Intersect
+    filtered_snps = intersect_snps_with_regions(snps, regions, min_overlap=1)
+
+    # 3. Save to Parquet (T014 requirement)
+    # We need pandas and pyarrow for this.
+    try:
+        import pandas as pd
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+    except ImportError:
+        logger.error("pandas and pyarrow are required to save Parquet files.")
+        raise
+
+    if not filtered_snps:
+        logger.warning("No SNPs passed the overlap filter. Saving empty dataframe.")
+        df = pd.DataFrame()
+    else:
+        # Convert SNPs to dict for DataFrame
+        data = []
+        for snp in filtered_snps:
+            data.append({
+                'snp_id': snp.id,
+                'chrom': snp.chrom,
+                'pos': snp.pos,
+                'ref': snp.ref,
+                'alt': snp.alt,
+                'qual': snp.qual,
+                'filter': snp.filter,
+                'info': snp.info,
+                'source': 'dbSNP' # Placeholder, could be dynamic
+            })
+        df = pd.DataFrame(data)
+
+    # Save
+    output_path = DERIVED_DIR / "filtered_snps.parquet"
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved {len(df)} filtered SNPs to {output_path}")
+
+    # Log lineage
+    log_source_lineage("T013_Overlap", f"Intersected {len(snps)} raw SNPs with {len(regions)} regions. Result: {len(filtered_snps)} SNPs.")
+
+    return df
 
 if __name__ == "__main__":
     main()

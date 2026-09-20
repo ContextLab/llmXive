@@ -1,5 +1,1 @@
-"""
-Rules module for extraction and validation.
-"""
-# Placeholder for future imports
-pass
+"""Rules Module: Extraction and Validation"""

@@ -39,7 +39,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [US2] Create `code/config.py` defining paths, random seeds, and MAF threshold. **CRITICAL**: The scoring engine MUST derive the window size dynamically from the loaded PWM length for each TF. [UNRESOLVED-CLAIM: c_e7ac2943 — status=not_enough_info] **No fallback constants** (e.g., `DEFAULT_WINDOW`) are permitted in this config; the window size is strictly `len(pwm)`.
+- [X] T005 [US2] Create `code/config.py` defining paths, random seeds, and MAF threshold. **CRITICAL**: The scoring engine MUST derive the window size dynamically from the loaded PWM length for each TF. **No fallback constants** (e.g., `DEFAULT_WINDOW`) are permitted in this config; the window size is strictly `len(pwm)`.
 - [X] T006 [P] Implement `code/utils.py` with genome coordinate helpers, FASTA memory-mapped I/O wrappers, and checksum verification functions
 - [X] T007 [P] Create `code/__init__.py` and module structure for `data_ingestion`, `scoring`, and `statistics`
 - [ ] T008 Setup `tests/unit/`, `tests/integration/`, and `tests/contract/` directories with `__init__.py` files
@@ -57,7 +57,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data_ingestion.py` to download common human SNPs (MAF > 1%) from **dbSNP** (primary source) using `bcftools` or FTP. **URL**: `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`. **Constraint**: Select the file matching the pattern `common_snps.vcf.gz` from the directory listing. [UNRESOLVED-CLAIM: c_b04e8d19 — status=not_enough_info] If dbSNP is unavailable, switch to fallback (T010a) and log source lineage to `data/raw/source_log.txt`.
+- [ ] T010 [US1] Implement `code/data_ingestion.py` to download common human SNPs (MAF > 1%) from **dbSNP** (primary source) using `bcftools` or FTP. **URL**: `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`. **Constraint**: Select the file matching the pattern `common_snps.vcf.gz` from the directory listing. If dbSNP is unavailable, switch to fallback (T010a) and log source lineage to `data/raw/source_log.txt`.
 - [X] T010a [US1] Implement `code/data_ingestion.py` to download 1000 Genomes Phase 3 VCF (common SNPs) as a fallback source. **URL Logic**: Iterate over human autosomes (1-22) using the pattern `f"ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"`. Ensure the filename suffix `.vcf.gz` is included.
 - [ ] T010b [US1] Implement `code/data_ingestion.py` to download JASPAR PWMs (CORE collection) for human TFs. **URL**: `. Save to `data/raw/jaspar_pwm.txt`.
 - [ ] T010c [US1] Implement selection logic in `code/data_ingestion.py` to prioritize dbSNP (T010) and fallback to 1000 Genomes (T010a) if dbSNP unavailable; log source lineage to `data/raw/source_log.txt`.

@@ -1,3 +1,1 @@
-"""
-Test suite for the llmXive pipeline.
-"""
+"""Test Suite"""

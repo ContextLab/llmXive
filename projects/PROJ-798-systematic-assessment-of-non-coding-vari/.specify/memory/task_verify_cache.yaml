@@ -20,38 +20,35 @@ T008:
     supply any artifacts showing these folders were created. The task remains undone.
 T010:
   c: false
-  h: 0f6ca39aa23ca79def9a091e6d77e0691b21fa1f8bb09b5981b8e621c1d0f762
-  r: "The provided `code/data_ingestion.py` stops after defining helper functions;\
-    \ there is no implementation that lists the FTP directory, selects the `common_snps.vcf.gz`\
-    \ file, downloads it, applies the MAF\u202F>\u202F1\u202F% filter, or falls back\
-    \ to the 1000\u202FGenomes source when dbSNP is unavailable. Moreover, the required\
-    \ `data/raw/source_log.txt` does not exist, indicating the logging step has not\
-    \ been exercised. The script therefore does not fulfill the task\u2019s functional\
-    \ and logging requirements."
+  h: ad930ebc769042ea26781c3579776956daf921a6bf17dd1635668be32aaa24cc
+  r: "The provided `code/data_ingestion.py` does not contain the logic to list the\
+    \ dbSNP FTP directory, select the `common_snps.vcf.gz` file, or handle the fallback\
+    \ case, and the required `data/raw/source_log.txt` file is absent. Consequently,\
+    \ the task\u2019s core requirements are not met."
 T010b:
   c: false
-  h: 95f6a0ebd0e767f54b537901ae7c4d637f616a2f74b7d567a3cbc4ea0f76467b
-  r: The repository lacks the required `data/raw/jaspar_pwm.txt` file, and the provided
-    `code/data_ingestion.py` does not contain any logic to download the JASPAR CORE
-    collection (e.g., no function referencing the given URL or saving to the expected
-    path). The implementation focuses on SNP handling instead of the requested PWM
-    download.
+  h: 6fc99f78c8102d3a4ad2228813354d864d7327d3e0e9706f00bfc84061a97287
+  r: The `code/data_ingestion.py` file contains only placeholder stubs for the JASPAR
+    download (e.g., `download_jaspar_pwms()` just returns a path without performing
+    any download). Moreover, the required output file `data/raw/jaspar_pwm.txt` does
+    not exist on disk. Both the implementation and the expected artifact are missing,
+    so the task is not satisfied.
 T010c:
   c: false
-  h: 41d263da7fc7bdf8cc411734b9f9a0867c37e9a4a166e66bfe0079e725074cdd
-  r: "The repository lacks the required `data/raw/source_log.txt` file, and the shown\
-    \ portion of `code/data_ingestion.py` contains no implementation that selects\
-    \ dbSNP first and falls back to 1000\u202FGenomes when dbSNP is unavailable. The\
-    \ task\u2019s core selection and logging behavior is therefore missing."
+  h: ad930ebc769042ea26781c3579776956daf921a6bf17dd1635668be32aaa24cc
+  r: "The provided `code/data_ingestion.py` does not contain any logic that checks\
+    \ for the presence of a dbSNP file and falls back to a 1000\u202FGenomes source,\
+    \ nor does it call `log_source_lineage` for those sources. Additionally, the required\
+    \ `data/raw/source_log.txt` file is absent. Both the selection behavior and the\
+    \ logging artifact are missing, so the task is not fulfilled."
 T013:
   c: false
-  h: ef3a03f98ef26d0a81359079445613795c628c63fecab25b83c658cc1ab78ae3
-  r: "The `code/data_ingestion.py` file does not contain any import of `pybedtools`\
-    \ nor a complete implementation of the SNP\u2011region intersection (the `intersect_snps_with_regions`\
-    \ function is truncated and shows no use of pybedtools). Additionally, the required\
-    \ input files `data/raw/snps_raw.vcf` and `data/raw/regulatory_regions.bed` are\
-    \ missing from the repository. Both the core logic and the necessary data artifacts\
-    \ are absent."
+  h: 3e870215eb6619f9bde08061a71d3297b2db81aa8f2d30ff6175cfc3776ac82c
+  r: "The repository contains a `code/data_ingestion.py` file, but the overlap logic\
+    \ using `pybedtools` is not present (the file is truncated before any intersect\
+    \ operation). Moreover, the required input files `data/raw/snps_raw.vcf` and `data/raw/regulatory_regions.bed`\
+    \ are missing, so the script cannot be executed or tested. The task\u2019s core\
+    \ requirement is therefore unmet."
 T013b:
   c: false
   h: f5f3627a478a6f705366b25632d749a4a456f3552e390e6b0e468174568ec898

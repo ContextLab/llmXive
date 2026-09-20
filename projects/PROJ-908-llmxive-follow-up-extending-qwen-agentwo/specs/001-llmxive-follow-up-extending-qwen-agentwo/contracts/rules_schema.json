@@ -1,18 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Extracted Rules Schema",
-  "description": "Schema for the hypothesized rule set extracted from LLM CoT traces using ILP/Decision Trees.",
+  "description": "Schema for the hypothesized rule set extracted from LLM Chain-of-Thought traces via ILP.",
   "type": "object",
   "properties": {
     "metadata": {
       "type": "object",
       "properties": {
         "version": { "type": "string" },
-        "extraction_method": { "type": "string", "description": "e.g., 'ILP', 'DecisionTree', 'PrologInduction'" },
-        "trace_source": { "type": "string", "description": "Path to CoT traces used" },
-        "generated_at": { "type": "string", "format": "date-time" }
+        "extraction_method": { "type": "string", "enum": ["ILP", "DecisionTree", "FOL"] },
+        "model_version": { "type": "string" },
+        "trace_source": { "type": "string" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "confidence_threshold": { "type": "number", "minimum": 0, "maximum": 1 }
       },
-      "required": ["version", "extraction_method", "trace_source", "generated_at"]
+      "required": ["version", "extraction_method", "generated_at"]
     },
     "rules": {
       "type": "array",
@@ -26,26 +28,32 @@
             "items": { "type": "string" },
             "description": "List of premise predicates"
           },
-          "logic_form": { "type": "string", "description": "Full FOL or Prolog clause string" },
-          "support_count": { "type": "integer", "minimum": 0, "description": "Number of traces supporting this rule" },
+          "logic_form": { "type": "string", "description": "Full First-Order Logic representation" },
+          "support_count": { "type": "integer", "minimum": 0 },
           "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-          "status": { "type": "string", "enum": ["verified", "contradicted", "uncertain"], "description": "Validation status against Oracle" }
+          "source_trace_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "References to CoT traces that supported this rule"
+          }
         },
-        "required": ["id", "head", "body", "logic_form", "support_count"]
+        "required": ["id", "head", "body", "logic_form"]
       }
     },
     "uncertainty_flags": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "trace_id": { "type": "string" },
-          "reason": { "type": "string", "enum": ["ambiguous", "contradictory", "insufficient_data"] },
-          "excluded_from_metrics": { "type": "boolean", "default": true }
+      "type": "object",
+      "properties": {
+        "extraction_uncertainty": {
+          "type": "integer",
+          "description": "Count of traces with ambiguous or contradictory rule extraction"
         },
-        "required": ["trace_id", "reason"]
-      }
+        "cold_start": {
+          "type": "integer",
+          "description": "Count of states/actions with no supporting traces"
+        }
+      },
+      "required": ["extraction_uncertainty", "cold_start"]
     }
   },
-  "required": ["metadata", "rules"]
+  "required": ["metadata", "rules", "uncertainty_flags"]
 }

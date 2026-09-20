@@ -1,6 +1,7 @@
+# Development dependencies
 pytest>=7.0.0
 pytest-cov>=4.0.0
 pytest-mock>=3.10.0
 black>=23.0.0
-ruff>=0.1.0
+ruff>=0.0.280
 mypy>=1.0.0

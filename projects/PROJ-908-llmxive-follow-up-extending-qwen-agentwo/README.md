@@ -2,20 +2,15 @@
 
 **Project**: llmXive follow-up: extending "Qwen-AgentWorld: Language World Models for General Agents"
 
-**Description**: This project implements an automated science pipeline to parse the Qwen-AgentWorld source code, extract a deterministic state-transition oracle, derive logical rules from LLM reasoning traces, and quantify divergence between the LLM, extracted rules, and the ground truth oracle.
+**Objective**: Implement an automated science pipeline to parse Qwen-AgentWorld source code, construct a deterministic state-transition oracle, extract logical rules from LLM reasoning traces, and quantify divergence between LLM behavior, extracted rules, and the ground truth oracle.
 
 ## Structure
 
-- `code/`: Python modules for the pipeline (oracle, rules, analysis, utils).
-- `data/`: Raw and processed data artifacts.
-- `specs/`: Feature specifications, data models, and contracts.
-- `tests/`: Unit and integration tests.
-- `projects/`: Sub-projects if applicable (this is the root for this specific task).
-
-## Prerequisites
-
-- Python 3.9+
-- `requirements.txt` (see root or `code/` directory)
+- `code/`: Python implementation modules
+- `data/`: Raw and processed data artifacts
+- `specs/`: Design documents, contracts, and user stories
+- `tests/`: Unit and integration tests
+- `projects/`: Project-specific metadata (this directory)
 
 ## Quick Start
 
@@ -27,9 +22,8 @@
  ```bash
  python code/main.py
  ```
+3. View generated artifacts in `data/processed/`.
 
-## User Stories
+## License
 
-- **US1**: Ground Truth Oracle Construction (P1)
-- **US2**: Rule Extraction from Reasoning Traces (P2)
-- **US3**: Divergence Quantification and Classification (P3)
+Internal Research Use Only.

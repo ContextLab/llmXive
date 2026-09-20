@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat-GGUF
   verified_at: '2026-07-15T13:36:52.033739Z'
+- artifact_hash: a520af3b6b843067fea2d4956fb1b2041300b71682258fd32a810ba6f2781315
+  artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-09-20T06:37:24.327426Z'

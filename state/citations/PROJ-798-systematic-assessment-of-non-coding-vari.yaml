@@ -57,7 +57,7 @@
   verification_status: verified
   verified_against_url: https://jaspar.elixir.no/
   verified_at: '2026-07-12T11:09:38.059810Z'
-- artifact_hash: 27bbc0a16dcec3a28216ade860414c16ba4400bb9da0589a126485bd214f5e5c
+- artifact_hash: ac916a6916819a5a56ba3df87b73aa7197c93a8474cf5f05efb13f78a88e0748
   artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -67,4 +67,4 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-25T14:14:03.764847Z'
+  verified_at: '2026-09-20T06:46:33.570199Z'

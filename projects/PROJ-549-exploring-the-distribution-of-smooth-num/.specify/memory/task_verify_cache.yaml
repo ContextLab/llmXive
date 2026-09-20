@@ -63,6 +63,15 @@ T032a:
     \ missing, and there is no evidence that `cProfile` was run on the loop in `code/smoothness.py`.\
     \ The task\u2019s core deliverable \u2013 a saved cProfile pstats text report\
     \ \u2013 was not provided."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, or script implementing the requested vectorized factorization\
+    \ with NumPy broadcasting is present; the only evidence is the task description\
+    \ itself. The required artifact\u2014a working implementation (e.g., a Python\
+    \ module or script) that creates boolean masks for primes \u2264\u202Fy and uses\
+    \ `np.all` to test smoothness across an interval array\u2014is missing, so the\
+    \ task is not satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

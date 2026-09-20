@@ -1,49 +1,96 @@
 """
-Pytest configuration and global fixtures.
-Sets the random seed to 42 for all tests to ensure reproducibility.
+Pytest configuration and global fixtures for llmXive project.
+
+This file enforces the fixed random seed (42) requirement for all tests
+to ensure deterministic and reproducible results.
 """
 import os
 import random
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
 
-# Project root directory
-ROOT_DIR = Path(__file__).parent.parent
-DATA_DIR = ROOT_DIR / "data"
-CODE_DIR = ROOT_DIR / "code"
+# Ensure reproducibility by setting global random seeds
+# This runs before any test collection or execution
+SEED = 42
 
-# Add project root to path if not already present
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+def pytest_configure(config):
+    """Configure pytest with fixed seed and project paths."""
+    # Set global random seed
+    random.seed(SEED)
+    os.environ["PYTHONHASHSEED"] = str(SEED)
+    
+    # Attempt to set numpy seed if available
+    try:
+        import numpy as np
+        np.random.seed(SEED)
+    except ImportError:
+        pass
+    
+    # Attempt to set torch seed if available
+    try:
+        import torch
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(SEED)
+    except ImportError:
+        pass
 
-@pytest.fixture(scope="session", autouse=True)
-def set_random_seed():
+@pytest.fixture(autouse=True)
+def reset_seeds():
     """
-    Autouse fixture to set the random seed for the entire test session.
-    This ensures that all random operations are deterministic.
+    Autouse fixture to reset random seeds before each test.
+    This ensures that state from one test does not leak into another.
     """
-    seed = 42
-    random.seed(seed)
-    np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    # Note: For torch/tensorflow, specific seed setting logic would be added here
-    # if those dependencies were active in the test suite.
-    return seed
+    random.seed(SEED)
+    os.environ["PYTHONHASHSEED"] = str(SEED)
+    try:
+        import numpy as np
+        np.random.seed(SEED)
+    except ImportError:
+        pass
+    try:
+        import torch
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(SEED)
+    except ImportError:
+        pass
+    yield
+    # Optional: Cleanup or verification can happen here
 
 @pytest.fixture
-def data_dir():
-    """Fixture to provide the path to the data directory."""
-    return DATA_DIR
+def project_root():
+    """Return the path to the project root directory."""
+    return Path(__file__).parent.parent
 
 @pytest.fixture
-def code_dir():
-    """Fixture to provide the path to the code directory."""
-    return CODE_DIR
+def data_processed_dir(project_root):
+    """Return the path to the processed data directory."""
+    return project_root / "data" / "processed"
 
 @pytest.fixture
-def temp_output_dir(tmp_path):
-    """Fixture to provide a temporary directory for output files during tests."""
-    return tmp_path
+def data_raw_dir(project_root):
+    """Return the path to the raw data directory."""
+    return project_root / "data" / "raw"
+
+@pytest.fixture
+def code_dir(project_root):
+    """Return the path to the code directory."""
+    return project_root / "code"
+
+@pytest.fixture
+def oracle_graph_path(data_processed_dir):
+    """Path to the generated oracle graph JSON."""
+    return data_processed_dir / "oracle_graph.json"
+
+@pytest.fixture
+def extracted_rules_path(data_processed_dir):
+    """Path to the generated extracted rules JSON."""
+    return data_processed_dir / "extracted_rules.json"
+
+@pytest.fixture
+def divergence_report_path(data_processed_dir):
+    """Path to the generated divergence report JSON."""
+    return data_processed_dir / "divergence_report.json"

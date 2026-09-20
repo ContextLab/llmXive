@@ -1,2 +1,3 @@
-# llmXive project package
-pass
+"""
+llmXive Project: Systematic Assessment of Non-Coding Variant Effects
+"""

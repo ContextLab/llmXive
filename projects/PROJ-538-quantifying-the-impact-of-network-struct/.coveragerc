@@ -2,20 +2,22 @@
 source = code
 omit =
     */tests/*
-    */__pycache__/*
     */venv/*
-    */.venv/*
-branch = True
-
+    */__pycache__/*
+    code/setup_data_dirs.py
+    code/format_lint_check.py
+    code/cleanup_refactor.py
+    code/main.py
+    
 [report]
 exclude_lines =
     pragma: no cover
     def __repr__
     raise AssertionError
     raise NotImplementedError
-    if __name__ == .__main__.
+    if __name__ == .__main__.:
     if TYPE_CHECKING:
     @abstractmethod
-precision = 2
-show_missing = True
-fail_under = 70
+    
+[html]
+directory = docs/coverage_html

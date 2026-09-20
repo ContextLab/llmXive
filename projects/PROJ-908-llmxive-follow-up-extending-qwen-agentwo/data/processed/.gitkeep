@@ -1,4 +1,2 @@
 # This file ensures the data/processed directory is tracked by git.
-# Do not delete this file.
-# Processed data files (e.g., JSONL, CSV, Parquet, Graphs) should be placed here.
-# Ensure large files are managed via Git LFS or excluded via .gitignore patterns.
+# Processed artifacts (e.g., extracted_rules.json) will be generated here.
