@@ -1,11 +1,17 @@
-T001:
+T000:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or listing of the required folders (`code/data`, `code/stimuli`,
-    `code/analysis`, `code/viz`, `code/tests`, `data/raw/stimuli`, `data/raw/responses`,
-    `data/processed`, `data/results`, `docs`) was presented, so we cannot confirm
-    that the specified project structure exists. The implementer must provide concrete
-    evidence (e.g., `tree` output or screenshots) showing the exact folder hierarchy.
+  r: "No evidence of the required `specs/001-the-influence-of-visual-complexity-on-im/amendment-001.md`\
+    \ file or an updated `spec.md` that references the amendment or marks FR\u2011\
+    003 as \u201CAmended\u201D was provided. Both artifacts are missing, so the ratification\
+    \ task is not satisfied."
+T002:
+  c: false
+  h: e1a7119c02e536a741855ffe07f52e979a7354d6e54875afd1b6d9ae15e74bf8
+  r: "The required file `projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/requirements.txt`\
+    \ does not exist, and the existing `code/requirements.txt` contains a different\
+    \ package list, not the specified specification excerpt. The task\u2019s core\
+    \ artifact is missing."
 T017a:
   c: false
   h: 7e1e183df78d29b2ab608c080446e2e530fd077c49a572bceb12c3443fcc153f
@@ -23,26 +29,15 @@ T026b:
     \ with the specified columns, nor any handling of paired Low/High sessions. Moreover,\
     \ the CSV file itself is missing from the project. The task\u2019s core output\
     \ is therefore not present."
-T027b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `logs/counterbalance_strategy.log` file was provided, nor any\
-    \ content showing the required seed and split\u2011ratio values. The implementer\
-    \ must create the log file and ensure it records the specific counterbalancing\
-    \ assignment strategy, including those details."
 T032:
   c: false
-  h: 98587b6678f0518931454b658d4e02e16e2640dbf0410cfe3d7a5cdbef9954f0
-  r: "The provided `code/analysis/pca.py` computes PCA and returns results, but it\
-    \ never writes `data/results/pca_variance.json` (the file is missing) and does\
-    \ not check that the cumulative variance exceeds\u202F0.8. The required output\
-    \ artifact and verification step are therefore absent."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the calculated permutation Cohen\u2019s\u202Fd, permutation\
-    \ p\u2011value, or the required note that partial\u202F\u03B7\xB2 is not applicable\
-    \ was provided; thus the task\u2019s deliverable is missing."
+  h: 01496469bbbd9414a67ac5fcb2b5770ff86172e80680969b35209617ca97fbda
+  r: "The repository lacks the required `data/processed/complexity_scores.csv` and\
+    \ the resulting `data/results/pca_variance.json` files, so the script cannot actually\
+    \ read metrics or produce the expected output. Moreover, the `pca.py` implementation\
+    \ raises `FileNotFoundError` and `ValueError`, violating the \u201Cdo not raise\
+    \ ValueError or halt pipeline\u201D rule, and the `main` function is truncated,\
+    \ never writing the warning\u2011status JSON. The task therefore remains unfinished."
 T034b:
   c: false
   h: 8c6f7c939b905fc8cabe68e706872e8847ec406449da88a64b41a1cfb1fbcc74
@@ -51,14 +46,12 @@ T034b:
     \ not read the observed Cohen\u2019s\u202Fd from a JSON file nor write the power\
     \ analysis results to the specified output file. Consequently the post\u2011hoc\
     \ power calculation is not fully implemented as described."
-T035b:
+T035:
   c: false
-  h: f8ebae39016741307fe35942cb672383661363bde90d2d9b0cf34143a1c28229
-  r: "The `permutation.py` file only contains generic permutation\u2011test utilities\
-    \ and does not implement any Leave\u2011One\u2011Image\u2011Out loop, nor does\
-    \ it write or append results to `data/results/sensitivity_results.json`. Moreover,\
-    \ the expected `sensitivity_results.json` file is absent from the repository.\
-    \ Both required artifacts are missing, so the task is not fulfilled."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or visualizations implementing the Threshold and LOIO sensitivity
+    analyses were provided; the claim lacks any concrete artifact demonstrating that
+    the required analysis was performed.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

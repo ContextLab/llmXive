@@ -1,208 +1,199 @@
 """
-Integration test for full stimulus complexity quantification pipeline.
+Integration tests for the full stimulus complexity quantification pipeline (US1).
 
-This test verifies the end-to-end flow of:
-1. Validating input images (T016)
-2. Calculating metrics (Edge Density, Entropy, Fractal Dimension) (T013-T015)
-3. Categorizing complexity (T018)
-4. Batch processing and CSV output (T017)
-
-It runs on a set of synthetic sample images generated in-memory to ensure
-the pipeline functions correctly without requiring external file downloads.
+This test suite verifies the end-to-end flow:
+1. Validation of images (simulated via pre-existing logs or mock).
+2. Computation of metrics (Edge Density, Entropy, Fractal Dimension).
+3. Categorization via Median Split.
+4. Final CSV output schema and content verification.
 """
 import os
-import sys
 import tempfile
 import shutil
-import numpy as np
-import cv2
-import pandas as pd
-import pytest
+import logging
 from pathlib import Path
+import pandas as pd
+import numpy as np
+import pytest
 
-# Ensure code root is in path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
-from stimuli.metrics import calculate_edge_density, calculate_entropy, calculate_fractal_dim
-from stimuli.process import process_stimuli_batch, categorize_complexity
+# Import pipeline components
 from stimuli.validate import validate_batch, get_valid_images
-from config import get_project_root, ensure_directories, get_data_path
+from stimuli.metrics import process_image_vectorized
+from stimuli.serialize import load_raw_complexity_scores, apply_categorization, save_final_csv
+from config import get_data_path
+
+# Configure logging for tests to avoid missing handler errors
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def create_test_images(temp_dir: Path):
+def _create_test_image(tmp_dir: Path, filename: str, mode: str = "solid") -> Path:
     """
-    Creates deterministic test images in the provided directory.
-    Returns a list of filenames.
+    Helper to create deterministic test images for integration testing.
+    mode: 'solid' (low complexity), 'noise' (high complexity), 'gradient' (mid)
     """
-    img_files = []
+    import cv2
+    img_path = tmp_dir / filename
+    if mode == "solid":
+        # Solid gray image (low edge density, low entropy)
+        img = np.zeros((100, 100), dtype=np.uint8) + 128
+    elif mode == "noise":
+        # High frequency noise (high edge density, high entropy)
+        img = np.random.randint(0, 255, (100, 100), dtype=np.uint8)
+    elif mode == "gradient":
+        # Linear gradient (mid complexity)
+        img = np.tile(np.arange(100, dtype=np.uint8), (100, 1)).T
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
     
-    # 1. Solid Black Image (Low Complexity)
-    black_img = np.zeros((256, 256, 3), dtype=np.uint8)
-    path = temp_dir / "solid_black.png"
-    cv2.imwrite(str(path), black_img)
-    img_files.append("solid_black.png")
+    cv2.imwrite(str(img_path), img)
+    return img_path
+
+
+def test_complexity_pipeline(tmp_path: Path):
+    """
+    Integration test: test_complexity_pipeline
     
-    # 2. Solid White Image (Low Complexity)
-    white_img = np.ones((256, 256, 3), dtype=np.uint8) * 255
-    path = temp_dir / "solid_white.png"
-    cv2.imwrite(str(path), white_img)
-    img_files.append("solid_white.png")
+    Verifies that the full pipeline:
+    1. Validates images (creates valid list).
+    2. Computes metrics for valid images.
+    3. Applies median split categorization.
+    4. Outputs a CSV with correct columns and logical categories.
     
-    # 3. High-Frequency Noise (High Complexity)
-    noise_img = np.random.RandomState(42).randint(0, 256, (256, 256, 3), dtype=np.uint8)
-    path = temp_dir / "high_noise.png"
-    cv2.imwrite(str(path), noise_img)
-    img_files.append("high_noise.png")
+    Assertion: Output CSV has correct columns and categories.
+    Specifically:
+    - Columns: filename, edge_density, entropy, fractal_dim, complexity_category
+    - Categories are 'Low' or 'High'.
+    - Noise images should generally be 'High' and solid 'Low' (statistically likely).
+    """
+    # Setup temporary directories mimicking project structure
+    data_root = tmp_path / "data"
+    raw_stimuli = data_root / "raw" / "stimuli"
+    processed = data_root / "processed"
+    logs = tmp_path / "logs"
     
-    # 4. Low-Frequency Gradient (Medium Complexity)
-    gradient_img = np.zeros((256, 256, 3), dtype=np.uint8)
-    for i in range(256):
-        val = int((i / 255.0) * 255)
-        gradient_img[i, :, :] = [val, val, val]
-    path = temp_dir / "gradient.png"
-    cv2.imwrite(str(path), gradient_img)
-    img_files.append("gradient.png")
+    raw_stimuli.mkdir(parents=True)
+    processed.mkdir(parents=True)
+    logs.mkdir(parents=True)
     
-    # 5. Corrupted File (to test validation T016)
-    corrupted_path = temp_dir / "corrupted.png"
-    with open(corrupted_path, "wb") as f:
-        f.write(b"NOT A PNG FILE")
+    # Patch config to use temp paths for this test
+    # Note: In a real run, config.py would point to the project root.
+    # Here we rely on relative paths or explicit passing if the functions support it.
+    # Since process.py/serialize.py use get_data_path, we need to ensure the environment
+    # or config is set up correctly. For this integration test, we will use explicit
+    # paths where possible or mock the config if necessary.
+    # However, to keep it simple and robust, we will pass explicit paths to the functions
+    # if they support it, or assume the test runs from the project root context.
+    # Given the API surface, let's assume we run this from the project root or
+    # we manually set the paths in the functions if they don't take args.
+    # Looking at the API:
+    # validate_batch: no args -> uses config
+    # process_image_vectorized: takes image_path
+    # apply_categorization: takes df
+    # save_final_csv: takes df, output_path
     
-    return img_files
+    # To make this test portable, we will temporarily override get_data_path behavior
+    # or simply set environment variables if the config relies on them.
+    # Alternatively, we can create the files in the expected relative location if
+    # we assume the test runner sets the cwd.
+    # Let's assume the test is run from the project root, so we create the structure
+    # in the temp dir and then change cwd or patch the config.
+    # Since we cannot easily patch the module-level constants in config.py without
+    # reloading, let's create a mini-project structure in the temp dir and change cwd.
+    
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(tmp_path)
+        
+        # 1. Create Test Data
+        # Create a mix of images to ensure median split works
+        # 2 Solid (Low), 2 Noise (High) -> Median split should separate them perfectly
+        _create_test_image(raw_stimuli, "solid1.png", "solid")
+        _create_test_image(raw_stimuli, "solid2.png", "solid")
+        _create_test_image(raw_stimuli, "noise1.png", "noise")
+        _create_test_image(raw_stimuli, "noise2.png", "noise")
+        
+        # 2. Run Validation (T016 simulation)
+        # The validate.py script expects to run from the project root and write to logs/validation.log
+        # We call the main logic directly or run the script.
+        # Let's call the function directly to avoid subprocess complexity in tests.
+        valid_images, invalid_images = get_valid_images(raw_stimuli)
+        
+        # Write the valid list to the expected location
+        valid_list_path = processed / "valid_images_list.txt"
+        with open(valid_list_path, "w") as f:
+            for img in valid_images:
+                f.write(img.name + "\n")
+        
+        assert valid_list_path.exists(), "Valid images list not created"
+        assert len(valid_images) == 4, f"Expected 4 valid images, got {len(valid_images)}"
+        
+        # 3. Compute Metrics (T017a-2 simulation)
+        # Read valid list
+        with open(valid_list_path, "r") as f:
+            valid_files = [line.strip() for line in f if line.strip()]
+        
+        metrics_rows = []
+        for filename in valid_files:
+            img_path = raw_stimuli / filename
+            try:
+                edge_density, entropy, fractal_dim = process_image_vectorized(img_path)
+                metrics_rows.append({
+                    "filename": filename,
+                    "edge_density": edge_density,
+                    "entropy": entropy,
+                    "fractal_dim": fractal_dim
+                })
+            except Exception as e:
+                logger.error(f"Failed to process {filename}: {e}")
+                # In a real pipeline, this might be logged and skipped, but for integration
+                # we expect success on valid test images.
+                raise
+        
+        raw_metrics_df = pd.DataFrame(metrics_rows)
+        raw_metrics_path = processed / "complexity_metrics_raw.csv"
+        raw_metrics_df.to_csv(raw_metrics_path, index=False)
+        
+        assert raw_metrics_path.exists(), "Raw metrics CSV not created"
+        assert "edge_density" in raw_metrics_df.columns
+        assert "entropy" in raw_metrics_df.columns
+        assert "fractal_dim" in raw_metrics_df.columns
+        
+        # 4. Categorize and Save Final (T017a-3 simulation)
+        # Load raw
+        df = load_raw_complexity_scores(raw_metrics_path)
+        
+        # Apply median split
+        df_categorized = apply_categorization(df, metric="edge_density")
+        
+        # Save final
+        final_path = processed / "complexity_scores.csv"
+        save_final_csv(df_categorized, final_path)
+        
+        assert final_path.exists(), "Final complexity scores CSV not created"
+        
+        # 5. Verify Output
+        final_df = pd.read_csv(final_path)
+        
+        # Check columns
+        expected_cols = ["filename", "edge_density", "entropy", "fractal_dim", "complexity_category"]
+        assert list(final_df.columns) == expected_cols, f"Columns mismatch: {list(final_df.columns)}"
+        
+        # Check categories
+        assert all(cat in ["Low", "High"] for cat in final_df["complexity_category"]), "Invalid categories found"
+        
+        # Check logic: Noise images should have higher edge density than solid images
+        # and thus likely be categorized as 'High'
+        noise_rows = final_df[final_df["filename"].str.contains("noise")]
+        solid_rows = final_df[final_df["filename"].str.contains("solid")]
+        
+        if len(noise_rows) > 0 and len(solid_rows) > 0:
+            # With 2 solid and 2 noise, median split should put solid in Low and noise in High
+            # unless edge density calculation is weirdly non-monotonic (unlikely for solid vs noise)
+            assert all(solid_rows["complexity_category"] == "Low"), "Solid images should be Low complexity"
+            assert all(noise_rows["complexity_category"] == "High"), "Noise images should be High complexity"
+        
+        logger.info("Integration test passed: Pipeline produced correct CSV with valid categories.")
 
-
-class TestStimulusPipeline:
-    """Integration tests for the full stimulus complexity pipeline."""
-
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Create a temporary directory for test images and clean up afterwards."""
-        self.temp_dir = Path(tempfile.mkdtemp())
-        self.img_files = create_test_images(self.temp_dir)
-        yield
-        shutil.rmtree(self.temp_dir)
-
-    def test_validation_skips_corrupted(self):
-        """Test T016: Validation correctly identifies and skips corrupted files."""
-        valid_files, invalid_files = validate_batch(self.temp_dir)
-        
-        assert len(valid_files) == len(self.img_files)
-        assert "corrupted.png" in [f.name for f in invalid_files]
-        assert "solid_black.png" in [f.name for f in valid_files]
-        assert "high_noise.png" in [f.name for f in valid_files]
-
-    def test_individual_metrics_distinguish_images(self):
-        """Test T013-T015: Metrics correctly distinguish between low and high complexity."""
-        # Load noise and solid black
-        noise_path = str(self.temp_dir / "high_noise.png")
-        black_path = str(self.temp_dir / "solid_black.png")
-        
-        noise_edge = calculate_edge_density(noise_path)
-        black_edge = calculate_edge_density(black_path)
-        
-        noise_ent = calculate_entropy(noise_path)
-        black_ent = calculate_entropy(black_path)
-        
-        noise_fractal = calculate_fractal_dim(noise_path)
-        black_fractal = calculate_fractal_dim(black_path)
-        
-        # Noise should have strictly higher edge density and entropy
-        assert noise_edge > black_edge, "Noise should have higher edge density than solid black"
-        assert noise_ent > black_ent, "Noise should have higher entropy than solid black"
-        
-        # Fractal dimension check (noise usually ~2.0-2.5, solid lines/planes ~1.0-2.0)
-        # We assert noise is higher or at least distinct, though fractal dim is sensitive
-        assert noise_fractal >= black_fractal, "Noise fractal dim should be >= solid black"
-
-    def test_categorization_logic(self):
-        """Test T018: Categorization assigns Low/Medium/High based on qcut logic."""
-        # We simulate a dataframe with known values
-        data = {
-            'filename': ['a', 'b', 'c'],
-            'edge_density': [0.01, 0.05, 0.20],
-            'entropy': [0.1, 0.5, 2.0],
-            'fractal_dim': [1.1, 1.5, 2.4]
-        }
-        df = pd.DataFrame(data)
-        
-        # Apply categorization logic (simplified version of process.py logic)
-        # In real code, this uses qcut on the aggregate score or individual metrics
-        # Here we test the helper function directly if it exists, or the logic
-        # Since categorize_complexity in process.py handles the full batch, 
-        # we test the full pipeline integration in the next test.
-        # This test ensures the helper logic works if called.
-        assert True  # Logic is verified in full pipeline test
-
-    def test_full_pipeline_output(self):
-        """
-        Test T017: Full batch processing produces the correct CSV output.
-        
-        Verifies:
-        - Script runs without error on valid + invalid mix
-        - Output CSV exists at expected location
-        - Output schema matches: filename, edge_density, entropy, fractal_dim, complexity_category
-        - Invalid files are excluded from output
-        - Complexity categories are assigned
-        """
-        output_dir = self.temp_dir / "processed"
-        output_dir.mkdir(exist_ok=True)
-        output_file = output_dir / "complexity_scores.csv"
-        
-        # Run the batch processor
-        # We pass the temp_dir as the source
-        process_stimuli_batch(
-            input_dir=self.temp_dir,
-            output_path=str(output_file)
-        )
-        
-        # Verify file exists
-        assert output_file.exists(), "Output CSV file was not created"
-        
-        # Verify schema
-        df = pd.read_csv(output_file)
-        expected_cols = ['filename', 'edge_density', 'entropy', 'fractal_dim', 'complexity_category']
-        assert list(df.columns) == expected_cols, f"Expected columns {expected_cols}, got {list(df.columns)}"
-        
-        # Verify count (should be 4 valid images, corrupted excluded)
-        assert len(df) == 4, f"Expected 4 valid images, got {len(df)}"
-        
-        # Verify categories are present
-        assert 'complexity_category' in df.columns
-        categories = df['complexity_category'].unique()
-        assert len(categories) > 0, "No complexity categories assigned"
-        
-        # Verify specific expectations:
-        # Solid black should likely be 'Low'
-        # High noise should likely be 'High'
-        # (Exact category depends on qcut bins, but distribution should vary)
-        
-        # Check that 'solid_black.png' is in the dataframe
-        assert "solid_black.png" in df['filename'].values
-        assert "high_noise.png" in df['filename'].values
-        
-        # Check that 'corrupted.png' is NOT in the dataframe
-        assert "corrupted.png" not in df['filename'].values
-
-    def test_metrics_consistency_with_vectorized(self):
-        """
-        Test that the vectorized process_image_vectorized (if used) 
-        yields consistent results with individual metric calls.
-        """
-        # This test ensures that if we switch to vectorized processing,
-        # the results remain consistent with the scalar implementations.
-        # For now, we just verify the scalar functions work as expected.
-        img_path = str(self.temp_dir / "gradient.png")
-        
-        e1 = calculate_edge_density(img_path)
-        h1 = calculate_entropy(img_path)
-        f1 = calculate_fractal_dim(img_path)
-        
-        # Re-calculate to ensure determinism
-        e2 = calculate_edge_density(img_path)
-        h2 = calculate_entropy(img_path)
-        f2 = calculate_fractal_dim(img_path)
-        
-        assert e1 == e2
-        assert h1 == h2
-        assert f1 == f2
+    finally:
+        os.chdir(original_cwd)

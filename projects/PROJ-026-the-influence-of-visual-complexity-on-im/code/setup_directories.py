@@ -8,49 +8,44 @@ logger = logging.getLogger(__name__)
 def setup_directories():
     """
     Create the project directory structure as defined in the implementation plan.
-    Ensures all required folders for code, data, and documentation exist.
+    
+    Directories to create:
+    - code/{data,stimuli,analysis,viz,tests}
+    - data/{raw/stimuli,raw/responses,processed,results}
+    - docs
     """
     root = get_project_root()
     
-    # Define directory paths relative to root
-    dirs = [
+    directories = [
         # Code structure
-        "code/data",
-        "code/stimuli",
-        "code/analysis",
-        "code/viz",
-        "code/tests",
+        root / "code" / "data",
+        root / "code" / "stimuli",
+        root / "code" / "analysis",
+        root / "code" / "viz",
+        root / "code" / "tests",
         
         # Data structure
-        "data/raw/stimuli",
-        "data/raw/responses",
-        "data/processed",
-        "data/results",
+        root / "data" / "raw" / "stimuli",
+        root / "data" / "raw" / "responses",
+        root / "data" / "processed",
+        root / "data" / "results",
         
         # Documentation
-        "docs",
+        root / "docs",
     ]
     
     created_count = 0
-    for dir_path in dirs:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {directory}")
             created_count += 1
         else:
-            logger.debug(f"Directory already exists: {full_path}")
+            logger.debug(f"Directory already exists: {directory}")
     
-    logger.info(f"Directory setup complete. Created {created_count} new directories.")
-    return True
+    logger.info(f"Setup complete. Created {created_count} new directories.")
+    return created_count
 
 def main():
     """Entry point for directory setup script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
     setup_directories()
-
-if __name__ == "__main__":
-    main()

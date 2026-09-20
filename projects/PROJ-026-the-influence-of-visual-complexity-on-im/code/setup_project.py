@@ -1,41 +1,59 @@
+"""
+Project initialization script.
+
+Creates the initial project structure and configuration files.
+"""
 import os
 from pathlib import Path
 from typing import List
 import logging
-from ..config import get_project_root
-from ..utils.logging import get_logger
+from config import get_project_root
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def create_directories():
-    """Create all required project directories."""
-    root = get_project_root()
+def create_directories() -> None:
+    """
+    Create the full project directory structure.
     
-    directories = [
-        root / "code" / "data",
-        root / "code" / "stimuli",
-        root / "code" / "analysis",
-        root / "code" / "viz",
-        root / "code" / "utils",
-        root / "data" / "raw" / "stimuli",
-        root / "data" / "raw" / "responses",
-        root / "data" / "processed",
-        root / "data" / "results",
-        root / "logs",
-        root / "figures"
+    This function creates all necessary directories for the research pipeline.
+    """
+    project_root = get_project_root()
+    
+    directories: List[str] = [
+        # Code modules
+        "code/data",
+        "code/stimuli",
+        "code/analysis",
+        "code/viz",
+        "code/tests",
+        "code/utils",
+        
+        # Data directories
+        "data/raw/stimuli",
+        "data/raw/responses",
+        "data/processed",
+        "data/results",
+        
+        # Documentation
+        "docs",
+        
+        # Logs
+        "logs"
     ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Created directory: {directory}")
-    
-    logger.info(f"Created {len(directories)} directories")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+        else:
+            logger.debug(f"Directory already exists: {full_path}")
 
-def main():
-    """Main entry point for project setup."""
-    logger.info("Starting project setup")
+def main() -> None:
+    """Entry point for project setup."""
     create_directories()
-    logger.info("Project setup completed")
+    print("Project structure initialized successfully.")
 
 if __name__ == "__main__":
     main()

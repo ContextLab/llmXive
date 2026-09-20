@@ -30,14 +30,24 @@ def run_pca_check(complexity_scores_path: Optional[Path] = None) -> Dict[str, An
     logger.info(f"Loading complexity scores from {complexity_scores_path}")
     df = pd.read_csv(complexity_scores_path)
 
-    # Filter for valid images
-    valid_df = df[df['status'] == 'valid'].copy()
+    # Filter for valid images (handle potential status column presence)
+    if 'status' in df.columns:
+        valid_df = df[df['status'] == 'valid'].copy()
+    else:
+        # If no status column, assume all rows are valid
+        valid_df = df.copy()
 
     if valid_df.empty:
         raise ValueError("No valid images found in complexity scores.")
 
     # Select metrics
     metrics = ['edge_density', 'entropy', 'fractal_dim']
+    
+    # Ensure columns exist
+    missing_cols = [m for m in metrics if m not in valid_df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required metric columns: {missing_cols}")
+
     X = valid_df[metrics].dropna()
 
     if X.empty:
@@ -56,7 +66,7 @@ def run_pca_check(complexity_scores_path: Optional[Path] = None) -> Dict[str, An
         "n_components": len(pca.explained_variance_ratio_),
         "explained_variance_ratio": pca.explained_variance_ratio_.tolist(),
         "cumulative_variance": cumulative_variance.tolist(),
-        "cumulative_variance_threshold_met": cumulative_variance[-1] > 0.8,
+        "cumulative_variance_threshold_met": bool(cumulative_variance[-1] >= 0.8),
         "n_samples": len(X)
     }
 
@@ -82,18 +92,35 @@ def main() -> None:
 
         logger.info(f"PCA results saved to {output_path}")
 
-        # Verify threshold
+        # Verify threshold and write warning status if needed
         if not result["cumulative_variance_threshold_met"]:
             logger.warning(
                 f"Cumulative variance ({result['cumulative_variance'][-1]:.4f}) "
                 "is below the 0.8 threshold. Construct validity may be compromised."
             )
+            # Update result to include warning message for the JSON output
+            result["status"] = "warning"
+            result["message"] = "Low variance"
+            # Re-write with warning info
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
         else:
             logger.info("Construct validity verified: cumulative variance > 0.8")
+            result["status"] = "ok"
+            # Re-write with ok status
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
 
     except Exception as e:
         logger.error(f"PCA check failed: {e}")
-        raise
+        # On error, write error status to JSON as per robust error handling requirement
+        error_result = {
+            "status": "error",
+            "message": str(e)
+        }
+        with open(output_path, 'w') as f:
+            json.dump(error_result, f, indent=2)
+        # Do not raise, let pipeline continue
 
 
 if __name__ == "__main__":

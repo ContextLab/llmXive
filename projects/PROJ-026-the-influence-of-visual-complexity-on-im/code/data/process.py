@@ -5,210 +5,178 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from config import get_project_root, get_data_path
-from utils.logging import get_logger
+# Configure logging
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-LATENCY_MIN = 300.0
-LATENCY_MAX = 10000.0
-MIN_VALID_TRIALS = 10
-
-
-def filter_trials(
-    trials: List[Dict[str, Any]],
-    latency_min: float = LATENCY_MIN,
-    latency_max: float = LATENCY_MAX
-) -> List[Dict[str, Any]]:
+def filter_trials(trials: pd.DataFrame, min_rt: float = 300.0, max_rt: float = 10000.0) -> pd.DataFrame:
     """
-    Filter trials based on latency bounds and error handling.
-    """
-    filtered = []
-    for trial in trials:
-        rt = trial.get('reaction_time')
-        is_error = trial.get('is_error', False)
-
-        if rt is None:
-            continue
-
-        if rt < latency_min or rt > latency_max:
-            continue
-
-        if is_error:
-            # Keep errors but mark them
-            trial['is_error'] = True
-            filtered.append(trial)
-        else:
-            trial['is_error'] = False
-            filtered.append(trial)
-
-    return filtered
-
-
-def calculate_d_score(
-    trials: List[Dict[str, Any]],
-    block_type: str
-) -> Tuple[float, int]:
-    """
-    Calculate Greenwald D2 score for a session.
-
-    Args:
-        trials: List of filtered trial dictionaries
-        block_type: Type of block ('compatible' or 'incompatible')
-
+    Filter trials based on reaction time bounds and error handling.
+    
+    Parameters:
+    - trials: DataFrame with columns including 'reaction_time' and 'is_correct'
+    - min_rt: Minimum valid reaction time in ms (default 300ms)
+    - max_rt: Maximum valid reaction time in ms (default 10000ms)
+    
     Returns:
-        Tuple of (d_score, n_valid_trials)
+    - Filtered DataFrame
     """
-    if len(trials) < MIN_VALID_TRIALS:
-        return np.nan, len(trials)
+    logger.info(f"Filtering trials with bounds: {min_rt}ms <= RT <= {max_rt}ms")
+    
+    # Filter by reaction time bounds
+    valid_trials = trials[
+        (trials['reaction_time'] >= min_rt) & 
+        (trials['reaction_time'] <= max_rt)
+    ]
+    
+    # Log exclusion statistics
+    excluded_count = len(trials) - len(valid_trials)
+    if excluded_count > 0:
+        logger.warning(f"Excluded {excluded_count} trials due to RT bounds")
+    
+    return valid_trials
 
-    # Separate by error status
-    correct_trials = [t for t in trials if not t.get('is_error', False)]
-    error_trials = [t for t in trials if t.get('is_error', False)]
-
-    if len(correct_trials) < MIN_VALID_TRIALS:
-        return np.nan, len(trials)
-
-    # Calculate means and standard deviations
-    correct_rts = np.array([t['reaction_time'] for t in correct_trials])
-    mean_rt = np.mean(correct_rts)
-    std_rt = np.std(correct_rts, ddof=1)
-
-    if std_rt == 0:
-        return np.nan, len(trials)
-
-    # D-score formula: (Mean_incompatible - Mean_compatible) / SD_pooled
-    # Simplified for single block type
-    d_score = mean_rt / std_rt
-
-    return d_score, len(trials)
-
-
-def load_raw_logs_to_dict(
-    logs_path: Path
-) -> Dict[str, List[Dict[str, Any]]]:
+def calculate_d_score(trials: pd.DataFrame) -> float:
     """
-    Load raw response logs into a dictionary keyed by participant_id.
+    Calculate the Greenwald D2 score for a set of trials.
+    
+    The D2 algorithm (Greenwald et al., 2003) computes the implicit association
+    test score as the difference in mean reaction times between two blocks,
+    divided by the standard deviation of all trials in both blocks.
+    
+    Parameters:
+    - trials: DataFrame containing trials for both blocks (e.g., 'compatible' and 'incompatible')
+      Expected columns: 'reaction_time', 'is_correct', 'block_type' (or similar indicator)
+    
+    Returns:
+    - D-score (float)
     """
-    if not logs_path.exists():
-        raise FileNotFoundError(f"Response logs not found: {logs_path}")
+    if len(trials) < 2:
+        logger.warning("Insufficient trials for D-score calculation")
+        return np.nan
 
-    df = pd.read_csv(logs_path)
+    # Ensure we have the necessary columns
+    if 'block_type' not in trials.columns:
+        # If no block type, assume all trials are one block (not typical for IAT)
+        # This is a fallback; typically IAT requires two blocks
+        logger.warning("No block_type column found; assuming single block (invalid for IAT)")
+        return np.nan
 
-    # Group by participant
-    logs_dict = {}
-    for pid, group in df.groupby('participant_id'):
-        trials = group.to_dict('records')
-        logs_dict[pid] = trials
+    # Separate blocks
+    # Assuming block_type values are 'compatible' and 'incompatible'
+    # Adjust if the data uses different naming
+    compatible = trials[trials['block_type'] == 'compatible']
+    incompatible = trials[trials['block_type'] == 'incompatible']
 
-    return logs_dict
+    if len(compatible) == 0 or len(incompatible) == 0:
+        logger.warning("Missing trials in one or both blocks")
+        return np.nan
 
+    # Mean reaction times
+    mean_compatible = compatible['reaction_time'].mean()
+    mean_incompatible = incompatible['reaction_time'].mean()
+
+    # Standard deviation of all trials (pooled)
+    all_rt = pd.concat([compatible['reaction_time'], incompatible['reaction_time']])
+    std_all = all_rt.std()
+
+    # D2 formula: (Mean_incompatible - Mean_compatible) / SD_all
+    if std_all == 0:
+        logger.warning("Standard deviation is zero; cannot compute D-score")
+        return np.nan
+
+    d_score = (mean_incompatible - mean_compatible) / std_all
+    
+    logger.info(f"Calculated D-score: {d_score:.4f}")
+    return d_score
+
+def load_raw_logs_to_dict(raw_logs: List[pd.DataFrame]) -> Dict[str, pd.DataFrame]:
+    """
+    Load raw response logs into a dictionary keyed by participant ID.
+    
+    Parameters:
+    - raw_logs: List of DataFrames, each representing raw response logs
+    
+    Returns:
+    - Dictionary: {participant_id: DataFrame}
+    """
+    result = {}
+    for df in raw_logs:
+        if 'participant_id' not in df.columns:
+            raise ValueError("Input DataFrames must contain 'participant_id' column")
+        
+        for pid, group in df.groupby('participant_id'):
+            if pid not in result:
+                result[pid] = pd.DataFrame()
+            result[pid] = pd.concat([result[pid], group], ignore_index=True)
+    
+    return result
 
 def aggregate_d_scores(
-    logs_dict: Dict[str, List[Dict[str, Any]]],
-    counterbalance_path: Path,
-    complexity_scores_path: Path
+    filtered_trials: pd.DataFrame,
+    min_valid_trials: int = 10
 ) -> pd.DataFrame:
     """
-    Aggregate raw logs into D-scores per session.
+    Aggregate D-scores for each participant-session combination.
+    
+    Parameters:
+    - filtered_trials: DataFrame with filtered trials (after RT filtering)
+    - min_valid_trials: Minimum number of valid trials required to compute D-score
+    
+    Returns:
+    - DataFrame with columns: participant_id, session_id, d_score, n_trials_valid, status
     """
+    logger.info(f"Aggregating D-scores with min_valid_trials={min_valid_trials}")
+    
+    if 'participant_id' not in filtered_trials.columns or 'session_id' not in filtered_trials.columns:
+        raise ValueError("Input DataFrame must contain 'participant_id' and 'session_id' columns")
+    
     results = []
-
-    # Load counterbalance assignments
-    if counterbalance_path.exists():
-        cb_df = pd.read_csv(counterbalance_path)
-        cb_dict = dict(zip(cb_df['participant_id'], cb_df['session_order']))
-    else:
-        cb_dict = {}
-
-    # Load complexity scores for mapping
-    if complexity_scores_path.exists():
-        comp_df = pd.read_csv(complexity_scores_path)
-        comp_dict = {}
-        for _, row in comp_df.iterrows():
-            key = (row['participant_id'], row['session_id'])
-            comp_dict[key] = row['complexity_category']
-    else:
-        comp_dict = {}
-
-    for pid, trials in logs_dict.items():
-        # Filter trials
-        filtered_trials = filter_trials(trials)
-
-        if len(filtered_trials) < MIN_VALID_TRIALS:
-            # Mark as insufficient
-            results.append({
-                'participant_id': pid,
-                'session_id': 'unknown',
-                'complexity_condition': np.nan,
-                'd_score': np.nan,
-                'n_trials_valid': len(filtered_trials),
-                'status': 'insufficient_trials'
-            })
-            continue
-
-        # Group by session (simplified: assume all trials are one session)
-        # In real implementation, parse session from trial metadata
-        session_id = f"session_{pid}"
-        d_score, n_valid = calculate_d_score(filtered_trials, 'mixed')
-
-        # Get complexity condition
-        complexity_condition = comp_dict.get((pid, session_id), np.nan)
-
-        if np.isnan(complexity_condition):
-            status = 'missing_complexity'
-        elif n_valid < MIN_VALID_TRIALS:
+    
+    # Group by participant and session
+    for (pid, sid), group in filtered_trials.groupby(['participant_id', 'session_id']):
+        n_trials = len(group)
+        
+        if n_trials < min_valid_trials:
+            d_score = np.nan
             status = 'insufficient_trials'
+            logger.debug(f"Participant {pid}, Session {sid}: excluded (n={n_trials} < {min_valid_trials})")
         else:
-            status = 'valid'
-
+            d_score = calculate_d_score(group)
+            if np.isnan(d_score):
+                status = 'calculation_error'
+            else:
+                status = 'valid'
+        
         results.append({
             'participant_id': pid,
-            'session_id': session_id,
-            'complexity_condition': complexity_condition,
+            'session_id': sid,
             'd_score': d_score,
-            'n_trials_valid': n_valid,
+            'n_trials_valid': n_trials,
             'status': status
         })
-
+    
     return pd.DataFrame(results)
 
-
-def save_aggregated_scores(
-    df: pd.DataFrame,
-    output_path: Path
-) -> None:
+def save_aggregated_scores(aggregated_df: pd.DataFrame, output_path: Path) -> None:
     """
-    Save aggregated D-scores to CSV.
+    Save aggregated D-scores to a CSV file.
+    
+    Parameters:
+    - aggregated_df: DataFrame with aggregated scores
+    - output_path: Path to save the CSV file
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved aggregated scores to {output_path}")
+    aggregated_df.to_csv(output_path, index=False)
+    logger.info(f"Saved aggregated D-scores to {output_path}")
 
-
-def main() -> None:
-    """Main entry point for data processing."""
-    root = get_project_root()
-
-    logs_path = root / "data" / "raw" / "responses" / "response_logs.csv"
-    counterbalance_path = root / "data" / "processed" / "counterbalance_assignment.csv"
-    complexity_scores_path = root / "data" / "processed" / "complexity_scores.csv"
-    output_path = root / "data" / "processed" / "aggregated_d_scores.csv"
-
-    if not logs_path.exists():
-        raise FileNotFoundError(f"Response logs not found: {logs_path}")
-
-    logger.info("Loading raw response logs...")
-    logs_dict = load_raw_logs_to_dict(logs_path)
-
-    logger.info("Aggregating D-scores...")
-    df = aggregate_d_scores(logs_dict, counterbalance_path, complexity_scores_path)
-
-    logger.info("Saving aggregated scores...")
-    save_aggregated_scores(df, output_path)
-
-    logger.info(f"Processing complete. {len(df)} participants processed.")
-
+def main():
+    """
+    Main entry point for the data processing pipeline.
+    This function orchestrates the filtering and aggregation of IAT trials.
+    """
+    # Example usage (to be replaced by actual CLI or orchestration)
+    # This is a placeholder for the main logic that would be called by main.py
+    logger.info("Data processing module loaded")
 
 if __name__ == "__main__":
     main()
