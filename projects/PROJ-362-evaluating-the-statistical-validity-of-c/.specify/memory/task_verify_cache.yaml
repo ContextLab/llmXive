@@ -21,12 +21,12 @@ T004:
     \ is missing."
 T006:
   c: false
-  h: 3f8beecc9277fa1fbc48573771c9d69cfd36e6cd820c2ac9a49f78348c3b408b
-  r: "The provided `code/data_loader.py` is truncated and does not show full validation\
-    \ logic, nor does it reference the required `contracts/dataset.schema.yaml`. Additionally,\
-    \ the schema file itself is missing, and there is no evidence of logging warnings\
-    \ for zero\u2011relevance queries. These essential components are absent, so the\
-    \ task is not genuinely completed."
+  h: fa5451574597d8e3bb18b07acc263e3187e3cb1fe10ef53586a50f0cc4179b3a
+  r: "The `data_loader.py` contains a stub of validation logic and attempts to load\
+    \ `contracts/dataset.schema.yaml`, but the required schema file is missing from\
+    \ the repository, so the function cannot actually enforce schema compliance. Additionally,\
+    \ the provided code is truncated and does not show a complete implementation of\
+    \ zero\u2011relevance query warnings. The task therefore remains unfinished."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -65,11 +65,13 @@ T027:
     \ supply the updated `main.py` containing the explicit text generation."
 T029:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `visualization.py` file or any generated density\u2011plot PNGs are present;\
-    \ the claim provides no code, functions, or output artifacts that create the required\
-    \ original\u2011vs\u2011permuted score visualizations. The task therefore remains\
-    \ unfulfilled."
+  h: bea49eb285d71d36c7372b7bf8823e42a1b6bf7a62cd8cd61cc523d1afaa811e
+  r: "The provided `visualization.py` contains only data\u2011loading utilities and\
+    \ does not include any code that creates density plots or reads `results/analysis_framing.txt`\
+    \ (which is also missing). There is no fallback string handling for a missing\
+    \ framing file, nor any plot\u2011title/caption logic, so the core requirement\
+    \ of generating the comparative density visualizations with the framing text is\
+    \ not satisfied."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

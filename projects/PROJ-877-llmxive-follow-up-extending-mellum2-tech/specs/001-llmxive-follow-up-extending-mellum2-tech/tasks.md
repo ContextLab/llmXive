@@ -122,13 +122,13 @@
 
 - [X] T018a [US1] Implement `code/data/ngram.py` (Python) to build KenLM n‑gram model for the Python training set.
  - **Dependency**: **T016** (Preprocess).
- - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_71d9c8ac — status=verified] ‑gram model from `data/processed/train_python/`.
+ - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) ‑gram model from `data/processed/train_python/`.
  - **Unit**: Ensure model outputs **log-probability in nats**.
  - **Artifact**: `data/processed/kenlm_model_python.arpa`.
 
 - [X] T018b [US1] Implement `code/data/ngram.py` (Java) to build KenLM n‑gram model for the Java validation set. <!-- FAILED: unspecified -->
  - **Dependency**: **T016** (Preprocess).
- - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_71d9c8ac — status=verified] ‑gram model from `data/processed/val_java/` (if Java data exists).
+ - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) ‑gram model from `data/processed/val_java/` (if Java data exists).
  - **Unit**: Ensure model outputs **log-probability in nats**.
  - **Artifact**: `data/processed/kenlm_model_java.arpa`.
 
@@ -288,6 +288,6 @@
 All tasks now respect data flow, resource constraints, and the strict requirements of the specification.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T038 Reconcile run-book vs implementation for `code/analysis/thresholds.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/thresholds.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T038 Reconcile run-book vs implementation for `code/analysis/thresholds.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/thresholds.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [X] T039 Reconcile run-book vs implementation for `code/analysis/significance.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/significance.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [X] T040 Reconcile run-book vs implementation for `code/viz/plots.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/viz/plots.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

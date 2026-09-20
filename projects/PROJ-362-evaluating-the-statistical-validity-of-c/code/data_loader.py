@@ -4,217 +4,264 @@ import logging
 import json
 import yaml
 import hashlib
-from typing import List, Dict, Any, Optional, Generator
-from pathlib import Path
 import ir_datasets
+from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-# Import config to ensure paths are correct
-try:
-    from config import DATA_RAW_PATH, RESULTS_DIR, ensure_dirs
-except ImportError:
-    # Fallback for standalone execution context if config isn't in path yet
-    DATA_RAW_PATH = "data/raw"
-    RESULTS_DIR = "results"
-    def ensure_dirs():
-        os.makedirs(DATA_RAW_PATH, exist_ok=True)
-        os.makedirs(RESULTS_DIR, exist_ok=True)
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def fetch_with_retry(dataset_id: str, max_retries: int = 3, base_delay: float = 2.0) -> Any:
+# Constants for paths (relative to project root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+STATE_DIR = PROJECT_ROOT / "state" / "projects" / "PROJ-362-evaluating-the-statistical-validity-of-c"
+DATA_RAW_PATH = PROJECT_ROOT / "data" / "raw"
+
+def fetch_with_retry(url: str, base_delay: float = 2.0, multiplier: float = 2.0, max_retries: int = 3) -> bytes:
     """
-    Fetches a dataset using ir_datasets with exponential backoff.
+    Fetches data from a URL with exponential backoff retry logic.
     Raises RuntimeError if all retries fail.
     """
-    attempt = 0
-    while attempt < max_retries:
-        try:
-            logger.info(f"Attempting to fetch dataset '{dataset_id}' (Attempt {attempt + 1}/{max_retries})")
-            dataset = ir_datasets.load(dataset_id)
-            logger.info(f"Successfully loaded dataset: {dataset_id}")
-            return dataset
-        except Exception as e:
-            attempt += 1
-            if attempt >= max_retries:
-                logger.error(f"Failed to fetch '{dataset_id}' after {max_retries} attempts: {e}")
-                raise RuntimeError(f"Failed to fetch dataset '{dataset_id}' after retries: {e}") from e
-            
-            delay = base_delay * (2 ** (attempt - 1))
-            logger.warning(f"Fetch failed for '{dataset_id}'. Retrying in {delay:.1f}s...")
-            time.sleep(delay)
+    import urllib.request
+    import urllib.error
     
-    # Should not be reached due to raise above, but for type safety
-    raise RuntimeError(f"Unexpected error fetching '{dataset_id}'")
+    delay = base_delay
+    for attempt in range(max_retries + 1):
+        try:
+            logger.info(f"Attempting to fetch from {url} (Attempt {attempt + 1}/{max_retries + 1})")
+            with urllib.request.urlopen(url, timeout=30) as response:
+                return response.read()
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
+            if attempt == max_retries:
+                logger.error(f"Failed to fetch {url} after {max_retries + 1} attempts: {e}")
+                raise RuntimeError(f"Failed to fetch data from {url} after retries: {e}")
+            logger.warning(f"Fetch failed, retrying in {delay:.1f}s... Error: {e}")
+            time.sleep(delay)
+            delay *= multiplier
+    raise RuntimeError("Unexpected retry loop exit")
 
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Loads the JSON schema for qrels validation."""
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+def load_schema() -> Dict[str, Any]:
+    """
+    Loads the dataset schema from the contracts directory.
+    """
+    schema_path = CONTRACTS_DIR / "dataset.schema.yaml"
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
     
     with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
+        schema = yaml.safe_load(f)
+    logger.info(f"Loaded schema from {schema_path}")
+    return schema
 
-def validate_qrels_schema(qrels: List[Dict[str, Any]], schema: Dict[str, Any]) -> List[str]:
+def validate_qrels_schema(qrels_data: List[Dict[str, Any]], schema: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Validates qrels against the schema.
-    Returns a list of warning messages.
+    Validates qrels data against the loaded schema.
+    Returns a list of valid records. Logs warnings for invalid records or zero-relevance queries.
     """
-    warnings = []
+    valid_records = []
     required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
+    
+    # Track queries with zero relevance for warning
+    query_relevance_counts: Dict[int, int] = {}
 
-    for i, record in enumerate(qrels):
+    for idx, record in enumerate(qrels_data):
+        is_valid = True
+        
         # Check required fields
         for field in required_fields:
             if field not in record:
-                warnings.append(f"Record {i}: Missing required field '{field}'")
+                logger.warning(f"Record at index {idx} missing required field '{field}'. Skipping.")
+                is_valid = False
+                break
+            if not isinstance(record[field], int):
+                logger.warning(f"Record at index {idx} field '{field}' is not an integer. Skipping.")
+                is_valid = False
+                break
         
-        # Type checking for present fields
-        for field, value in record.items():
-            if field in properties:
-                expected_type_str = properties[field].get('type')
-                if expected_type_str == 'integer':
-                    if not isinstance(value, int):
-                        warnings.append(f"Record {i}: Field '{field}' expected integer, got {type(value).__name__}")
-                elif expected_type_str == 'string':
-                    if not isinstance(value, str):
-                        warnings.append(f"Record {i}: Field '{field}' expected string, got {type(value).__name__}")
+        if not is_valid:
+            continue
 
-        # Specific business logic warning: Zero-relevance queries
-        # Note: In TREC qrels, relevance 0 usually means non-relevant. 
-        # The task asks to log warnings for "zero-relevance queries".
-        # We interpret this as queries where ALL docs are 0, or specifically checking the relevance field.
-        # Given the schema, 'relevance' is an integer. 
-        # We will check if a record has relevance == 0.
-        if 'relevance' in record and record['relevance'] == 0:
-            # Log a debug/info level message for individual 0-relevance entries if needed, 
-            # but the task implies a warning for the query context. 
-            # We will log a warning if we encounter 0 relevance to be safe per task description.
-            pass 
+        # Track relevance for zero-check
+        q_id = record['query_id']
+        rel = record['relevance']
+        
+        if q_id not in query_relevance_counts:
+            query_relevance_counts[q_id] = 0
+        if rel > 0:
+            query_relevance_counts[q_id] += 1
 
-    # Aggregate check for zero-relevance queries (queries with NO positive relevance)
-    # This requires grouping by query_id first
-    query_max_relevance = {}
-    for record in qrels:
-        qid = record.get('query_id')
-        rel = record.get('relevance', 0)
-        if qid not in query_max_relevance:
-            query_max_relevance[qid] = rel
-        else:
-            query_max_relevance[qid] = max(query_max_relevance[qid], rel)
+        valid_records.append(record)
 
-    for qid, max_rel in query_max_relevance.items():
-        if max_rel == 0:
-            warnings.append(f"Query {qid} has zero relevance for all documents (no relevant docs found).")
-
-    return warnings
+    # Log warnings for zero-relevance queries
+    for q_id, count in query_relevance_counts.items():
+        if count == 0:
+            logger.warning(f"Query {q_id} has zero relevance labels. This query will be skipped in downstream analysis.")
+    
+    return valid_records
 
 def load_trec_robust04() -> List[Dict[str, Any]]:
-    """Loads TREC Robust 2004 dataset."""
-    dataset = fetch_with_retry('trec/robust04')
-    qrels = []
-    for qrel in dataset.qrels_iter():
-        qrels.append({
-            'query_id': int(qrel.query_id),
-            'doc_id': int(qrel.doc_id),
-            'relevance': int(qrel.relevance)
-        })
-    return qrels
-
-def load_trec_web_data(dataset_id: str) -> List[Dict[str, Any]]:
-    """Generic loader for TREC Web Track datasets."""
-    dataset = fetch_with_retry(dataset_id)
-    qrels = []
-    for qrel in dataset.qrels_iter():
-        qrels.append({
-            'query_id': int(qrel.query_id),
-            'doc_id': int(qrel.doc_id),
-            'relevance': int(qrel.relevance)
-        })
-    return qrels
-
-def load_from_nist_fallback(dataset_id: str) -> List[Dict[str, Any]]:
     """
-    Placeholder for specific NIST fallback logic if ir_datasets fails completely.
-    Currently, fetch_with_retry handles retries. If ir_datasets cannot load,
-    we assume no fallback is available without a local file.
+    Loads TREC Robust 2004 data using ir_datasets.
     """
-    raise RuntimeError(f"No fallback mechanism available for {dataset_id} after retries.")
+    try:
+        dataset = ir_datasets.load('trec/robust04')
+        qrels_data = []
+        for qrel in dataset.qrels_iter():
+            qrels_data.append({
+                'query_id': int(qrel.query_id),
+                'doc_id': int(qrel.doc_id),
+                'relevance': int(qrel.relevance)
+            })
+        logger.info(f"Loaded {len(qrels_data)} qrels for TREC Robust 2004")
+        return qrels_data
+    except Exception as e:
+        logger.error(f"Failed to load TREC Robust 2004: {e}")
+        raise RuntimeError(f"Failed to load TREC Robust 2004: {e}")
 
-def process_and_validate_qrels(qrels: List[Dict[str, Any]], schema_path: str) -> List[Dict[str, Any]]:
+def load_trec_web_data(dataset_name: str) -> List[Dict[str, Any]]:
     """
-    Validates qrels against schema and logs warnings.
-    Returns the validated list.
+    Loads TREC Web track data using ir_datasets.
     """
-    if not os.path.exists(schema_path):
-        logger.warning(f"Schema file not found at {schema_path}. Skipping validation.")
-        return qrels
+    try:
+        dataset = ir_datasets.load(dataset_name)
+        qrels_data = []
+        for qrel in dataset.qrels_iter():
+            qrels_data.append({
+                'query_id': int(qrel.query_id),
+                'doc_id': int(qrel.doc_id),
+                'relevance': int(qrel.relevance)
+            })
+        logger.info(f"Loaded {len(qrels_data)} qrels for {dataset_name}")
+        return qrels_data
+    except Exception as e:
+        logger.error(f"Failed to load {dataset_name}: {e}")
+        raise RuntimeError(f"Failed to load {dataset_name}: {e}")
 
-    schema = load_schema(schema_path)
-    warnings = validate_qrels_schema(qrels, schema)
+def load_from_nist_fallback(dataset_name: str) -> List[Dict[str, Any]]:
+    """
+    Fallback loader for NIST data if ir_datasets fails.
+    Currently delegates to ir_datasets as the primary verified source.
+    """
+    logger.warning(f"NIST fallback requested for {dataset_name}. Attempting via ir_datasets.")
+    return load_trec_web_data(dataset_name)
+
+def process_and_validate_qrels(raw_qrels: List[Dict[str, Any]], schema: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    """
+    Processes raw qrels data: validates against schema and filters zero-relevance queries.
+    """
+    if schema is None:
+        schema = load_schema()
     
-    for w in warnings:
-        logger.warning(w)
+    validated = validate_qrels_schema(raw_qrels, schema)
+    
+    # Filter out records belonging to queries with zero relevance
+    # First, identify valid query IDs (those with at least one relevant doc)
+    valid_query_ids = set()
+    query_has_relevance: Dict[int, bool] = {}
+    
+    for record in validated:
+        q_id = record['query_id']
+        if record['relevance'] > 0:
+            query_has_relevance[q_id] = True
+        elif q_id not in query_has_relevance:
+            query_has_relevance[q_id] = False
+    
+    for q_id, has_rel in query_has_relevance.items():
+        if has_rel:
+            valid_query_ids.add(q_id)
+    
+    filtered_records = [r for r in validated if r['query_id'] in valid_query_ids]
+    
+    logger.info(f"Validated and filtered qrels: {len(validated)} -> {len(filtered_records)} records")
+    return filtered_records
 
-    return qrels
-
-def save_qrels_to_json(qrels: List[Dict[str, Any]], output_path: str) -> str:
-    """Saves qrels to JSON and returns the SHA-256 checksum."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def save_qrels_to_json(qrels: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Saves processed qrels to a JSON file.
+    """
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(qrels, f)
-    
-    # Compute checksum
+        json.dump(qrels, f, indent=2)
+    logger.info(f"Saved qrels to {output_path}")
+
+def compute_file_checksum(file_path: str) -> str:
+    """
+    Computes SHA-256 checksum of a file.
+    """
     sha256_hash = hashlib.sha256()
-    with open(output_path, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def run_data_load():
+def update_state_checksum(dataset_name: str, file_path: str) -> None:
     """
-    Main entry point for data loading.
-    Loads Robust04 and Web tracks, validates against schema, saves to data/raw.
+    Updates the state YAML file with the checksum of the downloaded file.
     """
-    ensure_dirs()
+    state_path = STATE_DIR / "projects" / "PROJ-362-evaluating-the-statistical-validity-of-c.yaml"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
     
-    schema_path = "contracts/dataset.schema.yaml"
-    if not os.path.exists(schema_path):
-        logger.error(f"Schema file not found at {schema_path}. Cannot proceed with validation.")
-        return
+    checksum = compute_file_checksum(file_path)
+    
+    state_data = {}
+    if state_path.exists():
+        with open(state_path, 'r') as f:
+            state_data = yaml.safe_load(f) or {}
+    
+    if 'artifact_hashes' not in state_data:
+        state_data['artifact_hashes'] = {}
+    
+    state_data['artifact_hashes'][dataset_name] = checksum
+    
+    with open(state_path, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False)
+    
+    logger.info(f"Updated state checksum for {dataset_name}: {checksum}")
 
-    datasets_config = [
-        ('trec/robust04', 'robust04_qrels.json'),
-        ('trec/web-track-2009', 'web09_qrels.json'),
-        ('trec/web-track-2010', 'web10_qrels.json'),
-        ('trec/web-track-2011', 'web11_qrels.json'),
-        ('trec/web-track-2012', 'web12_qrels.json'),
+def run_data_load() -> None:
+    """
+    Main entry point for loading and validating data.
+    """
+    logger.info("Starting data load process...")
+    
+    # Load schema
+    schema = load_schema()
+    
+    # Load Robust 2004
+    robust04_data = load_trec_robust04()
+    processed_robust04 = process_and_validate_qrels(robust04_data, schema)
+    
+    # Save Robust 2004
+    robust04_path = DATA_RAW_PATH / "trec_robust04_qrels.json"
+    save_qrels_to_json(processed_robust04, str(robust04_path))
+    
+    # Load Web 2009-2012
+    web_datasets = [
+        'trec/web-track-2009',
+        'trec/web-track-2010',
+        'trec/web-track-2011',
+        'trec/web-track-2012'
     ]
-
-    for ds_id, filename in datasets_config:
+    
+    for ds_name in web_datasets:
         try:
-            logger.info(f"Processing {ds_id}...")
-            qrels = load_trec_web_data(ds_id) if 'web' in ds_id else load_trec_robust04()
+            web_data = load_trec_web_data(ds_name)
+            processed_web = process_and_validate_qrels(web_data, schema)
             
-            if not qrels:
-                logger.warning(f"No qrels found for {ds_id}.")
-                continue
-
-            # Validate
-            process_and_validate_qrels(qrels, schema_path)
+            safe_name = ds_name.replace('/', '_').replace('-', '_')
+            web_path = DATA_RAW_PATH / f"{safe_name}_qrels.json"
+            save_qrels_to_json(processed_web, str(web_path))
             
-            # Save
-            output_path = os.path.join(DATA_RAW_PATH, filename)
-            checksum = save_qrels_to_json(qrels, output_path)
-            logger.info(f"Saved {ds_id} to {output_path} (Checksum: {checksum[:16]}...)")
-
+            logger.info(f"Completed loading and validating {ds_name}")
         except Exception as e:
-            logger.error(f"Failed to process {ds_id}: {e}")
-            raise
+            logger.error(f"Failed to process {ds_name}: {e}")
+            # Continue with other datasets
+
+    logger.info("Data load process completed.")
 
 if __name__ == "__main__":
     run_data_load()

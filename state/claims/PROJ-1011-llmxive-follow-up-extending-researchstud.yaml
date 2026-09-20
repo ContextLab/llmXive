@@ -1,0 +1,183 @@
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/README.md
+  attempts: 1
+  canonical: Pipeline optimized for CPU execution with less than 7 GB RAM
+  claim_id: c_cfd04cf5
+  context: 'The pipeline is optimized for CPU execution with <7 GB RAM: Streaming
+    data acquisition, Quantized sentence-transformers, Batch processing for proposal
+    generation, Memory profiling and garbage collection'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_optimized_for_CPU_execution_with_less_than_7_GB_RAM
+  kind: magnitude
+  raw_text: The pipeline is optimized for CPU execution with <7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:43:18Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/README.md
+  attempts: 2
+  canonical: Power analysis justifies sample size of 50 pairs and 3 raters for medium
+    effect size
+  claim_id: c_3016890f
+  context: 'Statistical Rigor includes Power Analysis: Justifies sample size (n=50
+    pairs, 3 raters) for medium effect size'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power Analysis Justifies sample size (n=50 pairs, 3 raters) for medium
+    effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:44:00Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Pipeline execution requires minimum 7 GB RAM
+  claim_id: c_87b919dd
+  context: Prerequisites section listing system requirements.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_requires_minimum_7_GB_RAM
+  kind: magnitude
+  raw_text: At least 8 GB RAM (7 GB minimum for pipeline execution)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:44:50Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Data acquisition streams and samples to approximately 500 records
+  claim_id: c_d85ee05f
+  context: 'Step 4: Run Data Acquisition (US1) description of what the step does.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Streams and samples to ~500 records (balanced domains)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:45:39Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Pattern mapping uses quantized all-MiniLM-L6-v2 for embeddings
+  claim_id: c_73b0cd5c
+  context: 'Step 5: Pattern Mapping (US2 - Part 1) description of what the step does.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pattern_mapping_uses_quantized_all-MiniLM-L6-v2_for_embeddin
+  kind: entity_fact
+  raw_text: Generates embeddings using quantized 'all-MiniLM-L6-v2'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:46:23Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Pattern mapping retrieves top 3 patterns for each problem statement
+  claim_id: c_a71ff94d
+  context: 'Step 5: Pattern Mapping (US2 - Part 1) description of what the step does.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retrieves top-3 patterns for each problem statement
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:47:01Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Power analysis calculates sample size for medium effect size d=0.5
+  claim_id: c_d5d46106
+  context: 'Step 6: Generate Power Analysis Report (US2 - Prerequisite) description
+    of what the step does.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculates required sample size for medium effect size (d=0.5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:49:39Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Power analysis justifies 50 pairs with 3 raters
+  claim_id: c_4cb0839c
+  context: 'Step 6: Generate Power Analysis Report (US2 - Prerequisite) description
+    of what the step does.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Justifies n=50 pairs with 3 raters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:50:20Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Statistical analysis gate requires Krippendorff's alpha of at least 0.6
+  claim_id: c_45062b51
+  context: 'Step 9: Statistical Analysis (US3 - Part 2) description of what the step
+    does.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_gate_requires_Krippendorff's_alpha_of_a
+  kind: magnitude
+  raw_text: "Calculates Krippendorff's alpha (gate: \u22650.6)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:50:38Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Benchmark validator returns exit code 0 if runtime is less than 6 hours
+  claim_id: c_c58542bb
+  context: 'Step 10: Benchmarking and Validation expected output description.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_validator_returns_exit_code_0_if_runtime_is_less_t
+  kind: magnitude
+  raw_text: Exit code 0 if <6 hours, 1 if exceeded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:51:02Z'
+- artifact_path: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/docs/quickstart.md
+  attempts: 1
+  canonical: Outlier removal can drop sample size below 30
+  claim_id: c_d26ee18b
+  context: Troubleshooting section regarding Power Constraint Violation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n drops below 30 after outlier removal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:51:50Z'

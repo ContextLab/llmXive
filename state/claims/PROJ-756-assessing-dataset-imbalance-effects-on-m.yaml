@@ -2820,3 +2820,750 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T12:09:22Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 0
+  canonical: 'API ingestion exponential backoff parameters: base_delay 1s, max_delay
+    60s, multiplier 2.0, max_retries 5'
+  claim_id: c_46dbbf4d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004a-Backoff task description.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Implement `code/ingestion.py` logic for API ingestion with exponential
+    backoff for OQMD, AFLOW, and Materials Project APIs. Parameters: base_delay=1s,
+    max_delay=60s, multiplier=2.0, max_retries=5.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T15:19:45Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Log rotation threshold set to 100MB
+  claim_id: c_e5d89be4
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004b task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_rotation_threshold_set_to_100MB
+  kind: entity_fact
+  raw_text: Implement `code/ingestion.py` logic for size-based log rotation (create
+    new file if > 100MB) without deletion to preserve raw trace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:20:21Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Magpie compositional descriptors computed with L-normalization
+  claim_id: c_73c00d37
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007 task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Magpie_compositional_descriptors_computed_with_L-normalizati
+  kind: entity_fact
+  raw_text: Implement `code/descriptors.py` to compute all Magpie compositional descriptors
+    (L-normalized).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:20:54Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Target Imbalance Score calculated for properties with >= 100 samples
+  claim_id: c_c7cef4cf
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T008a task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/imbalance.py` to calculate Target Imbalance Score (Gini
+    coefficient of target property values for properties with >= 100 samples).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:21:20Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Compositional Imbalance Score derived from K-Means clustering with k=50
+  claim_id: c_54bc7994
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T008b task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/imbalance.py` to calculate Compositional Imbalance Score
+    (Gini coefficient of the cluster assignment counts derived from K-Means clustering
+    with k=50 on compositional features).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:21:39Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Resampling uses equal-frequency binning into 20 bins with real-data CV
+    <= 0.10
+  claim_id: c_27e29741
+  context: 'Phase 4: User Story 2 - T023 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/resampling.py` with stratified undersampling/oversampling
+    using equal-frequency binning into 20 bins (default) and ensure real-data CV <=
+    0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:22:00Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Combined CV constraint <= 0.30 and real-data CV constraint <= 0.10
+  claim_id: c_7b1dd879
+  context: 'Phase 4: User Story 2 - T023 task description.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Enforce combined CV <= 0.30 while still keeping real-data CV <= 0.10.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T15:22:01Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Minority subset isolated using Jenks Natural Breaks with k=5 and seed=42
+  claim_id: c_57455fff
+  context: 'Phase 4: User Story 2 - T026-MinoritySubset task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/evaluation.py` to isolate the bottom [deferred] (MINORITY_QUANTILE)
+    of each target property using Jenks Natural Breaks (k=5) with seed=42 derived
+    from the FULL dataset distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:22:12Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: Cohen''s d 0.5, power 0.8, alpha 0.05'
+  claim_id: c_74303100
+  context: 'Phase 4: User Story 2 - T028 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement power analysis in `code/evaluation.py` to determine the minimum
+    number of random seeds required for paired t-test, Cohen's d = 0.5, power >= 0.8,
+    alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:22:38Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset generated using Gaussian noise with fixed seed
+  claim_id: c_1c809a7f
+  context: 'Phase 5: User Story 3 - T036 task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_generated_using_Gaussian_noise_with_fixed
+  kind: entity_fact
+  raw_text: 'Implement `code/shap_analysis.py` to generate a synthetic dataset with
+    known non-linear feature weights (algorithm: Gaussian noise with fixed seed).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:23:03Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Known weights vector generated using mean_atomic_number / scaling_factor
+    function
+  claim_id: c_24fe8d2b
+  context: 'Phase 5: User Story 3 - T036 task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Known_weights_vector_generated_using_mean_atomic_number_/_sc
+  kind: entity_fact
+  raw_text: 'Dynamically generate the known_weights vector based on a physics-inspired
+    function: w_i = mean_atomic_number / scaling_factor for the mean_atomic_number
+    feature column, and a negligible or null value otherwise.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:23:52Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime constraint <= 6 hours
+  claim_id: c_ba8ea421
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T047a task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the full pipeline using command `python code/main.py --full-pipeline
+    --include-mp --streaming`, ensuring total runtime <= 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:24:16Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API ingestion uses exponential backoff for OQMD, AFLOW, and Materials
+    Project
+  claim_id: c_35d5ee8e
+  context: 'Task T004a-Backoff: Implement code/ingestion.py logic for API ingestion
+    with exponential backoff for OQMD, AFLOW, and Materials Project APIs. Parameters:
+    base_delay=1s, max_delay=60s, multiplier=2.0, max_retries=5.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_ingestion_uses_exponential_backoff_for_OQMD,_AFLOW,_and
+  kind: entity_fact
+  raw_text: Implement code/ingestion.py logic for API ingestion with exponential backoff
+    for OQMD, AFLOW, and Materials Project APIs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:26:57Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: 'Exponential backoff parameters: base_delay=1s, max_delay=60s, multiplier=2.0,
+    max_retries=5'
+  claim_id: c_340ef1ba
+  context: 'Task T004a-Backoff: ... Parameters: base_delay=1s, max_delay=60s, multiplier=2.0,
+    max_retries=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parameters for exponential backoff are base_delay=1s, max_delay=60s, multiplier=2.0,
+    max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:27:14Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API errors logged as JSON lines to logs/api_errors.log with specific
+    schema
+  claim_id: c_073321ed
+  context: 'Task T004a-Backoff: ... Log all API errors as JSON lines to logs/api_errors.log
+    with schema {"timestamp":..., "endpoint":..., "error":..., "retry_count":...}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_errors_logged_as_JSON_lines_to_logs/api_errors.log_with
+  kind: entity_fact
+  raw_text: Log all API errors as JSON lines to logs/api_errors.log with schema {"timestamp":...,
+    "endpoint":..., "error":..., "retry_count":...}.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:27:45Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Log rotation creates new file if size exceeds 100MB
+  claim_id: c_929b4a7d
+  context: 'Task T004b: Implement code/ingestion.py logic for size-based log rotation
+    (create new file if > 100MB) without deletion to preserve raw trace.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_rotation_creates_new_file_if_size_exceeds_100MB
+  kind: entity_fact
+  raw_text: Implement size-based log rotation to create new file if > 100MB without
+    deletion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:28:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Materials Project API availability detected via lightweight probe request
+  claim_id: c_7c36f2cf
+  context: 'Task T006a-MP-Availability-Check: Implement code/ingestion.py logic to
+    detect Materials Project API availability by attempting a lightweight probe request
+    using the configured API key.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_availability_detected_via_lightweight
+  kind: entity_fact
+  raw_text: Detect Materials Project API availability by attempting a lightweight
+    probe request.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:28:28Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: MP_AVAILABLE flag set to False if key missing or probe fails with 403/timeout
+  claim_id: c_b6c065f6
+  context: 'Task T006a-MP-Availability-Check: ... If the key is missing or the probe
+    fails (403/timeout), set a global flag MP_AVAILABLE = False and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Materials Project key is missing or probe fails (403/timeout), set
+    global flag MP_AVAILABLE = False.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:28:43Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: OQMD dataset downloaded to data/raw/oqmd.parquet via official REST API
+  claim_id: c_8deb5ece
+  context: 'Task T006b-DataFetch: Implement code/downloaders.py to download OQMD dataset
+    to data/raw/oqmd.parquet using the official OQMD REST API with exponential backoff.'
+  evidence:
+    entailment_evidence: OQMD dataset downloaded to data/raw/oqmd.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/OQMD_dataset_downloaded_to_data/raw/oqmd.parquet_via_officia
+  kind: entity_fact
+  raw_text: Download OQMD dataset to data/raw/oqmd.parquet using the official OQMD
+    REST API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T15:29:05Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Materials Project dataset downloaded to data/raw/mp.parquet via official
+    REST API if available
+  claim_id: c_9a08dd86
+  context: 'Task T006d-DataFetch-MP: Implement code/downloaders.py to download Materials
+    Project dataset to data/raw/mp.parquet if MP_AVAILABLE is True. Use the official
+    Materials Project REST API with exponential backoff.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_dataset_downloaded_to_data/raw/mp.parquet
+  kind: entity_fact
+  raw_text: Download Materials Project dataset to data/raw/mp.parquet if MP_AVAILABLE
+    is True using the official Materials Project REST API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:29:31Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Checksum verification uses SHA-256 algorithm
+  claim_id: c_2ba9b46b
+  context: 'Task T006c-Checksums: Implement checksum verification in code/downloaders.py
+    using SHA-256 algorithm, generating checksum files data/raw/oqmd.parquet.sha256,
+    data/raw/aflow.parquet.sha256, and data/raw/mp.parquet.sha256 (if MP exists) in
+    sha256sum format.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement checksum verification using SHA-256 algorithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:30:02Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Magpie compositional descriptors computed with L-normalization
+  claim_id: c_d7127d88
+  context: 'Task T007: Implement code/descriptors.py to compute all Magpie compositional
+    descriptors (L-normalized) and save to data/processed/descriptors.parquet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Magpie_compositional_descriptors_computed_with_L-normalizati
+  kind: entity_fact
+  raw_text: Compute all Magpie compositional descriptors (L-normalized).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:30:23Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Target Imbalance Score is Gini coefficient for properties with >= 100
+    samples
+  claim_id: c_9daf712e
+  context: 'Task T008a: Implement code/imbalance.py to calculate Target Imbalance
+    Score (Gini coefficient of target property values for properties with >= 100 samples,
+    handling negative values via absolute transformation or offset). Skip properties
+    with < 100 samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Target Imbalance Score as Gini coefficient of target property
+    values for properties with >= 100 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:30:47Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Compositional Imbalance Score is Gini coefficient of K-Means cluster
+    counts with k=50
+  claim_id: c_6242f1b0
+  context: 'Task T008b: Implement code/imbalance.py to calculate Compositional Imbalance
+    Score (Gini coefficient of the cluster assignment counts derived from K-Means
+    clustering with k=50 on compositional features).'
+  evidence:
+    asserted: '50.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Calculate Compositional Imbalance Score as Gini coefficient of cluster
+    assignment counts derived from K-Means clustering with k=50.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T15:30:47Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Random Forest and Gradient Boosting regressors trained on skewed data
+  claim_id: c_3138e6e2
+  context: 'Task T014: Implement code/training.py to train Random Forest and Gradient
+    Boosting regressors on skewed data (FR-004).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_and_Gradient_Boosting_regressors_trained_on_sk
+  kind: entity_fact
+  raw_text: Train Random Forest and Gradient Boosting regressors on skewed data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:31:45Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Stratified resampling uses equal-frequency binning into 20 bins
+  claim_id: c_bc54f205
+  context: 'Task T023: Implement code/resampling.py with stratified undersampling/oversampling
+    using equal-frequency binning into 20 bins (default) and ensure real-data CV <=
+    0.10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply stratified resampling using equal-frequency binning into 20 bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:32:17Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Real-data CV <= 0.10 and combined CV <= 0.30 enforced in resampling
+  claim_id: c_6c540571
+  context: 'Task T023: ... ensure real-data CV <= 0.10. ... Enforce combined CV <=
+    0.30 while still keeping real-data CV <= 0.10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure real-data CV <= 0.10 and combined CV <= 0.30 during resampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:33:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Cost-sensitive learning fallback triggered if >20% data loss or empty
+    bins
+  claim_id: c_b4919892
+  context: 'Task T023: Fallback Logic: If >20% data loss or empty bins occur, first
+    switch to cost-sensitive learning (class_weight=''balanced'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to cost-sensitive learning (class_weight='balanced') if >20% data
+    loss or empty bins occur.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:33:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: SMOTE fallback triggered if cost-sensitive learning fails CV <= 0.10
+  claim_id: c_0f634be9
+  context: 'Task T023: If that fails to meet CV <= 0.10, then switch to SMOTE for
+    regression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to SMOTE for regression if cost-sensitive learning fails to meet
+    CV <= 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:33:27Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: ValidationException raised if synthetic data exceeds 30%
+  claim_id: c_a605b48c
+  context: 'Task T023: Implement hard validation gate raising ValidationException
+    if synthetic data > 30% (FR-013).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce synthetic data <= 30% with hard validation gate raising ValidationException
+    if exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:33:28Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Minority subset isolated using Jenks Natural Breaks k=5 seed=42
+  claim_id: c_598a9ca6
+  context: 'Task T026-MinoritySubset: Implement code/evaluation.py to isolate the
+    bottom [deferred] (MINORITY_QUANTILE) of each target property using Jenks Natural
+    Breaks (k=5) with seed=42 derived from the FULL dataset distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Isolate the bottom minority subset using Jenks Natural Breaks (k=5) with
+    seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:33:52Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: 'Power analysis for paired t-test: Cohen''s d=0.5, power>=0.8, alpha=0.05'
+  claim_id: c_7061b467
+  context: 'Task T028: Implement power analysis in code/evaluation.py to determine
+    the minimum number of random seeds required for paired t-test, Cohen''s d = 0.5,
+    power >= 0.8, alpha = 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Determine minimum number of random seeds for paired t-test with Cohen's
+    d = 0.5, power >= 0.8, alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:34:22Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Pearson correlation computed between Compositional Imbalance Score and
+    performance degradation
+  claim_id: c_7a4df2fc
+  context: 'Task T030: Compute Pearson correlation between Compositional Imbalance
+    Score (from T008b) and performance degradation (from T027).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_computed_between_Compositional_Imbalance
+  kind: entity_fact
+  raw_text: Compute Pearson correlation between Compositional Imbalance Score and
+    performance degradation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:35:05Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Pearson correlation computed between Target Imbalance Score and performance
+    degradation
+  claim_id: c_d4400c3a
+  context: 'Task T031: Compute Pearson correlation between Target Imbalance Score
+    (from T008a) and performance degradation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_computed_between_Target_Imbalance_Score
+  kind: entity_fact
+  raw_text: Compute Pearson correlation between Target Imbalance Score and performance
+    degradation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:35:35Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset generated with Gaussian noise and fixed seed
+  claim_id: c_d8746794
+  context: 'Task T036: Implement code/shap_analysis.py to generate a synthetic dataset
+    with known non-linear feature weights (algorithm: Gaussian noise with fixed seed).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_generated_with_Gaussian_noise_and_fixed_se
+  kind: entity_fact
+  raw_text: Generate synthetic dataset with known non-linear feature weights using
+    Gaussian noise with fixed seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:36:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Known weights derived from mean_atomic_number / scaling_factor
+  claim_id: c_ae7dcc0f
+  context: 'Task T036: Dynamically generate the known_weights vector based on a physics-inspired
+    function: w_i = mean_atomic_number / scaling_factor for the mean_atomic_number
+    feature column, and a negligible or null value otherwise.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Known_weights_derived_from_mean_atomic_number_/_scaling_fact
+  kind: entity_fact
+  raw_text: 'Generate known weights vector based on physics-inspired function: w_i
+    = mean_atomic_number / scaling_factor for the mean_atomic_number feature column.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:36:46Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: 'Target formula: sum(w_i * x_i) + alpha * sum(x_i^2) + beta * sum(x_i
+    * x_{i+1})'
+  claim_id: c_15d57e57
+  context: 'Task T036: Target calculated as target = sum(w_i * x_i) + alpha * sum(x_i^2)
+    + beta * sum(x_i * x_{i+1}) where alpha and beta represent tunable weighting coefficients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target calculated as sum(w_i * x_i) + alpha * sum(x_i^2) + beta * sum(x_i
+    * x_{i+1}).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:37:26Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth saved to data/synthetic/ground_truth.parquet with
+    specific columns
+  claim_id: c_31807a1f
+  context: 'Task T036: ... saved as data/synthetic/ground_truth.parquet (columns:
+    Magpie descriptors, target, known_weights) (FR-014).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_ground_truth_saved_to_data/synthetic/ground_truth.
+  kind: entity_fact
+  raw_text: 'Save synthetic ground truth to data/synthetic/ground_truth.parquet with
+    columns: Magpie descriptors, target, known_weights.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:38:05Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime constraint <= 6 hours with streaming
+  claim_id: c_1cee44f7
+  context: 'Task T047a: Execute the full pipeline using command python code/main.py
+    --full-pipeline --include-mp --streaming, ensuring total runtime <= 6 hours by
+    streaming the full merged dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute full pipeline with streaming ensuring total runtime <= 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:38:24Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Fallback pipeline runtime constraint <= 6 hours
+  claim_id: c_3312ef56
+  context: 'Task T047b: Execute the full pipeline using command python code/main.py
+    --full-pipeline --fallback-mode --streaming, ensuring total runtime <= 6 hours
+    by streaming the OQMD/AFLOW dataset only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute full pipeline with fallback mode (OQMD/AFLOW only) ensuring total
+    runtime <= 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T15:38:42Z'

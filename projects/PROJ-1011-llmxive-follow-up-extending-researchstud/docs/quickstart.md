@@ -1,165 +1,269 @@
-# llmXive Quickstart Guide
+# Quick Start Guide
 
-## Overview
-
-This guide provides a complete walkthrough of the llmXive research pipeline, from data acquisition to statistical analysis. The pipeline implements a two-group experimental design to evaluate the effectiveness of pattern-guided research proposal generation.
+This guide walks you through setting up and running the llmXive automated research pipeline.
 
 ## Prerequisites
 
-- Python 3.11+
-- 7GB+ available RAM
-- pip-installed dependencies (see `requirements.txt`)
-- Access to arXiv API (no authentication required)
+- Python 3.11 or higher
+- pip package manager
+- At least 8 GB RAM (7 GB minimum for pipeline execution) [UNRESOLVED-CLAIM: c_87b919dd — status=not_enough_info]
+- Internet connection for data fetching
 
-## Installation
+## Step 1: Clone and Setup
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd projects/PROJ-1011-llmxive-follow-up-extending-researchstud
+# Navigate to project root
+cd PROJ-1011-llmxive-follow-up-extending-researchstud
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Linux/macOS:
+source venv/bin/activate
+# On Windows:
+# venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+```
 
-# Initialize project structure
-python code/setup_project_structure.py
+## Step 2: Initialize Project Structure
+
+Create required directories and manifest:
+
+```bash
 python code/setup_data_dirs.py
 ```
 
-## Quick Start
+This creates:
+- `data/raw/`
+- `data/processed/`
+- `data/results/`
+- `logs/`
+- `state/`
 
-### 1. Data Acquisition (Phase 3)
+## Step 3: Configure Data Sources
 
-Download and preprocess abstracts from ML and non-ML domains:
+Edit `data-sources.yaml` to specify:
+- arXiv categories (`cat:cs.LG`, `cat:q-bio.QM`)
+- Non-ML DOI lists or API endpoints
+- Acceptance status filters
+
+Example configuration:
+
+```yaml
+sources:
+ arxiv:
+ endpoint: ""
+ categories:
+ - "cs.LG"
+ - "q-bio.QM"
+ max_results: 1000
+ nature_climate:
+ endpoint: " Connection refused"))]"
+ doi_list: [""]
+ health_affairs:
+ endpoint: "https://www.healthaffairs.org/do/"
+ doi_list: [""]
+```
+
+## Step 4: Run Data Acquisition (US1)
 
 ```bash
 python code/01_data_acquisition.py
 ```
 
-This produces:
-- `data/raw/corpus_raw.jsonl` - Raw fetched data
-- `data/processed/corpus.jsonl` - Preprocessed, normalized data
+**What this does**:
+- Fetches abstracts from arXiv and non-ML sources
+- Validates acceptance status
+- Streams and samples to ~500 records (balanced domains) [UNRESOLVED-CLAIM: c_d85ee05f — status=not_enough_info]
+- Saves to `data/processed/corpus.jsonl`
 
-**Expected runtime**: 5-10 minutes
+**Expected output**:
+- `data/raw/corpus_raw.jsonl`: Raw fetched data
+- `data/processed/corpus.jsonl`: Cleaned corpus with metadata
+- `logs/data_acquisition.log`: Execution logs
 
-### 2. Pattern Mapping (Phase 4)
+**Validation**:
+```bash
+pytest tests/unit/test_data_parsing.py -v
+pytest tests/unit/test_memory_usage_constraint.py -v
+pytest tests/unit/test_preprocessing_validation.py -v
+pytest tests/unit/test_data_sources_config.py -v
+```
 
-Map problem statements to ideation patterns:
+## Step 5: Pattern Mapping (US2 - Part 1)
 
 ```bash
 python code/02_pattern_mapping.py
 ```
 
-This produces:
-- `data/processed/pattern_map.json` - Pattern similarity mappings
-- `data/processed/holdout_patterns.json` - Hold-out validation set
+**What this does**:
+- Loads pattern cards
+- Generates embeddings using quantized `all-MiniLM-L6-v2`
+- Retrieves top-3 patterns for each problem statement [UNRESOLVED-CLAIM: c_a71ff94d — status=not_enough_info]
+- Validates two-group design
 
-**Expected runtime**: 2-5 minutes
+**Expected output**:
+- Pattern mappings in memory (or cached)
+- `data/processed/holdout_patterns.json`: Hold-out validation set
 
-### 3. Proposal Generation (Phase 4)
+**Validation**:
+```bash
+pytest tests/unit/test_pattern_mapping_validation.py -v
+```
 
-Generate paired research proposals (pattern-guided vs baseline):
+## Step 6: Generate Power Analysis Report (US2 - Prerequisite)
+
+```bash
+python code/utils/power_analysis.py
+```
+
+**What this does**:
+- Calculates required sample size for medium effect size (d=0.5) [UNRESOLVED-CLAIM: c_d5d46106 — status=not_enough_info]
+- Justifies n=50 pairs with 3 raters [UNRESOLVED-CLAIM: c_4cb0839c — status=not_enough_info]
+- Outputs to `data/results/power_analysis_report.md`
+
+**Expected output**:
+- `data/results/power_analysis_report.md`: Sample size justification
+
+## Step 7: Proposal Generation (US2 - Part 2)
 
 ```bash
 python code/03_proposal_generation.py
 ```
 
-This produces:
-- `data/results/generated_proposals.jsonl` - Generated proposals with metadata
+**What this does**:
+- Reads sample size `n` from power analysis report
+- Generates pattern-guided proposals
+- Generates baseline proposals
+- Pairs and saves results
 
-**Expected runtime**: 30-60 minutes (depending on LLM API latency)
+**Expected output**:
+- `data/results/generated_proposals.jsonl`: Paired proposals (stripped metadata)
 
-### 4. Evaluation Setup (Phase 5)
-
-Generate recruitment materials:
-
+**Validation**:
 ```bash
-python code/04_evaluation_recruitment.py --mode generate
+pytest tests/unit/test_proposal_generation_logic.py -v
 ```
 
-This produces:
-- `data/results/recruitment_payload.json` - Job posting payload
-- `data/results/recruitment_instructions.md` - Manual posting guide
-- `data/results/ratings_template.csv` - Blinded rating template
+## Step 8: Evaluation Setup (US3 - Part 1)
 
-**Note**: Expert recruitment is a manual process. Follow the instructions to post the job and collect ratings.
+```bash
+python code/04_evaluation_recruitment.py
+```
 
-### 5. Statistical Analysis (Phase 5)
+**What this does**:
+- Generates recruitment job payload
+- Creates blinded ratings template
+- Validates expert roster
 
-After collecting expert ratings in `data/results/ratings_filled.csv`:
+**Expected output**:
+- `data/results/recruitment_payload.json`: Job posting data
+- `data/results/recruitment_instructions.md`: Manual posting guide
+- `data/results/ratings_template.csv`: Blinded evaluation template
+
+**Manual Step**:
+- Post recruitment job using generated payload
+- Distribute `ratings_template.csv` to verified experts
+- Collect filled ratings to `data/results/ratings_filled.csv`
+
+## Step 9: Statistical Analysis (US3 - Part 2)
 
 ```bash
 python code/05_statistical_analysis.py
 ```
 
-This produces:
-- `data/results/analysis_report.md` - Final statistical report
-- `data/results/validity_metrics.json` - Quantitative metrics
-- `data/results/sensitivity_analysis_report.md` - Robustness analysis
+**What this does**:
+- Loads expert ratings
+- Calculates Krippendorff's alpha (gate: ≥0.6) [UNRESOLVED-CLAIM: c_45062b51 — status=not_enough_info]
+- Performs normality check
+- Runs paired t-test or Wilcoxon signed-rank
+- Conducts sensitivity analysis (outlier removal)
+- Applies multiple comparison correction
+- Generates final report
 
-**Expected runtime**: 1-5 minutes
+**Expected output**:
+- `data/results/validity_metrics.json`: Effect sizes and p-values
+- `data/results/sensitivity_analysis_report.md`: Robustness analysis
+- `data/results/analysis_report.md`: Final report with "associational, not causal"
 
-## Validation
-
-Run the integration test suite to verify the entire pipeline:
-
+**Validation**:
 ```bash
-python code/99_run_quickstart_validation.py
+pytest tests/unit/test_inter_rater_reliability_gate.py -v
+pytest tests/unit/test_statistical_normality_check.py -v
+pytest tests/unit/test_multiple_comparison_correction.py -v
+pytest tests/unit/test_sensitivity_analysis.py -v
 ```
 
-This validates:
-- All artifacts exist and have correct structure
-- Checksums match the manifest
-- Memory constraints are met
-- Two-group design is enforced
-- Required rhetorical constraints are present
+## Step 10: Benchmarking and Validation
 
-## Output Artifacts
+```bash
+# Profile runtime and memory
+python code/utils/benchmark_profiler.py
 
-| Artifact | Location | Description |
-|----------|----------|-------------|
-| Raw Corpus | `data/raw/corpus_raw.jsonl` | Fetched abstracts |
-| Processed Corpus | `data/processed/corpus.jsonl` | Normalized data |
-| Pattern Map | `data/processed/pattern_map.json` | Similarity mappings |
-| Generated Proposals | `data/results/generated_proposals.jsonl` | Proposal pairs |
-| Expert Ratings | `data/results/ratings_filled.csv` | Collected ratings |
-| Analysis Report | `data/results/analysis_report.md` | Final results |
-| Validity Metrics | `data/results/validity_metrics.json` | Quantitative summary |
+# Validate against 6-hour constraint
+python code/utils/benchmark_validator.py
+```
+
+**Expected output**:
+- `data/results/benchmark_log.json`: Performance metrics
+- Exit code 0 if <6 hours, 1 if exceeded [UNRESOLVED-CLAIM: c_c58542bb — status=not_enough_info]
+
+## Step 11: Final Manifest Update
+
+```bash
+python code/utils/manifest_updater.py
+```
+
+**What this does**:
+- Scans all artifacts
+- Calculates checksums
+- Updates `state/manifest.yaml`
+
+**Expected output**:
+- `state/manifest.yaml`: Final artifact checksums
 
 ## Troubleshooting
 
 ### Memory Errors
 
 If you encounter memory errors:
-1. Ensure you have at least 7GB free RAM
-2. The pipeline uses streaming/chunking by default
-3. Check logs in `logs/data_acquisition.log` for specific errors
+1. Ensure `streaming=True` is used in data loading
+2. Check that `all-MiniLM-L6-v2` is quantized
+3. Verify batch sizes in `code/utils/batch_config.py`
 
-### API Errors
+### Data Fetch Failures
 
-If arXiv API fails:
-1. Check network connectivity
-2. Verify `data-sources.yaml` configuration
-3. The pipeline will fail loudly with a clear error message
+If data fetching fails:
+1. Check `data-sources.yaml` for correct endpoints
+2. Verify network connectivity
+3. Review `logs/data_acquisition.log` for specific error context
 
-### Missing Artifacts
+### IRR Gate Failure
 
-If artifacts are missing:
-1. Check `state/manifest.yaml` for expected files
-2. Re-run the failed phase
-3. Verify checksums with `python code/99_run_quickstart_validation.py`
+If Krippendorff's alpha < 0.6:
+1. Check expert roster for verified status
+2. Ensure ratings are collected for all pairs
+3. Consider recruiting additional raters
+
+### Power Constraint Violation
+
+If n drops below 30 after outlier removal [UNRESOLVED-CLAIM: c_d26ee18b — status=not_enough_info]:
+1. Review `data/results/sensitivity_analysis_report.md`
+2. Flag results as "underpowered" in final report
+3. Do not proceed to conclusions without flag
 
 ## Next Steps
 
-After completing the quickstart:
-1. Review `data/results/analysis_report.md` for findings
-2. Examine `data/results/validity_metrics.json` for effect sizes
-3. Consider extending the study with additional domains or larger samples
-4. Read the full documentation in `docs/` for detailed methodology
+- Review `data/results/analysis_report.md` for findings
+- Share `state/manifest.yaml` for reproducibility
+- Consider extending with additional domains or patterns
 
 ## Support
 
 For issues or questions:
-- Check logs in `logs/` directory
-- Review error messages in console output
-- Consult the API documentation in `code/` module docstrings
+1. Check `docs/README.md` for architecture overview
+2. Review `docs/pipeline_architecture.md` for component details
+3. Inspect `logs/` for execution traces

@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -73,17 +73,17 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/download.py` to: 1) Query OpenNeuro API for datasets containing 'task-switching' events FIRST; 2) If found, select the first valid dataset (preferring the designated dataset if present in results); 3) If no dataset found, generate `data/data_gap_report.json` adhering to `contracts/data_gap_report.schema.yaml` (with `fallback_id: null`) and halt.
+- [X] T012 [US1] Implement `code/download.py` to: 1) Query OpenNeuro API for datasets containing 'task-switching' events FIRST; 2) If found, select the first valid dataset (preferring the designated dataset if present in results); 3) If no dataset found, generate `data/data_gap_report.json` adhering to `contracts/data_gap_report.schema.yaml` (with `fallback_id: null`), HALT execution immediately BEFORE any data fetch, and log error.
 - [X] T013 [US1] Implement `code/download.py` to fetch raw data to `data/raw/` with checksumming (SHA-256)
-- [X] T014 [US1] Implement `code/preprocess.py` bandpass filter (1–45 Hz)
+- [X] T014 [US1] Implement `code/preprocess.py` bandpass filter (1–45 Hz) and log filter parameters to `logs/processing.log` to verify 1-45 Hz range is strictly applied.
 - [X] T015 [US1] Implement `code/preprocess.py` ICA-based artifact removal (reject components with kurtosis > 5 or spectral peak > 30 Hz)
 - [X] T015b [US1] Implement `code/preprocess.py` notch filter (50/60Hz) if line noise detected; log intervention to `logs/processing.log` with specific format: "Notch filter applied at {freq}Hz for subject {id}"
 - [X] T016 [US1] Implement `code/preprocess.py` epoching (-1000ms to +2000ms) around stimulus onset
 - [X] T017 [US1] Implement logic to exclude subjects with <10 valid trials/condition (reason: "insufficient trials") or >50% artifact removal (reason: "excessive artifact removal"); log to `data/exclusions.csv` with columns: `subject_id`, `reason`
-- [ ] T018 [US1] Implement memory monitoring to ensure peak RSS ≤ 6.5 GB during sequential subject processing
-- [X] T018b [US1] Implement global runtime wrapper in `code/main.py` that tracks total pipeline execution time; immediately log a timeout violation to `logs/processing.log` and `data/metrics/runtime_log.json` if total runtime exceeds several hours, then halt.
-- [X] T018c [US1] Implement logic to generate `data/metrics/runtime_log.json` containing `start_time`, `end_time`, `total_duration_minutes`, and `status` (success/timeout) to verify SC-002.
-- [ ] T019 [US1] Save clean epochs to `data/processed/` per subject (requires T004 for hashing)
+- [X] T018 [US1] Implement memory monitoring to ensure peak RSS ≤ 6.5 GB during sequential subject processing; log peak RSS to `data/metrics/memory_profile.json` and raise exception if > 6.5 GB.
+- [X] T018b [US1] Implement global runtime wrapper in `code/main.py` that tracks total pipeline execution time; immediately log a timeout violation to `logs/processing.log` and `data/metrics/runtime_log.json` and halt if total runtime > 6 hours.
+- [X] T018c [US1] Implement logic to generate `data/metrics/runtime_log.json` containing `start_time`, `end_time`, `total_duration_minutes`, `status` (success/timeout), and `passed_6h_limit` (boolean) to verify SC-002.
+- [X] T019 [US1] Save clean epochs to `data/processed/` per subject (e.g., `sub-XX_epoched.fif`); verify file exists and contains valid epoch objects (requires T004 for hashing)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,10 +99,10 @@
 ### Implementation for User Story 2
 
 - [X] T022 [US2] Implement electrode mapping in `code/synchrony.py`: F3/F4, FC3/FC4 → DLPFC; P3/P4, CP3/CP4 → Parietal
-- [ ] T023 [US2] Implement frequency band filtering for theta (–7 Hz) and gamma (–45 Hz)
-- [X] T024 [US2] Implement `code/synchrony.py` to compute wPLI/PLV for pre-stimulus window (a sufficiently long baseline period prior to stimulus onset)
-- [ ] T025 [US2] Save synchrony matrices to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `pair_id`, `band`, `value` (aggregated as mean); requires T004 for hashing <!-- FAILED: unspecified -->
-- [ ] T026 [US2] Ensure computation completes in ≤ 30 minutes per subject on CPU
+- [X] T023 [US2] Implement frequency band filtering for theta (4–7 Hz) and gamma (30–45 Hz); save filtered epochs to `data/processed/band_filtered/`; verify power spectral density peaks at 4-7Hz and 30-45Hz.
+- [X] T024 [US2] Implement `code/synchrony.py` to compute wPLI/PLV for pre-stimulus window (-500ms to 0ms)
+- [X] T025 [US2] Save synchrony matrices to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `pair_id`, `band`, `value` (aggregated as mean); verify file exists and contains 4 columns (requires T004 for hashing)
+- [X] T026 [US2] Implement timing wrapper in `code/synchrony.py` that logs duration to `data/metrics/synchrony_timing.json` and raises error if > 30 minutes per subject
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,10 +118,10 @@
 ### Implementation for User Story 3
 
 - [X] T030 [US3] Implement `code/analysis.py` to compute switching costs (RT_switch - RT_stay) per subject
-- [X] T031 [US3] Implement `code/analysis.py` primary correlation: Pearson/Spearman between mean synchrony and switching costs <!-- ATOMIZE: requested -->
-- [X] T032 [US3] Implement `code/analysis.py` permutation testing with a sufficient number of iterations to ensure robust statistical inference (shuffling subject vectors) as mandated by FR-005; log iteration count.
-- [ ] T033 [US3] Implement multiple-comparison correction (Bonferroni) for theta and gamma bands
-- [ ] T034 [US3] Implement `code/analysis.py` sensitivity analysis: repeat correlation for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05) against primary result; save `data/metrics/sensitivity_report.json` (requires T004)
+- [X] T031 [US3] Implement `code/analysis.py` primary correlation: Pearson/Spearman between mean synchrony and switching costs
+- [X] T032 [US3] Implement `code/analysis.py` permutation testing with 1000 iterations (shuffling subject vectors) as mandated by FR-005; log iteration count.
+- [X] T033 [US3] Implement multiple-comparison correction (Bonferroni) for theta and gamma bands; update `data/metrics/correlation_results.json` with corrected p-values; verify correction logic.
+- [X] T034 [US3] Implement `code/analysis.py` sensitivity analysis: repeat correlation for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05) against primary result; save `data/metrics/sensitivity_report.json` (requires T004)
 - [X] T035 [US3] Implement `code/analysis.py` secondary trial-level analysis: Linear Mixed-Effects model (`RT ~ Synchrony + (1|Subject)`) using `statsmodels`; handle missing trial-level synchrony by excluding rows
 - [X] T036 [US3] Generate `data/trial_level/per_trial_synchrony.csv` with columns: `subject_id`, `trial_id`, `condition`, `synchrony`, `rt`; exclude rows with missing synchrony; requires T004
 - [X] T037 [US3] Save final results to `data/metrics/correlation_results.json` and `data/metrics/trial_level_analysis.json` with keys: `correlation`, `p_value`, `framing_note` (must contain "associational"); generate `results_summary.md` containing the associational framing text; requires T004
@@ -136,10 +136,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T040 [P] Implement `code/main.py` pipeline orchestrator to run phases sequentially
-- [ ] T041 [P] Add documentation updates in `projects/PROJ-498-investigating-the-relationship-between-n/README.md`
+- [X] T041 [P] Add documentation updates in `projects/PROJ-498-investigating-the-relationship-between-n/README.md`: Update README.md with a "Usage" section containing the command: `python code/main.py --dataset dsXXXX`
 - [X] T042 [P] Run `code/update_state_hashes.py` to update state file with new artifact hashes
-- [ ] T043 [P] Verify `quickstart.md` validation <!-- FAILED: unspecified -->
-- [ ] T044 [P] Code cleanup and refactoring for CPU efficiency
+- [X] T043 [P] Verify `quickstart.md` validation: Run the commands in quickstart.md in a fresh virtualenv; verify all commands exit with code 0 and produce expected artifacts.
+- [X] T044 [P] Code cleanup and refactoring for CPU efficiency: Refactor `code/synchrony.py` to use numpy vectorization instead of loops, reducing runtime by [deferred] as measured in `data/metrics/perf_benchmark.json`.
 
 ---
 
@@ -150,8 +150,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -216,11 +216,11 @@ Due to data-flow dependencies:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
+   - Developer A: User Story 1
 3. Once US1 completes:
- - Developer B: User Story 2
+   - Developer B: User Story 2
 4. Once US2 completes:
- - Developer C: User Story 3
+   - Developer C: User Story 3
 
 ---
 

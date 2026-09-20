@@ -1,0 +1,4 @@
+# Explicit black configuration file for IDE integration
+# Extends settings from pyproject.toml
+line-length = 88
+target-version = ['py39', 'py310', 'py311']

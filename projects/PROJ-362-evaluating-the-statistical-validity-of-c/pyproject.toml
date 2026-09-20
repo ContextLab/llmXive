@@ -14,13 +14,14 @@ dependencies = [
     "scipy",
     "scikit-learn",
     "tqdm",
-    "datasets",
+    "ir-datasets",
     "psutil",
     "pytest",
     "ruff",
     "black",
-    "matplotlib",
     "pyyaml",
+    "matplotlib",
+    "statsmodels",
 ]
 
 [tool.black]
@@ -30,15 +31,15 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
@@ -46,23 +47,47 @@ exclude = '''
 line-length = 88
 target-version = "py39"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in CLI)
+    "C901", # too complex (allow for now)
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in init files
+"__init__.py" = ["F401"]
+"tests/*" = ["S101"] # allow assert in tests
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = "test_*.py"
+python_functions = "test_*"
 addopts = "-v --tb=short"

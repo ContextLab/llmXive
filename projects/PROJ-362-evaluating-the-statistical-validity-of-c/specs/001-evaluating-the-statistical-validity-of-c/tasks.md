@@ -157,8 +157,8 @@ required:
  **Depends on: T004.x (data loading), T008 (metrics)**.
 
 - [X] T023 [P] [US2] Implement BH correction in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/power_analysis.py`: apply separately to NDCG and MAP p-value families (two families). **Depends on: T018** (explicitly depends on completion of T018 raw p-values)
-- [ ] T026 [US2] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/p_values/corrected_p_values.csv` with columns: `query_id, metric, raw_p, corrected_p, is_significant`. **Depends on: T023**.
-- [ ] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values from `ALPHA_SWEEP_START` to `ALPHA_SWEEP_END` inclusive with step `ALPHA_SWEEP_STEP` as defined in config.py**. **For each adjacent pair of alpha values, compare the significance status of queries and count how many change status.** Report the count of queries where significance status changes between adjacent α values. **Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count, status_change_count`**. **Depends on: T013a, T016, T018, T023** (completion of T023 output and raw data from T013a/T016)
+- [X] T026 [US2] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/p_values/corrected_p_values.csv` with columns: `query_id, metric, raw_p, corrected_p, is_significant`. **Depends on: T023**.
+- [X] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values from `ALPHA_SWEEP_START` to `ALPHA_SWEEP_END` inclusive with step `ALPHA_SWEEP_STEP` as defined in config.py**. **For each adjacent pair of alpha values, compare the significance status of queries and count how many change status.** Report the count of queries where significance status changes between adjacent α values. **Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count, status_change_count`**. **Depends on: T013a, T016, T018, T023** (completion of T023 output and raw data from T013a/T016)
 - [ ] T024.1 [P] [US2] **Verification**: Run a script to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` and verify it exists and has the correct columns (`alpha`, `significant_count`, `status_change_count`). **Depends on: T024**.
 - [ ] T027 [US2] Add explicit text generation in `main.py` output: "Findings indicate statistical association, not causal algorithmic improvement" per FR-008. **Write this text to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/analysis_framing.txt`**.
 - [ ] T027.1 [P] [US2] **Verification**: Run a script to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/analysis_framing.txt` and verify it contains the required associational framing text. **Depends on: T027**.
@@ -173,7 +173,7 @@ required:
 
 ### Test Definition for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Integration test: Verify memory usage stays < 7GB during full run in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_resource_limits.py`
+- [X] T028 [P] [US3] Integration test: Verify memory usage stays < 7GB during full run in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_resource_limits.py`
 
 ### Implementation for User Story 3
 

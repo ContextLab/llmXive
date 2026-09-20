@@ -1,10 +1,5 @@
-# Ruff configuration file
-# This file extends settings from pyproject.toml if needed, 
-# but pyproject.toml is the primary source of truth for this project.
-
-[lint]
-# Explicitly enable selected rules if not inherited
-select = ["E", "W", "F", "I", "C", "B"]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
+# Explicit ruff configuration file for IDE integration
+# Extends settings from pyproject.toml but can be overridden here if needed
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py39"
