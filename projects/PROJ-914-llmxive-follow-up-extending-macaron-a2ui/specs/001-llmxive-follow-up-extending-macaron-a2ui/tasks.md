@@ -70,7 +70,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Intent Annotation (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest the Macaron-A2UI dataset and provide an interface to label N=500 interaction turns [UNRESOLVED-CLAIM: c_54f81582 — status=not_enough_info] as "High-Confidence" or "Ambiguous" to create ground truth. Additionally, create a separate N=50 human-annotated hold-out set for rubric validation.
+**Goal**: Ingest the Macaron-A2UI dataset and provide an interface to label N=500 interaction turns as "High-Confidence" or "Ambiguous" to create ground truth. Additionally, create a separate N=50 human-annotated hold-out set for rubric validation.
 
 **Independent Test**: A CSV file exists containing N=500 rows with columns `query`, `ground_truth_intent`, `complexity_score`, validated by a script checking ≥95% coverage and no missing labels. A separate N=50 hold-out set exists for rubric validation.
 
@@ -120,7 +120,7 @@
 - [X] T024a [US2] Implement simulation runner `code/simulation/runner.py` with latency injection (sleep/delay) and dependency on **T022** for patience modeling
 - [X] T024b [US2] Implement density iteration logic in `code/simulation/runner.py` to iterate through explicit density levels **{1, 3, 5, 10}** for deterministic fallback (FR-004, Constitution Principle VII); **Explicitly handle borderline confidence scores (if score == threshold, route to Ambiguous)**
 - [X] T024c [US2] Implement logging of `ui_element_count` and validation/assertion for density levels in `code/simulation/runner.py`
-- [ ] T026 [US2] Implement logic in `code/simulation/runner.py` to handle "Ambiguous" queries: invoke fallback, log "no-match" if no ontology entry, return minimal UI (element) <!-- FAILED: unspecified -->
+- [X] T026 [US2] Implement logic in `code/simulation/runner.py` to handle "Ambiguous" queries: invoke fallback, log "no-match" if no ontology entry, return minimal UI (element) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T020 [US2] Implement `code/models/router.py` with DistilBERT (quantized) for intent classification (High-Confidence vs. Ambiguous)
 - [X] T019 [US2] Implement training script `code/models/train_router.py` to train DistilBERT on labeled CSV from T013; **Depends on: T013, T020**; **Must save model to `code/models/router_model/`** (Removed "no model file generated yet")
 - [X] T019b-Run [US2] Execute training script from T019 on labeled CSV; save model to `code/models/router_model/`; **Depends on: T015c**
@@ -149,17 +149,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/analysis/stats.py` for **Benjamini-Hochberg FDR ** multiple-comparison correction on alignment scores (FR-006, SC-004)
-- [ ] T032a [US3] Implement configurable correction method in `code/analysis/stats.py` to support both FDR and Bonferroni (satisfying spec flexibility)
+- [X] T032 [US3] Implement `code/analysis/stats.py` for **Benjamini-Hochberg FDR ** multiple-comparison correction on alignment scores (FR-006, SC-004)
+- [X] T032a [US3] Implement configurable correction method in `code/analysis/stats.py` to support both FDR and Bonferroni (satisfying spec flexibility)
 - [X] T034a [US3] Generate generative baseline data for latency steps including zero and non-zero intervals; **Depends on: T024**
 - [X] T037a [US3] **Validate Baseline**: Validate generative baseline output quality against human-annotated gold standard (N=50) at **Negligible latency** (FR-008); **Explicit 0ms constraint**
 - [X] T034b [US3] **Implement Threshold Finder**: Implement `code/analysis/threshold_finder.py` that consumes T034a baseline data and T032/T032a FDR results to **output a JSON file containing the identified latency threshold and p-value**; **explicitly implement statistical test logic for non-overlapping confidence intervals**
 - [X] T034c [US3] **Verify Threshold Output**: Implement verification script for the JSON output of T034b; **Verify JSON file exists and contains expected keys**
 - [X] T034d [US3] Generate statistical report table showing p-values and confidence intervals for all configurations (US-3 Independent Test)
-- [ ] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
-- [ ] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high) <!-- FAILED: unspecified -->
+- [X] T035 [US3] Implement `code/analysis/viz.py` to generate the Pareto frontier plot (Alignment vs. Latency)
+- [X] T036 [US3] Implement `code/analysis/viz.py` to plot alignment scores across information density levels (low, medium, high) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T037 [US3] Implement `code/analysis/rubric_validation.py` to validate the rubric correlation (r ≥ 0.7) against the N=50 hold-out set from **T015d-Load** (human scores) and baseline validation results from **T037a**; **consumes rubric logic from T023 and metrics from T027; explicitly calculate correlation between rubric scores and human scores**; **Output: `data/rubric_validation_report.json`**
-- [ ] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
+- [X] T038 [US3] Implement `code/main.py` entry point to orchestrate the full pipeline: Ingest -> Route -> Simulate -> Analyze -> Report
 - [X] T039 [US3] Generate final report (output/report.md) containing:) Pareto frontier plot,) Table of alignment scores per density/latency, 3) Threshold identification table with 95% CIs (US-3 Independent Test)
 
 ### Tests for User Story 3

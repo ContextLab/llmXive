@@ -1,38 +1,112 @@
 import os
 import sys
-
+from pathlib import Path
 import pytest
 
-# Ensure we can import from the code directory
-code_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "code")
-if code_dir not in sys.path:
-    sys.path.insert(0, code_dir)
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_linting import main
+from setup_linting import ensure_ruff_config, ensure_black_config, update_requirements
 
-def test_config_files_exist():
-    """Test that the required configuration files exist."""
-    code_dir = os.path.dirname(os.path.abspath(__file__))
-    # Adjust path to find configs relative to the code directory
-    # Since tests are in tests/unit, code is in ../code
-    base_code_dir = os.path.join(os.path.dirname(os.path.dirname(code_dir)), "code")
-    
-    ruff_path = os.path.join(base_code_dir, ".ruff.toml")
-    black_path = os.path.join(base_code_dir, ".black.toml")
+class TestLintingConfig:
+    def test_ruff_config_exists(self, tmp_path):
+        """Test that ruff config file is created or found."""
+        # Create a temporary directory structure mimicking the project
+        code_dir = tmp_path / "code"
+        code_dir.mkdir()
+        
+        # Mock the Path resolution by temporarily changing cwd
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(code_dir)
+            # Re-import to pick up the new cwd
+            import importlib
+            import setup_linting
+            importlib.reload(setup_linting)
+            
+            # Call the function
+            result = setup_linting.ensure_ruff_config()
+            
+            # Check file exists
+            config_path = code_dir / ".ruff.toml"
+            assert config_path.exists()
+            assert result is True
+            
+            # Check content has expected sections
+            content = config_path.read_text()
+            assert "[lint]" in content
+            assert "[format]" in content
+        finally:
+            os.chdir(original_cwd)
 
-    assert os.path.exists(ruff_path), f"{ruff_path} does not exist"
-    assert os.path.exists(black_path), f"{black_path} does not exist"
+    def test_black_config_exists(self, tmp_path):
+        """Test that black config file is created or found."""
+        code_dir = tmp_path / "code"
+        code_dir.mkdir()
+        
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(code_dir)
+            import importlib
+            import setup_linting
+            importlib.reload(setup_linting)
+            
+            result = setup_linting.ensure_black_config()
+            
+            config_path = code_dir / ".black.toml"
+            assert config_path.exists()
+            assert result is True
+            
+            content = config_path.read_text()
+            assert "[tool.black]" in content
+            assert "line-length" in content
+        finally:
+            os.chdir(original_cwd)
 
-def test_setup_linting_main():
-    """Test the main function of setup_linting."""
-    code_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "code")
-    # Temporarily change directory to code to test relative paths if needed,
-    # but setup_linting uses absolute paths based on its own location.
-    # We just verify the function returns 0 if configs exist.
-    
-    # We need to run the main logic. Since setup_linting uses __file__ to find paths,
-    # we can't easily mock it without changing the module's structure.
-    # Instead, we rely on the file existence test above and assume main() works if files exist.
-    # However, to be rigorous, we can check the return code if we were to run it in the correct context.
-    # For now, the existence test is the primary validation.
-    pass
+    def test_requirements_updated(self, tmp_path):
+        """Test that requirements.txt is updated with linting tools."""
+        code_dir = tmp_path / "code"
+        code_dir.mkdir()
+        
+        req_path = code_dir / "requirements.txt"
+        req_path.write_text("pandas==2.0.0\n")
+        
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(code_dir)
+            import importlib
+            import setup_linting
+            importlib.reload(setup_linting)
+            
+            result = setup_linting.update_requirements()
+            
+            content = req_path.read_text()
+            assert "ruff" in content
+            assert "black" in content
+            assert result is True
+        finally:
+            os.chdir(original_cwd)
+
+    def test_main_function(self, tmp_path):
+        """Test the main function orchestrates all setup steps."""
+        code_dir = tmp_path / "code"
+        code_dir.mkdir()
+        
+        req_path = code_dir / "requirements.txt"
+        req_path.write_text("pandas==2.0.0\n")
+        
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(code_dir)
+            import importlib
+            import setup_linting
+            importlib.reload(setup_linting)
+            
+            result = setup_linting.main()
+            
+            assert result == 0
+            assert (code_dir / ".ruff.toml").exists()
+            assert (code_dir / ".black.toml").exists()
+            assert "ruff" in req_path.read_text()
+        finally:
+            os.chdir(original_cwd)

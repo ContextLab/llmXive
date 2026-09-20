@@ -31,6 +31,12 @@ T008b:
     the `RetractionLabel` schema with the fields `paper_id`, `status`, `source`, and
     `retraction_reason` is absent. The implementer must add the specified schema to
     the indicated path.
+T008c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No YAML block defining the `TopologicalFeatures` schema was presented in the
+    provided evidence, nor is there any indication that `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/data-model.md`
+    was modified to include the required fields. The task therefore remains unfulfilled.
 T013:
   c: false
   h: 967cc5796055e0dc1805859e15fcb24f44df845a25bfd2d53c469334ed436546

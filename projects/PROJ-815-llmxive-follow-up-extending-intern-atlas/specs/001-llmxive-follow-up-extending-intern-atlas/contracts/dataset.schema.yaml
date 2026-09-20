@@ -1,77 +1,109 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Intern-Atlas Extended Dataset Schema
-description: Schema for the processed features dataset derived from Intern-Atlas graph and retraction databases.
-type: object
-required:
-  - node_id
-  - publication_year
-  - field_of_study
-  - citation_count
-  - bottleneck_resolution_ratio
-  - branching_entropy
-  - retraction_status
-  - retraction_status_binary
-  - edge_type_distribution
-properties:
-  node_id:
+version: "1.0.0"
+description: >
+  Schema for the processed features dataset derived from the Intern-Atlas graph
+  and retraction databases. This file defines the expected columns, data types,
+  and constraints for `data/processed/features_2010_2018.csv`.
+
+source:
+  graph: "Intern-Atlas (filtered 2010-2018)"
+  retraction_db: "Retraction Watch / Crossref"
+
+output_file: "data/processed/features_2010_2018.csv"
+
+columns:
+  - name: paper_id
     type: string
-    description: Unique identifier for the method node (e.g., DOI or internal ID).
-  publication_year:
-    type: integer
-    minimum: 2010
-    maximum: 2018
-    description: Year the method was published.
-  field_of_study:
+    description: "Unique identifier for the paper (DOI or internal ID)."
+    nullable: false
+    primary_key: true
+
+  - name: title
     type: string
-    description: Domain or sub-domain of the research.
-  publication_venue:
+    description: "Title of the paper."
+    nullable: false
+
+  - name: year
+    type: integer
+    description: "Publication year."
+    constraints:
+      min: 2010
+      max: 2018
+    nullable: false
+
+  - name: field_of_study
     type: string
-    description: Journal or conference name.
-  citation_count:
+    description: "Categorical field of study (e.g., 'Psychology', 'Biology')."
+    nullable: true
+
+  - name: publication_venue
+    type: string
+    description: "Name of the journal or conference."
+    nullable: true
+
+  - name: citation_count
     type: integer
-    minimum: 0
-    description: Total number of citations at the time of data extraction.
-  bottleneck_resolution_ratio:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Ratio of (improves + replaces) edges to total outgoing edges.
-  branching_entropy:
-    type: number
-    minimum: 0.0
-    description: Shannon entropy of downstream method types.
-  edge_type_distribution:
-    type: object
-    description: Count of outgoing edges by type.
-    properties:
-      improves:
-        type: integer
-      replaces:
-        type: integer
-      extends:
-        type: integer
-      unknown:
-        type: integer
-    required:
-      - improves
-      - replaces
-      - extends
-      - unknown
-  retraction_status:
-    type: integer
-    enum: [0, 1, 2]
+    description: "Total number of incoming citations."
+    nullable: false
+    default: 0
+
+  - name: bottleneck_resolution_ratio
+    type: float
     description: >
-      0 = Robust (no retraction),
-      1 = Fragile (methodological error/irreproducibility),
-      2 = Retraction-Only (fraud/other).
-  retraction_status_binary:
-    type: integer
-    enum: [0, 1]
+      Ratio of 'improves'/'replaces' edges to total outgoing edges.
+      Formula: (count(improves) + count(replaces)) / count(outgoing_edges).
+      If outgoing_edges is 0, value is 0.0.
+    constraints:
+      min: 0.0
+      max: 1.0
+    nullable: false
+
+  - name: branching_entropy
+    type: float
     description: >
-      Binary label for modeling:
-      1 = Fragile (original status 1),
-      0 = Robust or Retraction-Only (original status 0 or 2).
-  is_human_annotated:
-    type: boolean
-    description: True if all incoming edge types are human-annotated (no LLM inference).
-additionalProperties: false
+      Shannon entropy of the downstream method types (edge types).
+      High entropy indicates diverse downstream impact; low entropy indicates
+      concentrated impact on specific method types.
+    nullable: false
+
+  - name: retraction_status
+    type: integer
+    description: >
+      Original retraction label mapped from retraction database.
+      0 = Robust (no retraction)
+      1 = Fragile (methodological error, irreproducibility)
+      2 = Retraction-Only (fraud, other)
+    constraints:
+      allowed_values: [0, 1, 2]
+    nullable: false
+
+  - name: retraction_status_binary
+    type: integer
+    description: >
+      Binary target variable for modeling (derived from retraction_status).
+      1 = Fragile (status 1)
+      0 = Robust or Retraction-Only (status 0 or 2)
+      Mapping: status 1 -> 1; status 0 or 2 -> 0.
+    constraints:
+      allowed_values: [0, 1]
+    nullable: false
+
+  - name: match_source
+    type: string
+    description: "Source of the retraction match: 'exact_doi', 'fuzzy', or 'none'."
+    nullable: false
+
+  - name: match_score
+    type: float
+    description: "Levenshtein ratio if fuzzy match was used, else 1.0 (exact) or 0.0 (none)."
+    nullable: true
+
+validation_rules:
+  - rule: "No missing values in paper_id, year, citation_count, retraction_status, retraction_status_binary."
+  - rule: "retraction_status_binary must be consistent with retraction_status (1->1, others->0)."
+  - rule: "bottleneck_resolution_ratio and branching_entropy must be non-negative."
+  - rule: "year must be within [2010, 2018]."
+
+notes:
+  - "This schema is validated by code/utils/schema_validator.py during the pipeline execution (T017b)."
+  - "The 'retraction_status_binary' column is critical for the binary classification tasks (T023, T023b)."
+  - "The 'retraction_status' column is preserved for the multinomial classification tasks (T023c, T024)."

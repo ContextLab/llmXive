@@ -30,6 +30,9 @@ CONFIG_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "analysis.schema.yaml"
 # Runtime limits
 RUNTIME_LIMIT_HOURS = 6
 
+# Sample size limits
+SAMPLE_SIZE = 10000
+
 # Default configuration values
 DEFAULT_CONFIG = {
     "filtering": {
@@ -60,6 +63,7 @@ class Config:
         self.PROCESSED_DIR = PROCESSED_DATA_DIR
         self.FIGURES_DIR = FIGURES_DIR
         self.RUNTIME_LIMIT_HOURS = RUNTIME_LIMIT_HOURS
+        self.SAMPLE_SIZE = SAMPLE_SIZE
         self.CONFIG_SCHEMA_PATH = CONFIG_SCHEMA_PATH
     
     def _load_config(self) -> Dict[str, Any]:

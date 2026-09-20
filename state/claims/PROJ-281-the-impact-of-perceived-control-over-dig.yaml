@@ -68,3 +68,384 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T23:47:53Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: anxiety scores generated for at least 95% of non-null rows
+  claim_id: c_06d3f643
+  context: "Independent Test: The system can be fully tested by running the ingestion\
+    \ pipeline on a small, fixed sample of known posts and verifying that anxiety\
+    \ scores are generated for \u226595% of non-null rows, with no null values, and\
+    \ that the distribution of scores matches the expected range."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Anxiety_scores_generated_for_at_least_95%25_of_non-null_rows
+  kind: magnitude
+  raw_text: "The system can be fully tested by running the ingestion pipeline on a\
+    \ small, fixed sample of known posts and verifying that anxiety scores are generated\
+    \ for \u226595% of non-null rows, with no null values, and that the distribution\
+    \ of scores matches the expected range."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:48:49Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: fetch exactly 10000 rows if dataset size exceeds sample size
+  claim_id: c_3622a0e9
+  context: 'T013b [US1] PRE-RUN SAMPLING: Implement logic in code/services/data_ingestion.py
+    to enforce config.SAMPLE_SIZE (default 10000) on the dataset before full ingestion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If dataset size > SAMPLE_SIZE, select a random subset using datasets.load_dataset(...,
+    split='train', streaming=True) and itertools.islice to fetch exactly SAMPLE_SIZE
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:48:49Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: filter non-English text using langdetect library
+  claim_id: c_68fa18e0
+  context: T014b [US1] [US1-AC-002] Implement Non-English text filtering in code/services/anxiety_scoring.py
+    using langdetect.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_non-English_text_using_langdetect_library
+  kind: entity_fact
+  raw_text: Implement Non-English text filtering in code/services/anxiety_scoring.py
+    using langdetect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:49:19Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: filter rows where langdetect confidence is less than 0.8
+  claim_id: c_aa5dc497
+  context: 'T014b [US1] [US1-AC-002] Implement Non-English text filtering in code/services/anxiety_scoring.py
+    using langdetect. Logic: Read data/raw/social_media.csv, filter rows where language
+    is not ''en'' OR langdetect confidence < 0.8 OR detection fails.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_rows_where_langdetect_confidence_is_less_than_0.8
+  kind: magnitude
+  raw_text: Filter rows where language is not 'en' OR langdetect confidence < 0.8
+    OR detection fails.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:49:49Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: filter gibberish where text length is less than 3
+  claim_id: c_9dd4982c
+  context: T014c [US1] [US1-AC-002] Implement gibberish filtering logic in code/services/anxiety_scoring.py
+    (e.g., text length < 3 or entropy-based heuristic).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_gibberish_where_text_length_is_less_than_3
+  kind: magnitude
+  raw_text: Implement gibberish filtering logic in code/services/anxiety_scoring.py
+    (e.g., text length < 3 or entropy-based heuristic).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:50:13Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: default entropy threshold is 0.7 and minimum text length is 3
+  claim_id: c_fcf26f01
+  context: 'T014c [US1] [US1-AC-002] Implement gibberish filtering logic in code/services/anxiety_scoring.py...
+    Config: Read filtering.entropy_threshold (default 0.7) and filtering.min_text_length
+    (default 3) from contracts/analysis.schema.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read filtering.entropy_threshold (default 0.7) and filtering.min_text_length
+    (default 3) from contracts/analysis.schema.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:50:28Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: verify post-filtering row count meets 95% coverage target
+  claim_id: c_e7f77a49
+  context: "T014d [US1] FILTER SUFFICIENCY CHECK: Verify that the row count after\
+    \ T014c filtering is sufficient to meet the \u226595% coverage target (AC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the row count after T014c filtering is sufficient to meet\
+    \ the \u226595% coverage target (AC-003)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:50:46Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: load cardiffnlp/twitter-roberta-base-emotion model in float32 precision
+  claim_id: c_5206c015
+  context: T015 [US1] Implement CPU-tractable anxiety model inference in code/services/anxiety_scoring.py
+    (load cardiffnlp/twitter-roberta-base-emotion in default float32 precision).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_cardiffnlp/twitter-roberta-base-emotion_model_in_float3
+  kind: entity_fact
+  raw_text: Load cardiffnlp/twitter-roberta-base-emotion in default float32 precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:51:11Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: exclude predictions with confidence score less than 0.6
+  claim_id: c_f7c4ac8e
+  context: "T016 [US1] Implement confidence score filtering (threshold \u2265 0.6)\
+    \ in code/services/anxiety_scoring.py to exclude low-confidence predictions before\
+    \ saving."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_predictions_with_confidence_score_less_than_0.6
+  kind: magnitude
+  raw_text: "Implement confidence score filtering (threshold \u2265 0.6) in code/services/anxiety_scoring.py\
+    \ to exclude low-confidence predictions before saving."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:51:49Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: halt pipeline if coverage is less than 95%
+  claim_id: c_7337bd5b
+  context: 'T018b [US1] ENFORCEMENT: If T018a reports coverage <95%, raise CoverageError
+    and halt the pipeline.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_if_coverage_is_less_than_95%25
+  kind: magnitude
+  raw_text: If T018a reports coverage <95%, raise CoverageError and halt the pipeline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:52:08Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: ensure 95% match on test set for control proxy extraction
+  claim_id: c_bddba9ec
+  context: "Independent Test: The system can be tested by processing a subset of posts\
+    \ where the presence of control-related metadata flags (e.g., filter_applied=true)\
+    \ and timestamp patterns are manually verified against the extracted proxy values,\
+    \ ensuring a \u226595% match on a test set of a representative number of items."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Test the system by processing a subset of posts where the presence of\
+    \ control-related metadata flags (e.g., filter_applied=true) and timestamp patterns\
+    \ are manually verified against the extracted proxy values, ensuring a \u2265\
+    95% match on a test set of a representative number of items."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:52:08Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: normalize timestamp regularity metric to 0 to 1 range
+  claim_id: c_cdd8760f
+  context: 'T023 [US2] Implement logic to calculate timestamp_regularity metric per
+    user in code/services/proxy_extractor.py. Logic: Calculate standard deviation
+    of inter-post intervals; normalize to [0,1] (lower std dev = higher regularity).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate standard deviation of inter-post intervals; normalize to [0,1]
+    (lower std dev = higher regularity).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:52:48Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: default missing metadata fields to zero
+  claim_id: c_f9d86bdc
+  context: T025 [US2] Handle missing metadata fields by defaulting to a baseline value
+    of zero and logging a warning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_missing_metadata_fields_to_zero
+  kind: entity_fact
+  raw_text: Handle missing metadata fields by defaulting to a baseline value of zero
+    and logging a warning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:53:35Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: verify negative regression coefficient and p-value less than 0.05 for
+    negative correlation
+  claim_id: c_473d1a92
+  context: 'Independent Test: The system can be tested by running the analysis on
+    a synthetic dataset with a known negative correlation and verifying that the output
+    regression coefficient is negative and the p-value is < 0.05, or that the fallback
+    Spearman correlation is used if normality assumptions are violated.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_negative_regression_coefficient_and_p-value_less_than
+  kind: magnitude
+  raw_text: Test the system by running the analysis on a synthetic dataset with a
+    known negative correlation and verifying that the output regression coefficient
+    is negative and the p-value is < 0.05, or that the fallback Spearman correlation
+    is used if normality assumptions are violated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:54:33Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: save visualization at 300 DPI with seaborn.darkgrid style
+  claim_id: c_80d3e5de
+  context: 'T036 [US3] Save final visualization as data/processed/correlation_plot.png.
+    Note: Ensure figure dimensions are appropriate for publication quality, DPI 300,
+    and style seaborn.darkgrid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure figure dimensions are appropriate for publication quality, DPI
+    300, and style seaborn.darkgrid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:54:55Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Anxiety scores generated for 95% or more of non-null rows in ingestion
+    pipeline
+  claim_id: c_9081338f
+  context: "Independent Test: The system can be fully tested by running the ingestion\
+    \ pipeline on a small, fixed sample of known posts and verifying that anxiety\
+    \ scores are generated for \u226595% of non-null rows, with no null values, and\
+    \ that the distribution of scores matches the expected range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be fully tested by running the ingestion pipeline on a\
+    \ small, fixed sample of known posts and verifying that anxiety scores are generated\
+    \ for \u226595% of non-null rows, with no null values, and that the distribution\
+    \ of scores matches the expected range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:55:40Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Metadata proxy extraction achieves 95% or more match on test set
+  claim_id: c_fc6bcfe6
+  context: "Independent Test: The system can be tested by processing a subset of posts\
+    \ where the presence of control-related metadata flags (e.g., filter_applied=true)\
+    \ and timestamp patterns are manually verified against the extracted proxy values,\
+    \ ensuring a \u226595% match on a test set of a representative number of items."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by processing a subset of posts where the presence\
+    \ of control-related metadata flags (e.g., filter_applied=true) and timestamp\
+    \ patterns are manually verified against the extracted proxy values, ensuring\
+    \ a \u226595% match on a test set of a representative number of items."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:55:40Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Analysis pipeline verifies negative regression coefficient and p-value
+    less than 0.05 on synthetic dataset
+  claim_id: c_e63a79cb
+  context: 'Independent Test: The system can be tested by running the analysis on
+    a synthetic dataset with a known negative correlation and verifying that the output
+    regression coefficient is negative and the p-value is < 0.05, or that the fallback
+    Spearman correlation is used if normality assumptions are violated.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The system can be tested by running the analysis on a synthetic dataset
+    with a known negative correlation and verifying that the output regression coefficient
+    is negative and the p-value is < 0.05, or that the fallback Spearman correlation
+    is used if normality assumptions are violated.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T18:55:40Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Analysis results JSON contains numeric values for r, p-value, and is_significant
+  claim_id: c_0cb0790c
+  context: 'Dependency: T030, T034, T036. ... asserting that all intermediate files
+    exist and that the final analysis_results.json contains valid numeric values for
+    r, p_value, and is_significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_results_JSON_contains_numeric_values_for_r,_p-value
+  kind: entity_fact
+  raw_text: The final analysis_results.json contains valid numeric values for r, p_value,
+    and is_significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:57:01Z'

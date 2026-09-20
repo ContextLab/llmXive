@@ -962,3 +962,461 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T07:04:40Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Standard permutation test with 100 iterations on binary model
+  claim_id: c_90008031
+  context: 'T031a [US3] Implement code/analysis/standard_permutation.py: Perform Standard
+    Permutation Test with exactly n=100 iterations (as per FR-007) on the Binary Model
+    (T023b) results by shuffling labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Standard Permutation Test with exactly n=100 iterations on the
+    Binary Model results
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:38:38Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Stratified permutation test with 100 iterations on 3-class model
+  claim_id: c_8908b01c
+  context: 'T031b [US3] Implement code/analysis/stratified_permutation.py: Perform
+    Stratified Permutation Test with n=100 iterations on the 3-class Model (T024)
+    results, controlling for field_of_study and publication_venue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Stratified Permutation Test with n=100 iterations on the 3-class
+    Model results
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:39:13Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Threshold sweep over 0.3, 0.5, and 0.7
+  claim_id: c_366ed3f5
+  context: 'T032 [US3] Implement code/analysis/sensitivity_analysis.py: Run threshold
+    sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008 and SC-002); calculate
+    and report FPR/FNR for each.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:39:58Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Flag instability if VIF greater than 5 or MI greater than 0.1
+  claim_id: c_6dcb1c22
+  context: T032 [US3] ... calculate VIF and MI for predictors; flag instability if
+    VIF > 5 or MI > 0.1.
+  evidence:
+    candidates:
+    - - Flag instability if VIF greater than
+      - 5.0
+    - - MI greater than
+      - 0.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Flag_instability_if_VIF_greater_than_5_or_MI_greater_than_0.
+  kind: magnitude
+  raw_text: Flag instability if VIF > 5 or MI > 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-20T18:40:48Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Fuzzy match threshold of 0.95 for retraction database mapping
+  claim_id: c_5771db9b
+  context: 'T015 [US1] Implement code/data/merge_retractions.py: Map nodes to retraction
+    databases using exact DOI match first, then fuzzy match using python-Levenshtein.ratio
+    (ratio >= 0.95). NOTE: Plan Constraint Override: The Plan.md Constraints section
+    explicitly revises the threshold from FR-011''s >= 0.85 to >= 0.95 for precision.'
+  evidence:
+    asserted: '0.95'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Map nodes to retraction databases using fuzzy match using python-Levenshtein.ratio
+    >= 0.95
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T18:40:48Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_eb5aa974
+  context: 'T002 Initialize Python 3.11 project: Create projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/code/requirements.txt
+    with pinned versions of dependencies...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:41:11Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Filter nodes by year range 2010 to 2018
+  claim_id: c_fe18a31e
+  context: 'T013 [P] [US1] Implement code/data/extract_intern_atlas.py: Load graph,
+    filter nodes by year (2010-2018)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter nodes by year 2010-2018
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:41:32Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for permutation tests
+  claim_id: c_df2be704
+  context: T031a [US3] ... Set random_seed=42 before shuffling. Compare observed AUC
+    to permuted distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set random_seed=42 before shuffling in permutation tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:41:56Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Plots saved with 300 dpi resolution
+  claim_id: c_d55d0221
+  context: T037 [US3] ... use matplotlib.pyplot with dpi=300 resolution as per SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save plots with dpi=300 resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:42:23Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Report verified to contain at least 3 specific metrics
+  claim_id: c_76f5099b
+  context: 'T038b [US3] Verify report: Check that research.md exists and contains
+    at least 3 specific metrics from data/processed/final_metrics_summary.csv (AUC,
+    VIF, FPR/FNR).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_verified_to_contain_at_least_3_specific_metrics
+  kind: magnitude
+  raw_text: Verify report contains at least 3 specific metrics from data/processed/final_metrics_summary.csv
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:00Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 0
+  canonical: Retraction mapping uses Levenshtein ratio >= 0.95
+  claim_id: c_75120627
+  context: T015 implementation details for merging retraction data.
+  evidence:
+    asserted: '0.95'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Map nodes to retraction databases using fuzzy match using python-Levenshtein.ratio
+    with ratio >= 0.95.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T18:43:53Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Standard permutation test uses 100 iterations
+  claim_id: c_e2d6166f
+  context: T031a implementation requirements for robustness analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Standard Permutation Test with exactly n=100 iterations on the
+    Binary Model results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:53Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Stratified permutation test uses 100 iterations
+  claim_id: c_de39dcc2
+  context: T031b implementation requirements for robustness analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Stratified Permutation Test with n=100 iterations on the 3-class
+    Model results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:53Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold sweep uses set 0.3, 0.5, 0.7
+  claim_id: c_c31df8db
+  context: T032 implementation requirements for sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:53Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Instability flagged if VIF > 5 or MI > 0.1
+  claim_id: c_a8f8df83
+  context: T032 implementation requirements for collinearity diagnostics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag instability if VIF > 5 or MI > 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:43:53Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Plots generated with 300 dpi resolution
+  claim_id: c_46f535b8
+  context: T037 requirements for generating threshold sensitivity plots.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use matplotlib.pyplot with dpi=300 resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:44:17Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Retraction database must have entries for 2010 to 2018
+  claim_id: c_b7e0182d
+  context: T017 pre-check requirements for pipeline execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The source retraction database must contain entries for the 2010-2018
+    window before analysis proceeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:44:37Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: 'Retraction labels: 0=Robust, 1=Fragile, 2=Retraction-Only'
+  claim_id: c_4c6858e4
+  context: T016 label mapping logic implementation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign label 1 (Fragile), 2 (Retraction-Only), or 0 (Robust) based on
+    retraction reason.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:45:10Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Permutation tests use random seed 42
+  claim_id: c_079d8c4c
+  context: T031a and T031b requirements for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set random_seed=42 before shuffling in permutation tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:45:10Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Standard permutation test uses 100 iterations
+  claim_id: c_63dd59a5
+  context: Task T031a specifies the execution parameters for the permutation test
+    on the binary model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Standard Permutation Test with exactly n=100 iterations on the
+    Binary Model results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Stratified permutation test uses 100 iterations
+  claim_id: c_4c982992
+  context: Task T031b specifies the execution parameters for the stratified permutation
+    test on the 3-class model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Stratified Permutation Test with n=100 iterations on the 3-class
+    Model results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Threshold sweep set includes 0.3, 0.5, and 0.7
+  claim_id: c_60b3ae82
+  context: Task T032 defines the specific threshold values to be swept for sensitivity
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run threshold sweep over the specific set {0.3, 0.5, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Instability flagged when VIF exceeds 5 or MI exceeds 0.1
+  claim_id: c_cefeef40
+  context: Task T032 defines the criteria for flagging model instability during sensitivity
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag instability if VIF > 5 or MI > 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Data extraction filters nodes for years 2010 to 2018
+  claim_id: c_e142ce54
+  context: Task T013 specifies the temporal scope for the Intern-Atlas graph extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter nodes by year 2010-2018.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Permutation tests use random seed 42
+  claim_id: c_99219275
+  context: Tasks T031a and T031b specify the random seed for reproducibility in permutation
+    tests.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set random_seed=42 before shuffling in permutation tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:21Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Generated plots use 300 dpi resolution
+  claim_id: c_0edc0460
+  context: Task T037 specifies the resolution requirement for the generated threshold
+    sensitivity plot.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate plots with dpi=300 resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:46:47Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Research report must contain at least 3 specific metrics
+  claim_id: c_dcb677d5
+  context: Task T038b defines the validation criteria for the final report content.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Research_report_must_contain_at_least_3_specific_metrics
+  kind: magnitude
+  raw_text: Verify that research.md contains at least 3 specific metrics from final_metrics_summary.csv.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T18:47:16Z'

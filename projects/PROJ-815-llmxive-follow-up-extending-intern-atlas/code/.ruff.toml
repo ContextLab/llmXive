@@ -1,23 +1,26 @@
 [lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults
 ]
-exclude = [
-    "data/raw",
-    "data/processed",
-    "__pycache__",
-    ".git",
-]
 
-[lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
+[lint.per-file-ignores]
+"code/utils/__init__.py" = ["F401"]
+"code/data/__init__.py" = ["F401"]
+"code/models/__init__.py" = ["F401"]
+"code/analysis/__init__.py" = ["F401"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

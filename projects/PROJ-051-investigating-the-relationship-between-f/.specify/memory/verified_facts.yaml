@@ -1,6 +1,5 @@
-'|block bootstrapping implement logic resample':
-  quote: levels of noise. All time series are constructed with 1000-time units. First,
-    a sine
-  source_id: '2402.03491'
-  url: https://arxiv.org/abs/2402.03491
-  value: '1000'
+'|resample':
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T21:29:14.298354Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-327-can-publicly-available-microbiome-data-p
-last_run_id: 8611ef83-566d-4216-a2c8-aa5f61209f42
+last_run_id: ceeb2d76-9070-48bf-9bf1-f6db82316849
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Can Publicly Available Microbiome Data Predict Host Plant Defense Responses?
-updated_at: '2026-06-13T21:12:20.263466Z'
+updated_at: '2026-09-20T19:14:45.948861Z'

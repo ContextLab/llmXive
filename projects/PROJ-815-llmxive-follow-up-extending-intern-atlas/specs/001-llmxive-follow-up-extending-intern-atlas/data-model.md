@@ -31,15 +31,26 @@ MethodNode:
  items:
  type: object
  fields:
- target_id: string
- edge_type: string # 'improves', 'replaces', 'extends'
- metadata: object
+ target_id:
+ type: string
+ description: "Target paper ID."
+ required: true
+ edge_type:
+ type: string
+ description: "Type of relationship ('improves', 'replaces', 'extends')."
+ required: true
+ metadata:
+ type: object
+ description: "Additional edge metadata."
+ required: false
+ nullable: true
  required: true
  incoming_citations:
  type: list
  description: "List of papers that cite this paper."
  items:
- type: string # paper_id of the citing paper
+ type: string
+ description: "paper_id of the citing paper."
  required: true
 ```
 

@@ -1,6 +1,6 @@
 """
-Visualization module for generating Pareto frontier plots and alignment analysis.
-Generates real plots from real simulation data.
+Visualization module for llmXive A2UI study.
+Generates Pareto frontier plots and alignment analysis visualizations.
 """
 import os
 import sys
@@ -8,261 +8,284 @@ import json
 import argparse
 import logging
 from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
-
-# Conditionally import plotting libraries to handle environments without display
-# but ensure the logic runs for CI (saving to disk)
-try:
-    import matplotlib
-    # Use non-interactive backend for headless environments (CI, servers)
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    PLOT_AVAILABLE = True
-except ImportError:
-    PLOT_AVAILABLE = False
-    plt = None
-    sns = None
-    logging.warning("Matplotlib/Seaborn not available. Plotting functions will raise errors if called.")
-
-import pandas as pd
+from typing import List, Dict, Tuple, Optional
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib
+from matplotlib.patches import Patch
+from scipy.stats import gaussian_kde
+
+# Configure matplotlib for non-interactive backend (CI/Headless)
+matplotlib.use('Agg')
 
 from config import get_figures_path, ensure_dirs
+from utils.logging import get_experiment_logger
 
-# Setup logging
-logger = logging.getLogger(__name__)
+# Set up logging
+logger = get_experiment_logger(__name__)
+
+# Constants for plotting
+DENSITY_LABELS = {1: 'Low', 3: 'Medium', 5: 'High', 10: 'Max'}
+DENSITY_COLORS = {1: '#1f77b4', 3: '#ff7f0e', 5: '#2ca02c', 10: '#d62728'}
+DENSITY_MARKERS = {1: 'o', 3: 's', 5: '^', 10: 'D'}
 
 def load_metrics_data(input_path: str) -> pd.DataFrame:
     """
     Load simulation results from CSV.
-    Expects columns: 'latency_ms', 'alignment_score', 'density_level', 'ui_element_count' (optional).
+    
+    Args:
+        input_path: Path to the simulation results CSV file.
+        
+    Returns:
+        DataFrame with simulation metrics.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
+        
     df = pd.read_csv(input_path)
     
-    required_cols = ['latency_ms', 'alignment_score']
-    missing = [c for c in required_cols if c not in df.columns]
+    required_columns = ['alignment_score', 'total_latency_ms', 'density_level']
+    missing = [col for col in required_columns if col not in df.columns]
     if missing:
-        raise ValueError(f"Input CSV missing required columns: {missing}")
-    
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
+        
     logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
 def calculate_pareto_frontier(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate the Pareto frontier for Alignment vs Latency.
-    Since we want High Alignment and Low Latency, a point (lat, align) is Pareto optimal
-    if there is no other point (lat', align') such that lat' <= lat AND align' >= align
-    with at least one strict inequality.
+    Calculate the Pareto frontier for Alignment vs. Latency.
+    Since we want HIGH alignment and LOW latency, a point A dominates B if:
+    A.alignment >= B.alignment AND A.latency <= B.latency, with at least one strict inequality.
+    
+    Args:
+        df: DataFrame with alignment_score and total_latency_ms.
+        
+    Returns:
+        DataFrame containing only the Pareto optimal points.
     """
     if df.empty:
-        return pd.DataFrame(columns=['latency_ms', 'alignment_score'])
-
+        return pd.DataFrame()
+        
     # Sort by latency ascending, then alignment descending
-    # This helps in the linear scan to find the frontier
-    sorted_df = df.sort_values(by=['latency_ms', 'alignment_score'], ascending=[True, False]).reset_index(drop=True)
+    # This helps in efficient frontier detection
+    sorted_df = df.sort_values(by=['total_latency_ms', 'alignment_score'], ascending=[True, False])
     
     pareto_points = []
-    current_max_align = -np.inf
+    max_alignment_so_far = -np.inf
     
-    # Iterate through sorted points
-    # If a point has higher alignment than the current max seen so far (for lower/equal latency),
-    # it is on the frontier.
+    # Since we sorted by latency ascending, we iterate through increasing latency.
+    # A point is Pareto optimal if its alignment is strictly better than the max alignment
+    # seen at any lower (or equal) latency.
+    # Wait, the definition: A dominates B if A.latency <= B.latency AND A.align >= B.align.
+    # If we sort by latency ascending:
+    # For a point P at index i, if there exists any point j < i (lower latency) with align_j >= align_i,
+    # then P is dominated (because j has lower latency and higher/equal alignment).
+    # So P is Pareto optimal ONLY IF its alignment is strictly greater than the max alignment of all points with lower latency.
+    
     for _, row in sorted_df.iterrows():
-        lat = row['latency_ms']
-        align = row['alignment_score']
+        current_latency = row['total_latency_ms']
+        current_alignment = row['alignment_score']
         
-        # A point is Pareto optimal if its alignment is strictly greater than the max alignment
-        # of all points with lower or equal latency (since we sorted by latency asc).
-        # Actually, standard definition: No other point dominates it.
-        # Dominance: A dominates B if A.lat <= B.lat AND A.align >= B.align (and A != B).
-        # Since we sorted by latency asc, any previous point has lat' <= current.lat.
-        # If previous max_align >= current.align, then that previous point dominates current.
-        # So current is only on frontier if align > current_max_align.
+        if current_alignment > max_alignment_so_far:
+            pareto_points.append(row)
+            max_alignment_so_far = current_alignment
+            
+    if not pareto_points:
+        return pd.DataFrame()
         
-        if align > current_max_align:
-            pareto_points.append({'latency_ms': lat, 'alignment_score': align})
-            current_max_align = align
-    
-    pareto_df = pd.DataFrame(pareto_points)
-    # Sort back by latency for plotting
-    pareto_df = pareto_df.sort_values(by='latency_ms').reset_index(drop=True)
-    
-    logger.info(f"Identified {len(pareto_df)} points on the Pareto frontier")
-    return pareto_df
+    return pd.DataFrame(pareto_points)
 
-def plot_pareto_frontier(
-    df: pd.DataFrame, 
-    output_path: str, 
-    title: str = "Pareto Frontier: Alignment vs Latency",
-    xlabel: str = "Latency (ms)",
-    ylabel: str = "Alignment Score"
-) -> str:
+def plot_pareto_frontier(df: pd.DataFrame, frontier_df: pd.DataFrame, output_path: str) -> None:
     """
-    Generate a Pareto frontier plot.
-    Plots all points and highlights the frontier.
+    Generate the Pareto frontier plot (Alignment vs. Latency).
+    
+    Args:
+        df: Full dataset.
+        frontier_df: Pareto optimal points.
+        output_path: Path to save the figure.
     """
-    if not PLOT_AVAILABLE:
-        raise RuntimeError("Matplotlib/Seaborn not installed. Cannot generate plot.")
+    plt.figure(figsize=(10, 7))
     
-    ensure_dirs(os.path.dirname(output_path))
+    # Plot all non-frontier points as gray dots
+    non_frontier = df[~df.index.isin(frontier_df.index)]
+    if not non_frontier.empty:
+        plt.scatter(
+            non_frontier['total_latency_ms'],
+            non_frontier['alignment_score'],
+            color='lightgray',
+            alpha=0.5,
+            label='Sub-optimal',
+            s=40
+        )
     
-    pareto_df = calculate_pareto_frontier(df)
+    # Plot Pareto frontier points
+    if not frontier_df.empty:
+        plt.scatter(
+            frontier_df['total_latency_ms'],
+            frontier_df['alignment_score'],
+            color='darkblue',
+            marker='o',
+            s=80,
+            edgecolors='black',
+            linewidth=1.5,
+            label='Pareto Frontier',
+            zorder=5
+        )
+        
+        # Connect frontier points with a line
+        sorted_frontier = frontier_df.sort_values('total_latency_ms')
+        plt.plot(
+            sorted_frontier['total_latency_ms'],
+            sorted_frontier['alignment_score'],
+            color='darkblue',
+            linewidth=2,
+            linestyle='--',
+            alpha=0.7,
+            zorder=4
+        )
     
-    if pareto_df.empty:
-        logger.warning("No Pareto points found. Cannot generate plot.")
-        # Create a minimal empty plot to avoid crash if required
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.text(0.5, 0.5, 'No Data Available', transform=ax.transAxes, ha='center')
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        return output_path
-
-    plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Styling
+    plt.xlabel('Total Latency (ms)', fontsize=12, fontweight='bold')
+    plt.ylabel('Alignment Score', fontsize=12, fontweight='bold')
+    plt.title('Pareto Frontier: Alignment vs. Latency', fontsize=14, fontweight='bold')
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.legend(loc='lower right')
     
-    # Plot all data points (light gray)
-    ax.scatter(
-        df['latency_ms'], 
-        df['alignment_score'], 
-        alpha=0.4, 
-        color='gray', 
-        s=40, 
-        label='Simulated Configurations'
-    )
-    
-    # Plot Pareto frontier (highlighted)
-    ax.plot(
-        pareto_df['latency_ms'], 
-        pareto_df['alignment_score'], 
-        color='red', 
-        linewidth=2.5, 
-        marker='o', 
-        markersize=6,
-        label='Pareto Frontier'
-    )
-    
-    # Annotate the "knee" or specific points if needed, but basic plot first
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.set_xlabel(xlabel, fontsize=12)
-    ax.set_ylabel(ylabel, fontsize=12)
-    ax.legend(loc='lower right')
-    
-    # Invert x-axis if we want latency to go left-to-right as "cost" increasing?
-    # Usually latency increases rightward. Alignment increases upward.
-    # We want bottom-left to be bad, top-left to be good (low latency, high align).
-    # So the frontier should curve from top-left to bottom-right.
-    # The plot above does exactly that.
+    # Invert X-axis? No, usually latency increases to the right.
+    # But we want LOW latency, so the frontier should curve up and to the left.
+    # The plot is standard: X=Latency (low to high), Y=Alignment (low to high).
+    # The frontier should be the "top-left" boundary.
     
     plt.tight_layout()
+    
+    # Ensure directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
     logger.info(f"Pareto frontier plot saved to {output_path}")
-    return output_path
 
-def plot_alignment_by_density(
-    df: pd.DataFrame,
-    output_path: str,
-    title: str = "Alignment Scores by Information Density",
-    xlabel: str = "Latency (ms)",
-    ylabel: str = "Alignment Score"
-) -> str:
+def plot_alignment_by_density(df: pd.DataFrame, output_path: str) -> None:
     """
-    Plot alignment scores grouped by density level.
+    Plot alignment scores across information density levels.
+    
+    Args:
+        df: DataFrame with alignment_score and density_level.
+        output_path: Path to save the figure.
     """
-    if not PLOT_AVAILABLE:
-        raise RuntimeError("Matplotlib/Seaborn not installed. Cannot generate plot.")
+    plt.figure(figsize=(10, 7))
     
-    ensure_dirs(os.path.dirname(output_path))
+    densities = sorted(df['density_level'].unique())
     
-    if 'density_level' not in df.columns:
-        logger.warning("Column 'density_level' not found in data. Falling back to simple scatter.")
-        # Fallback: simple scatter without hue
-        plt.style.use('seaborn-v0_8-whitegrid')
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.scatter(df['latency_ms'], df['alignment_score'], alpha=0.6, color='blue')
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        plt.tight_layout()
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        return output_path
-
-    plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Use seaborn for better categorical plotting
-    sns.scatterplot(
-        data=df,
-        x='latency_ms',
-        y='alignment_score',
-        hue='density_level',
-        palette='viridis',
-        alpha=0.7,
-        s=60,
-        ax=ax,
-        legend='full'
-    )
-    
-    # Add trend lines per density if enough points
-    for density in df['density_level'].unique():
+    for density in densities:
         subset = df[df['density_level'] == density]
-        if len(subset) > 1:
-            z = np.polyfit(subset['latency_ms'], subset['alignment_score'], 1)
-            p = np.poly1d(z)
-            # Sort x for smooth line
-            x_line = np.linspace(subset['latency_ms'].min(), subset['latency_ms'].max(), 100)
-            ax.plot(x_line, p(x_line), '--', alpha=0.6, color='gray', linewidth=1)
+        label = DENSITY_LABELS.get(density, f"Density {density}")
+        color = DENSITY_COLORS.get(density, 'gray')
+        marker = DENSITY_MARKERS.get(density, 'o')
+        
+        # Sort by latency for line plot
+        subset_sorted = subset.sort_values('total_latency_ms')
+        
+        plt.scatter(
+            subset_sorted['total_latency_ms'],
+            subset_sorted['alignment_score'],
+            label=f"Density {label} ({density})",
+            color=color,
+            marker=marker,
+            alpha=0.7,
+            s=60
+        )
+        
+        # Optional: connect with a faint line to show trend
+        plt.plot(
+            subset_sorted['total_latency_ms'],
+            subset_sorted['alignment_score'],
+            color=color,
+            alpha=0.3,
+            linestyle='-',
+            linewidth=1
+        )
     
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.set_xlabel(xlabel, fontsize=12)
-    ax.set_ylabel(ylabel, fontsize=12)
-    ax.legend(title='Density Level')
-    
+    plt.xlabel('Total Latency (ms)', fontsize=12, fontweight='bold')
+    plt.ylabel('Alignment Score', fontsize=12, fontweight='bold')
+    plt.title('Alignment Scores by Information Density', fontsize=14, fontweight='bold')
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.legend(loc='lower right')
     plt.tight_layout()
+    
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        
     plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     
     logger.info(f"Alignment by density plot saved to {output_path}")
-    return output_path
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Pareto frontier and alignment plots.")
-    parser.add_argument('--input', type=str, required=True, help='Path to input CSV (simulation results)')
-    parser.add_argument('--output', type=str, required=True, help='Path to output plot (PNG)')
-    parser.add_argument('--type', type=str, choices=['pareto', 'density'], default='pareto',
-                        help='Type of plot to generate: pareto (default) or density')
+    """Main entry point for visualization generation."""
+    parser = argparse.ArgumentParser(description="Generate visualization plots for A2UI study.")
+    parser.add_argument(
+        '--input', 
+        type=str, 
+        required=True,
+        help='Path to input simulation results CSV (e.g., data/simulation/results.csv)'
+    )
+    parser.add_argument(
+        '--output', 
+        type=str, 
+        required=True,
+        help='Path to save the Pareto frontier plot (e.g., figures/pareto_frontier.png)'
+    )
+    parser.add_argument(
+        '--density-output',
+        type=str,
+        default=None,
+        help='Path to save the alignment by density plot (optional)'
+    )
     
     args = parser.parse_args()
     
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
     try:
+        # Load data
         df = load_metrics_data(args.input)
         
-        if args.type == 'pareto':
-            output = plot_pareto_frontier(df, args.output)
-        elif args.type == 'density':
-            output = plot_alignment_by_density(df, args.output)
-        else:
-            raise ValueError(f"Unknown plot type: {args.type}")
+        # Calculate Pareto frontier
+        frontier_df = calculate_pareto_frontier(df)
+        logger.info(f"Identified {len(frontier_df)} Pareto optimal points out of {len(df)} total.")
         
-        print(f"Success: Plot generated at {output}")
+        # Ensure output directory exists
+        output_dir = os.path.dirname(args.output)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+        
+        # Generate Pareto plot
+        plot_pareto_frontier(df, frontier_df, args.output)
+        
+        # Generate density plot if requested
+        if args.density_output:
+            plot_alignment_by_density(df, args.density_output)
+            
+        logger.info("Visualization generation completed successfully.")
         
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
         sys.exit(1)
     except ValueError as e:
-        logger.error(f"Data validation error: {e}")
+        logger.error(f"Data error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error during visualization: {e}")
+        raise
 
 if __name__ == '__main__':
     main()
