@@ -1,0 +1,212 @@
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: Download specific 50-pathogen dataset from NCBI GenBank
+  claim_id: c_9623d42c
+  context: T009A task description requiring the download of a specific dataset defined
+    in the spec.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must load the list of 50 accession IDs from a configuration
+    file and filter the NCBI download to include only those 50 accessions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:53:28Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: EffectorP used to extract effector counts
+  claim_id: c_e051ed18
+  context: T009B logic for computing genomic features.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EffectorP_used_to_extract_effector_counts
+  kind: entity_fact
+  raw_text: Run EffectorP (Docker) to extract effector counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:53:50Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: antiSMASH used to extract SM cluster counts
+  claim_id: c_2f00809b
+  context: T009B logic for computing genomic features.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AntiSMASH_used_to_extract_SM_cluster_counts
+  kind: entity_fact
+  raw_text: Run antiSMASH (Docker) to extract SM cluster counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:54:11Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: 4-mer frequency profiles computed with k=4
+  claim_id: c_2d74747a
+  context: T009B logic for computing genomic features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute 4-mer frequency profiles: Set k=4.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:54:35Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: Pfam-A.35.0.hmm used for Pfam domain counts
+  claim_id: c_0ddaf319
+  context: T009B logic for computing genomic features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pfam domain counts computed using hmmsearch with the downloaded Pfam-A.35.0.hmm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:54:55Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: 10-pathogen hold-out set reserved for validation
+  claim_id: c_6cb3932d
+  context: T013 task description regarding data splitting.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reserve a 10-pathogen hold-out set for independent validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:55:16Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 used for feature removal
+  claim_id: c_a094d463
+  context: T014 logic for model training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Nested VIF Analysis where features with VIF >= 5 are removed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:55:31Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: 1000 permutations used for null distribution generation
+  claim_id: c_3c899ff4
+  context: T020 logic for permutation testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For 1000 permutations, shuffle labels only within the Outer Test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:56:01Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: Independent test requires >= 2 significant features with adj p-value
+    <= 0.05
+  claim_id: c_dec1f05e
+  context: User Story 2 Independent Test description.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify the pipeline on the full dataset to ensure significant_features.tsv
+    contains >= 2 rows with effect size (Cohen's d) and adjusted p-value <= 0.05.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T21:56:01Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: 'Feature filter: adj_p_value <= 0.05 and cohen_d >= 0.4'
+  claim_id: c_0b8831bf
+  context: T022 logic for generating significant features report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Keep rows where (adj_p_value <= 0.05) AND (cohen_d >= 0.4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:57:46Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: Bias check flags if top 10 pathogens account for >80% of interactions
+  claim_id: c_f4f6e1bf
+  context: T024 logic for Bias-Awareness Report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if top 10 pathogens account for >80% of interactions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:58:03Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: Independent test requires prediction of >= 20 plant species
+  claim_id: c_189a1661
+  context: User Story 3 Independent Test description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify prediction.csv lists >= 20 plant species with probabilities [0,
+    1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:58:55Z'
+- artifact_path: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro/tasks.md
+  attempts: 1
+  canonical: Prediction runtime <= 30s and memory <= 4GB
+  claim_id: c_d7152331
+  context: T028 constraints for prediction script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prediction_runtime_%3C=_30s_and_memory_%3C=_4GB
+  kind: entity_fact
+  raw_text: Ensure prediction runtime <= 30s and memory <= 4GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T21:59:15Z'

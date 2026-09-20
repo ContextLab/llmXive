@@ -1,9 +1,8 @@
 """
-Validation utilities for enforcing contract schemas.
+Validation utilities to enforce contract schemas.
 
-This module provides functions to validate data against the schema definitions
-found in the contracts/ directory. It ensures data integrity throughout the
-pipeline execution.
+This module provides functions to validate data against JSON/YAML schemas
+defined in the contracts/ directory.
 """
 import os
 import json
@@ -11,279 +10,313 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Union
 from loguru import logger
-from src.utils.logging import get_logger
 import pandas as pd
+import jsonschema
+from jsonschema import validate, ValidationError, SchemaError
+
+# Import config for path constants
+from src.config import Paths
+
+# Ensure jsonschema is available (it's a dependency for validation)
+# If not installed, this will fail loudly as required
+try:
+    import jsonschema
+except ImportError:
+    logger.error("jsonschema library is required but not installed. Please install it.")
+    raise
 
 
-def _get_logger() -> logger:
-    """Get the project logger instance."""
-    return get_logger()
+def _get_contracts_dir() -> Path:
+    """Get the contracts directory path."""
+    return Path(Paths.CONTRACTS_DIR)
 
 
-def _load_schema(schema_name: str, contracts_dir: Path) -> Optional[Dict[str, Any]]:
+def _load_schema(schema_name: str) -> Dict[str, Any]:
     """
-    Load a schema definition from the contracts directory.
+    Load a schema from the contracts directory.
     
     Args:
-        schema_name: Name of the schema (without .yaml extension)
-        contracts_dir: Path to the contracts directory
+        schema_name: Name of the schema file (e.g., 'dataset.schema.yaml')
         
     Returns:
-        Schema dictionary or None if not found
+        The schema as a dictionary
+        
+    Raises:
+        FileNotFoundError: If the schema file doesn't exist
+        yaml.YAMLError: If the schema file is not valid YAML
     """
-    schema_path = contracts_dir / f"{schema_name}.schema.yaml"
-    if not schema_path.exists():
-        _get_logger().warning(f"Schema not found: {schema_path}")
-        return None
+    contracts_dir = _get_contracts_dir()
+    schema_path = contracts_dir / schema_name
     
-    try:
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        _get_logger().error(f"Failed to load schema {schema_name}: {e}")
-        return None
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        try:
+            schema = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            logger.error(f"Invalid YAML in schema {schema_name}: {e}")
+            raise
+    
+    return schema
 
 
-def validate_schema_exists(schema_name: str, contracts_dir: Optional[Path] = None) -> bool:
+def validate_schema_exists(schema_name: str) -> bool:
     """
     Check if a schema file exists in the contracts directory.
     
     Args:
-        schema_name: Name of the schema to check
-        contracts_dir: Path to contracts directory (defaults to project default)
+        schema_name: Name of the schema file
         
     Returns:
-        True if schema exists, False otherwise
+        True if the schema exists, False otherwise
     """
-    if contracts_dir is None:
-        contracts_dir = Path("code/contracts")
-    
-    schema_path = contracts_dir / f"{schema_name}.schema.yaml"
-    exists = schema_path.exists()
-    if exists:
-        _get_logger().debug(f"Schema exists: {schema_name}")
-    else:
-        _get_logger().warning(f"Schema missing: {schema_name}")
-    return exists
+    contracts_dir = _get_contracts_dir()
+    schema_path = contracts_dir / schema_name
+    return schema_path.exists()
 
 
-def list_available_schemas(contracts_dir: Optional[Path] = None) -> List[str]:
+def list_available_schemas() -> List[str]:
     """
     List all available schema files in the contracts directory.
     
-    Args:
-        contracts_dir: Path to contracts directory
-        
     Returns:
-        List of schema names (without extension)
+        List of schema filenames
     """
-    if contracts_dir is None:
-        contracts_dir = Path("code/contracts")
-    
+    contracts_dir = _get_contracts_dir()
     if not contracts_dir.exists():
-        _get_logger().warning(f"Contracts directory does not exist: {contracts_dir}")
+        logger.warning(f"Contracts directory does not exist: {contracts_dir}")
         return []
     
     schemas = []
-    for file in contracts_dir.glob("*.schema.yaml"):
-        schemas.append(file.stem)
+    for file in contracts_dir.iterdir():
+        if file.is_file() and file.suffix in ['.yaml', '.yml']:
+            schemas.append(file.name)
     
-    _get_logger().info(f"Found {len(schemas)} schemas: {schemas}")
-    return schemas
+    return sorted(schemas)
 
 
-def validate_all_schemas_exist(contracts_dir: Optional[Path] = None) -> Tuple[bool, List[str]]:
+def validate_all_schemas_exist() -> Tuple[bool, List[str]]:
     """
-    Validate that all expected schemas exist.
+    Validate that all expected schema files exist.
     
-    Args:
-        contracts_dir: Path to contracts directory
-        
+    Expected schemas based on T007:
+    - dataset.schema.yaml
+    - genomic_features.schema.yaml
+    - interaction.schema.yaml
+    - model_output.schema.yaml
+    
     Returns:
-        Tuple of (all_exist, missing_schemas_list)
+        Tuple of (all_exist, list_of_missing_schemas)
     """
     expected_schemas = [
-        "dataset",
-        "genomic_features",
-        "interaction",
-        "model_output"
+        'dataset.schema.yaml',
+        'genomic_features.schema.yaml',
+        'interaction.schema.yaml',
+        'model_output.schema.yaml'
     ]
     
     missing = []
     for schema in expected_schemas:
-        if not validate_schema_exists(schema, contracts_dir):
+        if not validate_schema_exists(schema):
             missing.append(schema)
     
-    all_exist = len(missing) == 0
-    if not all_exist:
-        _get_logger().error(f"Missing schemas: {missing}")
-    
-    return all_exist, missing
+    return len(missing) == 0, missing
 
 
-def check_required_fields(schema: Dict[str, Any], data: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def check_required_fields(data: Dict[str, Any], required_fields: List[str]) -> Tuple[bool, List[str]]:
     """
-    Check if all required fields are present in the data according to the schema.
+    Check if all required fields are present in a dictionary.
     
     Args:
-        schema: Schema dictionary
-        data: Data dictionary to validate
+        data: The data dictionary to check
+        required_fields: List of required field names
         
     Returns:
-        Tuple of (all_present, missing_fields_list)
+        Tuple of (all_present, list_of_missing_fields)
     """
-    required_fields = schema.get("required", [])
     missing = []
-    
     for field in required_fields:
         if field not in data:
             missing.append(field)
     
-    all_present = len(missing) == 0
-    if not all_present:
-        _get_logger().warning(f"Missing required fields: {missing}")
-    
-    return all_present, missing
+    return len(missing) == 0, missing
 
 
-def validate_dataframe_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def validate_dataframe_schema(df: pd.DataFrame, schema_name: str) -> Tuple[bool, str]:
     """
-    Validate a DataFrame against a schema definition.
+    Validate a DataFrame against a schema.
+    
+    This function checks:
+    1. All required columns exist
+    2. Column types match the schema (if specified)
     
     Args:
-        df: DataFrame to validate
-        schema: Schema dictionary with 'columns' definition
-        
-    Returns:
-        Tuple of (valid, missing_columns_list)
-    """
-    if "columns" not in schema:
-        _get_logger().warning("Schema has no 'columns' definition")
-        return True, []
-    
-    schema_columns = schema["columns"]
-    required_columns = [col.get("name") for col in schema_columns if col.get("required", False)]
-    
-    missing = []
-    for col in required_columns:
-        if col not in df.columns:
-            missing.append(col)
-    
-    valid = len(missing) == 0
-    if not valid:
-        _get_logger().error(f"DataFrame missing required columns: {missing}")
-    
-    return valid, missing
-
-
-def validate_data(data: Any, schema_name: str, contracts_dir: Optional[Path] = None) -> Tuple[bool, str]:
-    """
-    Validate data against a named schema.
-    
-    Args:
-        data: Data to validate (dict or DataFrame)
-        schema_name: Name of the schema to validate against
-        contracts_dir: Path to contracts directory
+        df: The DataFrame to validate
+        schema_name: Name of the schema file
         
     Returns:
         Tuple of (is_valid, error_message)
     """
-    if contracts_dir is None:
-        contracts_dir = Path("code/contracts")
+    try:
+        schema = _load_schema(schema_name)
+    except FileNotFoundError as e:
+        return False, str(e)
+    except yaml.YAMLError as e:
+        return False, f"Invalid schema format: {e}"
     
-    schema = _load_schema(schema_name, contracts_dir)
-    if schema is None:
-        return False, f"Schema '{schema_name}' not found"
+    # Get required columns from schema
+    required_columns = schema.get('required_columns', [])
+    column_types = schema.get('column_types', {})
     
-    if isinstance(data, dict):
-        valid, missing = check_required_fields(schema, data)
-        if not valid:
-            return False, f"Missing required fields: {missing}"
-    elif isinstance(data, pd.DataFrame):
-        valid, missing = validate_dataframe_schema(data, schema)
-        if not valid:
-            return False, f"DataFrame missing columns: {missing}"
-    else:
-        return False, f"Unsupported data type: {type(data)}"
+    # Check required columns
+    missing_columns = []
+    for col in required_columns:
+        if col not in df.columns:
+            missing_columns.append(col)
     
-    _get_logger().info(f"Data validated successfully against schema: {schema_name}")
-    return True, ""
+    if missing_columns:
+        return False, f"Missing required columns: {missing_columns}"
+    
+    # Check column types
+    type_errors = []
+    for col, expected_type in column_types.items():
+        if col in df.columns:
+            actual_type = df[col].dtype
+            # Simple type checking
+            type_mapping = {
+                'int': ['int64', 'int32', 'int'],
+                'float': ['float64', 'float32', 'float'],
+                'str': ['object', 'string'],
+                'bool': ['bool']
+            }
+            
+            expected_types = type_mapping.get(expected_type, [expected_type])
+            if str(actual_type) not in expected_types:
+                type_errors.append(f"Column '{col}': expected {expected_type}, got {actual_type}")
+    
+    if type_errors:
+        return False, "Type errors: " + "; ".join(type_errors)
+    
+    return True, "Schema validation passed"
 
 
-def validate_file(file_path: Path, schema_name: str, contracts_dir: Optional[Path] = None) -> Tuple[bool, str]:
+def validate_data(data: Any, schema_name: str) -> Tuple[bool, str]:
     """
-    Validate a file (JSON or CSV) against a schema.
+    Validate data (dict or DataFrame) against a schema using jsonschema.
+    
+    Args:
+        data: The data to validate (dict or DataFrame)
+        schema_name: Name of the schema file
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        schema = _load_schema(schema_name)
+    except FileNotFoundError as e:
+        return False, f"Schema not found: {e}"
+    except yaml.YAMLError as e:
+        return False, f"Invalid schema: {e}"
+    
+    # Convert DataFrame to dict if needed
+    if isinstance(data, pd.DataFrame):
+        data = data.to_dict(orient='records')
+    
+    try:
+        validate(instance=data, schema=schema)
+        return True, "Validation successful"
+    except ValidationError as e:
+        return False, f"Validation error: {e.message}"
+    except SchemaError as e:
+        return False, f"Schema error: {e.message}"
+
+
+def validate_file(file_path: Union[str, Path], schema_name: str) -> Tuple[bool, str]:
+    """
+    Validate a file (JSON or YAML) against a schema.
     
     Args:
         file_path: Path to the file to validate
-        schema_name: Name of the schema to validate against
-        contracts_dir: Path to contracts directory
+        schema_name: Name of the schema file
         
     Returns:
         Tuple of (is_valid, error_message)
     """
+    file_path = Path(file_path)
+    
     if not file_path.exists():
         return False, f"File not found: {file_path}"
     
+    # Load the file
     try:
-        if file_path.suffix == '.json':
-            with open(file_path, 'r') as f:
+        with open(file_path, 'r') as f:
+            if file_path.suffix in ['.yaml', '.yml']:
+                data = yaml.safe_load(f)
+            elif file_path.suffix == '.json':
                 data = json.load(f)
-            return validate_data(data, schema_name, contracts_dir)
-        elif file_path.suffix == '.csv':
-            df = pd.read_csv(file_path)
-            return validate_data(df, schema_name, contracts_dir)
-        else:
-            return False, f"Unsupported file format: {file_path.suffix}"
-    except Exception as e:
-        return False, f"Error loading file: {e}"
+            else:
+                return False, f"Unsupported file format: {file_path.suffix}"
+    except json.JSONDecodeError as e:
+        return False, f"Invalid JSON: {e}"
+    except yaml.YAMLError as e:
+        return False, f"Invalid YAML: {e}"
+    
+    # Validate against schema
+    return validate_data(data, schema_name)
 
 
-def validate_pipeline_output(output_dir: Path, contracts_dir: Optional[Path] = None) -> Dict[str, Any]:
+def validate_pipeline_output(output_dir: Union[str, Path]) -> Dict[str, Any]:
     """
-    Validate all expected pipeline output files against their schemas.
+    Validate all outputs from a pipeline run against their respective schemas.
+    
+    Expected outputs:
+    - data/processed/features_matrix.csv -> genomic_features.schema.yaml
+    - data/processed/train_val_split.json -> dataset.schema.yaml
+    - data/models/model.pkl -> model_output.schema.yaml (conceptual)
+    - data/reports/data_quality_report.json -> data_quality.schema.yaml (if exists)
     
     Args:
-        output_dir: Directory containing pipeline outputs
-        contracts_dir: Path to contracts directory
+        output_dir: Path to the output directory
         
     Returns:
-        Dictionary with validation results for each output file
+        Dictionary with validation results for each output
     """
-    if contracts_dir is None:
-        contracts_dir = Path("code/contracts")
+    output_dir = Path(output_dir)
+    results = {}
     
-    # Define expected outputs and their corresponding schemas
-    outputs_to_check = [
-        ("features_matrix.csv", "genomic_features"),
-        ("interactions_merged.csv", "interaction"),
-        ("model.pkl", None),  # Binary file, skip schema validation
-        ("feature_importance.csv", "model_output"),
-        ("data_quality_report.json", None),  # Report, skip schema validation
+    # Define expected outputs and their schemas
+    validations = [
+        ('data/processed/features_matrix.csv', 'genomic_features.schema.yaml'),
+        ('data/processed/train_val_split.json', 'dataset.schema.yaml'),
+        ('data/processed/holdout_set.json', 'dataset.schema.yaml'),
+        ('data/reports/data_quality_report.json', None),  # No schema defined yet
+        ('data/reports/shap_values_all.npy', None),  # Binary, no schema
+        ('data/reports/feature_importance.csv', None),  # CSV, custom validation
+        ('data/reports/significant_features.tsv', None),  # TSV, custom validation
     ]
     
-    results = {}
-    for filename, schema_name in outputs_to_check:
-        file_path = output_dir / filename
+    for relative_path, schema_name in validations:
+        full_path = output_dir / relative_path
+        
+        if not full_path.exists():
+            results[relative_path] = {
+                'exists': False,
+                'valid': False,
+                'error': 'File not found'
+            }
+            continue
+        
+        results[relative_path] = {
+            'exists': True,
+            'valid': True,
+            'error': None
+        }
+        
         if schema_name:
-            valid, message = validate_file(file_path, schema_name, contracts_dir)
-            results[filename] = {
-                "exists": file_path.exists(),
-                "valid": valid,
-                "message": message
-            }
-        else:
-            results[filename] = {
-                "exists": file_path.exists(),
-                "valid": True,
-                "message": "Schema validation skipped"
-            }
-    
-    # Log summary
-    all_valid = all(r["valid"] for r in results.values())
-    if all_valid:
-        _get_logger().info("All pipeline outputs validated successfully")
-    else:
-        _get_logger().warning("Some pipeline outputs failed validation")
+            is_valid, error_msg = validate_file(full_path, schema_name)
+            results[relative_path]['valid'] = is_valid
+            if not is_valid:
+                results[relative_path]['error'] = error_msg
     
     return results
