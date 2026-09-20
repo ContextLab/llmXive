@@ -1,13 +1,28 @@
 T006c:
-  c: true
-  h: dc3dc5095d96bea6c2d95f520244c8c6a6e2fc7051cee21de5891445f1731b32
-  r: "The `code/utils/data_fetcher.py` file exists, contains full validation logic\
-    \ for existence and checksum, and raises `DataValidationError` with a message\
-    \ that points to Task\u202FT006b when the file is missing. This satisfies the\
-    \ task\u2019s specification."
+  c: false
+  h: e16e235ece9d7b78db22b77b6925586cd1f4a2bc34e5538a97a4252c9d645ec9
+  r: "The `data_validator.py` file is truncated (ends mid\u2011function) and never\
+    \ implements checksum validation or a top\u2011level routine that raises on missing/invalid\
+    \ data. Moreover, the required `data/raw/nist_refs.json` file is absent, so the\
+    \ validator cannot be exercised. The implementation does not fully meet the task\u2019\
+    s specifications."
 T019:
   c: false
   h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
   r: The required artifact `tests/unit/test_sensitivity.py` does not exist on disk,
     so no unit test for the sensitivity sweep logic is provided. The task remains
     undone until the file is created with appropriate test code.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `spec.md` file being edited is provided; the required change
+    to the Assumptions section (removing the NIST API claim and inserting the manual
+    curation description) cannot be verified. The implementer must supply the updated
+    `spec.md` showing the corrected Assumptions text.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the updated `spec.md` file is provided; without the file\u2019\
+    s contents we cannot verify that SC\u2011005 was edited to replace the bootstrap\
+    \ difference\u2011of\u2011means test with \u201Cdescriptive trend analysis\u201D\
+    \ and \u201CCI overlap check.\u201D The required artifact is missing."

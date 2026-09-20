@@ -2053,3 +2053,1261 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T18:38:09Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'scaling factors: water 1.23, ethanol 0.85, acetone 1.15 derived from
+    literature review Section 2.4'
+  claim_id: c_4b1ffebf
+  context: "T005 Implement code/config.py to define parameters: solvents (water, ethanol,\
+    \ acetone), timescales (ns-scale intervals), force field (MARTINI), and R\xB2\
+    \ threshold = 0.95... Action: Define SCALING_FACTORS..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15} derived from the literature review in research.md (Section 2.4).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:11:35Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: R squared threshold set to 0.95
+  claim_id: c_83bd35f8
+  context: "T005 Implement code/config.py to define parameters... and R\xB2 threshold\
+    \ = 0.95 (citing Spec Kickback T036 as the authority for this update to Spec FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 threshold = 0.95"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:12:43Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'sensitivity analysis regression start times: 0.1, 0.2, 0.3 of trajectory
+    length'
+  claim_id: c_38f4933f
+  context: 'T021 Implement code/analysis/sensitivity.py to: Sweep regression start
+    times at 0.1, 0.2, and 0.3 of total trajectory length. Note: These values resolve
+    the ''[deferred]'' status in Spec SC-003 per the Plan''s approved kickback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep regression start times at 0.1, 0.2, and 0.3 of total trajectory
+    length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:13:17Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'bootstrap resampling iterations: 1000'
+  claim_id: c_e87d6ddf
+  context: 'T026 Implement code/analysis/bootstrap.py to: Perform 1000 iterations
+    of bootstrap resampling on MAE distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 iterations of bootstrap resampling on MAE distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:13:45Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'bootstrap resampling fallback: 100 iterations if wall-clock time exceeds
+    5.5 hours'
+  claim_id: c_7480e5bd
+  context: 'T026... Fallback: Reduce to 100 iterations if wall-clock time > 5.5h (use
+    time.time() at start of loop and check delta before each iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fallback to 100 iterations if wall-clock time > 5.5h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:14:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'sensitivity analysis variance threshold: 5%'
+  claim_id: c_46d9a74a
+  context: T021... Compute variance and flag if > 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag variance > 5% in sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:14:24Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'density convergence check: plus or minus 1 percent over 200 picoseconds'
+  claim_id: c_68a08acd
+  context: "T015 Implement code/simulation/runner.py to execute GROMACS/LAMMPS simulations\
+    \ with a timeout (time limit), density convergence check (\xB11% over 200ps),\
+    \ and non-equilibration flagging."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Density convergence check is \xB11% over 200ps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:14:24Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'force field used: MARTINI'
+  claim_id: c_d7731447
+  context: 'T005 Implement code/config.py to define parameters: ... force field (MARTINI)...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3878: M635'
+      source_id: Q16478446
+      url: https://www.wikidata.org/wiki/Q16478446
+      value: M635
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses the MARTINI force field.
+  resolved_value: M635
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T19:14:37Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'solvents studied: water, ethanol, acetone'
+  claim_id: c_716dcf0e
+  context: 'T005 Implement code/config.py to define parameters: solvents (water, ethanol,
+    acetone)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Solvents_studied:_water,_ethanol,_acetone
+  kind: entity_fact
+  raw_text: The study uses solvents water, ethanol, and acetone.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:15:08Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'bootstrap confidence interval method: percentile'
+  claim_id: c_6a3e65c7
+  context: T026... Calculate confidence intervals (percentile method)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_confidence_interval_method:_percentile
+  kind: entity_fact
+  raw_text: Bootstrap resampling uses the percentile method for confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:15:36Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'scaling factors for diffusion coefficients: water 1.23, ethanol 0.85,
+    acetone 1.15'
+  claim_id: c_7690f69f
+  context: 'T005 Implement code/config.py to define parameters... SCALING_FACTORS
+    as a dictionary... hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15} derived from the literature review in research.md (Section 2.4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The study uses hardcoded scaling factors derived from the literature
+    review: water 1.23, ethanol 0.85, acetone 1.15.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:16:35Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis regression start times at 0.1, 0.2, and 0.3 of trajectory
+    length
+  claim_id: c_6cef0c45
+  context: 'T021 Implement code/analysis/sensitivity.py to: Sweep regression start
+    times at 0.1, 0.2, and 0.3 of total trajectory length.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps regression start times at 0.1, 0.2, and 0.3
+    of total trajectory length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:17:10Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: variance threshold for diffusion coefficient start time sensitivity is
+    5 percent
+  claim_id: c_950e79ea
+  context: T021... Compute variance and flag if > 5%...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_threshold_for_diffusion_coefficient_start_time_sens
+  kind: magnitude
+  raw_text: Variance in calculated diffusion coefficients across start times is flagged
+    if greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:17:36Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations
+  claim_id: c_0915511e
+  context: 'T026 Implement code/analysis/bootstrap.py to: Perform 1000 iterations
+    of bootstrap resampling on MAE distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:18:05Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling fallback to 100 iterations if wall-clock time exceeds
+    5.5 hours
+  claim_id: c_9221a24b
+  context: 'T026... Fallback: Reduce to 100 iterations if wall-clock time > 5.5h...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling iterations are reduced to 100 if wall-clock time
+    exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:18:30Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: simulation density convergence check is within 1 percent over 200 picoseconds
+  claim_id: c_78651f10
+  context: "T015... execute GROMACS/LAMMPS simulations with a timeout... density convergence\
+    \ check (\xB11% over 200ps)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The simulation density convergence check requires convergence within\
+    \ \xB11% over 200ps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:18:30Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: simulations use the MARTINI force field
+  claim_id: c_9bf410f2
+  context: T005... force field (MARTINI)... T014... generate MARTINI topology files...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulations_use_the_MARTINI_force_field
+  kind: entity_fact
+  raw_text: The study utilizes the MARTINI force field for simulations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:19:02Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficients loaded from nist_refs.json
+  claim_id: c_9856782e
+  context: 'T006b Load experimental diffusion coefficients from data/raw/nist_refs.json...
+    Note: This task implements the Plan''s ''manual curation'' strategy due to the
+    absence of a programmatic NIST API.'
+  evidence:
+    entailment_evidence: Experimental diffusion coefficients loaded from nist refs.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Experimental_diffusion_coefficients_loaded_from_nist_refs.js
+  kind: entity_fact
+  raw_text: Experimental diffusion coefficients are loaded from a curated JSON file
+    named nist_refs.json.
+  resolved_value: experimental diffusion coefficients loaded from nist_refs.json
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T19:19:04Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: scaling factors for water ethanol and acetone are 1.23 0.85 and 1.15
+  claim_id: c_341c5632
+  context: "T005 Implement code/config.py to define parameters: solvents (water, ethanol,\
+    \ acetone), timescales (ns-scale intervals), force field (MARTINI), and R\xB2\
+    \ threshold = 0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15} derived from the literature review in research.md (Section 2.4).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: R squared threshold is 0.95
+  claim_id: c_a8cdc194
+  context: "T005 Implement code/config.py to define parameters: solvents (water, ethanol,\
+    \ acetone), timescales (ns-scale intervals), force field (MARTINI), and R\xB2\
+    \ threshold = 0.95 (citing Spec Kickback T036 as the authority for this update\
+    \ to Spec FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 threshold = 0.95"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:12Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps regression start times at 0.1 0.2 and 0.3
+    of trajectory length
+  claim_id: c_dde83da4
+  context: 'T021 [US2] Implement code/analysis/sensitivity.py to: Sweep regression
+    start times at 0.1, 0.2, and 0.3 of total trajectory length.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep regression start times at 0.1, 0.2, and 0.3 of total trajectory
+    length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:13Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: variance threshold for sensitivity analysis is 5 percent
+  claim_id: c_d794adb8
+  context: 'T021 [US2] Implement code/analysis/sensitivity.py to: Compute variance
+    and flag if > 5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag variance if > 5% in sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:13Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling performs 1000 iterations
+  claim_id: c_bceadb3b
+  context: 'T026 [US3] Implement code/analysis/bootstrap.py to: Perform 1000 iterations
+    of bootstrap resampling on MAE distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 iterations of bootstrap resampling on MAE distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:13Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling falls back to 100 iterations if wall clock time
+    exceeds 5.5 hours
+  claim_id: c_b12b9ac2
+  context: 'T026 [US3] Implement code/analysis/bootstrap.py to: Fallback: Reduce to
+    100 iterations if wall-clock time > 5.5h (use time.time() at start of loop and
+    check delta before each iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fallback to 100 iterations if wall-clock time > 5.5h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:14Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: density convergence check is plus or minus 1 percent over 200 picoseconds
+  claim_id: c_5d438678
+  context: "T015 [US1] Implement code/simulation/runner.py to execute GROMACS/LAMMPS\
+    \ simulations with a timeout (time limit), density convergence check (\xB11% over\
+    \ 200ps), and non-equilibration flagging."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Density convergence check is \xB11% over 200ps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:14Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: simulation uses MARTINI force field
+  claim_id: c_beef91f5
+  context: 'T005 Implement code/config.py to define parameters: solvents (water, ethanol,
+    acetone), timescales (ns-scale intervals), force field (MARTINI).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_uses_MARTINI_force_field
+  kind: entity_fact
+  raw_text: Use MARTINI force field.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:21:42Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: experimental diffusion coefficients are loaded from data raw nist refs
+    json
+  claim_id: c_45e550dd
+  context: T006b Load experimental diffusion coefficients from data/raw/nist_refs.json
+    at projects/PROJ-424-investigating-the-predictive-power-of-mo/data/raw/nist_refs.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experimental_diffusion_coefficients_are_loaded_from_data_raw
+  kind: entity_fact
+  raw_text: Load experimental diffusion coefficients from data/raw/nist_refs.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:22:13Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: project dependencies include gromacs 2023.0 mdanalysis 2.0 numpy 1.24
+    pandas 2.0 scipy 1.10 matplotlib 3.7 seaborn 0.12 scikit learn 1.2 pyyaml 6.0
+    ruff 0.1.0 black 23.0
+  claim_id: c_be25c2ea
+  context: 'T002 Initialize Python project with dependencies: gromacs>=2023.0, mdanalysis>=2.0,
+    numpy>=1.24, pandas>=2.0, scipy>=1.10, matplotlib>=3.7, seaborn>=0.12, scikit-learn>=1.2,
+    pyyaml>=6.0, ruff>=0.1.0, black>=23.0 in projects/PROJ-424-investigating-the-predictive-power-of-mo/code/requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dependencies include gromacs>=2023.0, mdanalysis>=2.0, numpy>=1.24, pandas>=2.0,
+    scipy>=1.10, matplotlib>=3.7, seaborn>=0.12, scikit-learn>=1.2, pyyaml>=6.0, ruff>=0.1.0,
+    black>=23.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:22:30Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: R-squared threshold set to 0.95
+  claim_id: c_9e512ea3
+  context: "T005 Implement code/config.py to define parameters: solvents (water, ethanol,\
+    \ acetone), timescales (ns-scale intervals), force field (MARTINI), and R\xB2\
+    \ threshold = 0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The R\xB2 threshold is 0.95."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:23:16Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'Solvent scaling factors: water 1.23, ethanol 0.85, acetone 1.15'
+  claim_id: c_78739ee0
+  context: 'Action: Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15} derived from the literature review in research.md (Section 2.4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scaling factors for water, ethanol, and acetone are hardcoded as 1.23,
+    0.85, and 1.15 respectively.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:23:40Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis start times: 0.1, 0.2, 0.3 of trajectory length'
+  claim_id: c_9b5f6e05
+  context: 'Sweep regression start times at 0.1, 0.2, and 0.3 of total trajectory
+    length. Note: These values resolve the ''[deferred]'' status in Spec SC-003 per
+    the Plan''s approved kickback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps regression start times at 0.1, 0.2, and 0.3
+    of total trajectory length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:23:41Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap iterations: 1000, fallback to 100 if time > 5.5 hours'
+  claim_id: c_74cb3af7
+  context: 'Perform 1000 iterations of bootstrap resampling on MAE distribution. Fallback:
+    Reduce to 100 iterations if wall-clock time > 5.5h (use time.time() at start of
+    loop and check delta before each iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling performs 1000 iterations with a fallback to 100 if
+    wall-clock time exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:23:55Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: MARTINI 3.0 force field accuracy for relative comparisons when scaled
+  claim_id: c_b91c9d88
+  context: 'Force Field: The MARTINI 3.0 force field provides sufficient accuracy
+    for relative comparisons when scaled.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MARTINI 3.0 force field provides sufficient accuracy for relative
+    comparisons when scaled.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:24:51Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: Density convergence within 1% over 200ps indicates system equilibration
+  claim_id: c_2079bb29
+  context: "Convergence: Density convergence within \xB11% over 200ps is a sufficient\
+    \ indicator of system equilibration."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Density_convergence_within_1%25_over_200ps_indicates_system_eq
+  kind: entity_fact
+  raw_text: "Density convergence within \xB11% over 200ps is a sufficient indicator\
+    \ of system equilibration."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:25:26Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: Experimental diffusion coefficients available from NIST Chemistry WebBook
+  claim_id: c_47f55e86
+  context: 'Data Availability: Experimental diffusion coefficients are available from
+    the NIST Chemistry WebBook.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experimental_diffusion_coefficients_available_from_NIST_Chem
+  kind: entity_fact
+  raw_text: Experimental diffusion coefficients are available from the NIST Chemistry
+    WebBook.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:25:46Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: 1000 bootstrap iterations for MAE confidence intervals
+  claim_id: c_24dc1549
+  context: 'FR-008: The system shall perform bootstrap resampling (1000 iterations)
+    to estimate confidence intervals for the Mean Absolute Error (MAE).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: was implemented. The number of simulations was n = 1000. The results
+        are
+      source_id: '1612.04126'
+      url: https://arxiv.org/abs/1612.04126
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The project uses 1000 bootstrap iterations to estimate confidence intervals
+    for the Mean Absolute Error.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T19:26:08Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: Analysis of water, ethanol, and acetone solvents
+  claim_id: c_c50e45dd
+  context: 'Solvents: water, ethanol, acetone.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_of_water,_ethanol,_and_acetone_solvents
+  kind: entity_fact
+  raw_text: 'The project analyzes three solvents: water, ethanol, and acetone.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:26:35Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: MARTINI 3.0 scaling factor for water is 1.23
+  claim_id: c_a2384b69
+  context: 'Scaling Factors: Water: 1.23'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MARTINI 3.0 scaling factor for water is 1.23.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:26:57Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: MARTINI 3.0 scaling factor for ethanol is 0.85
+  claim_id: c_6ad75d1e
+  context: 'Scaling Factors: Ethanol: 0.85'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MARTINI 3.0 scaling factor for ethanol is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:27:19Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: MARTINI 3.0 scaling factor for acetone is 1.15
+  claim_id: c_9d14a97a
+  context: 'Scaling Factors: Acetone: 1.15'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MARTINI 3.0 scaling factor for acetone is 1.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:27:37Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/spec.md
+  attempts: 1
+  canonical: Marrink et al. published MARTINI Force Field paper in J. Phys. Chem.
+    B 2007
+  claim_id: c_49841ac1
+  context: 'References: MARTINI Force Field: Marrink et al., J. Phys. Chem. B (2007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Marrink et al. published a paper on the MARTINI Force Field in J. Phys.
+    Chem. B in 2007.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:28:18Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: config.py contains valid float values for water, ethanol, and acetone
+    scaling factors
+  claim_id: c_7b1634a9
+  context: 'Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15} derived from the literature review in research.md (Section 2.4).'
+  evidence:
+    entailment_evidence: py contains valid float values for water, ethanol, an
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Config.py_contains_valid_float_values_for_water,_ethanol,_an
+  kind: entity_fact
+  raw_text: Values MUST be present as floats; do NOT use placeholders.
+  resolved_value: config.py contains valid float values for water, ethanol, and acetone
+    scaling factors
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T19:28:41Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Scaling factors are 1.23 for water, 0.85 for ethanol, and 1.15 for acetone
+  claim_id: c_0c703221
+  context: 'Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15} derived from the literature review in research.md (Section 2.4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '''water'': 1.23, ''ethanol'': 0.85, ''acetone'': 1.15'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:29:00Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: R squared threshold is set to 0.95
+  claim_id: c_5c99cee6
+  context: "Implement code/config.py to define parameters: solvents (water, ethanol,\
+    \ acetone), timescales (ns-scale intervals), force field (MARTINI), and R\xB2\
+    \ threshold = 0.95 (citing Spec Kickback T036 as the authority for this update\
+    \ to Spec FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 threshold = 0.95"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:29:00Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps regression start times at 0.1, 0.2, and 0.3
+    of trajectory length
+  claim_id: c_a6bc9e3d
+  context: 'Implement code/analysis/sensitivity.py to: Sweep regression start times
+    at 0.1, 0.2, and 0.3 of total trajectory length. Note: These values resolve the
+    ''[deferred]'' status in Spec SC-003 per the Plan''s approved kickback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep regression start times at 0.1, 0.2, and 0.3 of total trajectory
+    length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:29:01Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Variance threshold for sensitivity analysis is 5 percent
+  claim_id: c_08b388ce
+  context: Calculate diffusion coefficient for each start time; Compute variance and
+    flag if > 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if variance > 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:29:01Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling performs 1000 iterations
+  claim_id: c_150bc038
+  context: 'Implement code/analysis/bootstrap.py to: Perform 1000 iterations of bootstrap
+    resampling on MAE distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 iterations of bootstrap resampling on MAE distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:29:02Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling falls back to 100 iterations if wall-clock time
+    exceeds 5.5 hours
+  claim_id: c_4db922a4
+  context: 'Fallback: Reduce to 100 iterations if wall-clock time > 5.5h (use time.time()
+    at start of loop and check delta before each iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fallback: Reduce to 100 iterations if wall-clock time > 5.5h.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:29:37Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Summary table output includes MAE_1ns, MAE_10ns, Reduction %, Trend Direction,
+    and CI Overlap Status
+  claim_id: c_6eabf79f
+  context: 'Output must include: ''MAE_1ns'', ''MAE_10ns'', ''Reduction %'', ''Trend
+    Direction'', ''CI Overlap Status''. Cite Plan as the authority for the fallback
+    strategy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Summary_table_output_includes_MAE_1ns,_MAE_10ns,_Reduction_%25
+  kind: entity_fact
+  raw_text: 'Output must include: ''MAE_1ns'', ''MAE_10ns'', ''Reduction %'', ''Trend
+    Direction'', ''CI Overlap Status''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:30:02Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: Bootstrap difference-of-means test is not implemented due to N equals
+    3 limitations
+  claim_id: c_71a8e7b6
+  context: 'Constraint: Do NOT implement a bootstrap difference-of-means test (p-value)
+    due to N=3 limitations per Plan (Critical Spec Kickbacks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Do NOT implement a bootstrap difference-of-means test (p-value) due to
+    N=3 limitations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:30:30Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 0
+  canonical: MARTINI force field used for simulations
+  claim_id: c_728fedcf
+  context: 'Critical: All simulation tasks MUST use MARTINI force field or reduced
+    system size to meet h runtime limit (FR-007).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3878: M635'
+      source_id: Q16478446
+      url: https://www.wikidata.org/wiki/Q16478446
+      value: M635
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses MARTINI force field.
+  resolved_value: M635
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T19:31:30Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: scaling factors water 1.23 ethanol 0.85 acetone 1.15
+  claim_id: c_f415b315
+  context: 'Action: Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15 } derived from the literature review in research.md (Section 2.4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scaling factors for water, ethanol, and acetone are 1.23, 0.85, and 1.15
+    respectively.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:31:57Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: R squared threshold 0.95 for linearity
+  claim_id: c_af70b88b
+  context: "T005 Implement code/config.py to define parameters: solvents (water, ethanol,\
+    \ acetone), timescales (ns-scale intervals), force field (MARTINI), and R\xB2\
+    \ threshold = 0.95 (citing Spec Kickback T036 as the authority for this update\
+    \ to Spec FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The R\xB2 threshold for linearity validation is 0.95."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:32:28Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis start times 0.1 0.2 0.3
+  claim_id: c_18648041
+  context: 'Sweep regression start times at 0.1, 0.2, and 0.3 of total trajectory
+    length. Note: These values resolve the ''[deferred]'' status in Spec SC-003 per
+    the Plan''s approved kickback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps regression start times at 0.1, 0.2, and 0.3
+    of total trajectory length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:32:28Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: variance threshold 5 percent for diffusion coefficient
+  claim_id: c_55b5fd44
+  context: 'Goal: Verify robustness of diffusion coefficient estimation by sweeping
+    regression start times (early fractions of trajectory length) and confirming variance
+    < 5%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_threshold_5_percent_for_diffusion_coefficient
+  kind: magnitude
+  raw_text: Variance in calculated D values must be less than 5% to confirm robustness.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:34:54Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap fallback 100 iterations if time exceeds 5.5 hours
+  claim_id: c_e1b485fc
+  context: 'Fallback: Reduce to 100 iterations if wall-clock time > 5.5h (use time.time()
+    at start of loop and check delta before each iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling falls back to 100 iterations if wall-clock time exceeds
+    5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:35:38Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: density convergence 1 percent over 200ps
+  claim_id: c_ddae12bf
+  context: "Implement code/simulation/runner.py to execute GROMACS/LAMMPS simulations\
+    \ with a timeout (time limit), density convergence check (\xB11% over 200ps),\
+    \ and non-equilibration flagging."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Density convergence check requires \xB11% over 200ps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:35:39Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: NIST API unavailable for diffusion coefficients
+  claim_id: c_a0c2a6d1
+  context: 'Note: This task implements the Plan''s ''manual curation'' strategy due
+    to the absence of a programmatic NIST API.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_API_unavailable_for_diffusion_coefficients
+  kind: entity_fact
+  raw_text: NIST does not provide an accessible programmatic API for diffusion coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:35:59Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: solvents analyzed water ethanol acetone
+  claim_id: c_e9214ca7
+  context: 'Goal: Execute MD simulations for water, ethanol, acetone at varying time
+    scales to assess convergence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Solvents_analyzed_water_ethanol_acetone
+  kind: entity_fact
+  raw_text: The study analyzes water, ethanol, and acetone.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:36:23Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: no bootstrap difference of means test due to N=3
+  claim_id: c_81ebdbf6
+  context: 'Constraint: Do NOT implement a bootstrap difference-of-means test (p-value)
+    due to N=3 limitations per Plan (Critical Spec Kickbacks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap difference-of-means test (p-value) is not implemented due to
+    N=3 limitations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:36:43Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 0
+  canonical: MARTINI force field used
+  claim_id: c_f075194f
+  context: 'Implement code/config.py to define parameters: solvents (water, ethanol,
+    acetone), timescales (ns-scale intervals), force field (MARTINI)...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3878: M635'
+      source_id: Q16478446
+      url: https://www.wikidata.org/wiki/Q16478446
+      value: M635
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses the MARTINI force field.
+  resolved_value: M635
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T19:37:32Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: scaling factors water 1.23 ethanol 0.85 acetone 1.15
+  claim_id: c_26980284
+  context: 'Define SCALING_FACTORS as a dictionary with keys ''water'', ''ethanol'',
+    ''acetone'' and hardcoded values: {''water'': 1.23, ''ethanol'': 0.85, ''acetone'':
+    1.15 } derived from the literature review in research.md (Section 2.4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The scaling factors derived from the literature review are {''water'':
+    1.23, ''ethanol'': 0.85, ''acetone'': 1.15}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:37:57Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep start times 0.1 0.2 0.3
+  claim_id: c_54782de3
+  context: 'Sweep regression start times at 0.1, 0.2, and 0.3 of total trajectory
+    length. Note: These values resolve the ''[deferred]'' status in Spec SC-003 per
+    the Plan''s approved kickback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps regression start times at 0.1, 0.2, and
+    0.3 of total trajectory length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:37:57Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: variance threshold 5 percent
+  claim_id: c_3294222f
+  context: Calculate diffusion coefficient for each start time. Compute variance and
+    flag if > 5%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_threshold_5_percent
+  kind: magnitude
+  raw_text: The variance in calculated diffusion coefficient values across start times
+    is flagged if greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:38:28Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 2
+  canonical: bootstrap resampling 1000 iterations
+  claim_id: c_85e8f041
+  context: Perform 1000 iterations of bootstrap resampling on MAE distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling performs 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:38:29Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap fallback 100 iterations 5.5 hours
+  claim_id: c_455022e0
+  context: 'Fallback: Reduce to 100 iterations if wall-clock time > 5.5h (use time.time()
+    at start of loop and check delta before each iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling falls back to 100 iterations if wall-clock time exceeds
+    5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:38:29Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: density convergence 1 percent 200ps
+  claim_id: c_951aed06
+  context: "Implement code/simulation/runner.py to execute GROMACS/LAMMPS simulations\
+    \ with a timeout (time limit), density convergence check (\xB11% over 200ps),\
+    \ and non-equilibration flagging."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The simulation runner enforces a density convergence check of \xB11%\
+    \ over 200ps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:38:30Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: solvents water ethanol acetone
+  claim_id: c_9411555b
+  context: 'Implement code/config.py to define parameters: solvents (water, ethanol,
+    acetone)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Solvents_water_ethanol_acetone
+  kind: entity_fact
+  raw_text: 'The study analyzes three solvents: water, ethanol, and acetone.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:38:52Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: NIST API absent manual curation required
+  claim_id: c_4829d7ef
+  context: 'Note: This task implements the Plan''s ''manual curation'' strategy due
+    to the absence of a programmatic NIST API.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_API_absent_manual_curation_required
+  kind: entity_fact
+  raw_text: NIST does not provide a programmatic API for diffusion coefficients, requiring
+    manual curation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:39:08Z'
+- artifact_path: projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/tasks.md
+  attempts: 1
+  canonical: bootstrap difference of means test omitted N=3
+  claim_id: c_4d72a639
+  context: 'Constraint: Do NOT implement a bootstrap difference-of-means test (p-value)
+    due to N=3 limitations per Plan (Critical Spec Kickbacks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A bootstrap difference-of-means test (p-value) is not implemented due
+    to N=3 limitations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T19:39:08Z'

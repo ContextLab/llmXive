@@ -1,77 +1,76 @@
 """
-Initialize the data manifest with checksums.
+Script to initialize the data manifest.
 
-This script verifies the existence of data files and generates a manifest
-containing their SHA256 checksums for integrity verification.
+This script ensures that the manifest.json file exists and contains
+checksums for all files in the data/raw directory.
 """
 import json
 import os
 import hashlib
+import sys
 from pathlib import Path
 from datetime import datetime
-import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-MANIFEST_PATH = DATA_RAW_DIR / "manifest.json"
-NIST_REFS_PATH = DATA_RAW_DIR / "nist_refs.json"
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+from config import RAW_DIR, MANIFEST_PATH
+from utils.checksums import calculate_sha256
+from utils.logging import setup_logger
+
+logger = setup_logger("data_manifest_init")
 
 def compute_file_hash(file_path: Path) -> str:
-    """Calculate SHA256 hash of a file."""
+    """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def ensure_gitkeep(directory: Path):
-    """Ensure a .gitkeep file exists in the directory."""
-    gitkeep = directory / ".gitkeep"
+def ensure_gitkeep(path: Path):
+    """Ensure .gitkeep exists in a directory."""
+    gitkeep = path / ".gitkeep"
     if not gitkeep.exists():
         gitkeep.touch()
+        logger.info(f"Created {gitkeep}")
 
-def init_manifest() -> Path:
-    """Generate the manifest.json with checksums for all data files."""
-    if not DATA_RAW_DIR.exists():
-        raise FileNotFoundError(f"Data directory {DATA_RAW_DIR} does not exist.")
+def init_manifest():
+    """Initialize the manifest file with checksums of all files in data/raw."""
+    raw_path = Path(RAW_DIR)
+    manifest_path = Path(MANIFEST_PATH)
     
-    ensure_gitkeep(DATA_RAW_DIR)
+    if not raw_path.exists():
+        logger.warning(f"Raw data directory {raw_path} does not exist. Creating it.")
+        raw_path.mkdir(parents=True, exist_ok=True)
     
-    files_info = {}
-    for file_path in DATA_RAW_DIR.iterdir():
-        if file_path.is_file() and file_path.name != ".gitkeep":
-            checksum = compute_file_hash(file_path)
-            files_info[file_path.name] = {
-                "path": str(file_path.relative_to(PROJECT_ROOT)),
-                "sha256": checksum,
-                "size_bytes": file_path.stat().st_size
-            }
+    # Ensure .gitkeep
+    ensure_gitkeep(raw_path)
     
-    manifest = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "files": files_info
-    }
+    # Scan for files
+    files = [f for f in raw_path.iterdir() if f.is_file() and f.name != ".gitkeep"]
     
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(MANIFEST_PATH, "w") as f:
-        json.dump(manifest, f, indent=2)
+    manifest_data = {}
+    for f in files:
+        logger.info(f"Hashing {f.name}...")
+        manifest_data[f.name] = compute_file_hash(f)
     
-    print(f"Generated: {MANIFEST_PATH}")
-    print(f"Files indexed: {len(files_info)}")
-    for name, info in files_info.items():
-        print(f"  - {name}: {info['sha256'][:16]}...")
+    # Write manifest
+    with open(manifest_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest_data, f, indent=2)
     
-    return MANIFEST_PATH
+    logger.info(f"Manifest initialized at {manifest_path} with {len(manifest_data)} files.")
+    return manifest_data
 
 def main():
     """Main entry point."""
     try:
         init_manifest()
-        print("SUCCESS: Manifest initialized.")
-        sys.exit(0)
+        print("Manifest initialization complete.")
+        return 0
     except Exception as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Failed to initialize manifest: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

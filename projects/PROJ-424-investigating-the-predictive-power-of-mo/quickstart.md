@@ -1,8 +1,9 @@
-# Quickstart: MD Diffusion Coefficient Pipeline
+# Quickstart Guide: MD Diffusion Predictive Power Investigation
 
 ## Prerequisites
 - Python 3.11+
-- pip
+- GROMACS (optional, for full simulation)
+- LAMMPS (optional, for full simulation)
 
 ## Setup
 1. Install dependencies:
@@ -11,43 +12,52 @@
  pip install -r requirements.txt
  ```
 
-2. Initialize data files (NIST references):
+2. Initialize the project structure (if not done):
  ```bash
- python data/raw/generate_nist_refs.py
- ```
- This creates `data/raw/nist_refs.json` and `data/raw/manifest.json`.
-
-3. Generate topologies:
- ```bash
- python simulation/topology.py
+ python setup_project.py
  ```
 
-## Execution
+## Data Generation (Critical First Step)
+Before running the analysis, you must generate the curated experimental data files.
+The `data/raw/nist_refs.json` file does not exist by default and must be created
+to provide ground truth for the validation.
 
-Run a single solvent analysis:
+Run the following command to generate the NIST references and the manifest:
 ```bash
-python main.py --solvent water --timescale 1.0
+python data/raw/generate_nist_refs.py
 ```
 
-Run the full batch (all solvents, all timescales):
+This will create:
+- `data/raw/nist_refs.json`: Curated experimental diffusion coefficients.
+- `data/raw/manifest.json`: Hash manifest for artifact verification.
+
+## Running the Pipeline
+Once data is generated, you can run the analysis pipeline.
+
+### Full Batch Execution
+Run the full pipeline for all solvents and timescales:
 ```bash
 python main.py --full-batch
 ```
 
-Run sensitivity analysis:
+### Single Solvent Execution
+Run for a specific solvent and timescale:
+```bash
+python main.py --solvent water --timescale 1.0
+```
+
+### Sensitivity Analysis
+Run sensitivity analysis on a specific trajectory:
 ```bash
 python main.py --sensitivity --solvent ethanol --timescale 10.0
 ```
 
-## Outputs
-- `data/processed/`: Analysis results (JSON/CSV)
-- `figures/`: Generated plots (PNG)
-- `logs/`: Execution logs
+## Verification
+After running, check the `data/processed/` and `figures/` directories for outputs:
+- `data/processed/diffusion_results.json`
+- `data/processed/bootstrap_stats.csv`
+- `figures/timescale_accuracy.png`
 
-## Validation
-Verify outputs exist:
-```bash
-ls -R data/processed/
-ls -R figures/
-cat data/raw/manifest.json
-```
+## Troubleshooting
+- **FileNotFoundError: nist_refs.json**: Ensure you ran `python data/raw/generate_nist_refs.py` before running the main pipeline.
+- **DataValidationError**: Check the format of `data/raw/nist_refs.json`. It must contain a list of dictionaries with 'solvent', 'temperature', and 'value'.

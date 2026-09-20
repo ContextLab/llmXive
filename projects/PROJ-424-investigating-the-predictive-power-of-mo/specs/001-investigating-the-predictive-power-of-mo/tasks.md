@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -59,13 +59,18 @@
 
 - [X] T007a Implement `code/utils/logging.py` for structured logging. **Deliverable**: A `setup_logger` function that configures a standard Python logger with JSON formatting and file output to `logs/`.
 - [X] T007b Implement `code/utils/checksums.py` for artifact verification. **Deliverable**: A `calculate_sha256(file_path)` function that returns the SHA256 hash of a file.
-- [X] T005 Implement `code/config.py` to define parameters: solvents (water, ethanol, acetone), timescales (ns-scale intervals), force field (MARTINI), and **R² threshold = 0.95** (citing **Spec Kickback T036** as the authority for this update to Spec FR-008). **Action**: Define `SCALING_FACTORS` as a dictionary with keys 'water', 'ethanol', 'acetone' and **hardcoded values**: `{'water': 1.23, 'ethanol': 0.85, 'acetone': 1.15}` derived from the literature review in `research.md` (Section 2.4). **Constraint**: Values MUST be present as floats; do NOT use placeholders. **Verify**: `config.py` contains valid float values for all solvents and the R² threshold is 0.95.
-- [ ] T006b Load experimental diffusion coefficients from `data/raw/nist_refs.json` at `projects/PROJ-424-investigating-the-predictive-power-of-mo/data/raw/nist_refs.json`. **Action**: Write a script `code/utils/data_loader.py` that reads the JSON file, validates the schema (solvent, temperature, value), and loads it into memory. **Constraint**: The script MUST fail loudly (raise FileNotFoundError or ValidationError) if the file is missing or malformed. **Do NOT attempt network fetch**. **Output**: Validated data structure in memory. **Note**: This task implements the Plan's 'manual curation' strategy due to the absence of a programmatic NIST API.
-- [ ] T006c Implement `code/utils/data_validator.py` to validate the existence, schema, and checksum of `data/raw/nist_refs.json`. **Note**: This task relies on the file loaded by T006b. **Do NOT attempt network fetch**. **Verify**: Script raises an error if file is missing, checksum mismatch, or schema invalid.
-- [X] T009a Create base schema for `diffusion_results` in `code/data_models/diffusion_results.yaml`.
-- [X] T009b Create base schema for `bootstrap_stats` in `code/data_models/bootstrap_stats.yaml`.
-- [X] T009c Create base schema for `sensitivity_report` in `code/data_models/sensitivity_report.yaml`.
-- [X] T010 Generate `contracts/*.schema.yaml` files for data validation. **Deliverables**: `contracts/diffusion_results.yaml`, `contracts/bootstrap_stats.yaml`, `contracts/sensitivity_report.yaml`. **Note**: Depends on T009.
+- [ ] T036 Update `spec.md` FR-008: Change the R² threshold requirement to 0.95 to align with **Plan** and **Constitution** Principle VI. **Action**: Edit `projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-md-diffusion-predictive-power/spec.md` to reflect the kickback. **Dependency**: None.
+- [ ] T037 Update `spec.md` Assumptions: Remove the claim that NIST provides an accessible API and replace with the 'manual curation' reality described in the **Plan**. **Action**: Edit `projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-md-diffusion-predictive-power/spec.md` Assumptions section. **Dependency**: None.
+- [ ] T038 Update `spec.md` SC-005: Remove the 'bootstrap difference-of-means test (p ≤ 0.05)' requirement and replace with 'descriptive trend analysis' and 'CI overlap check' to align with **Plan**. **Action**: Edit `projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-md-diffusion-predictive-power/spec.md` Success Criteria section. **Dependency**: None.
+- [ ] T005 Implement `code/config.py` to define parameters: solvents (water, ethanol, acetone), timescales (ns-scale intervals), force field (MARTINI), and **R² threshold = 0.95**. **Action**: Define `SCALING_FACTORS` as a dictionary with keys 'water', 'ethanol', 'acetone' and **hardcoded values**: `{'water': 1.23, 'ethanol': 0.85, 'acetone': 1.15 }` (derived from standard MARTINI literature). **Constraint**: **Verify**: `config.py` contains valid float values for all solvents and the R² threshold is 0.95. **Dependency**: T007a/b must be complete; **T036 must be complete**.
+- [ ] T006a Generate `data/raw/nist_refs.json` with sample experimental diffusion coefficients for water, ethanol, and acetone. **Action**: Create a JSON file with the schema: `[{"solvent": "string", "temperature": number, "value": number, "source": "string"}]`. Populate with realistic values (e.g., Water: a diffusion coefficient on the order of 10⁻⁹ m²/s at 298K). **Verify**: File exists and is valid JSON. **Dependency**: None.
+- [ ] T006c Implement `code/utils/data_validator.py` to validate the existence, schema, and checksum of `data/raw/nist_refs.json`. **Action**: Write a script that checks if the file exists, validates the JSON schema, and verifies the checksum. **Constraint**: The script MUST fail loudly (raise FileNotFoundError or ValidationError) if the file is missing or malformed. **Do NOT attempt network fetch**. **Verify**: Script raises an error if file is missing, checksum mismatch, or schema invalid. **Dependency**: T006a must be complete.
+- [ ] T006b Load experimental diffusion coefficients from `data/raw/nist_refs.json` at `projects/PROJ-424-investigating-the-predictive-power-of-mo/data/raw/nist_refs.json`. **Action**: Write a script `code/utils/data_loader.py` that reads the JSON file, validates the schema (solvent, temperature, value), and loads it into memory. **Constraint**: The script MUST fail loudly (raise FileNotFoundError or ValidationError) if the file is missing or malformed. **Do NOT attempt network fetch**. **Output**: Validated data structure in memory. **Note**: This task implements the Plan's 'manual curation' strategy due to the absence of a programmatic NIST API. **Dependency**: T006c must be complete; **T037 must be complete**.
+
+- [ ] T009a Create base schema for `diffusion_results` in `code/data_models/diffusion_results.yaml`.
+- [ ] T009b Create base schema for `bootstrap_stats` in `code/data_models/bootstrap_stats.yaml`.
+- [ ] T009c Create base schema for `sensitivity_report` in `code/data_models/sensitivity_report.yaml`.
+- [ ] T010 Generate `contracts/*.schema.yaml` files for data validation. **Deliverables**: `contracts/diffusion_results.yaml`, `contracts/bootstrap_stats.yaml`, `contracts/sensitivity_report.yaml`. **Note**: Depends on T009.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,13 +91,13 @@
 ### Implementation for User Story 1
 
 - [X] T014 [P] [US1] Implement `code/simulation/topology.py` to generate MARTINI topology files (.gro,.top) for water, ethanol, and acetone. **Deliverable**: Files saved to `data/raw/topologies/`.
-- [X] T015 [US1] Implement `code/simulation/runner.py` to execute GROMACS/LAMMPS simulations with a timeout (time limit), density convergence check (±1% over 200ps), and non-equilibration flagging. **Must load specific.gro,.top, and.mdp files** from `data/raw/topologies/` generated by T014. **Depends on T014 completion** (must wait for topology files). **Uses R² threshold from `code/config.py` (0.95)** for validity checks. **Must flag non-linear MSD trajectories as invalid and exclude them from results**.
+- [X] T015 [US1] Implement `code/simulation/runner.py` to execute GROMACS/LAMMPS simulations with a timeout (time limit), density convergence check (±1% over 200ps), and non-equilibration flagging. **Must load specific.gro,.top, and.mdp files** from `data/raw/topologies/` generated by T014. **Depends on T014 completion** (must wait for topology files). **Uses R² threshold from `code/config.py` (0.95)** for validity checks. **Must flag non-linear MSD trajectories as invalid and exclude them from results**. **Density Check**: Extract density from `energy.edr` using `gmx energy -f energy.edr -o density.xvg` or `MDAnalysis.analysis.density` to verify stability. **Dependency**: T036 must be complete.
 - [X] T016 [US1] Implement `code/analysis/msd.py` to:
  - Extract MSD trajectory from simulation output
  - Perform linear regression (MSD vs. time)
  - Validate linearity using **R² threshold from `code/config.py` (0.95)** (citing **Spec Kickback T036** as the authority for this update to Spec FR-008)
  - Calculate diffusion coefficient and apply solvent-specific scaling factors
- - **Raise an exception** if R² < 0.95 to prevent non-linear MSDs from contaminating results.
+ - **Raise an exception** if R² < 0.95 to prevent non-linear MSDs from contaminating results. **Dependency**: T036 must be complete.
 - [X] T017 [US1] Implement `code/reporting/plots.py` to generate timescale-accuracy curves (MAE vs. Duration) with uncertainty bands
 - [X] T018 [US1] Implement `code/main.py` pipeline entry point to orchestrate: topology gen → simulation → MSD extraction → diffusion calc → MAE calculation → plotting
 
@@ -140,10 +145,10 @@
 
 - [X] T026 [US3] Implement `code/analysis/bootstrap.py` to:
  - Perform **1000 iterations** of bootstrap resampling on MAE distribution.
- - **Fallback**: Reduce to **100 iterations** if wall-clock time > 5.5h (use `time.time()` at start of loop and check delta before each iteration).
+ - **Fallback**: Reduce to **100 iterations** if wall-clock time > 5.5h. **Timer Logic**: Start timer at the beginning of the bootstrap loop. Check elapsed time before each iteration; if > 5.5h, set iterations to 100 and stop adding new iterations.
  - Calculate confidence intervals (percentile method)
  - Output `bootstrap_stats.csv`
-- [X] T027 [US3] Implement `code/reporting/tables.py` to generate summary table with mean MAE, 95% CI, and **descriptive trend analysis** and **CI overlap check** for 1ns vs 10ns improvement. **Constraint**: **Do NOT** implement a bootstrap difference-of-means test (p-value) due to N=3 limitations per **Plan** (Critical Spec Kickbacks). **Output must include**: 'MAE_1ns', 'MAE_10ns', 'Reduction %', 'Trend Direction', 'CI Overlap Status'. **Cite Plan** as the authority for the fallback strategy. **Depends on T026.**
+- [X] T027 [US3] Implement `code/reporting/tables.py` to generate summary table with mean MAE, 95% CI, and **descriptive trend analysis** and **CI overlap check** for 1ns vs 10ns improvement. **Constraint**: **Do NOT** implement a bootstrap difference-of-means test (p-value) due to N=3 limitations per **Plan** (Critical Spec Kickbacks). **Output must include**: 'MAE_1ns', 'MAE_10ns', 'Reduction %', 'Trend Direction', 'CI Overlap Status'. **Cite Plan** as the authority for the fallback strategy. **Depends on T026.** **Dependency**: T038 must be complete.
 - [X] T028 [US3] Integrate full batch execution into `code/main.py` (loop over solvents × timescales)
 - [X] T029 [US3] Update `code/main.py` to handle NIST reference missing values: **skip** the specific solvent-timescale combination and **log a warning** (do not crash).
 
@@ -161,9 +166,6 @@
 - [X] T033 [P] Additional unit tests for edge cases (non-linear MSD, missing refs) in `tests/unit/`
 - [X] T034 Run quickstart.md validation to ensure end-to-end execution. **Action**: Execute `python code/main.py` against the full pipeline and verify all outputs match expected formats.
 - [X] T035 Generate final report artifact in `data/processed/final_report.md`
-- [ ] T036 Update `spec.md` FR-008: Change the R² threshold requirement to a value consistent with the study's precision goals. to align with **Plan** and **Constitution** Principle VI. **Action**: Edit `projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-md-diffusion-predictive-power/spec.md` to reflect the kickback.
-- [ ] T037 Update `spec.md` Assumptions: Remove the claim that NIST provides an accessible API and replace with the 'manual curation' reality described in the **Plan**. **Action**: Edit `projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-md-diffusion-predictive-power/spec.md` Assumptions section.
-- [ ] T038 Update `spec.md` SC-005: Remove the 'bootstrap difference-of-means test (p ≤ 0.05)' requirement and replace with 'descriptive trend analysis' and 'CI overlap check' to align with **Plan** and **T027**. **Action**: Edit `projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-md-diffusion-predictive-power/spec.md` Success Criteria section.
 
 ---
 
@@ -173,8 +175,10 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2.1)**: Depends on Setup completion - BLOCKS all user stories
- - **T007a/b** (Utils) must be completed before **T005** (Config) and **T006b** (Data Load) and **T006c** (Data Validation) as they provide logging and checksum functions.
- - **T006b** (Data Load) must be completed before **T006c** (Data Validation) to ensure the file exists.
+ - **T007a/b** (Utils) must be completed before **T005** (Config) and **T006c** (Data Validation) and **T006b** (Data Load) as they provide logging and checksum functions.
+ - **T006a** (Generate JSON) must be completed before **T006c** (Validation).
+ - **T006c** (Validation) must be completed before **T006b** (Loading) to ensure the file exists and is valid before reading.
+ - **T036, T037, T038** (Spec Updates) must be completed before **T005, T006b, T006c, T016, T027** respectively.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -198,8 +202,10 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2.1), **except**:
- - **T007a/b** must precede **T005**, **T006b**, **T006c**.
- - **T006b** must precede **T006c**.
+ - **T007a/b** must precede **T005**, **T006c**, **T006b**.
+ - **T006a** must precede **T006c**.
+ - **T006c** must precede **T006b**.
+ - **T036, T037, T038** must precede their dependent tasks.
  - **T005** and **T006c** are **NOT** parallel-safe with T007a/b.
  - **T006c** is **NOT** parallel-safe with T006b.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
@@ -216,6 +222,9 @@
 - **T027** is **NOT** parallel-safe with T026.
 - **T010 (Generate Contracts)** must follow T009 (Schema Definition). **T010** is **NOT** parallel-safe with T009.
 - **T015 (Simulation Runner)** must follow T014 (Topology Generation). **T015** is **NOT** parallel-safe with T014.
+- **T036 (Spec Update)** must complete before **T005** and **T016**.
+- **T037 (Spec Update)** must complete before **T006b** and **T006c**.
+- **T038 (Spec Update)** must complete before **T027**.
 
 ---
 
@@ -239,7 +248,9 @@ Task: "Implement code/analysis/msd.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2.1: Foundational (CRITICAL - blocks all stories)
- - **Ensure T006b (Data Load) is completed** to provide ground truth with real data.
+ - **Ensure T006a (Generate JSON) is completed** to provide ground truth with real data.
+ - **Ensure T006c (Validation) is completed** before T006b (Loading).
+ - **Ensure T036, T037, T038 are completed** to update the spec.
  - **Ensure T005 sets R²=0.95** to align with Plan and Constitution.
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
@@ -285,10 +296,13 @@ With multiple developers:
 - **Critical**: T016 uses R²=0.95 from config (Plan/Constitution authority).
 - **Critical**: T006b loads curated JSON to ensure reproducibility.
 - **Critical**: T014 (Topology) must precede T015 (Simulation) due to file dependency.
-- **Critical**: T007a/b (Utils) must precede T005 (Config) and T006b (Data Load) and T006c (Validation) due to function dependency.
+- **Critical**: T007a/b (Utils) must precede T005 (Config) and T006c (Validation) and T006b (Data Load) due to function dependency.
+- **Critical**: T006a (Generate JSON) must precede T006c (Validation).
+- **Critical**: T006c (Validation) must precede T006b (Loading).
+- **Critical**: T036, T037, T038 (Spec Updates) must precede T005, T006b, T006c, T016, T027 respectively.
 - **Critical**: T005 and T006c are NOT parallel-safe with T007a/b.
 - **Critical**: T006c is NOT parallel-safe with T006b.
 - **Critical**: T015 is NOT parallel-safe with T014.
 - **Critical**: T027 is NOT parallel-safe with T026.
 - **Critical**: T010 is NOT parallel-safe with T009.
-- **Kickback Note**: Plan acknowledges contradiction between spec.md FR-001 (download) and manual curation strategy; Plan acknowledges contradiction between spec.md FR-008 (0.99) and Plan's 0.95; Plan acknowledges contradiction between spec.md SC-005 (p-value) and Plan's trend analysis. **Tasks T005, T006b, T016, T027, T036, T037, T038 now implement the Plan's corrections** to align with Constitution principles and scientific feasibility. T006b loads curated JSON. T005 and T016 implement the 0.95 threshold per Plan. T027 implements descriptive trend analysis. T036, T037, T038 update the Spec to reflect these changes.
+- **Kickback Note**: Plan acknowledges contradiction between spec.md FR-001 (download) and manual curation strategy; Plan acknowledges contradiction between spec.md FR-008 (0.99) and Plan's 0.95; Plan acknowledges contradiction between spec.md SC-005 (p-value) and Plan's trend analysis. **Tasks T036, T037, T038 now MUST be completed** to update the spec. T005, T006b, T006c, T016, T027 depend on these spec updates. T006a generates the JSON file. T006c validates it. T006b loads it. T005 and T016 implement the 0.95 threshold per Plan. T027 implements descriptive trend analysis. T036, T037, T038 update the Spec to reflect these changes.

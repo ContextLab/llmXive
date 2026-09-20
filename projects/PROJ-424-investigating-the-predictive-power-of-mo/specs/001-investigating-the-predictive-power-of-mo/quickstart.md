@@ -1,94 +1,70 @@
 # Quickstart: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Prerequisites
-
-- Python 3.11+
-- GROMACS 2023+ (or LAMMPS)
-- `git`
-- GitHub Actions runner (for CI execution)
+*   **Python**: 3.11+
+*   **GROMACS**: Installed and available in PATH (required for `gmx` commands).
+*   **System**: Linux (Ubuntu recommended).
 
 ## Installation
 
-```bash
-# Clone repository
-git clone
-cd projects/PROJ-424-investigating-the-predictive-power-of-mo
+1.  **Clone and Setup Environment**:
+    ```bash
+    cd projects/PROJ-424-investigating-the-predictive-power-of-mo
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # Linux/Mac
-# or: venv\Scripts\activate # Windows
+2.  **Verify GROMACS**:
+    ```bash
+    gmx -version
+    ```
+    Ensure the version is compatible with the MARTINI force field (2022+ recommended).
 
-# Install dependencies
-pip install -r code/requirements.txt
-```
+## Data Preparation
 
-## Configuration
+1.  **Experimental Data**:
+    Ensure `data/raw/nist_refs.json` exists and contains the curated values for water, ethanol, and acetone.
+    ```bash
+    cat data/raw/nist_refs.json
+    ```
 
-1. **Edit `code/config.py`**:
- - Set `SOLVENTS = ["water", "ethanol", "acetone"]`
- - Set `TIMESCALES = [1.0, 5.0, 10.0]`
- - Set `FORCE_FIELD = "martini3"`
+2.  **Generate Simulations** (or use pre-generated):
+    If pre-generated trajectories are not present in `data/raw/simulations/`, run the simulation script:
+    ```bash
+    python code/simulations/run_simulation.py --solvents water ethanol acetone --durations 1 5 10 --seeds 5
+    ```
+    *Note: This step may take ~6-7 hours depending on CPU speed. If time > 5.5h, the script will automatically fallback to 3 seeds.*
 
-2. **Verify NIST references**:
- - Check `data/raw/nist_refs.json` for expected values.
- - Update if necessary (with checksum).
+## Running the Analysis
 
-3. **Prepare topologies**:
- - Ensure `data/raw/topologies/` contains `.gro` and `.top` files for each solvent.
+1.  **Run Full Pipeline**:
+    Execute the analysis pipeline which calculates MSD, validates convergence, and performs bootstrapping.
+    ```bash
+    python code/analysis/analyze_all.py
+    ```
+    *This script:*
+    *   Loads `nist_refs.json`.
+    *   Processes `.xtc` files (discarding first 100ps).
+    *   Checks $R^2 \ge 0.95$ for each trajectory.
+    *   Calculates MAE and 95% CI (1000 iterations).
+    *   Generates `data/processed/diffusion_results.csv` and `bootstrap_stats.json`.
 
-## Running the Pipeline
-
-### Full Batch Analysis
-
-```bash
-python code/main.py --full-batch
-```
-
-This executes:
-- 9 simulations (3 solvents × 3 timescales)
-- MSD extraction & diffusion calculation
-- Bootstrap resampling (1000 iters)
-- Sensitivity analysis
-- Report generation
-
-### Single Run (Testing)
-
-```bash
-python code/main.py --solvent water --timescale 1.0
-```
-
-### Sensitivity Analysis Only
-
-```bash
-python code/main.py --sensitivity --solvent ethanol --timescale 10.0
-```
-
-## Output
-
-- **Plots**: `data/processed/timescale_accuracy_plot.png`
-- **Tables**: `data/processed/summary_table.csv`
-- **Logs**: `data/interim/simulation_logs/`
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Simulation fails to equilibrate | Check `R^2` in logs; reduce system size |
-| Bootstrap exceeds time limit | Fallback to 100 iterations (automatic) |
-| NIST data missing | Manually edit `data/raw/nist_refs.json` |
-| Memory error | Reduce system size or timescale |
+2.  **Generate Reports**:
+    ```bash
+    python code/analysis/generate_report.py
+    ```
+    This produces the summary tables and plots required for SC-001, SC-002, and SC-004.
 
 ## Verification
 
-Run unit tests:
+*   **Check Convergence**: Verify that all accepted trajectories have $R^2 \ge 0.95$ in `data/processed/diffusion_results.csv`.
+*   **Check Sensitivity**: Ensure `variance_pct` in `sensitivity_report.json` is < 5%.
+*   **Check CI**: Verify that 95% CI intervals are present in `bootstrap_stats.json`.
+*   **Check Seeds**: Verify that `n_seeds` in `bootstrap_stats.json` matches the number of seeds actually run (5 or 3).
 
-```bash
-pytest tests/unit/
-```
-
-Run integration tests:
-
-```bash
-pytest tests/integration/
-```
+## Troubleshooting
+*   **GROMACS not found**: Install GROMACS via `apt` or `conda`.
+*   **Convergence Failure**: If $R^2 < 0.95$, the simulation may be too short or the system not equilibrated. Check logs.
+*   **Timeout**: If the bootstrap step exceeds 5.5 hours, the script automatically falls back to 100 iterations (FR-004).
+*   **Simulation Timeout**: If the simulation step exceeds 5.5 hours, the script automatically reduces the number of seeds from 5 to 3 (Balanced Fallback).

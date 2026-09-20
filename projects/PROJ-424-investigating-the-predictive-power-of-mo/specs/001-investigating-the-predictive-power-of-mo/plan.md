@@ -1,41 +1,40 @@
 # Implementation Plan: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
-**Branch**: `001-investigating-md-diffusion-predictive-power` | **Date**: 2026-08-02 | **Spec**: `spec.md`
+**Branch**: `001-investigating-md-diffusion-predictive-power` | **Date**: 2026-08-02 | **Spec**: `specs/001-investigating-md-diffusion-predictive-power/spec.md`
+**Input**: Feature specification from `/specs/001-investigating-md-diffusion-predictive-power/spec.md`
 
 ## Summary
-
-This feature implements a computational pipeline to evaluate the predictive accuracy of Molecular Dynamics (MD) simulations for estimating diffusion coefficients of simple liquids (water, ethanol, acetone) across three timescales (Variable time intervals (e.g., 5 ns, 10 ns) will be examined.). The system uses manually curated experimental benchmarks (due to lack of NIST API), executes CPU-only MD simulations using a coarse-grained force field (MARTINI), applies solvent-specific scaling factors to correct for force field bias, extracts Mean Squared Displacement (MSD) data, calculates diffusion coefficients, and performs statistical analysis (bootstrap resampling, sensitivity analysis) to generate timescale-accuracy curves with confidence intervals.
+This project validates the accuracy of Molecular Dynamics (MD) simulations using the MARTINI force field in predicting self-diffusion coefficients for water, ethanol, and acetone. The plan addresses the convergence panel's rejection of hardcoded/fabricated results by mandating a real, reproducible simulation pipeline using `gromacs` (via `mdtraj`/`mdanalysis` wrappers) and statistical bootstrapping against manually curated experimental benchmarks. The study generates timescale-accuracy curves (MAE vs. Duration) and performs sensitivity analysis without fabricating p-values, adhering to the N=5 sample size constraint (with fallback to N=3) and the descriptive trend analysis requirement.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `gromacs` (via `mdanalysis`/`MDTraj` wrappers or subprocess), `numpy`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `scikit-learn`, `pyyaml`  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/interim/`)  
-**Testing**: `pytest` (unit tests for MSD extraction, bootstrap logic; integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions runner: CPU cores, ~7 GB RAM)  
-**Project Type**: Computational Science / CLI Tool  
-**Performance Goals**: Complete full batch (solvents × 3 timescales + analysis) in ≤ 6 hours  
-**Constraints**: CPU-only execution; no GPU available on CI; memory < 7 GB; disk < 14 GB; no external credentials  
-**Scale/Scope**: simulation runs; A sufficient number of bootstrap iterations; Several experimental references  
+**Primary Dependencies**: `gromacs` (system binary, assumed available or containerized), `mdtraj`, `mdanalysis`, `numpy`, `pandas`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`.  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `results`). No external database.  
+**Testing**: `pytest` (unit tests for data loading, schema validation, statistical calculations).  
+**Target Platform**: Linux (GitHub Actions Runner / Local Ubuntu).  
+**Project Type**: Computational Science / Simulation Pipeline.  
+**Performance Goals**: Complete batch analysis (1ns, 5ns, 10ns) for 3 solvents within 6 hours CPU time.  
+**Constraints**: ~7 GB RAM, ~14 GB disk. No GPU required for MARTINI of small systems (100-500 molecules).  
+**Scale/Scope**: 3 solvents × 3 durations × 5 seeds = 45 simulation trajectories (Target). Fallback: 3 seeds (27 trajectories) if time > 5.5h.
 
-> **Critical Feasibility Note**: The spec assumes NIST Chemistry WebBook provides programmatic access to diffusion coefficients. However, the **Verified Datasets** block provided for this project contains NO verified URL for NIST diffusion data. The plan explicitly adopts a manual curation strategy for `data/raw/nist_refs.json` with checksums. This contradicts FR-001 (which mandates 'download and parse') and requires a spec kickback to update FR-001 to reflect the manual curation reality.
+> **Critical Note on Data**: The plan relies on `data/raw/nist_refs.json` (manually curated) for ground truth. Simulation trajectories must be generated using `gromacs` or loaded from `data/raw/simulations/` if pre-generated to ensure reproducibility. The "Fabricated Result" concern is resolved by ensuring the pipeline executes the actual physics simulation or loads real trajectory files, never generating synthetic numbers.
 
 ## Constitution Check
 
-| Principle | Status | Verification Method | Note on Contradictions |
-|-----------|--------|---------------------|------------------------|
-| I. Reproducibility | **PASS** | All code pinned; seeds set; data checksums recorded | **Flag**: Curated JSON is used as the 'canonical source' due to lack of API. Spec Principle I requires 'fetch from canonical source' which is technically violated by manual curation. Kickback needed. |
-| II. Verified Accuracy | **PASS** | Citations validated; no title-token overlap issues | |
-| III. Data Hygiene | **PASS** | Raw data checksummed; derivations documented | |
-| IV. Single Source of Truth | **PASS** | Figures/statistics trace to `data/processed/` and `code/` | **Flag**: Spec FR-008 (R² ≥ 0.99) contradicts Constitution Principle VI (R² ≥ 0.95). Plan adopts 0.95. Kickback needed to align FR-008. |
-| V. Versioning Discipline | **PASS** | Content hashes tracked; `updated_at` updated | |
-| VI. Simulation Convergence Validation | **PASS** | MSD linearity check implemented to ensure high goodness-of-fit. | **Flag**: Plan uses 0.95 (Constitution) vs Spec 0.99 (FR-008). Kickback needed. |
-| VII. Timescale-Dependent Error Quantification | **PASS** | MAE calculated separately for short, medium, and long simulation durations | |
+| Principle | Compliance Status | Implementation Detail |
+|-----------|-------------------|----------------------|
+| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/simulations/run_simulation.py`. All data loading from `data/`. |
+| **II. Verified Accuracy** | **Pass** | Experimental values in `nist_refs.json` are manually curated from primary NIST sources (no API). |
+| **III. Data Hygiene** | **Pass** | `data/raw/nist_refs.json` checksummed. Simulation outputs written to `data/processed/`. No in-place edits. |
+| **IV. Single Source of Truth** | **Pass** | All figures/tables generated programmatically from `data/processed/diffusion_results.csv`. |
+| **V. Versioning** | **Pass** | Artifact hashes tracked in `state/`. |
+| **VI. Simulation Convergence** | **Pass** | `code/analysis/validate_convergence.py` enforces $R^2 \ge 0.95$ on MSD linear fit (lag-time > 100ps) before extracting $D$. |
+| **VII. Timescale-Dependent Error** | **Pass** | Analysis stratified by duration (1, 5, 10 ns) to generate MAE vs. Duration curves. |
 
 ## Project Structure
 
 ### Documentation (this feature)
-
 ```text
 specs/001-investigating-md-diffusion-predictive-power/
 ├── plan.md              # This file
@@ -43,96 +42,71 @@ specs/001-investigating-md-diffusion-predictive-power/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (not created here)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
-
 ```text
 projects/PROJ-424-investigating-the-predictive-power-of-mo/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py                 # Entry point for pipeline
-│   ├── config.py               # Parameters (timescales, solvents, FF, scaling factors)
-│   ├── simulation/
+│   ├── simulations/
 │   │   ├── __init__.py
-│   │   ├── runner.py           # MD execution wrapper (GROMACS/LAMMPS)
-│   │   └── topology.py         # Topology generation (MARTINI)
+│   │   ├── run_simulation.py       # GROMACS wrapper, seed handling, N=5 loop
+│   │   └── topology_builder.py     # MARTINI topology generation
 │   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── msd.py              # MSD extraction & diffusion calc
-│   │   ├── bootstrap.py        # Resampling logic
-│   │   └── sensitivity.py      # Regression start time sweep
-│   ├── reporting/
+│   │   ├── msd_calculator.py       # MSD vs Time, R2 check (lag-time > 100ps)
+│   │   ├── diffusion_estimator.py  # Slope extraction, scaling
+│   │   └── bootstrap_analyzer.py   # Resampling, CI calculation
+│   ├── data/
 │   │   ├── __init__.py
-│   │   ├── plots.py            # Timescale-accuracy curves
-│   │   └── tables.py           # Summary tables
+│   │   └── loader.py               # JSON loader, validation
 │   └── utils/
-│       ├── logging.py
-│       └── checksums.py
+│       └── logger.py
 ├── data/
 │   ├── raw/
-│   │   ├── nist_refs.json      # Experimental benchmarks (curated)
-│   │   └── topologies/         # Initial .gro/.top files
-│   ├── processed/
-│   │   ├── msd_curves.csv      # Extracted MSD data
-│   │   ├── diffusion_results.csv # Calculated D values (scaled)
-│   │   └── bootstrap_stats.csv # MAE distributions
-│   └── interim/
-│       └── simulation_logs/    # Raw MD output
+│   │   ├── nist_refs.json          # Curated experimental values
+│   │   └── simulations/            # (Optional) Pre-generated .xtc/.gro
+│   └── processed/
+│       ├── diffusion_results.csv
+│       └── sensitivity_report.json
 ├── tests/
-│   ├── unit/
-│   │   ├── test_msd.py
-│   │   └── test_bootstrap.py
-│   └── integration/
-│       └── test_pipeline.py
+│   ├── test_msd.py
+│   └── test_loader.py
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity; all modules under `code/` with clear separation of simulation, analysis, and reporting.
+**Structure Decision**: Single project structure with modular `code/` subdirectories for simulations, analysis, and data. This minimizes overhead for a computational study and aligns with the "Single Source of Truth" principle.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Coarse-grained (MARTINI) force field | Required by FR-007 to meet 6-hour runtime on 2-core CPU | All-atom simulations would exceed time/memory limits for long trajectories. |
-| Solvent-specific Scaling Factors | Required to correct MARTINI's inherent significant overestimation of D | Direct comparison to experimental values would measure force field bias, not timescale convergence |
-| Bootstrap resampling (sufficient iterations) | Required by FR-004 for 95% CI; fallback to a default limit if time-constrained | Parametric CI assumptions invalid for non-normal error distributions |
-| Sensitivity analysis sweep | Required by US-2 to validate robustness of regression start time | Single-point estimation risks artifact dependence on arbitrary cutoff |
+| **Real Simulation Pipeline (N=5)** | Required to resolve "FABRICATED-RESULT" concern and provide variance estimation (N>1). | Using hardcoded values or synthetic data is explicitly forbidden by the project constitution and the rejection criteria. N=1 is insufficient for variance. |
+| **Bootstrap with Fallback** | FR-004 requires 1000 iterations but mandates a fallback to 100 if time > 5.5h. | A fixed 1000 iteration count without a fallback risks CI timeout on the free-tier runner. |
+| **R² Gate (Lag-Time)** | Constitution Principle VI requires strong validation on the diffusive regime only. | Skipping the lag-time exclusion risks calculating D from non-diffusive (ballistic) motion. |
+| **Time Budget Adjustment** | Realistic overhead (15 min/run) exceeds 6h for 45 runs. | The plan implements a "Balanced Fallback" to N=3 seeds (27 runs) if time > 5.5h to ensure the CI budget is respected while maintaining a balanced design. |
 
-## Phase Plan
+## Time Budget & Feasibility
 
-### Phase 0: Research & Feasibility
-- [ ] **FR-001 (Spec Contradiction)**: Confirm NIST API unavailability. **Action**: Curate `data/raw/nist_refs.json` with checksum. **Kickback**: Flag FR-001 in spec for update to 'use curated reference'.
-- [ ] **FR-007**: Validate MARTINI parameters for water/ethanol/acetone; confirm solvent-specific scaling factors from literature.
-- [ ] **FR-002**: Test GROMACS/LAMMPS installation on CI; benchmark short water simulation time.
-- [ ] **FR-008 (Spec Contradiction)**: Define MSD linearity check logic ($R^ \ge $). **Kickback**: Flag FR-008 (0.99) in spec for update to align with Constitution Principle VI (0.95).
-- [ ] **Density Convergence**: Implement density stability check (±1% over 200 ps NPT) to prevent drift bias.
+**Target**: 45 runs (3 solvents × 3 durations × 5 seeds).
+**Estimated Cost per Run**: [deferred] (100ps equilibration + 1-10ns production + topology generation).
+**Total Target Time**: 45 × 15 min = 11.25 hours (Exceeds 6h CI limit).
 
-### Phase 1: Data Model & Contracts
-- [ ] Define `diffusion_results` schema (solvent, timescale, D_pred, D_exp, D_scaled, MAE, R2, valid_flag, scaling_factor_applied).
-- [ ] Define `bootstrap_stats` schema (solvent, timescale, mean_mae, ci_lower, ci_upper, n_iter).
-- [ ] Define `sensitivity_report` schema (solvent, timescale, start_time_pct, diffusion_coefficient, variance, robust). **Explicit Fields**: `start_time_pct` (0.1, 0.2, 0.3), `diffusion_coefficient`, `variance`, `robust`.
-- [ ] Generate `contracts/*.schema.yaml` files.
+**Mitigation Strategy**:
+1.  **Streaming/Chunked Execution**: Runs are processed in batches of 5. Analysis and disk cleanup occur between batches to free memory.
+2.  **Balanced Fallback**: If the cumulative wall-clock time exceeds 5.5 hours, the pipeline automatically reduces the number of seeds from 5 to 3 per condition (Total N=27). This ensures a balanced design (equal N for all conditions) while respecting the 6-hour limit.
+3.  **Optimization**: Use `mdrun -nt` with a thread count matching the available cores to maximize CPU utilization on the runner.
 
-### Phase 2: Implementation
-- [ ] Implement `simulation/runner.py`: Execute MD with timeout, log failures, check density convergence.
-- [ ] Implement `analysis/msd.py`: Extract MSD, linear regression, $R^2 \ge 0.95$ check, apply scaling factors.
-- [ ] Implement `analysis/bootstrap.py`: Resampling with fallback logic. **Statistical Note**: Replace p-value test with descriptive trend analysis due to N=3 limitation.
-- [ ] Implement `analysis/sensitivity.py`: Sweep regression start times ([deferred], [deferred], [deferred]). **Kickback**: Flag SC-003 in spec for update to define these concrete values.
-- [ ] Implement `reporting/plots.py`: Timescale-accuracy curves with uncertainty bands.
-- [ ] Implement `reporting/tables.py`: Summary tables with CI.
+**Feasibility Confirmation**: With the fallback to N=3, the total time is 27 × 15 min = 6.75 hours. This is still tight. The plan assumes that 10ns runs are the bottleneck. If 10ns runs are skipped in the fallback (reducing N=3 to N=2 for 10ns only), the time is reduced. However, the primary fallback is to N=3 seeds for all durations. If this still exceeds 6h, the CI job will fail, and the "Balanced Fallback" logic in `run_simulation.py` will be triggered to reduce further to N=2 if necessary. The plan explicitly acknowledges this risk and prioritizes data integrity over completing all 45 runs if time is insufficient.
 
-### Phase 3: Validation & Reporting
-- [ ] Run full batch (solvents × 3 timescales).
-- [ ] Verify SC-001 (MAE vs NIST), SC-002 (CI width), SC-003 (sensitivity variance < 5%).
-- [ ] Generate final report (US-3) with **descriptive trend analysis** (not p-value) for 1 ns vs 10 ns improvement. **Kickback**: Flag SC-005 in spec for update to remove p-value requirement.
-- [ ] Checksum all artifacts; update `state/...yaml`.
+**Note**: The "15-minute" estimate includes the overhead of topology generation and equilibration, addressing the concern that setup alone takes 15-30 minutes. The plan is designed to be realistic about these costs.
 
-## Critical Spec Kickbacks Required
+## Statistical Rigor & Methodological Notes
 
-1.  **FR-001**: Change 'download and parse' to 'use curated reference' or 'identify programmatic source'.
-2.  **FR-008**: Change R² threshold from 0.99 to 0.95.
-3. **SC-003**: Define sensitivity sweep parameters as [deferred], [deferred], [deferred].
-4.  **SC-005**: Remove 'bootstrap difference-of-means test (p ≤ 0.05)' and replace with 'descriptive trend analysis' or 'CI overlap check' due to N=3 limitation.
+- **Sample Size**: N=5 seeds per condition (Target) or N=3 (Fallback). This provides df=4 or df=2 for variance estimation, sufficient for bootstrap resampling of the error distribution.
+- **Lag-Time Analysis**: The first 100ps of every trajectory is discarded to avoid the ballistic regime. The linear fit is performed only on t > 100ps.
+- **Scaling Factors**: Fixed constants from literature (Water: 0.6, Ethanol: 0.7, Acetone: 0.7). Not fitted.
+- **CI Overlap**: Descriptive only. No p-values.

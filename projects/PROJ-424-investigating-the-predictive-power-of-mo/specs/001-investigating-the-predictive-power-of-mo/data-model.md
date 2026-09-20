@@ -1,87 +1,100 @@
 # Data Model: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
 ## Overview
+This document defines the data structures used throughout the project lifecycle, from raw input to final analysis results. All data is stored in local files (`JSON`, `CSV`) to ensure reproducibility and checksumming.
 
-This document defines the data structures used to store simulation results, experimental benchmarks, and statistical outputs. All data is stored in CSV/JSON format under `data/` with checksums.
+## 1. Raw Data
 
-## Entities
+### `data/raw/nist_refs.json`
+Manually curated experimental diffusion coefficients.
+*   **Format**: JSON
+*   **Schema**:
+    ```json
+    [
+      {
+        "solvent": "string",
+        "temperature_kelvin": "float",
+        "diffusion_coefficient_m2_s": "float",
+        "source_reference": "string"
+      }
+    ]
+    ```
+*   **Example**:
+    ```json
+    [
+      {
+        "solvent": "water",
+        "temperature_kelvin": 298.15,
+        "diffusion_coefficient_m2_s": 2.3e-9,
+        "source_reference": "NIST TRC"
+      }
+    ]
+    ```
 
-### 1. Simulation Run
-Represents a single MD execution.
+### `data/raw/simulations/*.xtc` / `*.gro`
+Raw GROMACS trajectory and topology files.
+*   **Format**: Binary (GROMACS)
+*   **Content**: Atomic coordinates over time.
+*   **Naming Convention**: `{solvent}_{duration_ns}_seed{seed}.xtc`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `run_id` | string | Unique identifier (e.g., `water_1ns_001`) |
-| `solvent` | string | Solvent name (water, ethanol, acetone) |
-| `timescale_ns` | float | Target duration (1.0, 5.0, 10.0) |
-| `force_field` | string | Force field used (e.g., `martini3`) |
-| `temperature_k` | float | Simulation temperature |
-| `status` | string | `success`, `failed`, `invalid` |
-| `r_squared` | float | Linearity of MSD fit ($R^2$). **Threshold**: 0.95 (Constitution). |
-| `diffusion_coefficient` | float | Calculated D (m²/s) *before* scaling |
-| `scaling_factor` | float | Solvent-specific scaling factor applied |
-| `diffusion_coefficient_scaled` | float | Calculated D (m²/s) *after* scaling |
-| `error_flag` | string | Reason for invalidation (if any) |
+## 2. Processed Data
 
-### 2. Experimental Reference
-Ground truth values from NIST.
+### `data/processed/diffusion_results.csv`
+Aggregated results from MSD analysis and scaling.
+*   **Format**: CSV
+*   **Columns**:
+    *   `solvent` (str): e.g., "water"
+    *   `duration_ns` (float): 1.0, 5.0, 10.0
+    *   `seed` (int): Random seed used
+    *   `msd_slope` (float): Slope of linear MSD fit (t > 100ps)
+    *   `r_squared` (float): Goodness of fit (must be >= 0.95)
+    *   `d_calc_m2_s` (float): Calculated diffusion coefficient (slope / 6)
+    *   `d_scaled_m2_s` (float): Scaled diffusion coefficient (using fixed literature factors)
+    *   `mae` (float): Absolute error vs experimental
+*   **Constraint**: Rows with `r_squared` < 0.95 are marked as "CONVERGENCE_FAILED" and excluded from MAE calculation.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `solvent` | string | Solvent name |
-| `temperature_k` | float | Reference temperature |
-| `diffusion_coefficient` | float | Experimental D (m²/s) |
-| `source` | string | "NIST_Curated" |
-| `checksum` | string | SHA-256 of reference file |
+### `data/processed/bootstrap_stats.json`
+Statistical summaries of the error distribution.
+*   **Format**: JSON
+*   **Schema**:
+    ```json
+    {
+      "duration_ns": "float",
+      "iterations": "int",
+      "mean_mae": "float",
+      "ci_lower": "float",
+      "ci_upper": "float",
+      "convergence_check": "boolean",
+      "n_seeds": "int"
+    }
+    ```
+*   **Note**: `n_seeds` indicates whether N=5 (target) or N=3 (fallback) was used.
 
-### 3. Prediction Metric
-Error analysis for each run.
+### `data/processed/sensitivity_report.json`
+Variance analysis across start times.
+*   **Format**: JSON
+*   **Schema**:
+    ```json
+    [
+      {
+        "solvent": "string",
+        "duration_ns": "float",
+        "start_fraction": "float",
+        "d_value": "float",
+        "variance_pct": "float"
+      }
+    ]
+    ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `run_id` | string | Link to Simulation Run |
-| `solvent` | string | Solvent name |
-| `timescale_ns` | float | Duration |
-| `d_pred` | float | Predicted D (scaled) |
-| `d_exp` | float | Experimental D |
-| `mae` | float | Absolute error (|d_pred - d_exp|) |
-| `valid` | bool | Whether run passed $R^2 \ge 0.95$ check |
+## 3. Scaling Factors (Fixed Constants)
+*   **Water**: 0.6
+*   **Ethanol**: 0.7
+*   **Acetone**: 0.7
+*   **Source**: Marrink et al., J. Chem. Theory Comput. 2007, 3, 1, 146–156.
 
-### 4. Bootstrap Statistics
-Confidence intervals for MAE.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `solvent` | string | Solvent name |
-| `timescale_ns` | float | Duration |
-| `mean_mae` | float | Mean MAE across bootstrap |
-| `ci_lower_95` | float | Lower 95% CI |
-| `ci_upper_95` | float | Upper 95% CI |
-| `n_iterations` | int | Number of bootstrap iterations |
-
-### 5. Sensitivity Report
-Variance from regression start time sweep.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `solvent` | string | Solvent name |
-| `timescale_ns` | float | Duration |
-| `start_time_pct` | float | Regression start time (0.1, 0.2, 0.3) |
-| `diffusion_coefficient` | float | D calculated at this start time |
-| `variance` | float | Variance across start times |
-| `robust` | bool | `True` if variance < 5% |
-
-## Data Flow
-
-1. **Raw**: `data/raw/nist_refs.json` (curated), `data/raw/topologies/*.gro`
-2. **Interim**: `data/interim/simulation_logs/*.log` (MD output)
-3. **Processed**: 
-   - `data/processed/msd_curves.csv`
-   - `data/processed/diffusion_results.csv` (includes scaled values)
-   - `data/processed/bootstrap_stats.csv`
-   - `data/processed/sensitivity_report.csv`
-4. **Final**: `data/processed/summary_table.csv`, `data/processed/timescale_accuracy_plot.png`
-
-## Checksums
-
-All files in `data/raw/` and `data/processed/` must be checksummed and recorded in `state/projects/PROJ-424-...yaml`.
+## 4. Data Flow
+1.  **Load**: `data/raw/nist_refs.json` -> `data/` (in-memory dict).
+2.  **Simulate**: `code/simulations/` -> `data/raw/simulations/` (N=5 or N=3 seeds).
+3.  **Analyze**: `data/raw/simulations/` + `data/raw/nist_refs.json` -> `data/processed/diffusion_results.csv`.
+4.  **Bootstrap**: `data/processed/diffusion_results.csv` -> `data/processed/bootstrap_stats.json`.
+5.  **Report**: `data/processed/` -> `results/paper_tables.md`.

@@ -1,14 +1,13 @@
 status: none
-intent: download experimental diffusion coefficients water ethanol acetone NIST Chemistry
-  WebBook OpenKIM python package dataset
+intent: download diffusion coefficients water ethanol acetone NIST Chemistry WebBook
+  dataset python package dataset
 required_fields:
-- molecule_name
+- compound
+- diffusion_coefficient
+- units
 - temperature_K
-- diffusion_coefficient_cm2_per_s
 - pressure_atm
-- uncertainty
-- source_database
-- reference_id_or_DOI
-cache_key: c7cc75d2314f393844a71b24bbbc81f17e6cd44369adfbb8ba7ee3e2156f5388
-searched_at: '2026-09-18T18:24:00.864113+00:00'
+- source
+cache_key: 2d918211c06184384a8c70210887630fe640ed93661fd4994b1c8ba04fa137a5
+searched_at: '2026-09-20T19:47:22.741313+00:00'
 retry_count: 1

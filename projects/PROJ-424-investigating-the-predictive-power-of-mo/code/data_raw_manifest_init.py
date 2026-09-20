@@ -1,19 +1,27 @@
 """
-Initializes the data manifest for the NIST references file.
-This script computes the checksum for nist_refs.json and writes it to the manifest.
+Script to initialize the raw data manifest.
+
+This is an alias or specific implementation for T006c requirements to ensure
+manifest generation is robust. It duplicates logic from data_manifest_init.py
+but focuses specifically on the raw directory.
 """
 import json
 import hashlib
+import sys
 from pathlib import Path
 from datetime import datetime
 
-# Project root relative to this file (assuming code/data_raw_manifest_init.py)
-# We need to go up to project root, then into data/raw
-# However, to be safe and consistent with T001 structure, we assume this runs from project root
-# or we use absolute paths based on the file location.
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+from config import RAW_DIR, MANIFEST_PATH
+from utils.checksums import calculate_sha256
+from utils.logging import setup_logger
+
+logger = setup_logger("data_raw_manifest_init")
 
 def compute_file_hash(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -21,49 +29,33 @@ def compute_file_hash(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 def main():
-    # Determine paths relative to the project root
-    # Assuming this script is run from the project root or we adjust paths accordingly.
-    # The task specifies: code/data/raw/nist_refs.json
-    # And manifest at: data/raw/manifest.json (per T004)
+    """Main entry point for raw manifest initialization."""
+    raw_path = Path(RAW_DIR)
+    manifest_path = Path(MANIFEST_PATH)
     
-    # Let's assume the working directory is the project root.
-    project_root = Path.cwd()
-    nist_file = project_root / "code" / "data" / "raw" / "nist_refs.json"
-    manifest_file = project_root / "data" / "raw" / "manifest.json"
+    if not raw_path.exists():
+        logger.warning(f"Raw data directory {raw_path} does not exist.")
+        return 1
+
+    files = [f for f in raw_path.iterdir() if f.is_file() and f.name != ".gitkeep"]
     
-    if not nist_file.exists():
-        raise FileNotFoundError(f"NIST references file not found at {nist_file}. "
-                                "Run the generation script or ensure T006b artifacts are present.")
+    if not files:
+        logger.warning(f"No files found in {raw_path} to hash.")
+        # Create empty manifest if no files
+        with open(manifest_path, 'w', encoding='utf-8') as f:
+            json.dump({}, f)
+        return 0
     
-    # Compute hash
-    file_hash = compute_file_hash(nist_file)
+    manifest_data = {}
+    for f in files:
+        logger.info(f"Hashing {f.name}...")
+        manifest_data[f.name] = compute_file_hash(f)
     
-    # Load or initialize manifest
-    manifest_data = {
-        "files": {}
-    }
-    
-    if manifest_file.exists():
-        with open(manifest_file, "r") as f:
-            manifest_data = json.load(f)
-    
-    # Update entry for nist_refs.json
-    manifest_data["files"]["nist_refs.json"] = {
-        "path": str(nist_file.relative_to(project_root)),
-        "sha256": file_hash,
-        "size_bytes": nist_file.stat().st_size,
-        "last_updated": datetime.utcnow().isoformat() + "Z",
-        "description": "Curated experimental diffusion coefficients for water, ethanol, acetone at 298K."
-    }
-    
-    # Write manifest
-    with open(manifest_file, "w") as f:
+    with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(manifest_data, f, indent=2)
     
-    print(f"Manifest updated successfully at {manifest_file}")
-    print(f"File: nist_refs.json")
-    print(f"SHA-256: {file_hash}")
-    print(f"Size: {manifest_data['files']['nist_refs.json']['size_bytes']} bytes")
+    logger.info(f"Raw manifest updated at {manifest_path}.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

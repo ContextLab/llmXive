@@ -1,42 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Bootstrap Statistics Schema"
-description: "Schema for bootstrap resampling results"
+description: "Schema for data/processed/bootstrap_stats.json"
 type: "object"
 properties:
-  solvent:
-    type: "string"
-    enum:
-      - "water"
-      - "ethanol"
-      - "acetone"
-    description: "Solvent type"
-  timescale_ns:
+  duration_ns:
     type: "number"
-    minimum: 0
-    description: "Simulation duration in nanoseconds"
+    enum: [1.0, 5.0, 10.0]
+  iterations:
+    type: "integer"
+    minimum: 100
+    maximum: 1000
+    description: "Number of bootstrap iterations. 1000 default, 100 fallback if time > 5.5h."
   mean_mae:
     type: "number"
-    description: "Mean MAE across bootstrap iterations"
-  ci_lower_95:
+    minimum: 0
+  ci_lower:
     type: "number"
-    description: "Lower bound of 95% confidence interval"
-  ci_upper_95:
+    minimum: 0
+  ci_upper:
     type: "number"
-    description: "Upper bound of 95% confidence interval"
-  n_iterations:
+    minimum: 0
+  convergence_check:
+    type: "boolean"
+    description: "True if all trajectories for this duration met R2 >= 0.95."
+  n_seeds:
     type: "integer"
     minimum: 1
-    description: "Number of bootstrap iterations performed"
-  p_value:
-    type:
-      - "number"
-      - "null"
-    description: "P-value from difference-of-means test (if applicable)"
+    description: "Number of seeds used for this duration. 5 (target) or 3 (fallback)."
 required:
-  - solvent
-  - timescale_ns
+  - duration_ns
+  - iterations
   - mean_mae
-  - ci_lower_95
-  - ci_upper_95
-  - n_iterations
+  - ci_lower
+  - ci_upper
+  - convergence_check
+  - n_seeds
 additionalProperties: false

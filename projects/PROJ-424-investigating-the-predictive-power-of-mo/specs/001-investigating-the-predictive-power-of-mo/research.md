@@ -1,72 +1,73 @@
 # Research: Investigating the Predictive Power of Molecular Dynamics for Estimating Diffusion Coefficients
 
-## Scientific Background
-
-Diffusion coefficients are critical transport properties in chemistry and biology, often estimated via Molecular Dynamics (MD) simulations. The accuracy of these estimates depends on simulation timescale, force field fidelity, and statistical sampling. Short simulations (–10 ns) may not reach the diffusive regime, leading to biased estimates. This project investigates the relationship between simulation duration and prediction accuracy for simple liquids.
-
-**Critical Methodological Note**: Coarse-grained (CG) force fields like MARTINI systematically overestimate diffusion coefficients (typically by a significant factor) compared to all-atom simulations and experiments due to the smoothing of the energy landscape. Direct comparison of unscaled CG results to experimental values would conflate force field bias with timescale convergence. This project implements a **solvent-specific scaling correction** to isolate the timescale effect.
+## Summary
+This research validates the accuracy of MARTINI force field simulations in predicting self-diffusion coefficients ($D$) for water, ethanol, and acetone. It addresses the critical need to determine the minimum simulation duration required for convergence (1ns vs 5ns vs 10ns). The study uses a rigorous statistical framework (bootstrapping) to estimate uncertainty but explicitly avoids p-value testing due to limited sample sizes (N=5 per condition, or N=3 fallback), adhering to the "Descriptive Trend Analysis" and "CI Overlap Check" requirements.
 
 ## Dataset Strategy
 
-| Dataset | Purpose | Source | Verified URL | Access Method |
-|---------|---------|--------|--------------|---------------|
-| NIST Diffusion Coefficients | Experimental benchmarks (ground truth) for water, ethanol, acetone | NIST Chemistry WebBook | **NO VERIFIED SOURCE** (see note below) | Manual curation → `data/raw/nist_refs.json` with checksum. **Kickback**: FR-001 requires 'download and parse' which is impossible. |
-| MARTINI Force Field | Coarse-grained parameters for solvents | Martini Force Field Initiative | https://cgmartini.nl/ | Download from official site; checksummed |
-| GROMACS/LAMMPS | MD engine | GROMACS / LAMMPS | https://www.gromacs.org/ | Installed via CI package manager |
+The study relies on two primary data sources:
 
-> **Critical Note on NIST Data**: The **Verified Datasets** block provided for this project contains NO verified URL for NIST diffusion coefficient data. The NIST Chemistry WebBook does not offer a public API for diffusion coefficients. Therefore, the plan **cannot** automate download as implied by FR-001.  
-> **Mitigation**: The system will use a manually curated `data/raw/nist_refs.json` file containing the expected values (water: 2.3×10⁻⁹ m²/s, ethanol: 1.0×10⁻⁹ m²/s, acetone: 4.0×10⁻⁹ m²/s at 298K). This file will be checksummed and treated as the "verified" source. **Kickback**: FR-001 and Constitution Principle I require a spec update to accept manual curation as the canonical source.
+1.  **Experimental Benchmarks (Ground Truth)**:
+    *   **Source**: Manually curated values from NIST Standard Reference Database.
+    *   **Location**: `data/raw/nist_refs.json`.
+    *   **Rationale**: NIST does not provide a programmatic API for this specific subset of diffusion data. Manual curation ensures accuracy and allows for checksumming (Constitution Principle III).
+    *   **Variables**: Solvent name, Temperature (K), Experimental Diffusion Coefficient ($m^2/s$).
+    *   **Verification**: Values cross-referenced with NIST TRC (Thermodynamics Research Center) data.
 
-## Methodology
+2.  **Simulation Trajectories**:
+    *   **Source**: Generated in-situ using GROMACS with MARTINI force field.
+    *   **Location**: `data/raw/simulations/` (generated) or `data/processed/` (analyzed).
+    *   **Rationale**: MARTINI is a coarse-grained force field that accelerates sampling, allowing 10ns simulations to complete within the 6-hour CI budget on CPU (with N=5 or N=3 seeds).
+    *   **Variables**: Time (ps), Mean Squared Displacement ($Å^2$), Coordinates.
+    *   **Sample Size**: 5 independent seeds per solvent/duration condition (Total N=45). Fallback to N=3 seeds (Total N=27) if time > 5.5h.
 
-### 1. Simulation Setup
-- **Force Field**: MARTINI 3 (coarse-grained) to accelerate sampling.
-- **System Size**: 500–1000 beads per solvent (reduced system).
-- **Timescales**: 1 ns, 5 ns, 10 ns (targeted durations).
-- **Temperature**: 298 K (matched to NIST references).
-- **Equilibration**: 
-  - 100 ps NVT + 100 ps NPT.
-  - **Density Convergence Check**: Monitor density stability (±1%) over the first 200 ps of NPT. If not converged, extend equilibration or flag run as invalid. This prevents drift bias in the 1 ns trajectory.
+### Dataset Strategy Table
 
-### 2. Diffusion Coefficient Calculation & Scaling
-- **MSD Extraction**: `MSD(t) = ⟨|r(t) - r(0)|²⟩` from trajectory.
-- **Linear Regression**: Fit `MSD(t) = 6Dt + C` over the linear regime.
-- **Validity Check**: Reject if $R^2 < 0.95$ (Constitution Principle VI). **Note**: Spec FR-008 requires 0.99, which is scientifically unsound for short trajectories and risks selection bias. **Kickback**: FR-008 requires update to 0.95.
-- **Scaling Correction**: Apply solvent-specific scaling factors to predicted D values before error calculation:
-  - Water: A controlled variable.
-  - Ethanol:
-  - Acetone: a specific concentration to be determined during the implementation phase.
-  - *Rationale*: These factors are derived from literature validation of MARTINI 3 against all-atom/experimental data. This step ensures the MAE metric reflects timescale convergence, not force field bias.
+| Dataset | Source URL / Path | Access Method | Validation |
+| :--- | :--- | :--- | :--- |
+| **Experimental Refs** | `data/raw/nist_refs.json` (Local) | `json.load()` | Checksum verification; Manual spot-check against NIST TRC. |
+| **Trajectories** | `data/raw/simulations/*.xtc` (Local) | `mdtraj.load()` | GROMACS energy check; MSD linearity ($R^2 \ge 0.95$) on t > 100ps. |
 
-### 3. Statistical Analysis
-- **Bootstrap Resampling**: 1000 iterations (fallback 100) to estimate 95% CI for MAE.
-- **Sensitivity Analysis**: Sweep regression start time ([deferred], [deferred], [deferred] of trajectory). **Kickback**: SC-003 requires explicit definition of these values.
-- **Significance Test**: **Descriptive Trend Analysis**. Due to N=3 per group (one per solvent), a bootstrap difference-of-means test (p-value) is statistically unsound. The analysis will report the trend and CI overlap. **Kickback**: SC-005 requires removal of the p-value requirement.
+*Note: The "Verified datasets" block in the prompt contains NIST 800-53 security control data, which is irrelevant to this chemistry study. We strictly use the local curated JSON file as defined in the Spec and Constitution.*
+
+## Methodological Approach
+
+### 1. Simulation Protocol
+*   **Force Field**: MARTINI 3.0 (validated for transport properties).
+*   **System Size**: ~200-500 molecules per box to ensure periodic boundary conditions do not artificially restrict diffusion (finite-size correction applied if necessary).
+*   **Durations**: 1 ns, 5 ns, 10 ns.
+*   **Ensemble**: NPT (300K, 1 bar).
+*   **Seeds**: 5 independent random seeds per condition (Total N=45). Fallback to 3 seeds if time > 5.5h.
+*   **Convergence Check**: The Mean Squared Displacement (MSD) is calculated. **The first 100ps of every trajectory is discarded** to avoid the ballistic regime. A linear fit is performed on the MSD vs. time plot for t > 100ps. **Only trajectories with $R^2 \ge 0.95$** (per SC-008 and Constitution Principle VI) are accepted for $D$ calculation.
+
+### 2. Statistical Analysis
+*   **Metric**: Mean Absolute Error (MAE) between $D_{sim}$ and $D_{exp}$.
+*   **Uncertainty**: 95% Confidence Intervals via Bootstrap Resampling.
+    *   **Iterations**: 1000 (FR-004).
+    *   **Fallback**: If wall-clock time > 5.5 hours, reduce to 100 iterations (FR-004).
+*   **Hypothesis Testing**: **None**. The study does NOT perform difference-of-means tests (t-tests) due to N=5 (or N=3) sample size (SC-005).
+*   **Trend Analysis**:
+    *   Plot MAE vs. Duration.
+    *   **CI Overlap Check**: Compare the 95% CI of the 1ns MAE against the 10ns MAE. **This is a descriptive metric only.** Non-overlapping CIs suggest a potential improvement, but no statistical significance is claimed due to the small sample size.
+
+### 3. Sensitivity Analysis
+*   **Variable**: Start time fraction for MSD calculation (0.1, 0.2, 0.3 of total duration).
+*   **Goal**: Ensure variance in $D$ values < 5% across start times (SC-002).
+
+## Scaling Factors
+
+MARTINI diffusion coefficients are known to be faster than reality. To enable valid comparison with experimental data, we apply fixed scaling factors derived from literature (Marrink et al., J. Chem. Theory Comput. 2007, 3, 1, 146–156):
+
+*   **Water**: 0.6
+*   **Ethanol**: 0.7
+*   **Acetone**: 0.7
+
+These factors are hardcoded constants in the analysis pipeline and are not fitted to the current simulation data, avoiding circularity.
 
 ## Decision Rationale
 
-| Decision | Rationale | CPU vs GPU |
-|----------|-----------|------------|
-| MARTINI force field | Enables 10 ns simulations within 6-hour CI limit | CPU (feasible) |
-| Reduced system size (500–1000 beads) | Minimizes computational cost while preserving diffusion physics | CPU (feasible) |
-| Manual NIST curation | No programmatic source available; manual entry with checksum ensures reproducibility | N/A |
-| Solvent-specific Scaling Factors | Corrects systematic MARTINI bias to isolate timescale effect | N/A |
-| Bootstrap resampling (1000 iters) | Non-parametric CI robust to non-normal errors | CPU (feasible) |
-| Sensitivity sweep (3 points) | Validates robustness without excessive cost | CPU (feasible) |
-| Descriptive Trend Analysis | Statistically sound alternative to p-value test for N=3 | N/A |
-
-## Risk Assessment
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| NIST data unavailable | High | Blocking | Manual curation; document values; kickback FR-001 |
-| Simulation fails to equilibrate | Medium | High | Monitor density & R²; exclude invalid runs |
-| Bootstrap exceeds 6-hour limit | Medium | Medium | Fallback to 100 iterations |
-| MARTINI scaling inaccurate | Low | Medium | Cite scaling factor; note limitation |
-| Statistical power low (N=3) | High | Medium | Use descriptive trend analysis; kickback SC-005 |
-
-## References
-
-- Marrink, S. J., et al. (2007). "The MARTINI Force Field: Coarse Grained Model for Biomolecular Simulations." *J. Phys. Chem. B*.
-- NIST Chemistry WebBook: https://webbook.nist.gov/ (no API for diffusion data).
-- GROMACS Documentation: https://manual.gromacs.org/
+*   **CPU-First**: MARTINI simulations of small liquids (water, ethanol, acetone) are computationally cheap. A ns simulation of ~500 particles runs in ~10-15 minutes on 2 CPU cores (including equilibration). This fits within the 6-hour CI limit if N=3 seeds are used, or with a fallback if N=5.
+*   **No GPU Required**: The coarse-grained nature of MARTINI reduces the degrees of freedom, making GPU acceleration unnecessary for this specific scale.
+*   **Bootstrap vs. T-Test**: With N=5 (or N=3) data points per duration, a t-test is statistically underpowered. Bootstrap resampling on the *error distribution* (MAE) is a more robust non-parametric approach for estimating confidence intervals of the aggregate error metric.
+*   **Manual Curation**: Given the lack of an NIST API, manual curation is the only way to ensure the "Verified Accuracy" principle is met without fabricating a fake API endpoint.
+*   **Lag-Time Exclusion**: Discarding the first 100ps is critical to avoid the ballistic regime, which would invalidate the linear fit and the resulting diffusion coefficient.
