@@ -79,3 +79,26 @@ T044:
     \ reporting steps were actually run and validated in a clean environment. The\
     \ required pipeline outputs (e.g., engineered CSV with \u2265500 rows, saved model,\
     \ cross\u2011validation metrics, importance analysis, and final report) are missing."
+T057:
+  c: false
+  h: 2fb60e575ed2a519b0ef2d4549867706bf25ec6b1f439d95e1d1df204b462c28
+  r: The required script `code/audit_data_source.py` does not exist, and consequently
+    the expected log file `data/logs/data_source_audit.json` is also missing. Without
+    these artifacts, the data source verification cannot be performed, so the task
+    is not satisfied.
+T063:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No review report, checklist, or documented findings were provided; there is\
+    \ no artifact demonstrating that a final code review was performed, nor any evidence\
+    \ of documentation, style compliance, or best\u2011practice verification. The\
+    \ required deliverable is missing."
+T064:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No audit artifact (e.g., a report, checklist, or documented evidence) was provided\
+    \ to demonstrate that the constitutional principles\u2014Reproducibility, Verified\
+    \ Accuracy, Data Hygiene, Single Source of Truth, Versioning, Thermodynamic Feature\
+    \ Engineering Integrity, and Cross-Validation Rigor\u2014have been verified and\
+    \ satisfied. The implementer must supply a concrete audit document showing how\
+    \ each principle was checked and confirmed."

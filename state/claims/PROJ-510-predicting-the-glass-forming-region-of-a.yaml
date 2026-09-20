@@ -386,3 +386,171 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T05:26:18Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: 1250 valid ternary alloys processed in glass forming region prediction
+    study
+  claim_id: c_dcdc0f2e
+  context: Key Findings section listing dataset size and performance metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1250 valid ternary alloys processed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:25:41Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: Cross-validation RMSE of 12.38 with standard deviation 0.25
+  claim_id: c_336fcab8
+  context: Key Findings section and Cross-Validation Results subsection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Model Performance (CV RMSE): 12.38 \xB1 0.25"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:26:02Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: Test set RMSE of 12.45
+  claim_id: c_7b6e795c
+  context: Key Findings section listing model performance metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test Set RMSE: 12.45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:26:23Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: Null model mean RMSE of 18.50
+  claim_id: c_349fad13
+  context: Statistical Significance subsection detailing the paired t-test against
+    a DummyRegressor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Null Model Mean RMSE: 18.50'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:26:45Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: T-statistic of -15.20 from paired t-test
+  claim_id: c_7dde409d
+  context: Statistical Significance subsection detailing the paired t-test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T-Statistic: -15.20'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:27:36Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: mixing_enthalpy feature importance 0.3500 and p-value 0.0010
+  claim_id: c_fd45f26e
+  context: Feature Importance and Thermodynamic Descriptors table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mixing_enthalpy importance score 0.3500 with p-value 0.0010
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:28:06Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: atomic_size_mismatch feature importance 0.2800 and p-value 0.0020
+  claim_id: c_c2f50fbf
+  context: Feature Importance and Thermodynamic Descriptors table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: atomic_size_mismatch importance score 0.2800 with p-value 0.0020
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:28:36Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: electronegativity_variance feature importance 0.2200 and p-value 0.0050
+  claim_id: c_aecd9985
+  context: Feature Importance and Thermodynamic Descriptors table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: electronegativity_variance importance score 0.2200 with p-value 0.0050
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:28:56Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: valence_electron_concentration feature importance 0.1000 and p-value
+    0.0200
+  claim_id: c_772cc824
+  context: Feature Importance and Thermodynamic Descriptors table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: valence_electron_concentration importance score 0.1000 with p-value 0.0200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:29:22Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: melting_point_variance feature importance 0.0500 and p-value 0.0800
+  claim_id: c_9029a107
+  context: Feature Importance and Thermodynamic Descriptors table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: melting_point_variance importance score 0.0500 with p-value 0.0800
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:30:09Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md
+  attempts: 1
+  canonical: Sensitivity analysis RMSE variance of 0.02
+  claim_id: c_0c6bcec1
+  context: Sensitivity Analysis subsection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RMSE Variance: 0.02'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T02:30:30Z'

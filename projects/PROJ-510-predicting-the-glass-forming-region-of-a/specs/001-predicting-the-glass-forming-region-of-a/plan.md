@@ -17,7 +17,7 @@ Rewritten passage:, and performing sensitivity analysis on classification thresh
 **Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `datasets` (Hugging Face), `mendeleev`  
 **Storage**: Local CSV/Parquet files under `data/` (raw and processed)  
 **Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, moderate RAM)  
 **Project Type**: Data Science / Machine Learning Research Pipeline  
 **Performance Goals**: Complete full pipeline (data ingestion to sensitivity report) within 6 hours on CPU.  
 **Constraints**: No GPU acceleration available for training; must handle datasets >7 GB via streaming or sampling; strict reproducibility (random seeds).  
