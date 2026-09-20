@@ -1,274 +1,227 @@
-"""
-Null model baseline implementation for alloy phase prediction.
-
-This module implements a global mean baseline model and provides
-comparison logic against the trained Random Forest model (FR-009).
-"""
 import os
 import sys
 import argparse
 import pickle
 import json
 from typing import Dict, Any, List, Optional, Tuple
-import numpy as np
-from sklearn.metrics import mean_absolute_error, r2_score
 
 # Add project root to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
 
 logger = get_logger(__name__)
 
-
-def load_processed_data(data_path: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def load_processed_data(filepath: str) -> Tuple[List[Dict[str, Any]], List[str]]:
     """
-    Load processed descriptor data and target values.
-
-    Args:
-        data_path: Path to the processed CSV file (data/processed/descriptors.csv)
-
-    Returns:
-        X: Feature matrix (numpy array)
-        y: Target vector (numpy array) - typically temperature or phase boundary
-        feature_names: List of feature column names
+    Load processed descriptor data from CSV.
+    Returns: (rows, column_names)
     """
-    import csv
-
-    log_info(logger, f"Loading processed data from {data_path}")
-
-    if not os.path.exists(data_path):
-        log_error(logger, f"Data file not found: {data_path}", ErrorCode.DATA_SOURCE_MISSING)
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-
-    X_list = []
-    y_list = []
-    feature_names = []
-
-    with open(data_path, 'r', newline='', encoding='utf-8') as f:
+    if not os.path.exists(filepath):
+        log_error(f"Processed data file not found: {filepath}", ErrorCode.DATA_SOURCE_MISSING)
+        raise FileNotFoundError(f"Processed data file not found: {filepath}")
+    
+    rows = []
+    column_names = []
+    
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        feature_names = reader.fieldnames
-        # Assume the last column is the target (temperature)
-        target_col = feature_names[-1]
-        feature_cols = feature_names[:-1]
-
+        column_names = reader.fieldnames or []
         for row in reader:
-            features = [float(row[col]) for col in feature_cols]
-            X_list.append(features)
-            y_list.append(float(row[target_col]))
+            # Convert numeric columns
+            processed_row = {}
+            for key, value in row.items():
+                if key in ['temperature', 'composition', 'mean_atomic_radius', 
+                           'electronegativity_variance', 'valence_electron_count', 
+                           'hume_rothery_concentration']:
+                    try:
+                        processed_row[key] = float(value)
+                    except (ValueError, TypeError):
+                        processed_row[key] = value
+                else:
+                    processed_row[key] = value
+            rows.append(processed_row)
+    
+    return rows, column_names
 
-    X = np.array(X_list)
-    y = np.array(y_list)
-
-    log_info(logger, f"Loaded {len(y)} samples with {X.shape[1]} features")
-
-    return X, y, feature_cols
-
-
-def compute_global_mean(y_train: np.ndarray) -> float:
+def compute_global_mean(data: List[Dict[str, Any]], target_column: str = 'temperature') -> float:
     """
-    Compute the global mean of the training target values.
-
-    Args:
-        y_train: Training target values
-
-    Returns:
-        Global mean value
+    Compute the global mean of the target column from the dataset.
+    This serves as the null model prediction.
     """
-    return float(np.mean(y_train))
+    values = []
+    for row in data:
+        if target_column in row and isinstance(row[target_column], (int, float)):
+            values.append(row[target_column])
+    
+    if not values:
+        log_error("No valid values found for global mean calculation", ErrorCode.INVALID_DATA_SCHEMA)
+        raise ValueError("No valid values found for global mean calculation")
+    
+    return sum(values) / len(values)
 
-
-def predict_null_model(X: np.ndarray, global_mean: float) -> np.ndarray:
+def predict_null_model(data: List[Dict[str, Any]], global_mean: float) -> List[float]:
     """
-    Generate predictions using the global mean baseline.
-
-    Args:
-        X: Feature matrix (unused, but required for API consistency)
-        global_mean: The global mean value to use for all predictions
-
-    Returns:
-        Array of predictions (all equal to global_mean)
+    Predict using the null model (global mean) for all samples.
     """
-    return np.full(X.shape[0], global_mean)
+    return [global_mean] * len(data)
 
-
-def evaluate_model(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+def evaluate_model(y_true: List[float], y_pred: List[float]) -> Dict[str, float]:
     """
-    Evaluate model performance using standard metrics.
-
-    Args:
-        y_true: Ground truth values
-        y_pred: Predicted values
-
-    Returns:
-        Dictionary with MAE and R² metrics
+    Calculate MAE and R² for the model predictions.
     """
-    mae = float(mean_absolute_error(y_true, y_pred))
-    r2 = float(r2_score(y_true, y_pred))
-
+    if len(y_true) != len(y_pred):
+        log_error("y_true and y_pred must have the same length", ErrorCode.INVALID_DATA_SCHEMA)
+        raise ValueError("y_true and y_pred must have the same length")
+    
+    if len(y_true) == 0:
+        log_error("Empty dataset for evaluation", ErrorCode.INVALID_DATA_SCHEMA)
+        raise ValueError("Empty dataset for evaluation")
+    
+    # Calculate MAE
+    mae = sum(abs(t - p) for t, p in zip(y_true, y_pred)) / len(y_true)
+    
+    # Calculate R²
+    mean_true = sum(y_true) / len(y_true)
+    ss_tot = sum((t - mean_true) ** 2 for t in y_true)
+    ss_res = sum((t - p) ** 2 for t, p in zip(y_true, y_pred))
+    
+    if ss_tot == 0:
+        r_squared = 1.0 if ss_res == 0 else 0.0
+    else:
+        r_squared = 1 - (ss_res / ss_tot)
+    
     return {
         'mae': mae,
-        'r2': r2
+        'r_squared': r_squared
     }
-
 
 def compare_models(null_metrics: Dict[str, float], rf_metrics: Dict[str, float]) -> Dict[str, Any]:
     """
-    Compare null model baseline against Random Forest model.
-
-    Args:
-        null_metrics: Metrics from the null model
-        rf_metrics: Metrics from the Random Forest model
-
-    Returns:
-        Comparison results including improvement percentages
+    Compare null model and RF model metrics.
+    Returns a dictionary with the comparison results.
     """
-    mae_improvement = (null_metrics['mae'] - rf_metrics['mae']) / null_metrics['mae'] * 100 if null_metrics['mae'] > 0 else 0
-    r2_improvement = rf_metrics['r2'] - null_metrics['r2']
-
-    comparison = {
-        'null_model': null_metrics,
-        'rf_model': rf_metrics,
-        'mae_improvement_percent': float(mae_improvement),
-        'r2_improvement': float(r2_improvement),
-        'rf_better': rf_metrics['mae'] < null_metrics['mae'] and rf_metrics['r2'] > null_metrics['r2']
+    null_mae = null_metrics['mae']
+    rf_mae = rf_metrics['mae']
+    
+    if null_mae == 0:
+        percentage_improvement = 100.0 if rf_mae == 0 else 0.0
+    else:
+        percentage_improvement = ((null_mae - rf_mae) / null_mae) * 100.0
+    
+    return {
+        'null_model_mae': null_mae,
+        'rf_model_mae': rf_mae,
+        'percentage_improvement': percentage_improvement
     }
-
-    return comparison
-
 
 def run_null_baseline_analysis(
-    data_path: str,
-    rf_model_path: Optional[str] = None,
-    output_path: str = 'data/artifacts/null_baseline_comparison.json'
+    processed_data_path: str,
+    loso_results_path: str,
+    output_path: str
 ) -> Dict[str, Any]:
     """
-    Run complete null baseline analysis and comparison.
-
-    This function:
-    1. Loads the processed data
-    2. Computes the global mean from training data
-    3. Generates null model predictions
-    4. Evaluates null model performance
-    5. If RF model is provided, compares against it
-    6. Saves results to output file
-
-    Args:
-        data_path: Path to processed data CSV
-        rf_model_path: Optional path to trained RF model for comparison
-        output_path: Path to save comparison results
-
-    Returns:
-        Dictionary containing all analysis results
+    Main function to run the null baseline analysis.
+    
+    1. Load processed data.
+    2. Compute global mean (null model).
+    3. Evaluate null model on the same data.
+    4. Load RF model results (LOSO cross-validation).
+    5. Compare null model MAE vs RF model MAE.
+    6. Save comparison to JSON.
     """
-    log_info(logger, "Starting null baseline analysis")
-
-    # Load data
-    X, y, feature_names = load_processed_data(data_path)
-
-    # For this analysis, we'll use all data to compute global mean
-    # In a real scenario, we might split train/test, but for baseline
-    # comparison we compute on the full dataset
-    global_mean = compute_global_mean(y)
-    log_info(logger, f"Computed global mean: {global_mean:.4f}")
-
-    # Generate null predictions
-    y_pred_null = predict_null_model(X, global_mean)
-
-    # Evaluate null model
-    null_metrics = evaluate_model(y, y_pred_null)
-    log_info(logger, f"Null model MAE: {null_metrics['mae']:.4f}, R²: {null_metrics['r2']:.4f}")
-
-    results = {
-        'global_mean': global_mean,
-        'null_model_metrics': null_metrics,
-        'sample_count': len(y),
-        'feature_count': len(feature_names)
-    }
-
-    # If RF model is provided, load and compare
-    if rf_model_path and os.path.exists(rf_model_path):
-        log_info(logger, f"Loading RF model from {rf_model_path}")
-        try:
-            with open(rf_model_path, 'rb') as f:
-                rf_model = pickle.load(f)
-
-            # Generate RF predictions
-            y_pred_rf = rf_model.predict(X)
-
-            # Evaluate RF model
-            rf_metrics = evaluate_model(y, y_pred_rf)
-            log_info(logger, f"RF model MAE: {rf_metrics['mae']:.4f}, R²: {rf_metrics['r2']:.4f}")
-
-            # Compare models
-            comparison = compare_models(null_metrics, rf_metrics)
-            results['rf_model_metrics'] = rf_metrics
-            results['comparison'] = comparison
-
-            log_info(logger, f"MAE improvement: {comparison['mae_improvement_percent']:.2f}%")
-            log_info(logger, f"R² improvement: {comparison['r2_improvement']:.4f}")
-            log_info(logger, f"RF model better: {comparison['rf_better']}")
-
-        except Exception as e:
-            log_error(logger, f"Failed to load or evaluate RF model: {str(e)}", ErrorCode.INSUFFICIENT_POWER)
-            results['rf_model_error'] = str(e)
+    log_info(f"Loading processed data from {processed_data_path}")
+    data, _ = load_processed_data(processed_data_path)
+    
+    # Extract true values (temperature)
+    y_true = [row['temperature'] for row in data if 'temperature' in row]
+    
+    log_info("Computing global mean for null model")
+    global_mean = compute_global_mean(data, target_column='temperature')
+    
+    log_info("Generating null model predictions")
+    y_pred_null = predict_null_model(data, global_mean)
+    
+    log_info("Evaluating null model")
+    null_metrics = evaluate_model(y_true, y_pred_null)
+    log_info(f"Null Model MAE: {null_metrics['mae']:.4f}, R²: {null_metrics['r_squared']:.4f}")
+    
+    # Load RF model results
+    log_info(f"Loading LOSO results from {loso_results_path}")
+    if not os.path.exists(loso_results_path):
+        log_error(f"LOSO results file not found: {loso_results_path}", ErrorCode.DATA_SOURCE_MISSING)
+        raise FileNotFoundError(f"LOSO results file not found: {loso_results_path}")
+    
+    with open(loso_results_path, 'r', encoding='utf-8') as f:
+        loso_results = json.load(f)
+    
+    # Extract RF MAE from LOSO results (aggregate)
+    if 'aggregate' in loso_results and 'mae' in loso_results['aggregate']:
+        rf_mae = loso_results['aggregate']['mae']
+    elif 'mae' in loso_results:
+        rf_mae = loso_results['mae']
     else:
-        log_warning(logger, "No RF model provided for comparison, skipping comparison step")
-
+        # Fallback: calculate from fold results if available
+        if 'fold_results' in loso_results:
+            fold_maes = [fold.get('mae', 0) for fold in loso_results['fold_results'] if 'mae' in fold]
+            if fold_maes:
+                rf_mae = sum(fold_maes) / len(fold_maes)
+            else:
+                log_error("Could not extract RF MAE from LOSO results", ErrorCode.INVALID_DATA_SCHEMA)
+                raise ValueError("Could not extract RF MAE from LOSO results")
+        else:
+            log_error("LOSO results structure not recognized", ErrorCode.INVALID_DATA_SCHEMA)
+            raise ValueError("LOSO results structure not recognized")
+    
+    rf_metrics = {'mae': rf_mae}
+    
+    log_info("Comparing models")
+    comparison = compare_models(null_metrics, rf_metrics)
+    
+    log_info(f"Comparison - Null MAE: {comparison['null_model_mae']:.4f}, "
+             f"RF MAE: {comparison['rf_model_mae']:.4f}, "
+             f"Improvement: {comparison['percentage_improvement']:.2f}%")
+    
     # Ensure output directory exists
     output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
-
-    # Save results
+    
+    # Save comparison to JSON
+    log_info(f"Saving comparison results to {output_path}")
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-
-    log_info(logger, f"Results saved to {output_path}")
-
-    return results
-
+        json.dump(comparison, f, indent=2)
+    
+    log_info("Null baseline analysis completed successfully")
+    return comparison
 
 def main():
-    """Main entry point for null baseline analysis."""
+    """
+    CLI entry point for null baseline analysis.
+    """
     parser = argparse.ArgumentParser(description='Run null model baseline analysis')
     parser.add_argument('--data', type=str, default='data/processed/descriptors.csv',
-                      help='Path to processed data CSV')
-    parser.add_argument('--model', type=str, default='data/artifacts/model.pkl',
-                      help='Path to trained RF model (optional)')
-    parser.add_argument('--output', type=str, default='data/artifacts/null_baseline_comparison.json',
-                      help='Path to save comparison results')
-
+                      help='Path to processed descriptor data CSV')
+    parser.add_argument('--loso-results', type=str, default='data/artifacts/loso_results.json',
+                      help='Path to LOSO cross-validation results JSON')
+    parser.add_argument('--output', type=str, default='data/artifacts/baseline_comparison.json',
+                      help='Path to output comparison JSON')
+    
     args = parser.parse_args()
-
+    
     try:
-        results = run_null_baseline_analysis(
-            data_path=args.data,
-            rf_model_path=args.model,
+        result = run_null_baseline_analysis(
+            processed_data_path=args.data,
+            loso_results_path=args.loso_results,
             output_path=args.output
         )
-
-        # Print summary
-        print("\n=== Null Baseline Analysis Summary ===")
-        print(f"Global Mean: {results['global_mean']:.4f}")
-        print(f"Null Model MAE: {results['null_model_metrics']['mae']:.4f}")
-        print(f"Null Model R²: {results['null_model_metrics']['r2']:.4f}")
-
-        if 'comparison' in results:
-            print(f"\nComparison with RF Model:")
-            print(f"  RF Model MAE: {results['rf_model_metrics']['mae']:.4f}")
-            print(f"  RF Model R²: {results['rf_model_metrics']['r2']:.4f}")
-            print(f"  MAE Improvement: {results['comparison']['mae_improvement_percent']:.2f}%")
-            print(f"  R² Improvement: {results['comparison']['r2_improvement']:.4f}")
-            print(f"  RF Better: {results['comparison']['rf_better']}")
-
-        print(f"\nResults saved to: {args.output}")
-
+        print(json.dumps(result, indent=2))
     except Exception as e:
-        log_error(logger, f"Null baseline analysis failed: {str(e)}", ErrorCode.INSUFFICIENT_POWER)
+        log_error(f"Null baseline analysis failed: {str(e)}", ErrorCode.INSUFFICIENT_POWER)
         sys.exit(1)
-
 
 if __name__ == '__main__':
     main()

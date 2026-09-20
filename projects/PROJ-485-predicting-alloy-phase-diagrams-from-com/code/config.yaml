@@ -1,0 +1,15 @@
+nist_janaf_url: "https://janaf.nist.gov/api/v1/entries"
+sgte_url: "https://www.sgte.org/api/v2/phase-data"
+local_fallback_path: "data/raw/local_phase_data.csv"
+
+data_schema:
+  required_columns:
+    - temperature
+    - composition
+    - element_a
+    - element_b
+  validation_rules:
+    temperature_min: 0
+    temperature_max: 5000
+    composition_min: 0.0
+    composition_max: 1.0

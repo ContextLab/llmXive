@@ -1,21 +1,13 @@
-# Data directories - exclude all raw, processed, and artifact data
-# Constitution Principle III: Data integrity requires version control of code only
+# Data directories - exclude all generated and raw data
 data/raw/*
-!data/raw/.gitkeep
 data/processed/*
-!data/processed/.gitkeep
 data/artifacts/*
-!data/artifacts/.gitkeep
 
-# Python bytecode and cache
+# Python cache files
 *.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
+__pycache__
 
-# State files - exclude all except project-specific state
-# Constitution Principle V: Project state must be tracked
+# State files - exclude all EXCEPT project-specific state
 state/*.yaml
 !state/PROJ-485/*.yaml
 
@@ -24,25 +16,18 @@ state/*.yaml
 .vscode/
 *.swp
 *.swo
-*~
 
-# OS generated files
+# OS files
 .DS_Store
 Thumbs.db
 
-# Logs and temporary files
-*.log
-*.tmp
-.env
-.venv/
-venv/
-env/
+# Logs (unless needed for debugging)
+data/logs/
 
-# Test coverage and profiling
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
+# Virtual environments
+venv/
+.venv/
+env/
 
 # Build artifacts
 dist/

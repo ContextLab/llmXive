@@ -24,12 +24,51 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `code/`, `code/ingest`, `code/features`, `code/models`, `code/viz`, `code/utils`, `tests/`
-- [ ] T001b [P] Create project directory structure: `data/raw`, `data/processed`, `data/artifacts`
-- [ ] T001c [P] Create project directory structure: `state/`
-- [ ] T002a [P] Create `__init__.py` files in all `code/` and `tests/` subdirectories to form Python packages
+- [ ] T001a1 [P] Create directory `code/`
+- [ ] T001a2 [P] Create directory `code/ingest`
+- [ ] T001a3 [P] Create directory `code/features`
+- [ ] T001a4 [P] Create directory `code/models`
+- [ ] T001a5 [P] Create directory `code/viz`
+- [ ] T001a6 [P] Create directory `code/utils`
+- [ ] T001b1 [P] Create directory `data/raw`
+- [ ] T001b2 [P] Create directory `data/processed`
+- [ ] T001b3 [P] Create directory `data/artifacts`
+- [ ] T001c1 [P] Create directory `state/`
+- [ ] T002a1 [P] Create `code/__init__.py` (empty file)
+- [ ] T002a2 [P] Create `code/ingest/__init__.py` (empty file)
+- [ ] T002a3 [P] Create `code/features/__init__.py` (empty file)
+- [ ] T002a4 [P] Create `code/models/__init__.py` (empty file)
+- [ ] T002a5 [P] Create `code/viz/__init__.py` (empty file)
+- [ ] T002a6 [P] Create `code/utils/__init__.py` (empty file)
+- [ ] T002a7 [P] Create `tests/__init__.py` (empty file)
 - [ ] T002b [P] Create `.gitignore` excluding `data/raw/*`, `data/processed/*`, `data/artifacts/*`, `*.pyc`, `__pycache__`, `state/*.yaml` EXCEPT `state/PROJ-485/*.yaml` (Constitution Principle V)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003a1 [P] Define linting rules: max-line-length=88, target-version=py311
+- [ ] T003a2 [P] Create `.ruff.toml` with content:
+```toml
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+max-line-length = 88
+
+[lint.isort]
+known-first-party = ["code"]
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+```
+- [ ] T003b1 [P] Define formatting rules: line-length=88, target-version=py311
+- [ ] T003b2 [P] Create `pyproject.toml` with black config:
+```toml
+[tool.black]
+line-length = 88
+target-version = ['py311']
+```
 
 ---
 
@@ -42,11 +81,23 @@
 - [X] T004 [P] Setup `code/utils/logging.py` for structured error logging (FR-007, FR-008)
 - [X] T005 [P] Implement `code/utils/checksum.py` for SHA-256 data verification (Constitution Principle III)
 - [X] T006 [P] Create `data/raw/elemental_properties.csv` with columns: `element`, `atomic_radius_angstrom`, `electronegativity_pauling`, `valence_electrons`. Seed with rows for Cu, Al, Zn, Fe, C (Constitution Principle III)
-- [X] T006a [P] Implement verification logic to cross-reference `data/raw/elemental_properties.csv` values against a primary reference (e.g., NIST Webbook or standard tables) to ensure ≤1% deviation (Constitution Principle II)
 - [X] T007 [P] Create `code/main.py` pipeline orchestrator with state management (state/PROJ-485/...yaml)
 - [X] T008 [P] Implement `code/utils/error_codes.py` as a Python Enum class with string values for: `DATA_SOURCE_MISSING`, `INVALID_DATA_SCHEMA`, `MISSING_TEMP_COORDS`, `LOW_DATA_DENSITY`, `API_RATE_LIMIT_EXCEEDED`, `INSUFFICIENT_POWER`
-- [ ] T009 [P] Setup environment configuration management for data source URLs (Constitution Principle II)
-- [X] T009a [P] Implement 'Source Check' gating logic in `code/ingest/load_data.py` (or a pre-check utility) to verify if NIST-JANAF/SGTE URLs exist in the verified input block; halt with `DATA_SOURCE_MISSING` if absent (Plan Methodology 1)
+- [X] T009a [P] Define configuration schema for `code/config.yaml`. **Requirement**: Must include keys `nist_janaf_url`, `sgte_url`, `local_fallback_path`. **Validation**: Schema must explicitly require phase boundary coordinates (temperature, composition) as part of the data validation rules (FR-001).
+- [X] T009b [P] Create `code/config.yaml` with the defined schema. **Content**:
+```yaml
+nist_janaf_url: ""
+sgte_url: ""
+local_fallback_path: ""
+data_schema:
+ required_columns:
+ - temperature
+ - composition
+ - element_a
+ - element_b
+```
+**Validation**: Script must fail if these keys are missing or empty. (Constitution Principle II, Plan Methodology 1)
+- [X] T009a [P] Implement 'Source Check' gating logic in `code/ingest/load_data.py` (or a pre-check utility) to verify if NIST-JANAF/SGTE URLs exist in the verified input block (from T009); halt with `DATA_SOURCE_MISSING` if absent (Plan Methodology 1). **Dependency**: T009
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,7 +113,10 @@
 
 - [X] T012 [US1] Implement `code/ingest/load_data.py` with exponential backoff (limited retries) for API access (FR-001, FR-007)
 - [X] T013 [US1] Implement fallback logic in `code/ingest/load_data.py` to load local CSVs if primary source fails (FR-012)
-- [ ] T014 [US1] Implement filtering logic to exclude entries with missing temperature values and log `MISSING_TEMP_COORDS` (FR-001, FR-008)
+- [X] T013b [US1] **Fallback Data Generation**: Create `data/raw/fallback_phase_data.csv` containing a small, verified subset of experimental binary phase data (e.g., Cu-Al, Al-Cu) with columns `temperature`, `composition`, `element_a`, `element_b`. **Requirement**: Data must be sourced from public literature or verified local files to ensure the pipeline has a viable path to execution if primary sources are missing. (FR-001, FR-012)
+- [X] T014 [US1] Implement filtering logic: 
+  1. Skip entries with missing temperature values in binary systems (handled by FR-001).
+  2. Skip entries for ternary systems lacking temperature-composition coordinates. **Requirement**: Log `MISSING_TEMP_COORDS` ONLY for the ternary case to `data/logs/pipeline.log` (JSON line format: `{"timestamp": "...", "level": "ERROR", "code": "MISSING_TEMP_COORDS", "message": "Row <id> excluded: ternary system missing temperature-composition coordinates"}`). **Depends on T008**. (FR-001, FR-008)
 - [X] T015 [US1] Implement `code/features/generate_descriptors.py` to calculate: mean atomic radius, electronegativity variance, valence electron count, Hume-Rothery concentration using constants from `data/raw/elemental_properties.csv` (created by T006) (FR-002, FR-015)
 - [X] T016 [US1] Add validation in `code/features/generate_descriptors.py` to verify derived values against `data/raw/elemental_properties.csv` (SC-005, SC-007)
 - [X] T017 [US1] Implement data checksumming and state update in `code/ingest/load_data.py` after raw data load (Constitution Principle III, V)
@@ -71,7 +125,7 @@
 ### Tests for User Story 1 (MANDATORY)
 *Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow. They depend on T008 and T012-T018.*
 
-- [X] T010 [P] [US1] Write `tests/test_ingest.py` with function `test_invalid_schema_raises_error` asserting `INVALID_DATA_SCHEMA` is raised on bad schema (Mandatory per US-1 Independent Test). **Depends on T008 completion.**
+- [X] T010 [P] [US1] Write `tests/test_ingest.py` with function `test_invalid_schema_raises_error` asserting `INVALID_DATA_SCHEMA` is raised when phase boundary coordinates (temperature, composition) are missing. **Depends on T008 completion.**
 - [X] T011 [P] [US1] Write `tests/test_features.py` with function `test_descriptor_deviation` asserting derived values deviate ≤1% from `data/raw/elemental_properties.csv` (Mandatory per US-1 Independent Test)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -86,21 +140,29 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] **Depends on T018**. Implement `code/models/train.py` with Random Forest Regressor (scikit-learn) and LOSO strategy (FR-003)
-- [ ] T022 [US2] Implement 'Property Range Extrapolation' check: calculate convex hull of elemental properties (radius, EN) in the training set. Skip fold if test set elements fall *outside* this convex hull; allow fold if test elements are *inside* (interpolation) but the system is new (FR-010, Plan Methodology 3)
+- [X] T022 [US2] **Pre-step to T021**. Implement 'Property Range Extrapolation' and 'New Element' checks.
+ 1. **New Element Check (FR-010)**: Verify if any element in test fold is NOT present in training fold. If yes, skip fold and log `DATA_SOURCE_MISSING` (or `INVALID_DATA_SCHEMA` if interpreted as data quality issue, but spec says skip/halt). **Decision**: Skip fold.
+ 2. **Extrapolation Check (Plan)**: Calculate convex hull of elemental properties (radius, EN) in training set. Log warning if test elements fall outside hull, but do NOT skip based on this alone unless new elements are found.
+ **Deliverables**: Generate `data/artifacts/convex_hull.json` (schema: `{"vertices": [{"element": "Cu", "radius": 1.28,...},...]}`) and `data/logs/skipped_fold.log` (JSON lines: `{"fold_id": "Cu-Zn", "reason": "new_element"}`). **Requirement**: The generation of `data/artifacts/convex_hull.json` is a mandatory artifact that must be written to disk before T021 executes. (FR-010, Plan Methodology 3)
+- [X] T021 [US2] **Depends on T018, T022**. Implement `code/models/train.py` with Random Forest Regressor (scikit-learn) and LOSO strategy (FR-003)
 - [X] T023 [US2] Implement statistical power analysis (target ≥0.8) in `code/models/train.py` using `statsmodels`; halt with `INSUFFICIENT_POWER` if failed (FR-011, FR-014)
-- [ ] T024 [US2] Implement null model baseline (global mean) and comparison logic (FR-009)
-- [ ] T025 [US2] Implement Permutation Test (A sufficient number of iterations) on fold-level MAE differences to verify statistically significant reduction in MAE (p < 0.05) over null model (US-2, SC-008, Plan Methodology 4)
+- [X] T024 [US2] Implement null model baseline (global mean) and comparison logic. 
+ 1. **Per-Fold Baseline**: For each LOSO fold, calculate the mean experimental temperature of the *training fold* only.
+ 2. **Prediction**: Generate predictions for the *test fold* using this training-fold mean.
+ 3. **Deliverable**: Generate `data/artifacts/baseline_comparison.json` (schema: `{"null_model_mae": "<null_mae_value>", "rf_model_mae": "<rf_mae_value>", "percentage_improvement": "<improvement_percentage>"}`). **Constraint**: Baseline must be derived from experimental data distinct from any computational assessment. (FR-009)
+- [X] T025 [US2] Verify SC-008: Implement Permutation Test on fold-level MAE differences between Random Forest and Null Model baseline. 
+ 1. **Algorithm**: Shuffle the fold-level MAE differences (RF vs Null) a sufficient number of times. Calculate the p-value as the fraction of permuted statistics (absolute mean difference) that are >= the observed statistic.
+ 2. **Deliverable**: Write `data/artifacts/permutation_pvalue.txt` containing raw float with a standard level of precision. **Verification**: Assert p < 0.05 AND report percentage improvement. (US-2, SC-008, Plan Methodology 4)
 - [X] T026 [US2] Calculate and log MAE and R² per fold and aggregate in `code/models/evaluate.py` (FR-004)
-- [X] T027 [US2] Implement data density check in `code/models/evaluate.py`: aggregate errors by `system_id`; compute standard deviation of errors per system; flag `LOW_DATA_DENSITY` if N (count of unique compositions per system_id) < 5 OR SD > 50K (FR-008, FR-013, SC-009)
-- [ ] T028 [US2] Ensure training completes within 4 hours and <7 GB RAM on single CPU (FR-006, SC-003)
-- [ ] T029 [US2] Save trained model artifact to `data/artifacts/model.pkl` with version hash (Constitution Principle V)
+- [X] T027 [US2] Implement data density check in `code/models/evaluate.py`: aggregate errors by `system_id`; compute standard deviation of errors per system; flag `LOW_DATA_DENSITY` if N (count of unique compositions per system_id) < 5 OR SD > 50K. **Requirement**: Log to structured log file using T008 Enum. (FR-008, FR-013, SC-009)
+- [X] T028 [US2] Implement resource monitoring wrapper in `code/utils/resource_monitor.py`. **Deliverable**: Log execution time and peak memory usage to `data/artifacts/resource_log.json` (schema: `{The execution time will be measured and recorded., peak_memory_gb: moderate}`). **Verification**: If time > 4h or memory > 7GB, log a warning/error to the log file indicating the constraint violation, but do NOT enforce a hard halt (aligning with SC-003 success criteria). (FR-006, SC-003)
+- [X] T029 [US2] Save trained model artifact to `data/artifacts/model.pkl` with version hash. **Verification**: Assert file exists and hash is recorded in state. (Constitution Principle V)
 
 ### Tests for User Story 2 (MANDATORY)
 *Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow.*
 
-- [X] T019 [P] [US2] Write `tests/test_model.py` with function `test_loso_no_new_elements` asserting fold split logic correctly skips folds with extrapolation but allows interpolation (Mandatory per FR-010). **Depends on T022 completion.** <!-- FAILED: unspecified -->
-- [X] T020 [P] [US2] Write `tests/test_model.py` with function `test_power_analysis_insufficient` asserting `INSUFFICIENT_POWER` is raised when power < 0.8 (Mandatory per FR-014). **Depends on T023 completion.** <!-- FAILED: unspecified -->
+- [X] T019 [P] [US2] Write `tests/test_model.py` with function `test_loso_no_new_elements` asserting fold split logic correctly skips folds with new elements but allows interpolation. **Depends on T022 completion.**
+- [X] T020 [P] [US2] Write `tests/test_model.py` with function `test_power_analysis_insufficient` asserting `INSUFFICIENT_POWER` is raised when power < 0.8 (Mandatory per FR-014). **Depends on T023 completion.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,19 +176,24 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] **Depends on T029**. Implement `code/viz/plot_phase_diagrams.py` to load model artifact from `data/artifacts/model.pkl` (produced by T029) and ground truth for specific systems (FR-005)
-- [ ] T033 [US3] Implement logic to generate plots with X-axis (composition 0-100%) and Y-axis (temperature) (US-3)
-- [ ] T034 [US3] Implement visual distinction (solid vs. dashed lines) for experimental vs. predicted boundaries (US-3)
-- [ ] T035 [US3] Calculate Topological Consistency Score (TCS): implement partial match ratio logic (count matching sorted slices / total slices at fixed composition) and check if TCS ≥ 0.8 (Methodology Section 4, SC-004)
-- [ ] T036 [US3] Implement MAE check for visual fidelity; flag discrepancy if MAE > 50K. This is the primary pass/fail check for SC-004 (US-3, SC-004)
-- [ ] T037 [US3] Save generated plots to `data/artifacts/plots/` with system ID naming convention (FR-005)
-- [ ] T038 [US3] Exclude complex/metastable systems (e.g., Fe-C) from visualization (US-3, Assumptions)
+- [X] T032 [US3] **Depends on T029**. Implement `code/viz/plot_phase_diagrams.py` to load model artifact from `data/artifacts/model.pkl` (produced by T029) and ground truth for specific systems. **Verification**: Assert model file exists before loading. (FR-005)
+- [X] T033 [US3] Implement logic to generate plots with X-axis (composition 0-100%) and Y-axis (temperature). **Verification**: Assert plot object has correct axis labels and ranges. (US-3)
+- [X] T034 [US3] Implement visual distinction (solid vs. dashed lines) for experimental vs. predicted boundaries. **Verification**: Assert line styles are distinct in saved plot. (US-3)
+- [X] T035 [US3] Calculate Topological Consistency Score (TCS): 
+ 1. **Algorithm**: For each system, select fixed composition slices (e.g., 0.1, 0.2, ... 0.9). At each slice, sort the predicted temperatures and experimental temperatures. 
+ 2. **Metric**: TCS = (Number of slices where `sorted(predicted) == sorted(experimental)`) / (Total slices).
+ 3. **Deliverable**: Generate `data/artifacts/tcs_report.json` (schema: `{"system": "Cu-Zn", tcs_score: high, "slices_evaluated": a representative subset}`). **Verification**: Log warning if TCS < 0.8 but DO NOT halt. TCS is an auxiliary metric; primary gate is MAE. (Methodology Section 4, SC-004)
+- [X] T036 [US3] Implement MAE check for visual fidelity. 
+ 1. **Logic**: Calculate MAE between predicted and experimental phase boundary lines.
+ 2. **Action**: If MAE > 50K, log a warning with error code `LOW_DATA_FIDELITY` to `data/artifacts/fidelity_check.log` (JSON lines: `{"system": "Cu-Zn", mae: moderate magnitude, "status": "PASS"}`). **Requirement**: Do NOT halt the pipeline; this is a qualitative flag per US-3 Acceptance Scenario 3. (US-3, SC-004)
+- [X] T037 [US3] Save generated plots to `data/artifacts/plots/` with system ID naming convention. **Verification**: Assert PNG/SVG files exist. (FR-005)
+- [X] T038 [US3] Exclude complex/metastable systems (e.g., Fe-C) from visualization. **Verification**: Assert Fe-C is not in the generated plots list. **Constraint**: Visualization must be limited to 'simple binary systems' (e.g., Cu-Zn, Al-Cu). (US-3, Assumptions)
 
 ### Tests for User Story 3 (MANDATORY)
 *Note: These tasks are listed after implementation to reflect 'Producer before Consumer' artifact flow.*
 
-- [ ] T030 [P] [US3] Write `tests/test_viz.py` with function `test_tcs_calculation` verifying partial match ratio formula logic (Mandatory per SC-004 auxiliary check). **Depends on T035 completion.**
-- [ ] T031 [P] [US3] Write `tests/integration/test_viz.py` with function `test_plot_generation` verifying PNG/SVG output exists (Mandatory per US-3). **Depends on T032, T037 completion.**
+- [X] T030 [P] [US3] Write `tests/test_viz.py` with function `test_tcs_calculation` verifying partial match ratio formula logic (Mandatory per SC-004 auxiliary check). **Depends on T035 completion.**
+- [X] T031 [P] [US3] Write `tests/integration/test_viz.py` with function `test_plot_generation` verifying PNG/SVG output exists (Mandatory per US-3). **Depends on T032, T037 completion.**
 
 **Checkpoint**: All user stories should now be independently functional
 

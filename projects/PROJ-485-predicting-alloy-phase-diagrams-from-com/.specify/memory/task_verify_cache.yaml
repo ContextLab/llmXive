@@ -1,64 +1,27 @@
-T009:
+T002b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No configuration files, scripts, or documentation were presented that set up\
-    \ environment configuration management for the data source URLs, nor any evidence\
-    \ that a \u201CConstitution Principle II\u201D approach was implemented. The required\
-    \ artifact is missing."
-T014:
+  r: No `.gitignore` file was presented, and there is no evidence of its contents
+    matching the required exclusion patterns (`data/raw/*`, `data/processed/*`, `data/artifacts/*`,
+    `*.pyc`, `__pycache__`, `state/*.yaml` except `state/PROJ-485/*.yaml`). The task
+    therefore remains unfulfilled.
+T011:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or test output was provided that shows a filtering step removing
-    rows with missing temperature values nor a log entry `MISSING_TEMP_COORDS`. The
-    required artifact (implementation of the filter and logging) is missing, so the
-    task is not satisfied.
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output showing the calculation of a convex hull\
-    \ of elemental radius and electronegativity, nor any logic that skips LOSO folds\
-    \ when test\u2011set elements lie outside that hull, was provided. Without such\
-    \ artifacts the claimed \u201CProperty Range Extrapolation\u201D check cannot\
-    \ be verified."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no concrete artifact (e.g., a script, function, notebook,\
-    \ or results file) that implements a global\u2011mean null model or the performance\u2011\
-    comparison logic required by FR\u2011009. Without any code, output, or documentation\
-    \ on disk, the task\u2019s deliverable cannot be verified. The next implementer\
-    \ must add the actual implementation and evidence (e.g., source file and evaluation\
-    \ report)."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or result files implementing the permutation test\
-    \ on fold\u2011level MAE differences are present. The required artifact\u2014\
-    a reproducible implementation that runs a sufficient number of permutations, computes\
-    \ the null distribution, and reports a p\u2011value\u202F<\u202F0.05 for the reduction\
-    \ in MAE versus the null model\u2014is missing."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No training script, benchmark logs, or resource usage reports are present to\
-    \ demonstrate that model training finishes within 4\u202Fhours and uses less than\
-    \ 7\u202FGB RAM on a single CPU. The required artifact proving compliance with\
-    \ the performance constraint is missing."
+  h: 6fe84ae9904124dfb9ee943884971dd882ebf7afd03017fc93c2b39ed61998bc
+  r: "The repository contains a `tests/test_features.py` file, but it is truncated,\
+    \ lacks a `test_descriptor_deviation` function, and relies on a temporary CSV\
+    \ rather than the required `data/raw/elemental_properties.csv`. Moreover, the\
+    \ `data/raw/elemental_properties.csv` file itself is missing, so the test cannot\
+    \ verify deviation against the real reference data. The task\u2019s core requirement\
+    \ is therefore not met."
 T032:
-  c: false
-  h: 2c7fa7581bcd78f378ddaadcd90766316792479c55f144c34627983da0b84263
-  r: "The required model artifact `data/artifacts/model.pkl` is absent, and the provided\
-    \ `plot_phase_diagrams.py` does not demonstrably load that specific file or incorporate\
-    \ the FR\u2011005 ground\u2011truth data as stipulated. The script is incomplete\
-    \ (truncated) and lacks evidence of handling the required ground\u2011truth system\
-    \ data."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or generated plot files were provided; the claim lacks any\
-    \ tangible artifact showing logic that creates a composition\u2011vs\u2011temperature\
-    \ plot. The required output (a plot with X\u2011axis 0\u2011100\u202F% composition\
-    \ and Y\u2011axis temperature) is absent, so the task is not satisfied."
+  c: true
+  h: f982a83681b9fdb419b297575192387001ad2acb09d1e776b63178a2466b4592
+  r: "The `code/viz/plot_phase_diagrams.py` file exists, is non\u2011empty, and contains\
+    \ functions that (1) check for the existence of `data/artifacts/model.pkl` before\
+    \ loading it with `pickle`, and (2) load ground\u2011truth data for specific systems\
+    \ (via `load_processed_data` and `filter_by_system`). No placeholders or stubs\
+    \ remain."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -75,3 +38,17 @@ T035:
     \ next implementer must provide the actual implementation (e.g., a Python function/module)\
     \ and evidence (unit test or run output) showing the TCS is computed and the threshold\
     \ condition is evaluated."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No PNG or SVG files were presented in `data/artifacts/plots/`, nor any directory\
+    \ listing or file contents were provided to demonstrate that generated plots were\
+    \ saved with the required system\u2011ID naming convention. Without concrete evidence\
+    \ of such files, the task requirement is not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., code, plot list, or test output) was provided that demonstrates\
+    \ Fe\u2011C was excluded from the generated visualizations, nor any assertion\
+    \ confirming its absence. Consequently the requirement to limit visualizations\
+    \ to simple binary systems is not verified."
