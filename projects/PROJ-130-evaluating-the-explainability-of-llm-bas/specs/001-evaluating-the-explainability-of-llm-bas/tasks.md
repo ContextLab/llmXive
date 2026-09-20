@@ -46,7 +46,7 @@
 - [X] T001 [P] Create `data/.gitkeep` and `data/defects4j/.gitkeep` to initialize directory structure. **Verify**: Run `ls data/` to confirm files exist.
 - [X] T002 [P] Create `code/.gitkeep`, `code/utils/.gitkeep`, and `code/models/.gitkeep` to initialize directory structure. **Verify**: Run `ls code/` to confirm files exist.
 - [X] T003 [P] Create `explanations/.gitkeep`, `state/.gitkeep`, and `tests/.gitkeep` to initialize directory structure. **Verify**: Run `ls explanations/` to confirm files exist.
-- [X] T004 [P] Initialize Python 3.11 project with dependencies in `code/requirements.txt` (transformers==4.36.0, datasets==2.16.0, captum==0.7.0, scikit-learn==1.4.0, pytest==7.4.0, pandas==2.1.0, numpy==1.26.0, evaluate==0.4.1, sentence-transformers==2.2.2, radon==6.0.1)
+- [X] T004 [P] Initialize Python project with dependencies in `code/requirements.txt` (transformers==4.36.0, datasets==2.16.0, captum==0.7.0, scikit-learn==1.4.0, pytest==7.4.0, pandas==2.1.0, numpy==1.26.0, evaluate==0.4.1, sentence-transformers==2.2.2, radon==6.0.1)
 - [X] T005 [P] Create `.ruff.toml` and `pyproject.toml` (with `[tool.black]` section) for linting and formatting. **Verify**: Run `ruff check .` and `black --check .` to confirm configuration is valid.
 
 ---
@@ -66,8 +66,8 @@
 - [X] T012 [P] Implement contract test framework in `tests/contract/` to validate against YAML schemas using pytest. **Verify**: Run `pytest tests/contract/` to confirm framework works.
 - [X] T013 [P] Setup environment configuration management and random seed pinning utility in `code/utils/seeding.py`. Implement `set_global_seed(seed: int)` and `get_config()` functions. **Verify**: Run `pytest tests/unit/test_seeding.py` to confirm functions work.
 - [X] T013b [P] Create `code/utils/config.py` to store research parameters (coherence_threshold=0.6, temperature=0.7, max_tokens=512). **Verify**: Run `python -c "from code.utils.config import config; print(config)"` to confirm file is loadable.
-- [X] T014-IMPL [P] Create `code/utils/logger.py` implementing structured JSON logging for edge cases (invalid patches, timeouts, missing rationales). Define log format and output to `state/error_log.json`. **Verify**: Run `pytest tests/unit/test_logger.py` to confirm log output format.
-- [X] T014-VERIFY [P] Trigger an invalid patch scenario in a test script and verify `state/error_log.json` contains the expected error code and message.
+- [X] T014-IMPL [P] Create `code/utils/logger.py` implementing structured JSON logging for edge cases (invalid patches, timeouts, missing rationales). Define log format and output to `state/error_log.json`. **Action**: Explicitly include `state/error_log.json` in the artifact hash verification scope and the reproducibility script (T039-IMPL, T040) to ensure error states are traceable per Constitution Principle I and III. **Verify**: Run `pytest tests/unit/test_logger.py` to confirm log output format.
+- [X] T014-VERIFY [P] Trigger an invalid patch scenario in a test script using a MOCK invalid patch (not T020) and verify `state/error_log.json` contains the expected error code and message. **Note**: Uses mock data to avoid dependency on T020 in Phase 2.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,7 +77,7 @@
 
 **Goal**: Download Defects4J, generate patches using CodeLlama-7B-Instruct, and determine correctness via test suite execution.
 
-**Independent Test**: Run pipeline on 5 bugs; verify each produces a patch file, a correctness label (pass/fail), and an unsafe flag if applicable.
+**Independent Test**: Run pipeline on bugs; verify each produces a patch file, a correctness label (pass/fail), and an unsafe flag if applicable.
 
 ### Tests for User Story 1
 
@@ -88,11 +88,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T019 [US1] Implement `code/01_download_data.py` to download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip), verify SHA256 checksum against release page, and extract to `data/defects4j/` (FR-001, FR-012). **Invoke**: Call `seeding.set_global_seed()` at start. **Verify**: Check `data/defects4j/` contains expected files and checksum matches.
-- [X] T020 [US1] Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature from `config.py`, max_tokens from `config.py`) using prompt template from `code/prompts/patch_gen.txt` and output diff format patches AND generate rationale text (FR-002, FR-011). **Invoke**: Call `seeding.set_global_seed()` at start. **Output**: Write rationale directly to `explanations/<bug-id>_rationale.txt` and patch to `explanations/<bug-id>_patch.diff`. **Verify**: Check `explanations/<bug-id>_rationale.txt` exists.
+- [X] T019 [US1] Implement `code/01_download_data.py` to download DefectsJ v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip), verify SHA256 checksum against release page, and extract to `data/defects4j/` (FR-001, FR-012). **Action**: Consolidated T023 functionality here. Immediately after verification, record the checksum and metadata to `state/metadata.json` to satisfy Constitution Principle III (Data Hygiene). **Invoke**: Call `seeding.set_global_seed()` at start. **Verify**: Check `data/defects4j/` contains expected files and checksum matches.
+- [X] T020 [US1] Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature from `config.py`, max_tokens from `config.py`) using prompt template from `code/prompts/patch_gen.txt` and output diff format patches AND generate rationale text (FR-002, FR-011). **Action**: Must generate `explanations/<bug-id>_rationale.txt`, `explanations/<bug-id>_patch.diff`, AND `explanations/<bug-id>_metadata.json`. The `metadata.json` MUST include model revision, random seed, prompt text, and processing parameters (Constitution Principle VI). **Invoke**: Call `seeding.set_global_seed()` at start. **Verify**: Check `explanations/<bug-id>_rationale.txt`, `explanations/<bug-id>_patch.diff`, and `explanations/<bug-id>_metadata.json` exist.
 - [X] T021 [US1] Implement `code/03_execute_tests.py` to run DefectsJ test suite with a fixed timeout per bug and record pass/fail/unsafe status (FR-003, FR-010). **Invoke**: Call `seeding.set_global_seed()` at start. **Verify**: Check `state/correctness.json` contains results.
 - [X] T022 [US1] Implement error handling for invalid patches, generation failures, and timeouts; log counts to `state/error_log.json` with specific error codes using `code/utils/logger.py`. **Verify**: Trigger an invalid patch and verify `state/error_log.json` contains count > 0 with correct error code.
-- [X] T023 [US1] Create metadata recorder to save dataset checksums and model revision in `code/model_revision.txt` and `state/metadata.json`
 - [X] T024 [US1] Implement `code/04_compute_complexity.py` to calculate bug complexity (LOC, cyclomatic) using `radon` library and store in `state/complexity_metrics.json` (Producer for T036). **Output**: JSON format `{ "bug_id": { "loc": int, "cyclomatic": int } }`. **Verify**: Check `state/complexity_metrics.json` contains expected keys and structure.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -114,8 +113,8 @@
 
 - [X] T027 [US2] Implement `code/05_extract_attention.py` to extract per-token attention weights from last decoder layer and aggregate to file-level heatmaps (FR-004)
 - [X] T028 [US2] Implement `code/06_compute_saliency.py` to apply Captum's Integrated Gradients on tokenized diffs and compute summed saliency magnitude (FR-005)
-- [X] T029 [US2] Implement `code/07_compute_rationale_coherence.py` to compute internal coherence of generated rationales against code change semantics using `sentence-transformers/all-MiniLM-L6-v2` (cosine similarity). **Input**: Read rationale from `explanations/<bug-id>_rationale.txt` (output of T020) and code change from patch. **Threshold**: Read from `config.py`. **Output**: Record `coherence_score` and flag if >= threshold. **Handle**: If no rationale, record `coherence_score` as null and log reason ('missing_rationale') to `state/error_log.json`. **Verify**: Assert loaded model name is exactly `sentence-transformers/all-MiniLM-L6-v2` and log the revision ID. **Depends on**: T020 (rationale generation).
-- [X] T030 [US2] Save explainability artifacts to `explanations/` with standardized naming (`<bug-id>_attention.png`, `<bug-id>_saliency.npy`, `<bug-id>_metadata.json`). **Action**: Ensure attention and saliency files are saved in final location. **Depends on**: T027, T028.
+- [X] T029 [US2] Implement `code/07_compute_rationale_coherence.py` to compute internal coherence of generated rationales against code change semantics using `sentence-transformers/all-MiniLM-L6-v2` (cosine similarity). **Input**: Read rationale from `explanations/<bug-id>_rationale.txt` (output of T020) and code change from patch. **Action**: Must generate `explanations/<bug-id>_metadata.json` containing `coherence_score`, model revision, random seed, prompt text, and processing parameters. This file is the definitive artifact for the coherence score (Constitution Principle VI). **Threshold**: Read from `config.py`. **Output**: Record `coherence_score` and flag if >= threshold. **Handle**: If no rationale, record `coherence_score` as null and log reason ('missing_rationale') to `state/error_log.json`. **Verify**: Assert loaded model name is exactly `sentence-transformers/all-MiniLM-L6-v2` and log the revision ID. **Depends on**: T020 (rationale generation).
+- [X] T030 [US2] Verify all explainability artifacts exist in `explanations/` with standardized naming (`<bug-id>_attention.png`, `<bug-id>_saliency.npy`, `<bug-id>_rationale.txt`, `<bug-id>_metadata.json`). **Action**: Ensure attention, saliency, and coherence metadata files are present. **Note**: T029 and T020 write these files directly; this task verifies existence. **Depends on**: T027, T028, T029.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,9 +148,8 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [X] T038 [P] Documentation updates: Finalize `quickstart.md` and `research.md` with methodology and limitations
-- [X] T039-IMPL [P] Create `run_pipeline.sh` script with `--verify-hashes` flag to re-run pipeline on fresh runner and verify artifact hashes match `state/` records (FR-011, SC-008). **Verify**: Run `./run_pipeline.sh --verify-hashes` and confirm exit code 0.
-- [X] T039 [P] Documentation updates: Finalize `quickstart.md` and `research.md` with methodology and limitations
-- [X] T040 [P] Run full reproducibility check: Re-run pipeline on fresh runner and verify artifact hashes match. **Invoke**: `./run_pipeline.sh --verify-hashes`. **Verify**: Run `./run_pipeline.sh --verify-hashes` and confirm hash match report.
+- [X] T039-IMPL [P] Create `run_pipeline.sh` script with `--verify-hashes` flag to re-run pipeline on fresh runner and verify artifact hashes match `state/` records (FR-011, SC-008). **Action**: Script MUST include `state/error_log.json` in the hash verification scope. **Verify**: Run `./run_pipeline.sh --verify-hashes` and confirm exit code 0.
+- [X] T040 [P] Run full reproducibility check: Re-run pipeline on fresh runner and verify artifact hashes match. **Action**: Explicitly include `state/error_log.json` in the hash verification scope. **Depends on**: T039-IMPL. **Invoke**: `./run_pipeline.sh --verify-hashes`. **Verify**: Run `./run_pipeline.sh --verify-hashes` and confirm hash match report.
 - [X] T041 [P] Run quickstart.md validation to ensure all steps execute without error. **Verify**: Run `bash -c "$(cat quickstart.md | grep -v '^#')"` and confirm exit code 0.
 - [X] T042 Document power analysis limitations and sample size constraints in `research.md` under section "Limitations"
 
@@ -166,7 +164,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Final Phase)**: Depends on all User Story completions AND T039-IMPL completion. T040 explicitly depends on T039-IMPL.
 
 ### User Story Dependencies
 
@@ -189,7 +187,7 @@
 - **US2 and US3 CANNOT start in parallel with US1**. US2 is strictly blocked by US1 completion (T020).
 - Once Foundational phase completes AND US1 is complete:
  - US2 (T027-T030) can start
- - US3 (T033-T037) can start (if data is pre-generated, otherwise waits for US2)
+ - US3 (T033-T035) can start (if data is pre-generated, otherwise waits for US2). **Note**: T036 is strictly blocked by T024 (US1) completion.
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (once dependencies are met)
 
@@ -249,12 +247,13 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: CodeLlama-7B-Instruct MUST run in 16-bit precision on CPU. Do NOT use `load_in_8bit` or `bitsandbytes` as they require CUDA.
+- **Critical Constraint**: A medium-scale code-focused language model MUST run in 16-bit precision on CPU.. Do NOT use `load_in_8bit` or `bitsandbytes` as they require CUDA.
 - **Metric Correction**: FR-006 (BLEU/ROUGE) is overridden by the Plan's "Critical Limitation Note". Task T029 implements "internal coherence" via semantic similarity (FR-006-REV) after T006b-IMPL verification.
-- **Data Flow**: T020 writes rationale directly to `explanations/`; T029 reads from `explanations/`. T030 is removed.
+- **Data Flow**: T020 writes rationale directly to `explanations/`; T029 reads from `explanations/`. T030 verifies existence.
 - **Configuration**: Research parameters (threshold, temperature) are defined in `code/utils/config.py` (T013b) and read by T020, T029, T033.
 - **Seeding**: `seeding.set_global_seed()` is invoked in T019, T020, T021.
 - **Complexity**: T036 depends on T024 output structure.
 - **Statistics**: T035 calculates Bonferroni divisor dynamically.
-- **Reproducibility**: T039-IMPL creates `run_pipeline.sh` for hash verification.
-- **Logging**: T014-IMPL creates `code/utils/logger.py` for structured logging.
+- **Reproducibility**: T039-IMPL creates `run_pipeline.sh` for hash verification. T040 depends on T039-IMPL. **Both explicitly include `state/error_log.json` in hash verification.**
+- **Logging**: T014-IMPL creates `code/utils/logger.py` for structured logging. `state/error_log.json` is included in hash verification.
+- **Metadata**: T020 and T029 explicitly generate `explanations/<bug-id>_metadata.json` to satisfy Constitution Principle VI. T023 removed (merged into T019).

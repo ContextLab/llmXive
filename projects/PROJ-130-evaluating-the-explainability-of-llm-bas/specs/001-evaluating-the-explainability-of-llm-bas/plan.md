@@ -114,7 +114,7 @@ No violations identified. All complexity is justified by research requirements.
 
 ### Phase 3: Test Execution Pipeline (Week 2)
 - **FR-003**: Execute patches against Defects4J test suite
-- **FR-010**: Enforce 60-second timeout per test run
+- **FR-010**: Enforce -second timeout per test run
 - Record binary pass/fail outcome plus unsafe flag for new failures
 
 ### Phase 4: Explainability Score Extraction (Week 3)
