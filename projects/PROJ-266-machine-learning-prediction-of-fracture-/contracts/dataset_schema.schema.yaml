@@ -1,91 +1,32 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Fracture Toughness Microstructure Dataset Schema
-description: >-
-  Schema for the raw and processed microstructure images dataset.
-  Defines the required fields for image metadata and associated physical properties.
-type: object
-required:
-  - images
-  - metadata
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+type: "object"
 properties:
-  images:
-    type: object
-    description: Metadata regarding the image files themselves.
-    required:
-      - format
-      - count
-      - directory
-    properties:
-      format:
-        type: string
-        description: File format of the images (e.g., 'png', 'tiff').
-        enum:
-          - png
-          - tiff
-          - jpg
-      count:
-        type: integer
-        minimum: 1
-        description: Total number of images in the dataset.
-      directory:
-        type: string
-        description: Relative path to the directory containing images.
-      resolution:
-        type: object
-        description: Resolution parameters of the imaging process.
-        properties:
-          width:
-            type: integer
-            minimum: 1
-          height:
-            type: integer
-            minimum: 1
-          unit:
-            type: string
-            description: Unit of measurement (e.g., 'pixels', 'micrometers').
-            default: pixels
-  metadata:
-    type: object
-    description: Schema for the row-level metadata associated with images.
-    required:
-      - image_id
-      - alloy_family
-      - k_ic
-      - grain_size
-    properties:
-      image_id:
-        type: string
-        description: Unique identifier for the image, matching the filename.
-        pattern: '^[a-zA-Z0-9_\-\.]+$'
-      alloy_family:
-        type: string
-        description: The alloy family classification.
-        enum:
-          - steel
-          - aluminum
-          - titanium
-          - nickel
-          - other
-      k_ic:
-        type: number
-        description: Fracture toughness value in MPa√m.
-        minimum: 0
-      grain_size:
-        type: number
-        description: Average grain size in micrometers.
-        minimum: 0
-      processing_condition:
-        type: string
-        description: Heat treatment or processing condition.
-        default: as-cast
-      source:
-        type: string
-        description: Source of the data (e.g., 'synthetic', 'experimental').
-        enum:
-          - synthetic
-          - experimental
-      checksum:
-        type: string
-        description: SHA256 checksum of the image file for integrity verification.
-        pattern: '^[a-f0-9]{64}$'
-additionalProperties: false
+  image_id:
+    type: "string"
+  alloy_family:
+    type: "string"
+    enum: ["steel", "Al", "Ti"]
+  k_ic:
+    type: "number"
+  num_grains:
+    type: "integer"
+  avg_grain_size_px:
+    type: "number"
+  precipitate_density:
+    type: "number"
+  magnification_calibration:
+    type: "number"
+  section_thickness:
+    type: "number"
+  surface_prep_protocol:
+    type: "string"
+  seed:
+    type: "integer"
+required:
+  - image_id
+  - alloy_family
+  - k_ic
+  - num_grains
+  - avg_grain_size_px
+  - precipitate_density

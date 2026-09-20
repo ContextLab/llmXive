@@ -4742,3 +4742,1375 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T15:29:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images with
+    physics-informed K_IC values
+  claim_id: c_7b0ac20f
+  context: "Phase 2, T005: Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:16:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding spec soft target of 500
+    images
+  claim_id: c_2b9e977a
+  context: "Phase 2, T005d: Document in research.md that the generated dataset targets\
+    \ \u2265 2,000 images as an implementation choice for statistical power, exceeding\
+    \ the spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:16:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 500 images soft target
+  claim_id: c_0f0234ad
+  context: "Phase 2, T005d: Document in research.md that the generated dataset targets\
+    \ \u2265 2,000 images as an implementation choice for statistical power, exceeding\
+    \ the spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:16:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: confidence intervals computed using bootstrap with 1000 iterations
+  claim_id: c_edf42fed
+  context: 'Phase O, T054: Implement statistical confidence interval calculation for
+    extracted texture features (GLCM) in code/data/features.py. The script must compute
+    confidence intervals for mean texture energy and contrast across the batch using
+    bootstrap (1000 iterations) for methodological validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must compute confidence intervals for mean texture energy and
+    contrast across the batch using bootstrap (1000 iterations) for methodological
+    validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:16:54Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator cannot produce features smaller than 2 pixels
+  claim_id: c_3512d181
+  context: 'Phase O, T055: Add a validation step in code/utils/config.py to enforce
+    a minimum feature size threshold relative to the 128x128 image dimensions, raising
+    an error if synthetic generation parameters would create features smaller than
+    2 pixels (Nyquist limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a unit test in tests/unit/test_resolution_limits.py that verifies
+    the synthetic generator cannot produce features smaller than the defined min_feature_size_pixels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:16:55Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 2
+  canonical: generated dataset targets 2000 images exceeding spec soft target of 500
+    images
+  claim_id: c_1086bc46
+  context: "T005d [S] Document in research.md that the generated dataset targets \u2265\
+    \ 2,000 images as an implementation choice for statistical power, exceeding the\
+    \ spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:17:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: confidence intervals computed using 1000 bootstrap iterations
+  claim_id: c_680c03ca
+  context: T054 [P] [Review] Implement statistical confidence interval calculation
+    for extracted texture features (GLCM) in code/data/features.py. The script must
+    compute confidence intervals for mean texture energy and contrast across the batch
+    using bootstrap (1000 iterations) for methodological validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must compute confidence intervals for mean texture energy and
+    contrast across the batch using bootstrap (1000 iterations) for methodological
+    validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:17:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Dataset contains at least 2000 images across 3 alloy families
+  claim_id: c_ffb89e38
+  context: "The generated dataset contains \u2265 2,000 images distributed across\
+    \ three alloy families (Steel, Aluminum, Titanium). The split ratio is 70% training,\
+    \ 15% validation, and 15% testing, stratified by alloy family to ensure balanced\
+    \ representation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_2000_images_across_3_alloy_familie
+  kind: magnitude
+  raw_text: "The generated dataset contains \u2265 2,000 images distributed across\
+    \ three alloy families (Steel, Aluminum, Titanium)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:18:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Dataset split ratio is 70% training, 15% validation, 15% testing
+  claim_id: c_383a52be
+  context: "The generated dataset contains \u2265 2,000 images distributed across\
+    \ three alloy families (Steel, Aluminum, Titanium). The split ratio is 70% training,\
+    \ 15% validation, and 15% testing, stratified by alloy family to ensure balanced\
+    \ representation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The split ratio is 70% training, 15% validation, and 15% testing, stratified
+    by alloy family to ensure balanced representation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:18:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Synthetic generator calibration is 0.5 pixels per micron
+  claim_id: c_483baf74
+  context: "All microstructure images are standardized to a resolution of 128\xD7\
+    128 pixels. The synthetic generator assumes a calibration of approximately 0.5\
+    \ pixels per micron, meaning the field of view represents a 256\xB5m \xD7 256\xB5\
+    m area."
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The synthetic generator assumes a calibration of approximately 0.5 pixels
+    per micron.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:18:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Field of view represents 256 micrometers by 256 micrometers area
+  claim_id: c_292c1e71
+  context: "The synthetic generator assumes a calibration of approximately 0.5 pixels\
+    \ per micron, meaning the field of view represents a 256\xB5m \xD7 256\xB5m area."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The field of view represents a 256\xB5m \xD7 256\xB5m area."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:18:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Minimum feature size threshold is 2 pixels or 1 micrometer
+  claim_id: c_b3f765dc
+  context: "According to the Nyquist-Shannon sampling theorem, the minimum resolvable\
+    \ feature size is two pixels. In this project, the synthetic generator enforces\
+    \ a minimum feature size threshold of 2 pixels (1\xB5m) for grain boundaries and\
+    \ precipitates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "In this project, the synthetic generator enforces a minimum feature size\
+    \ threshold of 2 pixels (1\xB5m) for grain boundaries and precipitates."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:19:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Mean IoU score for feature attribution stability is greater than 0.85
+  claim_id: c_ef6c6d58
+  context: Grad-CAM visualizations reveal that the CNN focuses on grain boundary networks
+    and high-contrast precipitate clusters when making predictions, aligning with
+    physical expectations of fracture initiation sites. Stability analysis across
+    augmented views (rotations, noise) yields a mean Intersection-over-Union (IoU)
+    score of > 0.85, indicating robust feature attribution.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_IoU_score_for_feature_attribution_stability_is_greater
+  kind: magnitude
+  raw_text: Stability analysis across augmented views (rotations, noise) yields a
+    mean Intersection-over-Union (IoU) score of > 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:20:10Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images with K_IC values
+  claim_id: c_bde42ee9
+  context: "Phase 2: Foundational (Blocking Prerequisites) - T005: Implement synthetic\
+    \ microstructure generator logic in code/data/synthetic_gen.py to produce \u2265\
+    \ 2,000 images with physics-informed K_IC values using the formula defined in\
+    \ research.md Section 3.2 (T009a)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:20:23Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding soft target of 500
+  claim_id: c_064acba3
+  context: "Phase 2: Foundational (Blocking Prerequisites) - T005d: Document in research.md\
+    \ that the generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:20:24Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap uses 1000 iterations for confidence intervals
+  claim_id: c_6e9fc236
+  context: 'Phase O: Research-Stage Review Remediation - T054: Implement statistical
+    confidence interval calculation for extracted texture features (GLCM) in code/data/features.py.
+    The script must compute confidence intervals for mean texture energy and contrast
+    across the batch using bootstrap (1000 iterations) for methodological validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical confidence interval calculation for extracted texture
+    features uses bootstrap with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:20:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator minimum feature size is 2 pixels
+  claim_id: c_1f195d64
+  context: 'Phase O: Research-Stage Review Remediation - T055: Add a validation step
+    in code/utils/config.py to enforce a minimum feature size threshold relative to
+    the 128x128 image dimensions, raising an error if synthetic generation parameters
+    would create features smaller than 2 pixels (Nyquist limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic generator cannot produce features smaller than 2 pixels
+    due to the Nyquist limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:21:03Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images
+  claim_id: c_717605b6
+  context: "Phase 2, Task T005: Implement synthetic microstructure generator logic\
+    \ in code/data/synthetic_gen.py to produce \u2265 2,000 images with physics-informed\
+    \ K_IC values using the formula defined in research.md Section 3.2 (T009a)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:21:57Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: dataset targets 2000 images exceeding soft target of 500
+  claim_id: c_29e61726
+  context: "Phase 2, Task T005d: Document in research.md that the generated dataset\
+    \ targets \u2265 2,000 images as an implementation choice for statistical power,\
+    \ exceeding the spec's soft target of \u2265 500 images (justified by plan compute\
+    \ feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:21:58Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec soft target 500 images
+  claim_id: c_34cf7f1f
+  context: "Phase 2, Task T005d: Document in research.md that the generated dataset\
+    \ targets \u2265 2,000 images as an implementation choice for statistical power,\
+    \ exceeding the spec's soft target of \u2265 500 images (justified by plan compute\
+    \ feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The soft target for the dataset is \u2265 500 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:21:58Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation includes 10 degree rotations 0.01 sigma noise 10 percent
+    brightness
+  claim_id: c_ab6c1dea
+  context: "Phase 5, Task T043: Implement augmentation pipeline for stability testing\
+    \ (code/explain/stability.py) \u2013 rotations \xB110\xB0, Gaussian noise \u03C3\
+    =0.01, brightness jitter \xB110%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing includes rotations \xB1\
+    10\xB0, Gaussian noise \u03C3=0.01, and brightness jitter \xB110%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:21:59Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap uses 1000 iterations for confidence intervals
+  claim_id: c_e9bd3923
+  context: 'Phase O, Task T054: The script must compute confidence intervals for mean
+    texture energy and contrast across the batch using bootstrap (1000 iterations)
+    for methodological validation.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap method for statistical confidence interval calculation uses
+    1000 iterations
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:22:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: minimum feature size 2 pixels nyquist limit
+  claim_id: c_ab90122d
+  context: 'Phase O, Task T055: Add a validation step in code/utils/config.py to enforce
+    a minimum feature size threshold relative to the 128x128 image dimensions, raising
+    an error if synthetic generation parameters would create features smaller than
+    2 pixels (Nyquist limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic generator cannot produce features smaller than 2 pixels
+    (Nyquist limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:22:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: alloy families steel Al Ti
+  claim_id: c_b511da21
+  context: 'Phase 2, Task T006a: Create base data contracts in contracts/: dataset_schema.schema.yaml
+    and evaluation_schema.schema.yaml. Verification: ... assert s1[''properties''][''alloy_family''][''enum'']
+    == [''steel'', ''Al'', ''Ti'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alloy_families_steel_Al_Ti
+  kind: entity_fact
+  raw_text: The dataset schema defines alloy families as steel, Al, and Ti
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:22:55Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: model types cnn linear random_forest
+  claim_id: c_0f18780a
+  context: 'Phase 2, Task T006a: Create base data contracts in contracts/: dataset_schema.schema.yaml
+    and evaluation_schema.schema.yaml. Verification: ... assert s2[''properties''][''model_type''][''enum'']
+    == [''cnn'', ''linear'', ''random_forest'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_types_cnn_linear_random_forest
+  kind: entity_fact
+  raw_text: The evaluation schema defines model types as cnn, linear, and random_forest
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:23:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images with K_IC values
+  claim_id: c_2df20b9e
+  context: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_K_IC
+  kind: magnitude
+  raw_text: "The synthetic microstructure generator logic produces \u2265 2,000 images\
+    \ with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:24:01Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding 500 image soft target
+  claim_id: c_f98d076c
+  context: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images, exceeding the spec's\
+    \ soft target of \u2265 500 images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:24:02Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: confidence interval calculation uses 1000 bootstrap iterations
+  claim_id: c_4ec3ee9b
+  context: The script must compute confidence intervals for mean texture energy and
+    contrast across the batch using bootstrap (1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    iterations) for methodological validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence interval calculation for extracted texture features uses
+    1000 bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:24:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator cannot produce features smaller than 2 pixels
+  claim_id: c_e2edb5ff
+  context: Add a validation step in code/utils/config.py to enforce a minimum feature
+    size threshold relative to the 128x128 image dimensions, raising an error if synthetic
+    generation parameters would create features smaller than 2 pixels (Nyquist limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic generator cannot produce features smaller than 2 pixels
+    due to the Nyquist limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:24:17Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images with physics-informed
+    K_IC values
+  claim_id: c_8f2d3e27
+  context: "T005 [S] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_physi
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:24:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding 500 image soft target
+  claim_id: c_c515347f
+  context: "T005d [S] Document in research.md that the generated dataset targets \u2265\
+    \ 2,000 images as an implementation choice for statistical power, exceeding the\
+    \ spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:24:49Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap method uses 1000 iterations for confidence interval calculation
+  claim_id: c_b22e8893
+  context: T054 [P] [Review] Implement statistical confidence interval calculation
+    for extracted texture features (GLCM) in code/data/features.py. The script must
+    compute confidence intervals for mean texture energy and contrast across the batch
+    using bootstrap (1000 (math/0504516, https://arxiv.org/abs/math/0504516) iterations)
+    for methodological validation.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap method for confidence interval calculation uses 1000 iterations.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:25:07Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator cannot produce features smaller than 2 pixels
+  claim_id: c_f674b525
+  context: T055 [S] [Review] Add a validation step in code/utils/config.py to enforce
+    a minimum feature size threshold relative to the 128x128 image dimensions, raising
+    an error if synthetic generation parameters would create features smaller than
+    2 pixels (Nyquist limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic generator cannot produce features smaller than 2 pixels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:25:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: stability testing augmentation includes rotations 10 degrees Gaussian
+    noise 0.01 brightness jitter 10 percent
+  claim_id: c_9d019e81
+  context: "T043 [P] [US3] Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:25:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 2
+  canonical: synthetic microstructure generator produces at least 2000 images
+  claim_id: c_9cb6edd3
+  context: "T005 [S] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:25:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding soft target of 500 images
+  claim_id: c_ad73c1e3
+  context: "T005d [S] Document in research.md that the generated dataset targets \u2265\
+    \ 2,000 images as an implementation choice for statistical power, exceeding the\
+    \ spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:25:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test compares MAE differences between CNN and baselines across
+    multiple seeds
+  claim_id: c_a9b41b93
+  context: T025a [S] [US2] Implement Wilcoxon signed-rank test function wilcoxon_test
+    in code/train/stats.py, integrate into evaluate.py, and output results to results/metrics.json.
+    The test compares the distribution of MAE differences between the CNN and each
+    baseline model across multiple seeds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_compares_MAE_differences_between_CNN_and_basel
+  kind: entity_fact
+  raw_text: The test compares the distribution of MAE differences between the CNN
+    and each baseline model across multiple seeds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:26:13Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: confidence intervals computed using bootstrap with 1000 iterations
+  claim_id: c_a43ea4d2
+  context: T054 [P] [Review] Implement statistical confidence interval calculation
+    for extracted texture features (GLCM) in code/data/features.py. The script must
+    compute confidence intervals for mean texture energy and contrast across the batch
+    using bootstrap (1000 (math/0504516, https://arxiv.org/abs/math/0504516) iterations)
+    for methodological validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must compute confidence intervals for mean texture energy and
+    contrast across the batch using bootstrap (1000 iterations) for methodological
+    validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:26:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: effective resolution 0.65 pixels per micron at 200 microns field of view
+  claim_id: c_22ddb544
+  context: The synthetic generator and subsequent preprocessing pipeline standardize
+    all images to 128x128 pixels. Assuming a representative field of view of 200 microns,
+    the effective resolution is approximately 0.65 pixels per micron.
+  evidence:
+    asserted: '200.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Assuming a representative field of view of 200 microns, the effective
+    resolution is approximately 0.65 pixels per micron.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:26:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: pixel spacing 1.56 micrometers per pixel
+  claim_id: c_bcc21253
+  context: "According to the Nyquist-Shannon sampling theorem, the minimum resolvable\
+    \ feature size is twice the pixel spacing. Pixel Spacing: \u2248 1.56 \xB5m/pixel."
+  evidence:
+    asserted: '1.56'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Pixel Spacing is approximately 1.56 \xB5m/pixel."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:26:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: minimum resolvable feature 3.12 micrometers
+  claim_id: c_415e758a
+  context: "According to the Nyquist-Shannon sampling theorem, the minimum resolvable\
+    \ feature size is twice the pixel spacing. Minimum Resolvable Feature: \u2248\
+    \ 3.12 \xB5m."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Minimum Resolvable Feature is approximately 3.12 \xB5m."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:27:37Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: 2000 synthetic microstructure images generated
+  claim_id: c_2e586931
+  context: "Data Ingestion: Successfully generated \u2265 2,000 synthetic microstructure\
+    \ images with corresponding K_IC values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Successfully generated \u2265 2,000 synthetic microstructure images with\
+    \ corresponding K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:27:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations for confidence intervals
+  claim_id: c_da2e3d0c
+  context: Confidence intervals for texture features are calculated using bootstrap
+    resampling (1000 iterations) to quantify the stability of the extracted descriptors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals for texture features are calculated using bootstrap
+    resampling (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:27:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images with
+    physics-informed K_IC values
+  claim_id: c_9e284aeb
+  context: "Task T005: Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2 (T009a)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:28:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets at least 2000 images exceeding soft target
+    of 500 images
+  claim_id: c_58a44899
+  context: "Task T005d: Document in research.md that the generated dataset targets\
+    \ \u2265 2,000 images as an implementation choice for statistical power, exceeding\
+    \ the spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generated_dataset_targets_at_least_2000_images_exceeding_sof
+  kind: magnitude
+  raw_text: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:28:54Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test compares MAE differences between CNN and baselines
+    across multiple seeds
+  claim_id: c_30d8da13
+  context: 'Task T025a: Implement Wilcoxon signed-rank test function wilcoxon_test
+    in code/train/stats.py, integrate into evaluate.py, and output results to results/metrics.json.
+    The test compares the distribution of MAE differences between the CNN and each
+    baseline model across multiple seeds.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Wilcoxon
+      source_id: Q21508440
+      url: https://www.wikidata.org/wiki/Q21508440
+      value: Wilcoxon
+    filled: true
+  kind: entity_fact
+  raw_text: The test compares the distribution of MAE differences between the CNN
+    and each baseline model across multiple seeds using Wilcoxon signed-rank test
+  resolved_value: Wilcoxon
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:29:07Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: IoU calculated between Grad-CAM heatmaps of augmented views
+  claim_id: c_219bdfe8
+  context: 'Task T044: Calculate IoU between Grad-CAM heatmaps of augmented views.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/IoU_calculated_between_Grad-CAM_heatmaps_of_augmented_views
+  kind: entity_fact
+  raw_text: Calculate IoU between Grad-CAM heatmaps of augmented views
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:29:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: confidence intervals for mean texture energy and contrast computed using
+    1000 bootstrap iterations
+  claim_id: c_5717ef21
+  context: 'Task T054: Implement statistical confidence interval calculation for extracted
+    texture features (GLCM) in code/data/features.py. The script must compute confidence
+    intervals for mean texture energy and contrast across the batch using bootstrap
+    (1000 (math/0504516, https://arxiv.org/abs/math/0504516) iterations) for methodological
+    validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must compute confidence intervals for mean texture energy and
+    contrast across the batch using bootstrap (1000 iterations) for methodological
+    validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:29:29Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: grain size coefficient alpha set to -0.5 MPa sqrt(m) per micron
+  claim_id: c_2bd1f1b8
+  context: Parameter derivation for the synthetic K_IC formula defines alpha as -0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'alpha: -0.5 MPa$\sqrt{m}/\mu m$ (reflecting the trade-off where larger
+    grains reduce toughness in this specific synthetic regime).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:31:54Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: precipitate density coefficient beta set to 0.02 MPa sqrt(m) mm squared
+  claim_id: c_b3025df2
+  context: Parameter derivation for the synthetic K_IC formula defines beta as 0.02.
+  evidence:
+    asserted: '0.02'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'beta: 0.02 MPa$\sqrt{m} \cdot mm^2$ (positive contribution from fine,
+    coherent precipitates).'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:31:55Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Gaussian noise sigma set to 2.0 MPa sqrt(m)
+  claim_id: c_82bce71c
+  context: Parameter derivation for the synthetic K_IC formula defines the noise sigma
+    as 2.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'sigma (noise): 2.0 MPa$\sqrt{m}$ to ensure realistic variance.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:33:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: pixel density is 2.05 pixels per micron
+  claim_id: c_a86602f2
+  context: The resolution of 1024x1024 pixels over 500 um corresponds to a specific
+    pixel density.
+  evidence:
+    asserted: '2.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: This corresponds to a pixel density of 2.05 pixels per micron.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:33:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: minimum resolvable feature size is approximately 1 micron
+  claim_id: c_d2148669
+  context: Section 2.3 states the minimum resolvable feature size based on the Nyquist
+    limit.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The minimum resolvable feature size is determined by the Nyquist limit,
+    effectively 2 pixels, or approximately 1 $\mu m$.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:33:35Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: augmentation pipeline uses 10 degree rotation 0.01 Gaussian noise and
+    10 percent brightness jitter
+  claim_id: c_23d3b6cc
+  context: "T043 [P] Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing with rotations\
+    \ \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB110%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:33:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces 2000 images
+  claim_id: c_f72764e3
+  context: "T005 [S] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2 (T009a)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:33:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding spec target of 500
+  claim_id: c_faa9a0fd
+  context: "T005d [S] Document in research.md that the generated dataset targets \u2265\
+    \ 2,000 images as an implementation choice for statistical power, exceeding the\
+    \ spec's soft target of \u2265 500 images (justified by plan compute feasibility)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Document in research.md that the generated dataset targets \u2265 2,000\
+    \ images as an implementation choice for statistical power, exceeding the spec's\
+    \ soft target of \u2265 500 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:33:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap confidence intervals use 1000 iterations
+  claim_id: c_a720c22c
+  context: T054 [P] [Review] Implement statistical confidence interval calculation
+    for extracted texture features (GLCM) in code/data/features.py. The script must
+    compute confidence intervals for mean texture energy and contrast across the batch
+    using bootstrap (1000 (math/0504516, https://arxiv.org/abs/math/0504516) iterations)
+    for methodological validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must compute confidence intervals for mean texture energy and
+    contrast across the batch using bootstrap (1000 iterations)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:34:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic dataset targets 2000 images
+  claim_id: c_9161ee11
+  context: "Task T005d requires documenting in research.md that the generated dataset\
+    \ targets \u2265 2,000 images... justified by plan compute feasibility."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:34:31Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap confidence intervals use 1000 iterations
+  claim_id: c_ee7280c6
+  context: Task T054 requires implementing statistical confidence interval calculation...
+    using bootstrap (1000 (math/0504516, https://arxiv.org/abs/math/0504516) iterations)
+    for methodological validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence intervals for mean texture energy and contrast are computed
+    using bootstrap with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:34:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: dataset generation targets at least 2000 images exceeding soft target
+    of 500
+  claim_id: c_a3313e54
+  context: "The dataset generation targets \u2265 2,000 images, exceeding the soft\
+    \ target of 500 to ensure statistical power for training deep learning models.\
+    \ The generated dataset includes balanced representation of Steel, Aluminum, and\
+    \ Titanium alloy families."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_generation_targets_at_least_2000_images_exceeding_so
+  kind: magnitude
+  raw_text: "The dataset generation targets \u2265 2,000 images, exceeding the soft\
+    \ target of 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:36:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: generated dataset includes balanced representation of Steel Aluminum
+    and Titanium alloy families
+  claim_id: c_e1011fa6
+  context: "The dataset generation targets \u2265 2,000 images, exceeding the soft\
+    \ target of 500 to ensure statistical power for training deep learning models.\
+    \ The generated dataset includes balanced representation of Steel, Aluminum, and\
+    \ Titanium alloy families."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generated_dataset_includes_balanced_representation_of_Steel
+  kind: entity_fact
+  raw_text: The generated dataset includes balanced representation of Steel, Aluminum,
+    and Titanium alloy families.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:07Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: total images 2000
+  claim_id: c_1cbdcafe
+  context: "### 4.1 Dataset Statistics\n- Total Images: 2,000\n- Alloy Families: Steel,\
+    \ Al, Ti\n- K_IC Range: 20 - 200 MPa\u221Am"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Images: 2,000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: alloy families Steel Al Ti
+  claim_id: c_b1c3ecb7
+  context: "### 4.1 Dataset Statistics\n- Total Images: 2,000\n- Alloy Families: Steel,\
+    \ Al, Ti\n- K_IC Range: 20 - 200 MPa\u221Am"
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: steel
+      source_id: Q11427
+      url: https://www.wikidata.org/wiki/Q11427
+      value: steel
+    filled: true
+  kind: entity_fact
+  raw_text: 'Alloy Families: Steel, Al, Ti'
+  resolved_value: steel
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:37:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: K_IC range 20 to 200 MPa sqrt m
+  claim_id: c_52e4501a
+  context: "### 4.1 Dataset Statistics\n- Total Images: 2,000\n- Alloy Families: Steel,\
+    \ Al, Ti\n- K_IC Range: 20 - 200 MPa\u221Am"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "K_IC Range: 20 - 200 MPa\u221Am"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:38:04Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: bootstrap method uses 1000 iterations for confidence intervals
+  claim_id: c_bdbc72ab
+  context: 'Task T054: The script must compute confidence intervals for mean texture
+    energy and contrast across the batch using bootstrap (1000 (math/0504516, https://arxiv.org/abs/math/0504516)
+    iterations) for methodological validation.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap method for confidence interval calculation uses 1000 iterations.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T20:38:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images with physics-informed K_IC values
+  claim_id: c_827e18d1
+  context: "Task T005: Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values using the formula\
+    \ defined in research.md Section 3.2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic microstructure generator logic produces \u2265 2,000 images\
+    \ with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:38:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset targets 2000 images exceeding soft target of 500
+  claim_id: c_3f518488
+  context: "Task T005d: Document in research.md that the generated dataset targets\
+    \ \u2265 2,000 images as an implementation choice for statistical power, exceeding\
+    \ the spec's soft target of \u2265 500 images."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset targets \u2265 2,000 images as an implementation\
+    \ choice for statistical power, exceeding the spec's soft target of \u2265 500\
+    \ images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:38:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator cannot produce features smaller than 2 pixels
+  claim_id: c_5ef2bfdc
+  context: 'Task T055: Add a validation step in code/utils/config.py to enforce a
+    minimum feature size threshold relative to the 128x128 image dimensions, raising
+    an error if synthetic generation parameters would create features smaller than
+    2 pixels (Nyquist limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic generator cannot produce features smaller than 2 pixels
+    due to the Nyquist limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:38:21Z'

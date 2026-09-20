@@ -34,6 +34,9 @@ BATCH_SIZE = 32
 # Stability evaluation threshold
 STABILITY_IOU_THRESHOLD = 0.75
 
+# Minimum feature size in pixels (Nyquist limit enforcement)
+MIN_FEATURE_SIZE_PIXELS = 2
+
 
 def set_seed(seed: int) -> None:
     """
@@ -126,8 +129,16 @@ def get_config_dict() -> Dict[str, Any]:
         "image_size": IMAGE_SIZE,
         "batch_size": BATCH_SIZE,
         "stability_iou_threshold": STABILITY_IOU_THRESHOLD,
+        "min_feature_size_pixels": MIN_FEATURE_SIZE_PIXELS,
     }
 
 
 # Export CONFIG dictionary for direct access
 CONFIG = get_config_dict()
+
+# Validation for minimum feature size (T055 requirement)
+if CONFIG["min_feature_size_pixels"] < 2:
+    raise ValueError(
+        f"min_feature_size_pixels must be >= 2 (Nyquist limit). "
+        f"Current value: {CONFIG['min_feature_size_pixels']}"
+    )

@@ -1,69 +1,21 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Attribution Schema
-description: >
-  Schema for validating feature attribution outputs (e.g., InputXGrad, Grad-CAM)
-  including stability metrics and image metadata. Used by User Story 3 (FR-006/FR-007).
-type: object
-required:
-  - image_id
-  - method
-  - attribution_map_path
-  - stability_metrics
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Attribution Schema"
+type: "object"
 properties:
   image_id:
-    type: string
-    description: Unique identifier for the input microstructure image (e.g., 'sample_001').
-    pattern: "^[a-zA-Z0-9_-]+$"
-  
-  method:
-    type: string
-    description: The attribution method used (e.g., 'InputXGrad', 'Grad-CAM').
-    enum:
-      - InputXGrad
-      - Grad-CAM
-      - Saliency
-      - IntegratedGradients
-  
-  model_path:
-    type: string
-    description: Relative path to the model weights used for attribution.
-  
-  attribution_map_path:
-    type: string
-    description: Relative path to the saved attribution heatmap (e.g., PNG or NPY).
-  
-  original_image_path:
-    type: string
-    description: Relative path to the original preprocessed image.
-  
-  stability_metrics:
-    type: object
-    description: Metrics quantifying the stability of the attribution under augmentation.
-    required:
-      - mean_iou
-      - std_iou
-      - images_analyzed
-    properties:
-      mean_iou:
-        type: number
-        description: Mean Intersection-over-Union across augmented views.
-        minimum: 0.0
-        maximum: 1.0
-      std_iou:
-        type: number
-        description: Standard deviation of IoU scores.
-        minimum: 0.0
-      images_analyzed:
-        type: integer
-        description: Number of augmented views used for the calculation.
-        minimum: 1
-  
-  metadata:
-    type: object
-    description: Optional additional metadata (e.g., alloy family, K_IC value).
-    properties:
-      alloy_family:
-        type: string
-      k_ic_value:
-        type: number
-        description: Fracture toughness value in MPa·m^0.5.
+    type: "string"
+  heatmap_paths:
+    type: "array"
+    items:
+      type: "string"
+  iou_scores:
+    type: "array"
+    items:
+      type: "number"
+  stability_threshold_met:
+    type: "boolean"
+required:
+  - image_id
+  - heatmap_paths
+  - iou_scores
+  - stability_threshold_met

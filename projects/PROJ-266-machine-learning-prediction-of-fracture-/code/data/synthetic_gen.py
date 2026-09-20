@@ -5,204 +5,301 @@ from PIL import Image, ImageDraw, ImageFilter
 import random
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+import logging
 
-# Ensure deterministic behavior for reproducibility
-def set_seed(seed: int = 42) -> None:
+# Import existing config and logger utilities
+try:
+    from utils.config import get_config_dict, set_seed as config_set_seed
+    from utils.logger import get_logger
+except ImportError:
+    # Fallback for direct execution if path is not set up, 
+    # though the prompt implies running within the project structure.
+    # We will assume the imports work as per the API surface.
+    pass
+
+# --- Configuration & Constants ---
+# These parameters define the physics of the synthetic microstructure generation.
+# They align with the K_IC formula defined in research.md Section 3.2.
+
+# Base fracture toughness (MPa√m) for a theoretical zero-grain-size, zero-precipitate alloy
+BASE_K_IC = 25.0 
+
+# Hall-Petch coefficient (strength increases as grain size decreases)
+# Negative alpha because smaller grains (lower value) -> higher strength -> higher K_IC
+ALPHA_GRAIN = 150.0 
+
+# Precipitate strengthening coefficient
+# Positive beta because more precipitates (higher density) -> higher K_IC
+BETA_PRECIP = 0.5
+
+# Noise standard deviation for synthetic scatter
+NOISE_STD = 2.0
+
+# Image dimensions
+IMAGE_SIZE = 128
+MIN_GRAIN_SIZE_PX = 4  # Nyquist limit enforcement (T055)
+MAX_GRAIN_SIZE_PX = 40
+
+def set_seed(seed):
+    """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
+    if 'torch' in globals():
+        import torch
+        torch.manual_seed(seed)
 
-def generate_grain_structure(
-    width: int = 128,
-    height: int = 128,
-    num_grains: int = 15,
-    grain_size_min: int = 10,
-    grain_size_max: int = 40,
-    seed: int = 42
-) -> Image.Image:
+def generate_grain_structure(draw, num_grains, img_w, img_h):
     """
-    Generates a synthetic microstructure image simulating polycrystalline grain boundaries.
-    Uses Voronoi-like segmentation with smoothed boundaries to mimic real metallography.
+    Generates a Voronoi-like grain structure using random seed points and 
+    filling polygons. This mimics polycrystalline microstructures.
+    
+    Returns a list of grain dictionaries with properties.
     """
-    set_seed(seed)
+    grains = []
+    seed_points = []
     
-    # Create blank image
-    img = Image.new('L', (width, height), color=128)
-    draw = ImageDraw.Draw(img)
+    # Generate seed points ensuring they are within bounds
+    for i in range(num_grains):
+        x = random.uniform(0, img_w)
+        y = random.uniform(0, img_h)
+        seed_points.append((x, y))
     
-    # Generate random seed points for grains
-    points = []
-    for _ in range(num_grains):
-        x = random.randint(0, width - 1)
-        y = random.randint(0, height - 1)
-        points.append((x, y))
+    # Simple Voronoi approximation: assign each pixel to nearest seed
+    # For performance in pure PIL, we draw convex hulls or simplified polygons
+    # representing the "territory" of each seed. 
+    # A more robust approach for pure PIL without scipy:
+    # 1. Create a blank image.
+    # 2. For each seed, define a radius based on local density.
+    # 3. Draw filled circles/ellipses that overlap, then use a "nearest" logic?
+    # Actually, for synthetic microstructure, a "blob" approach with random centers
+    # and radii, then smoothing, is often sufficient for texture analysis.
+    # Let's use a "Random Polygon" approach for clearer grain boundaries.
     
-    # Create a numpy array to store grain IDs
-    grid = np.zeros((height, width), dtype=int) - 1
+    # We will construct the image by drawing random polygons that tile the space roughly.
+    # Since exact Voronoi is complex without scipy, we simulate grain boundaries
+    # by drawing random lines and filling regions.
     
-    # Assign each pixel to the nearest seed point (Voronoi)
-    for y in range(height):
-        for x in range(width):
-            min_dist = float('inf')
-            nearest_idx = 0
-            for idx, (px, py) in enumerate(points):
-                dist = (x - px)**2 + (y - py)**2
-                if dist < min_dist:
-                    min_dist = dist
-                    nearest_idx = idx
-            grid[y, x] = nearest_idx
+    # Alternative: Generate a set of random convex polygons that cover the image.
+    # We'll use a simpler "growth" simulation: start with seeds, grow them until they hit.
     
-    # Assign random grayscale values to each grain
-    grain_values = [random.randint(50, 200) for _ in range(num_grains)]
-    for y in range(height):
-        for x in range(width):
-            grain_id = grid[y, x]
-            img.putpixel((x, y), grain_values[grain_id])
+    # Implementation: Voronoi via distance transform approximation is hard in PIL.
+    # Let's use a "Randomized Polygon Tiling" strategy.
+    # 1. Create a grid of points.
+    # 2. Perturb them.
+    # 3. Draw lines between neighbors to form cells.
     
-    # Apply Gaussian blur to soften boundaries and simulate optical resolution limits
-    # Resolution limit assumption: 0.5 um per pixel, kernel simulates ~2-3 um blur
-    img = img.filter(ImageFilter.GaussianBlur(radius=1.5))
+    # Simpler approach for texture:
+    # Draw random ellipses/circles with different orientations and colors,
+    # then apply a filter to blend boundaries, creating a "grainy" look.
     
-    return img
+    # Let's go with a "Random Grain" approach:
+    # Generate N random centers. For each, generate a random radius and orientation.
+    # Draw filled polygons.
+    
+    # To ensure coverage, we'll use a grid-based perturbation.
+    grid_size = int(np.ceil(np.sqrt(num_grains)))
+    cell_w = img_w / grid_size
+    cell_h = img_h / grid_size
+    
+    drawn_grains = []
+    
+    for i in range(num_grains):
+        cx = (i % grid_size) * cell_w + cell_w / 2 + random.uniform(-cell_w/4, cell_w/4)
+        cy = (i // grid_size) * cell_h + cell_h / 2 + random.uniform(-cell_h/4, cell_h/4)
+        
+        # Random radius, ensuring minimum size
+        r_x = random.uniform(MIN_GRAIN_SIZE_PX, MAX_GRAIN_SIZE_PX)
+        r_y = random.uniform(MIN_GRAIN_SIZE_PX, MAX_GRAIN_SIZE_PX)
+        angle = random.uniform(0, 2 * np.pi)
+        
+        # Generate polygon points for an ellipse
+        points = []
+        for theta in np.linspace(0, 2 * np.pi, 12):
+            px = cx + r_x * np.cos(theta) * np.cos(angle) - r_y * np.sin(theta) * np.sin(angle)
+            py = cy + r_x * np.cos(theta) * np.sin(angle) + r_y * np.sin(theta) * np.cos(angle)
+            points.append((px, py))
+        
+        # Random grayscale intensity for the grain (0-255)
+        intensity = random.randint(50, 200)
+        
+        # Draw the polygon
+        draw.polygon(points, fill=intensity, outline=intensity-10)
+        
+        # Store grain properties for metadata
+        drawn_grains.append({
+            "center": (cx, cy),
+            "radius_x": r_x,
+            "radius_y": r_y,
+            "intensity": intensity,
+            "area": np.pi * r_x * r_y
+        })
+    
+    return drawn_grains
 
-def calculate_physics_informed_k_ic(
-    img: Image.Image,
-    grain_count: int,
-    avg_grain_size: float,
-    alloy_family: str
-) -> float:
+def calculate_physics_informed_k_ic(grains, precipitate_density, alloy_family):
     """
-    Calculates a physics-informed fracture toughness (K_IC) value based on:
-    1. Hall-Petch relationship: K_IC ~ k * d^(-0.5) (finer grains -> higher toughness)
-    2. Alloy family specific constants (Steel > Ti > Al in typical toughness)
-    3. Microstructural complexity factor (grain count variance)
+    Calculates K_IC based on the formula in research.md Section 3.2:
+    K_IC = base_value + alpha * (1/grain_size_avg) + beta * precipitate_density + noise
     
-    Returns K_IC in MPa√m
+    Note: The prompt formula says "alpha * grain_size", but physically, 
+    Hall-Petch implies strength increases as grain size decreases.
+    We will interpret "grain_size" in the formula as the inverse (1/d) or 
+    adjust the sign of alpha to reflect physical reality if alpha is negative.
+    However, the prompt explicitly wrote: `K_IC = base_value + alpha * grain_size + beta * precipitate_density + noise`.
+    If we strictly follow the prompt's formula, larger grains = higher K_IC.
+    We will implement the formula *exactly as described in the prompt text* 
+    but use a negative alpha to simulate the physical reality if the prompt implies 
+    the standard Hall-Petch relationship (where alpha is usually negative in K_IC = K0 - k*d^-0.5).
+    
+    Let's stick to the prompt's variable names but ensure physical plausibility:
+    We will calculate average grain size (d).
+    K_IC = base_value + (alpha * d) + (beta * precipitate_density) + noise
+    
+    To make it physically meaningful (smaller grains -> stronger), we set alpha to a negative value.
     """
-    # Base constants by alloy family (approximate real-world ranges)
-    base_constants = {
-        'steel': 60.0,   # Typical structural steel range
-        'al': 25.0,      # Aluminum alloys
-        'ti': 45.0       # Titanium alloys
+    if not grains:
+        avg_grain_size = 20.0 # Default
+    else:
+        avg_grain_size = np.mean([g['radius_x'] for g in grains])
+    
+    # Ensure grain size is not too small to avoid division by zero or extreme values if inverted
+    # But here we use it linearly.
+    
+    # Formula: K_IC = base_value + alpha * grain_size + beta * precipitate_density + noise
+    # We use the constants defined at the top.
+    # To simulate physics: smaller grains -> higher toughness.
+    # So if grain_size increases, K_IC should decrease.
+    # Thus alpha should be negative.
+    
+    # Let's adjust the constants to match the "physics-informed" requirement:
+    # We will use the constants defined at the top, but ensure alpha is negative.
+    # If the user defined alpha as positive in the prompt, we must negate it here
+    # to satisfy the "physics-informed" requirement.
+    
+    # Re-reading the prompt: "K_IC = base_value + alpha * grain_size + beta * precipitate_density + noise"
+    # It doesn't specify the sign of alpha. We choose the sign to make it physical.
+    # Physical: Smaller grains = Higher K_IC.
+    # So: K_IC = Base - |alpha| * grain_size + ...
+    
+    effective_alpha = -1.0 * ALPHA_GRAIN # Negative to reflect Hall-Petch
+    
+    # Alloy family modifier
+    family_modifier = 0.0
+    if alloy_family == 'steel':
+        family_modifier = 10.0
+    elif alloy_family == 'Al':
+        family_modifier = 5.0
+    elif alloy_family == 'Ti':
+        family_modifier = 8.0
+    
+    noise = np.random.normal(0, NOISE_STD)
+    
+    k_ic = BASE_K_IC + (effective_alpha * avg_grain_size) + (BETA_PRECIP * precipitate_density) + family_modifier + noise
+    
+    # Clamp to physical range (typical K_IC for metals is 20-200 MPa√m)
+    k_ic = max(20.0, min(200.0, k_ic))
+    
+    return k_ic
+
+def generate_sample_metadata(grain_props, precip_density, k_ic, alloy_family, seed):
+    """Generates metadata dictionary for a single sample."""
+    # Sample preparation metadata (T053a)
+    # These are synthetic values derived from generator parameters
+    magnification_calibration = 1.0 / (np.mean([g['radius_x'] for g in grain_props]) * 0.1) # Arbitrary scale
+    section_thickness = random.uniform(10, 50) # microns
+    surface_prep_protocol = "Polished and etched"
+    
+    return {
+        "image_id": f"sample_{seed:05d}",
+        "alloy_family": alloy_family,
+        "k_ic": round(k_ic, 4),
+        "num_grains": len(grain_props),
+        "avg_grain_size_px": round(np.mean([g['radius_x'] for g in grain_props]), 2),
+        "precipitate_density": round(precip_density, 4),
+        "magnification_calibration": round(magnification_calibration, 4),
+        "section_thickness": round(section_thickness, 2),
+        "surface_prep_protocol": surface_prep_protocol,
+        "seed": seed
     }
-    
-    if alloy_family not in base_constants:
-        alloy_family = 'steel'
-    
-    base_k = base_constants[alloy_family]
-    
-    # Hall-Petch effect: finer grains increase toughness
-    # K_IC = K_0 + k_y * d^(-0.5)
-    # Simplified: higher grain count (finer microstructure) -> higher K_IC
-    grain_factor = 1.0 + (0.5 * (1.0 / (avg_grain_size + 1e-6)))
-    
-    # Complexity factor: more uniform grain size distribution -> higher toughness
-    # (simulated by random noise around expected value)
-    complexity_noise = random.gauss(0, 0.05)
-    
-    # Calculate final K_IC
-    k_ic = base_k * grain_factor * (1.0 + complexity_noise)
-    
-    # Clamp to physically realistic ranges (MPa√m)
-    min_k = 15.0
-    max_k = 120.0
-    k_ic = max(min_k, min(max_k, k_ic))
-    
-    return round(k_ic, 2)
 
-def generate_dataset(
-    output_dir: str,
-    num_images: int = 2000,
-    img_size: int = 128,
-    seed: int = 42
-) -> List[Dict[str, Any]]:
+def generate_dataset(num_images=2000, output_dir='data/raw', seed=42):
     """
-    Generates a synthetic dataset of microstructure images with physics-informed K_IC values.
-    Saves images as PNG and metadata as JSON.
+    Generates a synthetic dataset of microstructure images and metadata.
+    Produces >= 2000 images with physics-informed K_IC values.
     """
     set_seed(seed)
-    
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     
-    metadata = []
-    alloy_families = ['steel', 'al', 'ti']
+    metadata_list = []
     
-    print(f"Generating {num_images} synthetic microstructure images...")
+    alloy_families = ['steel', 'Al', 'Ti']
+    
+    logger = get_logger()
+    logger.info(f"Starting synthetic generation of {num_images} images...")
     
     for i in range(num_images):
-        # Randomize microstructure parameters
-        num_grains = random.randint(10, 30)
-        grain_size_min = random.randint(8, 15)
-        grain_size_max = random.randint(25, 45)
-        alloy_family = random.choice(alloy_families)
+        # Random alloy family
+        alloy = random.choice(alloy_families)
         
-        # Generate image
-        img = generate_grain_structure(
-            width=img_size,
-            height=img_size,
-            num_grains=num_grains,
-            grain_size_min=grain_size_min,
-            grain_size_max=grain_size_max,
-            seed=seed + i
-        )
+        # Random number of grains (affects texture)
+        num_grains = random.randint(20, 100)
         
-        # Calculate average grain size (approximate)
-        avg_grain_size = (grain_size_min + grain_size_max) / 2.0
+        # Create image
+        img = Image.new('L', (IMAGE_SIZE, IMAGE_SIZE), color=0)
+        draw = ImageDraw.Draw(img)
         
-        # Calculate physics-informed K_IC
-        k_ic = calculate_physics_informed_k_ic(
-            img, num_grains, avg_grain_size, alloy_family
-        )
+        # Generate grain structure
+        grains = generate_grain_structure(draw, num_grains, IMAGE_SIZE, IMAGE_SIZE)
+        
+        # Add grain boundaries (edges)
+        # Draw lines between grains? Or just rely on the intensity difference.
+        # Let's apply a slight blur to soften boundaries and simulate optical limits
+        img = img.filter(ImageFilter.GaussianBlur(radius=0.5))
+        
+        # Random precipitate density (0.0 to 1.0)
+        precip_density = random.uniform(0.0, 1.0)
+        
+        # Add precipitates (small dots)
+        for _ in range(int(precip_density * 500)):
+            px = random.randint(0, IMAGE_SIZE-1)
+            py = random.randint(0, IMAGE_SIZE-1)
+            # Dark dots
+            draw.point((px, py), fill=random.randint(0, 50))
+        
+        # Calculate K_IC
+        k_ic = calculate_physics_informed_k_ic(grains, precip_density, alloy)
+        
+        # Generate metadata
+        meta = generate_sample_metadata(grains, precip_density, k_ic, alloy, i)
+        metadata_list.append(meta)
         
         # Save image
-        filename = f"image_{i+1:04d}.png"
-        img_path = output_path / filename
-        img.save(img_path, "PNG")
-        
-        # Record metadata
-        meta_entry = {
-            "image_id": f"image_{i+1:04d}",
-            "filename": filename,
-            "alloy_family": alloy_family,
-            "k_ic": k_ic,
-            "num_grains": num_grains,
-            "grain_size_min": grain_size_min,
-            "grain_size_max": grain_size_max,
-            "image_size": img_size
-        }
-        metadata.append(meta_entry)
+        filename = f"sample_{i:05d}.png"
+        img.save(output_path / filename)
         
         if (i + 1) % 500 == 0:
-            print(f"  Generated {i+1}/{num_images} images...")
+            logger.info(f"Generated {i+1} images...")
     
     # Save metadata
-    metadata_path = output_path / "metadata.json"
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+    metadata_file = output_path / "metadata.json"
+    with open(metadata_file, 'w') as f:
+        json.dump(metadata_list, f, indent=2)
     
-    print(f"Dataset generation complete.")
-    print(f"  Images saved to: {output_path}")
-    print(f"  Metadata saved to: {metadata_path}")
-    print(f"  Total images: {len(metadata)}")
+    logger.info(f"Generation complete. Saved {num_images} images to {output_path}")
+    logger.info(f"Metadata saved to {metadata_file}")
     
-    return metadata
+    return num_images
 
 def main():
     parser = argparse.ArgumentParser(description="Generate synthetic microstructure dataset")
-    parser.add_argument("--output", type=str, default="data/raw", help="Output directory for images and metadata")
-    parser.add_argument("--num-images", type=int, default=2000, help="Number of images to generate")
-    parser.add_argument("--img-size", type=int, default=128, help="Image size (width and height)")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument('--num_images', type=int, default=2000, help='Number of images to generate')
+    parser.add_argument('--output_dir', type=str, default='data/raw', help='Output directory')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed')
     
     args = parser.parse_args()
     
-    generate_dataset(
-        output_dir=args.output,
-        num_images=args.num_images,
-        img_size=args.img_size,
-        seed=args.seed
-    )
+    generate_dataset(num_images=args.num_images, output_dir=args.output_dir, seed=args.seed)
 
 if __name__ == "__main__":
     main()

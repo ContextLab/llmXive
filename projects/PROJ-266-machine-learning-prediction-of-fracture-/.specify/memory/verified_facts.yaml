@@ -1,5 +1,5 @@
-'|configuration default image pixel size':
-  quote: "RMSE(\u2193) 32.336 18.962 34.441 28.580"
-  source_id: '2603.25384'
-  url: https://arxiv.org/abs/2603.25384
-  value: '128'
+'|bootstrap calculation confidence interval iteration method use':
+  quote: 0.95, and simulated 1000 random samples of size n from each of three un-
+  source_id: math/0504516
+  url: https://arxiv.org/abs/math/0504516
+  value: '1000'
