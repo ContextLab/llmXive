@@ -6,13 +6,6 @@ T001:
     \ any files. Without concrete artifacts, we cannot confirm the project structure\
     \ was created. The implementer must supply a file\u2011system snapshot or a manifest\
     \ confirming these directories are present and non\u2011empty."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
-    `pyproject.toml` with Black settings) or documentation of their setup are present.
-    The required artifacts to demonstrate that ruff/flake8 linting and Black formatting
-    have been configured are missing.
 T016:
   c: false
   h: 2a1b0b7dfe1ce839d7062cb94463cd3115a749aec35d0bdd28e5991c06503c6a

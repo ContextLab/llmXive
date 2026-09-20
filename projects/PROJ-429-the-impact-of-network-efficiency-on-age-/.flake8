@@ -1,7 +1,22 @@
+# Fallback flake8 configuration (primarily using Ruff, but flake8 may be invoked)
 [flake8]
-max-line-length = 88
-extend-ignore = E501, B008, C901
-exclude = .git,.venv,data,build,dist,__pycache__
-max-complexity = 15
-import-order-style = pep8
-application-import-names = config,data,network,stats,viz,state
+max-line-length = 100
+extend-ignore = E501, W503, W504
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    *.egg-info
+per-file-ignores =
+    # Allow unused arguments in CLI entry points and setup scripts
+    code/setup_structure.py: ARG
+    code/tools/lint_format.py: ARG
+    code/data/download.py: ARG
+    code/data/preprocess.py: ARG
+    code/network/connectivity.py: ARG
+    code/network/metrics.py: ARG
+    code/stats/correlation.py: ARG
+    code/stats/regression.py: ARG
+    code/stats/power.py: ARG

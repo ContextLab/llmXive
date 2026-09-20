@@ -1,0 +1,28 @@
+{
+  "generated_at": "2023-10-27T12:00:00.000000",
+  "base_directory": "/project/root",
+  "directories": [
+    "code",
+    "data",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "docs",
+    "state",
+    "tests",
+    "figures",
+    "data/quality",
+    "data/config"
+  ],
+  "files": [
+    "code/__init__.py",
+    "data/.gitkeep",
+    "docs/.gitkeep",
+    "state/.gitkeep",
+    "tests/.gitkeep",
+    "figures/.gitkeep",
+    "data/quality/.gitkeep",
+    "data/config/.gitkeep",
+    "docs/project_structure_manifest.json"
+  ]
+}

@@ -1,47 +1,36 @@
-# Ruff configuration for llmXive project
-# This file extends/overrides pyproject.toml if needed, but primarily
-# serves as the explicit configuration file for ruff linter and formatter.
+# Linting configuration for llmXive project
+# Uses Ruff as a fast drop-in replacement for Flake8 and other linters
 
-# Same as [tool.ruff] in pyproject.toml for consistency
-line-length = 88
+line-length = 100
 target-version = "py311"
 
+[lint]
+# Enable all rules except those explicitly ignored
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # Pyflakes
     "I",   # isort
+    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
-    "RUF", # Ruff-specific rules
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
 ]
-
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501", # line-too-long (handled by formatter)
+    "B008", # do-not-perform-argument-default-in-function-definition (needed for MNE defaults)
+    "SIM105", # use-contextlib-suppress (optional stylistic choice)
 ]
 
-exclude = [
-    ".git",
-    ".venv",
-    "data",
-    "build",
-    "dist",
-    "__pycache__",
-    "*.egg-info",
-]
+# Per-file ignores
+[lint.per-file-ignores]
+"code/setup_structure.py" = ["ARG"] # setup scripts often have unused args in helpers
+"code/tools/lint_format.py" = ["ARG"] # CLI tools often have unused args
 
-[isort]
-known-first-party = ["config", "data", "network", "stats", "viz", "state"]
+[lint.isort]
+known-first-party = ["config", "data", "network", "stats", "viz", "tools", "state", "inject_trace_id"]
 force-sort-within-sections = true
-
-[flake8-bugbear]
-extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+lines-after-imports = 2

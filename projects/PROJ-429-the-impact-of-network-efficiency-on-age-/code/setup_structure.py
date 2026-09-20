@@ -1,112 +1,106 @@
+"""
+Project structure initialization for llmXive research pipeline.
+Creates required directories and placeholder files as per plan.md.
+"""
 import os
 import json
 from pathlib import Path
 from datetime import datetime
 from config import ensure_dirs
 
-def create_directories():
-    """
-    Creates the standard project directory structure as defined in plan.md.
-    Directories: code/, data/, state/, tests/, docs/
-    Also creates subdirectories for data organization.
-    """
-    base_dirs = [
-        "code",
-        "data",
-        "state",
-        "tests",
-        "docs"
-    ]
 
-    sub_dirs = [
+def create_directories():
+    """Create the required directory structure."""
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    required_dirs = [
+        "code",
         "data/raw",
         "data/processed",
-        "data/processed/connectivity_matrices",
-        "data/quality",
         "data/results",
-        "data/config",
-        "code/data",
-        "code/network",
-        "code/stats",
-        "code/viz",
-        "code/tools",
-        "tests/unit",
-        "tests/integration",
-        "tests/benchmark",
-        "docs/decisions",
-        "specs"
+        "docs",
+        "state",
+        "tests",
+        "figures",
+        "data/quality",
+        "data/config"
     ]
-
-    all_dirs = base_dirs + sub_dirs
-
-    created = []
-    for d in all_dirs:
-        path = Path(d)
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            created.append(str(path))
-        else:
-            # Ensure they are actually directories
-            if not path.is_dir():
-                raise FileExistsError(f"Path {path} exists but is not a directory")
     
-    return created
+    created_dirs = []
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
+    
+    return created_dirs
 
-def create_manifest(created_dirs):
-    """
-    Creates a manifest file documenting the project structure.
-    This serves as evidence for T001 that the structure exists.
-    """
-    manifest = {
-        "timestamp": datetime.now().isoformat(),
-        "task_id": "T001",
-        "description": "Project structure creation per plan.md",
-        "directories_created": created_dirs,
-        "total_count": len(created_dirs),
-        "status": "success"
+
+def create_manifest():
+    """Create a manifest file documenting the project structure."""
+    base_dir = Path(__file__).resolve().parent.parent
+    manifest_path = base_dir / "docs" / "project_structure_manifest.json"
+    
+    # Scan current directory structure
+    structure = {
+        "generated_at": datetime.now().isoformat(),
+        "base_directory": str(base_dir),
+        "directories": [],
+        "files": []
     }
-
-    manifest_path = Path("data/quality/structure_manifest.json")
+    
+    for root, dirs, files in os.walk(base_dir):
+        # Skip hidden directories and __pycache__
+        dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
+        
+        rel_root = Path(root).relative_to(base_dir)
+        if str(rel_root) != '.':
+            structure["directories"].append(str(rel_root))
+        
+        for file in files:
+            if not file.startswith('.'):
+                rel_file = rel_root / file
+                structure["files"].append(str(rel_file))
+    
     with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
+        json.dump(structure, f, indent=2)
     
     return manifest_path
 
+
 def main():
-    """
-    Main entry point for T001 execution.
-    1. Ensures config paths are ready (via config.py)
-    2. Creates all required directories
-    3. Generates a manifest file as proof of creation
-    """
-    print("Starting T001: Creating project structure...")
+    """Main entry point for structure creation."""
+    print("Creating project directory structure...")
+    dirs = create_directories()
+    print(f"Created {len(dirs)} directories:")
+    for d in dirs:
+        print(f"  - {d}")
     
-    # Ensure base config directories exist first
-    ensure_dirs()
+    # Create placeholder files
+    base_dir = Path(__file__).resolve().parent.parent
+    placeholders = [
+        "code/__init__.py",
+        "data/.gitkeep",
+        "docs/.gitkeep",
+        "state/.gitkeep",
+        "tests/.gitkeep",
+        "figures/.gitkeep",
+        "data/quality/.gitkeep",
+        "data/config/.gitkeep"
+    ]
     
-    # Create the rest of the structure
-    created = create_directories()
-    print(f"Created {len(created)} directories.")
+    for placeholder in placeholders:
+        file_path = base_dir / placeholder
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        if not file_path.exists():
+            file_path.touch()
+            print(f"Created placeholder: {placeholder}")
+        else:
+            print(f"Placeholder exists: {placeholder}")
     
-    # Generate manifest
-    manifest_path = create_manifest(created)
-    print(f"Manifest written to: {manifest_path}")
-    
-    # List contents for verification
-    print("\nProject Structure Snapshot:")
-    for root, dirs, files in os.walk("."):
-        # Skip hidden and git directories
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
-        level = root.replace('.', '').count(os.sep)
-        indent = ' ' * 2 * level
-        print(f'{indent}{os.path.basename(root)}/')
-        subindent = ' ' * 2 * (level + 1)
-        for file in files:
-            if not file.startswith('.'):
-                print(f'{subindent}{file}')
-    
-    print("\nT001 completed successfully.")
-    return 0
+    manifest = create_manifest()
+    print(f"\nProject structure manifest saved to: {manifest}")
+    print("Project structure initialization complete.")
+
 
 if __name__ == "__main__":
     main()

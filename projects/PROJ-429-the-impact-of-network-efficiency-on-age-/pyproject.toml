@@ -1,70 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "llmxive-network-efficiency-aging"
 version = "0.1.0"
 description = "Impact of Network Efficiency on Age-Related Changes in Resting-State EEG"
 requires-python = ">=3.11"
-
-[tool.ruff]
-# Target Python version
-target-version = "py311"
-
-# Line length for linting
-line-length = 88
-
-# Exclude directories
-exclude = [
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "data",
-    "state",
-    "docs",
-    "build",
-    "dist",
+dependencies = [
+    "mne>=1.6.0",
+    "networkx>=3.1",
+    "scipy>=1.11.0",
+    "pandas>=2.0.0",
+    "statsmodels>=0.14.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "pywavelets>=1.4.0",
+    "scikit-learn>=1.3.0",
 ]
-
-# Select rules
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
-
-# Ignore specific rules if needed
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[tool.ruff.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
 
 [tool.black]
-# Line length for formatting
-line-length = 88
-target-version = ['py311']
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.venv
-    | venv
-    | __pycache__
-    | data
-    | state
-    | docs
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.ruff]
+# Inherit settings from .ruff.toml for consistency
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B", "UP", "N", "SIM", "ARG", "PTH"]
+ignore = ["E501", "B008", "SIM105"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "data", "network", "stats", "viz", "tools", "state", "inject_trace_id"]
+force-sort-within-sections = true
+lines-after-imports = 2

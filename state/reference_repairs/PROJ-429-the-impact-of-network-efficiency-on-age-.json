@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-09-20T06:54:08.447261+00:00",
+    "project": "PROJ-429-the-impact-of-network-efficiency-on-age-",
+    "repairs": [
+      {
+        "dead_url": "https://mne.tools/stable/overview/datasets.html",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/mnemlaghi/widdd/resolve/main/wikidatadescs_dev.jsonl",
+        "intent": "stable overview MNE Sample Dataset Verified Fallback/Sanity Check . Used only for unit testing the pipeline logic if TUH download fails or debugging metric"
+      }
+    ]
+  }
+]
